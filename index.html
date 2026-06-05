@@ -337,6 +337,12 @@ input[type=number] { -moz-appearance:textfield; }
       </select>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title">Sana</div>
+    <div class="field" style="margin:0;">
+      <input type="date" id="k-sana" style="font-size:16px;width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surf2);color:var(--text);">
+    </div>
+  </div>
   <div class="card" id="k-turlar-card" style="display:none;">
     <div class="card-title">Turlar — gramm kiriting</div>
     <div id="k-turlar-inputs"></div>
@@ -563,6 +569,7 @@ function renderHisobot() {
   });
 
   // Sana bo'yicha tartiblash — yangi yuqorida
+  allOps.sort(function(a,b){ return b.op.sana.localeCompare(a.op.sana) || (b.op.tip==='mol'?-1:1); });
   groupOrder.sort(function(a,b){ return groups[b].sana.localeCompare(groups[a].sana); });
 
   var expanded = {};
@@ -698,6 +705,7 @@ function toggleTur(ti) {
 
 // KIRIM
 function initKirim() {
+  var td=document.getElementById('k-sana'); if(td){var n=new Date();td.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
   var sel = document.getElementById('k-zavod');
   sel.innerHTML = '<option value="">— Tanlang —</option>';
   data.zavodlar.forEach(function(z,i){ sel.innerHTML += '<option value="'+i+'">'+z.nom+'</option>'; });
@@ -725,9 +733,11 @@ function kirimSaqlash() {
   if (isNaN(zi)) { alert("Zavod tanlang!"); return; }
   var z = data.zavodlar[zi];
   var any = false;
+  var ksEl=document.getElementById('k-sana');
+  var kd=ksEl&&ksEl.value?ksEl.value.split('-').reverse().join('.'):today();
   z.turlar.forEach(function(t,ti) {
     var el = document.getElementById('kg-'+ti); var g = el ? parseNum(el.value) : 0;
-    if (g > 0) { t.ostatka += g; t.tarix.push({tip:'mol',sana:today(),gramm:g}); any=true; }
+    if (g > 0) { t.ostatka += g; t.tarix.push({tip:'mol',sana:kd,gramm:g}); any=true; }
   });
   if (!any) { alert("Kamida 1 ta turga gramm kiriting!"); return; }
   save(); goTo('s-home');
@@ -735,6 +745,7 @@ function kirimSaqlash() {
 
 // CHIQIM
 function initChiqim() {
+  var td=document.getElementById('c-sana'); if(td){var n=new Date();td.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
   var sel = document.getElementById('c-zavod');
   sel.innerHTML = '<option value="">— Tanlang —</option>';
   data.zavodlar.forEach(function(z,i){ sel.innerHTML += '<option value="'+i+'">'+z.nom+'</option>'; });
@@ -826,7 +837,7 @@ function chiqimSaqlash() {
     var lomGEq = (lG>0&&lK>0&&nK>0) ? roundG(lPul/nK) : 0;
     var totalG = nG + lomGEq;
     t.ostatka = Math.max(0, t.ostatka - lG);
-    t.tarix.push({tip:'tolov',sana:today(),kimga:kimga,naqtSumma:nS,naqtGramm:nG,naqtKurs:nK,lomGramm:lG,lomKurs:lK,lomPul:lPul,lomGEq:lomGEq,jami:totalG});
+    t.tarix.push({tip:'tolov',sana:(function(){var csEl=document.getElementById('c-sana');return csEl&&csEl.value?csEl.value.split('-').reverse().join('.'):today();})(),kimga:kimga,naqtSumma:nS,naqtGramm:nG,naqtKurs:nK,lomGramm:lG,lomKurs:lK,lomPul:lPul,lomGEq:lomGEq,jami:totalG});
     any = true;
   }
   if (!any) { alert("Kamida 1 ta turga tolov kiriting!"); return; }
@@ -1693,4 +1704,3 @@ applyTheme(currentTheme);
 
 </body>
 </html>
-
