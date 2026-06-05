@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/excel.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "routes": [
+    { "src": "/api/excel", "dest": "/api/excel.py" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
