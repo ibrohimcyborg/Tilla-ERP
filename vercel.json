@@ -1,7 +1,16 @@
 {
-  "functions": {
-    "api/excel.py": {
-      "runtime": "python3.9"
+  "builds": [
+    {
+      "src": "api/excel.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     }
-  }
+  ],
+  "routes": [
+    { "src": "/api/excel", "dest": "/api/excel.py" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
