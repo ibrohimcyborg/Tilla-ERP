@@ -237,7 +237,7 @@ class handler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.send_header("Content-Type", "application/pdf")
-        self.send_header("Content-Disposition", "attachment; filename=tilla-hisobot.pdf")
+        self.send_header("Content-Disposition", "inline; filename=tilla-hisobot.pdf")
         self.send_header("Content-Length", str(len(pdf_bytes)))
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
