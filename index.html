@@ -316,7 +316,10 @@ input[type=number] { -moz-appearance:textfield; }
       <div class="big-btn-sub">To'lov qilish</div>
     </div>
   </div>
-  <div class="excel-row"><button class="action-btn" onclick="openPDFModal(null)" style="border-color:#4a2a4a;color:#c084c0;">&#x2399; PDF</button></div>
+  <div class="excel-row" style="justify-content:space-between;gap:8px;">
+    <button class="action-btn" onclick="openZavodModal()">+ Zavod</button>
+    <button class="action-btn" onclick="openPDFModal(null)" style="border-color:#4a2a4a;color:#c084c0;">&#x2399; PDF</button>
+  </div>
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="homeTab('zavodlar')">Zavodlar</div>
     <div class="nav-tab" onclick="homeTab('hisobot')">Hisobot</div>
@@ -353,6 +356,8 @@ input[type=number] { -moz-appearance:textfield; }
   <div id="klient-top-list"></div>
   <div id="klient-qizil-list" style="display:none;"></div>
 </div>
+</div>
+<!-- end s-home -->
 
 <!-- ZAVOD DETAIL -->
 <div class="screen" id="s-zavod">
