@@ -25,6 +25,7 @@ body{
   min-height:100vh;min-height:-webkit-fill-available;
   padding-bottom:calc(20px + var(--safe-bot));
   -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:contain;
 }
 .mono{font-family:'Roboto',sans-serif;}
 
@@ -285,6 +286,7 @@ input[type=number] { -moz-appearance:textfield; }
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀</button>
+    <button class="theme-btn" onclick="openResetModal()" style="font-size:13px;" title="Reset">⚙</button>
     <button class="action-btn topbar-action" onclick="openZavodModal()">+ Zavod</button>
   </div>
 </div>
@@ -520,10 +522,14 @@ var USER_ID = 'tilla-main';
 
 var data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[]}');
 
-async function save(logText) {
+function save(logText) {
   // Save to localStorage immediately (offline support)
   localStorage.setItem('tilla-v2', JSON.stringify(data));
-  // Save to Supabase
+  // Save to Supabase async (fire and forget)
+  syncToCloud(logText);
+}
+
+async function syncToCloud(logText) {
   try {
     var existing = await sb.from('tilla_data').select('id').eq('user_id', USER_ID).single();
     if (existing.data) {
@@ -563,6 +569,32 @@ function roundG(raw) {
   return t >= 5 ? Math.ceil(raw * 100) / 100 : Math.floor(raw * 100) / 100;
 }
 
+
+
+// RESET VA KESH
+function openResetModal() {
+  document.getElementById('modal-reset').classList.add('open');
+}
+
+function cacheOchir() {
+  if (confirm('Kesh tozalanadi va sahifa yangilanadi. Davom etasizmi?')) {
+    localStorage.removeItem('tilla-v2');
+    localStorage.removeItem('tilla-theme');
+    location.reload(true);
+  }
+}
+
+function resetTasdiqlash() {
+  if (confirm('BARCHA MA\'LUMOT O\'CHIRILADI! Bu amalni qaytarib bo\'lmaydi. Davom etasizmi?')) {
+    if (confirm('Haqiqatan ham o\'chirmoqchimisiz?')) {
+      data = {zavodlar:[]};
+      save('RESET: barcha ma\'lumot o\'chirildi');
+      localStorage.removeItem('tilla-v2');
+      closeModal('modal-reset');
+      location.reload();
+    }
+  }
+}
 
 var curZTab = 'turlar';
 function zTab(tab) {
@@ -1923,6 +1955,26 @@ applyTheme(currentTheme);
       <button class="btn gold" onclick="davrTanla('custom')" style="flex:none;padding:9px 14px;margin-top:14px;">OK</button>
     </div>
     <button class="davr-btn" onclick="closeModal('modal-davr')" style="color:var(--muted);">Bekor</button>
+  </div>
+</div>
+
+<!-- MODAL: RESET -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Sozlamalar</div>
+    
+    <button class="davr-btn" onclick="cacheOchir()" style="color:var(--muted);">
+      🗑 Kesh tozalash (sahifa yangilanadi)
+    </button>
+    
+    <button class="davr-btn" onclick="resetTasdiqlash()" style="color:var(--red);border-color:var(--red);">
+      ⚠ Barcha ma'lumotni o'chirish
+    </button>
+    
+    <button class="davr-btn" onclick="closeModal('modal-reset')" style="color:var(--muted);">
+      Bekor
+    </button>
   </div>
 </div>
 
