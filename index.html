@@ -287,8 +287,12 @@ input[type=number] { -moz-appearance:textfield; }
   <div class="topbar-right">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀</button>
     <button class="theme-btn" onclick="openResetModal()" style="font-size:13px;" title="Reset">⚙</button>
-    <button class="action-btn topbar-action" onclick="openZavodModal()">+ Zavod</button>
+    
   </div>
+</div>
+<div style="display:flex;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:calc(54px + var(--safe-top));z-index:99;">
+  <div id="main-tab-zavod" onclick="mainTab('zavod')" style="flex:1;text-align:center;padding:10px;font-size:14px;font-weight:600;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;">Zavod</div>
+  <div id="main-tab-klient" onclick="mainTab('klient')" style="flex:1;text-align:center;padding:10px;font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;">Klientlar</div>
 </div>
 
 <!-- HOME -->
@@ -2502,4 +2506,3 @@ applyTheme(currentTheme);
 
 </body>
 </html>
-
