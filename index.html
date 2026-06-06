@@ -2199,11 +2199,22 @@ if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
 // Klient detail - darhol qayta ochish (cloud load kutmasdan)
 function _restoreKlient() {
-  if (_savedKlient !== null) {
-    var ki = parseInt(_savedKlient);
-    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
-      openKlientDetail(ki);
-    }
+  if (_savedKlient === null) return;
+  var ki = parseInt(_savedKlient);
+  if (isNaN(ki)) return;
+  // data.klientlar bo'sh bo'lsa ham - localStorage dan tekshir
+  if (!data.klientlar || !data.klientlar[ki]) {
+    // localStorage dan qayta o'qib ko'rish
+    try {
+      var saved = JSON.parse(localStorage.getItem('tilla-v2') || '{}');
+      if (saved.klientlar && saved.klientlar[ki]) {
+        data.klientlar = saved.klientlar;
+        data.zavodlar = saved.zavodlar || data.zavodlar;
+      }
+    } catch(e) {}
+  }
+  if (data.klientlar && data.klientlar[ki]) {
+    setTimeout(function(){ openKlientDetail(ki); }, 50);
   }
 }
 _restoreKlient();
