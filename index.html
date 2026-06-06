@@ -639,6 +639,7 @@ if (!data.klientlar) data.klientlar = [];
 
 var _syncTimer = null;
 function save(logText) {
+  data.updated_at = new Date().toISOString();
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if (_syncTimer) clearTimeout(_syncTimer);
   _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 1000);
@@ -664,6 +665,20 @@ function loadFromCloud() {
   .then(function(rows){
     if(!rows||!rows.length) return false;
     var d=rows[0];
+    // Local va cloud updated_at solishtiramiz
+    var localStr = localStorage.getItem('tilla-v2');
+    if(localStr) {
+      try {
+        var local = JSON.parse(localStr);
+        var localTime = new Date(local.updated_at||0).getTime();
+        var cloudTime = new Date(d.updated_at||0).getTime();
+        // Cloud eskiroq bo'lsa - local ni cloud ga saqlaymiz, yuklamaymiz
+        if(localTime > cloudTime) {
+          syncToCloud('auto-restore');
+          return false;
+        }
+      } catch(e){}
+    }
     if(d.zavodlar&&d.zavodlar.length>0) data.zavodlar=d.zavodlar;
     data.klientlar=d.klientlar||[];
     localStorage.setItem('tilla-v2',JSON.stringify(data));
