@@ -1369,10 +1369,10 @@ function renderBerishTurlar(zavodlar){
       out+='<div style="flex:1;font-size:14px;color:var(--text);padding-top:8px;">'+t.nom+'</div>';
       out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
       out+='<div style="display:flex;align-items:center;gap:6px;">';
-      out+='<input type="number" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" placeholder="0" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
+      out+='<input type="number" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" placeholder="0" oninput="berishCalc(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
       out+='<span style="font-size:12px;color:var(--muted);">g</span>';
       out+='</div>';
-      out+='<div style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+      out+='<div id="bres-'+zi+'-'+ti+'" style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
       out+='</div>';
       out+='</div>';
     });
@@ -1380,6 +1380,23 @@ function renderBerishTurlar(zavodlar){
   });
   document.getElementById('kb-turlar-inputs').innerHTML=out;
   document.getElementById('kb-turlar-card').style.display='block';
+}
+
+function berishCalc(el) {
+  var zi = el.dataset.zi;
+  var ti = el.dataset.ti;
+  var ostatka = parseFloat(el.dataset.ostatka) || 0;
+  var val = parseNum(el.value) || 0;
+  var resEl = document.getElementById('bres-'+zi+'-'+ti);
+  if (!resEl) return;
+  var qoladi = Math.max(0, ostatka - val);
+  if (val > 0) {
+    var color = qoladi < val*0.1 ? 'var(--red)' : 'var(--green)';
+    resEl.innerHTML = 'ostatka: <b style="color:'+color+';">'+fmtG(qoladi)+'g</b>';
+  } else {
+    resEl.innerHTML = 'ostatka: '+fmtG(ostatka)+'g';
+    resEl.style.color = 'var(--green)';
+  }
 }
 
 function toggleBerishZ(head){
@@ -1790,6 +1807,13 @@ function klientPDF(){
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
 var currentTheme=localStorage.getItem('tilla-theme')||'dark';
+// Mousewheel number input da o'zgartirmasin
+document.addEventListener('wheel', function(e){
+  if(document.activeElement && document.activeElement.type==='number'){
+    e.preventDefault();
+  }
+}, {passive:false});
+
 function applyTheme(t){currentTheme=t;document.documentElement.setAttribute('data-theme',t==='light'?'light':'');document.getElementById('theme-btn').textContent=t==='light'?'☽':'☀';localStorage.setItem('tilla-theme',t);}
 function toggleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
 applyTheme(currentTheme);
