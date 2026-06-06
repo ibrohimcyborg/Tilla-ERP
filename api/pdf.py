@@ -538,6 +538,63 @@ class handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length))
 
+        # Sync endpoint - cloud save/load
+        if self.path == '/api/sync':
+            import os, urllib.request
+            SB_URL = 'https://vddfjkofsxpwfbbrqwhh.supabase.co'
+            SB_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
+            action = body.get('action', 'save')
+            user_id = body.get('user_id', 'tilla-main')
+
+            if action == 'load':
+                url = SB_URL + '/rest/v1/tilla_data?user_id=eq.' + user_id + '&select=zavodlar,klientlar&limit=1'
+                req = urllib.request.Request(url, headers={'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY})
+                try:
+                    with urllib.request.urlopen(req) as r:
+                        data = r.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(data)
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': str(e)}).encode())
+                return
+
+            elif action == 'save':
+                payload = json.dumps({
+                    'user_id': user_id,
+                    'zavodlar': body.get('zavodlar', []),
+                    'klientlar': body.get('klientlar', []),
+                    'updated_at': body.get('updated_at', '')
+                }).encode()
+                url = SB_URL + '/rest/v1/tilla_data'
+                req = urllib.request.Request(url, data=payload, method='POST', headers={
+                    'apikey': SB_KEY,
+                    'Authorization': 'Bearer ' + SB_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'resolution=merge-duplicates'
+                })
+                try:
+                    with urllib.request.urlopen(req) as r:
+                        r.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(b'{"ok":true}')
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': str(e)}).encode())
+                return
+
         if body.get("tip") == "klient_qarz_chek":
             pdf_bytes = build_klient_qarz_chek(
                 body.get("klient_nom",""), body.get("sana",""),
