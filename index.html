@@ -1027,7 +1027,7 @@ function chiqimSaqlash() {
     var lPul = lG*lK;
     var lomGEq = (lG>0&&lK>0&&nK>0) ? roundG(lPul/nK) : 0;
     var totalG = nG + lomGEq;
-    t.ostatka = Math.max(0, t.ostatka - lG);
+    t.ostatka = Math.max(0, t.ostatka - totalG);
     t.tarix.push({tip:'tolov',sana:(function(){var csEl=document.getElementById('c-sana');return csEl&&csEl.value?csEl.value.split('-').reverse().join('.'):today();})(),kimga:kimga,naqtSumma:nS,naqtGramm:nG,naqtKurs:nK,lomGramm:lG,lomKurs:lK,lomPul:lPul,lomGEq:lomGEq,jami:totalG});
     any = true;
   }
