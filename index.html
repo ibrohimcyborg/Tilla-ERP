@@ -150,7 +150,7 @@ input[type=number]{-moz-appearance:textfield;}
 }
 
 /* PC elements - hidden by default on mobile */
-.pc-sidebar { display: none; }
+.pc-sidebar { display: none !important; }
 .pc-content { display: none; }
 
 @media (min-width: 1024px) {
@@ -171,18 +171,7 @@ input[type=number]{-moz-appearance:textfield;}
   }
 
   /* Sidebar - faqat hisobot */
-  .pc-sidebar {
-    display: flex !important;
-    width: 64px;
-    background: var(--surf);
-    border-right: 1px solid var(--border);
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    gap: 4px;
-    flex-shrink: 0;
-    z-index: 10;
-  }
+  .pc-sidebar { display: none !important; }
   .pc-tab {
     width: 48px; padding: 10px 0; border-radius: 9px;
     cursor: pointer; display: flex; flex-direction: column;
@@ -276,6 +265,17 @@ input[type=number]{-moz-appearance:textfield;}
     flex-direction: column;
     border-left: 1px solid var(--border);
   }
+  /* Klient ichki: tepa header sticky */
+  #main-klient > div:first-child {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px !important;
+    background: var(--surf);
+  }
+  #klient-top-list, #klient-qizil-list {
+    overflow-y: auto;
+    flex: 1;
+  }
 
   /* Klient ichki scroll faqat ro'yxatda */
   #klient-top-list, #klient-qizil-list {
@@ -310,6 +310,10 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-header { display: none; }
   .pc-body { display: block; padding: 0; }
 }
+@media (min-width: 1024px) {
+  /* PC da klient har doim ko'rinadi */
+  #main-klient { display: flex !important; }
+}
 
 </style>
 </head>
@@ -335,10 +339,7 @@ input[type=number]{-moz-appearance:textfield;}
   <!-- PC CONTENT -->
   <div class="pc-content">
     <div class="pc-header">
-      <div class="pc-seg" id="pc-seg">
-        <button class="pc-seg-btn active" id="pcseg-zavod" onclick="pcSegTab('zavod',this)">Zavodlar</button>
-        <button class="pc-seg-btn" id="pcseg-klient" onclick="pcSegTab('klient',this)">Klientlar</button>
-      </div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);">Zavodlar</div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
     <div class="pc-body" id="pc-body">
@@ -2037,8 +2038,18 @@ function pcSegTab(name, el) {
 function pcShowHome() {
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
-  mz.style.display = ''; mk.style.display = '';
-  pcSegTab('zavod', document.getElementById('pcseg-zavod'));
+  mz.style.display = '';
+  mk.style.display = '';
+  // pill tugmalar
+  var act = document.getElementById('pc-header-actions');
+  act.innerHTML = '';
+  act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
+  act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
+  act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
+  act.appendChild(pillDiv());
+  act.appendChild(pill('', '+ Zavod', openZavodModal));
+  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+  renderHome(); renderKlientlar();
 }
 
 function pcHisobotToggle() {
@@ -2062,9 +2073,7 @@ var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
   if (id === 's-home' && isPCMode()) {
-    var activeTab = document.querySelector('.pc-tab.active');
-    if (activeTab && activeTab.id === 'pct-hisobot') { pcHisobotToggle(); }
-    else { pcShowHome(); }
+    pcShowHome();
   }
 };
 
