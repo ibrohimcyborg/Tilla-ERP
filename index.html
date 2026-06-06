@@ -293,6 +293,7 @@ input[type=number] { -moz-appearance:textfield; }
 
 <!-- HOME -->
 <div class="screen active" id="s-home">
+<div id="main-zavod">
   <div style="margin-top:4px;">
     <div class="big-stat">
       <div class="big-stat-label">Jami ostatka</div>
@@ -319,6 +320,34 @@ input[type=number] { -moz-appearance:textfield; }
   <div id="home-zavodlar"></div>
   <div id="home-hisobot" style="display:none;"></div>
   <div class="empty" id="home-empty" style="display:none;">Hali zavod yoq. "+ Zavod" bosing.</div>
+</div><!-- end main-zavod -->
+
+<!-- KLIENT SECTION -->
+<div id="main-klient" style="display:none;padding:16px;max-width:520px;margin:0 auto;">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+    <button class="btn" onclick="openKlientBerish()" style="flex-direction:column;gap:4px;padding:12px 8px;">
+      <span style="font-size:18px;color:var(--green);">↓</span>
+      <span style="font-size:12px;">Berish</span>
+    </button>
+    <button class="btn" onclick="openKlientVozvrat()" style="flex-direction:column;gap:4px;padding:12px 8px;">
+      <span style="font-size:18px;color:var(--gold);">↩</span>
+      <span style="font-size:12px;">Vozvrat</span>
+    </button>
+    <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 8px;">
+      <span style="font-size:18px;color:#5ab4e8;">$</span>
+      <span style="font-size:12px;">To'lov</span>
+    </button>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Klientlar</div>
+    <button class="action-btn" onclick="openKlientModal()">+ Klient</button>
+  </div>
+  <div class="nav-tabs" style="margin-bottom:12px;">
+    <div class="nav-tab active" id="kt-top" onclick="klientTab('top')">Top savdo</div>
+    <div class="nav-tab" id="kt-qizil" onclick="klientTab('qizil')">Muddati o'tgan</div>
+  </div>
+  <div id="klient-top-list"></div>
+  <div id="klient-qizil-list" style="display:none;"></div>
 </div>
 
 <!-- ZAVOD DETAIL -->
@@ -1889,6 +1918,312 @@ function editOchir() {
   } catch(e) { console.error('startup sync error:', e); }
 })();
 
+// ── KLIENT TIZIMI ────────────────────────────────────────────────────────────
+if (!data.klientlar) data.klientlar = [];
+var curKlientIdx = -1;
+
+function mainTab(tab) {
+  var mz=document.getElementById('main-tab-zavod');
+  var mk=document.getElementById('main-tab-klient');
+  var dz=document.getElementById('main-zavod');
+  var dk=document.getElementById('main-klient');
+  if(!mz||!mk||!dz||!dk) return;
+  mz.style.color=tab==='zavod'?'var(--gold)':'var(--muted)';
+  mz.style.borderBottom=tab==='zavod'?'2px solid var(--gold)':'2px solid transparent';
+  mk.style.color=tab==='klient'?'var(--gold)':'var(--muted)';
+  mk.style.borderBottom=tab==='klient'?'2px solid var(--gold)':'2px solid transparent';
+  dz.style.display=tab==='zavod'?'block':'none';
+  dk.style.display=tab==='klient'?'block':'none';
+  if(tab==='klient') renderKlientlar();
+}
+
+function klientTab(tab) {
+  document.getElementById('kt-top').classList.toggle('active',tab==='top');
+  document.getElementById('kt-qizil').classList.toggle('active',tab==='qizil');
+  document.getElementById('klient-top-list').style.display=tab==='top'?'block':'none';
+  document.getElementById('klient-qizil-list').style.display=tab==='qizil'?'block':'none';
+}
+
+function klientQarzHolat(k) {
+  var lastDate=null;
+  k.tarix.forEach(function(op){
+    if(op.tip==='vozvrat'||op.tip==='tolov'){
+      if(!lastDate||op.sana>lastDate) lastDate=op.sana;
+    }
+  });
+  if(!lastDate){
+    var hasBerish=k.tarix.some(function(op){return op.tip==='berish';});
+    if(!hasBerish) return {kun:0,rang:'green'};
+    lastDate=k.tarix.filter(function(op){return op.tip==='berish';}).map(function(op){return op.sana;}).sort().pop();
+  }
+  var p=lastDate.split('.');
+  var last=new Date(p[2]+'-'+p[1]+'-'+p[0]);
+  var kun=Math.floor((new Date()-last)/86400000);
+  return {kun:kun,rang:kun<=3?'green':kun<=7?'yellow':'red'};
+}
+
+function klientJamiQarz(k) {
+  var q=0;
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') q+=op.gramm;
+    else if(op.tip==='vozvrat') q-=op.gramm;
+    else if(op.tip==='tolov') q-=(op.ekvivalent||0);
+  });
+  return Math.round(q*100)/100;
+}
+
+function klientJamiSavdo(k) {
+  var g=0,pul=0;
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') g+=op.gramm;
+    if(op.tip==='tolov') pul+=op.summa||0;
+  });
+  return {g:Math.round(g*100)/100,pul:Math.round(pul*100)/100};
+}
+
+function renderKlientlar() {
+  var topList=document.getElementById('klient-top-list');
+  var qizilList=document.getElementById('klient-qizil-list');
+  if(!topList) return;
+  if(!data.klientlar||!data.klientlar.length){
+    topList.innerHTML='<div class="empty"><div class="empty-icon">👤</div>Hali klient yo\'q.</div>';
+    if(qizilList) qizilList.innerHTML='';
+    return;
+  }
+  var sorted=data.klientlar.map(function(k,i){return {k:k,i:i};});
+  sorted.sort(function(a,b){return klientJamiSavdo(b.k).g-klientJamiSavdo(a.k).g;});
+  var topHTML='';
+  sorted.forEach(function(item,rank){
+    var k=item.k,ki=item.i;
+    var qarz=klientJamiQarz(k);
+    var savdo=klientJamiSavdo(k);
+    var holat=klientQarzHolat(k);
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+    var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    topHTML+='<div class="hrow" style="cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
+      +'<div style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="font-size:13px;color:var(--muted);font-weight:600;min-width:18px;">'+(rank+1)+'</div>'
+      +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);flex-shrink:0;">'+ini+'</div>'
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
+      +'<div style="text-align:right;"><div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div></div>'
+      +'</div></div>';
+  });
+  topList.innerHTML=topHTML;
+
+  var qSorted=data.klientlar.map(function(k,i){return {k:k,i:i,holat:klientQarzHolat(k),qarz:klientJamiQarz(k)};})
+    .filter(function(x){return x.qarz>0;});
+  qSorted.sort(function(a,b){return b.holat.kun-a.holat.kun;});
+  var qHTML='';
+  if(!qSorted.length){qHTML='<div class="empty">Barcha klientlar faol!</div>';}
+  else{qSorted.forEach(function(item){
+    var k=item.k,ki=item.i,holat=item.holat,qarz=item.qarz;
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+    var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
+    var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+    qHTML+='<div class="hrow" style="border-left:3px solid '+dc+';cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
+      +'<div style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);">'+ini+'</div>'
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">−'+fmtG(qarz)+'g qarz</div></div>'
+      +'<div style="background:'+bg+';color:'+dc+';font-size:11px;padding:3px 10px;border-radius:7px;font-weight:600;">'+holat.kun+' kun</div>'
+      +'</div></div>';
+  });}
+  if(qizilList) qizilList.innerHTML=qHTML;
+}
+
+function openKlientDetail(ki) {
+  curKlientIdx=ki;
+  var k=data.klientlar[ki];
+  document.getElementById('kd-name').textContent=k.nom;
+  var qarz=klientJamiQarz(k);
+  var savdo=klientJamiSavdo(k);
+  var holat=klientQarzHolat(k);
+  document.getElementById('kd-qarz').textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
+  document.getElementById('kd-qarz').style.color=qarz>0?'var(--red)':'var(--green)';
+  document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
+  document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
+  var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+  var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
+  var icon=holat.rang==='green'?'🟢':holat.rang==='yellow'?'🟡':'🔴';
+  var st=document.getElementById('kd-status');
+  if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
+  else st.style.display='none';
+
+  var breakdown={};
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish'||op.tip==='vozvrat'){
+      var key=op.zavod+'|'+op.tur;
+      if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      breakdown[key].qarz+=(op.tip==='berish'?op.gramm:-op.gramm);
+    }
+  });
+  var byZavod={};
+  Object.values(breakdown).forEach(function(b){if(!byZavod[b.zavod])byZavod[b.zavod]=[];byZavod[b.zavod].push(b);});
+  var bHTML='';
+  Object.keys(byZavod).forEach(function(znom){
+    var turs=byZavod[znom];
+    var zT=turs.reduce(function(a,b){return a+b.qarz;},0);
+    bHTML+='<div class="card" style="margin-bottom:8px;">';
+    bHTML+='<div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">'+znom+'</div>';
+    turs.forEach(function(b){if(Math.abs(b.qarz)<0.01)return;
+      bHTML+='<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><div style="color:var(--muted);">'+b.tur+'</div><div style="font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,b.qarz))+'g</div></div>';});
+    bHTML+='<div style="height:0.5px;background:var(--border);margin:6px 0;"></div>';
+    bHTML+='<div style="display:flex;justify-content:space-between;font-size:12px;"><div style="font-weight:600;color:var(--muted);">Jami</div><div style="font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,zT))+'g</div></div>';
+    bHTML+='</div>';
+  });
+  document.getElementById('kd-breakdown').innerHTML=bHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yo\'q</div>';
+
+  var sorted2=k.tarix.slice().sort(function(a,b){return b.sana.localeCompare(a.sana);});
+  var tHTML='';
+  sorted2.forEach(function(op){
+    var isB=op.tip==='berish',isV=op.tip==='vozvrat',isT=op.tip==='tolov';
+    var color=isB?'var(--red)':isV?'var(--gold)':'#5ab4e8';
+    var icon2=isB?'↑ Berildi':isV?'↩ Vozvrat':'$ To\'lov';
+    var val2=isB?('−'+fmtG(op.gramm)+'g'):isV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+    var sub2=isB?(op.zavod+' · '+op.tur):isV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ · '+op.kurs+'$/g');
+    tHTML+='<div class="hrow" style="margin-bottom:6px;border-left:3px solid '+color+';">'
+      +'<div><div style="font-size:12px;font-weight:600;color:'+color+';">'+icon2+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+sub2+' · '+op.sana+'</div></div>'
+      +'<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+val2+'</div>'
+      +'</div>';
+  });
+  document.getElementById('kd-tarix').innerHTML=tHTML||'<div class="empty">Hali tarix yo\'q</div>';
+  goTo('s-klient-detail');
+}
+
+function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('modal-klient').classList.add('open');}
+function saqlashKlient(){
+  var nom=document.getElementById('klient-nom').value.trim();
+  if(!nom){alert('Ism kiriting!');return;}
+  if(!data.klientlar) data.klientlar=[];
+  data.klientlar.push({nom:nom,tarix:[]});
+  save('Yangi klient: '+nom);
+  closeModal('modal-klient');
+  renderKlientlar();
+}
+
+function openKlientBerish(){
+  var sel=document.getElementById('kb-klient');
+  sel.innerHTML='<option value="">— Tanlang —</option>';
+  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  var zsel=document.getElementById('kb-zavod');
+  zsel.innerHTML='<option value="">— Tanlang —</option>';
+  data.zavodlar.forEach(function(z,i){zsel.innerHTML+='<option value="'+i+'">'+z.nom+'</option>';});
+  var now=new Date();
+  document.getElementById('kb-sana').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  document.getElementById('kb-turlar-card').style.display='none';
+  document.getElementById('modal-kberish').classList.add('open');
+}
+function kberishZavodChange(){
+  var zi=parseInt(document.getElementById('kb-zavod').value);
+  if(isNaN(zi)){document.getElementById('kb-turlar-card').style.display='none';return;}
+  var z=data.zavodlar[zi];
+  var out='';
+  z.turlar.forEach(function(t,ti){
+    out+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
+      +'<div style="flex:1;font-size:14px;color:var(--text);">'+t.nom+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<input type="number" id="kbg-'+ti+'" placeholder="0" style="width:100px;padding:9px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);">'
+      +'<span style="color:var(--muted);font-size:13px;">g</span>'
+      +'</div></div>';
+  });
+  document.getElementById('kb-turlar-inputs').innerHTML=out;
+  document.getElementById('kb-turlar-card').style.display='block';
+}
+function saqlashKlientBerish(){
+  var ki=parseInt(document.getElementById('kb-klient').value);
+  var zi=parseInt(document.getElementById('kb-zavod').value);
+  if(isNaN(ki)){alert('Klient tanlang!');return;}
+  if(isNaN(zi)){alert('Zavod tanlang!');return;}
+  var k=data.klientlar[ki],z=data.zavodlar[zi];
+  var sanaEl=document.getElementById('kb-sana');
+  var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  var any=false;
+  z.turlar.forEach(function(t,ti){
+    var el=document.getElementById('kbg-'+ti);
+    var g=el?parseNum(el.value):0;
+    if(g>0){k.tarix.push({tip:'berish',sana:sana,zavod:z.nom,tur:t.nom,gramm:g});t.ostatka=Math.max(0,t.ostatka-g);any=true;}
+  });
+  if(!any){alert('Gramm kiriting!');return;}
+  save('Klient berish: '+k.nom+' | '+z.nom);
+  closeModal('modal-kberish');
+  renderKlientlar();renderHome();
+}
+
+function openKlientVozvrat(){
+  var sel=document.getElementById('kv-klient');
+  sel.innerHTML='<option value="">— Tanlang —</option>';
+  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  var zsel=document.getElementById('kv-zavod');
+  zsel.innerHTML='<option value="">— Tanlang —</option>';
+  data.zavodlar.forEach(function(z,i){zsel.innerHTML+='<option value="'+i+'">'+z.nom+'</option>';});
+  zsel.onchange=function(){
+    var zi2=parseInt(this.value);
+    var tsel=document.getElementById('kv-tur');
+    tsel.innerHTML='<option value="">— Tanlang —</option>';
+    if(!isNaN(zi2)) data.zavodlar[zi2].turlar.forEach(function(t,ti){tsel.innerHTML+='<option value="'+zi2+'-'+ti+'">'+t.nom+'</option>';});
+  };
+  var now=new Date();
+  document.getElementById('kv-sana').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  document.getElementById('kv-gramm').value='';
+  document.getElementById('modal-kvozvrat').classList.add('open');
+}
+function saqlashKlientVozvrat(){
+  var ki=parseInt(document.getElementById('kv-klient').value);
+  if(isNaN(ki)){alert('Klient tanlang!');return;}
+  var tv=document.getElementById('kv-tur').value;
+  if(!tv){alert('Tur tanlang!');return;}
+  var pts=tv.split('-');var zi=parseInt(pts[0]),ti=parseInt(pts[1]);
+  var g=parseNum(document.getElementById('kv-gramm').value);
+  if(!g){alert('Gramm kiriting!');return;}
+  var sanaEl=document.getElementById('kv-sana');
+  var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  var k=data.klientlar[ki],z=data.zavodlar[zi];
+  k.tarix.push({tip:'vozvrat',sana:sana,zavod:z.nom,tur:z.turlar[ti].nom,gramm:g});
+  z.turlar[ti].ostatka+=g;
+  save('Klient vozvrat: '+k.nom+' | '+g+'g');
+  closeModal('modal-kvozvrat');
+  renderKlientlar();renderHome();
+}
+
+function openKlientTolov(){
+  var sel=document.getElementById('kt-klient');
+  sel.innerHTML='<option value="">— Tanlang —</option>';
+  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  var now=new Date();
+  document.getElementById('kt-sana').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  document.getElementById('kt-summa').value='';
+  document.getElementById('kt-kurs').value='';
+  document.getElementById('kt-calc').style.display='none';
+  function calcEq(){
+    var s=parseNum(document.getElementById('kt-summa').value);
+    var k=parseNum(document.getElementById('kt-kurs').value);
+    if(s&&k){document.getElementById('kt-calc-val').textContent=fmtG(roundG(s/k))+'g';document.getElementById('kt-calc').style.display='block';}
+    else document.getElementById('kt-calc').style.display='none';
+  }
+  document.getElementById('kt-summa').oninput=calcEq;
+  document.getElementById('kt-kurs').oninput=calcEq;
+  document.getElementById('modal-ktolov').classList.add('open');
+}
+function saqlashKlientTolov(){
+  var ki=parseInt(document.getElementById('kt-klient').value);
+  if(isNaN(ki)){alert('Klient tanlang!');return;}
+  var summa=parseNum(document.getElementById('kt-summa').value);
+  var kurs=parseNum(document.getElementById('kt-kurs').value);
+  if(!summa||!kurs){alert('Summa va kursni kiriting!');return;}
+  var eq=roundG(summa/kurs);
+  var sanaEl=document.getElementById('kt-sana');
+  var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  var k=data.klientlar[ki];
+  k.tarix.push({tip:'tolov',sana:sana,summa:summa,kurs:kurs,ekvivalent:eq});
+  save('Klient tolov: '+k.nom+' | '+summa+'$');
+  closeModal('modal-ktolov');
+  renderKlientlar();
+}
+function klientPDF(){alert('PDF keyinroq qoshiladi');}
+
 renderHome();
 
 function printPDF() {
@@ -2010,6 +2345,157 @@ applyTheme(currentTheme);
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn" onclick="closeModal('modal-import')">Bekor</button>
       <button class="btn gold" onclick="importData()">Import</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- KLIENT DETAIL SCREEN -->
+<div class="screen" id="s-klient-detail">
+  <div class="back-row">
+    <button class="back-btn" onclick="goTo('s-home');mainTab('klient')">←</button>
+    <div class="stitle" id="kd-name">Klient</div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Jami qarz</div>
+        <div style="font-family:Roboto,sans-serif;font-size:28px;color:var(--red);font-weight:500;" id="kd-qarz">0g</div>
+        <div id="kd-status" style="display:inline-block;margin-top:4px;font-size:11px;padding:3px 10px;border-radius:6px;"></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Jami savdo</div>
+        <div style="font-family:Roboto,sans-serif;font-size:15px;color:var(--gold);font-weight:500;" id="kd-savdo">0g</div>
+        <div style="font-size:11px;color:var(--muted);" id="kd-pul">0$</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Qarz tarkibi</div>
+  <div id="kd-breakdown" style="margin-bottom:12px;"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Tarix</div>
+    <div style="display:flex;gap:6px;">
+      <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
+    </div>
+  </div>
+  <div id="kd-tarix"></div>
+</div>
+
+<!-- KLIENT MODAL -->
+<div class="modal-overlay" id="modal-klient">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Yangi klient</div>
+    <div class="field">
+      <label>Ismi</label>
+      <input type="text" id="klient-nom" placeholder="Aziz aka...">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-klient')">Bekor</button>
+      <button class="btn gold" onclick="saqlashKlient()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- KLIENT BERISH MODAL -->
+<div class="modal-overlay" id="modal-kberish">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Klientga berish</div>
+    <div class="field">
+      <label>Klient</label>
+      <select id="kb-klient" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sana</label>
+      <input type="date" id="kb-sana" style="font-size:16px;">
+    </div>
+    <div class="field">
+      <label>Zavod</label>
+      <select id="kb-zavod" onchange="kberishZavodChange()" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div id="kb-turlar-card" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Turlar — gramm</div>
+      <div id="kb-turlar-inputs"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kberish')">Bekor</button>
+      <button class="btn gold" onclick="saqlashKlientBerish()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- KLIENT VOZVRAT MODAL -->
+<div class="modal-overlay" id="modal-kvozvrat">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Vozvrat (tilla qaytarish)</div>
+    <div class="field">
+      <label>Klient</label>
+      <select id="kv-klient" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sana</label>
+      <input type="date" id="kv-sana" style="font-size:16px;">
+    </div>
+    <div class="field">
+      <label>Zavod</label>
+      <select id="kv-zavod" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Tur</label>
+      <select id="kv-tur" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Gramm</label>
+      <input type="number" id="kv-gramm" placeholder="0" style="font-size:16px;">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kvozvrat')">Bekor</button>
+      <button class="btn gold" onclick="saqlashKlientVozvrat()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- KLIENT TOLOV MODAL -->
+<div class="modal-overlay" id="modal-ktolov">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">To'lov (dollar)</div>
+    <div class="field">
+      <label>Klient</label>
+      <select id="kt-klient" style="font-size:16px;">
+        <option value="">— Tanlang —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Sana</label>
+      <input type="date" id="kt-sana" style="font-size:16px;">
+    </div>
+    <div class="field">
+      <label>Summa ($)</label>
+      <input type="number" id="kt-summa" placeholder="0" style="font-size:16px;">
+    </div>
+    <div class="field">
+      <label>Kurs ($/g)</label>
+      <input type="number" id="kt-kurs" placeholder="0" style="font-size:16px;">
+    </div>
+    <div id="kt-calc" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);display:none;border-left:2px solid var(--gold);">
+      = <b style="color:var(--green);" id="kt-calc-val">0g</b> qarz kamayadi
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-ktolov')">Bekor</button>
+      <button class="btn gold" onclick="saqlashKlientTolov()">Saqlash</button>
     </div>
   </div>
 </div>
