@@ -142,9 +142,11 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-header-actions{display:flex;gap:6px;flex-wrap:wrap;}
   .pc-btn{
     border:1px solid var(--border);background:var(--surf2);
-    border-radius:7px;padding:6px 12px;font-size:12px;
+    border-radius:50px;padding:6px 14px;font-size:12px;
     font-weight:600;cursor:pointer;color:var(--text);white-space:nowrap;
+    display:inline-flex;align-items:center;gap:6px;
   }
+  .pc-btn:hover{opacity:.8;}
   .pc-btn.g{border-color:#1e3a1e;color:var(--green);}
   .pc-btn.r{border-color:#3a1e1e;color:var(--red);}
   .pc-btn.b{border-color:#1e2a3a;color:#5ab4e8;}
@@ -1907,11 +1909,16 @@ function isPC(){ return window.innerWidth >= 1024; }
 
 function initPC() {
   if (!isPC()) return;
-  document.getElementById('pc-sidebar').style.display = 'flex';
-  document.getElementById('pc-content').style.display = 'flex';
+  var sidebar = document.getElementById('pc-sidebar');
+  var content = document.getElementById('pc-content');
+  if (!sidebar || !content) return;
+  sidebar.style.display = 'flex';
+  content.style.display = 'flex';
   var body = document.getElementById('pc-body');
-  body.appendChild(document.getElementById('main-zavod'));
-  body.appendChild(document.getElementById('main-klient'));
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  if (mz && mz.parentNode !== body) body.appendChild(mz);
+  if (mk && mk.parentNode !== body) body.appendChild(mk);
   pcTab('zavod', document.getElementById('pct-zavod'));
 }
 
