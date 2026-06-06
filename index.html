@@ -97,11 +97,6 @@ input[type=number]{-moz-appearance:textfield;}
 }
 
 
-/* ── MOBILE: main panels visible ──────────────────────────────── */
-@media(max-width:1023px){
-  #main-zavod, #main-klient { padding: 16px !important; max-width: 520px !important; margin: 0 auto; }
-}
-
 /* ── TABLET (600-1024px) ─────────────────────────────────────── */
 @media(min-width:600px) and (max-width:1023px){
   .screen{padding:20px;max-width:680px;}
@@ -156,15 +151,12 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* PC elements - hidden by default */
 .pc-sidebar { display: none; }
-.pc-content { display: block; /* main panels inside */ }
-.pc-header { display: none; }
-.pc-body { display: block; padding: 0; }
+.pc-content { display: none; }
 
 @media (min-width: 1024px) {
   .ptr-indicator { display: none !important; }
   .main-tabs { display: none !important; }
 
-  /* s-home: sidebar + content */
   #s-home.active {
     display: flex !important;
     flex-direction: row;
@@ -175,7 +167,6 @@ input[type=number]{-moz-appearance:textfield;}
     overflow: hidden;
   }
 
-  /* Sidebar */
   .pc-sidebar {
     display: flex !important;
     width: 64px;
@@ -186,7 +177,6 @@ input[type=number]{-moz-appearance:textfield;}
     padding: 12px 0;
     gap: 4px;
     flex-shrink: 0;
-    z-index: 10;
   }
   .pc-tab {
     width: 48px; padding: 10px 0; border-radius: 9px;
@@ -200,7 +190,6 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-tab-lbl { font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
   .pc-vdiv { width: 28px; height: 1px; background: #1e1e1e; margin: 4px 0; }
 
-  /* pc-content: header + body */
   .pc-content {
     display: flex !important;
     flex: 1; flex-direction: column; overflow: hidden;
@@ -208,7 +197,7 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-header {
     background: #141414; padding: 10px 18px;
     border-bottom: 1px solid #1e1e1e;
-    display: flex !important; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
   }
   .pc-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
@@ -226,36 +215,9 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-pill.gold { border-color: #3a2a0a; color: var(--gold); }
   .pc-pill-div { width: 1px; height: 20px; background: #2a2a2a; margin: 0 2px; }
 
+  .pc-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; gap: 20px; align-items: flex-start; }
 
-  /* pc-body: two panels side by side, NO DOM moving */
-  .pc-body {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    gap: 0;
-  }
-
-  /* main-zavod and main-klient stay in DOM, shown via CSS */
-  #main-zavod {
-    flex: 1;
-    min-width: 0;
-    overflow-y: auto;
-    padding: 20px !important;
-    max-width: 100% !important;
-    border-right: 1px solid var(--border);
-    height: 100%;
-  }
-  #main-klient {
-    width: 340px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    padding: 16px !important;
-    max-width: 340px !important;
-    height: 100%;
-    border-left: 1px solid var(--border);
-    background: var(--surf);
-  }
+  #main-zavod, #main-klient { padding: 0 !important; max-width: 100% !important; flex: 1; min-width: 0; }
 }
 
 </style>
@@ -278,25 +240,33 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="screen active" id="s-home">
   <!-- PC SIDEBAR -->
   <div class="pc-sidebar">
-    <button class="pc-tab" onclick="toggleTheme()" id="pc-theme-btn" title="Tema">
-      <div class="pc-tab-icon" id="pc-theme-icon">☀</div>
-      <div class="pc-tab-lbl">Tema</div>
+    <button class="pc-tab active" id="pct-zavod" onclick="pcTab('zavod',this)">
+      <div class="pc-tab-icon">🏭</div>
+      <div class="pc-tab-lbl">Zavod</div>
+    </button>
+    <button class="pc-tab" id="pct-klient" onclick="pcTab('klient',this)">
+      <div class="pc-tab-icon">👥</div>
+      <div class="pc-tab-lbl">Klient</div>
     </button>
     <div class="pc-vdiv"></div>
     <button class="pc-tab" id="pct-hisobot" onclick="pcTab('hisobot',this)">
       <div class="pc-tab-icon">📋</div>
       <div class="pc-tab-lbl">Hisobot</div>
     </button>
+    <div class="pc-vdiv"></div>
+    <button class="pc-tab" id="pct-backup" onclick="pcTab('backup',this)">
+      <div class="pc-tab-icon">💾</div>
+      <div class="pc-tab-lbl">Backup</div>
+    </button>
   </div>
   <!-- PC CONTENT -->
   <div class="pc-content">
     <div class="pc-header">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
-      </div>
+      <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
-    <div class="pc-body" id="pc-body">
+    <div class="pc-body" id="pc-body"></div>
+  </div>
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
     <div style="margin-top:4px;">
@@ -363,10 +333,8 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div id="klient-top-list"></div>
     <div id="klient-qizil-list" style="display:none;"></div>
-  </div><!-- /main-klient -->
-    </div><!-- /pc-body -->
-  </div><!-- /pc-content -->
-</div><!-- /s-home -->
+  </div>
+</div>
 
 <!-- ZAVOD DETAIL -->
 <div class="screen" id="s-zavod">
@@ -1827,11 +1795,7 @@ function klientPDF(){
 // ── THEME ─────────────────────────────────────────────────────────────────────
 var currentTheme=localStorage.getItem('tilla-theme')||'dark';
 function applyTheme(t){currentTheme=t;document.documentElement.setAttribute('data-theme',t==='light'?'light':'');document.getElementById('theme-btn').textContent=t==='light'?'☽':'☀';localStorage.setItem('tilla-theme',t);}
-function toggleTheme(){
-  applyTheme(currentTheme==='dark'?'light':'dark');
-  var pti=document.getElementById('pc-theme-icon');
-  if(pti) pti.textContent=currentTheme==='light'?'☽':'☀';
-}
+function toggleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
 applyTheme(currentTheme);
 
 // ── PULL TO REFRESH ───────────────────────────────────────────────────────────
@@ -1847,11 +1811,7 @@ applyTheme(currentTheme);
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 renderHome();
-if (isPCMode()) {
-  pcShowZavod();
-} else {
-  mainTab(_savedTab);
-}
+mainTab(_savedTab);
 
 
 (async function(){
@@ -1958,44 +1918,7 @@ function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
   if (!isPCMode()) return;
-  pcShowZavod();
-  var pti=document.getElementById('pc-theme-icon');
-  if(pti) pti.textContent=currentTheme==='light'?'☽':'☀';
-}
-
-function pill(cls, txt, fn) {
-  var b = document.createElement('button');
-  b.className = 'pc-pill ' + cls;
-  b.textContent = txt;
-  b.onclick = fn;
-  return b;
-}
-function pillDiv() {
-  var d = document.createElement('div');
-  d.className = 'pc-pill-div';
-  return d;
-}
-
-// pcMainTab - eski kod, endi ishlatilmaydi
-function pcMainTab(name, el) {
-  pcShowZavod();
-}
-
-function pcShowZavod() {
-  var mz = document.getElementById('main-zavod');
-  var mk = document.getElementById('main-klient');
-  var act = document.getElementById('pc-header-actions');
-  act.innerHTML = '';
-  act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
-  act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
-  act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
-  act.appendChild(pillDiv());
-  act.appendChild(pill('', '+ Zavod', openZavodModal));
-  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-  mz.style.display = ''; mk.style.display = '';
-  document.getElementById('pc-header-title').textContent = 'Zavodlar';
-  homeTab('zavodlar'); renderHome(); renderKlientlar();
-  document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
+  pcTab('zavod', document.getElementById('pct-zavod'));
 }
 
 function pcTab(name, el) {
@@ -2003,16 +1926,46 @@ function pcTab(name, el) {
   if (el) el.classList.add('active');
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
+  var titles = {zavod:'Zavodlar', klient:'Klientlar', hisobot:'Hisobot', backup:'Backup'};
+  document.getElementById('pc-header-title').textContent = titles[name] || name;
   var act = document.getElementById('pc-header-actions');
-  act.innerHTML = '';
 
-  if (name === 'hisobot') {
+  function pill(cls, txt, fn) {
+    var b = document.createElement('button');
+    b.className = 'pc-pill ' + cls;
+    b.textContent = txt;
+    b.onclick = fn;
+    return b;
+  }
+  function div() {
+    var d = document.createElement('div');
+    d.className = 'pc-pill-div';
+    return d;
+  }
+
+  act.innerHTML = '';
+  if (name === 'zavod') {
+    act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
+    act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
+    act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
+    act.appendChild(div());
+    act.appendChild(pill('', '+ Zavod', openZavodModal));
     act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    document.getElementById('pc-header-title').textContent = 'Hisobot';
-    mz.style.display = ''; mk.style.display = 'none';
-    homeTab('hisobot'); renderHisobot();
+    mz.style.display = 'block'; mk.style.display = 'none';
+    renderHome();
+  } else if (name === 'klient') {
+    act.appendChild(pill('g', '↓ Berish', openKlientBerish));
+    act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
+    act.appendChild(pill('b', '$ Tolov', openKlientTolov));
+    act.appendChild(div());
+    act.appendChild(pill('', '+ Klient', openKlientModal));
+    mz.style.display = 'none'; mk.style.display = 'block';
+    renderKlientlar();
+  } else if (name === 'hisobot') {
+    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+    mz.style.display = 'none'; mk.style.display = 'none';
   } else {
-    pcShowZavod();
+    mz.style.display = 'none'; mk.style.display = 'none';
   }
 }
 
@@ -2020,18 +1973,18 @@ var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
   if (id === 's-home' && isPCMode()) {
-    var activeMainTab = document.querySelector('.pc-main-tab.active');
-    pcShowZavod();
+    var activeTab = document.querySelector('.pc-tab.active');
+    if (activeTab) pcTab(activeTab.id.replace('pct-',''), activeTab);
   }
 };
 
 var _origMainTab = mainTab;
 mainTab = function(tab) {
-  if (isPCMode()) { pcShowZavod(); return; }
+  if (isPCMode()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
   _origMainTab(tab);
 };
 
-setTimeout(initPC, 150);
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initPC);}else{initPC();}
 window.addEventListener('resize', function(){ if(isPCMode()) initPC(); });
 
 </script>
