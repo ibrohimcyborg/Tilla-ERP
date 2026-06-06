@@ -248,7 +248,11 @@ input[type=number]{-moz-appearance:textfield;}
   <!-- PC CONTENT -->
   <div class="pc-content">
     <div class="pc-header">
-      <div class="pc-header-title">Zavodlar</div>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <div style="font-size:14px;font-weight:600;color:var(--text);">Zavodlar</div>
+        <div style="width:1px;height:16px;background:var(--border);"></div>
+        <div style="font-size:14px;font-weight:600;color:var(--muted);">Klientlar</div>
+      </div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
     <div class="pc-body" id="pc-body">
@@ -1917,11 +1921,6 @@ function pcInit() {
   var act = document.getElementById('pc-header-actions');
   if (!act) return;
   act.innerHTML = '';
-  act.appendChild(pill('g', '↓ Berish', openKlientBerish));
-  act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
-  act.appendChild(pill('b', '$ Tolov', openKlientTolov));
-  act.appendChild(pillDiv());
-  act.appendChild(pill('', '+ Klient', openKlientModal));
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
   if (mz) mz.style.display = '';
