@@ -90,30 +90,24 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ptr-indicator{position:fixed;top:-60px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
-
-/* ── PC LAYOUT (1024px+) ──────────────────────────────────────────── */
+/* ── PC (1024px+) ──────────────────────────────────────────── */
 @media(min-width:1024px){
-  body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
-  
-  .topbar{position:relative;max-width:100%;padding-left:20px;padding-right:20px;}
+  .ptr-indicator{display:none;}
   .main-tabs{display:none;}
   
-  /* Vertical tab sidebar */
-  #pc-sidebar{display:flex;}
-  
-  #s-home{
+  /* s-home becomes flex row with sidebar */
+  #s-home.active{
     display:flex!important;
     flex-direction:row;
-    flex:1;
     padding:0;
     max-width:100%;
-    margin:0;
+    height:calc(100vh - 54px);
     overflow:hidden;
   }
-  
-  /* Vertical tabs */
-  .pc-vtabs{
-    width:60px;
+
+  /* PC sidebar */
+  .pc-sidebar{
+    width:64px;
     background:#141414;
     border-right:1px solid #1e1e1e;
     display:flex;
@@ -123,53 +117,46 @@ input[type=number]{-moz-appearance:textfield;}
     gap:4px;
     flex-shrink:0;
   }
-  .pc-vtab{
-    width:46px;padding:10px 0;border-radius:9px;cursor:pointer;
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    color:#444;transition:all .2s;
+  .pc-tab{
+    width:48px;padding:10px 0;border-radius:9px;
+    cursor:pointer;display:flex;flex-direction:column;
+    align-items:center;gap:3px;color:#444;transition:all .15s;
   }
-  .pc-vtab.active{background:#1e1a0a;color:#c9a84c;}
-  .pc-vtab:hover:not(.active){background:#1a1a1a;color:#666;}
-  .pc-vtab-icon{font-size:18px;}
-  .pc-vtab-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.04em;}
-  .pc-vdiv{width:28px;height:1px;background:#1e1e1e;margin:4px 0;}
+  .pc-tab.active{background:#1e1a0a;color:#c9a84c;}
+  .pc-tab:hover:not(.active){background:#1a1a1a;color:#666;}
+  .pc-tab-icon{font-size:18px;}
+  .pc-tab-label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;}
+  .pc-divider{width:28px;height:1px;background:#1e1e1e;margin:4px 0;}
 
-  /* Content area */
-  .pc-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-  .pc-chdr{
+  /* PC content */
+  .pc-content{
+    flex:1;display:flex;flex-direction:column;overflow:hidden;
+  }
+  .pc-header{
     background:#141414;padding:10px 18px;
     border-bottom:1px solid #1e1e1e;
     display:flex;align-items:center;gap:10px;
-    flex-shrink:0;
+    flex-shrink:0;min-height:46px;
   }
-  .pc-chdr-title{font-size:14px;font-weight:600;color:var(--text);flex:1;}
-  .pc-chdr-actions{display:flex;gap:6px;}
-  .pc-ca{
+  .pc-header-title{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+  .pc-header-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .pc-btn{
     border:1px solid var(--border);background:var(--surf2);
     border-radius:7px;padding:6px 12px;font-size:12px;
-    font-weight:600;cursor:pointer;color:var(--text);
+    font-weight:600;cursor:pointer;color:var(--text);white-space:nowrap;
   }
-  .pc-ca.g{border-color:#1e3a1e;color:var(--green);}
-  .pc-ca.r{border-color:#3a1e1e;color:var(--red);}
-  .pc-ca.b{border-color:#1e2a3a;color:#5ab4e8;}
-  .pc-ca.gold{border-color:#3a2a0a;color:var(--gold);}
+  .pc-btn.g{border-color:#1e3a1e;color:var(--green);}
+  .pc-btn.r{border-color:#3a1e1e;color:var(--red);}
+  .pc-btn.b{border-color:#1e2a3a;color:#5ab4e8;}
+  .pc-btn.gold{border-color:#3a2a0a;color:var(--gold);}
 
   .pc-body{flex:1;overflow-y:auto;padding:16px 18px;}
   
-  /* Hide mobile elements */
-  #main-zavod .big-btn-row,
-  #main-zavod > div:first-child,
-  .ptr-indicator{display:none!important;}
-  
-  /* Show PC sections */
-  #main-zavod,#main-klient{display:block!important;}
-  #pc-zavod-section,#pc-klient-section,
-  #pc-hisobot-section,#pc-backup-section{display:none;}
-  #pc-zavod-section.active,#pc-klient-section.active,
-  #pc-hisobot-section.active,#pc-backup-section.active{display:flex;flex-direction:column;flex:1;}
+  /* Show sections */
+  #main-zavod,#main-klient{padding:0!important;max-width:100%!important;}
 }
-@media(max-width:1023px){
-  .pc-vtabs,.pc-content,.pc-chdr,.pc-body{display:none!important;}
+
+
 }
 
 
@@ -235,27 +222,6 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="theme-btn" onclick="openResetModal()" style="font-size:13px;">⚙</button>
   </div>
 </div>
-<!-- PC VERTICAL TABS -->
-<div class="pc-vtabs" id="pc-sidebar" style="display:none;">
-  <div class="pc-vtab active" id="pvt-zavod" onclick="pcTab('zavod',this)">
-    <div class="pc-vtab-icon">🏭</div>
-    <div class="pc-vtab-lbl">Zavod</div>
-  </div>
-  <div class="pc-vtab" id="pvt-klient" onclick="pcTab('klient',this)">
-    <div class="pc-vtab-icon">👥</div>
-    <div class="pc-vtab-lbl">Klient</div>
-  </div>
-  <div class="pc-vdiv"></div>
-  <div class="pc-vtab" id="pvt-hisobot" onclick="pcTab('hisobot',this)">
-    <div class="pc-vtab-icon">📋</div>
-    <div class="pc-vtab-lbl">Hisobot</div>
-  </div>
-  <div class="pc-vdiv"></div>
-  <div class="pc-vtab" id="pvt-backup" onclick="pcTab('backup',this)">
-    <div class="pc-vtab-icon">💾</div>
-    <div class="pc-vtab-lbl">Backup</div>
-  </div>
-</div>
 <div class="main-tabs">
   <div class="main-tab active" id="main-tab-zavod" onclick="mainTab('zavod')">Zavod</div>
   <div class="main-tab" id="main-tab-klient" onclick="mainTab('klient')">Klientlar</div>
@@ -263,6 +229,35 @@ input[type=number]{-moz-appearance:textfield;}
 
 <!-- HOME -->
 <div class="screen active" id="s-home">
+  <!-- PC SIDEBAR -->
+  <div class="pc-sidebar" id="pc-sidebar" style="display:none;">
+    <div class="pc-tab active" id="pct-zavod" onclick="pcTab('zavod',this)">
+      <div class="pc-tab-icon">🏭</div>
+      <div class="pc-tab-label">Zavod</div>
+    </div>
+    <div class="pc-tab" id="pct-klient" onclick="pcTab('klient',this)">
+      <div class="pc-tab-icon">👥</div>
+      <div class="pc-tab-label">Klient</div>
+    </div>
+    <div class="pc-divider"></div>
+    <div class="pc-tab" id="pct-hisobot" onclick="pcTab('hisobot',this)">
+      <div class="pc-tab-icon">📋</div>
+      <div class="pc-tab-label">Hisobot</div>
+    </div>
+    <div class="pc-divider"></div>
+    <div class="pc-tab" id="pct-backup" onclick="pcTab('backup',this)">
+      <div class="pc-tab-icon">💾</div>
+      <div class="pc-tab-label">Backup</div>
+    </div>
+  </div>
+  <!-- PC CONTENT -->
+  <div class="pc-content" id="pc-content" style="display:none;">
+    <div class="pc-header">
+      <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
+      <div class="pc-header-actions" id="pc-header-actions"></div>
+    </div>
+    <div class="pc-body" id="pc-body"></div>
+  </div>
   <!-- ZAVOD SECTION -->
   <div id="main-zavod">
     <div style="margin-top:4px;">
@@ -667,33 +662,11 @@ function goTo(id) {
 function mainTab(tab) {
   document.getElementById('main-tab-zavod').classList.toggle('active', tab === 'zavod');
   document.getElementById('main-tab-klient').classList.toggle('active', tab === 'klient');
-  // PC da ikkalasi ko'rinadi
-  var isPC = window.innerWidth >= 1024;
-  if (isPC) {
-    document.getElementById('main-zavod').style.display = 'block';
-    document.getElementById('main-klient').style.display = 'flex';
-    document.getElementById('main-klient').style.flexDirection = 'column';
-  } else {
-    document.getElementById('main-zavod').style.display = tab === 'zavod' ? 'block' : 'none';
-    document.getElementById('main-klient').style.display = tab === 'klient' ? 'block' : 'none';
-  }
-  if (tab === 'klient' || isPC) renderKlientlar();
-  if (tab === 'zavod' || isPC) renderHome();
+  document.getElementById('main-zavod').style.display = tab === 'zavod' ? 'block' : 'none';
+  document.getElementById('main-klient').style.display = tab === 'klient' ? 'block' : 'none';
+  if (tab === 'klient') renderKlientlar();
+  if (tab === 'zavod') renderHome();
 }
-
-// Oyna o'lchamlari o'zgarganda qayta chizish
-window.addEventListener('resize', function(){
-  var isPC = window.innerWidth >= 1024;
-  if (isPC) {
-    document.getElementById('main-zavod').style.display = 'block';
-    document.getElementById('main-klient').style.display = 'flex';
-    renderHome(); renderKlientlar();
-  } else {
-    var activeTab = document.getElementById('main-tab-klient').classList.contains('active') ? 'klient' : 'zavod';
-    document.getElementById('main-zavod').style.display = activeTab === 'zavod' ? 'block' : 'none';
-    document.getElementById('main-klient').style.display = activeTab === 'klient' ? 'block' : 'none';
-  }
-});
 
 function homeTab(tab) {
   curHomeTab = tab;
@@ -1830,12 +1803,7 @@ var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 renderHome();
 mainTab(_savedTab);
-// PC da ikkalasini ham ko'rsat
-if(window.innerWidth>=1024){
-  document.getElementById('main-zavod').style.display='block';
-  document.getElementById('main-klient').style.display='flex';
-  renderKlientlar();
-}
+
 
 (async function(){
   try{var synced=await loadFromCloud();if(synced){renderHome();if(document.getElementById('main-klient').style.display!=='none')renderKlientlar();}}
