@@ -122,8 +122,7 @@ input[type=number]{-moz-appearance:textfield;}
   #main-zavod{flex:1;min-width:0;}
   #main-klient{display:flex!important;flex-direction:column;flex:1;min-width:0;}
   
-  /* PC da ikki ustun har doim ko'rinsin */
-  #main-zavod, #main-klient{display:block!important;}
+  /* PC da tab orqali boshqariladi */
   
   .screen{max-width:600px;margin:0 auto;}
   .modal{max-width:520px;border-radius:20px;margin-bottom:40px;}
@@ -217,7 +216,7 @@ input[type=number]{-moz-appearance:textfield;}
 
   .pc-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; gap: 20px; align-items: flex-start; }
 
-  #main-zavod, #main-klient { padding: 0 !important; max-width: 100% !important; flex: 1; min-width: 0; }
+  #main-zavod, #main-klient { padding: 16px !important; max-width: 100% !important; flex: 1; min-width: 0; overflow-y: auto; max-height: calc(100vh - 100px); }
 }
 
 </style>
@@ -1918,7 +1917,15 @@ function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
   if (!isPCMode()) return;
-  pcTab('zavod', document.getElementById('pct-zavod'));
+  var body = document.getElementById('pc-body');
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  if (body && mz && mz.parentNode !== body) body.appendChild(mz);
+  if (body && mk && mk.parentNode !== body) body.appendChild(mk);
+  mz.style.display = 'block';
+  mk.style.display = 'block';
+  renderHome(); renderKlientlar();
+  document.getElementById('pct-zavod').classList.add('active');
 }
 
 function pcTab(name, el) {
@@ -1951,21 +1958,22 @@ function pcTab(name, el) {
     act.appendChild(div());
     act.appendChild(pill('', '+ Zavod', openZavodModal));
     act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    mz.style.display = 'block'; mk.style.display = 'none';
-    renderHome();
+    mz.style.display = 'block'; mk.style.display = 'block';
+    renderHome(); renderKlientlar();
   } else if (name === 'klient') {
     act.appendChild(pill('g', '↓ Berish', openKlientBerish));
     act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
     act.appendChild(pill('b', '$ Tolov', openKlientTolov));
     act.appendChild(div());
     act.appendChild(pill('', '+ Klient', openKlientModal));
-    mz.style.display = 'none'; mk.style.display = 'block';
-    renderKlientlar();
+    mz.style.display = 'block'; mk.style.display = 'block';
+    renderHome(); renderKlientlar();
   } else if (name === 'hisobot') {
     act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    mz.style.display = 'none'; mk.style.display = 'none';
+    mz.style.display = 'block'; mk.style.display = 'none';
+    homeTab('hisobot');
   } else {
-    mz.style.display = 'none'; mk.style.display = 'none';
+    mz.style.display = 'block'; mk.style.display = 'block';
   }
 }
 
@@ -1973,14 +1981,35 @@ var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
   if (id === 's-home' && isPCMode()) {
-    var activeTab = document.querySelector('.pc-tab.active');
-    if (activeTab) pcTab(activeTab.id.replace('pct-',''), activeTab);
+    var body = document.getElementById('pc-body');
+    var mz = document.getElementById('main-zavod');
+    var mk = document.getElementById('main-klient');
+    if (body && mz && mz.parentNode !== body) body.appendChild(mz);
+    if (body && mk && mk.parentNode !== body) body.appendChild(mk);
+    mz.style.display = 'block';
+    mk.style.display = 'block';
+    renderHome(); renderKlientlar();
   }
 };
 
 var _origMainTab = mainTab;
 mainTab = function(tab) {
-  if (isPCMode()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
+  if (isPCMode()) {
+    // In PC mode, always show both panels
+    var body = document.getElementById('pc-body');
+    var mz = document.getElementById('main-zavod');
+    var mk = document.getElementById('main-klient');
+    if (body && mz && mz.parentNode !== body) body.appendChild(mz);
+    if (body && mk && mk.parentNode !== body) body.appendChild(mk);
+    mz.style.display = 'block';
+    mk.style.display = 'block';
+    renderHome(); renderKlientlar();
+    // Highlight correct sidebar tab
+    document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
+    var pt = document.getElementById('pct-' + tab);
+    if (pt) pt.classList.add('active');
+    return;
+  }
   _origMainTab(tab);
 };
 
