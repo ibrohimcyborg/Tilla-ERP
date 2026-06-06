@@ -226,15 +226,6 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-pill.gold { border-color: #3a2a0a; color: var(--gold); }
   .pc-pill-div { width: 1px; height: 20px; background: #2a2a2a; margin: 0 2px; }
 
-  /* PC main tabs (Zavod / Klient) in header */
-  .pc-main-tabs { display: flex; gap: 4px; background: #0f0f0f; border-radius: 10px; padding: 3px; }
-  .pc-main-tab {
-    padding: 6px 18px; border-radius: 8px; border: none;
-    font-size: 13px; font-family: 'Outfit', sans-serif; font-weight: 600;
-    cursor: pointer; color: #555; background: transparent; transition: all .2s;
-  }
-  .pc-main-tab.active { background: #1e1a0a; color: #c9a84c; }
-  .pc-main-tab:hover:not(.active) { color: #888; }
 
   /* pc-body: two panels side by side, NO DOM moving */
   .pc-body {
@@ -256,12 +247,14 @@ input[type=number]{-moz-appearance:textfield;}
     height: 100%;
   }
   #main-klient {
-    flex: 1;
-    min-width: 0;
+    width: 340px;
+    flex-shrink: 0;
     overflow-y: auto;
-    padding: 20px !important;
-    max-width: 100% !important;
+    padding: 16px !important;
+    max-width: 340px !important;
     height: 100%;
+    border-left: 1px solid var(--border);
+    background: var(--surf);
   }
 }
 
@@ -299,10 +292,7 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="pc-content">
     <div class="pc-header">
       <div style="display:flex;align-items:center;gap:8px;">
-        <div class="pc-main-tabs" id="pc-main-tabs">
-          <button class="pc-main-tab active" id="pcmt-zavod" onclick="pcMainTab('zavod',this)">🏭 Zavod</button>
-          <button class="pc-main-tab" id="pcmt-klient" onclick="pcMainTab('klient',this)">👥 Klient</button>
-        </div>
+        <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
       </div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
@@ -1858,7 +1848,7 @@ var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 renderHome();
 if (isPCMode()) {
-  pcMainTab('zavod', document.getElementById('pcmt-zavod'));
+  pcShowZavod();
 } else {
   mainTab(_savedTab);
 }
@@ -1968,7 +1958,7 @@ function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
   if (!isPCMode()) return;
-  pcMainTab('zavod', document.getElementById('pcmt-zavod'));
+  pcShowZavod();
   var pti=document.getElementById('pc-theme-icon');
   if(pti) pti.textContent=currentTheme==='light'?'☽':'☀';
 }
@@ -1986,34 +1976,25 @@ function pillDiv() {
   return d;
 }
 
-// pcMainTab: Zavod / Klient switch in header
+// pcMainTab - eski kod, endi ishlatilmaydi
 function pcMainTab(name, el) {
-  document.querySelectorAll('.pc-main-tab').forEach(function(t){ t.classList.remove('active'); });
-  if (el) el.classList.add('active');
-  var act = document.getElementById('pc-header-actions');
-  act.innerHTML = '';
+  pcShowZavod();
+}
+
+function pcShowZavod() {
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
-
-  if (name === 'zavod') {
-    act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
-    act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
-    act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
-    act.appendChild(pillDiv());
-    act.appendChild(pill('', '+ Zavod', openZavodModal));
-    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    mz.style.display = ''; mk.style.display = 'none';
-    homeTab('zavodlar'); renderHome();
-  } else {
-    act.appendChild(pill('g', '↓ Berish', openKlientBerish));
-    act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
-    act.appendChild(pill('b', '$ Tolov', openKlientTolov));
-    act.appendChild(pillDiv());
-    act.appendChild(pill('', '+ Klient', openKlientModal));
-    mz.style.display = 'none'; mk.style.display = '';
-    renderKlientlar();
-  }
-  // Hisobot sidebardan bosilsa - reset
+  var act = document.getElementById('pc-header-actions');
+  act.innerHTML = '';
+  act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
+  act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
+  act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
+  act.appendChild(pillDiv());
+  act.appendChild(pill('', '+ Zavod', openZavodModal));
+  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+  mz.style.display = ''; mk.style.display = '';
+  document.getElementById('pc-header-title').textContent = 'Zavodlar';
+  homeTab('zavodlar'); renderHome(); renderKlientlar();
   document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
 }
 
@@ -2027,13 +2008,11 @@ function pcTab(name, el) {
 
   if (name === 'hisobot') {
     act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+    document.getElementById('pc-header-title').textContent = 'Hisobot';
     mz.style.display = ''; mk.style.display = 'none';
     homeTab('hisobot'); renderHisobot();
-    // main-tabs ham reset
-    document.querySelectorAll('.pc-main-tab').forEach(function(t){ t.classList.remove('active'); });
   } else {
-    // Default: zavod
-    pcMainTab('zavod', document.getElementById('pcmt-zavod'));
+    pcShowZavod();
   }
 }
 
@@ -2042,14 +2021,13 @@ goTo = function(id) {
   _origGoTo(id);
   if (id === 's-home' && isPCMode()) {
     var activeMainTab = document.querySelector('.pc-main-tab.active');
-    var name = activeMainTab ? activeMainTab.id.replace('pcmt-','') : 'zavod';
-    pcMainTab(name, activeMainTab || document.getElementById('pcmt-zavod'));
+    pcShowZavod();
   }
 };
 
 var _origMainTab = mainTab;
 mainTab = function(tab) {
-  if (isPCMode()) { pcMainTab(tab, document.getElementById('pcmt-'+tab)); return; }
+  if (isPCMode()) { pcShowZavod(); return; }
   _origMainTab(tab);
 };
 
