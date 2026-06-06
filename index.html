@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- xlsx removed, not used -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -631,7 +631,6 @@ input[type=number]{-moz-appearance:textfield;}
 // ── SUPABASE ─────────────────────────────────────────────────────────────────
 var SB_URL = 'https://vddfjkofsxpwfbbrqwhh.supabase.co';
 var SB_KEY = 'sb_publishable_T2AVCW7hWTrDhU11SAbu3g_0qVblo0m';
-var sb = supabase.createClient(SB_URL, SB_KEY);
 var USER_ID = 'tilla-main';
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -642,53 +641,36 @@ var _syncTimer = null;
 function save(logText) {
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if (_syncTimer) clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 800);
+  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 1000);
 }
 
 function syncToCloud(logText) {
-  // Supabase SDK DataCloneError berayapti - to'g'ri fetch ishlatamiz
-  var url = SB_URL + '/rest/v1/tilla_data';
   var payload = JSON.stringify({
-    user_id: USER_ID,
-    zavodlar: data.zavodlar,
-    klientlar: data.klientlar || [],
-    updated_at: new Date().toISOString()
+    action:'save', user_id:USER_ID,
+    zavodlar:data.zavodlar,
+    klientlar:data.klientlar||[],
+    updated_at:new Date().toISOString()
   });
-  // upsert: POST with Prefer: resolution=merge-duplicates
-  var req = new XMLHttpRequest();
-  req.open('POST', url, true);
-  req.setRequestHeader('Content-Type', 'application/json');
-  req.setRequestHeader('apikey', SB_KEY);
-  req.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
-  req.setRequestHeader('Prefer', 'resolution=merge-duplicates');
-  req.onerror = function(){ };
-  req.send(payload);
+  fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:payload})
+    .catch(function(){});
 }
 
 function loadFromCloud() {
-  return new Promise(function(resolve) {
-    var url = SB_URL + '/rest/v1/tilla_data?user_id=eq.' + USER_ID + '&select=zavodlar,klientlar&limit=1';
-    var req = new XMLHttpRequest();
-    req.open('GET', url, true);
-    req.setRequestHeader('apikey', SB_KEY);
-    req.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
-    req.setRequestHeader('Accept', 'application/json');
-    req.onload = function() {
-      try {
-        var rows = JSON.parse(req.responseText);
-        if (!rows || !rows.length) { resolve(false); return; }
-        var d = rows[0];
-        if (d.zavodlar && d.zavodlar.length > 0) data.zavodlar = d.zavodlar;
-        data.klientlar = d.klientlar || [];
-        localStorage.setItem('tilla-v2', JSON.stringify(data));
-        resolve(true);
-      } catch(e) { resolve(false); }
-    };
-    req.onerror = function() { resolve(false); };
-    req.send();
-  });
+  return fetch('/api/sync',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'load', user_id:USER_ID})
+  })
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    if(!rows||!rows.length) return false;
+    var d=rows[0];
+    if(d.zavodlar&&d.zavodlar.length>0) data.zavodlar=d.zavodlar;
+    data.klientlar=d.klientlar||[];
+    localStorage.setItem('tilla-v2',JSON.stringify(data));
+    return true;
+  })
+  .catch(function(){return false;});
 }
-
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
@@ -2203,31 +2185,19 @@ sessionStorage.removeItem('curKlientIdx');
 renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
-// Cloud sync - faqat agar local bo'sh bo'lsa yukla
-var _localEmpty = !data.zavodlar || !data.zavodlar.length;
-if (_localEmpty) {
-  loadFromCloud().then(function(synced){
-    if (synced) {
-      renderHome();
-      renderKlientlar();
-      if (isPCMode()) pcInit();
-    }
-    if (_savedKlient !== null) {
-      var ki = parseInt(_savedKlient);
-      if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
-        openKlientDetail(ki);
-      }
-    }
-  });
-} else {
-  // Local data bor - cloud dan o'qimasdan ishlat
+loadFromCloud().then(function(synced){
+  if (synced) {
+    renderHome();
+    renderKlientlar();
+    if (isPCMode()) pcInit();
+  }
   if (_savedKlient !== null) {
     var ki = parseInt(_savedKlient);
     if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
       setTimeout(function(){ openKlientDetail(ki); }, 100);
     }
   }
-}
+});
 
 
 // Swipe left/right - tab almashtirish
