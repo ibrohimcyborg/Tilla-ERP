@@ -611,36 +611,55 @@ var USER_ID = 'tilla-main';
 var data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[],"klientlar":[]}');
 if (!data.klientlar) data.klientlar = [];
 
+var _syncTimer = null;
 function save(logText) {
   localStorage.setItem('tilla-v2', JSON.stringify(data));
-  syncToCloud(logText);
+  // Debounce - 800ms dan keyin sync
+  if (_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 800);
 }
+
 async function syncToCloud(logText) {
   try {
-    var payload = {zavodlar: data.zavodlar, klientlar: data.klientlar||[], updated_at: new Date().toISOString()};
-    var ex = await sb.from('tilla_data').select('id').eq('user_id', USER_ID).single();
-    if (ex.data) {
-      await sb.from('tilla_data').update(payload).eq('user_id', USER_ID);
-    } else {
-      await sb.from('tilla_data').insert({user_id: USER_ID, ...payload});
+    var payload = {
+      zavodlar: data.zavodlar,
+      klientlar: data.klientlar || [],
+      updated_at: new Date().toISOString()
+    };
+    // upsert - insert or update
+    var res = await sb.from('tilla_data').upsert(
+      {user_id: USER_ID, ...payload},
+      {onConflict: 'user_id'}
+    );
+    if (res.error) throw res.error;
+    if (logText) {
+      sb.from('tilla_log').insert({user_id: USER_ID, amal: 'tahrir', tavsif: logText}).then(function(){});
     }
-    if (logText) await sb.from('tilla_log').insert({user_id: USER_ID, amal: 'tahrir', tavsif: logText});
   } catch(e) { console.error('sync error:', e); }
 }
+
 async function loadFromCloud() {
   try {
-    var res = await sb.from('tilla_data').select('zavodlar,klientlar').eq('user_id', USER_ID).single();
+    var res = await sb.from('tilla_data')
+      .select('zavodlar,klientlar,updated_at')
+      .eq('user_id', USER_ID)
+      .single();
+    if (res.error) throw res.error;
     if (res.data) {
+      // Zavodlar
       if (res.data.zavodlar && res.data.zavodlar.length > 0) {
         data.zavodlar = res.data.zavodlar;
       }
-      // Cloud dan hamma narsani olamiz
-      var cloudKlientlar = res.data.klientlar || [];
-      data.klientlar = cloudKlientlar;
+      // Klientlar - cloud har doim ustun
+      data.klientlar = res.data.klientlar || [];
       localStorage.setItem('tilla-v2', JSON.stringify(data));
       return true;
     }
-  } catch(e) { console.error('load error:', e); }
+  } catch(e) {
+    console.error('load error:', e);
+    // Cloud da yo'q - local dan ishlaymiz
+    if (e.code === 'PGRST116') return false; // no rows
+  }
   return false;
 }
 
@@ -1073,8 +1092,7 @@ function editOchir() {
 function openResetModal() { document.getElementById('modal-reset').classList.add('open'); }
 async function cacheOchir() {
   if(confirm('Kesh tozalanadi va cloud dan yuklanadi. Davom etasizmi?')){
-    localStorage.removeItem('tilla-v2');
-    localStorage.removeItem('tilla-theme');
+    localStorage.clear();
     location.reload(true);
   }
 }
@@ -1863,8 +1881,14 @@ if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
 
 (async function(){
-  try{var synced=await loadFromCloud();if(synced){renderHome();if(document.getElementById('main-klient').style.display!=='none')renderKlientlar();}}
-  catch(e){console.error('startup error:',e);}
+  try {
+    var synced = await loadFromCloud();
+    if (synced) {
+      renderHome();
+      renderKlientlar();
+      if (isPCMode()) pcInit();
+    }
+  } catch(e) { console.error('startup error:', e); }
 })();
 
 // Swipe left/right - tab almashtirish
