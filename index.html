@@ -423,21 +423,22 @@ function save(logText) {
 }
 async function syncToCloud(logText) {
   try {
+    var payload = {zavodlar: data.zavodlar, klientlar: data.klientlar||[], updated_at: new Date().toISOString()};
     var ex = await sb.from('tilla_data').select('id').eq('user_id', USER_ID).single();
     if (ex.data) {
-      await sb.from('tilla_data').update({zavodlar: data.zavodlar, updated_at: new Date().toISOString()}).eq('user_id', USER_ID);
+      await sb.from('tilla_data').update(payload).eq('user_id', USER_ID);
     } else {
-      await sb.from('tilla_data').insert({user_id: USER_ID, zavodlar: data.zavodlar});
+      await sb.from('tilla_data').insert({user_id: USER_ID, ...payload});
     }
     if (logText) await sb.from('tilla_log').insert({user_id: USER_ID, amal: 'tahrir', tavsif: logText});
   } catch(e) { console.error('sync error:', e); }
 }
 async function loadFromCloud() {
   try {
-    var res = await sb.from('tilla_data').select('zavodlar').eq('user_id', USER_ID).single();
+    var res = await sb.from('tilla_data').select('zavodlar,klientlar').eq('user_id', USER_ID).single();
     if (res.data && res.data.zavodlar) {
       data.zavodlar = res.data.zavodlar;
-      if (!data.klientlar) data.klientlar = [];
+      data.klientlar = res.data.klientlar || [];
       localStorage.setItem('tilla-v2', JSON.stringify(data));
       return true;
     }
