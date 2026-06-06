@@ -1931,14 +1931,15 @@ function mainTab(tab) {
   var mk=document.getElementById('main-tab-klient');
   var dz=document.getElementById('main-zavod');
   var dk=document.getElementById('main-klient');
-  if(!mz||!mk||!dz||!dk) return;
+  if(!mz||!mk) return;
   mz.style.color=tab==='zavod'?'var(--gold)':'var(--muted)';
   mz.style.borderBottom=tab==='zavod'?'2px solid var(--gold)':'2px solid transparent';
   mk.style.color=tab==='klient'?'var(--gold)':'var(--muted)';
   mk.style.borderBottom=tab==='klient'?'2px solid var(--gold)':'2px solid transparent';
-  dz.style.display=tab==='zavod'?'block':'none';
-  dk.style.display=tab==='klient'?'block':'none';
+  if(dz) dz.style.display=tab==='zavod'?'block':'none';
+  if(dk) dk.style.display=tab==='klient'?'block':'none';
   if(tab==='klient') renderKlientlar();
+  if(tab==='zavod') renderHome();
 }
 
 function klientTab(tab) {
