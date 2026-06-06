@@ -240,12 +240,18 @@ input[type=number]{-moz-appearance:textfield;}
   /* Klient paneli - o'ng, fixed kenglik */
   #main-klient {
     width: 300px; flex-shrink: 0;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 0 !important;
     max-width: 300px !important;
     height: 100%;
     display: flex !important;
     flex-direction: column;
+    border-left: 1px solid var(--border);
+  }
+
+  /* Klient ichki scroll faqat ro'yxatda */
+  #klient-top-list, #klient-qizil-list {
+    overflow-y: auto;
   }
 
   /* Klient ichki header */
@@ -311,10 +317,9 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
     <div class="pc-body" id="pc-body">
-  </div>
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
-    <div style="margin-top:4px;">
+    <div style="margin-top:0;">
       <div class="big-stat">
         <div class="big-stat-label">Jami ostatka</div>
         <div class="big-stat-val" id="home-total">0<span>g</span></div>
