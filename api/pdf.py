@@ -228,12 +228,29 @@ class handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length))
 
+        # Klient qarz cheki
+        if body.get("tip") == "klient_qarz_chek":
+            pdf_bytes = build_klient_qarz_chek(
+                body.get("klient_nom", ""),
+                body.get("sana", ""),
+                body.get("jami_qarz", 0),
+                body.get("qarz_tarkib", [])
+            )
+            self.send_response(200)
+            self.send_header("Content-Type", "application/pdf")
+            self.send_header("Content-Disposition", "inline; filename=qarz-chek.pdf")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(pdf_bytes)
+            return
+
         # Klient chek
         if body.get("tip") == "klient_chek":
             pdf_bytes = build_klient_chek(
                 body.get("klient_nom", ""),
                 body.get("ops_grouped", []),
-                body.get("sana", "")
+                body.get("sana", ""),
+                body.get("qarz_tarkib", None)
             )
             self.send_response(200)
             self.send_header("Content-Type", "application/pdf")
@@ -267,42 +284,41 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
-def build_klient_chek(klient_nom, ops_grouped, sana):
-    """Klient tolov cheki - 80mm thermal printer uchun"""
+
+def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     buf = io.BytesIO()
-    W = 72*mm  # 80mm printer, ~72mm print area
-    doc = SimpleDocTemplate(buf, pagesize=(W, 400*mm),
-        leftMargin=3*mm, rightMargin=3*mm, topMargin=5*mm, bottomMargin=5*mm)
+    W = 72*mm
+    doc = SimpleDocTemplate(buf, pagesize=(W, 500*mm),
+        leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
     story = []
 
-    def CP(text, font='Helvetica', size=9, color=colors.black, align='CENTER'):
+    def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
         s = ParagraphStyle('cp', fontName=font, fontSize=size,
-            textColor=color, alignment={'LEFT':0,'CENTER':1,'RIGHT':2}[align],
-            leading=size+2)
-        return Paragraph(str(text), s)
+            textColor=color, alignment={'LEFT':0,'CENTER':1,'RIGHT':2}[align], leading=size+2)
+        return Paragraph(str(text) if text else '', s)
+
+    def row(a, b, fa='Helvetica', fb='Helvetica', sa=8, sb=8, ca=C_MUTED, cb=colors.black):
+        return Table([[CP(a,fa,sa,ca,'LEFT'), CP(b,fb,sb,cb,'RIGHT')]],
+            colWidths=[W*0.55-3*mm, W*0.45-3*mm],
+            style=[('TOPPADDING',(0,0),(-1,-1),1),('BOTTOMPADDING',(0,0),(-1,-1),1)])
 
     def dline():
-        return Table([['- '*30]], colWidths=[W-6*mm],
-            style=[('TEXTCOLOR',(0,0),(-1,-1),C_MUTED),('FONTSIZE',(0,0),(-1,-1),7),
-                   ('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),0)])
+        t = Table([['']], colWidths=[W-6*mm],
+            style=[('LINEBELOW',(0,0),(-1,-1),0.5,C_MUTED),
+                   ('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),2)])
+        return t
 
     # Header
-    story.append(CP('⬡  TILLA HISOB', 'Helvetica-Bold', 12, C_GOLD))
-    story.append(CP('TOLOV CHEKI', 'Helvetica', 8, C_MUTED))
-    story.append(Spacer(1, 3*mm))
+    story.append(CP('TILLA HISOB', 'Helvetica-Bold', 11, C_GOLD))
+    story.append(CP('TOLOV CHEKI', size=8, color=C_MUTED))
+    story.append(Spacer(1,2*mm))
     story.append(dline())
-    story.append(Spacer(1, 2*mm))
-
-    # Info
-    info = [
-        [CP('Klient:', size=9, align='LEFT'), CP(klient_nom, 'Helvetica-Bold', 9, C_DARK, 'RIGHT')],
-        [CP('Sana:', size=9, align='LEFT'), CP(sana, size=9, align='RIGHT')],
-    ]
-    story.append(Table(info, colWidths=[W*0.4-3*mm, W*0.6-3*mm],
-        style=[('TOPPADDING',(0,0),(-1,-1),1),('BOTTOMPADDING',(0,0),(-1,-1),1)]))
-    story.append(Spacer(1, 2*mm))
+    story.append(Spacer(1,1*mm))
+    story.append(row('Klient:', klient_nom, fb='Helvetica-Bold', cb=C_DARK))
+    story.append(row('Sana:', sana, cb=C_DARK))
+    story.append(Spacer(1,1*mm))
     story.append(dline())
-    story.append(Spacer(1, 2*mm))
+    story.append(Spacer(1,1*mm))
 
     total_pul = 0
     total_tolov_g = 0
@@ -310,61 +326,131 @@ def build_klient_chek(klient_nom, ops_grouped, sana):
     total_qolgan = 0
 
     for item in ops_grouped:
-        tur_nom = item.get('zavod','') + ' · ' + item.get('tur','')
+        tur_nom = (item.get('zavod','') + ' · ' + item.get('tur','')) if item.get('tur') else item.get('zavod','')
         avvalgi = item.get('avvalgi_qarz', 0)
         tolov_g = item.get('tolov_g', 0)
         vozvrat_g = item.get('vozvrat_g', 0)
         tolov_summa = item.get('tolov_summa', 0)
         tolov_kurs = item.get('tolov_kurs', 0)
-        qolgan = avvalgi - tolov_g - vozvrat_g
+        qolgan = max(0, avvalgi - tolov_g - vozvrat_g)
 
-        story.append(CP(tur_nom, 'Helvetica-Bold', 9, C_DARK, 'LEFT'))
-        story.append(Spacer(1, 1*mm))
-
-        rows = [
-            [CP('Avvalgi qarz:', size=8, align='LEFT'), CP('-'+'{:.2f}'.format(avvalgi)+'g', size=8, color=C_RED, align='RIGHT')],
-        ]
-        if tolov_g > 0:
-            rows.append([CP('Tolov: {:,.0f}$/{}$/g'.format(tolov_summa, tolov_kurs), size=8, align='LEFT'),
-                        CP('+{:.2f}g'.format(tolov_g), size=8, color=C_GREEN, align='RIGHT')])
+        story.append(CP(tur_nom, 'Helvetica-Bold', 8, C_DARK, 'LEFT'))
+        if avvalgi > 0:
+            story.append(row('  Qarz:', '-'+'{:.2f}g'.format(avvalgi), cb=C_RED))
+        if tolov_g > 0 and tolov_summa > 0:
+            story.append(row('  Tolov: {:,.0f}$/{:.1f}$/g'.format(tolov_summa, tolov_kurs),
+                           '+{:.2f}g'.format(tolov_g), cb=C_GREEN))
+        elif tolov_g > 0:
+            story.append(row('  Tolov:', '+{:.2f}g'.format(tolov_g), cb=C_GREEN))
         if vozvrat_g > 0:
-            rows.append([CP('Vozvrat:', size=8, align='LEFT'),
-                        CP('+{:.2f}g'.format(vozvrat_g), size=8, color=C_GREEN, align='RIGHT')])
-        rows.append([CP('Qolgan qarz:', 'Helvetica-Bold', 8, C_GOLD, 'LEFT'),
-                    CP('-{:.2f}g'.format(max(0, qolgan)), 'Helvetica-Bold', 8, C_GOLD, 'RIGHT')])
-
-        story.append(Table(rows, colWidths=[W*0.6-3*mm, W*0.4-3*mm],
-            style=[('TOPPADDING',(0,0),(-1,-1),1),('BOTTOMPADDING',(0,0),(-1,-1),1),
-                   ('LINEBELOW',(0,-1),(-1,-1),0.5,C_MUTED)]))
-        story.append(Spacer(1, 2*mm))
+            story.append(row('  Vozvrat:', '+{:.2f}g'.format(vozvrat_g), cb=C_GREEN))
+        story.append(row('  Qoldi:', '-{:.2f}g'.format(qolgan), fb='Helvetica-Bold', cb=C_GOLD))
+        story.append(Spacer(1,1*mm))
 
         total_pul += tolov_summa
         total_tolov_g += tolov_g
         total_vozvrat_g += vozvrat_g
-        total_qolgan += max(0, qolgan)
+        total_qolgan += qolgan
 
     story.append(dline())
-    story.append(Spacer(1, 2*mm))
+    story.append(Spacer(1,1*mm))
+
+    # Qarz tarkibi
+    if qarz_tarkib:
+        story.append(CP('QARZ TARKIBI', 'Helvetica-Bold', 7, C_MUTED, 'CENTER'))
+        story.append(Spacer(1,1*mm))
+        for item in qarz_tarkib:
+            nom = (item.get('zavod','') + ' · ' + item.get('tur',''))
+            qarz = item.get('qarz', 0)
+            if qarz > 0:
+                story.append(row(nom, '-{:.2f}g'.format(qarz), cb=C_RED))
+        story.append(dline())
+        story.append(Spacer(1,1*mm))
 
     # Jami
-    jami_rows = [
-        [CP('Jami tolov (pul):', size=9, align='LEFT'), CP('{:,.0f}$'.format(total_pul), 'Helvetica-Bold', 9, C_BLUE, 'RIGHT')],
-        [CP('Jami tolov (gramm):', size=9, align='LEFT'), CP('+{:.2f}g'.format(total_tolov_g), 'Helvetica-Bold', 9, C_GREEN, 'RIGHT')],
-    ]
+    if total_pul > 0:
+        story.append(row('Jami pul:', '{:,.0f}$'.format(total_pul), fb='Helvetica-Bold', cb=C_BLUE))
+    story.append(row('Jami tolov:', '+{:.2f}g'.format(total_tolov_g), fb='Helvetica-Bold', cb=C_GREEN))
     if total_vozvrat_g > 0:
-        jami_rows.append([CP('Jami vozvrat:', size=9, align='LEFT'),
-                         CP('+{:.2f}g'.format(total_vozvrat_g), 'Helvetica-Bold', 9, C_GREEN, 'RIGHT')])
-    jami_rows.append([CP('Umumiy qolgan qarz:', 'Helvetica-Bold', 9, C_RED, 'LEFT'),
-                     CP('-{:.2f}g'.format(total_qolgan), 'Helvetica-Bold', 10, C_RED, 'RIGHT')])
-
-    story.append(Table(jami_rows, colWidths=[W*0.55-3*mm, W*0.45-3*mm],
-        style=[('TOPPADDING',(0,0),(-1,-1),2),('BOTTOMPADDING',(0,0),(-1,-1),2),
-               ('BACKGROUND',(0,-1),(-1,-1),colors.HexColor('#FFF8E7')),
-               ('LINEABOVE',(0,-1),(-1,-1),1,C_GOLD)]))
-
-    story.append(Spacer(1, 4*mm))
+        story.append(row('Jami vozvrat:', '+{:.2f}g'.format(total_vozvrat_g), fb='Helvetica-Bold', cb=C_GREEN))
+    story.append(row('Umumiy qolgan:', '-{:.2f}g'.format(total_qolgan), fb='Helvetica-Bold', cb=C_RED))
+    story.append(Spacer(1,2*mm))
     story.append(dline())
-    story.append(CP('— Rahmat —', size=8, color=C_MUTED))
+    story.append(CP('— Rahmat —', size=7, color=C_MUTED))
+
+    doc.build(story)
+    buf.seek(0)
+    return buf.read()
+
+
+def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib):
+    buf = io.BytesIO()
+    W = 72*mm
+    doc = SimpleDocTemplate(buf, pagesize=(W, 400*mm),
+        leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
+    story = []
+
+    def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
+        s = ParagraphStyle('cp', fontName=font, fontSize=size,
+            textColor=color, alignment={'LEFT':0,'CENTER':1,'RIGHT':2}[align], leading=size+2)
+        return Paragraph(str(text) if text else '', s)
+
+    def row2(a, b, fa='Helvetica', fb='Helvetica', sa=8, sb=8, ca=C_MUTED, cb=colors.black):
+        return Table([[CP(a,fa,sa,ca,'LEFT'), CP(b,fb,sb,cb,'RIGHT')]],
+            colWidths=[W*0.55-3*mm, W*0.45-3*mm],
+            style=[('TOPPADDING',(0,0),(-1,-1),1),('BOTTOMPADDING',(0,0),(-1,-1),1)])
+
+    def dline2():
+        return Table([['']], colWidths=[W-6*mm],
+            style=[('LINEBELOW',(0,0),(-1,-1),0.5,C_MUTED),
+                   ('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),2)])
+
+    story.append(CP('TILLA HISOB', 'Helvetica-Bold', 11, C_GOLD))
+    story.append(CP('QARZ HOLATI', size=8, color=C_MUTED))
+    story.append(Spacer(1,2*mm))
+    story.append(dline2())
+    story.append(row2('Klient:', klient_nom, fb='Helvetica-Bold', cb=C_DARK))
+    story.append(row2('Sana:', sana, cb=C_DARK))
+    story.append(Spacer(1,1*mm))
+    story.append(dline2())
+    story.append(Spacer(1,1*mm))
+
+    # Qarz tarkibi - zavod bo'yicha guruhla
+    by_zavod = {}
+    for item in qarz_tarkib:
+        z = item.get('zavod', '')
+        if z not in by_zavod:
+            by_zavod[z] = []
+        by_zavod[z].append(item)
+
+    for znom, turs in by_zavod.items():
+        z_total = sum(t.get('qarz', 0) for t in turs)
+        story.append(CP(znom, 'Helvetica-Bold', 9, C_GOLD, 'LEFT'))
+        for t in turs:
+            if t.get('qarz', 0) < 0.01:
+                continue
+            story.append(row2('  ' + t.get('tur',''),
+                '-{:.2f}g'.format(t['qarz']), cb=C_RED))
+        story.append(row2('  Jami:', '-{:.2f}g'.format(z_total),
+            fb='Helvetica-Bold', cb=C_RED))
+        story.append(Spacer(1,1*mm))
+
+    story.append(dline2())
+    story.append(Spacer(1,1*mm))
+
+    # Umumiy qarz
+    jami_style = [
+        ('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#FFF0F0')),
+        ('TOPPADDING',(0,0),(-1,-1),3),
+        ('BOTTOMPADDING',(0,0),(-1,-1),3),
+    ]
+    story.append(Table([[
+        CP('UMUMIY QARZ:', 'Helvetica-Bold', 10, C_RED, 'LEFT'),
+        CP('-{:.2f}g'.format(abs(jami_qarz)), 'Helvetica-Bold', 12, C_RED, 'RIGHT')
+    ]], colWidths=[W*0.55-3*mm, W*0.45-3*mm], style=jami_style))
+    story.append(Spacer(1,2*mm))
+    story.append(dline2())
+    story.append(CP('— Tilla Hisob —', size=7, color=C_MUTED))
 
     doc.build(story)
     buf.seek(0)
