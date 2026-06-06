@@ -6,7 +6,7 @@
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<!-- xlsx removed, not used -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
 :root{--bg:#111111;--surf:#1c1c1c;--surf2:#252525;--border:#2e2e2e;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
@@ -37,8 +37,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .big-stat{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:16px;position:relative;overflow:hidden;}
 .big-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
 .big-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-.big-stat-val{font-family:'Roboto',sans-serif;font-size:36px;color:var(--gold);font-weight:500;line-height:1;}
-.big-stat-val span{font-size:18px;color:var(--muted);margin-left:4px;}
+.big-stat-val{font-family:'Roboto',sans-serif;font-size:24px;color:var(--gold);font-weight:500;line-height:1;}
+.big-stat-val span{font-size:13px;color:var(--muted);margin-left:3px;}
 .big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .big-btn{border-radius:var(--r);padding:18px 16px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:all .15s;}
 .big-btn.kirim{background:#0f1f10;border-color:#1e3a1e;}
@@ -70,7 +70,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .empty-icon{font-size:36px;opacity:.2;margin-bottom:8px;}
 .zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .zrow-name{font-size:16px;font-weight:600;color:var(--text);}
-.zrow-g{font-family:'Roboto',sans-serif;font-size:18px;color:var(--gold);font-weight:500;}
+.zrow-g{font-family:'Roboto',sans-serif;font-size:15px;color:var(--gold);font-weight:500;}
 .tacc{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;}
 .tacc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .tacc-name{font-size:15px;font-weight:600;color:var(--text);}
@@ -111,7 +111,7 @@ input[type=number]{-moz-appearance:textfield;}
   .screen{padding:20px;max-width:680px;}
   .big-btn-row{grid-template-columns:1fr 1fr;gap:14px;}
   .big-btn{padding:22px 20px;}
-  .big-stat-val{font-size:42px;}
+  .big-stat-val{font-size:22px;}
   .modal{border-radius:20px;margin-bottom:40px;max-width:500px;}
   .modal-overlay{align-items:center;padding:20px;}
   .nav-tab{font-size:15px;padding:11px;}
@@ -138,7 +138,7 @@ input[type=number]{-moz-appearance:textfield;}
   .modal{max-width:520px;border-radius:20px;margin-bottom:40px;}
   .modal-overlay{align-items:center;padding:20px;}
   
-  .big-stat-val{font-size:44px;}
+  .big-stat-val{font-size:22px;}
   .big-btn{padding:22px 18px;}
   .zrow{padding:16px 18px;}
   .hrow{padding:16px 18px;}
@@ -269,9 +269,21 @@ input[type=number]{-moz-appearance:textfield;}
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
     <div style="margin-top:4px;">
-      <div class="big-stat">
-        <div class="big-stat-label">Jami ostatka</div>
-        <div class="big-stat-val" id="home-total">0<span>g</span></div>
+      <div class="big-stat" style="padding:0;overflow:hidden;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
+          <div style="padding:16px 18px;border-right:1px solid var(--border);">
+            <div class="big-stat-label">Bizda</div>
+            <div class="big-stat-val" id="home-bizda">0<span>g</span></div>
+          </div>
+          <div style="padding:16px 18px;border-right:1px solid var(--border);">
+            <div class="big-stat-label">Klientlarda</div>
+            <div class="big-stat-val" id="home-klientda" style="color:var(--red);">0<span>g</span></div>
+          </div>
+          <div style="padding:16px 18px;">
+            <div class="big-stat-label">Jami</div>
+            <div class="big-stat-val" id="home-total">0<span>g</span></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="big-btn-row" style="grid-template-columns:1fr 1fr 1fr;">
@@ -318,7 +330,8 @@ input[type=number]{-moz-appearance:textfield;}
         <span style="font-size:16px;color:#5ab4e8;">$</span><span>Tolov</span>
       </button>
     </div>
-    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <button class="action-btn" onclick="openKlientPDFModal()" style="border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
       <button class="action-btn" onclick="openKlientModal()">+ Klient</button>
     </div>
     <div class="nav-tabs">
@@ -338,13 +351,26 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="back-btn" onclick="goTo('s-home')">←</button>
     <div class="stitle" id="zavod-title"></div>
   </div>
-  <div class="big-stat" style="margin-top:0;">
-    <div class="big-stat-label">Jami ostatka</div>
-    <div class="big-stat-val" id="zavod-total">0<span>g</span></div>
+  <div class="big-stat" style="margin-top:0;padding:0;overflow:hidden;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
+      <div style="padding:14px 16px;border-right:1px solid var(--border);">
+        <div class="big-stat-label">Bizda</div>
+        <div class="big-stat-val" id="zavod-bizda">0<span>g</span></div>
+      </div>
+      <div style="padding:14px 16px;border-right:1px solid var(--border);">
+        <div class="big-stat-label">Klientlarda</div>
+        <div class="big-stat-val" id="zavod-klientda" style="color:var(--red);">0<span>g</span></div>
+      </div>
+      <div style="padding:14px 16px;">
+        <div class="big-stat-label">Jami</div>
+        <div class="big-stat-val" id="zavod-total">0<span>g</span></div>
+      </div>
+    </div>
   </div>
   <div class="nav-tabs">
     <div class="nav-tab active" id="ztab-turlar" onclick="zTab('turlar')">Turlar</div>
     <div class="nav-tab" id="ztab-hisobot" onclick="zTab('hisobot')">Hisobot</div>
+    <div class="nav-tab" id="ztab-klient" onclick="zTab('klient')">Klient</div>
   </div>
   <div id="zavod-turlar-cont">
     <div id="zavod-tur-list"></div>
@@ -355,6 +381,7 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
   </div>
   <div id="zavod-hisobot-cont" style="display:none;"></div>
+  <div id="zavod-klient-cont" style="display:none;"></div>
 </div>
 
 <!-- KIRIM -->
@@ -614,55 +641,55 @@ if (!data.klientlar) data.klientlar = [];
 var _syncTimer = null;
 function save(logText) {
   localStorage.setItem('tilla-v2', JSON.stringify(data));
-  // Debounce - 800ms dan keyin sync
   if (_syncTimer) clearTimeout(_syncTimer);
   _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 800);
 }
 
-async function syncToCloud(logText) {
-  try {
-    var payload = {
-      zavodlar: data.zavodlar,
-      klientlar: data.klientlar || [],
-      updated_at: new Date().toISOString()
+function syncToCloud(logText) {
+  // Supabase SDK DataCloneError berayapti - to'g'ri fetch ishlatamiz
+  var url = SB_URL + '/rest/v1/tilla_data';
+  var payload = JSON.stringify({
+    user_id: USER_ID,
+    zavodlar: data.zavodlar,
+    klientlar: data.klientlar || [],
+    updated_at: new Date().toISOString()
+  });
+  // upsert: POST with Prefer: resolution=merge-duplicates
+  var req = new XMLHttpRequest();
+  req.open('POST', url, true);
+  req.setRequestHeader('Content-Type', 'application/json');
+  req.setRequestHeader('apikey', SB_KEY);
+  req.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
+  req.setRequestHeader('Prefer', 'resolution=merge-duplicates');
+  req.onerror = function(){ };
+  req.send(payload);
+}
+
+function loadFromCloud() {
+  return new Promise(function(resolve) {
+    var url = SB_URL + '/rest/v1/tilla_data?user_id=eq.' + USER_ID + '&select=zavodlar,klientlar&limit=1';
+    var req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.setRequestHeader('apikey', SB_KEY);
+    req.setRequestHeader('Authorization', 'Bearer ' + SB_KEY);
+    req.setRequestHeader('Accept', 'application/json');
+    req.onload = function() {
+      try {
+        var rows = JSON.parse(req.responseText);
+        if (!rows || !rows.length) { resolve(false); return; }
+        var d = rows[0];
+        if (d.zavodlar && d.zavodlar.length > 0) data.zavodlar = d.zavodlar;
+        data.klientlar = d.klientlar || [];
+        localStorage.setItem('tilla-v2', JSON.stringify(data));
+        resolve(true);
+      } catch(e) { resolve(false); }
     };
-    // upsert - insert or update
-    var res = await sb.from('tilla_data').upsert(
-      {user_id: USER_ID, ...payload},
-      {onConflict: 'user_id'}
-    );
-    if (res.error) throw res.error;
-    if (logText) {
-      sb.from('tilla_log').insert({user_id: USER_ID, amal: 'tahrir', tavsif: logText}).then(function(){});
-    }
-  } catch(e) { console.error('sync error:', e); }
+    req.onerror = function() { resolve(false); };
+    req.send();
+  });
 }
 
-async function loadFromCloud() {
-  try {
-    var res = await sb.from('tilla_data')
-      .select('zavodlar,klientlar,updated_at')
-      .eq('user_id', USER_ID)
-      .single();
-    if (res.error) throw res.error;
-    if (res.data) {
-      // Zavodlar
-      if (res.data.zavodlar && res.data.zavodlar.length > 0) {
-        data.zavodlar = res.data.zavodlar;
-      }
-      // Klientlar - cloud har doim ustun
-      data.klientlar = res.data.klientlar || [];
-      localStorage.setItem('tilla-v2', JSON.stringify(data));
-      return true;
-    }
-  } catch(e) {
-    console.error('load error:', e);
-    // Cloud da yo'q - local dan ishlaymiz
-    if (e.code === 'PGRST116') return false; // no rows
-  }
-  return false;
-}
-
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
 function fmtG(g) { return parseFloat(g).toFixed(2); }
@@ -704,20 +731,42 @@ function homeTab(tab) {
 
 function zTab(tab) {
   curZTab = tab;
-  document.getElementById('ztab-turlar').classList.toggle('active', tab === 'turlar');
-  document.getElementById('ztab-hisobot').classList.toggle('active', tab === 'hisobot');
-  document.getElementById('zavod-turlar-cont').style.display = tab === 'turlar' ? 'block' : 'none';
-  document.getElementById('zavod-hisobot-cont').style.display = tab === 'hisobot' ? 'block' : 'none';
-  if (tab === 'hisobot') renderZavodHisobot();
+  ['turlar','hisobot','klient'].forEach(function(t){
+    var el=document.getElementById('ztab-'+t);
+    if(el) el.classList.toggle('active', tab===t);
+  });
+  document.getElementById('zavod-turlar-cont').style.display = tab==='turlar'?'block':'none';
+  document.getElementById('zavod-hisobot-cont').style.display = tab==='hisobot'?'block':'none';
+  document.getElementById('zavod-klient-cont').style.display = tab==='klient'?'block':'none';
+  if(tab==='hisobot') renderZavodHisobot();
+  if(tab==='klient') renderZavodKlient();
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // ── RENDER HOME ───────────────────────────────────────────────────────────────
+function klientlarJamiQarz() {
+  var q = 0;
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.tip==='berish') q += op.gramm;
+      else if(op.tip==='vozvrat') q -= op.gramm;
+      else if(op.tip==='tolov') q -= (op.ekvivalent||0);
+    });
+  });
+  return Math.max(0, Math.round(q*100)/100);
+}
+
 function renderHome() {
-  var tot = 0;
-  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ tot += t.ostatka; }); });
-  document.getElementById('home-total').innerHTML = fmtG(tot) + '<span>g</span>';
+  var bizda = 0;
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
+  var klientda = klientlarJamiQarz();
+  var jami = bizda + klientda;
+  var bd = document.getElementById('home-bizda');
+  var kd = document.getElementById('home-klientda');
+  if(bd) bd.innerHTML = fmtG(bizda) + '<span>g</span>';
+  if(kd) kd.innerHTML = fmtG(klientda) + '<span>g</span>';
+  document.getElementById('home-total').innerHTML = fmtG(jami) + '<span>g</span>';
   var list = document.getElementById('home-zavodlar');
   var empty = document.getElementById('home-empty');
   if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
@@ -808,8 +857,24 @@ function renderZavod() {
   var z = data.zavodlar[curZ];
   if (!z) return;
   document.getElementById('zavod-title').textContent = z.nom;
-  var zG = 0; z.turlar.forEach(function(t){ zG += t.ostatka; });
-  document.getElementById('zavod-total').innerHTML = fmtG(zG) + '<span>g</span>';
+  var bizda = 0; z.turlar.forEach(function(t){ bizda += t.ostatka; });
+  // Klientlarda shu zavod qarz
+  var klientda = 0;
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.zavod !== z.nom) return;
+      if(op.tip==='berish') klientda += op.gramm;
+      else if(op.tip==='vozvrat') klientda -= op.gramm;
+      else if(op.tip==='tolov') klientda -= (op.ekvivalent||0);
+    });
+  });
+  klientda = Math.max(0, Math.round(klientda*100)/100);
+  var jami = bizda + klientda;
+  var bd = document.getElementById('zavod-bizda');
+  var kd = document.getElementById('zavod-klientda');
+  if(bd) bd.innerHTML = fmtG(bizda) + '<span>g</span>';
+  if(kd) kd.innerHTML = fmtG(klientda) + '<span>g</span>';
+  document.getElementById('zavod-total').innerHTML = fmtG(jami) + '<span>g</span>';
   var list = document.getElementById('zavod-tur-list');
   var empty = document.getElementById('zavod-tur-empty');
   if (!z.turlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
@@ -844,6 +909,126 @@ function renderZavod() {
 }
 
 function toggleTur(ti) { openTurIdx = openTurIdx === ti ? -1 : ti; renderZavod(); }
+
+function renderZavodKlient() {
+  var z = data.zavodlar[curZ];
+  var cont = document.getElementById('zavod-klient-cont');
+  if(!z || !cont) return;
+
+  // Har tur uchun klientlardagi qarz hisoblash
+  // z.turlar - tur nomlari bor
+  // data.klientlar - klient tarixi bor
+  var turQarz = {}; // key: tur.nom
+  z.turlar.forEach(function(t){ turQarz[t.nom] = {}; }); // {turNom: {klientNom: qarz}}
+
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.zavod !== z.nom) return;
+      if(!turQarz[op.tur]) return;
+      if(!turQarz[op.tur][k.nom]) turQarz[op.tur][k.nom] = {nom:k.nom, qarz:0, lastDate:null};
+      var item = turQarz[op.tur][k.nom];
+      if(op.tip==='berish') item.qarz -= op.gramm;
+      else if(op.tip==='vozvrat') item.qarz += op.gramm;
+      else if(op.tip==='tolov') item.qarz += (op.ekvivalent||0);
+      if(!item.lastDate || op.sana > item.lastDate) item.lastDate = op.sana;
+    });
+  });
+
+  // Jami hisob: bizda vs klientlarda
+  var zavodBizda = 0;
+  z.turlar.forEach(function(t){ zavodBizda += t.ostatka; });
+
+  var klientJami = 0;
+  z.turlar.forEach(function(t){
+    Object.values(turQarz[t.nom]||{}).forEach(function(item){
+      if(item.qarz < -0.001) klientJami += Math.abs(item.qarz);
+    });
+  });
+
+  var sort = _zavodKlientSort || 'kop';
+  var out = '';
+
+  // Stat
+  out += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin-bottom:14px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">';
+  out += '<div style="padding:12px 14px;border-right:1px solid var(--border);">';
+  out += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Bizda</div>';
+  out += '<div style="font-size:20px;font-weight:500;color:var(--gold);">'+fmtG(zavodBizda)+'g</div></div>';
+  out += '<div style="padding:12px 14px;border-right:1px solid var(--border);">';
+  out += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Klientlarda</div>';
+  out += '<div style="font-size:20px;font-weight:500;color:var(--red);">'+fmtG(klientJami)+'g</div></div>';
+  out += '<div style="padding:12px 14px;">';
+  out += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Jami</div>';
+  out += '<div style="font-size:20px;font-weight:500;color:var(--gold);">'+fmtG(zavodBizda+klientJami)+'g</div></div></div>';
+
+  // Sort tugmalar
+  function sortBtn(s, label) {
+    var active = sort===s;
+    var bc = active?'var(--gold)':'var(--border)';
+    var bg = active?'rgba(201,168,76,0.15)':'transparent';
+    var fc = active?'var(--gold)':'var(--muted)';
+    return '<button class="zk-sort-btn" data-sort="'+s+'" style="padding:4px 12px;border-radius:20px;border:1px solid '+bc+';background:'+bg+';font-size:11px;font-weight:600;color:'+fc+';cursor:pointer;">'+label+'</button>';
+  }
+  out += '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">';
+  out += sortBtn('kop', "Ko'p qarz ↓");
+  out += sortBtn('kam', "Kam qarz ↑");
+  out += sortBtn('birinchi', "Birinchi olgan");
+  out += sortBtn('oxirgi', "Oxirgi olgan");
+  out += '</div>';
+
+  // Barcha klientlar (qarzlilari) ro'yxat
+  var allKlientQarz = [];
+  z.turlar.forEach(function(t){
+    Object.values(turQarz[t.nom]||{}).forEach(function(item){
+      if(item.qarz < -0.001) {
+        allKlientQarz.push({nom:item.nom, qarz:item.qarz, lastDate:item.lastDate||''});
+      }
+    });
+  });
+
+  // Dublikatlarni birlashtir (bir klient bir necha turda qarzli bo'lishi mumkin)
+  var merged = {};
+  allKlientQarz.forEach(function(item){
+    if(!merged[item.nom]) merged[item.nom]={nom:item.nom,qarz:0,lastDate:''};
+    merged[item.nom].qarz += item.qarz;
+    if(item.lastDate > merged[item.nom].lastDate) merged[item.nom].lastDate = item.lastDate;
+  });
+  var list = Object.values(merged).filter(function(x){ return x.qarz < -0.001; });
+
+  // Sort
+  if(sort==='kop') list.sort(function(a,b){ return a.qarz-b.qarz; }); // eng manfiy birinchi
+  else if(sort==='kam') list.sort(function(a,b){ return b.qarz-a.qarz; });
+  else if(sort==='birinchi') list.sort(function(a,b){ return a.lastDate.localeCompare(b.lastDate); });
+  else list.sort(function(a,b){ return b.lastDate.localeCompare(a.lastDate); });
+
+  if(!list.length){
+    out += '<div class="empty"><div class="empty-icon">✓</div>Klientlarda qarz yoq.</div>';
+  } else {
+    list.forEach(function(item){
+      var ini = item.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+      out += '<div class="hrow" style="margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="openKlientByName(this.dataset.nom)" data-nom="'+item.nom+'">';
+      out += '<div style="width:32px;height:32px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--muted);">'+ini+'</div>';
+      out += '<div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+item.nom+'</div>';
+      out += '<div style="font-size:10px;color:var(--muted);">oxirgi: '+item.lastDate+'</div></div>';
+      out += '<div style="font-size:14px;font-weight:600;color:var(--red);">'+fmtG(item.qarz)+'g</div></div>';
+    });
+  }
+
+  cont.innerHTML = out;
+}
+
+var _zavodKlientSort = 'kop';
+function zavodKlientSort(s) {
+  _zavodKlientSort = s;
+  renderZavodKlient();
+}
+
+function openKlientByName(el) {
+  var nom = el ? (el.dataset ? el.dataset.nom : el) : '';
+  if (!nom && typeof el === 'string') nom = el;
+  var ki = -1;
+  (data.klientlar||[]).forEach(function(k,i){ if(k.nom===nom) ki=i; });
+  if(ki>=0) { openKlientDetail(ki); }
+}
 
 function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
@@ -1096,22 +1281,20 @@ async function cacheOchir() {
     location.reload(true);
   }
 }
-async function resetTasdiqlash() {
+function resetTasdiqlash() {
   if(confirm('BARCHA MALUMOT OCHIRILADI! Davom etasizmi?')){
     if(confirm('Haqiqatan ham?')){
       data={zavodlar:[],klientlar:[]};
-      localStorage.removeItem('tilla-v2');
-      // Cloud dan ham och
-      try {
-        await sb.from('tilla_data').delete().eq('user_id', USER_ID);
-      } catch(e){ console.error(e); }
-      location.reload();
+      localStorage.clear();
+      sb.from('tilla_data').delete().eq('user_id',USER_ID).then(function(){});
+      setTimeout(function(){ location.reload(); }, 500);
     }
   }
 }
 
 // ── PDF ───────────────────────────────────────────────────────────────────────
 var _pdfZavodIdx = null;
+var _klientPDFMode = false;
 function openPDFModal(zi) {
   _pdfZavodIdx=zi;
   var now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
@@ -1127,6 +1310,11 @@ function pdfDavrTanla(tip) {
   else if(tip==='haftalik'){var day=now.getDay()||7,mon=new Date(now);mon.setDate(now.getDate()-day+1);var sun=new Date(mon);sun.setDate(mon.getDate()+6);dan=mon.toISOString().slice(0,10);gacha=sun.toISOString().slice(0,10);}
   else{dan=document.getElementById('pdf-dan').value;gacha=document.getElementById('pdf-gacha').value;}
   closeModal('modal-pdf');
+  if (_klientPDFMode) {
+    _klientPDFMode = false;
+    klientlarObshiyPDF(dan||null, gacha||null);
+    return;
+  }
   var payload={zavodlar:data.zavodlar,dan:dan||null,gacha:gacha||null,zavod:(_pdfZavodIdx!==null&&_pdfZavodIdx!==undefined)?data.zavodlar[_pdfZavodIdx].nom:null};
   fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
@@ -1713,6 +1901,8 @@ function klientTarixTahrir(el) {
 
 // Event delegation for klient tarix buttons
 document.addEventListener('click', function(e) {
+  var sortBtn = e.target.closest('.zk-sort-btn');
+  if (sortBtn) { _zavodKlientSort = sortBtn.dataset.sort; renderZavodKlient(); return; }
   var chek = e.target.closest('.kchek-btn');
   var tahrir = e.target.closest('.ktahrir-btn');
   if (chek) { e.stopPropagation(); klientChekBtn(chek); }
@@ -1831,6 +2021,17 @@ function klientBerishTahrir(ki, gIdx) {
   alert('Tahrirlash keyinroq qoshiladi');
 }
 
+function openKlientPDFModal() {
+  // Davr modal ochish
+  var now = new Date(), y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  var last = new Date(y, now.getMonth()+1, 0).getDate();
+  document.getElementById('pdf-dan').value = y+'-01-01';
+  document.getElementById('pdf-gacha').value = y+'-'+m+'-'+String(last).padStart(2,'0');
+  _pdfZavodIdx = null;
+  _klientPDFMode = true;
+  document.getElementById('modal-pdf').classList.add('open');
+}
+
 function klientOchir(){
   var k=data.klientlar[curKlientIdx];
   if(!k) return;
@@ -1841,13 +2042,127 @@ function klientOchir(){
   renderKlientlar();
 }
 
+function klientlarObshiyPDF(dan, gacha) {
+  // Barcha klientlar tarixi - sana boyicha
+  var allOps = [];
+  (data.klientlar||[]).forEach(function(k) {
+    k.tarix.forEach(function(op) {
+      allOps.push({klient_nom: k.nom, tel: k.tel||'', op: op});
+    });
+  });
+  // Davr filter
+  function inDavr(sana) {
+    if (!dan && !gacha) return true;
+    var parts = sana.split('.');
+    var d = parts[2]+'-'+parts[1]+'-'+parts[0];
+    if (dan && d < dan) return false;
+    if (gacha && d > gacha) return false;
+    return true;
+  }
+  allOps = allOps.filter(function(item){ return inDavr(item.op.sana); });
+  allOps.sort(function(a,b){ return a.op.sana.localeCompare(b.op.sana); });
+
+  // Har klient ostatka hisoblash
+  var klientOstatka = {};
+  (data.klientlar||[]).forEach(function(k){ klientOstatka[k.nom] = 0; });
+
+  var ops_data = allOps.map(function(item) {
+    var op = item.op;
+    if (op.tip==='berish') klientOstatka[item.klient_nom] -= op.gramm;
+    else if (op.tip==='vozvrat') klientOstatka[item.klient_nom] += op.gramm;
+    else if (op.tip==='tolov') klientOstatka[item.klient_nom] += (op.ekvivalent||0);
+    return {
+      klient_nom: item.klient_nom,
+      sana: op.sana,
+      tip: op.tip,
+      zavod: op.zavod||'',
+      tur: op.tur||'',
+      gramm: op.tip==='berish'?-op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0)),
+      summa: op.summa||0,
+      kurs: op.kurs||0,
+      ostatka: Math.round(klientOstatka[item.klient_nom]*100)/100
+    };
+  });
+
+  // Jami hisob
+  var jamiBerildi=0, jamiVozvrat=0, jamiTolovG=0, jamiTolovPul=0;
+  allOps.forEach(function(item){
+    var op=item.op;
+    if(op.tip==='berish') jamiBerildi+=op.gramm;
+    else if(op.tip==='vozvrat') jamiVozvrat+=op.gramm;
+    else if(op.tip==='tolov'){jamiTolovG+=(op.ekvivalent||0);jamiTolovPul+=(op.summa||0);}
+  });
+
+  // Joriy qarz tarkibi
+  var qarz_tarkib = (data.klientlar||[]).map(function(k){
+    var q = klientJamiQarz(k);
+    return {klient_nom:k.nom, qarz:q};
+  }).filter(function(x){ return Math.abs(x.qarz)>0.001; });
+
+  var payload = {
+    tip: 'klientlar_tarix',
+    dan: dan, gacha: gacha,
+    ops: ops_data,
+    jami_berildi: Math.round(jamiBerildi*100)/100,
+    jami_vozvrat: Math.round(jamiVozvrat*100)/100,
+    jami_tolov_g: Math.round(jamiTolovG*100)/100,
+    jami_tolov_pul: Math.round(jamiTolovPul*100)/100,
+    qarz_tarkib: qarz_tarkib
+  };
+  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok)throw new Error('Server xatosi');return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
+  .catch(function(e){alert('PDF xato: '+e.message);});
+}
+
 function klientPDF(){
   var k=data.klientlar[curKlientIdx];
   if(!k) return;
-  var payload={zavodlar:data.zavodlar,dan:null,gacha:null,zavod:null,klient:k.nom};
+  // Klient tarixi - sana boyicha
+  var klientOstatka=0;
+  var ops=k.tarix.slice().sort(function(a,b){return a.sana.localeCompare(b.sana);}).map(function(op){
+    if(op.tip==='berish') klientOstatka-=op.gramm;
+    else if(op.tip==='vozvrat') klientOstatka+=op.gramm;
+    else if(op.tip==='tolov') klientOstatka+=(op.ekvivalent||0);
+    return {
+      tip:op.tip, sana:op.sana,
+      zavod:op.zavod||'', tur:op.tur||'',
+      gramm:op.tip==='berish'?-op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0)),
+      summa:op.summa||0, kurs:op.kurs||0,
+      ostatka:Math.round(klientOstatka*100)/100
+    };
+  });
+  var jamiBerildi=0,jamiVozvrat=0,jamiTolovG=0,jamiTolovPul=0;
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') jamiBerildi+=op.gramm;
+    else if(op.tip==='vozvrat') jamiVozvrat+=op.gramm;
+    else if(op.tip==='tolov'){jamiTolovG+=(op.ekvivalent||0);jamiTolovPul+=(op.summa||0);}
+  });
+  var qbd={};
+  k.tarix.forEach(function(op){
+    if(!op.zavod||!op.tur) return;
+    var key=op.zavod+'||'+op.tur;
+    if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+    if(op.tip==='berish') qbd[key].qarz-=op.gramm;
+    else if(op.tip==='vozvrat') qbd[key].qarz+=op.gramm;
+    else if(op.tip==='tolov') qbd[key].qarz+=(op.ekvivalent||0);
+  });
+  var qarz_tarkib=Object.values(qbd).filter(function(b){return Math.abs(b.qarz)>0.001;});
+  var payload={
+    tip:'klient_tarix',
+    klient_nom:k.nom,
+    klient_tel:k.tel||'',
+    ops:ops,
+    dan:null,gacha:null,
+    jami_berildi:Math.round(jamiBerildi*100)/100,
+    jami_vozvrat:Math.round(jamiVozvrat*100)/100,
+    jami_tolov_g:Math.round(jamiTolovG*100)/100,
+    jami_tolov_pul:Math.round(jamiTolovPul*100)/100,
+    qarz_tarkib:qarz_tarkib
+  };
   fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
-  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},10000);})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 
@@ -1880,16 +2195,13 @@ renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
 
-(async function(){
-  try {
-    var synced = await loadFromCloud();
-    if (synced) {
-      renderHome();
-      renderKlientlar();
-      if (isPCMode()) pcInit();
-    }
-  } catch(e) { console.error('startup error:', e); }
-})();
+loadFromCloud().then(function(synced){
+  if (synced) {
+    renderHome();
+    renderKlientlar();
+    if (isPCMode()) pcInit();
+  }
+});
 
 // Swipe left/right - tab almashtirish
 (function(){
