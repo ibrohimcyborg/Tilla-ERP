@@ -1009,29 +1009,28 @@ function openKlientDetail(ki) {
   });
   document.getElementById('kd-breakdown').innerHTML=bHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
   // Sana bo'yicha guruhlash
+  // Sana bo'yicha guruhlash
   var groups={}, groupOrder=[];
   k.tarix.forEach(function(op){
-    var key=op.sana+'|'+op.tip;
-    if(op.tip==='berish'||op.tip==='vozvrat') key=op.sana+'|'+op.tip;
-    else key=op.sana+'|tolov';
-    // Tolov va vozvrat bir sanada birlashsin
-    var groupKey=op.sana+'|session';
-    if(op.tip==='tolov'||op.tip==='vozvrat') groupKey=op.sana+'|payment';
-    else groupKey=op.sana+'|berish';
-    if(!groups[groupKey]) { groups[groupKey]={sana:op.sana,tip:op.tip,ops:[],isPayment:op.tip!=='berish'}; groupOrder.push(groupKey); }
-    // If berish group, merge same-day berish
-    if(op.tip==='berish'&&groups[groupKey].tip!=='berish') { groupKey=op.sana+'|berish2'; if(!groups[groupKey]){groups[groupKey]={sana:op.sana,tip:'berish',ops:[],isPayment:false};groupOrder.push(groupKey);} }
+    var groupKey=op.sana+(op.tip==='berish'?'|berish':'|payment');
+    if(!groups[groupKey]){
+      groups[groupKey]={sana:op.sana, tip:op.tip, ops:[], isPayment:op.tip!=='berish'};
+      groupOrder.push(groupKey);
+    }
     groups[groupKey].ops.push(op);
   });
   groupOrder.sort(function(a,b){return groups[b].sana.localeCompare(groups[a].sana);});
 
   var tHTML='';
-  groupOrder.forEach(function(key){
-    var g=groups[key];
-    var isB=g.tip==='berish', isP=g.isPayment;
-    var bc=isB?'var(--red)':isP?'#5ab4e8':'var(--gold)';
+  groupOrder.forEach(function(gkey){
+    var g=groups[gkey];
+    var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
+    var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
+    var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
+    var bc=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
+    var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
+    var lcolor=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
 
-    // Jami hisoblash
     var jamiG=0;
     g.ops.forEach(function(op){
       if(op.tip==='berish') jamiG-=op.gramm;
@@ -1040,29 +1039,22 @@ function openKlientDetail(ki) {
     });
 
     tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
-    // Header
-    tHTML+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-    tHTML+='<div>';
-    // Tip label
-    var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
-    var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
-    var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
-    var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
-    var lcolor=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
-    tHTML+='<div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
-    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+'</div>';
-    tHTML+='</div>';
+    tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+    tHTML+='<div><div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
+    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+'</div></div>';
+    tHTML+='<div style="display:flex;align-items:center;gap:6px;">';
     tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+(jamiG>=0?'var(--green)':'var(--red)')+';">'+(jamiG>=0?'+':'')+fmtG(jamiG)+'g</div>';
-    tHTML+='</div>';
+    tHTML+='<button onclick="event.stopPropagation();klientChekBasit('+ki+','+JSON.stringify(g.sana)+','+hasBerish+')" style="background:var(--surf2);border:1px solid #4a2a4a;color:#c084c0;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer;">⎙</button>';
+    tHTML+='</div></div>';
 
-    // Detail rows
-    if(g.ops.length>1||(g.ops.length===1&&g.ops[0].tip!=='berish')){
+    if(g.ops.length>1){
       tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
       g.ops.forEach(function(op){
-        var isOB=op.tip==='berish',isOV=op.tip==='vozvrat',isOT=op.tip==='tolov';
+        var isOV=op.tip==='vozvrat',isOT=op.tip==='tolov',isOB=op.tip==='berish';
         var oc=isOB?'var(--red)':isOV?'var(--gold)':'#5ab4e8';
         var ov=isOB?('−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
-        var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+op.kurs+'$/g');
+        var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g');
+        if(op.zavod&&op.tur&&isOT) os=op.zavod+' · '+op.tur+' — '+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
         tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">';
         tHTML+='<div style="font-size:11px;color:var(--muted);">'+os+'</div>';
         tHTML+='<div style="font-size:12px;font-weight:600;color:'+oc+';">'+ov+'</div>';
@@ -1071,7 +1063,9 @@ function openKlientDetail(ki) {
       tHTML+='</div>';
     } else if(g.ops.length===1){
       var op=g.ops[0];
-      var sub2=op.tip==='berish'?(op.zavod+' · '+op.tur):op.zavod?op.zavod+' · '+op.tur:'';
+      var sub2='';
+      if(op.tip==='berish'||op.tip==='vozvrat') sub2=(op.zavod||'')+' · '+(op.tur||'');
+      else if(op.tip==='tolov') sub2=fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g'+(op.zavod?' — '+op.zavod+' · '+op.tur:'');
       if(sub2) tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:4px;">'+sub2+'</div>';
     }
     tHTML+='</div>';
@@ -1254,8 +1248,19 @@ function kTolovKlientChange(){
   var k=data.klientlar[ki];
   var breakdown={};
   k.tarix.forEach(function(op){
-    if(op.tip==='berish'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz+=op.gramm;}
-    else if(op.tip==='vozvrat'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz-=op.gramm;}
+    if(op.tip==='berish'){
+      var key=op.zavod+'||'+op.tur;
+      if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
+      breakdown[key].qarz+=op.gramm;
+    } else if(op.tip==='vozvrat'){
+      var key=op.zavod+'||'+op.tur;
+      if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
+      breakdown[key].qarz-=op.gramm;
+    } else if(op.tip==='tolov'&&op.zavod&&op.tur){
+      var key=op.zavod+'||'+op.tur;
+      if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
+      breakdown[key].qarz-=(op.ekvivalent||0);
+    }
   });
   data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){var key=z.nom+'||'+t.nom;if(breakdown[key]){breakdown[key].zi=zi;breakdown[key].ti=ti;}});});
   window._kTolovBD=breakdown;
@@ -1303,11 +1308,34 @@ function kTolovCalc(){
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
-    if(s>0&&kurs>0){var eq=roundG(s/kurs);var cEl=document.getElementById('kt-calc-'+idx);var eEl=document.getElementById('kt-eq-'+idx);if(cEl)cEl.style.display='block';if(eEl)eEl.textContent=fmtG(eq)+'g';totalEq+=eq;}
+    var eq=0;
+    if(s>0&&kurs>0){
+      eq=roundG(s/kurs);
+      var cEl=document.getElementById('kt-calc-'+idx);
+      if(cEl){
+        var qolgan=Math.max(0,b.qarz-eq-v);
+        cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'+(v>0?' + <b style="color:var(--gold);">'+fmtG(v)+'g</b> vozvrat':'')+'<br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
+        cEl.style.display='block';
+      }
+      totalEq+=eq;
+    } else if(v>0) {
+      var cEl=document.getElementById('kt-calc-'+idx);
+      if(cEl){
+        var qolgan=Math.max(0,b.qarz-v);
+        cEl.innerHTML='Vozvrat: <b style="color:var(--gold);">'+fmtG(v)+'g</b><br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
+        cEl.style.display='block';
+      }
+    }
     totalV+=v;idx++;
   });
   var jEl=document.getElementById('kt-jami');
-  if(jEl){if(totalEq>0||totalV>0){var txt='Jami: <b style="color:var(--green);">'+fmtG(totalEq)+'g</b> (pul)';if(totalV>0)txt+=' + <b style="color:var(--gold);">'+fmtG(totalV)+'g</b> (vozvrat)';txt+=' = <b style="color:var(--green);">'+fmtG(Math.round((totalEq+totalV)*100)/100)+'g</b>';jEl.innerHTML=txt;jEl.style.display='block';}else jEl.style.display='none';}
+  if(jEl){
+    if(totalEq>0||totalV>0){
+      var txt='Jami: <b style="color:var(--green);">'+fmtG(totalEq)+'g</b> (pul)';
+      if(totalV>0) txt+=' + <b style="color:var(--gold);">'+fmtG(totalV)+'g</b> (vozvrat)';
+      jEl.innerHTML=txt;jEl.style.display='block';
+    } else jEl.style.display='none';
+  }
 }
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
@@ -1316,6 +1344,7 @@ function saqlashKlientTolov(){
   var sanaEl=document.getElementById('kt-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   var bd=window._kTolovBD||{},idx=0,any=false;
+  var ops_grouped=[];
   Object.keys(bd).forEach(function(key){
     var b=bd[key];if(b.qarz<=0){idx++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
@@ -1324,15 +1353,101 @@ function saqlashKlientTolov(){
     var v=parseNum((vEl||{}).value||0);
     var zi=vEl?parseInt(vEl.dataset.zi):-1;
     var ti=vEl?parseInt(vEl.dataset.ti):-1;
-    if(s>0&&kurs>0){var eq=roundG(s/kurs);k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq});any=true;}
+    var eq=0;
+    if(s>0&&kurs>0){eq=roundG(s/kurs);k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq});any=true;}
     if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka+=v;any=true;}
+    if(s>0||v>0){
+      ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:s,tolov_kurs:kurs});
+    }
     idx++;
   });
   if(!any){alert('Tolov yoki vozvrat kiriting!');return;}
   save('Klient tolov: '+k.nom);
-  closeModal('modal-ktolov');renderKlientlar();renderHome();
+  closeModal('modal-ktolov');
+  renderKlientlar();renderHome();
+  // Chek PDF
+  chekPDF(ki, ops_grouped, sana);
 }
-function klientPDF(){alert('PDF keyinroq qoshiladi');}
+
+function chekPDF(ki, ops_grouped, sana) {
+  var k = data.klientlar[ki];
+  var payload = {
+    tip: 'klient_chek',
+    klient_nom: k.nom,
+    sana: sana,
+    ops_grouped: ops_grouped
+  };
+  fetch('/api/pdf', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+  .then(function(r){ if(!r.ok) throw new Error('Server xatosi'); return r.blob(); })
+  .then(function(blob){ var url=URL.createObjectURL(blob); window.open(url,'_blank'); setTimeout(function(){URL.revokeObjectURL(url);},15000); })
+  .catch(function(e){ console.error('Chek PDF xato:', e.message); });
+}
+
+function klientChekBasit(ki, sana, isBerish) {
+  var k = data.klientlar[ki];
+  var ops = k.tarix.filter(function(op){
+    return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
+  });
+  if(!ops.length) return;
+  
+  // Breakdown qilamiz
+  var bd={};
+  k.tarix.forEach(function(op){
+    var key=op.zavod+'||'+op.tur;
+    if(!key||key==='||') return;
+    if(!bd[key]) bd[key]={zavod:op.zavod,tur:op.tur,qarz_before:0};
+    if(op.tip==='berish') bd[key].qarz_before+=op.gramm;
+    else if(op.tip==='vozvrat') bd[key].qarz_before-=op.gramm;
+    else if(op.tip==='tolov') bd[key].qarz_before-=(op.ekvivalent||0);
+  });
+  
+  // Shu sanagacha qarz (shu sana operatsiyalaridan oldin)
+  var bd_before={};
+  var reached=false;
+  k.tarix.forEach(function(op){
+    if(op.sana===sana&&(op.tip==='tolov'||op.tip==='vozvrat')) reached=true;
+    if(reached) return;
+    var key=(op.zavod||'')+'||'+(op.tur||'');
+    if(!op.zavod) return;
+    if(!bd_before[key]) bd_before[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+    if(op.tip==='berish') bd_before[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat') bd_before[key].qarz-=op.gramm;
+    else if(op.tip==='tolov') bd_before[key].qarz-=(op.ekvivalent||0);
+  });
+
+  var ops_grouped=[];
+  ops.forEach(function(op){
+    var key=(op.zavod||'')+'||'+(op.tur||'');
+    var avvalgi=bd_before[key]?Math.max(0,bd_before[key].qarz):0;
+    var existing=ops_grouped.find(function(x){return x.zavod===op.zavod&&x.tur===op.tur;});
+    if(!existing){
+      existing={zavod:op.zavod||'',tur:op.tur||'',avvalgi_qarz:avvalgi,tolov_g:0,vozvrat_g:0,tolov_summa:0,tolov_kurs:0};
+      ops_grouped.push(existing);
+    }
+    if(op.tip==='tolov'){existing.tolov_g+=(op.ekvivalent||0);existing.tolov_summa+=op.summa||0;existing.tolov_kurs=op.kurs||0;}
+    if(op.tip==='vozvrat'){existing.vozvrat_g+=op.gramm||0;}
+  });
+
+  var payload={tip:'klient_chek',klient_nom:k.nom,sana:sana,ops_grouped:ops_grouped};
+  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
+  .catch(function(e){alert('PDF xato: '+e.message);});
+}
+
+function klientBerishTahrir(ki, gIdx) {
+  alert('Tahrirlash keyinroq qoshiladi');
+}
+
+function klientPDF(){
+  var k=data.klientlar[curKlientIdx];
+  if(!k) return;
+  var payload={zavodlar:data.zavodlar,dan:null,gacha:null,zavod:null,klient:k.nom};
+  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},10000);})
+  .catch(function(e){alert('PDF xato: '+e.message);});
+}
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
 var currentTheme=localStorage.getItem('tilla-theme')||'dark';
