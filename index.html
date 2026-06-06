@@ -277,6 +277,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:
 input[type=number] { -moz-appearance:textfield; }
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="ptr-indicator" id="ptr-indicator">↓</div>
@@ -511,8 +512,46 @@ function parseNum(v) {
   return parseFloat(String(v).replace(/,/g, '.')) || 0;
 }
 
+// Supabase
+var SB_URL = 'https://vddfjkofsxpwfbbrqwhh.supabase.co';
+var SB_KEY = 'sb_publishable_T2AVCW7hWTrDhU11SAbu3g_0qVblo0m';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+var USER_ID = 'tilla-main';
+
 var data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[]}');
-function save() { localStorage.setItem('tilla-v2', JSON.stringify(data)); }
+
+async function save(logText) {
+  // Save to localStorage immediately (offline support)
+  localStorage.setItem('tilla-v2', JSON.stringify(data));
+  // Save to Supabase
+  try {
+    var existing = await sb.from('tilla_data').select('id').eq('user_id', USER_ID).single();
+    if (existing.data) {
+      await sb.from('tilla_data').update({zavodlar: data.zavodlar, updated_at: new Date().toISOString()}).eq('user_id', USER_ID);
+    } else {
+      await sb.from('tilla_data').insert({user_id: USER_ID, zavodlar: data.zavodlar});
+    }
+    if (logText) {
+      await sb.from('tilla_log').insert({user_id: USER_ID, amal: 'tahrir', tavsif: logText});
+    }
+  } catch(e) {
+    console.error('Supabase save error:', e);
+  }
+}
+
+async function loadFromCloud() {
+  try {
+    var res = await sb.from('tilla_data').select('zavodlar').eq('user_id', USER_ID).single();
+    if (res.data && res.data.zavodlar) {
+      data.zavodlar = res.data.zavodlar;
+      localStorage.setItem('tilla-v2', JSON.stringify(data));
+      return true;
+    }
+  } catch(e) {
+    console.error('Supabase load error:', e);
+  }
+  return false;
+}
 
 function fmtG(g) {
   return parseFloat(g).toFixed(2);
@@ -854,7 +893,13 @@ function kirimSaqlash() {
     if (g > 0) { t.ostatka += g; t.tarix.push({tip:'mol',sana:kd,gramm:g}); any=true; }
   });
   if (!any) { alert("Kamida 1 ta turga gramm kiriting!"); return; }
-  save(); goTo('s-home');
+  var logParts = [];
+  z.turlar.forEach(function(t,ti){
+    var el=document.getElementById('kg-'+ti); var g=el?parseNum(el.value):0;
+    if(g>0) logParts.push(t.nom+': +'+g+'g');
+  });
+  save('Kirim | '+z.nom+' | '+kd+' | '+logParts.join(', '));
+  goTo('s-home');
 }
 
 // CHIQIM
@@ -955,7 +1000,9 @@ function chiqimSaqlash() {
     any = true;
   }
   if (!any) { alert("Kamida 1 ta turga tolov kiriting!"); return; }
-  save(); goTo('s-home');
+  var csEl2=document.getElementById('c-sana'); var cd=csEl2&&csEl2.value?csEl2.value.split('-').reverse().join('.'):today();
+  save('Chiqim | '+z.nom+' | '+cd+' | '+(kimga||'—'));
+  goTo('s-home');
 }
 
 // MODALS
@@ -1779,7 +1826,8 @@ function editSaqla() {
     op.lomGramm=lG; op.lomKurs=lK; op.lomPul=lPul; op.lomGEq=lomGEq; op.jami=newJami;
   }
   op.sana = newSana;
-  save();
+  var logMsg = 'Tahrir | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom+' | '+op.sana;
+  save(logMsg);
   closeModal('modal-edit');
   renderHome();
   if (curHomeTab==='hisobot') renderHisobot();
@@ -1794,7 +1842,8 @@ function editOchir() {
   if (op.tip==='mol') t.ostatka = Math.max(0, t.ostatka - op.gramm);
   else t.ostatka = t.ostatka + (op.lomGramm||0);
   t.tarix.splice(oi, 1);
-  save();
+  var logMsg = 'Tahrir | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom+' | '+op.sana;
+  save(logMsg);
   closeModal('modal-edit');
   renderHome();
   if (curHomeTab==='hisobot') renderHisobot();
