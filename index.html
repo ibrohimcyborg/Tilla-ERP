@@ -2203,20 +2203,31 @@ sessionStorage.removeItem('curKlientIdx');
 renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
-loadFromCloud().then(function(synced){
-  if (synced) {
-    renderHome();
-    renderKlientlar();
-    if (isPCMode()) pcInit();
-  }
-  // Klient detail - cloud load tugagandan keyin ochish
+// Cloud sync - faqat agar local bo'sh bo'lsa yukla
+var _localEmpty = !data.zavodlar || !data.zavodlar.length;
+if (_localEmpty) {
+  loadFromCloud().then(function(synced){
+    if (synced) {
+      renderHome();
+      renderKlientlar();
+      if (isPCMode()) pcInit();
+    }
+    if (_savedKlient !== null) {
+      var ki = parseInt(_savedKlient);
+      if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
+        openKlientDetail(ki);
+      }
+    }
+  });
+} else {
+  // Local data bor - cloud dan o'qimasdan ishlat
   if (_savedKlient !== null) {
     var ki = parseInt(_savedKlient);
     if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
-      openKlientDetail(ki);
+      setTimeout(function(){ openKlientDetail(ki); }, 100);
     }
   }
-});
+}
 
 
 // Swipe left/right - tab almashtirish
