@@ -353,7 +353,6 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-title">Klientga berish</div>
     <div class="field"><label>Klient</label><select id="kb-klient" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
     <div class="field"><label>Sana</label><input type="date" id="kb-sana" style="font-size:16px;"></div>
-    <div class="field"><label>Zavod</label><select id="kb-zavod" onchange="kberishZavodChange()" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
     <div id="kb-turlar-card" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Turlar — gramm</div>
       <div id="kb-turlar-inputs"></div>
@@ -368,12 +367,13 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="modal-overlay" id="modal-kvozvrat">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Vozvrat (tilla qaytarish)</div>
-    <div class="field"><label>Klient</label><select id="kv-klient" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
+    <div class="modal-title">Vozvrat</div>
+    <div class="field"><label>Klient</label><select id="kv-klient" onchange="kVozvratKlientChange()" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
     <div class="field"><label>Sana</label><input type="date" id="kv-sana" style="font-size:16px;"></div>
-    <div class="field"><label>Zavod</label><select id="kv-zavod" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
-    <div class="field"><label>Tur</label><select id="kv-tur" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
-    <div class="field"><label>Gramm</label><input type="number" id="kv-gramm" placeholder="0" style="font-size:16px;"></div>
+    <div id="kv-turlar-cont" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Qarz bo'yicha turlar</div>
+      <div id="kv-turlar-list"></div>
+    </div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-kvozvrat')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlientVozvrat()">Saqlash</button>
@@ -390,8 +390,13 @@ input[type=number]{-moz-appearance:textfield;}
     <div id="kt-turlar-cont" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Har tur uchun tolov</div>
       <div id="kt-turlar-list"></div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 8px;">Vozvrat (ixtiyoriy)</div>
-      <div id="kt-vozvrat-list"></div>
+      <div onclick="toggleKtVozvrat()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surf2);border-radius:10px;cursor:pointer;margin:10px 0 0;">
+        <div style="font-size:13px;color:var(--muted);">↩ Vozvrat ham qo'shish</div>
+        <div id="kt-voz-arr" style="font-size:14px;color:var(--muted);">›</div>
+      </div>
+      <div id="kt-vozvrat-cont" style="display:none;margin-top:6px;">
+        <div id="kt-vozvrat-list"></div>
+      </div>
       <div id="kt-jami" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:8px;border-left:2px solid var(--gold);display:none;"></div>
     </div>
     <div class="btn-row">
@@ -852,7 +857,7 @@ function editOchir() {
   var t=data.zavodlar[zi].turlar[ti];
   var op=t.tarix[oi];
   if(op.tip==='mol') t.ostatka=Math.max(0, t.ostatka-op.gramm);
-  else t.ostatka=Math.min(t.ostatka+(op.jami||0), t.ostatka+(op.jami||0));
+  else t.ostatka=t.ostatka+(op.jami||0);
   t.tarix.splice(oi,1);
   save('Ochirildi | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom);
   closeModal('modal-edit');
@@ -1003,19 +1008,73 @@ function openKlientDetail(ki) {
     bHTML+='<div style="display:flex;justify-content:space-between;font-size:12px;"><div style="font-weight:600;color:var(--muted);">Jami</div><div style="font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,zT))+'g</div></div></div>';
   });
   document.getElementById('kd-breakdown').innerHTML=bHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
-  var sorted2=k.tarix.slice().sort(function(a,b){return b.sana.localeCompare(a.sana);});
+  // Sana bo'yicha guruhlash
+  var groups={}, groupOrder=[];
+  k.tarix.forEach(function(op){
+    var key=op.sana+'|'+op.tip;
+    if(op.tip==='berish'||op.tip==='vozvrat') key=op.sana+'|'+op.tip;
+    else key=op.sana+'|tolov';
+    // Tolov va vozvrat bir sanada birlashsin
+    var groupKey=op.sana+'|session';
+    if(op.tip==='tolov'||op.tip==='vozvrat') groupKey=op.sana+'|payment';
+    else groupKey=op.sana+'|berish';
+    if(!groups[groupKey]) { groups[groupKey]={sana:op.sana,tip:op.tip,ops:[],isPayment:op.tip!=='berish'}; groupOrder.push(groupKey); }
+    // If berish group, merge same-day berish
+    if(op.tip==='berish'&&groups[groupKey].tip!=='berish') { groupKey=op.sana+'|berish2'; if(!groups[groupKey]){groups[groupKey]={sana:op.sana,tip:'berish',ops:[],isPayment:false};groupOrder.push(groupKey);} }
+    groups[groupKey].ops.push(op);
+  });
+  groupOrder.sort(function(a,b){return groups[b].sana.localeCompare(groups[a].sana);});
+
   var tHTML='';
-  sorted2.forEach(function(op){
-    var isB=op.tip==='berish',isV=op.tip==='vozvrat',isT=op.tip==='tolov';
-    var color=isB?'var(--red)':isV?'var(--gold)':'#5ab4e8';
-    var icon2=isB?'↑ Berildi':isV?'↩ Vozvrat':'$ Tolov';
-    var val2=isB?('−'+fmtG(op.gramm)+'g'):isV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
-    var sub2=isB?(op.zavod+' · '+op.tur):isV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ · '+op.kurs+'$/g');
-    tHTML+='<div class="hrow" style="margin-bottom:6px;border-left:3px solid '+color+';display:flex;justify-content:space-between;align-items:center;">'
-      +'<div><div style="font-size:12px;font-weight:600;color:'+color+';">'+icon2+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+sub2+' · '+op.sana+'</div></div>'
-      +'<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+val2+'</div>'
-      +'</div>';
+  groupOrder.forEach(function(key){
+    var g=groups[key];
+    var isB=g.tip==='berish', isP=g.isPayment;
+    var bc=isB?'var(--red)':isP?'#5ab4e8':'var(--gold)';
+
+    // Jami hisoblash
+    var jamiG=0;
+    g.ops.forEach(function(op){
+      if(op.tip==='berish') jamiG-=op.gramm;
+      else if(op.tip==='vozvrat') jamiG+=op.gramm;
+      else if(op.tip==='tolov') jamiG+=(op.ekvivalent||0);
+    });
+
+    tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
+    // Header
+    tHTML+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+    tHTML+='<div>';
+    // Tip label
+    var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
+    var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
+    var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
+    var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
+    var lcolor=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
+    tHTML+='<div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
+    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+'</div>';
+    tHTML+='</div>';
+    tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+(jamiG>=0?'var(--green)':'var(--red)')+';">'+(jamiG>=0?'+':'')+fmtG(jamiG)+'g</div>';
+    tHTML+='</div>';
+
+    // Detail rows
+    if(g.ops.length>1||(g.ops.length===1&&g.ops[0].tip!=='berish')){
+      tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+      g.ops.forEach(function(op){
+        var isOB=op.tip==='berish',isOV=op.tip==='vozvrat',isOT=op.tip==='tolov';
+        var oc=isOB?'var(--red)':isOV?'var(--gold)':'#5ab4e8';
+        var ov=isOB?('−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+        var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+op.kurs+'$/g');
+        tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">';
+        tHTML+='<div style="font-size:11px;color:var(--muted);">'+os+'</div>';
+        tHTML+='<div style="font-size:12px;font-weight:600;color:'+oc+';">'+ov+'</div>';
+        tHTML+='</div>';
+      });
+      tHTML+='</div>';
+    } else if(g.ops.length===1){
+      var op=g.ops[0];
+      var sub2=op.tip==='berish'?(op.zavod+' · '+op.tur):op.zavod?op.zavod+' · '+op.tur:'';
+      if(sub2) tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:4px;">'+sub2+'</div>';
+    }
+    tHTML+='</div>';
   });
   document.getElementById('kd-tarix').innerHTML=tHTML||'<div class="empty">Hali tarix yoq</div>';
   goTo('s-klient-detail');
@@ -1028,41 +1087,83 @@ function openKlientBerish(){
   var sel=document.getElementById('kb-klient');
   sel.innerHTML='<option value="">— Tanlang —</option>';
   (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
-  var zsel=document.getElementById('kb-zavod');
-  zsel.innerHTML='<option value="">— Tanlang —</option>';
-  data.zavodlar.forEach(function(z,i){zsel.innerHTML+='<option value="'+i+'">'+z.nom+'</option>';});
   document.getElementById('kb-sana').value=nowDate();
   document.getElementById('kb-turlar-card').style.display='none';
+  document.getElementById('kb-turlar-inputs').innerHTML='';
+  sel.onchange=kberishKlientChange;
   document.getElementById('modal-kberish').classList.add('open');
 }
-function kberishZavodChange(){
-  var zi=parseInt(document.getElementById('kb-zavod').value);
-  if(isNaN(zi)){document.getElementById('kb-turlar-card').style.display='none';return;}
-  var z=data.zavodlar[zi],out='';
-  z.turlar.forEach(function(t,ti){
-    out+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
-      +'<div style="flex:1;font-size:14px;color:var(--text);">'+t.nom+'</div>'
-      +'<input type="number" id="kbg-'+ti+'" placeholder="0" style="width:100px;padding:9px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);">'
-      +'<span style="font-size:13px;color:var(--muted);">g</span></div>';
+
+function kberishKlientChange(){
+  var ki=parseInt(document.getElementById('kb-klient').value);
+  if(isNaN(ki)){document.getElementById('kb-turlar-card').style.display='none';return;}
+  var k=data.klientlar[ki];
+  // Klient olgan zavodlarni aniqla
+  var klientZavodlar={};
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') klientZavodlar[op.zavod]=true;
+  });
+  // Agar hech narsa olmagan bolsa - hamma zavodlar
+  var zavodlarKo=Object.keys(klientZavodlar);
+  var showZavodlar=zavodlarKo.length>0
+    ? data.zavodlar.filter(function(z){return klientZavodlar[z.nom];})
+    : data.zavodlar;
+  renderBerishTurlar(showZavodlar);
+}
+
+function renderBerishTurlar(zavodlar){
+  var out='';
+  zavodlar.forEach(function(z,idx){
+    var zi=data.zavodlar.indexOf(z);
+    out+='<div style="margin-bottom:10px;">';
+    out+='<div onclick="toggleBerishZ(this)" style="background:var(--surf2);padding:10px 12px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+    out+='<div style="font-size:13px;font-weight:600;color:var(--gold);">'+z.nom+'</div>';
+    out+='<div style="font-size:11px;color:var(--muted);">'+fmtG(z.turlar.reduce(function(a,t){return a+t.ostatka;},0))+'g ›</div>';
+    out+='</div>';
+    out+='<div id="bz-'+idx+'" style="display:none;padding:0 4px;">';
+    z.turlar.forEach(function(t,ti){
+      var inputId='kbg-'+zi+'-'+ti;
+      out+='<div style="display:flex;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);">';
+      out+='<div style="flex:1;font-size:14px;color:var(--text);padding-top:8px;">'+t.nom+'</div>';
+      out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
+      out+='<div style="display:flex;align-items:center;gap:6px;">';
+      out+='<input type="number" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" placeholder="0" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
+      out+='<span style="font-size:12px;color:var(--muted);">g</span>';
+      out+='</div>';
+      out+='<div style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+      out+='</div>';
+      out+='</div>';
+    });
+    out+='</div></div>';
   });
   document.getElementById('kb-turlar-inputs').innerHTML=out;
   document.getElementById('kb-turlar-card').style.display='block';
 }
+
+function toggleBerishZ(head){
+  var el=head.nextElementSibling;
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
 function saqlashKlientBerish(){
   var ki=parseInt(document.getElementById('kb-klient').value);
-  var zi=parseInt(document.getElementById('kb-zavod').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
-  if(isNaN(zi)){alert('Zavod tanlang!');return;}
-  var k=data.klientlar[ki],z=data.zavodlar[zi];
+  var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kb-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   var any=false;
-  z.turlar.forEach(function(t,ti){
-    var el=document.getElementById('kbg-'+ti),g=el?parseNum(el.value):0;
-    if(g>0){k.tarix.push({tip:'berish',sana:sana,zavod:z.nom,tur:t.nom,gramm:g});t.ostatka=Math.max(0,t.ostatka-g);any=true;}
+  document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
+    var g=parseNum(el.value);
+    if(g>0){
+      var zi=parseInt(el.dataset.zi),ti=parseInt(el.dataset.ti);
+      var z=data.zavodlar[zi],t=z.turlar[ti];
+      k.tarix.push({tip:'berish',sana:sana,zavod:z.nom,tur:t.nom,gramm:g});
+      t.ostatka=Math.max(0,t.ostatka-g);
+      any=true;
+    }
   });
   if(!any){alert('Gramm kiriting!');return;}
-  save('Klient berish: '+k.nom+' | '+z.nom);
+  save('Klient berish: '+k.nom);
   closeModal('modal-kberish');renderKlientlar();renderHome();
 }
 
@@ -1070,32 +1171,72 @@ function openKlientVozvrat(){
   var sel=document.getElementById('kv-klient');
   sel.innerHTML='<option value="">— Tanlang —</option>';
   (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
-  var zsel=document.getElementById('kv-zavod');
-  zsel.innerHTML='<option value="">— Tanlang —</option>';
-  data.zavodlar.forEach(function(z,i){zsel.innerHTML+='<option value="'+i+'">'+z.nom+'</option>';});
-  zsel.onchange=function(){
-    var zi2=parseInt(this.value),tsel=document.getElementById('kv-tur');
-    tsel.innerHTML='<option value="">— Tanlang —</option>';
-    if(!isNaN(zi2)) data.zavodlar[zi2].turlar.forEach(function(t,ti){tsel.innerHTML+='<option value="'+zi2+'-'+ti+'">'+t.nom+'</option>';});
-  };
   document.getElementById('kv-sana').value=nowDate();
-  document.getElementById('kv-gramm').value='';
+  document.getElementById('kv-turlar-cont').style.display='none';
+  document.getElementById('kv-turlar-list').innerHTML='';
   document.getElementById('modal-kvozvrat').classList.add('open');
 }
+
+function kVozvratKlientChange(){
+  var ki=parseInt(document.getElementById('kv-klient').value);
+  if(isNaN(ki)){document.getElementById('kv-turlar-cont').style.display='none';return;}
+  var k=data.klientlar[ki];
+  // Qarz bo'yicha breakdown
+  var breakdown={};
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz+=op.gramm;}
+    else if(op.tip==='vozvrat'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz-=op.gramm;}
+  });
+  data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){var key=z.nom+'||'+t.nom;if(breakdown[key]){breakdown[key].zi=zi;breakdown[key].ti=ti;}});});
+  window._kVozvratBD=breakdown;
+  var out='';
+  var idx=0;
+  Object.keys(breakdown).forEach(function(key){
+    var b=breakdown[key];
+    if(b.qarz<=0){idx++;return;}
+    out+='<div style="display:flex;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);">';
+    out+='<div style="flex:1;padding-top:8px;">';
+    out+='<div style="font-size:14px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>';
+    out+='<div style="font-size:10px;color:var(--red);margin-top:2px;">qarz: −'+fmtG(b.qarz)+'g</div>';
+    out+='</div>';
+    out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
+    out+='<div style="display:flex;align-items:center;gap:6px;">';
+    out+='<input type="number" id="kv-g-'+idx+'" data-key="'+key+'" placeholder="0" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--gold);text-align:right;">';
+    out+='<span style="font-size:12px;color:var(--muted);">g</span>';
+    out+='</div>';
+    // Zavod ostatkasi
+    var ostatka=b.zi>=0&&b.ti>=0?data.zavodlar[b.zi].turlar[b.ti].ostatka:0;
+    out+='<div style="font-size:10px;color:var(--green);">zavod: '+fmtG(ostatka)+'g</div>';
+    out+='</div></div>';
+    idx++;
+  });
+  if(!out) out='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
+  document.getElementById('kv-turlar-list').innerHTML=out;
+  document.getElementById('kv-turlar-cont').style.display='block';
+}
+
 function saqlashKlientVozvrat(){
   var ki=parseInt(document.getElementById('kv-klient').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
-  var tv=document.getElementById('kv-tur').value;
-  if(!tv){alert('Tur tanlang!');return;}
-  var pts=tv.split('-'),zi=parseInt(pts[0]),ti=parseInt(pts[1]);
-  var g=parseNum(document.getElementById('kv-gramm').value);
-  if(!g){alert('Gramm kiriting!');return;}
+  var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kv-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
-  var k=data.klientlar[ki],z=data.zavodlar[zi];
-  k.tarix.push({tip:'vozvrat',sana:sana,zavod:z.nom,tur:z.turlar[ti].nom,gramm:g});
-  z.turlar[ti].ostatka+=g;
-  save('Klient vozvrat: '+k.nom+' | '+g+'g');
+  var bd=window._kVozvratBD||{};
+  var any=false,idx=0;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key];
+    if(b.qarz<=0){idx++;return;}
+    var el=document.getElementById('kv-g-'+idx);
+    var g=el?parseNum(el.value):0;
+    if(g>0&&b.zi>=0&&b.ti>=0){
+      k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:g});
+      data.zavodlar[b.zi].turlar[b.ti].ostatka+=g;
+      any=true;
+    }
+    idx++;
+  });
+  if(!any){alert('Gramm kiriting!');return;}
+  save('Klient vozvrat: '+k.nom);
   closeModal('modal-kvozvrat');renderKlientlar();renderHome();
 }
 
@@ -1147,6 +1288,14 @@ function kTolovKlientChange(){
   document.getElementById('kt-jami').style.display='none';
   document.getElementById('kt-turlar-cont').style.display='block';
 }
+function toggleKtVozvrat(){
+  var cont=document.getElementById('kt-vozvrat-cont');
+  var arr=document.getElementById('kt-voz-arr');
+  var open=cont.style.display!=='none';
+  cont.style.display=open?'none':'block';
+  arr.style.transform=open?'':'rotate(90deg)';
+}
+
 function kTolovCalc(){
   var bd=window._kTolovBD||{},totalEq=0,totalV=0,idx=0;
   Object.keys(bd).forEach(function(key){
