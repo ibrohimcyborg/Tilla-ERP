@@ -247,13 +247,15 @@ input[type=number]{-moz-appearance:textfield;}
   <!-- PC SIDEBAR hidden -->
   <!-- PC CONTENT -->
   <div class="pc-content">
-    <div class="pc-header">
-      <div style="display:flex;align-items:center;gap:20px;">
-        <div style="font-size:14px;font-weight:600;color:var(--text);">Zavodlar</div>
-        <div style="width:1px;height:16px;background:var(--border);"></div>
-        <div style="font-size:14px;font-weight:600;color:var(--muted);">Klientlar</div>
+    <div class="pc-header" style="padding:0;">
+      <div style="display:flex;flex:1;height:100%;">
+        <div style="flex:1;display:flex;align-items:center;padding:0 16px;border-right:1px solid var(--border);">
+          <div style="font-size:14px;font-weight:600;color:var(--text);">Zavodlar</div>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;padding:0 16px;">
+          <div style="font-size:14px;font-weight:600;color:var(--text);">Klientlar</div>
+        </div>
       </div>
-      <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
     <div class="pc-body" id="pc-body">
     <!-- ZAVOD SECTION -->
@@ -308,8 +310,7 @@ input[type=number]{-moz-appearance:textfield;}
         <span style="font-size:18px;color:#5ab4e8;">$</span>Tolov
       </button>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Klientlar</div>
+    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:10px;">
       <button class="action-btn" onclick="openKlientModal()">+ Klient</button>
     </div>
     <div class="nav-tabs">
