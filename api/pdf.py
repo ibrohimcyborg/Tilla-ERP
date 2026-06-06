@@ -288,8 +288,7 @@ class handler(BaseHTTPRequestHandler):
 def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     buf = io.BytesIO()
     W = 72*mm
-    doc = SimpleDocTemplate(buf, pagesize=(W, 500*mm),
-        leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
+    # Auto height - build first then measure
     story = []
 
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
@@ -378,6 +377,8 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     story.append(dline())
     story.append(CP('— Rahmat —', size=7, color=C_MUTED))
 
+    doc = SimpleDocTemplate(buf, pagesize=(W, est_h*mm),
+        leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
     doc.build(story)
     buf.seek(0)
     return buf.read()
@@ -386,7 +387,8 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
 def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib):
     buf = io.BytesIO()
     W = 72*mm
-    doc = SimpleDocTemplate(buf, pagesize=(W, 400*mm),
+    est_h2 = 50 + len(qarz_tarkib) * 15 + 30
+    doc = SimpleDocTemplate(buf, pagesize=(W, est_h2*mm),
         leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
     story = []
 
