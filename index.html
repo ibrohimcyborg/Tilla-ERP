@@ -2186,7 +2186,12 @@ applyTheme(currentTheme);
   var ind=document.getElementById('ptr-indicator');
   document.addEventListener('touchstart',function(e){startY=e.touches[0].pageY;pulling=(window.pageYOffset===0);},{passive:true});
   document.addEventListener('touchmove',function(e){if(!pulling)return;curY=e.touches[0].pageY;var dy=Math.min(curY-startY,120);if(dy>15){ind.style.top=Math.min(dy*0.5,60)+'px';ind.style.opacity=Math.min(dy/threshold,1);ind.textContent=dy>threshold?'↻':'↓';}},{passive:true});
-  document.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;var dy=curY-startY;if(dy>threshold){ind.textContent='↻';var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';sessionStorage.setItem('activeTab',curTab);setTimeout(function(){location.reload();},400);}else{ind.style.top='-60px';ind.style.opacity='0';}},{passive:true});
+  document.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;var dy=curY-startY;if(dy>threshold){ind.textContent='↻';var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';sessionStorage.setItem('activeTab',curTab);
+        var curScreen=document.querySelector('.screen.active');
+        if(curScreen&&curScreen.id==='s-klient-detail'&&curKlientIdx>=0){
+          sessionStorage.setItem('curKlientIdx',curKlientIdx);
+        }
+        setTimeout(function(){location.reload();},400);}else{ind.style.top='-60px';ind.style.opacity='0';}},{passive:true});
 })();
 
 // ── STARTUP ───────────────────────────────────────────────────────────────────
@@ -2224,9 +2229,9 @@ loadFromCloud().then(function(synced){
     renderHome();
     renderKlientlar();
     if (isPCMode()) pcInit();
-    // Cloud yangi data bilan klient detail yangilash
-    _restoreKlient();
   }
+  // Har doim - sync bo'lsin yoki bo'lmasin
+  _restoreKlient();
 });
 
 // Swipe left/right - tab almashtirish
