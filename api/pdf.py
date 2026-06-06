@@ -625,7 +625,7 @@ async function loadFromCloud() {
       if (res.data.zavodlar && res.data.zavodlar.length > 0) {
         data.zavodlar = res.data.zavodlar;
       }
-      // Klientlar faqat cloud da bo'lsa va local dan ko'p bo'lsa olish
+      // Klientlar faqat cloud da bolsa va local dan kop bolsa olish
       var cloudKlientlar = res.data.klientlar || [];
       var localKlientlar = data.klientlar || [];
       if (cloudKlientlar.length >= localKlientlar.length) {
@@ -1833,7 +1833,7 @@ mainTab(_savedTab);
       // Chapga → Klientlar
       mainTab('klient');
     } else if(dx > THRESHOLD) {
-      // O'ngga → Zavod
+      // Ongga tab
       mainTab('zavod');
     }
   }, {passive:true});
@@ -1900,6 +1900,75 @@ function zvSaqlash() {
   save('Zavod vozvrat | '+z.nom+' | '+sana);
   goTo('s-home');
 }
+
+
+// PC LAYOUT
+function isPC(){ return window.innerWidth >= 1024; }
+
+function initPC() {
+  if (!isPC()) return;
+  document.getElementById('pc-sidebar').style.display = 'flex';
+  document.getElementById('pc-content').style.display = 'flex';
+  var body = document.getElementById('pc-body');
+  body.appendChild(document.getElementById('main-zavod'));
+  body.appendChild(document.getElementById('main-klient'));
+  pcTab('zavod', document.getElementById('pct-zavod'));
+}
+
+function pcTab(tab, el) {
+  if (!isPC()) return;
+  document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  var titles = {zavod:'Zavodlar', klient:'Klientlar', hisobot:'Hisobot', backup:'Backup'};
+  document.getElementById('pc-header-title').textContent = titles[tab]||'';
+  var act = document.getElementById('pc-header-actions');
+  if (tab==='zavod') {
+    act.innerHTML='<button class="pc-btn g" data-goto="s-kirim">↓ Kirim</button>'
+      +'<button class="pc-btn r" data-goto="s-chiqim">↑ Chiqim</button>'
+      +'<button class="pc-btn b" data-goto="s-zvozvrat">↩ Vozvrat</button>'
+      +'<button class="pc-btn" id="pc-add-zavod">+ Zavod</button>'
+      +'<button class="pc-btn gold" id="pc-pdf-zavod">⎙ PDF</button>';
+    setTimeout(function(){
+      document.querySelectorAll("[data-goto]").forEach(function(b){
+        b.onclick=function(){goTo(this.dataset.goto);};
+      });
+      var az=document.getElementById("pc-add-zavod");
+      if(az) az.onclick=openZavodModal;
+      var pz=document.getElementById("pc-pdf-zavod");
+      if(pz) pz.onclick=function(){openPDFModal(null);};
+    },0);
+    mz.style.display='block'; mk.style.display='none';
+    renderHome();
+  } else if (tab==='klient') {
+    act.innerHTML='<button class="pc-btn g" id="pc-berish">↓ Berish</button>'
+      +'<button class="pc-btn gold" id="pc-vozvrat">↩ Vozvrat</button>'
+      +'<button class="pc-btn b" id="pc-tolov">$ Tolov</button>'
+      +'<button class="pc-btn" id="pc-add-klient">+ Klient</button>';
+    setTimeout(function(){
+      var b=document.getElementById("pc-berish"); if(b) b.onclick=openKlientBerish;
+      var v=document.getElementById("pc-vozvrat"); if(v) v.onclick=openKlientVozvrat;
+      var t=document.getElementById("pc-tolov"); if(t) t.onclick=openKlientTolov;
+      var k=document.getElementById("pc-add-klient"); if(k) k.onclick=openKlientModal;
+    },0);
+    mz.style.display='none'; mk.style.display='block';
+    renderKlientlar();
+  } else if (tab==='hisobot') {
+    act.innerHTML='<button class="pc-btn gold" onclick="openPDFModal(null)">⎙ PDF</button>';
+    mz.style.display='none'; mk.style.display='none';
+  } else {
+    act.innerHTML=''; mz.style.display='none'; mk.style.display='none';
+  }
+}
+
+var _origMainTab = mainTab;
+mainTab = function(tab) {
+  if (isPC()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
+  _origMainTab(tab);
+};
+setTimeout(function(){ if(isPC()) initPC(); }, 100);
+window.addEventListener('resize', function(){ if(isPC()) initPC(); });
 
 </script>
 </body>
