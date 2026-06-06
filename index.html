@@ -1917,8 +1917,11 @@ function pcInit() {
   var act = document.getElementById('pc-header-actions');
   if (!act) return;
   act.innerHTML = '';
-  act.appendChild(pill('', '+ Zavod', openZavodModal));
-  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+  act.appendChild(pill('g', '↓ Berish', openKlientBerish));
+  act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
+  act.appendChild(pill('b', '$ Tolov', openKlientTolov));
+  act.appendChild(pillDiv());
+  act.appendChild(pill('', '+ Klient', openKlientModal));
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
   if (mz) mz.style.display = '';
