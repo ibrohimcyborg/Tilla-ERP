@@ -1881,6 +1881,14 @@ function editOchir() {
   if (curHomeTab==='hisobot') renderHisobot();
 }
 
+// Cloud sync on startup
+(async function() {
+  try {
+    var synced = await loadFromCloud();
+    if (synced) renderHome();
+  } catch(e) { console.error('startup sync error:', e); }
+})();
+
 renderHome();
 
 function printPDF() {
