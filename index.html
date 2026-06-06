@@ -2197,19 +2197,25 @@ sessionStorage.removeItem('curKlientIdx');
 renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
+// Klient detail - darhol qayta ochish (cloud load kutmasdan)
+function _restoreKlient() {
+  if (_savedKlient !== null) {
+    var ki = parseInt(_savedKlient);
+    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
+      openKlientDetail(ki);
+    }
+  }
+}
+_restoreKlient();
+
 
 loadFromCloud().then(function(synced){
   if (synced) {
     renderHome();
     renderKlientlar();
     if (isPCMode()) pcInit();
-  }
-  // Klient detail qayta ochish
-  if (_savedKlient !== null) {
-    var ki = parseInt(_savedKlient);
-    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
-      openKlientDetail(ki);
-    }
+    // Cloud yangi data bilan klient detail yangilash
+    _restoreKlient();
   }
 });
 
