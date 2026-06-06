@@ -997,17 +997,40 @@ function openKlientDetail(ki) {
   });
   var byZavod={};
   Object.values(breakdown).forEach(function(b){if(!byZavod[b.zavod])byZavod[b.zavod]=[];byZavod[b.zavod].push(b);});
-  var bHTML='';
+  var jamiQarzVal=klientJamiQarz(k);
+  var bHTML='<div class="card">';
+
+  // Umumiy qarz
+  bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
+  bHTML+='<div style="font-size:12px;color:var(--muted);">Umumiy qarz</div>';
+  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+';">'+(jamiQarzVal>0?'−':'+')+fmtG(Math.abs(jamiQarzVal))+'g</div>';
+  bHTML+='</div>';
+
+  var hasQarz=false;
   Object.keys(byZavod).forEach(function(znom){
     var turs=byZavod[znom];
     var zT=turs.reduce(function(a,b){return a+b.qarz;},0);
-    bHTML+='<div class="card" style="margin-bottom:8px;">';
-    bHTML+='<div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">'+znom+'</div>';
-    turs.forEach(function(b){if(Math.abs(b.qarz)<0.01)return;bHTML+='<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;"><div style="color:var(--muted);">'+b.tur+'</div><div style="font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,b.qarz))+'g</div></div>';});
-    bHTML+='<div style="height:0.5px;background:var(--border);margin:6px 0;"></div>';
-    bHTML+='<div style="display:flex;justify-content:space-between;font-size:12px;"><div style="font-weight:600;color:var(--muted);">Jami</div><div style="font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,zT))+'g</div></div></div>';
+    if(zT<=0.01) return;
+    hasQarz=true;
+    bHTML+='<div style="margin-bottom:12px;">';
+    bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    bHTML+='<div style="font-size:12px;font-weight:600;color:var(--gold);">'+znom+'</div>';
+    bHTML+='<div style="font-size:12px;font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,zT))+'g</div>';
+    bHTML+='</div>';
+    turs.forEach(function(b){
+      if(b.qarz<0.01) return;
+      bHTML+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:var(--surf2);border-radius:8px;margin-bottom:4px;">';
+      bHTML+='<div style="color:var(--muted);">'+b.tur+'</div>';
+      bHTML+='<div style="font-weight:600;color:var(--red);">−'+fmtG(b.qarz)+'g</div>';
+      bHTML+='</div>';
+    });
+    bHTML+='</div>';
   });
-  document.getElementById('kd-breakdown').innerHTML=bHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
+  if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
+
+  bHTML+='<button onclick="klientQarzChek('+ki+')" style="width:100%;margin-top:4px;padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">⎙ Qarz cheki PDF</button>';
+  bHTML+='</div>';
+  document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
   // Sana boyicha guruhlash
   var groups={}, groupOrder=[];
@@ -1429,6 +1452,35 @@ document.addEventListener('click', function(e) {
   if (tahrir) { e.stopPropagation(); klientTarixTahrir(tahrir); }
 });
 
+function klientQarzChek(ki) {
+  var k=data.klientlar[ki];
+  // Qarz tarkibini hisoblash
+  var qbd={};
+  k.tarix.forEach(function(op){
+    if(!op.zavod||!op.tur) return;
+    var key=op.zavod+'||'+op.tur;
+    if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
+    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
+  });
+  var qarz_tarkib=[];
+  Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
+  var jamiQarz=klientJamiQarz(k);
+  var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var payload={
+    tip:'klient_qarz_chek',
+    klient_nom:k.nom,
+    sana:today2,
+    jami_qarz:jamiQarz,
+    qarz_tarkib:qarz_tarkib
+  };
+  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
+  .catch(function(e){alert('PDF xato: '+e.message);});
+}
+
 function klientChekBtn(el) {
   var ki=parseInt(el.dataset.ki);
   var sana=el.dataset.sana;
@@ -1481,7 +1533,20 @@ function klientChekBasit(ki, sana, isBerish) {
     if(op.tip==='vozvrat'){existing.vozvrat_g+=op.gramm||0;}
   });
 
-  var payload={tip:'klient_chek',klient_nom:k.nom,sana:sana,ops_grouped:ops_grouped};
+  // Qarz tarkibini hisoblash
+  var qarz_tarkib=[];
+  var qbd={};
+  k.tarix.forEach(function(op){
+    if(!op.zavod||!op.tur) return;
+    var key=op.zavod+'||'+op.tur;
+    if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
+    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
+  });
+  Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
+
+  var payload={tip:'klient_chek',klient_nom:k.nom,sana:sana,ops_grouped:ops_grouped,qarz_tarkib:qarz_tarkib};
   fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
