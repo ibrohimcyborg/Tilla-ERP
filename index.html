@@ -90,81 +90,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ptr-indicator{position:fixed;top:-60px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
-/* PC elements hidden by default */
-.pc-sidebar,.pc-content{display:none;}
-
 /* ── PC (1024px+) ──────────────────────────────────────────── */
-@media(min-width:1024px){
-  .ptr-indicator{display:none;}
-  .main-tabs{display:none;}
-  
-  /* s-home becomes flex row with sidebar */
-  #s-home.active{
-    display:flex!important;
-    flex-direction:row;
-    padding:0;
-    max-width:100%;
-    height:calc(100vh - 54px);
-    overflow:hidden;
-  }
 
-  /* PC sidebar */
-  .pc-sidebar{
-    width:64px;
-    background:#141414;
-    border-right:1px solid #1e1e1e;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:12px 0;
-    gap:4px;
-    flex-shrink:0;
-  }
-  .pc-tab{
-    width:48px;padding:10px 0;border-radius:9px;
-    cursor:pointer;display:flex;flex-direction:column;
-    align-items:center;gap:3px;color:#444;transition:all .15s;
-  }
-  .pc-tab.active{background:#1e1a0a;color:#c9a84c;}
-  .pc-tab:hover:not(.active){background:#1a1a1a;color:#666;}
-  .pc-tab-icon{font-size:18px;}
-  .pc-tab-label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;}
-  .pc-divider{width:28px;height:1px;background:#1e1e1e;margin:4px 0;}
-
-  /* PC content */
-  .pc-content{
-    flex:1;display:flex;flex-direction:column;overflow:hidden;
-  }
-  .pc-header{
-    background:#141414;padding:10px 18px;
-    border-bottom:1px solid #1e1e1e;
-    display:flex;align-items:center;gap:10px;
-    flex-shrink:0;min-height:46px;
-  }
-  .pc-header-title{font-size:14px;font-weight:600;color:var(--text);flex:1;}
-  .pc-header-actions{display:flex;gap:6px;flex-wrap:wrap;}
-  .pc-btn{
-    border:1px solid var(--border);background:var(--surf2);
-    border-radius:50px;padding:6px 14px;font-size:12px;
-    font-weight:600;cursor:pointer;color:var(--text);white-space:nowrap;
-    display:inline-flex;align-items:center;gap:6px;
-  }
-  .pc-btn:hover{opacity:.8;}
-  .pc-btn.g{border-color:#1e3a1e;color:var(--green);}
-  .pc-btn.r{border-color:#3a1e1e;color:var(--red);}
-  .pc-btn.b{border-color:#1e2a3a;color:#5ab4e8;}
-  .pc-btn.gold{border-color:#3a2a0a;color:var(--gold);}
-
-  .pc-body{flex:1;overflow-y:auto;padding:16px 18px;}
-  
-  /* Override screen.active for s-home */
-  #s-home.active{display:flex!important;flex-direction:row;padding:0;max-width:100%;height:calc(100vh - 54px);overflow:hidden;}
-  #main-zavod,#main-klient{padding:0!important;max-width:100%!important;}
-  
-  /* PC sidebar always flex */
-  #pc-sidebar{display:flex!important;}
-  #pc-content{display:flex!important;}
-}
 
 
 }
@@ -221,6 +148,78 @@ input[type=number]{-moz-appearance:textfield;}
   .big-stat-val{font-size:28px;}
   .modal{max-height:85vh;overflow-y:auto;}
 }
+
+/* PC elements - hidden by default */
+.pc-sidebar { display: none; }
+.pc-content { display: none; }
+
+@media (min-width: 1024px) {
+  .ptr-indicator { display: none !important; }
+  .main-tabs { display: none !important; }
+
+  #s-home.active {
+    display: flex !important;
+    flex-direction: row;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
+    height: calc(100vh - 54px);
+    overflow: hidden;
+  }
+
+  .pc-sidebar {
+    display: flex !important;
+    width: 64px;
+    background: #141414;
+    border-right: 1px solid #1e1e1e;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .pc-tab {
+    width: 48px; padding: 10px 0; border-radius: 9px;
+    cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; color: #444; transition: all .15s;
+    border: none; background: transparent;
+  }
+  .pc-tab.active { background: #1e1a0a; color: #c9a84c; }
+  .pc-tab:hover:not(.active) { background: #1a1a1a; color: #666; }
+  .pc-tab-icon { font-size: 18px; }
+  .pc-tab-lbl { font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .pc-vdiv { width: 28px; height: 1px; background: #1e1e1e; margin: 4px 0; }
+
+  .pc-content {
+    display: flex !important;
+    flex: 1; flex-direction: column; overflow: hidden;
+  }
+  .pc-header {
+    background: #141414; padding: 10px 18px;
+    border-bottom: 1px solid #1e1e1e;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .pc-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .pc-header-actions { display: flex; gap: 6px; align-items: center; }
+  .pc-pill {
+    border: 1px solid var(--border); background: var(--surf2);
+    border-radius: 50px; padding: 6px 14px; font-size: 12px;
+    font-weight: 600; cursor: pointer; color: var(--text);
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .pc-pill:hover { opacity: .8; }
+  .pc-pill.g { border-color: #1e3a1e; color: var(--green); }
+  .pc-pill.r { border-color: #3a1e1e; color: var(--red); }
+  .pc-pill.b { border-color: #1e2a3a; color: #5ab4e8; }
+  .pc-pill.gold { border-color: #3a2a0a; color: var(--gold); }
+  .pc-pill-div { width: 1px; height: 20px; background: #2a2a2a; margin: 0 2px; }
+
+  .pc-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+
+  #main-zavod, #main-klient { padding: 0 !important; max-width: 100% !important; }
+}
+
 </style>
 </head>
 <body>
@@ -240,35 +239,35 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- HOME -->
 <div class="screen active" id="s-home">
   <!-- PC SIDEBAR -->
-  <div class="pc-sidebar" id="pc-sidebar" style="display:none;">
-    <div class="pc-tab active" id="pct-zavod" onclick="pcTab('zavod',this)">
+  <div class="pc-sidebar">
+    <button class="pc-tab active" id="pct-zavod" onclick="pcTab('zavod',this)">
       <div class="pc-tab-icon">🏭</div>
-      <div class="pc-tab-label">Zavod</div>
-    </div>
-    <div class="pc-tab" id="pct-klient" onclick="pcTab('klient',this)">
+      <div class="pc-tab-lbl">Zavod</div>
+    </button>
+    <button class="pc-tab" id="pct-klient" onclick="pcTab('klient',this)">
       <div class="pc-tab-icon">👥</div>
-      <div class="pc-tab-label">Klient</div>
-    </div>
-    <div class="pc-divider"></div>
-    <div class="pc-tab" id="pct-hisobot" onclick="pcTab('hisobot',this)">
+      <div class="pc-tab-lbl">Klient</div>
+    </button>
+    <div class="pc-vdiv"></div>
+    <button class="pc-tab" id="pct-hisobot" onclick="pcTab('hisobot',this)">
       <div class="pc-tab-icon">📋</div>
-      <div class="pc-tab-label">Hisobot</div>
-    </div>
-    <div class="pc-divider"></div>
-    <div class="pc-tab" id="pct-backup" onclick="pcTab('backup',this)">
+      <div class="pc-tab-lbl">Hisobot</div>
+    </button>
+    <div class="pc-vdiv"></div>
+    <button class="pc-tab" id="pct-backup" onclick="pcTab('backup',this)">
       <div class="pc-tab-icon">💾</div>
-      <div class="pc-tab-label">Backup</div>
-    </div>
+      <div class="pc-tab-lbl">Backup</div>
+    </button>
   </div>
   <!-- PC CONTENT -->
-  <div class="pc-content" id="pc-content" style="display:none;">
+  <div class="pc-content">
     <div class="pc-header">
       <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
     <div class="pc-body" id="pc-body"></div>
   </div>
-  <!-- ZAVOD SECTION -->
+    <!-- ZAVOD SECTION -->
   <div id="main-zavod">
     <div style="margin-top:4px;">
       <div class="big-stat">
@@ -1912,17 +1911,15 @@ function zvSaqlash() {
 }
 
 
+
+
 // PC LAYOUT
-function isPC(){ return window.innerWidth >= 1024; }
+function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
-  if (!isPC()) return;
-  var sidebar = document.getElementById('pc-sidebar');
-  var content = document.getElementById('pc-content');
-  if (!sidebar || !content) return;
-  sidebar.style.display = 'flex';
-  content.style.display = 'flex';
+  if (!isPCMode()) return;
   var body = document.getElementById('pc-body');
+  if (!body) return;
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
   if (mz && mz.parentNode !== body) body.appendChild(mz);
@@ -1930,60 +1927,79 @@ function initPC() {
   pcTab('zavod', document.getElementById('pct-zavod'));
 }
 
-function pcTab(tab, el) {
-  if (!isPC()) return;
+function pcTab(name, el) {
   document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
   if (el) el.classList.add('active');
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
   var titles = {zavod:'Zavodlar', klient:'Klientlar', hisobot:'Hisobot', backup:'Backup'};
-  document.getElementById('pc-header-title').textContent = titles[tab]||'';
+  document.getElementById('pc-header-title').textContent = titles[name] || name;
   var act = document.getElementById('pc-header-actions');
-  if (tab==='zavod') {
-    act.innerHTML='<button class="pc-btn g" data-goto="s-kirim">↓ Kirim</button>'
-      +'<button class="pc-btn r" data-goto="s-chiqim">↑ Chiqim</button>'
-      +'<button class="pc-btn b" data-goto="s-zvozvrat">↩ Vozvrat</button>'
-      +'<button class="pc-btn" id="pc-add-zavod">+ Zavod</button>'
-      +'<button class="pc-btn gold" id="pc-pdf-zavod">⎙ PDF</button>';
-    setTimeout(function(){
-      document.querySelectorAll("[data-goto]").forEach(function(b){
-        b.onclick=function(){goTo(this.dataset.goto);};
-      });
-      var az=document.getElementById("pc-add-zavod");
-      if(az) az.onclick=openZavodModal;
-      var pz=document.getElementById("pc-pdf-zavod");
-      if(pz) pz.onclick=function(){openPDFModal(null);};
-    },0);
-    mz.style.display='block'; mk.style.display='none';
+
+  function pill(cls, txt, fn) {
+    var b = document.createElement('button');
+    b.className = 'pc-pill ' + cls;
+    b.textContent = txt;
+    b.onclick = fn;
+    return b;
+  }
+  function div() {
+    var d = document.createElement('div');
+    d.className = 'pc-pill-div';
+    return d;
+  }
+
+  act.innerHTML = '';
+  if (name === 'zavod') {
+    act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
+    act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
+    act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
+    act.appendChild(div());
+    act.appendChild(pill('', '+ Zavod', openZavodModal));
+    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+    mz.style.display = 'block'; mk.style.display = 'none';
     renderHome();
-  } else if (tab==='klient') {
-    act.innerHTML='<button class="pc-btn g" id="pc-berish">↓ Berish</button>'
-      +'<button class="pc-btn gold" id="pc-vozvrat">↩ Vozvrat</button>'
-      +'<button class="pc-btn b" id="pc-tolov">$ Tolov</button>'
-      +'<button class="pc-btn" id="pc-add-klient">+ Klient</button>';
-    setTimeout(function(){
-      var b=document.getElementById("pc-berish"); if(b) b.onclick=openKlientBerish;
-      var v=document.getElementById("pc-vozvrat"); if(v) v.onclick=openKlientVozvrat;
-      var t=document.getElementById("pc-tolov"); if(t) t.onclick=openKlientTolov;
-      var k=document.getElementById("pc-add-klient"); if(k) k.onclick=openKlientModal;
-    },0);
-    mz.style.display='none'; mk.style.display='block';
+  } else if (name === 'klient') {
+    act.appendChild(pill('g', '↓ Berish', openKlientBerish));
+    act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
+    act.appendChild(pill('b', '$ Tolov', openKlientTolov));
+    act.appendChild(div());
+    act.appendChild(pill('', '+ Klient', openKlientModal));
+    mz.style.display = 'none'; mk.style.display = 'block';
     renderKlientlar();
-  } else if (tab==='hisobot') {
-    act.innerHTML='<button class="pc-btn gold" onclick="openPDFModal(null)">⎙ PDF</button>';
-    mz.style.display='none'; mk.style.display='none';
+  } else if (name === 'hisobot') {
+    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+    mz.style.display = 'none'; mk.style.display = 'none';
   } else {
-    act.innerHTML=''; mz.style.display='none'; mk.style.display='none';
+    mz.style.display = 'none'; mk.style.display = 'none';
   }
 }
 
+var _origGoTo = goTo;
+goTo = function(id) {
+  _origGoTo(id);
+  if (id === 's-home' && isPCMode()) {
+    setTimeout(function(){
+      var body = document.getElementById('pc-body');
+      if (!body) return;
+      var mz = document.getElementById('main-zavod');
+      var mk = document.getElementById('main-klient');
+      if (mz && mz.parentNode !== body) body.appendChild(mz);
+      if (mk && mk.parentNode !== body) body.appendChild(mk);
+      var activeTab = document.querySelector('.pc-tab.active');
+      if (activeTab) pcTab(activeTab.id.replace('pct-',''), activeTab);
+    }, 10);
+  }
+};
+
 var _origMainTab = mainTab;
 mainTab = function(tab) {
-  if (isPC()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
+  if (isPCMode()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
   _origMainTab(tab);
 };
-setTimeout(function(){ if(isPC()) initPC(); }, 100);
-window.addEventListener('resize', function(){ if(isPC()) initPC(); });
+
+setTimeout(initPC, 150);
+window.addEventListener('resize', function(){ if(isPCMode()) initPC(); });
 
 </script>
 </body>
