@@ -9,8 +9,8 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
-:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
-[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#d04040;--green:#3a9060;}
+:root{--bg:#111111;--surf:#1c1c1c;--surf2:#252525;--border:#2e2e2e;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
+[data-theme="light"]{--bg:#c2beb4;--surf:#cec9bf;--surf2:#c8c4ba;--border:#9e9b92;--text:#1a1a1a;--muted:#6a6a6a;--gold:#a07830;--gold2:#b89040;--red:#8b2a2a;--green:#2a6e38;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;}
 .topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;padding-top:var(--safe-top);height:calc(54px + var(--safe-top));display:flex;align-items:flex-end;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -149,7 +149,7 @@ input[type=number]{-moz-appearance:textfield;}
   .modal{max-height:85vh;overflow-y:auto;}
 }
 
-/* PC elements - hidden by default */
+/* PC elements - hidden by default on mobile */
 .pc-sidebar { display: none; }
 .pc-content { display: none; }
 
@@ -157,6 +157,9 @@ input[type=number]{-moz-appearance:textfield;}
   .ptr-indicator { display: none !important; }
   .main-tabs { display: none !important; }
 
+  body { padding-bottom: 0; }
+
+  /* s-home: sidebar + content */
   #s-home.active {
     display: flex !important;
     flex-direction: row;
@@ -167,44 +170,47 @@ input[type=number]{-moz-appearance:textfield;}
     overflow: hidden;
   }
 
+  /* Sidebar - faqat hisobot */
   .pc-sidebar {
     display: flex !important;
     width: 64px;
-    background: #141414;
-    border-right: 1px solid #1e1e1e;
+    background: var(--surf);
+    border-right: 1px solid var(--border);
     flex-direction: column;
     align-items: center;
     padding: 12px 0;
     gap: 4px;
     flex-shrink: 0;
+    z-index: 10;
   }
   .pc-tab {
     width: 48px; padding: 10px 0; border-radius: 9px;
     cursor: pointer; display: flex; flex-direction: column;
-    align-items: center; gap: 3px; color: #444; transition: all .15s;
+    align-items: center; gap: 3px; color: var(--muted); transition: all .15s;
     border: none; background: transparent;
   }
-  .pc-tab.active { background: #1e1a0a; color: #c9a84c; }
-  .pc-tab:hover:not(.active) { background: #1a1a1a; color: #666; }
+  .pc-tab.active { background: #1e1a0a; color: var(--gold); }
+  .pc-tab:hover:not(.active) { background: var(--surf2); color: var(--muted); }
   .pc-tab-icon { font-size: 18px; }
   .pc-tab-lbl { font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
-  .pc-vdiv { width: 28px; height: 1px; background: #1e1e1e; margin: 4px 0; }
+  .pc-vdiv { width: 28px; height: 1px; background: var(--border); margin: 4px 0; }
 
+  /* pc-content: header + ikkita panel */
   .pc-content {
     display: flex !important;
     flex: 1; flex-direction: column; overflow: hidden;
   }
   .pc-header {
-    background: #141414; padding: 10px 18px;
-    border-bottom: 1px solid #1e1e1e;
+    background: var(--surf); padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0;
+    flex-shrink: 0; height: 44px;
   }
-  .pc-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
-  .pc-header-actions { display: flex; gap: 6px; align-items: center; }
+  .pc-header-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .pc-header-actions { display: flex; gap: 5px; align-items: center; }
   .pc-pill {
     border: 1px solid var(--border); background: var(--surf2);
-    border-radius: 50px; padding: 6px 14px; font-size: 12px;
+    border-radius: 50px; padding: 5px 12px; font-size: 12px;
     font-weight: 600; cursor: pointer; color: var(--text);
     display: inline-flex; align-items: center; gap: 5px;
   }
@@ -213,11 +219,62 @@ input[type=number]{-moz-appearance:textfield;}
   .pc-pill.r { border-color: #3a1e1e; color: var(--red); }
   .pc-pill.b { border-color: #1e2a3a; color: #5ab4e8; }
   .pc-pill.gold { border-color: #3a2a0a; color: var(--gold); }
-  .pc-pill-div { width: 1px; height: 20px; background: #2a2a2a; margin: 0 2px; }
+  .pc-pill-div { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
 
-  .pc-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; gap: 20px; align-items: flex-start; }
+  /* pc-body: ikki panel yonma-yon */
+  .pc-body {
+    flex: 1; overflow: hidden;
+    display: flex; flex-direction: row;
+  }
 
-  #main-zavod, #main-klient { padding: 0 !important; max-width: 100% !important; flex: 1; min-width: 0; }
+  /* Zavod paneli - keng */
+  #main-zavod {
+    flex: 1; min-width: 0;
+    overflow-y: auto;
+    padding: 18px 20px !important;
+    max-width: 100% !important;
+    border-right: 1px solid var(--border);
+    height: 100%;
+  }
+
+  /* Klient paneli - o'ng, fixed kenglik */
+  #main-klient {
+    width: 300px; flex-shrink: 0;
+    overflow-y: auto;
+    padding: 0 !important;
+    max-width: 300px !important;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  /* Klient ichki header */
+  #main-klient > div:first-child {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surf);
+    flex-shrink: 0;
+  }
+
+  /* Light mode kirim/chiqim/vozvrat */
+  [data-theme="light"] .big-btn.kirim { background: #d4eed8; border-color: #a8d4ae; }
+  [data-theme="light"] .big-btn.kirim .big-btn-label { color: #2a6e38; }
+  [data-theme="light"] .big-btn.kirim .big-btn-icon { color: #2a6e38; opacity: 1; }
+  [data-theme="light"] .big-btn.kirim .big-btn-sub { color: #4a8e58; }
+  [data-theme="light"] .big-btn.chiqim { background: #eedcd4; border-color: #d4a8a8; }
+  [data-theme="light"] .big-btn.chiqim .big-btn-label { color: #8b2a2a; }
+  [data-theme="light"] .big-btn.chiqim .big-btn-icon { color: #8b2a2a; opacity: 1; }
+  [data-theme="light"] .big-btn.chiqim .big-btn-sub { color: #a84a4a; }
+  [data-theme="light"] .big-btn[onclick*="zvozvrat"] { background: #d4e8f0 !important; border-color: #a8c8d8 !important; }
+  [data-theme="light"] .big-btn[onclick*="zvozvrat"] > div { color: #1a5c7a !important; }
+}
+
+/* Mobile: main panels ko'rinsin */
+@media (max-width: 1023px) {
+  #main-zavod, #main-klient { padding: 16px !important; max-width: 520px !important; margin: 0 auto; }
+  .pc-content { display: block !important; }
+  .pc-header { display: none; }
+  .pc-body { display: block; padding: 0; }
 }
 
 </style>
@@ -227,6 +284,8 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
+    <button class="theme-btn" id="pc-hisobot-btn" onclick="pcHisobotToggle()" style="display:none;font-size:13px;">📋</button>
+    <button class="theme-btn" id="pc-backup-btn" style="display:none;font-size:13px;">💾</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀</button>
     <button class="theme-btn" onclick="openResetModal()" style="font-size:13px;">⚙</button>
   </div>
@@ -240,23 +299,9 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="screen active" id="s-home">
   <!-- PC SIDEBAR -->
   <div class="pc-sidebar">
-    <button class="pc-tab active" id="pct-zavod" onclick="pcTab('zavod',this)">
-      <div class="pc-tab-icon">🏭</div>
-      <div class="pc-tab-lbl">Zavod</div>
-    </button>
-    <button class="pc-tab" id="pct-klient" onclick="pcTab('klient',this)">
-      <div class="pc-tab-icon">👥</div>
-      <div class="pc-tab-lbl">Klient</div>
-    </button>
-    <div class="pc-vdiv"></div>
     <button class="pc-tab" id="pct-hisobot" onclick="pcTab('hisobot',this)">
       <div class="pc-tab-icon">📋</div>
       <div class="pc-tab-lbl">Hisobot</div>
-    </button>
-    <div class="pc-vdiv"></div>
-    <button class="pc-tab" id="pct-backup" onclick="pcTab('backup',this)">
-      <div class="pc-tab-icon">💾</div>
-      <div class="pc-tab-lbl">Backup</div>
     </button>
   </div>
   <!-- PC CONTENT -->
@@ -265,7 +310,7 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="pc-header-title" id="pc-header-title">Zavodlar</div>
       <div class="pc-header-actions" id="pc-header-actions"></div>
     </div>
-    <div class="pc-body" id="pc-body"></div>
+    <div class="pc-body" id="pc-body">
   </div>
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
@@ -333,8 +378,10 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div id="klient-top-list"></div>
     <div id="klient-qizil-list" style="display:none;"></div>
-  </div>
-</div>
+  </div><!-- /main-klient -->
+    </div><!-- /pc-body -->
+  </div><!-- /pc-content -->
+</div><!-- /s-home -->
 
 <!-- ZAVOD DETAIL -->
 <div class="screen" id="s-zavod">
@@ -1811,7 +1858,11 @@ applyTheme(currentTheme);
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 renderHome();
-mainTab(_savedTab);
+if(isPCMode()){
+  pcShowHome();
+} else {
+  mainTab(_savedTab);
+}
 
 
 (async function(){
@@ -1916,57 +1967,63 @@ function zvSaqlash() {
 // PC LAYOUT
 function isPCMode(){ return window.innerWidth >= 1024; }
 
-function initPC() {
-  if (!isPCMode()) return;
-  pcTab('zavod', document.getElementById('pct-zavod'));
+function pill(cls, txt, fn) {
+  var b = document.createElement('button');
+  b.className = 'pc-pill ' + cls;
+  b.textContent = txt;
+  b.onclick = fn;
+  return b;
+}
+function pillDiv() {
+  var d = document.createElement('div');
+  d.className = 'pc-pill-div';
+  return d;
+}
+
+function pcShowHome() {
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  mz.style.display = '';
+  mk.style.display = '';
+  document.getElementById('pc-header-title').textContent = 'Zavodlar';
+  var act = document.getElementById('pc-header-actions');
+  act.innerHTML = '';
+  act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
+  act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
+  act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
+  act.appendChild(pillDiv());
+  act.appendChild(pill('', '+ Zavod', openZavodModal));
+  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+  document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
+  renderHome(); renderKlientlar();
+}
+
+function pcHisobotToggle() {
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  var act = document.getElementById('pc-header-actions');
+  act.innerHTML = '';
+  act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
+  document.getElementById('pc-header-title').textContent = 'Hisobot';
+  mz.style.display = ''; mk.style.display = 'none';
+  homeTab('hisobot'); renderHisobot();
+  document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
+  var ph = document.getElementById('pct-hisobot');
+  if(ph) ph.classList.add('active');
 }
 
 function pcTab(name, el) {
-  document.querySelectorAll('.pc-tab').forEach(function(t){ t.classList.remove('active'); });
-  if (el) el.classList.add('active');
-  var mz = document.getElementById('main-zavod');
-  var mk = document.getElementById('main-klient');
-  var titles = {zavod:'Zavodlar', klient:'Klientlar', hisobot:'Hisobot', backup:'Backup'};
-  document.getElementById('pc-header-title').textContent = titles[name] || name;
-  var act = document.getElementById('pc-header-actions');
+  if (name === 'hisobot') { pcHisobotToggle(); }
+  else { pcShowHome(); }
+}
 
-  function pill(cls, txt, fn) {
-    var b = document.createElement('button');
-    b.className = 'pc-pill ' + cls;
-    b.textContent = txt;
-    b.onclick = fn;
-    return b;
-  }
-  function div() {
-    var d = document.createElement('div');
-    d.className = 'pc-pill-div';
-    return d;
-  }
-
-  act.innerHTML = '';
-  if (name === 'zavod') {
-    act.appendChild(pill('g', '↓ Kirim', function(){ goTo('s-kirim'); }));
-    act.appendChild(pill('r', '↑ Chiqim', function(){ goTo('s-chiqim'); }));
-    act.appendChild(pill('b', '↩ Vozvrat', function(){ goTo('s-zvozvrat'); }));
-    act.appendChild(div());
-    act.appendChild(pill('', '+ Zavod', openZavodModal));
-    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    mz.style.display = 'block'; mk.style.display = 'none';
-    renderHome();
-  } else if (name === 'klient') {
-    act.appendChild(pill('g', '↓ Berish', openKlientBerish));
-    act.appendChild(pill('gold', '↩ Vozvrat', openKlientVozvrat));
-    act.appendChild(pill('b', '$ Tolov', openKlientTolov));
-    act.appendChild(div());
-    act.appendChild(pill('', '+ Klient', openKlientModal));
-    mz.style.display = 'none'; mk.style.display = 'block';
-    renderKlientlar();
-  } else if (name === 'hisobot') {
-    act.appendChild(pill('gold', '⎙ PDF', function(){ openPDFModal(null); }));
-    mz.style.display = 'none'; mk.style.display = 'none';
-  } else {
-    mz.style.display = 'none'; mk.style.display = 'none';
-  }
+function initPC() {
+  if (!isPCMode()) return;
+  var hb = document.getElementById('pc-hisobot-btn');
+  var bb = document.getElementById('pc-backup-btn');
+  if(hb) hb.style.display = '';
+  if(bb) bb.style.display = '';
+  pcShowHome();
 }
 
 var _origGoTo = goTo;
@@ -1974,19 +2031,23 @@ goTo = function(id) {
   _origGoTo(id);
   if (id === 's-home' && isPCMode()) {
     var activeTab = document.querySelector('.pc-tab.active');
-    if (activeTab) pcTab(activeTab.id.replace('pct-',''), activeTab);
+    if (activeTab && activeTab.id === 'pct-hisobot') { pcHisobotToggle(); }
+    else { pcShowHome(); }
   }
 };
 
 var _origMainTab = mainTab;
 mainTab = function(tab) {
-  if (isPCMode()) { pcTab(tab, document.getElementById('pct-'+tab)); return; }
+  if (isPCMode()) { pcShowHome(); return; }
   _origMainTab(tab);
 };
 
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initPC);}else{initPC();}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initPC);
+} else {
+  initPC();
+}
 window.addEventListener('resize', function(){ if(isPCMode()) initPC(); });
-
 </script>
 </body>
 </html>
