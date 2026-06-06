@@ -2196,33 +2196,12 @@ applyTheme(currentTheme);
 
 // ── STARTUP ───────────────────────────────────────────────────────────────────
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
-sessionStorage.removeItem('activeTab');
 var _savedKlient=sessionStorage.getItem('curKlientIdx');
+sessionStorage.removeItem('activeTab');
 sessionStorage.removeItem('curKlientIdx');
+
 renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
-
-// Klient detail - darhol qayta ochish (cloud load kutmasdan)
-function _restoreKlient() {
-  if (_savedKlient === null) return;
-  var ki = parseInt(_savedKlient);
-  if (isNaN(ki)) return;
-  // data.klientlar bo'sh bo'lsa ham - localStorage dan tekshir
-  if (!data.klientlar || !data.klientlar[ki]) {
-    // localStorage dan qayta o'qib ko'rish
-    try {
-      var saved = JSON.parse(localStorage.getItem('tilla-v2') || '{}');
-      if (saved.klientlar && saved.klientlar[ki]) {
-        data.klientlar = saved.klientlar;
-        data.zavodlar = saved.zavodlar || data.zavodlar;
-      }
-    } catch(e) {}
-  }
-  if (data.klientlar && data.klientlar[ki]) {
-    setTimeout(function(){ openKlientDetail(ki); }, 50);
-  }
-}
-
 
 loadFromCloud().then(function(synced){
   if (synced) {
@@ -2230,9 +2209,15 @@ loadFromCloud().then(function(synced){
     renderKlientlar();
     if (isPCMode()) pcInit();
   }
-  // Har doim - sync bo'lsin yoki bo'lmasin
-  _restoreKlient();
+  // Klient detail - cloud load tugagandan keyin ochish
+  if (_savedKlient !== null) {
+    var ki = parseInt(_savedKlient);
+    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
+      openKlientDetail(ki);
+    }
+  }
 });
+
 
 // Swipe left/right - tab almashtirish
 (function(){
