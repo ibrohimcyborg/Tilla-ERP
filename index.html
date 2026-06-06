@@ -90,6 +90,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ptr-indicator{position:fixed;top:-60px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
+/* PC elements hidden by default */
+.pc-sidebar,.pc-content{display:none;}
+
 /* ── PC (1024px+) ──────────────────────────────────────────── */
 @media(min-width:1024px){
   .ptr-indicator{display:none;}
@@ -154,8 +157,13 @@ input[type=number]{-moz-appearance:textfield;}
 
   .pc-body{flex:1;overflow-y:auto;padding:16px 18px;}
   
-  /* Show sections */
+  /* Override screen.active for s-home */
+  #s-home.active{display:flex!important;flex-direction:row;padding:0;max-width:100%;height:calc(100vh - 54px);overflow:hidden;}
   #main-zavod,#main-klient{padding:0!important;max-width:100%!important;}
+  
+  /* PC sidebar always flex */
+  #pc-sidebar{display:flex!important;}
+  #pc-content{display:flex!important;}
 }
 
 
