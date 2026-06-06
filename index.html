@@ -171,13 +171,18 @@ input[type=number]{-moz-appearance:textfield;}
     flex: 1; flex-direction: column; overflow: hidden;
   }
   .pc-header {
-    background: var(--surf); padding: 0 16px;
+    background: var(--surf);
     border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0; height: 42px;
+    display: flex; align-items: stretch;
+    flex-shrink: 0; height: 42px; padding: 0;
   }
   .pc-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
   .pc-header-actions { display: flex; gap: 5px; align-items: center; }
+  .pc-panel-title {
+    flex: 1; display: flex; align-items: center;
+    padding: 0 16px; font-size: 14px; font-weight: 600; color: var(--text);
+  }
+  .pc-panel-title + .pc-panel-title { border-left: 1px solid var(--border); }
   .pc-pill {
     border: 1px solid var(--border); background: var(--surf2);
     border-radius: 20px; padding: 4px 10px; font-size: 11px;
@@ -247,15 +252,9 @@ input[type=number]{-moz-appearance:textfield;}
   <!-- PC SIDEBAR hidden -->
   <!-- PC CONTENT -->
   <div class="pc-content">
-    <div class="pc-header" style="padding:0;">
-      <div style="display:flex;flex:1;height:100%;">
-        <div style="flex:1;display:flex;align-items:center;padding:0 16px;border-right:1px solid var(--border);">
-          <div style="font-size:14px;font-weight:600;color:var(--text);">Zavodlar</div>
-        </div>
-        <div style="flex:1;display:flex;align-items:center;padding:0 16px;">
-          <div style="font-size:14px;font-weight:600;color:var(--text);">Klientlar</div>
-        </div>
-      </div>
+    <div class="pc-header">
+      <div class="pc-panel-title">Zavodlar</div>
+      <div class="pc-panel-title">Klientlar</div>
     </div>
     <div class="pc-body" id="pc-body">
     <!-- ZAVOD SECTION -->
