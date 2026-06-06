@@ -2204,33 +2204,144 @@ function openKlientTolov(){
   (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
   var now=new Date();
   document.getElementById('kt-sana').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  document.getElementById('kt-summa').value='';
-  document.getElementById('kt-kurs').value='';
-  document.getElementById('kt-calc').style.display='none';
-  function calcEq(){
-    var s=parseNum(document.getElementById('kt-summa').value);
-    var k=parseNum(document.getElementById('kt-kurs').value);
-    if(s&&k){document.getElementById('kt-calc-val').textContent=fmtG(roundG(s/k))+'g';document.getElementById('kt-calc').style.display='block';}
-    else document.getElementById('kt-calc').style.display='none';
-  }
-  document.getElementById('kt-summa').oninput=calcEq;
-  document.getElementById('kt-kurs').oninput=calcEq;
+  document.getElementById('kt-turlar-cont').style.display='none';
+  document.getElementById('kt-turlar-list').innerHTML='';
+  document.getElementById('kt-vozvrat-list').innerHTML='';
   document.getElementById('modal-ktolov').classList.add('open');
 }
+
+function kTolovKlientChange() {
+  var ki=parseInt(document.getElementById('kt-klient').value);
+  if(isNaN(ki)){document.getElementById('kt-turlar-cont').style.display='none';return;}
+  var k=data.klientlar[ki];
+  // Build breakdown: qarz per zavod·tur
+  var breakdown={};
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish'){
+      var key=op.zavod+'||'+op.tur;
+      if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      breakdown[key].qarz+=op.gramm;
+    } else if(op.tip==='vozvrat'){
+      var key=op.zavod+'||'+op.tur;
+      if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      breakdown[key].qarz-=op.gramm;
+    } else if(op.tip==='tolov'){
+      // distribute tolov across turlar proportionally - skip for now, just show
+    }
+  });
+  // Show turlar with qarz
+  var turlarHTML='';
+  var vozvratHTML='';
+  Object.keys(breakdown).forEach(function(key,idx){
+    var b=breakdown[key];
+    if(b.qarz<=0) return;
+    turlarHTML+='<div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+      +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>'
+      +'<div style="font-size:12px;color:var(--red);">−'+fmtG(b.qarz)+'g qarz</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">SUMMA ($)</div>'
+      +'<input type="number" id="kt-s-'+idx+'" data-key="'+key+'" placeholder="0" oninput="kTolovCalc()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
+      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">KURS ($/g)</div>'
+      +'<input type="number" id="kt-k-'+idx+'" placeholder="87.5" oninput="kTolovCalc()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
+      +'</div>'
+      +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">'
+      +'= <span style="color:var(--green);font-weight:600;" id="kt-eq-'+idx+'">0g</span> qarz kamayadi'
+      +'</div>'
+      +'</div>';
+
+    // Vozvrat uchun zavod·tur ni ham ko'rsat
+    var zi=-1,ti=-1;
+    data.zavodlar.forEach(function(z,zii){ if(z.nom===b.zavod){ zi=zii; z.turlar.forEach(function(t,tii){ if(t.nom===b.tur) ti=tii; }); } });
+    vozvratHTML+='<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">'
+      +'<div style="flex:1;font-size:12px;color:var(--muted);">'+b.zavod+' · '+b.tur+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+      +'<input type="number" id="kt-v-'+idx+'" data-zi="'+zi+'" data-ti="'+ti+'" placeholder="0g" oninput="kTolovCalc()" style="width:80px;padding:7px 8px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--surf);color:var(--gold);">'
+      +'<span style="font-size:12px;color:var(--muted);">g</span>'
+      +'</div></div>';
+  });
+
+  document.getElementById('kt-turlar-list').innerHTML=turlarHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yo'q</div>';
+  document.getElementById('kt-vozvrat-list').innerHTML=vozvratHTML;
+  document.getElementById('kt-turlar-cont').style.display='block';
+  window._kTolovBreakdown=breakdown;
+}
+
+function kTolovCalc() {
+  var totalEq=0,totalVozvrat=0;
+  var idx=0;
+  var bd=window._kTolovBreakdown||{};
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key]; if(b.qarz<=0){return;}
+    var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
+    var k=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
+    if(s>0&&k>0){
+      var eq=roundG(s/k);
+      var calcEl=document.getElementById('kt-calc-'+idx);
+      var eqEl=document.getElementById('kt-eq-'+idx);
+      if(calcEl){calcEl.style.display='block';}
+      if(eqEl){eqEl.textContent=fmtG(eq)+'g';}
+      totalEq+=eq;
+    }
+    totalVozvrat+=v;
+    idx++;
+  });
+  var jamiEl=document.getElementById('kt-jami');
+  if(jamiEl){
+    if(totalEq>0||totalVozvrat>0){
+      var txt='Jami: <b style="color:var(--green);">'+fmtG(totalEq)+'g</b> (pul)';
+      if(totalVozvrat>0) txt+=' + <b style="color:var(--gold);">'+fmtG(totalVozvrat)+'g</b> (vozvrat)';
+      txt+=' = <b style="color:var(--green);">'+fmtG(Math.round((totalEq+totalVozvrat)*100)/100)+'g</b> jami kamayadi';
+      jamiEl.innerHTML=txt;
+      jamiEl.style.display='block';
+    } else {
+      jamiEl.style.display='none';
+    }
+  }
+}
+
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
-  var summa=parseNum(document.getElementById('kt-summa').value);
-  var kurs=parseNum(document.getElementById('kt-kurs').value);
-  if(!summa||!kurs){alert('Summa va kursni kiriting!');return;}
-  var eq=roundG(summa/kurs);
+  var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kt-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
-  var k=data.klientlar[ki];
-  k.tarix.push({tip:'tolov',sana:sana,summa:summa,kurs:kurs,ekvivalent:eq});
-  save('Klient tolov: '+k.nom+' | '+summa+'$');
+  var bd=window._kTolovBreakdown||{};
+  var idx=0;
+  var any=false;
+  var logParts=[];
+
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key]; if(b.qarz<=0){return;}
+    var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
+    var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
+    var vEl=document.getElementById('kt-v-'+idx);
+    var zi=vEl?parseInt(vEl.dataset.zi):-1;
+    var ti=vEl?parseInt(vEl.dataset.ti):-1;
+
+    if(s>0&&kurs>0){
+      var eq=roundG(s/kurs);
+      k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq});
+      logParts.push(b.zavod+'.'+b.tur+': '+s+'$='+fmtG(eq)+'g');
+      any=true;
+    }
+    if(v>0&&zi>=0&&ti>=0){
+      k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});
+      data.zavodlar[zi].turlar[ti].ostatka+=v;
+      logParts.push('vozvrat '+b.zavod+'.'+b.tur+': '+v+'g');
+      any=true;
+    }
+    idx++;
+  });
+
+  if(!any){alert('To'lov yoki vozvrat kiriting!');return;}
+  save('Klient tolov: '+k.nom+' | '+logParts.join(', '));
   closeModal('modal-ktolov');
   renderKlientlar();
+  renderHome();
 }
 function klientPDF(){alert('PDF keyinroq qoshiladi');}
 
@@ -2482,10 +2593,10 @@ applyTheme(currentTheme);
 <div class="modal-overlay" id="modal-ktolov">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">To'lov (dollar)</div>
+    <div class="modal-title">To'lov</div>
     <div class="field">
       <label>Klient</label>
-      <select id="kt-klient" style="font-size:16px;">
+      <select id="kt-klient" onchange="kTolovKlientChange()" style="font-size:16px;">
         <option value="">— Tanlang —</option>
       </select>
     </div>
@@ -2493,16 +2604,12 @@ applyTheme(currentTheme);
       <label>Sana</label>
       <input type="date" id="kt-sana" style="font-size:16px;">
     </div>
-    <div class="field">
-      <label>Summa ($)</label>
-      <input type="number" id="kt-summa" placeholder="0" style="font-size:16px;">
-    </div>
-    <div class="field">
-      <label>Kurs ($/g)</label>
-      <input type="number" id="kt-kurs" placeholder="0" style="font-size:16px;">
-    </div>
-    <div id="kt-calc" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);display:none;border-left:2px solid var(--gold);">
-      = <b style="color:var(--green);" id="kt-calc-val">0g</b> qarz kamayadi
+    <div id="kt-turlar-cont" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Har tur uchun to'lov</div>
+      <div id="kt-turlar-list"></div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 8px;">Vozvrat (ixtiyoriy)</div>
+      <div id="kt-vozvrat-list"></div>
+      <div id="kt-jami" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:8px;border-left:2px solid var(--gold);display:none;"></div>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-ktolov')">Bekor</button>
