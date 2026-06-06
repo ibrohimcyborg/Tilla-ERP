@@ -1401,6 +1401,7 @@ function renderKlientlar() {
 
 function openKlientDetail(ki) {
   curKlientIdx=ki;
+  sessionStorage.setItem('curKlientIdx', ki);
   var k=data.klientlar[ki];
   document.getElementById('kd-name').textContent=k.nom;
   var kdTel=document.getElementById('kd-tel');
@@ -2191,6 +2192,8 @@ applyTheme(currentTheme);
 // ── STARTUP ───────────────────────────────────────────────────────────────────
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
+var _savedKlient=sessionStorage.getItem('curKlientIdx');
+sessionStorage.removeItem('curKlientIdx');
 renderHome();
 if (isPCMode()) { pcInit(); } else { mainTab(_savedTab); }
 
@@ -2200,6 +2203,13 @@ loadFromCloud().then(function(synced){
     renderHome();
     renderKlientlar();
     if (isPCMode()) pcInit();
+  }
+  // Klient detail qayta ochish
+  if (_savedKlient !== null) {
+    var ki = parseInt(_savedKlient);
+    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
+      openKlientDetail(ki);
+    }
   }
 });
 
