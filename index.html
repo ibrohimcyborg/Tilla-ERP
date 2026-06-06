@@ -645,46 +645,10 @@ function save(logText) {
   _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 1000);
 }
 
-function syncToCloud(logText) {
-  var payload = JSON.stringify({
-    action:'save', user_id:USER_ID,
-    zavodlar:data.zavodlar,
-    klientlar:data.klientlar||[],
-    updated_at:new Date().toISOString()
-  });
-  fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:payload})
-    .catch(function(){});
-}
+function syncToCloud(logText) {}
 
 function loadFromCloud() {
-  return fetch('/api/sync',{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'load', user_id:USER_ID})
-  })
-  .then(function(r){return r.json();})
-  .then(function(rows){
-    if(!rows||!rows.length) return false;
-    var d=rows[0];
-    // Local va cloud updated_at solishtiramiz
-    var localStr = localStorage.getItem('tilla-v2');
-    if(localStr) {
-      try {
-        var local = JSON.parse(localStr);
-        var localTime = new Date(local.updated_at||0).getTime();
-        var cloudTime = new Date(d.updated_at||0).getTime();
-        // Cloud eskiroq bo'lsa - local ni cloud ga saqlaymiz, yuklamaymiz
-        if(localTime > cloudTime) {
-          syncToCloud('auto-restore');
-          return false;
-        }
-      } catch(e){}
-    }
-    if(d.zavodlar&&d.zavodlar.length>0) data.zavodlar=d.zavodlar;
-    data.klientlar=d.klientlar||[];
-    localStorage.setItem('tilla-v2',JSON.stringify(data));
-    return true;
-  })
-  .catch(function(){return false;});
+  return Promise.resolve(false);
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 // ── UTILS ─────────────────────────────────────────────────────────────────────
