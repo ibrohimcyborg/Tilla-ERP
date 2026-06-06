@@ -435,6 +435,9 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home');mainTab('klient')">←</button>
     <div class="stitle" id="kd-name">Klient</div>
+    <div style="flex:1;"></div>
+    <div id="kd-tel" style="font-size:13px;color:var(--muted);"></div>
+    <button onclick="klientOchir()" style="background:transparent;border:1.5px solid var(--red);color:var(--red);border-radius:10px;padding:6px 12px;font-size:12px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">🗑 O'chir</button>
   </div>
   <div class="card" style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -530,6 +533,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-handle"></div>
     <div class="modal-title">Yangi klient</div>
     <div class="field"><label>Ismi</label><input type="text" id="klient-nom" placeholder="Aziz aka..."></div>
+    <div class="field"><label>Telefon</label><input type="tel" id="klient-tel" placeholder="+998 90 123 45 67"></div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-klient')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlient()">Saqlash</button>
@@ -630,12 +634,9 @@ async function loadFromCloud() {
       if (res.data.zavodlar && res.data.zavodlar.length > 0) {
         data.zavodlar = res.data.zavodlar;
       }
-      // Klientlar faqat cloud da bolsa va local dan kop bolsa olish
+      // Cloud dan hamma narsani olamiz
       var cloudKlientlar = res.data.klientlar || [];
-      var localKlientlar = data.klientlar || [];
-      if (cloudKlientlar.length >= localKlientlar.length) {
-        data.klientlar = cloudKlientlar;
-      }
+      data.klientlar = cloudKlientlar;
       localStorage.setItem('tilla-v2', JSON.stringify(data));
       return true;
     }
@@ -1166,7 +1167,7 @@ function renderKlientlar() {
       +'<div style="font-size:13px;color:var(--muted);font-weight:600;min-width:18px;">'+(rank+1)+'</div>'
       +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);">'+ini+'</div>'
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
+      +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$'+(k.tel?' · '+k.tel:'')+'</div></div>'
       +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
       +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div>'
       +'</div></div>';
@@ -1196,6 +1197,8 @@ function openKlientDetail(ki) {
   curKlientIdx=ki;
   var k=data.klientlar[ki];
   document.getElementById('kd-name').textContent=k.nom;
+  var kdTel=document.getElementById('kd-tel');
+  if(kdTel) kdTel.textContent=k.tel||'';
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
   qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
@@ -1322,8 +1325,23 @@ function openKlientDetail(ki) {
   goTo('s-klient-detail');
 }
 
-function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('modal-klient').classList.add('open');}
-function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
+function openKlientModal(){
+  document.getElementById('klient-nom').value='';
+  var tel=document.getElementById('klient-tel');
+  if(tel) tel.value='';
+  document.getElementById('modal-klient').classList.add('open');
+  setTimeout(function(){document.getElementById('klient-nom').focus();},100);
+}
+function saqlashKlient(){
+  var nom=document.getElementById('klient-nom').value.trim();
+  if(!nom){alert('Ism kiriting!');return;}
+  var tel=(document.getElementById('klient-tel')||{}).value||'';
+  if(!data.klientlar)data.klientlar=[];
+  data.klientlar.push({nom:nom,tel:tel.trim(),tarix:[]});
+  save('Yangi klient: '+nom);
+  closeModal('modal-klient');
+  renderKlientlar();
+}
 
 function openKlientBerish(){
   var sel=document.getElementById('kb-klient');
@@ -1793,6 +1811,16 @@ function klientChekBasit(ki, sana, isBerish) {
 
 function klientBerishTahrir(ki, gIdx) {
   alert('Tahrirlash keyinroq qoshiladi');
+}
+
+function klientOchir(){
+  var k=data.klientlar[curKlientIdx];
+  if(!k) return;
+  if(!confirm(k.nom+" ni o'chirmoqchimisiz? Barcha tarixi ham o'chadi!")) return;
+  data.klientlar.splice(curKlientIdx,1);
+  save("Klient o'chirildi: "+k.nom);
+  goTo('s-home');
+  renderKlientlar();
 }
 
 function klientPDF(){
