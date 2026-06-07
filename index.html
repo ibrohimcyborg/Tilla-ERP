@@ -1693,10 +1693,9 @@ function openKlientBerish(){
   sel.innerHTML='<option value="">— Tanlang —</option>';
   (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
   document.getElementById('kb-sana').value=nowDate();
-  document.getElementById('kb-turlar-card').style.display='none';
-  document.getElementById('kb-turlar-inputs').innerHTML='';
   sel.onchange=kberishKlientChange;
   document.getElementById('modal-kberish').classList.add('open');
+  renderBerishTurlar(data.zavodlar);
 }
 
 function kberishKlientChange(){
