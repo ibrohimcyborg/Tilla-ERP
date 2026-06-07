@@ -659,23 +659,8 @@ function loadFromCloud() {
   return fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json')
   .then(function(r){ return r.json(); })
   .then(function(d){
-    if(!d) return false;
-    var localStr = localStorage.getItem('tilla-v2');
-    var localTime = 0;
-    if(localStr) {
-      try {
-        var local = JSON.parse(localStr);
-        localTime = new Date(local.updated_at||0).getTime();
-      } catch(e){}
-    }
-    var cloudTime = new Date(d.updated_at||0).getTime();
-    // Local yangiroq bo'lsa - cloud ga yuboramiz
-    if(localTime > cloudTime) {
-      syncToCloud('auto');
-      return false;
-    }
-    // Cloud yangiroq yoki teng - cloud dan yuklaymiz
-    if(d.zavodlar && d.zavodlar.length>0) data.zavodlar = d.zavodlar;
+    if(!d || !d.zavodlar) return false;
+    data.zavodlar = d.zavodlar;
     data.klientlar = d.klientlar||[];
     data.updated_at = d.updated_at;
     localStorage.setItem('tilla-v2', JSON.stringify(data));
@@ -683,6 +668,7 @@ function loadFromCloud() {
   })
   .catch(function(){ return false; });
 }
+
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
