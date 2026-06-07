@@ -855,9 +855,15 @@ function goTo(id) {
 function mainTab(tab) {
   document.getElementById('main-tab-zavod').classList.toggle('active', tab === 'zavod');
   document.getElementById('main-tab-klient').classList.toggle('active', tab === 'klient');
-  var isPC = isPCMode();
-  document.getElementById('main-zavod').style.display = (isPC || tab === 'zavod') ? 'flex' : 'none';
-  document.getElementById('main-klient').style.display = (isPC || tab === 'klient') ? 'flex' : 'none';
+  var mz = document.getElementById('main-zavod');
+  var mk = document.getElementById('main-klient');
+  if (isPCMode()) {
+    mz.style.display = 'flex';
+    mk.style.display = 'flex';
+  } else {
+    mz.style.display = tab === 'zavod' ? 'flex' : 'none';
+    mk.style.display = tab === 'klient' ? 'flex' : 'none';
+  }
   if (tab === 'klient') renderKlientlar();
   if (tab === 'zavod') renderHome();
 }
@@ -2483,9 +2489,8 @@ function pcInit() {
   act.innerHTML = '';
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
-  if (mz) mz.style.display = 'flex';
-  if (mk) mk.style.display = 'flex';
-  renderHome(); renderKlientlar();
+  mainTab('zavod');
+  renderKlientlar();
 }
 
 function pcTab(name, el) { pcInit(); }
