@@ -591,6 +591,76 @@ def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat,
 # ═══════════════════════════════════════════════════════════════
 # HTTP HANDLER
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+# 6. KASSA HISOBOTI — A4 portrait
+# ═══════════════════════════════════════════════════════════════
+def build_kassa(ops, dan, gacha, jami_summa, jami_gramm, label):
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+        leftMargin=15*mm, rightMargin=15*mm, topMargin=12*mm, bottomMargin=12*mm)
+    story = []
+    W_total = A4[0] - 30*mm
+
+    story.append(title_p("TILLA HISOB — Kassa hisoboti"))
+    story.append(sub_p("Davr: " + label))
+    story.append(Spacer(1, 4*mm))
+
+    # Stat
+    stat_data = [[
+        P("JAMI KASSA", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+        P("JAMI GRAMM", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+        P("TOLOVLAR SONI", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+    ],[
+        P(f"${jami_summa:,.2f}", 'Helvetica-Bold', 14, C_GOLD, 'CENTER'),
+        P(f"{jami_gramm:,.2f}g", 'Helvetica-Bold', 14, C_GREEN, 'CENTER'),
+        P(f"{len(ops)} ta", 'Helvetica-Bold', 14, C_WHITE, 'CENTER'),
+    ]]
+    st = Table(stat_data, colWidths=[W_total/3]*3)
+    st.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), C_HDR),
+        ('BACKGROUND', (0,1), (-1,1), colors.HexColor('#F8F6F0')),
+        ('GRID', (0,0), (-1,-1), 0.4, colors.HexColor('#dddddd')),
+        ('TOPPADDING', (0,0), (-1,-1), 6), ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    story.append(st)
+    story.append(Spacer(1, 6*mm))
+
+    # Jadval
+    HDR = ["Sana", "Klient", "Zavod", "Tur", "Gramm (g)", "Kurs ($/g)", "Summa ($)"]
+    CW = [x*mm for x in [24, 34, 30, 22, 24, 24, 28]]
+    tdata = [[P(h, 'Helvetica-Bold', 9, C_WHITE, 'CENTER') for h in HDR]]
+    rstyles = []
+
+    for ri, op in enumerate(ops, 1):
+        bg = C_GRAY if ri % 2 == 0 else C_WHITE
+        tdata.append([
+            P(op.get('sana',''), size=9, color=C_MUTED),
+            P(op.get('klient',''), 'Helvetica-Bold', 9),
+            P(op.get('zavod',''), size=9, color=C_MUTED),
+            P(op.get('tur',''), size=9, color=C_MUTED),
+            P(f"{op.get('gramm',0):,.2f}", size=9, align='RIGHT'),
+            P(f"{op.get('kurs',0):,.1f}", size=9, color=C_MUTED, align='RIGHT'),
+            P(f"${op.get('summa',0):,.2f}", 'Helvetica-Bold', 9, C_GOLD, 'RIGHT'),
+        ])
+        rstyles.append(('BACKGROUND', (0,ri), (-1,ri), bg))
+
+    jr = len(tdata)
+    tdata.append([
+        P('JAMI', 'Helvetica-Bold', 9, C_WHITE, 'CENTER'), '', '', '',
+        P(f"{jami_gramm:,.2f}", 'Helvetica-Bold', 9, colors.HexColor('#68D391'), 'RIGHT'),
+        '',
+        P(f"${jami_summa:,.2f}", 'Helvetica-Bold', 10, colors.HexColor('#F6E05E'), 'RIGHT'),
+    ])
+    rstyles += [('BACKGROUND', (0,jr), (-1,jr), C_DARK), ('SPAN', (0,jr), (3,jr))]
+
+    mt = Table(tdata, colWidths=CW, repeatRows=1)
+    mt.setStyle(TableStyle(base_style() + rstyles))
+    story.append(mt)
+
+    doc.build(story)
+    return buf.getvalue()
+
 class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
@@ -627,6 +697,13 @@ class handler(BaseHTTPRequestHandler):
                     body.get("jami_tolov_g",0), body.get("jami_tolov_pul",0),
                     body.get("qarz_tarkib",[]))
                 return self._send_pdf(pdf, "klientlar-tarix.pdf")
+
+            if tip == "kassa":
+                pdf = build_kassa(
+                    body.get("ops", []), body.get("dan"), body.get("gacha"),
+                    body.get("jami_summa", 0), body.get("jami_gramm", 0),
+                    body.get("label", "Hammasi"))
+                return self._send_pdf(pdf, "kassa.pdf")
 
             # Default: zavod hisoboti
             zavodlar     = body.get("zavodlar", [])
