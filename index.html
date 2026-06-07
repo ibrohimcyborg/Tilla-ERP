@@ -110,36 +110,8 @@ input[type=number]{-moz-appearance:textfield;}
   .field input,.field select{font-size:17px;padding:14px 16px;}
 }
 
-/* ── PC (1024px+) ────────────────────────────────────────────── */
+/* ── PC (1024px+) — eski blok tozalangan ─────────────────────── */
 @media(min-width:1024px){
-  body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
-  .topbar{max-width:100%;padding-left:24px;padding-right:24px;}
-  .main-tabs{display:none;}
-
-  #s-home{
-    display:flex!important;flex-direction:row;
-    flex:1;overflow:hidden;
-    border-top:1px solid var(--border);
-  }
-  #main-zavod{
-    flex:1;min-width:0;
-    overflow-y:auto;
-    padding:20px;
-    border-right:1px solid var(--border);
-    display:block!important;
-  }
-  #main-klient{
-    flex:1;min-width:0;
-    overflow-y:auto;
-    padding:20px;
-    display:flex!important;
-    flex-direction:column;
-  }
-
-  .screen.active:not(#s-home){max-width:600px;margin:0 auto;}
-  .modal{max-width:520px;border-radius:20px;margin-bottom:40px;}
-  .modal-overlay{align-items:center;padding:20px;}
-
   .big-btn{padding:16px 12px;}
   .zrow{padding:14px 16px;}
   .hrow{padding:14px 16px;}
@@ -168,15 +140,20 @@ input[type=number]{-moz-appearance:textfield;}
     padding: 0; max-width: 100%; margin: 0; flex: 1; overflow: hidden;
   }
 
+  /* Panellar faqat s-home.active ichida ko'rinadi */
   #main-zavod {
-    flex: 1; min-width: 0; display: flex !important;
+    flex: 1; min-width: 0;
     flex-direction: column; overflow: hidden;
     border-right: 1px solid var(--border);
+    display: none;
   }
   #main-klient {
-    flex: 1; min-width: 0; display: flex !important;
+    flex: 1; min-width: 0;
     flex-direction: column; overflow: hidden;
+    display: none;
   }
+  #s-home.active #main-zavod { display: flex !important; }
+  #s-home.active #main-klient { display: flex !important; }
   .pc-zavod-hdr, .pc-klient-hdr {
     flex-shrink: 0; padding: 14px 16px;
     background: var(--surf); border-bottom: 1px solid var(--border);
@@ -2047,10 +2024,6 @@ function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
   if (!isPCMode()) return;
-  var mz = document.getElementById('main-zavod');
-  var mk = document.getElementById('main-klient');
-  mz.style.display = 'flex';
-  mk.style.display = 'flex';
   renderHome();
   renderKlientlar();
 }
@@ -2098,27 +2071,18 @@ function openKlientlarPDFModal() {
 var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
-  if (isPCMode()) {
-    var mz = document.getElementById('main-zavod');
-    var mk = document.getElementById('main-klient');
-    if (id === 's-home') {
-      // s-home da ikki panel ko'rinadi
-      mz.style.display = 'flex';
-      mk.style.display = 'flex';
-      renderHome();
-      renderKlientlar();
-    } else {
-      // Boshqa screen larda panellar yashiriladi
-      mz.style.display = 'none';
-      mk.style.display = 'none';
-    }
+  if (id === 's-home' && isPCMode()) {
+    renderHome();
+    renderKlientlar();
   }
 };
 
 var _origMainTab = mainTab;
 mainTab = function(tab) {
   if (isPCMode()) {
-    initPC(); return;
+    renderHome();
+    renderKlientlar();
+    return;
   }
   _origMainTab(tab);
 };
