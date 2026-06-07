@@ -2443,6 +2443,10 @@ function initPC() {
 function openKlientPDFDavr() {
   _pdfZavodIdx = null;
   _pdfTip = 'klientlar';
+  var now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
+  var last=new Date(y,now.getMonth()+1,0).getDate();
+  document.getElementById('pdf-dan').value=y+'-'+m+'-01';
+  document.getElementById('pdf-gacha').value=y+'-'+m+'-'+String(last).padStart(2,'0');
   document.getElementById('modal-pdf').classList.add('open');
 }
 
