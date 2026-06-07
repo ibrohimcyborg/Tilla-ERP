@@ -356,7 +356,7 @@ input[type=number]{-moz-appearance:textfield;}
         </button>
       </div>
       <div class="pc-btn-grid2">
-        <button class="pc-kbtn2 pdf" onclick="openKlientlarPDFModal()">⎙ PDF</button>
+        <button class="pc-kbtn2 pdf" onclick="openKlientPDFDavr()">⎙ PDF</button>
         <button class="pc-kbtn2 add" onclick="openKlientModal()">+ Klient</button>
       </div>
     </div>
@@ -1255,7 +1255,9 @@ async function resetTasdiqlash() {
 
 // ── PDF ───────────────────────────────────────────────────────────────────────
 var _pdfZavodIdx = null;
+var _pdfTip = null;
 function openPDFModal(zi) {
+  _pdfTip = null;
   _pdfZavodIdx=zi;
   var now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
   var last=new Date(y,now.getMonth()+1,0).getDate();
@@ -1270,8 +1272,9 @@ function pdfDavrTanla(tip) {
   else if(tip==='haftalik'){var day=now.getDay()||7,mon=new Date(now);mon.setDate(now.getDate()-day+1);var sun=new Date(mon);sun.setDate(mon.getDate()+6);dan=mon.toISOString().slice(0,10);gacha=sun.toISOString().slice(0,10);}
   else{dan=document.getElementById('pdf-dan').value;gacha=document.getElementById('pdf-gacha').value;}
   closeModal('modal-pdf');
+  if (_pdfTip === 'klientlar') { openKlientlarPDFModal(dan||null, gacha||null); return; }
   var payload={zavodlar:data.zavodlar,dan:dan||null,gacha:gacha||null,zavod:(_pdfZavodIdx!==null&&_pdfZavodIdx!==undefined)?data.zavodlar[_pdfZavodIdx].nom:null};
-  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},10000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
@@ -1787,7 +1790,7 @@ function chekPDF(ki, ops_grouped, sana) {
     sana: sana,
     ops_grouped: ops_grouped
   };
-  fetch('/api/pdf', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+  fetch('/api/pdf.py', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
   .then(function(r){ if(!r.ok) throw new Error('Server xatosi'); return r.blob(); })
   .then(function(blob){ var url=URL.createObjectURL(blob); window.open(url,'_blank'); setTimeout(function(){URL.revokeObjectURL(url);},15000); })
   .catch(function(e){ console.error('Chek PDF xato:', e.message); });
@@ -1858,7 +1861,7 @@ function klientQarzChek(ki) {
     jami_qarz:jamiQarz,
     qarz_tarkib:qarz_tarkib
   };
-  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
@@ -1930,7 +1933,7 @@ function klientChekBasit(ki, sana, isBerish) {
   Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
 
   var payload={tip:'klient_chek',klient_nom:k.nom,sana:sana,ops_grouped:ops_grouped,qarz_tarkib:qarz_tarkib};
-  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
@@ -1974,7 +1977,7 @@ function klientPDF(){
     jami_tolov_pul:Math.round(jami_tolov_pul*100)/100,
     qarz_tarkib:qarz_tarkib
   };
-  fetch('/api/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},10000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
@@ -2114,8 +2117,15 @@ function initPC() {
   renderKlientlar();
 }
 
+function openKlientPDFDavr() {
+  _pdfZavodIdx = null;
+  _pdfTip = 'klientlar';
+  document.getElementById('modal-pdf').classList.add('open');
+}
+
 // openKlientlarPDFModal — klientlar panelidan PDF
-function openKlientlarPDFModal() {
+function openKlientlarPDFModal(dan, gacha) {
+  dan = dan || null; gacha = gacha || null;
   // Barcha klientlar tarixi PDF
   var ops = [];
   var qarz_tarkib = [];
@@ -2141,14 +2151,14 @@ function openKlientlarPDFModal() {
   });
   ops.sort(function(a, b) { return (a.sana || '').localeCompare(b.sana || ''); });
   var payload = {
-    tip: 'klientlar_tarix', ops: ops, dan: null, gacha: null,
+    tip: 'klientlar_tarix', ops: ops, dan: dan, gacha: gacha,
     jami_berildi: Math.round(jami_berildi * 100) / 100,
     jami_vozvrat: Math.round(jami_vozvrat * 100) / 100,
     jami_tolov_g: Math.round(jami_tolov_g * 100) / 100,
     jami_tolov_pul: Math.round(jami_tolov_pul * 100) / 100,
     qarz_tarkib: qarz_tarkib
   };
-  fetch('/api/pdf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  fetch('/api/pdf.py', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
     .then(function(r) { if (!r.ok) throw new Error('Server xatosi'); return r.blob(); })
     .then(function(blob) { var url = URL.createObjectURL(blob); window.open(url, '_blank'); setTimeout(function() { URL.revokeObjectURL(url); }, 10000); })
     .catch(function(e) { alert('PDF xato: ' + e.message); });
