@@ -879,6 +879,25 @@ function renderZavod() {
   z.turlar.forEach(function(t, ti) {
     var totalK = 0, totalC = 0;
     t.tarix.forEach(function(op){ if (op.tip==='mol') totalK+=op.gramm; else if(op.tip==='vozvrat') totalC+=op.gramm; else totalC+=op.jami||0; });
+
+    // Shu tur bo'yicha klientlar qarzi
+    var turKlientlar = {};
+    (data.klientlar||[]).forEach(function(k){
+      var q = 0;
+      k.tarix.forEach(function(op){
+        if(op.zavod !== z.nom || op.tur !== t.nom) return;
+        if(op.tip==='berish') q+=op.gramm;
+        else if(op.tip==='vozvrat') q-=op.gramm;
+        else if(op.tip==='tolov') q-=(op.ekvivalent||0);
+      });
+      q = Math.round(q*100)/100;
+      if(q > 0.001) turKlientlar[k.nom] = q;
+    });
+    var turKlientda = Object.values(turKlientlar).reduce(function(a,b){return a+b;},0);
+    turKlientda = Math.round(turKlientda*100)/100;
+    var turBizda = t.ostatka;
+    var turJami = Math.round((turBizda+turKlientda)*100)/100;
+
     var isOpen = openTurIdx === ti;
     var rows = '';
     t.tarix.slice().reverse().forEach(function(op) {
@@ -890,14 +909,31 @@ function renderZavod() {
         rows += '<div class="trow"><div><span style="color:var(--red);">- Chiqim</span>' + (op.kimga?'<span style="color:var(--muted);margin-left:6px;font-size:11px;">'+op.kimga+'</span>':'') + '<div class="trow-info">' + op.sana + '</div></div><span style="font-family:Roboto,sans-serif;color:var(--red);">-' + fmtG(op.jami) + 'g</span></div>';
       }
     });
+
+    // Klientlar ro'yxati (faqat qarzi borlar)
+    var klientRows = '';
+    Object.keys(turKlientlar).forEach(function(nom){
+      klientRows += '<div class="trow">'
+        + '<div style="font-size:13px;color:var(--text);">'+nom+'</div>'
+        + '<span style="font-family:Roboto,sans-serif;font-size:13px;color:var(--red);font-weight:500;">-'+fmtG(turKlientlar[nom])+'g</span>'
+        + '</div>';
+    });
+
     out += '<div class="tacc' + (isOpen?' open':'') + '">'
       + '<div class="tacc-head" onclick="toggleTur(' + ti + ')">'
       + '<div class="tacc-name">' + t.nom + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px;"><div class="tacc-g">' + fmtG(t.ostatka) + ' g</div><div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div></div>'
+      + '<div style="display:flex;align-items:center;gap:8px;"><div class="tacc-g">' + fmtG(turJami) + ' g</div><div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div></div>'
       + '</div>'
       + '<div class="tacc-body">'
-      + '<div class="stat2"><div class="stat2-item"><div class="stat2-label">KIRIM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+' + fmtG(totalK) + 'g</div></div>'
-      + '<div class="stat2-item"><div class="stat2-label">CHIQIM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">-' + fmtG(totalC) + 'g</div></div></div>'
+      // Bizda / Klientda / Jami 3 ta stat
+      + '<div class="stat2" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:10px;">'
+      + '<div class="stat2-item"><div class="stat2-label">BIZDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--green);">'+fmtG(turBizda)+'g</div></div>'
+      + '<div class="stat2-item"><div class="stat2-label">KLIENTDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--red);">'+fmtG(turKlientda)+'g</div></div>'
+      + '<div class="stat2-item"><div class="stat2-label">JAMI</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--gold);">'+fmtG(turJami)+'g</div></div>'
+      + '</div>'
+      // Klientlar ro'yxati
+      + (klientRows ? '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Klientlarda</div>' + klientRows + '<div style="height:1px;background:var(--border);margin:10px 0;"></div>' : '')
+      // Tarix
       + (rows || '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px;">Tarix yoq</div>')
       + '</div></div>';
   });
