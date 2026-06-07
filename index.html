@@ -240,6 +240,8 @@ input[type=number]{-moz-appearance:textfield;}
 }
 
 </style>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 <div class="ptr-indicator" id="ptr-indicator">↓</div>
@@ -629,9 +631,12 @@ input[type=number]{-moz-appearance:textfield;}
 
 <script>
 // ── SUPABASE ─────────────────────────────────────────────────────────────────
-var SB_URL = 'https://vddfjkofsxpwfbbrqwhh.supabase.co';
-var SB_KEY = 'sb_publishable_T2AVCW7hWTrDhU11SAbu3g_0qVblo0m';
-var USER_ID = 'tilla-main';
+var FB_URL = 'https://tilla-erp-default-rtdb.firebaseio.com';
+var FB_DB = null;
+try {
+  firebase.initializeApp({databaseURL: FB_URL});
+  FB_DB = firebase.database();
+} catch(e) {}
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 var data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[],"klientlar":[]}');
@@ -646,58 +651,73 @@ function save(logText) {
 }
 
 
+
 function syncToCloud(logText) {
-  var myTime = new Date().toISOString();
-  data.updated_at = myTime;
+  if (!FB_DB) return;
+  data.updated_at = new Date().toISOString();
   localStorage.setItem('tilla-v2', JSON.stringify(data));
-  
-  // Avval cloud timestampni tekshir
-  fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla/updated_at.json?_='+Date.now())
-  .then(function(r){ return r.json(); })
-  .then(function(cloudTime){
-    // Cloud bizdan eskiroq yoki yo'q - yozamiz
-    if (!cloudTime || myTime >= cloudTime) {
-      fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          zavodlar: data.zavodlar || [],
-          klientlar: data.klientlar || [],
-          updated_at: myTime
-        })
-      }).catch(function(){});
-    }
-  })
-  .catch(function(){
-    // Network xato - baribir yozamiz
-    fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json', {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        zavodlar: data.zavodlar || [],
-        klientlar: data.klientlar || [],
-        updated_at: myTime
-      })
-    }).catch(function(){});
+  FB_DB.ref('tilla').set({
+    zavodlar: data.zavodlar || [],
+    klientlar: data.klientlar || [],
+    updated_at: data.updated_at
   });
 }
 
+function fixArr(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  return Object.values(v);
+}
+
 function loadFromCloud() {
-  return fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json?_='+Date.now())
-  .then(function(r){ return r.json(); })
-  .then(function(d){
+  if (!FB_DB) return Promise.resolve(false);
+  return FB_DB.ref('tilla').once('value').then(function(snap){
+    var d = snap.val();
     if (!d) return false;
-    if (Array.isArray(d.zavodlar)) data.zavodlar = d.zavodlar;
-    if (Array.isArray(d.klientlar)) {
-      data.klientlar = d.klientlar.map(function(k){
-        return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
+
+    // Zavodlar - turlar va tarix ham fix
+    var zavodlar = fixArr(d.zavodlar).map(function(z){
+      var turlar = fixArr(z.turlar).map(function(t){
+        return {
+          nom: t.nom||'',
+          ostatka: t.ostatka||0,
+          tarix: fixArr(t.tarix)
+        };
       });
-    }
+      return {nom: z.nom||'', turlar: turlar};
+    });
+
+    // Klientlar - tarix ham fix
+    var klientlar = fixArr(d.klientlar).map(function(k){
+      return {
+        nom: k.nom||'',
+        tel: k.tel||'',
+        tarix: fixArr(k.tarix)
+      };
+    });
+
+    data.zavodlar = zavodlar;
+    data.klientlar = klientlar;
     data.updated_at = d.updated_at || '';
     localStorage.setItem('tilla-v2', JSON.stringify(data));
     return true;
-  })
-  .catch(function(){ return false; });
+  }).catch(function(){ return false; });
+}
+
+// Real-time listener - boshqa qurilma o'zgartirsa avtomatik yuklanadi
+function startRealtimeSync() {
+  if (!FB_DB) return;
+  FB_DB.ref('tilla/updated_at').on('value', function(snap){
+    var cloudTime = snap.val();
+    if (cloudTime && cloudTime > (data.updated_at||'')) {
+      loadFromCloud().then(function(ok){
+        if (ok) {
+          renderHome();
+          renderKlientlar();
+        }
+      });
+    }
+  });
 }
 
 
@@ -1431,8 +1451,6 @@ function renderKlientlar() {
 
 function openKlientDetail(ki) {
   curKlientIdx=ki;
-  var k = data.klientlar[ki];
-  if(k) sessionStorage.setItem('curKlientNom', k.nom);
   var k=data.klientlar[ki];
   document.getElementById('kd-name').textContent=k.nom;
   var kdTel=document.getElementById('kd-tel');
@@ -2220,15 +2238,13 @@ applyTheme(currentTheme);
   document.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;var dy=curY-startY;if(dy>threshold){ind.textContent='↻';var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';sessionStorage.setItem('activeTab',curTab);
         var curScreen=document.querySelector('.screen.active');
         if(curScreen&&curScreen.id==='s-klient-detail'&&curKlientIdx>=0){
-          var _ck=data.klientlar[curKlientIdx];if(_ck)sessionStorage.setItem('curKlientNom',_ck.nom);
+          
         }
         setTimeout(function(){location.reload();},400);}else{ind.style.top='-60px';ind.style.opacity='0';}},{passive:true});
 })();
 
 // ── STARTUP ───────────────────────────────────────────────────────────────────
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
-var _savedKlient=sessionStorage.getItem('curKlientNom');
-sessionStorage.removeItem('curKlientNom');
 sessionStorage.removeItem('activeTab');
 sessionStorage.removeItem('curKlientIdx');
 
@@ -2241,11 +2257,7 @@ loadFromCloud().then(function(synced){
     renderKlientlar();
     if (isPCMode()) pcInit();
   }
-  if (_savedKlient) {
-    var ki = -1;
-    (data.klientlar||[]).forEach(function(k,i){ if(k.nom===_savedKlient) ki=i; });
-    if(ki>=0) setTimeout(function(){ openKlientDetail(ki); }, 100);
-  }
+  startRealtimeSync();
 });
 
 
