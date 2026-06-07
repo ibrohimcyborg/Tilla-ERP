@@ -2010,6 +2010,18 @@ function saqlashKlientTolov(){
   var sanaEl=document.getElementById('kt-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   var bd=window._kTolovBD||{},idx=0,any=false;
+  // Avval ortiqcha tolov tekshiruvi
+  var hasErr=false;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key]; if(b.qarz<=0){idx++;return;}
+    var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
+    var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
+    if(s>0&&kurs>0){ var eq=roundG(s/kurs); if(eq>b.qarz) hasErr=true; }
+    idx++;
+  });
+  if(hasErr){ alert('Ortiqcha tolov kiritilgan! Kurs yoki summani tekshiring.'); return; }
+  idx=0;
   var ops_grouped=[];
   Object.keys(bd).forEach(function(key){
     var b=bd[key];if(b.qarz<=0){idx++;return;}
