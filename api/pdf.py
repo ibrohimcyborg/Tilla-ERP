@@ -228,7 +228,7 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
 def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     buf = io.BytesIO()
     W = 72*mm
-    est_h = 38 + len(ops_grouped)*16 + (len(qarz_tarkib)*6 if qarz_tarkib else 0) + 12
+    est_h = 28 + len(ops_grouped)*14 + (len(qarz_tarkib)*5 if qarz_tarkib else 0) + 10
 
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
         a = {'LEFT': TA_LEFT, 'CENTER': TA_CENTER, 'RIGHT': TA_RIGHT}
