@@ -642,62 +642,94 @@ function save(logText) {
   data.updated_at = new Date().toISOString();
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if (_syncTimer) clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 300);
+  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 500);
 }
+
 
 function syncToCloud(logText) {
-  data.updated_at = new Date().toISOString();
+  var myTime = new Date().toISOString();
+  data.updated_at = myTime;
   localStorage.setItem('tilla-v2', JSON.stringify(data));
-  var FB = 'https://tilla-erp-default-rtdb.firebaseio.com/tilla';
   
-  // Zavodlarni alohida yoz
-  fetch(FB+'/zavodlar.json', {
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data.zavodlar||[])
-  }).catch(function(){});
-  
-  // Klientlarni alohida yoz
-  fetch(FB+'/klientlar.json', {
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data.klientlar||[])
-  }).catch(function(){});
-  
-  // Timestamp
-  fetch(FB+'/updated_at.json', {
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data.updated_at)
-  }).catch(function(){});
+  // Avval cloud timestampni tekshir
+  fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla/updated_at.json?_='+Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(cloudTime){
+    // Cloud bizdan eskiroq yoki yo'q - yozamiz
+    if (!cloudTime || myTime >= cloudTime) {
+      fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          zavodlar: data.zavodlar || [],
+          klientlar: data.klientlar || [],
+          updated_at: myTime
+        })
+      }).catch(function(){});
+    }
+  })
+  .catch(function(){
+    // Network xato - baribir yozamiz
+    fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        zavodlar: data.zavodlar || [],
+        klientlar: data.klientlar || [],
+        updated_at: myTime
+      })
+    }).catch(function(){});
+  });
 }
 
-
 function loadFromCloud() {
-  var FB = 'https://tilla-erp-default-rtdb.firebaseio.com/tilla';
-  return Promise.all([
-    fetch(FB+'/zavodlar.json', {cache:'no-store'}).then(function(r){return r.json();}),
-    fetch(FB+'/klientlar.json', {cache:'no-store'}).then(function(r){return r.json();}),
-    fetch(FB+'/updated_at.json', {cache:'no-store'}).then(function(r){return r.json();})
-  ]).then(function(results){
-    var zavodlar = results[0];
-    var klientlar = results[1];
-    var updated_at = results[2];
+  return fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json?_='+Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d) return false;
     
-    if(!zavodlar && !klientlar) return false;
+    var cloudTime = d.updated_at || '';
+    var localTime = data.updated_at || '';
     
-    if(zavodlar && Array.isArray(zavodlar)) data.zavodlar = zavodlar;
-    if(klientlar && Array.isArray(klientlar)) {
-      data.klientlar = klientlar.map(function(k){
-        return {nom:k.nom||'',tel:k.tel||'',tarix:k.tarix||[]};
-      });
+    // Cloud bizdan yangroq bo'lsa yuklaymiz
+    if (cloudTime > localTime) {
+      if (Array.isArray(d.zavodlar)) data.zavodlar = d.zavodlar;
+      if (Array.isArray(d.klientlar)) {
+        data.klientlar = d.klientlar.map(function(k){
+          return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
+        });
+      }
+      data.updated_at = cloudTime;
+      localStorage.setItem('tilla-v2', JSON.stringify(data));
+      return true;
     }
-    data.updated_at = updated_at;
-    localStorage.setItem('tilla-v2', JSON.stringify(data));
-    return true;
+    
+    // Local yangiroq - cloud ga yuboramiz
+    if (localTime > cloudTime) {
+      syncToCloud('auto-push');
+    }
+    return false;
   })
   .catch(function(){ return false; });
 }
+
+// Har 8 sekundda tekshir
+setInterval(function(){
+  fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla/updated_at.json?_='+Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(cloudTime){
+    if (cloudTime && cloudTime > (data.updated_at||'')) {
+      loadFromCloud().then(function(ok){
+        if (ok) {
+          renderHome();
+          renderKlientlar();
+          if (typeof curZ !== 'undefined' && curZ >= 0) renderZavod();
+        }
+      });
+    }
+  }).catch(function(){});
+}, 8000);
+
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 // ── UTILS ─────────────────────────────────────────────────────────────────────
