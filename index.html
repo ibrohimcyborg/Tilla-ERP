@@ -592,6 +592,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-handle"></div>
     <div class="modal-title">Yangi klient</div>
     <div class="field"><label>Ismi</label><input type="text" id="klient-nom" placeholder="Aziz aka..."></div>
+    <div class="field"><label>Telefon</label><input type="tel" id="klient-tel" placeholder="+998 90 123 45 67"></div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-klient')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlient()">Saqlash</button>
@@ -1434,8 +1435,8 @@ function openKlientDetail(ki) {
   goTo('s-klient-detail');
 }
 
-function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('modal-klient').classList.add('open');}
-function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
+function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('klient-tel').value='';document.getElementById('modal-klient').classList.add('open');setTimeout(function(){document.getElementById('klient-nom').focus();},100);}
+function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();var tel=document.getElementById('klient-tel').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tel:tel,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
 
 function openKlientBerish(){
   var sel=document.getElementById('kb-klient');
