@@ -668,12 +668,29 @@ function loadFromCloud() {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if(!d) return false;
-    if(d.zavodlar) data.zavodlar = d.zavodlar;
-    data.klientlar = (d.klientlar||[]).map(function(k){
+    // Merge: cloud va local klientlarni nom bo'yicha birlashtir
+    var cloudKlientlar = (d.klientlar||[]).map(function(k){
       return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
     });
+    var localKlientlar = data.klientlar || [];
+    
+    // Merged klientlar - nomlar bo'yicha
+    var merged = {};
+    // Avval cloud dan
+    cloudKlientlar.forEach(function(k){ merged[k.nom] = k; });
+    // Keyin local dan (local ustun - yangroq)
+    localKlientlar.forEach(function(k){ 
+      if(!merged[k.nom] || (k.tarix && k.tarix.length >= (merged[k.nom].tarix||[]).length)) {
+        merged[k.nom] = k;
+      }
+    });
+    
+    data.klientlar = Object.values(merged);
+    if(d.zavodlar && d.zavodlar.length > 0) data.zavodlar = d.zavodlar;
     data.updated_at = d.updated_at;
     localStorage.setItem('tilla-v2', JSON.stringify(data));
+    // Merged datani cloud ga ham saqlaymiz
+    syncToCloud('merge');
     return true;
   })
   .catch(function(){ return false; });
@@ -2173,7 +2190,7 @@ applyTheme(currentTheme);
 
 // ── PULL TO REFRESH ───────────────────────────────────────────────────────────
 (function(){
-  var startY=0,curY=0,pulling=false,threshold=80;
+  var startY=0,curY=0,pulling=false,threshold=120;
   var ind=document.getElementById('ptr-indicator');
   document.addEventListener('touchstart',function(e){startY=e.touches[0].pageY;pulling=(window.pageYOffset===0);},{passive:true});
   document.addEventListener('touchmove',function(e){if(!pulling)return;curY=e.touches[0].pageY;var dy=Math.min(curY-startY,120);if(dy>15){ind.style.top=Math.min(dy*0.5,60)+'px';ind.style.opacity=Math.min(dy/threshold,1);ind.textContent=dy>threshold?'↻':'↓';}},{passive:true});
@@ -2212,15 +2229,24 @@ loadFromCloud().then(function(synced){
 // Swipe left/right - tab almashtirish
 (function(){
   var swipeStartX=0, swipeStartY=0, swiping=false;
-  var THRESHOLD=60, VERT_MAX=80;
+  var THRESHOLD=70, VERT_MAX=50;
   
   document.addEventListener('touchstart', function(e){
-    // Faqat s-home da ishlaydi
     if(!document.getElementById('s-home').classList.contains('active')) return;
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
-    swiping=true;
+    swiping=false;
   }, {passive:true});
+
+  document.addEventListener('touchmove', function(e){
+    if(!document.getElementById('s-home').classList.contains('active')) return;
+    var dx=Math.abs(e.touches[0].clientX - swipeStartX);
+    var dy=Math.abs(e.touches[0].clientY - swipeStartY);
+    if(dx > dy && dx > 10) {
+      swiping=true;
+      e.preventDefault(); // gorizontal swipe - scroll oldini olish
+    }
+  }, {passive:false});
 
   document.addEventListener('touchend', function(e){
     if(!swiping) return;
