@@ -1305,6 +1305,7 @@ function pdfDavrTanla(tip) {
   else{dan=document.getElementById('pdf-dan').value;gacha=document.getElementById('pdf-gacha').value;}
   closeModal('modal-pdf');
   if (_pdfTip === 'klientlar') { openKlientlarPDFModal(dan||null, gacha||null); return; }
+  if (_pdfTip === 'kassa') { kassaPDFYukor(dan||null, gacha||null); return; }
   var payload={zavodlar:data.zavodlar,dan:dan||null,gacha:gacha||null,zavod:(_pdfZavodIdx!==null&&_pdfZavodIdx!==undefined)?data.zavodlar[_pdfZavodIdx].nom:null};
   fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
@@ -1423,11 +1424,27 @@ function renderKassa() {
 }
 
 function kassaPDF() {
+  _pdfTip = 'kassa';
+  _pdfZavodIdx = null;
+  var now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
+  var last=new Date(y,now.getMonth()+1,0).getDate();
+  document.getElementById('pdf-dan').value=y+'-'+m+'-01';
+  document.getElementById('pdf-gacha').value=y+'-'+m+'-'+String(last).padStart(2,'0');
+  document.getElementById('modal-pdf').classList.add('open');
+}
+
+function kassaPDFYukor(dan, gacha) {
+  dan = dan || null; gacha = gacha || null;
   var allOps = [];
   var jamiSumma = 0, jamiGramm = 0;
   (data.klientlar||[]).forEach(function(k){
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
+      if(dan || gacha){
+        var sanaD = op.sana ? op.sana.split('.').reverse().join('-') : '';
+        if(dan && sanaD < dan) return;
+        if(gacha && sanaD > gacha) return;
+      }
       allOps.push({
         sana: op.sana, klient: k.nom,
         zavod: op.zavod||'', tur: op.tur||'',
@@ -1438,9 +1455,9 @@ function kassaPDF() {
     });
   });
   allOps.sort(function(a,b){return a.sana.localeCompare(b.sana);});
+  var label = (dan&&gacha) ? (dan.split('-').reverse().join('.')+' - '+gacha.split('-').reverse().join('.')) : 'Hammasi';
   var payload = {
-    tip: 'kassa', ops: allOps,
-    dan: null, gacha: null, label: 'Hammasi',
+    tip: 'kassa', ops: allOps, dan: dan, gacha: gacha, label: label,
     jami_summa: Math.round(jamiSumma*100)/100,
     jami_gramm: Math.round(jamiGramm*100)/100
   };
