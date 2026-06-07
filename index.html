@@ -1132,7 +1132,14 @@ function saqlashZavod() { var nom=document.getElementById('zavod-nom').value.tri
 function saqlashTur() { var nom=document.getElementById('tur-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar[curZ].turlar.push({nom:nom,ostatka:0,tarix:[]}); save(); closeModal('modal-tur'); renderZavod(); }
 
 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); }); });
-document.addEventListener('keydown', function(e){ if(e.key==='Enter'){ if(document.getElementById('modal-zavod').classList.contains('open')) saqlashZavod(); else if(document.getElementById('modal-tur').classList.contains('open')) saqlashTur(); else if(document.getElementById('modal-klient').classList.contains('open')) saqlashKlient(); } });
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    if(document.getElementById('modal-zavod').classList.contains('open')) saqlashZavod();
+    else if(document.getElementById('modal-tur').classList.contains('open')) saqlashTur();
+    else if(document.getElementById('modal-klient').classList.contains('open')) saqlashKlient();
+    else if(document.getElementById('s-kirim').classList.contains('active')) kirimSaqlash();
+  }
+});
 
 // ── TAHRIRLASH ────────────────────────────────────────────────────────────────
 var _editZi=-1, _editTi=-1, _editOi=-1;
