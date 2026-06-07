@@ -2098,7 +2098,21 @@ function openKlientlarPDFModal() {
 var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
-  if (id === 's-home' && isPCMode()) { initPC(); }
+  if (isPCMode()) {
+    var mz = document.getElementById('main-zavod');
+    var mk = document.getElementById('main-klient');
+    if (id === 's-home') {
+      // s-home da ikki panel ko'rinadi
+      mz.style.display = 'flex';
+      mk.style.display = 'flex';
+      renderHome();
+      renderKlientlar();
+    } else {
+      // Boshqa screen larda panellar yashiriladi
+      mz.style.display = 'none';
+      mk.style.display = 'none';
+    }
+  }
 };
 
 var _origMainTab = mainTab;
