@@ -1798,25 +1798,50 @@ function kVozvratKlientChange(){
   Object.keys(breakdown).forEach(function(key){
     var b=breakdown[key];
     if(b.qarz<=0){idx++;return;}
+    var ostatka=b.zi>=0&&b.ti>=0?data.zavodlar[b.zi].turlar[b.ti].ostatka:0;
     out+='<div style="display:flex;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);">';
     out+='<div style="flex:1;padding-top:8px;">';
     out+='<div style="font-size:14px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>';
-    out+='<div style="font-size:10px;color:var(--red);margin-top:2px;">qarz: −'+fmtG(b.qarz)+'g</div>';
+    out+='<div style="font-size:10px;color:var(--green);margin-top:2px;">zavod: '+fmtG(ostatka)+'g</div>';
     out+='</div>';
     out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
     out+='<div style="display:flex;align-items:center;gap:6px;">';
-    out+='<input type="number" id="kv-g-'+idx+'" data-key="'+key+'" placeholder="0" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--gold);text-align:right;">';
+    out+='<input type="number" id="kv-g-'+idx+'" data-key="'+key+'" data-qarz="'+b.qarz+'" data-ostatka="'+ostatka+'" placeholder="0" oninput="kvUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--gold);text-align:right;">';
     out+='<span style="font-size:12px;color:var(--muted);">g</span>';
     out+='</div>';
-    // Zavod ostatkasi
-    var ostatka=b.zi>=0&&b.ti>=0?data.zavodlar[b.zi].turlar[b.ti].ostatka:0;
-    out+='<div style="font-size:10px;color:var(--green);">zavod: '+fmtG(ostatka)+'g</div>';
+    out+='<div id="kvr-'+idx+'" style="font-size:10px;color:var(--red);">qarz: −'+fmtG(b.qarz)+'g</div>';
     out+='</div></div>';
     idx++;
   });
   if(!out) out='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
   document.getElementById('kv-turlar-list').innerHTML=out;
   document.getElementById('kv-turlar-cont').style.display='block';
+}
+
+function kvUpdate(el) {
+  var qarz = parseFloat(el.dataset.qarz) || 0;
+  var ostatka = parseFloat(el.dataset.ostatka) || 0;
+  var g = parseNum(el.value) || 0;
+  // Qarzdan oshib ketsa — qarz miqdoriga qaytarish
+  if (g > qarz) {
+    el.value = fmtG(qarz);
+    g = qarz;
+    el.style.borderColor = 'var(--red)';
+  } else if (g > 0) {
+    el.style.borderColor = 'var(--green)';
+  } else {
+    el.style.borderColor = '';
+  }
+  // ID dan idx olamiz
+  var idParts = el.id.split('-');
+  var idx = idParts[idParts.length-1];
+  var rEl = document.getElementById('kvr-' + idx);
+  if (rEl) {
+    var qolganQarz = Math.max(0, qarz - g);
+    var yangiZavod = ostatka + g;
+    rEl.innerHTML = 'qarz: −' + fmtG(qolganQarz) + 'g | zavod: ' + fmtG(yangiZavod) + 'g';
+    rEl.style.color = qolganQarz > 0 ? 'var(--red)' : 'var(--green)';
+  }
 }
 
 function saqlashKlientVozvrat(){
