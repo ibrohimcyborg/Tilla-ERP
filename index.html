@@ -1945,6 +1945,16 @@ function saqlashKlientBerish(){
   var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kb-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  // Avval tekshiruv — ostatkadan oshmasin
+  var hasErr = false;
+  document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
+    var g=parseNum(el.value);
+    if(g>0){
+      var ostatka=parseFloat(el.dataset.ostatka)||0;
+      if(g>ostatka+0.001) hasErr=true;
+    }
+  });
+  if(hasErr){alert('Zavodda yetarli tilla yoq! Ostatkadan oshib ketgan qiymatlarni tekshiring.');return;}
   var any=false;
   document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
     var g=parseNum(el.value);
