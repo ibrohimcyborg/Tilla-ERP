@@ -384,10 +384,12 @@ input[type=number]{-moz-appearance:textfield;}
         <div class="nav-tab active" id="kt-top" onclick="klientTab('top')">Top savdo</div>
         <div class="nav-tab" id="kt-qizil" onclick="klientTab('qizil')">Muddati otgan</div>
         <div class="nav-tab" id="kt-hisobot" onclick="klientTab('hisobot')">Hisobot</div>
+        <div class="nav-tab" id="kt-kassa" onclick="klientTab('kassa')">Kassa</div>
       </div>
       <div id="klient-top-list"></div>
       <div id="klient-qizil-list" style="display:none;"></div>
       <div id="klient-hisobot-list" style="display:none;"></div>
+      <div id="klient-kassa-list" style="display:none;"></div>
     </div>
   </div>
 </div>
@@ -1337,10 +1339,84 @@ function klientTab(tab) {
   document.getElementById('kt-top').classList.toggle('active',tab==='top');
   document.getElementById('kt-qizil').classList.toggle('active',tab==='qizil');
   document.getElementById('kt-hisobot').classList.toggle('active',tab==='hisobot');
+  document.getElementById('kt-kassa').classList.toggle('active',tab==='kassa');
   document.getElementById('klient-top-list').style.display=tab==='top'?'block':'none';
   document.getElementById('klient-qizil-list').style.display=tab==='qizil'?'block':'none';
   document.getElementById('klient-hisobot-list').style.display=tab==='hisobot'?'block':'none';
+  document.getElementById('klient-kassa-list').style.display=tab==='kassa'?'block':'none';
   if(tab==='hisobot') renderKlientHisobot();
+  if(tab==='kassa') renderKassa();
+}
+
+function renderKassa() {
+  var cont = document.getElementById('klient-kassa-list');
+  if (!cont) return;
+
+  // Barcha tolov operatsiyalarini yig'amiz
+  var allOps = [];
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.tip !== 'tolov') return;
+      allOps.push({
+        sana: op.sana, knom: k.nom,
+        zavod: op.zavod||'', tur: op.tur||'',
+        gramm: op.ekvivalent||0,
+        kurs: op.kurs||0, summa: op.summa||0
+      });
+    });
+  });
+
+  if(!allOps.length){
+    cont.innerHTML='<div class="empty">Hali tolov yoq</div>';
+    return;
+  }
+
+  // Jami hisobot
+  var jamiSumma=0, jamiGramm=0;
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; });
+
+  // Kun bo'yicha guruhlaymiz
+  var byDay={}, dayOrder=[];
+  allOps.forEach(function(o){
+    if(!byDay[o.sana]){ byDay[o.sana]=[]; dayOrder.push(o.sana); }
+    byDay[o.sana].push(o);
+  });
+  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  dayOrder.sort(function(a,b){return b.localeCompare(a);});
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
+    +'<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>'
+    +'<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>'
+    +'<div class="stat2-item"><div class="stat2-label">TOLOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--text);">'+allOps.length+' ta</div></div>'
+    +'</div>';
+
+  dayOrder.forEach(function(sana){
+    var ops = byDay[sana];
+    var daySumma = 0;
+    ops.forEach(function(o){ daySumma+=o.summa; });
+
+    html += '<div class="hrow" style="margin-bottom:8px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--muted);">'+sana+'</div>';
+    html += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(daySumma)+'</div>';
+    html += '</div>';
+
+    ops.forEach(function(o, i){
+      if(i>0) html += '<div style="height:1px;background:var(--border);margin:6px 0;"></div>';
+      var turStr = (o.zavod&&o.tur)?(o.zavod+' · '+o.tur):'';
+      html += '<div style="display:flex;align-items:center;gap:10px;">';
+      html += '<div style="flex:1;">';
+      html += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+o.knom+'</div>';
+      if(turStr) html += '<div style="font-size:11px;color:var(--muted);">'+turStr+'</div>';
+      html += '</div>';
+      html += '<div style="text-align:right;">';
+      html += '<div style="font-size:12px;color:var(--text);">'+fmtG(o.gramm)+'g &middot; '+fmtD(o.kurs)+'$/g</div>';
+      html += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(o.summa)+'</div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  cont.innerHTML = html;
 }
 
 function renderKlientHisobot() {
