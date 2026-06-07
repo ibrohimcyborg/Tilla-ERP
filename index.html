@@ -1822,25 +1822,27 @@ function kvUpdate(el) {
   var qarz = parseFloat(el.dataset.qarz) || 0;
   var ostatka = parseFloat(el.dataset.ostatka) || 0;
   var g = parseNum(el.value) || 0;
-  // Qarzdan oshib ketsa — qarz miqdoriga qaytarish
-  if (g > qarz) {
-    el.value = fmtG(qarz);
-    g = qarz;
-    el.style.borderColor = 'var(--red)';
-  } else if (g > 0) {
-    el.style.borderColor = 'var(--green)';
-  } else {
-    el.style.borderColor = '';
-  }
-  // ID dan idx olamiz
   var idParts = el.id.split('-');
   var idx = idParts[idParts.length-1];
   var rEl = document.getElementById('kvr-' + idx);
-  if (rEl) {
-    var qolganQarz = Math.max(0, qarz - g);
-    var yangiZavod = ostatka + g;
-    rEl.innerHTML = 'qarz: −' + fmtG(qolganQarz) + 'g | zavod: ' + fmtG(yangiZavod) + 'g';
-    rEl.style.color = qolganQarz > 0 ? 'var(--red)' : 'var(--green)';
+  if (g > qarz) {
+    // Qarzdan oshdi — ogohlantirish, lekin qiymatni o'zgartirmaymiz
+    el.style.borderColor = 'var(--red)';
+    var ortiqcha = g - qarz;
+    if (rEl) {
+      rEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ ' + fmtG(ortiqcha) + 'g ortiqcha!</span>';
+    }
+  } else if (g > 0) {
+    el.style.borderColor = 'var(--green)';
+    if (rEl) {
+      var qolganQarz = Math.max(0, qarz - g);
+      var yangiZavod = ostatka + g;
+      rEl.innerHTML = 'qarz: −' + fmtG(qolganQarz) + 'g | zavod: +' + fmtG(yangiZavod) + 'g';
+      rEl.style.color = qolganQarz > 0 ? 'var(--red)' : 'var(--green)';
+    }
+  } else {
+    el.style.borderColor = '';
+    if (rEl) { rEl.innerHTML = 'qarz: −' + fmtG(qarz) + 'g'; rEl.style.color = 'var(--red)'; }
   }
 }
 
@@ -1852,6 +1854,17 @@ function saqlashKlientVozvrat(){
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   var bd=window._kVozvratBD||{};
   var any=false,idx=0;
+  // Avval qarzdan oshgan inputlarni tekshiramiz
+  var hasError=false;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key]; if(b.qarz<=0){idx++;return;}
+    var el=document.getElementById('kv-g-'+idx);
+    var g=el?parseNum(el.value):0;
+    if(g>b.qarz){ hasError=true; }
+    idx++;
+  });
+  if(hasError){ alert('Qarzdan ortiq gramm kiritilgan! Tuzating.'); return; }
+  idx=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key];
     if(b.qarz<=0){idx++;return;}
