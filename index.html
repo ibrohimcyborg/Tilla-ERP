@@ -17,12 +17,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 /* Mobile portrait - sticky header + scroll content */
 @media(max-width:1023px) and (orientation:portrait),(max-width:599px){
   body{overflow:hidden;height:100vh;height:100dvh;}
-  #s-home{height:calc(100dvh - 54px - 42px);overflow:hidden;display:flex;flex-direction:column;}
+  #s-home.active{height:calc(100dvh - 54px - 42px);overflow:hidden;display:flex;flex-direction:column;}
   .main-tabs{flex-shrink:0;}
-  #main-zavod,#main-klient{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
-  #main-zavod .home-sticky,#main-klient .home-sticky{position:sticky;top:0;z-index:5;background:var(--bg);margin:-16px -16px 0;padding:12px 16px 0;}
+  #main-zavod,#main-klient{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px 16px;}
+  #main-zavod .home-sticky,#main-klient .home-sticky{position:sticky;top:0;z-index:5;background:var(--bg);margin:-12px -16px 0;padding:12px 16px 8px;}
   ::-webkit-scrollbar{display:none;}
   *{scrollbar-width:none;}
+  .screen.active:not(#s-home){position:fixed;inset:0;z-index:200;overflow-y:auto;}
 }
 .logo{font-family:'Roboto',sans-serif;font-size:14px;color:var(--gold);letter-spacing:.1em;font-weight:500;}
 .topbar-right{display:flex;align-items:center;gap:8px;}
@@ -297,7 +298,7 @@ input[type=number]{-moz-appearance:textfield;}
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
     <div class="home-sticky">
-      <div class="big-stat" style="padding:0;overflow:hidden;">
+      <div class="big-stat" style="padding:0;overflow:hidden;margin-bottom:10px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
           <div style="padding:10px 10px;border-right:1px solid var(--border);">
             <div class="big-stat-label">Bizda</div>
