@@ -22,7 +22,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .main-tabs{display:flex;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:calc(54px + var(--safe-top));z-index:99;}
 .main-tab{flex:1;text-align:center;padding:10px;font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;}
 .main-tab.active{color:var(--gold);border-bottom:2px solid var(--gold);font-weight:600;}
-.screen{display:none;padding:16px;max-width:520px;margin:0 auto;}
+.screen{display:none;padding:12px 14px;max-width:520px;margin:0 auto;}
 .screen.active{display:block;}
 
 @media(min-width:1024px),(min-width:600px) and (orientation:landscape){
@@ -45,7 +45,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .big-stat-val{font-family:'Roboto',sans-serif;font-size:20px;color:var(--gold);font-weight:500;line-height:1;}
 .big-stat-val span{font-size:11px;color:var(--muted);margin-left:2px;}
 .big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.big-btn{border-radius:var(--r);padding:12px 10px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:4px;transition:all .15s;}
+.big-btn{border-radius:var(--r);padding:14px 10px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:6px;transition:all .15s;min-height:90px;}
 .big-btn.kirim{background:#0f1f10;border-color:#1e3a1e;}
 .big-btn.chiqim{background:#1f0f0f;border-color:#3a1e1e;}
 .big-btn-icon{font-size:20px;opacity:.8;}
@@ -291,15 +291,15 @@ input[type=number]{-moz-appearance:textfield;}
     <div>
       <div class="big-stat" style="padding:0;overflow:hidden;margin-bottom:14px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
-          <div style="padding:10px 10px;border-right:1px solid var(--border);">
+          <div style="padding:10px 12px;border-right:1px solid var(--border);">
             <div class="big-stat-label">Bizda</div>
             <div class="big-stat-val" id="home-bizda">0<span>g</span></div>
           </div>
-          <div style="padding:10px 10px;border-right:1px solid var(--border);">
+          <div style="padding:10px 12px;border-right:1px solid var(--border);">
             <div class="big-stat-label">Klientlarda</div>
             <div class="big-stat-val" id="home-klientda" style="color:var(--red);">0<span>g</span></div>
           </div>
-          <div style="padding:10px 10px;">
+          <div style="padding:10px 12px;">
             <div class="big-stat-label">Jami</div>
             <div class="big-stat-val" id="home-total">0<span>g</span></div>
           </div>
@@ -905,7 +905,7 @@ function renderHome() {
   if (curHomeTab === 'hisobot') renderHisobot();
 }
 
-function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); }
+function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); renderZavod(); zTab('turlar'); }
 
 // ── HISOBOT ───────────────────────────────────────────────────────────────────
 function renderHisobot() {
