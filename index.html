@@ -1339,12 +1339,13 @@ function renderKlientHisobot() {
   var cont = document.getElementById('klient-hisobot-list');
   if(!cont) return;
 
-  // Barcha operatsiyalarni yig'ib, sana bo'yicha guruhlaymiz
+  // Sana -> Klient -> Operatsiyalar
   var byDay = {}, dayOrder = [];
   (data.klientlar||[]).forEach(function(k){
     k.tarix.forEach(function(op){
-      if(!byDay[op.sana]){ byDay[op.sana]=[]; dayOrder.push(op.sana); }
-      byDay[op.sana].push({op:op, klient:k.nom});
+      if(!byDay[op.sana]){ byDay[op.sana]={}; dayOrder.push(op.sana); }
+      if(!byDay[op.sana][k.nom]) byDay[op.sana][k.nom]=[];
+      byDay[op.sana][k.nom].push(op);
     });
   });
 
@@ -1353,52 +1354,69 @@ function renderKlientHisobot() {
     return;
   }
 
-  dayOrder.sort(function(a,b){ return b.localeCompare(a); });
+  // Takrorlanmasdan sana tartibi
+  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
   var html = '';
   dayOrder.forEach(function(sana){
-    var ops = byDay[sana];
-    // Kun balansi
+    var klientlar = byDay[sana];
+    // Kun umumiy balansi
     var dayBal=0;
-    ops.forEach(function(item){
-      var op=item.op;
-      if(op.tip==='berish') dayBal-=op.gramm;
-      else if(op.tip==='vozvrat') dayBal+=op.gramm;
-      else if(op.tip==='tolov') dayBal+=(op.ekvivalent||0);
+    Object.keys(klientlar).forEach(function(knom){
+      klientlar[knom].forEach(function(op){
+        if(op.tip==='berish') dayBal-=op.gramm;
+        else if(op.tip==='vozvrat') dayBal+=op.gramm;
+        else if(op.tip==='tolov') dayBal+=(op.ekvivalent||0);
+      });
     });
-    var dc = dayBal>=0?'var(--green)':'var(--red)';
-    var ds = dayBal>=0?'+':'-';
+    var dc=dayBal>=0?'var(--green)':'var(--red)';
+    var ds=dayBal>=0?'+':'-';
 
-    html += '<div class="hrow" style="margin-bottom:8px;">';
     // Kun sarlavhasi
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    html += '<div style="font-size:13px;font-weight:600;color:var(--text);">'+sana+'</div>';
-    html += '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+dc+';">'+ds+fmtG(Math.abs(dayBal))+'g</div>';
-    html += '</div>';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px;">';
+    html+='<div style="font-size:12px;font-weight:600;color:var(--muted);">'+sana+'</div>';
+    html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+dc+';">'+ds+fmtG(Math.abs(dayBal))+'g</div>';
+    html+='</div>';
 
-    // Operatsiyalar
-    ops.forEach(function(item, i){
-      var op=item.op, knom=item.klient;
-      if(i>0) html+='<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
-      var tip=op.tip;
-      var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'#5ab4e8';
-      var label=tip==='berish'?'Berildi':tip==='vozvrat'?'Vozvrat':'Tolov';
-      var val=tip==='berish'?('-'+fmtG(op.gramm)+'g'):tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
-      var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
-      var sub2=tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+    // Har bir klient alohida karta
+    Object.keys(klientlar).forEach(function(knom){
+      var ops = klientlar[knom];
+      var kBal=0;
+      ops.forEach(function(op){
+        if(op.tip==='berish') kBal-=op.gramm;
+        else if(op.tip==='vozvrat') kBal+=op.gramm;
+        else if(op.tip==='tolov') kBal+=(op.ekvivalent||0);
+      });
+      var kc=kBal>=0?'var(--green)':'var(--red)';
+      var ks=kBal>=0?'+':'-';
 
-      html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-      html+='<div style="flex:1;">';
-      html+='<div style="display:flex;align-items:center;gap:6px;">';
-      html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
-      html+='<div style="font-size:12px;font-weight:600;color:var(--text);">'+knom+'</div>';
+      html+='<div class="hrow" style="margin-bottom:6px;">';
+      // Klient nomi
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
+      html+='<div style="font-size:13px;font-weight:600;color:var(--text);">'+knom+'</div>';
+      html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+kc+';">'+ks+fmtG(Math.abs(kBal))+'g</div>';
       html+='</div>';
-      if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
-      html+='</div>';
-      html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+color+';">'+val+'</div>';
+      // Operatsiyalar
+      ops.forEach(function(op,i){
+        if(i>0) html+='<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
+        var tip=op.tip;
+        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+        var label=tip==='berish'?'Berildi':tip==='vozvrat'?'Vozvrat':'Tolov';
+        var val=tip==='berish'?('-'+fmtG(op.gramm)+'g'):tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+        var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
+        var sub2=tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+        html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+        html+='<div style="flex:1;">';
+        html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
+        if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
+        html+='</div>';
+        html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
+        html+='</div>';
+      });
       html+='</div>';
     });
-    html+='</div>';
+    html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
   });
   cont.innerHTML = html;
 }
