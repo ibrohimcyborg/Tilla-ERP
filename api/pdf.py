@@ -426,7 +426,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         elif tip == 'vozvrat':
             amal_txt='↩ Vozvrat'; amal_col=C_BLUE; gramm_str=f"+{abs(gramm):,.2f}g"; gc=C_GREEN
         else:
-            amal_txt='$ Tolov'; amal_col=C_BLUE; gramm_str=f"+{abs(gramm):,.2f}g"; gc=C_GREEN
+            amal_txt='$ Tolov'; amal_col=C_GREEN; gramm_str=f"+{abs(gramm):,.2f}g"; gc=C_GREEN
 
         oc = C_RED if ostatka < -0.001 else C_GREEN
         bg = C_GRAY if ri % 2 == 0 else C_WHITE
