@@ -1515,6 +1515,7 @@ function renderKdHisobot() {
   var qarz = Math.round((jami_berish - jami_vozvrat - jami_tolov_g)*100)/100;
   var qcolor = qarz>0 ? 'var(--red)' : 'var(--green)';
   var qsign = qarz>0 ? '-' : '+';
+
   var html = '<div class="stat2" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';
   html += '<div class="stat2-item"><div class="stat2-label">BERILDI</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">-'+fmtG(jami_berish)+'g</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">VOZVRAT</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+fmtG(jami_vozvrat)+'g</div></div>';
@@ -1525,22 +1526,55 @@ function renderKdHisobot() {
   html += '<div style="font-size:12px;color:var(--muted);">Qolgan qarz</div>';
   html += '<div style="font-family:Roboto,sans-serif;font-size:18px;font-weight:600;color:'+qcolor+';">'+qsign+fmtG(Math.abs(qarz))+'g</div>';
   html += '</div>';
-  var ops = k.tarix.slice().sort(function(a,b){return b.sana.localeCompare(a.sana);});
-  if(!ops.length){ html+='<div class="empty">Tarix yoq</div>'; document.getElementById('kd-hisobot').innerHTML=html; return; }
-  html += '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Operatsiyalar</div>';
-  ops.forEach(function(op){
-    var tip=op.tip;
-    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
-    var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-    var val = tip==='berish'?('-'+fmtG(op.gramm)+'g'): tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
-    var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
-    var sub2 = tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
-    html+='<div class="hrow" style="margin-bottom:6px;border-left:3px solid '+color+';">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-    html+='<div><div style="font-size:13px;font-weight:600;color:'+color+';">'+label+'</div>';
-    html+='<div style="font-size:11px;color:var(--muted);margin-top:1px;">'+op.sana+(sub?' - '+sub:'')+(sub2?' - '+sub2:'')+'</div></div>';
-    html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+val+'</div>';
-    html+='</div></div>';
+
+  if(!k.tarix.length){ html+='<div class="empty">Tarix yoq</div>'; document.getElementById('kd-hisobot').innerHTML=html; return; }
+
+  // Kun bo'yicha guruhlaymiz
+  var byDay = {}, dayOrder = [];
+  k.tarix.forEach(function(op){
+    if(!byDay[op.sana]){ byDay[op.sana]=[]; dayOrder.push(op.sana); }
+    byDay[op.sana].push(op);
+  });
+  dayOrder.sort(function(a,b){ return b.localeCompare(a); });
+
+  html += '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Kunlar boyicha</div>';
+  dayOrder.forEach(function(sana){
+    var ops = byDay[sana];
+    // Kun umumiy balansi
+    var dayBal = 0;
+    ops.forEach(function(op){
+      if(op.tip==='berish') dayBal -= op.gramm;
+      else if(op.tip==='vozvrat') dayBal += op.gramm;
+      else if(op.tip==='tolov') dayBal += (op.ekvivalent||0);
+    });
+    var dc = dayBal>=0 ? 'var(--green)' : 'var(--red)';
+    var ds = dayBal>=0 ? '+' : '-';
+
+    html += '<div class="hrow" style="margin-bottom:8px;">';
+    // Kun sarlavhasi
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--muted);">'+sana+'</div>';
+    html += '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+dc+';">'+ds+fmtG(Math.abs(dayBal))+'g</div>';
+    html += '</div>';
+
+    // Har bir operatsiya
+    ops.forEach(function(op, i){
+      if(i>0) html += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
+      var tip = op.tip;
+      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+      var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+      var val = tip==='berish'?('-'+fmtG(op.gramm)+'g'): tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+      var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
+      var sub2 = tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html += '<div>';
+      html += '<div style="font-size:12px;font-weight:600;color:'+color+';">'+label+'</div>';
+      if(sub||sub2) html += '<div style="font-size:11px;color:var(--muted);">'+(sub?sub:'')+(sub&&sub2?' - ':' ')+(sub2?sub2:'')+'</div>';
+      html += '</div>';
+      html += '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+color+';">'+val+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
   });
   document.getElementById('kd-hisobot').innerHTML=html;
 }
