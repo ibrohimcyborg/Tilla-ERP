@@ -1972,11 +1972,18 @@ function kTolovCalc(){
       if(cEl){
         var qolgan=Math.max(0,b.qarz-eq-v);
         var ortiqcha=eq-b.qarz;
-        if(ortiqcha>0.01){
-          // Gramm qarzdan ortiq
+        var limit5=kurs>0?roundG(5/kurs):0;
+        if(ortiqcha>limit5){
+          // 5$dan oshdi — bloklash
           var ortiqchaPul=Math.round(ortiqcha*kurs*100)/100;
           cEl.innerHTML='= <b style="color:var(--red);">'+fmtG(eq)+'g</b> tolov'
-            +'<br><span style="color:var(--red);font-weight:600;">⚠ '+fmtG(ortiqcha)+'g ortiqcha ('+fmtD(ortiqchaPul)+'$ ortiqcha)</span>';
+            +'<br><span style="color:var(--red);font-weight:600;">⚠ '+fmtD(ortiqchaPul)+'$ ortiqcha — qabul qilinmaydi!</span>';
+          cEl.style.display='block';
+        } else if(ortiqcha>0.001){
+          // Qarzdan biroz oshdi — qaytim ko'rsatish
+          var qaytimPul=Math.round(ortiqcha*kurs*100)/100;
+          cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'
+            +'<br><span style="color:var(--gold);font-weight:600;">↩ '+fmtD(qaytimPul)+'$ qaytim</span>';
           cEl.style.display='block';
         } else {
           cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'+(v>0?' + <b style="color:var(--gold);">'+fmtG(v)+'g</b> vozvrat':'')+'<br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
@@ -2017,7 +2024,7 @@ function saqlashKlientTolov(){
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
-    if(s>0&&kurs>0){ var eq=roundG(s/kurs); if(eq>0.001&&eq>b.qarz) hasErr=true; }
+    if(s>0&&kurs>0){ var eq=roundG(s/kurs); var limit5=kurs>0?roundG(5/kurs):0; if(eq>0.001&&eq>b.qarz+limit5) hasErr=true; }
     idx++;
   });
   if(hasErr){ alert('Ortiqcha tolov kiritilgan! Kurs yoki summani tekshiring.'); return; }
