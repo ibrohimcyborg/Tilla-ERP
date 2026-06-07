@@ -687,31 +687,19 @@ function loadFromCloud() {
   .then(function(r){ return r.json(); })
   .then(function(d){
     if (!d) return false;
-    
-    var cloudTime = d.updated_at || '';
-    var localTime = data.updated_at || '';
-    
-    // Cloud bizdan yangroq bo'lsa yuklaymiz
-    if (cloudTime > localTime) {
-      if (Array.isArray(d.zavodlar)) data.zavodlar = d.zavodlar;
-      if (Array.isArray(d.klientlar)) {
-        data.klientlar = d.klientlar.map(function(k){
-          return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
-        });
-      }
-      data.updated_at = cloudTime;
-      localStorage.setItem('tilla-v2', JSON.stringify(data));
-      return true;
+    if (Array.isArray(d.zavodlar)) data.zavodlar = d.zavodlar;
+    if (Array.isArray(d.klientlar)) {
+      data.klientlar = d.klientlar.map(function(k){
+        return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
+      });
     }
-    
-    // Local yangiroq - cloud ga yuboramiz
-    if (localTime > cloudTime) {
-      syncToCloud('auto-push');
-    }
-    return false;
+    data.updated_at = d.updated_at || '';
+    localStorage.setItem('tilla-v2', JSON.stringify(data));
+    return true;
   })
   .catch(function(){ return false; });
 }
+
 
 // Har 8 sekundda tekshir
 setInterval(function(){
