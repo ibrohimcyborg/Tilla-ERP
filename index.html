@@ -490,7 +490,10 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="screen" id="s-klient-detail">
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home');mainTab('klient')">←</button>
-    <div class="stitle" id="kd-name">Klient</div>
+    <div>
+      <div class="stitle" id="kd-name">Klient</div>
+      <div id="kd-tel" style="display:none;font-size:12px;color:var(--muted);margin-top:2px;"></div>
+    </div>
   </div>
   <div class="card" style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -586,6 +589,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-handle"></div>
     <div class="modal-title">Yangi klient</div>
     <div class="field"><label>Ismi</label><input type="text" id="klient-nom" placeholder="Aziz aka..."></div>
+    <div class="field"><label>Telefon</label><input type="tel" id="klient-tel" placeholder="+998 90 123 45 67"></div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-klient')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlient()">Saqlash</button>
@@ -1202,7 +1206,7 @@ function renderKlientlar() {
       +'<div style="font-size:13px;color:var(--muted);font-weight:600;min-width:18px;">'+(rank+1)+'</div>'
       +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);">'+ini+'</div>'
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
+      +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$'+(k.tel?' · '+k.tel:'')+'</div></div>'
       +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
       +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div>'
       +'</div></div>';
@@ -1221,7 +1225,7 @@ function renderKlientlar() {
       +'<div style="display:flex;align-items:center;gap:10px;">'
       +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);">'+ini+'</div>'
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">−'+fmtG(qarz)+'g qarz</div></div>'
+      +'<div style="font-size:11px;color:var(--muted);">−'+fmtG(qarz)+'g qarz'+(k.tel?' · '+k.tel:'')+'</div></div>'
       +'<div style="background:'+bg+';color:'+dc+';font-size:11px;padding:3px 10px;border-radius:7px;font-weight:600;">'+holat.kun+' kun</div>'
       +'</div></div>';
   });}
@@ -1232,6 +1236,8 @@ function openKlientDetail(ki) {
   curKlientIdx=ki;
   var k=data.klientlar[ki];
   document.getElementById('kd-name').textContent=k.nom;
+  var telEl=document.getElementById('kd-tel');
+  if(telEl){ if(k.tel){ telEl.textContent=k.tel; telEl.style.display='block'; } else telEl.style.display='none'; }
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
   qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
@@ -1358,8 +1364,22 @@ function openKlientDetail(ki) {
   goTo('s-klient-detail');
 }
 
-function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('modal-klient').classList.add('open');}
-function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
+function openKlientModal(){
+  document.getElementById('klient-nom').value='';
+  document.getElementById('klient-tel').value='';
+  document.getElementById('modal-klient').classList.add('open');
+  setTimeout(function(){ document.getElementById('klient-nom').focus(); }, 100);
+}
+function saqlashKlient(){
+  var nom=document.getElementById('klient-nom').value.trim();
+  var tel=document.getElementById('klient-tel').value.trim();
+  if(!nom){alert('Ism kiriting!');return;}
+  if(!data.klientlar) data.klientlar=[];
+  data.klientlar.push({nom:nom, tel:tel, tarix:[]});
+  save('Yangi klient: '+nom);
+  closeModal('modal-klient');
+  renderKlientlar();
+}
 
 function openKlientBerish(){
   var sel=document.getElementById('kb-klient');
