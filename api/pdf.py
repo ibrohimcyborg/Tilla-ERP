@@ -228,14 +228,6 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
 def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     buf = io.BytesIO()
     W = 72*mm
-    # Har bir ops_grouped uchun: nom(4) + qarz(4) + tolov(4) + qoldi(4) + spacer(2) = ~18mm
-    # Sarlavha blok: ~18mm, klient/sana: ~10mm, footer: ~14mm
-    n_items = sum([
-        1,  # tur nomi
-        1 if True else 0,  # qarz (har doim)
-        1,  # tolov yoki vozvrat
-        1,  # qoldi
-    ] for item in ops_grouped)
     est_h = 22 + len(ops_grouped)*20 + (len(qarz_tarkib)*5 if qarz_tarkib else 0) + 16
 
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
