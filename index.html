@@ -1306,6 +1306,7 @@ function pdfDavrTanla(tip) {
   closeModal('modal-pdf');
   if (_pdfTip === 'klientlar') { openKlientlarPDFModal(dan||null, gacha||null); return; }
   if (_pdfTip === 'kassa') { kassaPDFYukor(dan||null, gacha||null); return; }
+  if (_pdfTip === 'klient_detail') { klientPDFYukor(dan||null, gacha||null); return; }
   var payload={zavodlar:data.zavodlar,dan:dan||null,gacha:gacha||null,zavod:(_pdfZavodIdx!==null&&_pdfZavodIdx!==undefined)?data.zavodlar[_pdfZavodIdx].nom:null};
   fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
@@ -1391,7 +1392,7 @@ function renderKassa() {
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
     +'<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>'
     +'<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>'
-    +'<div class="stat2-item"><div class="stat2-label">TOLOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--text);">'+allOps.length+' ta</div></div>'
+    +'<div class="stat2-item"><div class="stat2-label">TOLOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>'
     +'</div>';
 
   dayOrder.forEach(function(sana){
@@ -2394,6 +2395,17 @@ function klientBerishTahrir(ki, gIdx) {
 }
 
 function klientPDF(){
+  _pdfTip = 'klient_detail';
+  _pdfZavodIdx = null;
+  var now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
+  var last=new Date(y,now.getMonth()+1,0).getDate();
+  document.getElementById('pdf-dan').value=y+'-'+m+'-01';
+  document.getElementById('pdf-gacha').value=y+'-'+m+'-'+String(last).padStart(2,'0');
+  document.getElementById('modal-pdf').classList.add('open');
+}
+
+function klientPDFYukor(dan, gacha){
+  dan = dan || null; gacha = gacha || null;
   var k=data.klientlar[curKlientIdx];
   if(!k) return;
   // Klient tarixi to'liq hisoblash
@@ -2417,6 +2429,14 @@ function klientPDF(){
     }
   });
   var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});
+  if(dan||gacha){
+    ops = ops.filter(function(o){
+      var s=o.sana?o.sana.split('.').reverse().join('-'):'';
+      if(dan && s<dan) return false;
+      if(gacha && s>gacha) return false;
+      return true;
+    });
+  }
   ops.sort(function(a,b){return (a.sana||'').localeCompare(b.sana||'');});
   var payload={
     tip:'klient_tarix', klient_nom:k.nom, klient_tel:k.tel||'',
@@ -2435,6 +2455,7 @@ function klientPDF(){
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
 var currentTheme=localStorage.getItem('tilla-theme')||'dark';
+
 function applyTheme(t){
   currentTheme=t;
   document.documentElement.setAttribute('data-theme',t==='light'?'light':'');
