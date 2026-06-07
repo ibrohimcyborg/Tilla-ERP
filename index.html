@@ -244,6 +244,19 @@ input[type=number]{-moz-appearance:textfield;}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:#111;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#1c1c1c;border:1px solid #333;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;margin:16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:32px;margin-bottom:8px;">⬡</div>
+      <div style="font-size:20px;font-weight:700;color:#c9a84c;">TILLA HISOB</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">Kirish</div>
+    </div>
+    <input id="login-user" type="text" placeholder="Login" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:13px 14px;color:#fff;font-size:15px;margin-bottom:10px;display:block;box-sizing:border-box;" />
+    <input id="login-pass" type="password" placeholder="Parol" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:13px 14px;color:#fff;font-size:15px;margin-bottom:6px;display:block;box-sizing:border-box;" />
+    <div id="login-err" style="color:#e05a5a;font-size:12px;margin-bottom:10px;text-align:center;min-height:18px;"></div>
+    <button onclick="doLogin()" style="width:100%;background:#c9a84c;color:#111;border-radius:10px;padding:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;">Kirish</button>
+  </div>
+</div>
 <div class="ptr-indicator" id="ptr-indicator">↓</div>
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
@@ -630,6 +643,33 @@ input[type=number]{-moz-appearance:textfield;}
 </div>
 
 <script>
+var CREDS = {login:'tilla', parol:'tilla9999'};
+
+function doLogin() {
+  var u = document.getElementById('login-user').value.trim();
+  var p = document.getElementById('login-pass').value;
+  if (u === CREDS.login && p === CREDS.parol) {
+    sessionStorage.setItem('tilla-auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+  } else {
+    document.getElementById('login-err').textContent = 'Login yoki parol xato!';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var auth = sessionStorage.getItem('tilla-auth');
+  if (!auth) {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+  // Enter tugmasi
+  document.getElementById('login-pass').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('login-user').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('login-pass').focus();
+  });
+});
+
 // ── SUPABASE ─────────────────────────────────────────────────────────────────
 var FB_URL = 'https://tilla-erp-default-rtdb.firebaseio.com';
 var FB_DB = null;
@@ -673,7 +713,12 @@ function loadFromCloud() {
   if (!FB_DB) return Promise.resolve(false);
   return FB_DB.ref('tilla').once('value').then(function(snap){
     var d = snap.val();
-    if (!d) return false;
+    if (!d) {
+      // Firebase bo'sh - local ni ham tozalaymiz
+      data = {zavodlar:[], klientlar:[]};
+      localStorage.setItem('tilla-v2', JSON.stringify(data));
+      return false;
+    }
 
     // Zavodlar - turlar va tarix ham fix
     var zavodlar = fixArr(d.zavodlar).map(function(z){
