@@ -645,11 +645,22 @@ input[type=number]{-moz-appearance:textfield;}
 <script>
 var CREDS = {login:'tilla', parol:'tilla9999'};
 
+function setAuth() {
+  localStorage.setItem('tilla-auth','1');
+  document.cookie = 'tilla-auth=1;max-age=31536000;path=/';
+}
+
+function getAuth() {
+  if (localStorage.getItem('tilla-auth')) return true;
+  if (document.cookie.indexOf('tilla-auth=1') >= 0) return true;
+  return false;
+}
+
 function doLogin() {
   var u = document.getElementById('login-user').value.trim();
   var p = document.getElementById('login-pass').value;
   if (u === CREDS.login && p === CREDS.parol) {
-    sessionStorage.setItem('tilla-auth', '1');
+    setAuth();
     document.getElementById('login-screen').style.display = 'none';
   } else {
     document.getElementById('login-err').textContent = 'Login yoki parol xato!';
@@ -657,14 +668,15 @@ function doLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  var auth = sessionStorage.getItem('tilla-auth');
-  if (!auth) {
+  if (!getAuth()) {
     document.getElementById('login-screen').style.display = 'flex';
   }
-  // Enter tugmasi
   document.getElementById('login-pass').addEventListener('keydown', function(e){
     if (e.key === 'Enter') doLogin();
+    document.getElementById('login-user').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('login-pass').focus();
   });
+});
   document.getElementById('login-user').addEventListener('keydown', function(e){
     if (e.key === 'Enter') document.getElementById('login-pass').focus();
   });
