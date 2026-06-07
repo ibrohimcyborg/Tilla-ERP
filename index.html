@@ -2017,7 +2017,7 @@ function saqlashKlientTolov(){
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
-    if(s>0&&kurs>0){ var eq=roundG(s/kurs); if(eq>b.qarz) hasErr=true; }
+    if(s>0&&kurs>0){ var eq=roundG(s/kurs); if(eq>0.001&&eq>b.qarz) hasErr=true; }
     idx++;
   });
   if(hasErr){ alert('Ortiqcha tolov kiritilgan! Kurs yoki summani tekshiring.'); return; }
