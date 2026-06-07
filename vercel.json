@@ -1,16 +1,6 @@
 {
   "rewrites": [
-    {
-      "source": "/api/excel",
-      "destination": "/api/excel.py"
-    },
-    {
-      "source": "/api/pdf",
-      "destination": "/api/pdf.py"
-    },
-    {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/excel", "destination": "/api/excel.py" },
+    { "source": "/((?!api).*)", "destination": "/index.html" }
   ]
 }
