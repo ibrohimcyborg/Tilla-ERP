@@ -659,9 +659,9 @@ function loadFromCloud() {
   return fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json')
   .then(function(r){ return r.json(); })
   .then(function(d){
-    if(!d || !d.zavodlar) return false;
-    data.zavodlar = d.zavodlar;
-    data.klientlar = d.klientlar||[];
+    if(!d) return false;
+    if(d.zavodlar) data.zavodlar = d.zavodlar;
+    data.klientlar = d.klientlar || [];
     data.updated_at = d.updated_at;
     localStorage.setItem('tilla-v2', JSON.stringify(data));
     return true;
