@@ -226,7 +226,9 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
 # 2. TO'LOV CHEKI — 72mm termal
 # ═══════════════════════════════════════════════════════════════
 def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
+    buf = io.BytesIO()
     W = 72*mm
+    est_h = 60 + len(ops_grouped)*30 + (len(qarz_tarkib)*8 if qarz_tarkib else 0) + 30
 
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
         a = {'LEFT': TA_LEFT, 'CENTER': TA_CENTER, 'RIGHT': TA_RIGHT}
@@ -244,62 +246,51 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
             style=[('LINEBELOW',(0,0),(-1,-1),0.5,C_MUTED),
                    ('TOPPADDING',(0,0),(-1,-1),0),('BOTTOMPADDING',(0,0),(-1,-1),2)])
 
-    def make_story():
-        st = []
-        st.append(CP('TILLA HISOB', 'Helvetica-Bold', 11, C_GOLD))
-        st.append(CP('TOLOV CHEKI', size=8, color=C_MUTED))
-        st.append(Spacer(1, 2*mm)); st.append(dline()); st.append(Spacer(1, 1*mm))
-        st.append(row('Klient:', klient_nom, fb='Helvetica-Bold', cb=C_DARK))
-        st.append(row('Sana:', sana, cb=C_DARK))
-        st.append(Spacer(1, 1*mm)); st.append(dline()); st.append(Spacer(1, 1*mm))
-        total_pul = total_tolov_g = total_vozvrat_g = total_qolgan = 0
-        for item in ops_grouped:
-            tur_nom = (item.get('zavod','') + ' · ' + item.get('tur','')) if item.get('tur') else item.get('zavod','')
-            avvalgi=item.get('avvalgi_qarz',0); tolov_g=item.get('tolov_g',0)
-            vozvrat_g=item.get('vozvrat_g',0); tolov_summa=item.get('tolov_summa',0)
-            tolov_kurs=item.get('tolov_kurs',0); qolgan=max(0,avvalgi-tolov_g-vozvrat_g)
-            st.append(CP(tur_nom,'Helvetica-Bold',8,C_DARK,'LEFT'))
-            if avvalgi>0: st.append(row('  Qarz:',f'-{avvalgi:.2f}g',cb=C_RED))
-            if tolov_g>0 and tolov_summa>0:
-                st.append(row(f'  Tolov: {tolov_summa:,.0f}$/{tolov_kurs:.1f}$/g',f'+{tolov_g:.2f}g',cb=C_GREEN))
-            elif tolov_g>0: st.append(row('  Tolov:',f'+{tolov_g:.2f}g',cb=C_GREEN))
-            if vozvrat_g>0: st.append(row('  Vozvrat:',f'+{vozvrat_g:.2f}g',cb=C_GREEN))
-            st.append(row('  Qoldi:',f'-{qolgan:.2f}g',fb='Helvetica-Bold',cb=C_GOLD))
-            st.append(Spacer(1,1*mm))
-            total_pul+=tolov_summa; total_tolov_g+=tolov_g
-            total_vozvrat_g+=vozvrat_g; total_qolgan+=qolgan
-        st.append(dline()); st.append(Spacer(1,1*mm))
-        if qarz_tarkib:
-            st.append(CP('QARZ TARKIBI','Helvetica-Bold',7,C_MUTED,'CENTER'))
-            st.append(Spacer(1,1*mm))
-            for item in qarz_tarkib:
-                nom=(item.get('zavod','')+' · '+item.get('tur','')); qarz=item.get('qarz',0)
-                if qarz>0: st.append(row(nom,f'-{qarz:.2f}g',cb=C_RED))
-            st.append(dline()); st.append(Spacer(1,1*mm))
-        if total_pul>0:
-            st.append(row('Jami pul:',f'{total_pul:,.0f}$',fb='Helvetica-Bold',cb=C_BLUE))
-        st.append(row('Jami tolov:',f'+{total_tolov_g:.2f}g',fb='Helvetica-Bold',cb=C_GREEN))
-        if total_vozvrat_g>0:
-            st.append(row('Jami vozvrat:',f'+{total_vozvrat_g:.2f}g',fb='Helvetica-Bold',cb=C_GREEN))
-        st.append(row('Umumiy qolgan:',f'-{total_qolgan:.2f}g',fb='Helvetica-Bold',cb=C_RED))
-        st.append(Spacer(1,2*mm)); st.append(dline())
-        st.append(CP('— Rahmat —',size=7,color=C_MUTED))
-        return st
+    story = []
+    story.append(CP('TILLA HISOB', 'Helvetica-Bold', 11, C_GOLD))
+    story.append(CP('TOLOV CHEKI', size=8, color=C_MUTED))
+    story.append(Spacer(1, 2*mm)); story.append(dline()); story.append(Spacer(1, 1*mm))
+    story.append(row('Klient:', klient_nom, fb='Helvetica-Bold', cb=C_DARK))
+    story.append(row('Sana:', sana, cb=C_DARK))
+    story.append(Spacer(1, 1*mm)); story.append(dline()); story.append(Spacer(1, 1*mm))
 
-    # 1-pass: balandlikni o'lchash
-    buf_tmp = io.BytesIO()
-    doc_tmp = SimpleDocTemplate(buf_tmp, pagesize=(W, 800*mm),
-        leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
-    doc_tmp.build(make_story())
-    # Haqiqiy ishlatilgan balandlik
-    used_h = doc_tmp.page_height - doc_tmp.bottomMargin - doc_tmp.pageTemplate.frames[0]._aH
-    real_h = used_h + 8*mm
+    total_pul = total_tolov_g = total_vozvrat_g = total_qolgan = 0
+    for item in ops_grouped:
+        tur_nom = (item.get('zavod','') + ' · ' + item.get('tur','')) if item.get('tur') else item.get('zavod','')
+        avvalgi=item.get('avvalgi_qarz',0); tolov_g=item.get('tolov_g',0)
+        vozvrat_g=item.get('vozvrat_g',0); tolov_summa=item.get('tolov_summa',0)
+        tolov_kurs=item.get('tolov_kurs',0); qolgan=max(0,avvalgi-tolov_g-vozvrat_g)
+        story.append(CP(tur_nom,'Helvetica-Bold',8,C_DARK,'LEFT'))
+        if avvalgi>0: story.append(row('  Qarz:',f'-{avvalgi:.2f}g',cb=C_RED))
+        if tolov_g>0 and tolov_summa>0:
+            story.append(row(f'  Tolov: {tolov_summa:,.0f}$/{tolov_kurs:.1f}$/g',f'+{tolov_g:.2f}g',cb=C_GREEN))
+        elif tolov_g>0: story.append(row('  Tolov:',f'+{tolov_g:.2f}g',cb=C_GREEN))
+        if vozvrat_g>0: story.append(row('  Vozvrat:',f'+{vozvrat_g:.2f}g',cb=C_GREEN))
+        story.append(row('  Qoldi:',f'-{qolgan:.2f}g',fb='Helvetica-Bold',cb=C_GOLD))
+        story.append(Spacer(1,1*mm))
+        total_pul+=tolov_summa; total_tolov_g+=tolov_g
+        total_vozvrat_g+=vozvrat_g; total_qolgan+=qolgan
 
-    # 2-pass: to'g'ri o'lchamda chop
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=(W, real_h),
+    story.append(dline()); story.append(Spacer(1,1*mm))
+    if qarz_tarkib:
+        story.append(CP('QARZ TARKIBI','Helvetica-Bold',7,C_MUTED,'CENTER'))
+        story.append(Spacer(1,1*mm))
+        for item in qarz_tarkib:
+            nom=(item.get('zavod','')+' · '+item.get('tur','')); qarz=item.get('qarz',0)
+            if qarz>0: story.append(row(nom,f'-{qarz:.2f}g',cb=C_RED))
+        story.append(dline()); story.append(Spacer(1,1*mm))
+    if total_pul>0:
+        story.append(row('Jami pul:',f'{total_pul:,.0f}$',fb='Helvetica-Bold',cb=C_BLUE))
+    story.append(row('Jami tolov:',f'+{total_tolov_g:.2f}g',fb='Helvetica-Bold',cb=C_GREEN))
+    if total_vozvrat_g>0:
+        story.append(row('Jami vozvrat:',f'+{total_vozvrat_g:.2f}g',fb='Helvetica-Bold',cb=C_GREEN))
+    story.append(row('Umumiy qolgan:',f'-{total_qolgan:.2f}g',fb='Helvetica-Bold',cb=C_RED))
+    story.append(Spacer(1,2*mm)); story.append(dline())
+    story.append(CP('— Rahmat —',size=7,color=C_MUTED))
+
+    doc = SimpleDocTemplate(buf, pagesize=(W, est_h*mm),
         leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
-    doc.build(make_story())
+    doc.build(story)
     buf.seek(0)
     return buf.read()
 
