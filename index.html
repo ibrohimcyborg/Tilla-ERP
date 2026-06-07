@@ -1362,7 +1362,8 @@ function renderKlientlar() {
 
 function openKlientDetail(ki) {
   curKlientIdx=ki;
-  sessionStorage.setItem('curKlientIdx', ki);
+  var k = data.klientlar[ki];
+  if(k) sessionStorage.setItem('curKlientNom', k.nom);
   var k=data.klientlar[ki];
   document.getElementById('kd-name').textContent=k.nom;
   var kdTel=document.getElementById('kd-tel');
@@ -2150,14 +2151,15 @@ applyTheme(currentTheme);
   document.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;var dy=curY-startY;if(dy>threshold){ind.textContent='↻';var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';sessionStorage.setItem('activeTab',curTab);
         var curScreen=document.querySelector('.screen.active');
         if(curScreen&&curScreen.id==='s-klient-detail'&&curKlientIdx>=0){
-          sessionStorage.setItem('curKlientIdx',curKlientIdx);
+          var _ck=data.klientlar[curKlientIdx];if(_ck)sessionStorage.setItem('curKlientNom',_ck.nom);
         }
         setTimeout(function(){location.reload();},400);}else{ind.style.top='-60px';ind.style.opacity='0';}},{passive:true});
 })();
 
 // ── STARTUP ───────────────────────────────────────────────────────────────────
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
-var _savedKlient=sessionStorage.getItem('curKlientIdx');
+var _savedKlient=sessionStorage.getItem('curKlientNom');
+sessionStorage.removeItem('curKlientNom');
 sessionStorage.removeItem('activeTab');
 sessionStorage.removeItem('curKlientIdx');
 
@@ -2170,11 +2172,10 @@ loadFromCloud().then(function(synced){
     renderKlientlar();
     if (isPCMode()) pcInit();
   }
-  if (_savedKlient !== null) {
-    var ki = parseInt(_savedKlient);
-    if (!isNaN(ki) && data.klientlar && data.klientlar[ki]) {
-      setTimeout(function(){ openKlientDetail(ki); }, 100);
-    }
+  if (_savedKlient) {
+    var ki = -1;
+    (data.klientlar||[]).forEach(function(k,i){ if(k.nom===_savedKlient) ki=i; });
+    if(ki>=0) setTimeout(function(){ openKlientDetail(ki); }, 100);
   }
 });
 
