@@ -277,8 +277,18 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="pc-zavod-hdr">
       <div class="pc-panel-lbl">Zavodlar</div>
       <div class="big-stat" style="margin-bottom:10px;">
-        <div class="big-stat-label">Jami ostatka</div>
-        <div class="big-stat-val" id="home-total">0<span>g</span></div>
+        <div class="big-stat-val" id="home-total" style="font-size:28px;">0<span>g</span></div>
+        <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div class="big-stat-label">Bizda</div>
+            <div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div>
+          </div>
+          <div>
+            <div class="big-stat-label">Klientda</div>
+            <div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div>
+          </div>
+        </div>
       </div>
       <div class="pc-btn-grid3">
         <button class="pc-zbtn kirim" onclick="goTo('s-kirim')">↓ Kirim</button>
@@ -293,8 +303,18 @@ input[type=number]{-moz-appearance:textfield;}
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
     <div class="mobile-zavod-hdr" style="padding:16px;">
       <div class="big-stat" style="margin-bottom:12px;">
-        <div class="big-stat-label">Jami ostatka</div>
-        <div class="big-stat-val" id="home-total-mob">0<span>g</span></div>
+        <div class="big-stat-val" id="home-total-mob" style="font-size:28px;">0<span>g</span></div>
+        <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div class="big-stat-label">Bizda</div>
+            <div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div>
+          </div>
+          <div>
+            <div class="big-stat-label">Klientda</div>
+            <div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div>
+          </div>
+        </div>
       </div>
       <div class="big-btn-row">
         <div class="big-btn kirim" onclick="goTo('s-kirim')">
@@ -738,11 +758,38 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 
 // ── RENDER HOME ───────────────────────────────────────────────────────────────
 function renderHome() {
-  var tot = 0;
-  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ tot += t.ostatka; }); });
-  document.getElementById('home-total').innerHTML = fmtG(tot) + '<span>g</span>';
+  // Zavodlar ostatka (bizda)
+  var bizda = 0;
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
+
+  // Klientlardagi jami qarz (gramda)
+  var klientda = 0;
+  (data.klientlar || []).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if (op.tip === 'berish')       klientda += op.gramm;
+      else if (op.tip === 'vozvrat') klientda -= op.gramm;
+      else if (op.tip === 'tolov')   klientda -= (op.ekvivalent || 0);
+    });
+  });
+  klientda = Math.max(0, Math.round(klientda * 100) / 100);
+
+  var tot = Math.round((bizda + klientda) * 100) / 100;
+
+  // PC
+  var suf = '<span>g</span>';
+  document.getElementById('home-total').innerHTML = fmtG(tot) + suf;
+  var bd = document.getElementById('home-bizda');
+  if (bd) bd.innerHTML = fmtG(bizda) + '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
+  var kd = document.getElementById('home-klientda');
+  if (kd) kd.innerHTML = fmtG(klientda) + '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
+
+  // Mobil
   var mob = document.getElementById('home-total-mob');
-  if (mob) mob.innerHTML = fmtG(tot) + '<span>g</span>';
+  if (mob) mob.innerHTML = fmtG(tot) + suf;
+  var bdm = document.getElementById('home-bizda-mob');
+  if (bdm) bdm.innerHTML = fmtG(bizda) + '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
+  var kdm = document.getElementById('home-klientda-mob');
+  if (kdm) kdm.innerHTML = fmtG(klientda) + '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
   var list = document.getElementById('home-zavodlar');
   var empty = document.getElementById('home-empty');
   if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
