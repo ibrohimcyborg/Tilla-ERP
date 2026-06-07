@@ -516,10 +516,14 @@ input[type=number]{-moz-appearance:textfield;}
   <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Qarz tarkibi</div>
   <div id="kd-breakdown" style="margin-bottom:12px;"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Tarix</div>
-    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
+    <div class="nav-tabs" style="flex:1;margin:0;">
+      <div class="nav-tab active" id="kdt-tarix" onclick="kdTab('tarix')">Tarix</div>
+      <div class="nav-tab" id="kdt-hisobot" onclick="kdTab('hisobot')">Hisobot</div>
+    </div>
+    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:#4a2a4a;color:#c084c0;margin-left:8px;">⎙ PDF</button>
   </div>
   <div id="kd-tarix"></div>
+  <div id="kd-hisobot" style="display:none;"></div>
 </div>
 
 <!-- MODALS -->
@@ -1484,9 +1488,62 @@ function openKlientDetail(ki) {
     tHTML+='</div>';
   });
   document.getElementById('kd-tarix').innerHTML=tHTML||'<div class="empty">Hali tarix yoq</div>';
+  // Tab ni tarix ga qaytarish
+  kdTab('tarix');
+  document.getElementById('kdt-tarix').classList.add('active');
+  document.getElementById('kdt-hisobot').classList.remove('active');
   goTo('s-klient-detail');
 }
 
+function kdTab(tab) {
+  document.getElementById('kdt-tarix').classList.toggle('active', tab==='tarix');
+  document.getElementById('kdt-hisobot').classList.toggle('active', tab==='hisobot');
+  document.getElementById('kd-tarix').style.display = tab==='tarix' ? 'block' : 'none';
+  document.getElementById('kd-hisobot').style.display = tab==='hisobot' ? 'block' : 'none';
+  if (tab==='hisobot') renderKdHisobot();
+}
+
+function renderKdHisobot() {
+  var k = data.klientlar[curKlientIdx];
+  if (!k) return;
+  var jami_berish=0, jami_vozvrat=0, jami_tolov_g=0, jami_tolov_pul=0;
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') jami_berish+=op.gramm;
+    else if(op.tip==='vozvrat') jami_vozvrat+=op.gramm;
+    else if(op.tip==='tolov'){ jami_tolov_g+=(op.ekvivalent||0); jami_tolov_pul+=(op.summa||0); }
+  });
+  var qarz = Math.round((jami_berish - jami_vozvrat - jami_tolov_g)*100)/100;
+  var qcolor = qarz>0 ? 'var(--red)' : 'var(--green)';
+  var qsign = qarz>0 ? '-' : '+';
+  var html = '<div class="stat2" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">BERILDI</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">-'+fmtG(jami_berish)+'g</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">VOZVRAT</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+fmtG(jami_vozvrat)+'g</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">TOLOV (g)</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+fmtG(jami_tolov_g)+'g</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">TOLOV ($)</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+fmtD(jami_tolov_pul)+'$</div></div>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;background:var(--surf2);margin-bottom:14px;">';
+  html += '<div style="font-size:12px;color:var(--muted);">Qolgan qarz</div>';
+  html += '<div style="font-family:Roboto,sans-serif;font-size:18px;font-weight:600;color:'+qcolor+';">'+qsign+fmtG(Math.abs(qarz))+'g</div>';
+  html += '</div>';
+  var ops = k.tarix.slice().sort(function(a,b){return b.sana.localeCompare(a.sana);});
+  if(!ops.length){ html+='<div class="empty">Tarix yoq</div>'; document.getElementById('kd-hisobot').innerHTML=html; return; }
+  html += '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Operatsiyalar</div>';
+  ops.forEach(function(op){
+    var tip=op.tip;
+    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+    var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+    var val = tip==='berish'?('-'+fmtG(op.gramm)+'g'): tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+    var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
+    var sub2 = tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+    html+='<div class="hrow" style="margin-bottom:6px;border-left:3px solid '+color+';">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+    html+='<div><div style="font-size:13px;font-weight:600;color:'+color+';">'+label+'</div>';
+    html+='<div style="font-size:11px;color:var(--muted);margin-top:1px;">'+op.sana+(sub?' - '+sub:'')+(sub2?' - '+sub2:'')+'</div></div>';
+    html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+val+'</div>';
+    html+='</div></div>';
+  });
+  document.getElementById('kd-hisobot').innerHTML=html;
+}
 function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('klient-tel').value='';document.getElementById('modal-klient').classList.add('open');setTimeout(function(){document.getElementById('klient-nom').focus();},100);}
 function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();var tel=document.getElementById('klient-tel').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tel:tel,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
 
@@ -2168,7 +2225,7 @@ function openKlientlarPDFModal(dan, gacha) {
     qarz_tarkib: qarz_tarkib
   };
   fetch('/api/pdf.py', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-    .then(function(r) { if (!r.ok) throw new Error('Server xatosi'); return r.blob(); })
+    .then(function(r) { if (!r.ok) return r.text().then(function(t){ throw new Error(t); }); return r.blob(); })
     .then(function(blob) { var url = URL.createObjectURL(blob); window.open(url, '_blank'); setTimeout(function() { URL.revokeObjectURL(url); }, 10000); })
     .catch(function(e) { alert('PDF xato: ' + e.message); });
 }
