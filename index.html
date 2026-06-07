@@ -1702,18 +1702,7 @@ function openKlientBerish(){
 function kberishKlientChange(){
   var ki=parseInt(document.getElementById('kb-klient').value);
   if(isNaN(ki)){document.getElementById('kb-turlar-card').style.display='none';return;}
-  var k=data.klientlar[ki];
-  // Klient olgan zavodlarni aniqla
-  var klientZavodlar={};
-  k.tarix.forEach(function(op){
-    if(op.tip==='berish') klientZavodlar[op.zavod]=true;
-  });
-  // Agar hech narsa olmagan bolsa - hamma zavodlar
-  var zavodlarKo=Object.keys(klientZavodlar);
-  var showZavodlar=zavodlarKo.length>0
-    ? data.zavodlar.filter(function(z){return klientZavodlar[z.nom];})
-    : data.zavodlar;
-  renderBerishTurlar(showZavodlar);
+  renderBerishTurlar(data.zavodlar);
 }
 
 function renderBerishTurlar(zavodlar){
