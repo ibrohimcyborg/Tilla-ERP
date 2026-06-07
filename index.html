@@ -924,7 +924,12 @@ function renderZavod() {
     out += '<div class="tacc' + (isOpen?' open':'') + '">'
       + '<div class="tacc-head" onclick="toggleTur(' + ti + ')">'
       + '<div class="tacc-name">' + t.nom + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px;"><div class="tacc-g">' + fmtG(turJami) + ' g</div><div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div></div>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      + '<div class="tacc-g">' + fmtG(turJami) + ' g</div>'
+      + '<button onclick="event.stopPropagation();turNomTahrir('+ti+')" style="background:none;border:0.5px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✎</button>'
+      + '<button onclick="event.stopPropagation();ochirTur('+ti+')" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✕</button>'
+      + '<div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div>'
+      + '</div>'
       + '</div>'
       + '<div class="tacc-body">'
       // Bizda / Klientda / Jami 3 ta stat
@@ -943,6 +948,29 @@ function renderZavod() {
 }
 
 function toggleTur(ti) { openTurIdx = openTurIdx === ti ? -1 : ti; renderZavod(); }
+
+function turNomTahrir(ti) {
+  var z = data.zavodlar[curZ];
+  var t = z.turlar[ti];
+  var yangiNom = prompt("Tur nomini o'zgartiring:", t.nom);
+  if (yangiNom === null) return;
+  yangiNom = yangiNom.trim();
+  if (!yangiNom) { alert("Nom bo'sh bo'lishi mumkin emas!"); return; }
+  t.nom = yangiNom;
+  save();
+  renderZavod();
+}
+
+function ochirTur(ti) {
+  var z = data.zavodlar[curZ];
+  var t = z.turlar[ti];
+  if (!confirm('"' + t.nom + '" turini ochirmoqchimisiz?')) return;
+  if (!confirm("Haqiqatan ham? Barcha tarix ochib ketadi!")) return;
+  z.turlar.splice(ti, 1);
+  openTurIdx = -1;
+  save();
+  renderZavod();
+}
 
 function ochirZavod() {
   var z = data.zavodlar[curZ];
