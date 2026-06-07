@@ -1749,25 +1749,18 @@ function openKlientBerish(){
   sel.innerHTML='<option value="">— Tanlang —</option>';
   (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
   document.getElementById('kb-sana').value=nowDate();
+  sel.value='';
   sel.onchange=kberishKlientChange;
+  // Gramm inputlarni tozalaymiz
+  document.getElementById('kb-turlar-inputs').innerHTML='';
   document.getElementById('modal-kberish').classList.add('open');
   renderBerishTurlar(data.zavodlar);
 }
 
 function kberishKlientChange(){
   var ki=parseInt(document.getElementById('kb-klient').value);
-  if(isNaN(ki)){document.getElementById('kb-turlar-card').style.display='none';return;}
-  // Mavjud qiymatlarni saqlaymiz
-  var saved={};
-  document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
-    if(el.value&&parseNum(el.value)>0) saved[el.id]=el.value;
-  });
-  renderBerishTurlar(data.zavodlar);
-  // Saqlangan qiymatlarni tiklaymiz
-  Object.keys(saved).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){ el.value=saved[id]; berishOstatkaUpdate(el); }
-  });
+  if(isNaN(ki)) return;
+  // Zavod paneli allaqachon chizilgan — hech narsa o'zgartirmaymiz
 }
 
 function renderBerishTurlar(zavodlar){
