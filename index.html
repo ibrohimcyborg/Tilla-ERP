@@ -642,17 +642,25 @@ function save(logText) {
   data.updated_at = new Date().toISOString();
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if (_syncTimer) clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 1000);
+  _syncTimer = setTimeout(function(){ syncToCloud(logText); }, 300);
 }
 
 function syncToCloud(logText) {
   data.updated_at = new Date().toISOString();
   localStorage.setItem('tilla-v2', JSON.stringify(data));
+  var payload = {
+    zavodlar: data.zavodlar,
+    klientlar: data.klientlar||[],
+    updated_at: data.updated_at
+  };
   fetch('https://tilla-erp-default-rtdb.firebaseio.com/tilla.json', {
     method: 'PUT',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({zavodlar: data.zavodlar, klientlar: data.klientlar||[], updated_at: data.updated_at})
-  }).catch(function(){});
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){ console.log('sync ok:', d && d.updated_at ? 'saved' : d); })
+  .catch(function(e){ console.error('sync error:', e.message); });
 }
 
 function loadFromCloud() {
