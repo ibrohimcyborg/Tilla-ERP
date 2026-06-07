@@ -1924,8 +1924,17 @@ function kTolovCalc(){
       var cEl=document.getElementById('kt-calc-'+idx);
       if(cEl){
         var qolgan=Math.max(0,b.qarz-eq-v);
-        cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'+(v>0?' + <b style="color:var(--gold);">'+fmtG(v)+'g</b> vozvrat':'')+'<br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
-        cEl.style.display='block';
+        var ortiqcha=eq-b.qarz;
+        if(ortiqcha>0.01){
+          // Gramm qarzdan kop — kurs notogri yoki summa katta
+          var ortiqchaPul=Math.round(ortiqcha*kurs*100)/100;
+          cEl.innerHTML='= <b style="color:var(--red);">'+fmtG(eq)+'g</b> tolov'
+            +'<br><span style="color:var(--red);font-weight:600;">⚠ '+fmtG(ortiqcha)+'g ortiqcha ('+fmtD(ortiqchaPul)+'$ ortiqcha)!</span>';
+          cEl.style.display='block';
+        } else {
+          cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'+(v>0?' + <b style="color:var(--gold);">'+fmtG(v)+'g</b> vozvrat':'')+'<br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
+          cEl.style.display='block';
+        }
       }
       totalEq+=eq;
     } else if(v>0) {
