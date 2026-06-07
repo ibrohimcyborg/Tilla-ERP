@@ -22,6 +22,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .main-tab.active{color:var(--gold);border-bottom:2px solid var(--gold);font-weight:600;}
 .screen{display:none;padding:16px;max-width:520px;margin:0 auto;}
 .screen.active{display:block;}
+#s-home.active{display:flex;flex-direction:column;padding:0;height:calc(100vh - 42px);overflow:hidden;}
 @media(min-width:1024px){
   .screen.active:not(#s-home){
     position:fixed;inset:0;z-index:150;
@@ -30,6 +31,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
     display:flex;flex-direction:column;align-items:center;
   }
   .screen.active:not(#s-home) > *{max-width:560px;width:100%;}
+  /* Mobile: s-home ichida sticky + scroll */
+  @media(max-width:1023px){
+    #s-home.active{height:calc(100vh - 42px);overflow:hidden;display:flex;flex-direction:column;padding:0;}
+    #main-zavod, #main-klient{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+    .zavod-sticky, .klient-sticky{flex-shrink:0;padding:12px 16px 0;}
+    .zavod-scroll, .klient-scroll{flex:1;overflow-y:auto;padding:0 16px 16px;}
+  }
 }
 .back-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
 .back-btn{background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;}
@@ -284,7 +292,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="pc-body" id="pc-body">
     <!-- ZAVOD SECTION -->
   <div id="main-zavod">
-    <div style="margin-top:4px;">
+    <div class="zavod-sticky" style="margin-top:4px;">
       <div class="big-stat" style="padding:0;overflow:hidden;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
           <div style="padding:16px 18px;border-right:1px solid var(--border);">
@@ -334,7 +342,7 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 
   <!-- KLIENT SECTION -->
-  <div id="main-klient" style="display:none;">
+  <div id="main-klient" style="display:none;"><div class="klient-sticky">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
       <button class="btn" onclick="openKlientBerish()" style="display:flex;flex-direction:row;align-items:center;justify-content:center;gap:6px;padding:12px 6px;font-size:13px;font-weight:600;">
         <span style="font-size:16px;color:var(--green);">↓</span><span>Berish</span>
@@ -354,9 +362,9 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="nav-tab active" id="kt-top" onclick="klientTab('top')">Top savdo</div>
       <div class="nav-tab" id="kt-qizil" onclick="klientTab('qizil')">Muddati otgan</div>
     </div>
-    <div id="klient-top-list"></div>
+    </div><div class="klient-scroll"><div id="klient-top-list"></div>
     <div id="klient-qizil-list" style="display:none;"></div>
-  </div>
+  </div></div>
     </div><!-- /pc-body -->
   </div><!-- /pc-content -->
 </div><!-- /s-home -->
@@ -388,7 +396,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="nav-tab" id="ztab-hisobot" onclick="zTab('hisobot')">Hisobot</div>
     <div class="nav-tab" id="ztab-klient" onclick="zTab('klient')">Klient</div>
   </div>
-  <div id="zavod-turlar-cont">
+  </div><div class="zavod-scroll"><div id="zavod-turlar-cont">
     <div id="zavod-tur-list"></div>
     <div class="empty" id="zavod-tur-empty" style="display:none;"><div class="empty-icon">📦</div>Hali tur yoq.</div>
     <div class="btn-row" style="margin-top:12px;">
