@@ -22,17 +22,16 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .main-tabs{display:flex;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:calc(54px + var(--safe-top));z-index:99;}
 .main-tab{flex:1;text-align:center;padding:10px;font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;}
 .main-tab.active{color:var(--gold);border-bottom:2px solid var(--gold);font-weight:600;}
-.screen{display:none;padding:12px 14px;max-width:520px;margin:0 auto;}
+.screen{display:none;padding:5px;max-width:520px;margin:0 auto;}
 .screen.active{display:block;}
 
 @media(min-width:1024px),(min-width:600px) and (orientation:landscape){
   .screen.active:not(#s-home){
     position:fixed;inset:0;z-index:150;
     background:var(--bg);overflow-y:auto;
-    max-width:100%;margin:0;padding:24px;
-    display:flex;flex-direction:column;align-items:center;
+    max-width:100%;margin:0;padding:12px;
+    display:block;
   }
-  .screen.active:not(#s-home) > *{max-width:560px;width:100%;}
 
 }
 .back-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
