@@ -395,6 +395,7 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home')">←</button>
     <div class="stitle" id="zavod-title"></div>
+    <button onclick="ochirZavod()" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 O'chirish</button>
   </div>
   <div class="big-stat" style="margin-top:0;">
     <div class="big-stat-val" id="zavod-total" style="font-size:26px;">0<span>g</span></div>
@@ -942,6 +943,17 @@ function renderZavod() {
 }
 
 function toggleTur(ti) { openTurIdx = openTurIdx === ti ? -1 : ti; renderZavod(); }
+
+function ochirZavod() {
+  var z = data.zavodlar[curZ];
+  if (!z) return;
+  if (!confirm(z.nom + " zavodini ochirmoqchimisiz?")) return;
+  if (!confirm("Haqiqatan ham? Barcha turlar va tarix ochib ketadi!")) return;
+  data.zavodlar.splice(curZ, 1);
+  save();
+  goTo('s-home');
+  renderHome();
+}
 
 function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
