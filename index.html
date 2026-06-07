@@ -1730,10 +1730,18 @@ function renderBerishTurlar(zavodlar){
 function berishOstatkaUpdate(el) {
   var ostatka = parseFloat(el.dataset.ostatka) || 0;
   var g = parseNum(el.value) || 0;
-  var qolgan = Math.max(0, ostatka - g);
-  var col = g > ostatka ? 'var(--red)' : 'var(--green)';
+  var qolgan = ostatka - g;
   var ostEl = document.getElementById('ost-' + el.id);
-  if (ostEl) ostEl.innerHTML = '<span style="color:'+col+';">ostatka: '+fmtG(qolgan)+'g</span>';
+  if (g > ostatka) {
+    el.style.borderColor = 'var(--red)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ '+fmtG(Math.abs(qolgan))+'g yetmaydi!</span>';
+  } else if (g > 0) {
+    el.style.borderColor = 'var(--green)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(qolgan)+'g</span>';
+  } else {
+    el.style.borderColor = '';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(ostatka)+'g</span>';
+  }
 }
 
 function toggleBerishZ(head){
