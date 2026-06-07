@@ -661,7 +661,9 @@ function loadFromCloud() {
   .then(function(d){
     if(!d) return false;
     if(d.zavodlar) data.zavodlar = d.zavodlar;
-    data.klientlar = d.klientlar || [];
+    data.klientlar = (d.klientlar||[]).map(function(k){
+      return {nom:k.nom||'', tel:k.tel||'', tarix:k.tarix||[]};
+    });
     data.updated_at = d.updated_at;
     localStorage.setItem('tilla-v2', JSON.stringify(data));
     return true;
@@ -728,7 +730,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function klientlarJamiQarz() {
   var q = 0;
   (data.klientlar||[]).forEach(function(k){
-    k.tarix.forEach(function(op){
+    (k.tarix||[]).forEach(function(op){
       if(op.tip==='berish') q += op.gramm;
       else if(op.tip==='vozvrat') q -= op.gramm;
       else if(op.tip==='tolov') q -= (op.ekvivalent||0);
@@ -1316,12 +1318,12 @@ function klientQarzHolat(k) {
 }
 function klientJamiQarz(k) {
   var q=0;
-  k.tarix.forEach(function(op){ if(op.tip==='berish') q+=op.gramm; else if(op.tip==='vozvrat') q-=op.gramm; else if(op.tip==='tolov') q-=(op.ekvivalent||0); });
+  (k.tarix||[]).forEach(function(op){ if(op.tip==='berish') q+=op.gramm; else if(op.tip==='vozvrat') q-=op.gramm; else if(op.tip==='tolov') q-=(op.ekvivalent||0); });
   return Math.round(q*100)/100;
 }
 function klientJamiSavdo(k) {
   var g=0,pul=0;
-  k.tarix.forEach(function(op){ if(op.tip==='berish') g+=op.gramm; if(op.tip==='tolov') pul+=op.summa||0; });
+  (k.tarix||[]).forEach(function(op){ if(op.tip==='berish') g+=op.gramm; if(op.tip==='tolov') pul+=op.summa||0; });
   return {g:Math.round(g*100)/100, pul:Math.round(pul*100)/100};
 }
 
