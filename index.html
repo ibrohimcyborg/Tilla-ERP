@@ -207,7 +207,16 @@ input[type=number]{-moz-appearance:textfield;}
     font-size: 10px; color: var(--muted); text-transform: uppercase;
     letter-spacing: .08em; margin-bottom: 10px;
   }
-  .screen.active:not(#s-home) { max-width: 900px; margin: 0 auto; }
+  .screen.active:not(#s-home) {
+    position: fixed;
+    top: calc(54px + var(--safe-top));
+    left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    max-width: 900px;
+    margin: 0 auto;
+    z-index: 50;
+    background: var(--bg);
+  }
   .modal { max-width: 520px; border-radius: 20px; margin-bottom: 40px; }
   .modal-overlay { align-items: center; padding: 20px; }
   /* PC da mobil headerlarni yashir */
@@ -2017,10 +2026,13 @@ var _origGoTo = goTo;
 goTo = function(id) {
   _origGoTo(id);
   if (isPCMode()) {
-    if (id === 's-home') { renderHome(); renderKlientlar(); }
-    else {
-      document.getElementById('main-zavod').style.cssText += ';display:none!important';
-      document.getElementById('main-klient').style.cssText += ';display:none!important';
+    var mz = document.getElementById('main-zavod');
+    var mk = document.getElementById('main-klient');
+    if (id === 's-home') {
+      mz.style.removeProperty('display');
+      mk.style.removeProperty('display');
+      renderHome();
+      renderKlientlar();
     }
   }
 };
