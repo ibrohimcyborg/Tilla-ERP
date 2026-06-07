@@ -23,7 +23,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .screen{display:none;padding:16px;max-width:520px;margin:0 auto;}
 .screen.active{display:block;}
 #s-home.active{display:flex;flex-direction:column;padding:0;height:calc(100vh - 42px);overflow:hidden;}
-@media(min-width:1024px){
+@media(min-width:1024px),(min-width:600px) and (orientation:landscape){
   .screen.active:not(#s-home){
     position:fixed;inset:0;z-index:150;
     background:var(--bg);overflow-y:auto;
@@ -32,7 +32,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   }
   .screen.active:not(#s-home) > *{max-width:560px;width:100%;}
   /* Mobile: s-home ichida sticky + scroll */
-  @media(max-width:1023px){
+  @media(max-width:1023px) and (orientation:portrait),
+  (max-width:599px){
     #s-home.active{height:calc(100vh - 42px);overflow:hidden;display:flex;flex-direction:column;padding:0;}
     #main-zavod, #main-klient{display:flex;flex-direction:column;height:100%;overflow:hidden;}
     .zavod-sticky, .klient-sticky{flex-shrink:0;padding:12px 16px 0;}
@@ -130,7 +131,7 @@ input[type=number]{-moz-appearance:textfield;}
 }
 
 /* ── PC (1024px+) ────────────────────────────────────────────── */
-@media(min-width:1024px){
+@media(min-width:1024px),(min-width:600px) and (orientation:landscape){
   body{display:flex;flex-direction:column;}
   .topbar{max-width:100%;padding-left:24px;padding-right:24px;}
   .main-tabs{max-width:100%;padding:0 24px;}
@@ -366,10 +367,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div id="klient-qizil-list" style="display:none;"></div>
   </div></div>
     </div><!-- /pc-body -->
-  </div><!-- /pc-content -->
-</div><!-- /s-home -->
 
-<!-- ZAVOD DETAIL -->
 <div class="screen" id="s-zavod">
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home')">←</button>
@@ -408,6 +406,11 @@ input[type=number]{-moz-appearance:textfield;}
   <div id="zavod-klient-cont" style="display:none;"></div>
 </div>
 
+
+  </div><!-- /pc-content -->
+</div><!-- /s-home -->
+
+<!-- ZAVOD DETAIL -->
 <!-- KIRIM -->
 <div class="screen" id="s-kirim">
   <div class="back-row">
@@ -2440,7 +2443,11 @@ function zvSaqlash() {
 
 
 // PC LAYOUT
-function isPCMode(){ return window.innerWidth >= 1024; }
+function isPCMode(){
+  // PC, tablet landscape, yoki telefon landscape
+  var w = window.innerWidth, h = window.innerHeight;
+  return w >= 1024 || (w > h && w >= 600);
+}
 
 function pill(cls, txt, fn) {
   var b = document.createElement('button');
@@ -2490,6 +2497,12 @@ mainTab = function(tab) {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', pcInit);
 } else { pcInit(); }
+window.addEventListener('orientationchange', function(){
+  setTimeout(function(){
+    if(isPCMode()) pcInit();
+    else { mainTab('zavod'); }
+  }, 300);
+});
 window.addEventListener('resize', function(){ if(isPCMode()) pcInit(); });
 </script>
 </body>
