@@ -613,7 +613,7 @@ def build_kassa(ops, dan, gacha, jami_summa, jami_gramm, label):
     ],[
         P(f"${jami_summa:,.2f}", 'Helvetica-Bold', 14, C_GOLD, 'CENTER'),
         P(f"{jami_gramm:,.2f}g", 'Helvetica-Bold', 14, C_GREEN, 'CENTER'),
-        P(f"{len(ops)} ta", 'Helvetica-Bold', 14, C_WHITE, 'CENTER'),
+        P(f"{len(ops)} ta", 'Helvetica-Bold', 14, C_DARK, 'CENTER'),
     ]]
     st = Table(stat_data, colWidths=[W_total/3]*3)
     st.setStyle(TableStyle([
