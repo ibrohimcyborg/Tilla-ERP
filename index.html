@@ -502,7 +502,11 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="screen" id="s-klient-detail">
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home');mainTab('klient')">←</button>
-    <div class="stitle" id="kd-name">Klient</div>
+    <div style="flex:1;display:flex;align-items:center;gap:8px;">
+      <div class="stitle" id="kd-name">Klient</div>
+      <button onclick="klientNomTahrir()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;">✎</button>
+    </div>
+    <button onclick="klientOchir()" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑</button>
   </div>
   <div class="card" style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -518,6 +522,7 @@ input[type=number]{-moz-appearance:textfield;}
       </div>
     </div>
   </div>
+  <div id="kd-tel-row" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"></div>
   <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Qarz tarkibi</div>
   <div id="kd-breakdown" style="margin-bottom:12px;"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -1598,11 +1603,59 @@ function openKlientDetail(ki) {
     tHTML+='</div>';
   });
   document.getElementById('kd-tarix').innerHTML=tHTML||'<div class="empty">Hali tarix yoq</div>';
+  renderKdTel();
   // Tab ni tarix ga qaytarish
   kdTab('tarix');
   document.getElementById('kdt-tarix').classList.add('active');
   document.getElementById('kdt-hisobot').classList.remove('active');
   goTo('s-klient-detail');
+}
+
+function klientNomTahrir() {
+  var k = data.klientlar[curKlientIdx];
+  if (!k) return;
+  var yangi = prompt("Klient nomini o'zgartiring:", k.nom);
+  if (yangi === null) return;
+  yangi = yangi.trim();
+  if (!yangi) { alert("Nom bo'sh bo'lishi mumkin emas!"); return; }
+  k.nom = yangi;
+  save();
+  document.getElementById('kd-name').textContent = yangi;
+  renderKlientlar();
+}
+
+function klientTelTahrir() {
+  var k = data.klientlar[curKlientIdx];
+  if (!k) return;
+  var yangi = prompt(k.tel ? "Telefon raqamni ozgartiring:" : "Telefon raqam qoshing:", k.tel || "");
+  if (yangi === null) return;
+  k.tel = yangi.trim();
+  save();
+  renderKdTel();
+}
+
+function renderKdTel() {
+  var k = data.klientlar[curKlientIdx];
+  if (!k) return;
+  var row = document.getElementById('kd-tel-row');
+  if (!row) return;
+  if (k.tel) {
+    row.innerHTML = '<span style="font-size:13px;color:var(--muted);">📞 '+k.tel+'</span>'
+      + '<button onclick="klientTelTahrir()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">✎</button>';
+  } else {
+    row.innerHTML = '<button onclick="klientTelTahrir()" style="background:none;border:0.5px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer;">+ Tel qoshish</button>';
+  }
+}
+
+function klientOchir() {
+  var k = data.klientlar[curKlientIdx];
+  if (!k) return;
+  if (!confirm(k.nom + " klientni ochirmoqchimisiz?")) return;
+  if (!confirm("Haqiqatan ham? Barcha tarix ochib ketadi!")) return;
+  data.klientlar.splice(curKlientIdx, 1);
+  save();
+  goTo('s-home');
+  mainTab('klient');
 }
 
 function kdTab(tab) {
