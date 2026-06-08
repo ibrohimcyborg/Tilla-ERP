@@ -1706,6 +1706,11 @@ function kopEditSaqla() {
   });
   if(hasErr){ alert('Zavodda yetarli tilla yoq! Ostatkadan oshib ketgan qiymatlarni tekshiring.'); return; }
 
+  // Log vaqti
+  var now = new Date();
+  var nowStr = now.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\.\d{4}$/,function(m){return m.slice(0,3);});
+  nowStr += ' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
   oiList.forEach(function(oi){
     var op = k.tarix[oi];
     if(!op) return;
@@ -1713,55 +1718,30 @@ function kopEditSaqla() {
     if(tip==='berish'||tip==='vozvrat'){
       var gEl = document.getElementById('kop-g-'+oi);
       if(gEl){
+        var oldG = op.gramm;
         var newG = parseNum(gEl.value);
-        var diff = newG - op.gramm;
+        var diff = newG - oldG;
         if(tip==='berish'){
           data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka-diff); }); });
         } else {
           data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka+diff); }); });
         }
         op.gramm = newG;
+        if(Math.abs(newG-oldG)>0.001) op.tahrir = { eski: oldG, yangi: newG, vaqt: nowStr };
       }
     } else {
       var sEl = document.getElementById('kop-s-'+oi);
       var kEl = document.getElementById('kop-k-'+oi);
       if(sEl&&kEl){
+        var oldS = op.summa||0;
         var newS = parseNum(sEl.value);
         var newK = parseNum(kEl.value);
         op.summa=newS; op.kurs=newK;
         op.ekvivalent=(newS>0&&newK>0)?roundG(newS/newK):0;
+        if(Math.abs(newS-oldS)>0.01) op.tahrir = { eskiS: oldS, yangiS: newS, vaqt: nowStr };
       }
     }
     if(newSana) op.sana = newSana;
-  });
-
-  // Log vaqti
-  var now = new Date();
-  var nowStr = now.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\.\d{4}$/,function(m){return m.slice(0,3);});
-  nowStr += ' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  // Har bir op ga log yozamiz
-  oiList.forEach(function(oi){
-    var op = k.tarix[oi];
-    if(!op) return;
-    if(op.tip==='berish'||op.tip==='vozvrat'){
-      var gEl = document.getElementById('kop-g-'+oi);
-      if(gEl){
-        var oldG = op.gramm;
-        var newG = parseNum(gEl.value);
-        if(Math.abs(newG-oldG)>0.001){
-          op.tahrir = { eski: oldG, yangi: newG, vaqt: nowStr };
-        }
-      }
-    } else {
-      var sEl = document.getElementById('kop-s-'+oi);
-      if(sEl){
-        var oldS = op.summa||0;
-        var newS = parseNum(sEl.value);
-        if(Math.abs(newS-oldS)>0.01){
-          op.tahrir = { eskiS: oldS, yangiS: newS, vaqt: nowStr };
-        }
-      }
-    }
   });
   save();
   renderKlientHisobot();
