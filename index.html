@@ -1539,12 +1539,20 @@ function renderKlientHisobot() {
         var val=tip==='berish'?('-'+fmtG(op.gramm)+'g'):tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
         var sub2=tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+        // Klient indexi va op indexi
+        var ki=-1, oi=-1;
+        (data.klientlar||[]).forEach(function(k,kidx){
+          if(k.nom===knom){ ki=kidx; k.tarix.forEach(function(o,oidx){ if(o===op) oi=oidx; }); }
+        });
         html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
         html+='<div style="flex:1;">';
         html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
         if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
         html+='</div>';
+        html+='<div style="display:flex;align-items:center;gap:5px;">';
         html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
+        if(ki>=0&&oi>=0) html+='<button onclick="klientHisobotTahrir('+ki+','+oi+')" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:26px;height:26px;font-size:11px;cursor:pointer;">✏</button>';
+        html+='</div>';
         html+='</div>';
       });
       html+='</div>';
@@ -1552,6 +1560,29 @@ function renderKlientHisobot() {
     html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
   });
   cont.innerHTML = html;
+}
+
+function klientHisobotTahrir(ki, oi) {
+  var k = data.klientlar[ki];
+  var op = k.tarix[oi];
+  if (!op) return;
+  curKlientIdx = ki;
+  // Klient detail ga o'tib tahrirlash modalini ochamiz
+  // Klient tarix tabidagi kabi confirm bilan o'chirish
+  var tip = op.tip;
+  var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+  var sana = op.sana;
+  if (!confirm(k.nom + ' - ' + label + ' (' + sana + ') operatsiyasini ochirmoqchimisiz?')) return;
+  // Ostatka qaytarish
+  if (op.tip==='berish') {
+    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka+=op.gramm; }); });
+  } else if (op.tip==='vozvrat') {
+    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka-=op.gramm; }); });
+  }
+  k.tarix.splice(oi, 1);
+  save();
+  renderKlientHisobot();
+  renderHome();
 }
 
 function renderKlientlar() {
