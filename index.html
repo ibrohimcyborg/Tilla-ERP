@@ -847,6 +847,7 @@ function renderHisobot() {
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
+      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'#5ab4e8':'var(--red)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleHrow(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK ? '↓ Kirim' : isV ? '↩ Vozvrat' : '↑ Chiqim') + '</div>';
@@ -1055,6 +1056,7 @@ function renderZavodHisobot() {
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
+      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'#5ab4e8':'var(--red)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleZH(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
