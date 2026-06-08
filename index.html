@@ -723,7 +723,7 @@ function save(logText) {
 
 
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
-function fmtG(g) { return parseFloat(g).toFixed(2); }
+function fmtG(g) { var v=parseFloat(g); return (v<0?'-':'')+Math.abs(v).toFixed(2); }
 function fmtD(d) { return parseFloat(d).toLocaleString('en-US', {maximumFractionDigits:2}); }
 function today() { return new Date().toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}); }
 function roundG(v) { var t = Math.floor(v * 1000) % 10; return t >= 5 ? Math.ceil(v*100)/100 : Math.floor(v*100)/100; }
