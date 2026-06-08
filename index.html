@@ -1579,13 +1579,48 @@ function renderKlientHisobot() {
 
 function klientGunTahrir(ki, sana) {
   var k = data.klientlar[ki];
-  // Shu sanagi operatsiyalarni topamiz
   var gunOps = [];
   k.tarix.forEach(function(op, oi){ if(op.sana===sana) gunOps.push({op:op, oi:oi}); });
   if(!gunOps.length) return;
-  // Birinchi operatsiyani tahrirlash uchun ochamiz
-  var first = gunOps[0];
-  klientHisobotTahrir(ki, first.oi);
+
+  _kopKi = ki; _kopOi = -1;
+  document.getElementById('kop-edit-title').textContent = k.nom + ' — ' + sana;
+
+  var body = '';
+  gunOps.forEach(function(item, idx){
+    var op = item.op, oi = item.oi;
+    var tip = op.tip;
+    var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+    var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+
+    body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
+    body += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    body += '<div style="font-size:12px;font-weight:600;color:'+color+';">'+label+'</div>';
+    if(sub) body += '<div style="font-size:11px;color:var(--muted);">'+sub+'</div>';
+    body += '</div>';
+
+    if(tip==='berish'||tip==='vozvrat'){
+      body += '<div style="display:flex;align-items:center;gap:8px;">';
+      body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" value="'+op.gramm+'" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
+      body += '<span style="font-size:13px;color:var(--muted);">g</span>';
+      body += '</div>';
+    } else {
+      body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SUMMA ($)</div><input type="number" id="kop-s-'+oi+'" data-oi="'+oi+'" data-tip="tolov" value="'+(op.summa||0)+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
+      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">KURS ($/g)</div><input type="number" id="kop-k-'+oi+'" value="'+(op.kurs||0)+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
+      body += '</div>';
+    }
+    body += '</div>';
+  });
+
+  // Sana uchun umumiy maydon
+  body += '<div class="field"><label>Sana</label><input type="date" id="kop-sana" style="font-size:16px;" value="'+(sana?sana.split('.').reverse().join('-'):'')+'"></div>';
+  body += '<input type="hidden" id="kop-oi-list" value="'+gunOps.map(function(x){return x.oi;}).join(',')+'">'; 
+
+  document.getElementById('kop-edit-body').innerHTML = body;
+  document.getElementById('kop-edit-log').style.display = 'none';
+  document.getElementById('modal-kop-edit').classList.add('open');
 }
 
 var _kopKi=-1, _kopOi=-1;
@@ -1614,37 +1649,41 @@ function klientHisobotTahrir(ki, oi) {
 
 function kopEditSaqla() {
   var k = data.klientlar[_kopKi];
-  var op = k.tarix[_kopOi];
-  if (!op) return;
   var sanaEl = document.getElementById('kop-sana');
-  var newSana = sanaEl&&sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : op.sana;
-  var logText = op.sana + ' · ';
-  if (op.tip==='berish'||op.tip==='vozvrat') {
-    var oldG = op.gramm;
-    var newG = parseNum(document.getElementById('kop-gramm').value);
-    // Ostatka farqini tuzatish
-    var diff = newG - oldG;
-    if (op.tip==='berish') {
-      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka-diff); }); });
+  var newSana = sanaEl&&sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : '';
+  var oiListEl = document.getElementById('kop-oi-list');
+  var oiList = oiListEl ? oiListEl.value.split(',').map(Number) : [];
+
+  oiList.forEach(function(oi){
+    var op = k.tarix[oi];
+    if(!op) return;
+    var tip = op.tip;
+    if(tip==='berish'||tip==='vozvrat'){
+      var gEl = document.getElementById('kop-g-'+oi);
+      if(gEl){
+        var newG = parseNum(gEl.value);
+        var diff = newG - op.gramm;
+        if(tip==='berish'){
+          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka-diff); }); });
+        } else {
+          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka+diff); }); });
+        }
+        op.gramm = newG;
+      }
     } else {
-      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka+diff); }); });
+      var sEl = document.getElementById('kop-s-'+oi);
+      var kEl = document.getElementById('kop-k-'+oi);
+      if(sEl&&kEl){
+        var newS = parseNum(sEl.value);
+        var newK = parseNum(kEl.value);
+        op.summa=newS; op.kurs=newK;
+        op.ekvivalent=(newS>0&&newK>0)?roundG(newS/newK):0;
+      }
     }
-    logText += fmtG(oldG)+'g → '+fmtG(newG)+'g';
-    op.gramm = newG;
-  } else {
-    var oldS = op.summa||0, oldK = op.kurs||0;
-    var newS = parseNum(document.getElementById('kop-summa').value);
-    var newK = parseNum(document.getElementById('kop-kurs').value);
-    var oldEq = op.ekvivalent||0;
-    var newEq = (newS>0&&newK>0)?roundG(newS/newK):0;
-    op.summa=newS; op.kurs=newK; op.ekvivalent=newEq;
-    logText += fmtD(oldS)+'$ → '+fmtD(newS)+'$';
-  }
-  op.sana = newSana;
+    if(newSana) op.sana = newSana;
+  });
+
   save();
-  var logEl = document.getElementById('kop-edit-log');
-  logEl.textContent = logText + ' (tahrirlandi)';
-  logEl.style.display = 'block';
   renderKlientHisobot();
   renderHome();
   closeModal('modal-kop-edit');
