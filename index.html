@@ -851,7 +851,7 @@ function renderHisobot() {
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK ? '↓ Kirim' : isV ? '↩ Vozvrat' : '↑ Chiqim') + '</div>';
       out += '<div style="font-size:13px;font-weight:600;color:var(--text);margin-top:2px;">' + g.zavod + ' · ' + g.sana + '</div></div>';
-      out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + (isK?'+':'') + fmtG(jamiG) + ' g</div>';
+      out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + fmtG(jamiG) + ' g</div>';
       out += '</div>';
       if (isOpen) {
         out += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">';
@@ -1059,7 +1059,7 @@ function renderZavodHisobot() {
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
       out += '<div style="font-size:13px;color:var(--text);margin-top:2px;">' + g.sana + '</div></div>';
-      out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + (isK?'+':'') + fmtG(jamiG) + ' g</div></div>';
+      out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + fmtG(jamiG) + ' g</div></div>';
       if (isOpen) {
         out += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">';
         g.turlar.forEach(function(item, ti) {
@@ -1264,9 +1264,9 @@ function saqlashTur() { var nom=document.getElementById('tur-nom').value.trim();
 
 document.addEventListener('wheel', function(e){
   if(document.activeElement && document.activeElement.type==='number'){
-    e.preventDefault();
+    document.activeElement.blur();
   }
-}, {passive:false});
+}, {passive:true});
 
 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); }); });
 document.addEventListener('keydown', function(e){
