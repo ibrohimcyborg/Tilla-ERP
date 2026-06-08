@@ -576,6 +576,20 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-kop-edit">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="kop-edit-title">Tahrirlash</div>
+    <div id="kop-edit-body"></div>
+    <div id="kop-edit-log" style="font-size:11px;color:var(--muted);margin-top:8px;padding:6px 10px;background:var(--surf2);border-radius:8px;display:none;"></div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn" style="color:var(--red);border-color:var(--red);" onclick="kopEditOchir()">🗑 Ochir</button>
+      <button class="btn" onclick="closeModal('modal-kop-edit')">Bekor</button>
+      <button class="btn gold" onclick="kopEditSaqla()">✓ Saqlash</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-reset">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1199,6 +1213,7 @@ document.addEventListener('keydown', function(e){
     else if(document.getElementById('modal-kberish').classList.contains('open')) saqlashKlientBerish();
     else if(document.getElementById('modal-kvozvrat').classList.contains('open')) saqlashKlientVozvrat();
     else if(document.getElementById('modal-ktolov').classList.contains('open')) saqlashKlientTolov();
+    else if(document.getElementById('modal-kop-edit').classList.contains('open')) kopEditSaqla();
     else if(document.getElementById('s-kirim').classList.contains('active')) kirimSaqlash();
   }
 });
@@ -1562,25 +1577,81 @@ function renderKlientHisobot() {
   cont.innerHTML = html;
 }
 
+var _kopKi=-1, _kopOi=-1;
+
 function klientHisobotTahrir(ki, oi) {
   var k = data.klientlar[ki];
   var op = k.tarix[oi];
   if (!op) return;
-  curKlientIdx = ki;
-  // Klient detail ga o'tib tahrirlash modalini ochamiz
-  // Klient tarix tabidagi kabi confirm bilan o'chirish
+  _kopKi = ki; _kopOi = oi;
   var tip = op.tip;
   var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-  var sana = op.sana;
-  if (!confirm(k.nom + ' - ' + label + ' (' + sana + ') operatsiyasini ochirmoqchimisiz?')) return;
-  // Ostatka qaytarish
+  document.getElementById('kop-edit-title').textContent = label + ' — ' + k.nom;
+  var body = '<div class="field"><label>Sana</label><input type="date" id="kop-sana" style="font-size:16px;" value="'+(op.sana?op.sana.split('.').reverse().join('-'):'')+'"></div>';
+  if (tip==='berish') {
+    body += '<div class="field"><label>Gramm</label><input type="number" id="kop-gramm" style="font-size:16px;" value="'+op.gramm+'"></div>';
+  } else if (tip==='vozvrat') {
+    body += '<div class="field"><label>Gramm</label><input type="number" id="kop-gramm" style="font-size:16px;" value="'+op.gramm+'"></div>';
+  } else {
+    body += '<div class="field"><label>Summa ($)</label><input type="number" id="kop-summa" style="font-size:16px;" value="'+(op.summa||0)+'"></div>';
+    body += '<div class="field"><label>Kurs ($/g)</label><input type="number" id="kop-kurs" style="font-size:16px;" value="'+(op.kurs||0)+'"></div>';
+  }
+  document.getElementById('kop-edit-body').innerHTML = body;
+  document.getElementById('kop-edit-log').style.display = 'none';
+  document.getElementById('modal-kop-edit').classList.add('open');
+}
+
+function kopEditSaqla() {
+  var k = data.klientlar[_kopKi];
+  var op = k.tarix[_kopOi];
+  if (!op) return;
+  var sanaEl = document.getElementById('kop-sana');
+  var newSana = sanaEl&&sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : op.sana;
+  var logText = op.sana + ' · ';
+  if (op.tip==='berish'||op.tip==='vozvrat') {
+    var oldG = op.gramm;
+    var newG = parseNum(document.getElementById('kop-gramm').value);
+    // Ostatka farqini tuzatish
+    var diff = newG - oldG;
+    if (op.tip==='berish') {
+      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka-diff); }); });
+    } else {
+      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka+diff); }); });
+    }
+    logText += fmtG(oldG)+'g → '+fmtG(newG)+'g';
+    op.gramm = newG;
+  } else {
+    var oldS = op.summa||0, oldK = op.kurs||0;
+    var newS = parseNum(document.getElementById('kop-summa').value);
+    var newK = parseNum(document.getElementById('kop-kurs').value);
+    var oldEq = op.ekvivalent||0;
+    var newEq = (newS>0&&newK>0)?roundG(newS/newK):0;
+    op.summa=newS; op.kurs=newK; op.ekvivalent=newEq;
+    logText += fmtD(oldS)+'$ → '+fmtD(newS)+'$';
+  }
+  op.sana = newSana;
+  save();
+  var logEl = document.getElementById('kop-edit-log');
+  logEl.textContent = logText + ' (tahrirlandi)';
+  logEl.style.display = 'block';
+  renderKlientHisobot();
+  renderHome();
+  closeModal('modal-kop-edit');
+}
+
+function kopEditOchir() {
+  var k = data.klientlar[_kopKi];
+  var op = k.tarix[_kopOi];
+  if (!op) return;
+  if (!confirm("Bu operatsiyani ochirmoqchimisiz?")) return;
   if (op.tip==='berish') {
     data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka+=op.gramm; }); });
   } else if (op.tip==='vozvrat') {
     data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka-=op.gramm; }); });
   }
-  k.tarix.splice(oi, 1);
+  k.tarix.splice(_kopOi, 1);
   save();
+  closeModal('modal-kop-edit');
   renderKlientHisobot();
   renderHome();
 }
