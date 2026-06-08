@@ -1526,10 +1526,7 @@ function renderKlientHisobot() {
     var ds=dayBal>=0?'+':'-';
 
     // Kun sarlavhasi
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px;">';
-    html+='<div style="font-size:12px;font-weight:600;color:var(--muted);">'+sana+'</div>';
-    html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+dc+';">'+ds+fmtG(Math.abs(dayBal))+'g</div>';
-    html+='</div>';
+    html+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;">'+sana+'</div>';
 
     // Har bir klient alohida karta
     Object.keys(klientlar).forEach(function(knom){
@@ -1549,10 +1546,9 @@ function renderKlientHisobot() {
 
       html+='<div class="hrow" style="margin-bottom:6px;">';
       // Klient nomi + bitta tahrirlash tugmasi
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;">';
-      html+='<div style="font-size:13px;font-weight:600;color:var(--text);flex:1;min-width:0;">'+knom+'</div>';
-      html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+kc+';white-space:nowrap;">'+ks+fmtG(Math.abs(kBal))+'g</div>';
-      if(klientKi>=0) html+='<button data-ki="'+klientKi+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;flex-shrink:0;">✏</button>';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
+      html+='<div style="font-size:13px;font-weight:600;color:var(--text);">'+knom+'</div>';
+      if(klientKi>=0) html+='<button data-ki="'+klientKi+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
       html+='</div>';
       // Operatsiyalar
       ops.forEach(function(op,i){
@@ -1571,6 +1567,9 @@ function renderKlientHisobot() {
         html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
         html+='</div>';
       });
+      html+='<div style="display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
+      html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+kc+';">'+ks+fmtG(Math.abs(kBal))+'g</div>';
+      html+='</div>';
       html+='</div>';
     });
     html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
