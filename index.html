@@ -1601,10 +1601,16 @@ function klientGunTahrir(ki, sana) {
     body += '</div>';
 
     if(tip==='berish'||tip==='vozvrat'){
+      // Zavod ostatkasini topamiz
+      var tOstatka = 0;
+      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) tOstatka=t.ostatka; }); });
+      // Berish uchun: hozirgi gramm ostatkaga qaytarilgan holat
+      var effOstatka = tip==='berish' ? tOstatka + op.gramm : tOstatka - op.gramm;
       body += '<div style="display:flex;align-items:center;gap:8px;">';
-      body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" value="'+op.gramm+'" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
+      body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" data-ostatka="'+effOstatka.toFixed(2)+'" value="'+op.gramm+'" oninput="kopGUpdate(this)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
       body += '<span style="font-size:13px;color:var(--muted);">g</span>';
       body += '</div>';
+      body += '<div id="kop-ost-'+oi+'" style="font-size:11px;color:var(--green);margin-top:3px;">ostatka: '+tOstatka.toFixed(2)+'g</div>';
     } else {
       body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
       body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SUMMA ($)</div><input type="number" id="kop-s-'+oi+'" data-oi="'+oi+'" data-tip="tolov" value="'+(op.summa||0)+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
@@ -1621,6 +1627,27 @@ function klientGunTahrir(ki, sana) {
   document.getElementById('kop-edit-body').innerHTML = body;
   document.getElementById('kop-edit-log').style.display = 'none';
   document.getElementById('modal-kop-edit').classList.add('open');
+}
+
+function kopGUpdate(el) {
+  var ostatka = parseFloat(el.dataset.ostatka) || 0;
+  var tip = el.dataset.tip;
+  var g = parseNum(el.value) || 0;
+  var oi = el.dataset.oi;
+  var ostEl = document.getElementById('kop-ost-' + oi);
+  if (tip === 'berish') {
+    var qolgan = ostatka - g;
+    if (g > ostatka) {
+      el.style.borderColor = 'var(--red)';
+      if (ostEl) ostEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ ' + Math.abs(qolgan).toFixed(2) + 'g yetmaydi!</span>';
+    } else if (g > 0) {
+      el.style.borderColor = 'var(--green)';
+      if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: ' + qolgan.toFixed(2) + 'g</span>';
+    } else {
+      el.style.borderColor = '';
+      if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: ' + ostatka.toFixed(2) + 'g</span>';
+    }
+  }
 }
 
 var _kopKi=-1, _kopOi=-1;
@@ -1653,6 +1680,22 @@ function kopEditSaqla() {
   var newSana = sanaEl&&sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : '';
   var oiListEl = document.getElementById('kop-oi-list');
   var oiList = oiListEl ? oiListEl.value.split(',').map(Number) : [];
+
+  // Avval tekshiruv
+  var hasErr = false;
+  oiList.forEach(function(oi){
+    var op = k.tarix[oi];
+    if(!op) return;
+    if(op.tip==='berish'){
+      var gEl = document.getElementById('kop-g-'+oi);
+      if(gEl){
+        var g = parseNum(gEl.value);
+        var ostatka = parseFloat(gEl.dataset.ostatka)||0;
+        if(g > ostatka + 0.001) hasErr = true;
+      }
+    }
+  });
+  if(hasErr){ alert('Zavodda yetarli tilla yoq! Ostatkadan oshib ketgan qiymatlarni tekshiring.'); return; }
 
   oiList.forEach(function(oi){
     var op = k.tarix[oi];
