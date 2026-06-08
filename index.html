@@ -1563,6 +1563,15 @@ function renderKlientHisobot() {
         html+='<div style="flex:1;">';
         html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
         if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
+        // Tahrir log
+        if(op.tahrir){
+          var tl=op.tahrir;
+          var logTxt=tl.vaqt+' · '+(op.zavod&&op.tur?op.zavod+' · '+op.tur:'');
+          if(tl.eski!==undefined) logTxt+=' · '+fmtG(tl.eski)+'g → '+fmtG(tl.yangi)+'g';
+          else if(tl.eskiS!==undefined) logTxt+=' · '+fmtD(tl.eskiS)+'$ → '+fmtD(tl.yangiS)+'$';
+          logTxt+=' [tahrirlandi]';
+          html+='<div style="font-size:10px;color:var(--muted);margin-top:3px;padding:2px 6px;background:var(--surf2);border-radius:5px;border-left:2px solid var(--gold);">'+logTxt+'</div>';
+        }
         html+='</div>';
         html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
         html+='</div>';
@@ -1726,6 +1735,34 @@ function kopEditSaqla() {
     if(newSana) op.sana = newSana;
   });
 
+  // Log vaqti
+  var now = new Date();
+  var nowStr = now.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\.\d{4}$/,function(m){return m.slice(0,3);});
+  nowStr += ' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  // Har bir op ga log yozamiz
+  oiList.forEach(function(oi){
+    var op = k.tarix[oi];
+    if(!op) return;
+    if(op.tip==='berish'||op.tip==='vozvrat'){
+      var gEl = document.getElementById('kop-g-'+oi);
+      if(gEl){
+        var oldG = op.gramm;
+        var newG = parseNum(gEl.value);
+        if(Math.abs(newG-oldG)>0.001){
+          op.tahrir = { eski: oldG, yangi: newG, vaqt: nowStr };
+        }
+      }
+    } else {
+      var sEl = document.getElementById('kop-s-'+oi);
+      if(sEl){
+        var oldS = op.summa||0;
+        var newS = parseNum(sEl.value);
+        if(Math.abs(newS-oldS)>0.01){
+          op.tahrir = { eskiS: oldS, yangiS: newS, vaqt: nowStr };
+        }
+      }
+    }
+  });
   save();
   renderKlientHisobot();
   renderHome();
