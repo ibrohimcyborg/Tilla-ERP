@@ -2852,7 +2852,7 @@ function zvCalc(ti, ostatka) {
   if (!el || !resEl || !valEl) return;
   var g = parseNum(el.value);
   if (g > 0) {
-    var qoladi = Math.max(0, ostatka - g);
+    var qoladi = Math.round((ostatka - g)*100)/100;
     valEl.textContent = fmtG(qoladi);
     resEl.style.color = qoladi < 0 ? 'var(--red)' : 'var(--green)';
     resEl.style.display = 'block';
@@ -2898,7 +2898,7 @@ function zvSaqlash() {
   z.turlar.forEach(function(t,ti) {
     var el = document.getElementById('zvg-'+ti);
     var g = el ? parseNum(el.value) : 0;
-    if (g > 0) { t.ostatka = Math.max(0, t.ostatka - g); t.tarix.push({tip:'vozvrat', sana:sana, gramm:g}); any = true; }
+    if (g > 0) { t.ostatka = Math.round((t.ostatka - g)*100)/100; t.tarix.push({tip:'vozvrat', sana:sana, gramm:g}); any = true; }
   });
   if (!any) { alert('Gramm kiriting!'); return; }
   save('Zavod vozvrat | '+z.nom+' | '+sana);
