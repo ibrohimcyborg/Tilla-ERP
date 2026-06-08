@@ -1340,8 +1340,9 @@ function editOchir() {
   var zi=_editZi,ti=_editTi,oi=_editOi;
   var t=data.zavodlar[zi].turlar[ti];
   var op=t.tarix[oi];
-  if(op.tip==='mol') t.ostatka=Math.max(0, t.ostatka-op.gramm);
-  else t.ostatka=t.ostatka+(op.jami||0);
+  if(op.tip==='mol') t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100;
+  else if(op.tip==='vozvrat') t.ostatka=Math.round((t.ostatka+op.gramm)*100)/100;
+  else t.ostatka=Math.round((t.ostatka+(op.jami||0))*100)/100;
   t.tarix.splice(oi,1);
   save('Ochirildi | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom);
   closeModal('modal-edit');
