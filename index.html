@@ -1119,7 +1119,7 @@ function kirimSaqlash() {
       any = true;
     } else if (g < 0) {
       // Minus — zavoddan chiqim (qarz)
-      t.ostatka = Math.max(0, t.ostatka + g);
+      t.ostatka = Math.round((t.ostatka + g)*100)/100;
       t.tarix.push({tip:'mol', sana:sana, gramm:g});
       any = true;
     }
