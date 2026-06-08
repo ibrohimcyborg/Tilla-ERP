@@ -2353,7 +2353,7 @@ function kTolovKlientChange(){
       +'<div style="display:flex;align-items:center;gap:10px;">'
       +'<div style="flex:1;">'
       +'<div style="font-size:12px;color:var(--muted);">'+b.zavod+' · '+b.tur+'</div>'
-      +'<div style="font-size:10px;color:var(--red);">qarz: −'+fmtG(qolganQ)+'g</div>'
+      +'<div class="ktv-qarz-lbl" style="font-size:10px;color:var(--red);">qarz: −'+fmtG(qolganQ)+'g</div>'
       +'</div>'
       +'<input type="number" id="kt-v-'+idx+'" data-zi="'+b.zi+'" data-ti="'+b.ti+'" data-qarz="'+qolganQ+'" placeholder="0g" oninput="ktVozvratUpdate(this,'+idx+')" style="width:80px;padding:7px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--surf);color:var(--gold);">'
       +'<span style="font-size:12px;color:var(--muted);">g</span>'
@@ -2433,6 +2433,18 @@ function kTolovCalc(){
         cEl.style.display='block';
       }
     }
+    // Vozvrat inputidagi data-qarz ni yangilaymiz (to'lovdan keyin qolgan qarz)
+    var vEl = document.getElementById('kt-v-'+idx);
+    if(vEl){
+      var qolganQarz = Math.max(0, b.qarz - eq);
+      vEl.dataset.qarz = qolganQarz.toFixed(2);
+      // Vozvrat qarz labelini yangilaymiz
+      var vParent = vEl.parentElement && vEl.parentElement.parentElement;
+      if(vParent){
+        var qarzDiv = vParent.querySelector('.ktv-qarz-lbl');
+        if(qarzDiv) qarzDiv.textContent = 'qarz: -'+fmtG(qolganQarz)+'g';
+      }
+    }
     totalV+=v;idx++;
   });
   var jEl=document.getElementById('kt-jami');
@@ -2451,15 +2463,16 @@ function saqlashKlientTolov(){
   var sanaEl=document.getElementById('kt-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   // Vozvrat qarzdan oshmasin
-  var vIdx2=0;
+  var vIdx2=0, vErr=false;
   Object.keys(window._kTolovBD||{}).forEach(function(key){
     var b=(window._kTolovBD||{})[key]; if(b.qarz<=0){vIdx2++;return;}
     var vEl=document.getElementById('kt-v-'+vIdx2);
     var v=parseNum((vEl||{}).value||0);
     var qarz=parseFloat((vEl||{}).dataset&&(vEl||{}).dataset.qarz||0)||0;
-    if(v>qarz+0.001){ alert('Vozvrat qarzdan oshib ketdi! Tekshiring.'); return; }
+    if(v>qarz+0.001) vErr=true;
     vIdx2++;
   });
+  if(vErr){ alert('Vozvrat qarzdan oshib ketdi! Tekshiring.'); return; }
   var bd=window._kTolovBD||{},idx=0,any=false;
   // Avval ortiqcha tolov tekshiruvi
   var hasErr=false;
