@@ -568,6 +568,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-handle"></div>
     <div class="modal-title" id="edit-title">Tahrirlash</div>
     <div id="edit-body"></div>
+    <div id="edit-log" style="font-size:11px;color:var(--muted);margin-top:8px;padding:6px 10px;background:var(--surf2);border-radius:8px;display:none;"></div>
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn" style="color:var(--red);border-color:var(--red);" onclick="editOchir()">🗑 Ochir</button>
       <button class="btn" onclick="closeModal('modal-edit')">Bekor</button>
@@ -1236,6 +1237,8 @@ function openEditModal(zi,ti,oi) {
     body+='<div class="field"><label>Lom kursi ($/g)</label><input type="number" id="e-lomk" style="font-size:16px;" value="'+(op.lomKurs||0)+'"></div>';
   }
   document.getElementById('edit-body').innerHTML=body;
+  document.getElementById('edit-log').style.display='none';
+  var el=document.getElementById('edit-log'); if(el) el.style.display='none';
   document.getElementById('modal-edit').classList.add('open');
 }
 function editSaqla() {
@@ -1262,8 +1265,15 @@ function editSaqla() {
     t.ostatka=Math.max(0, t.ostatka+op.jami-newJami);
     op.kimga=kimga;op.naqtSumma=nS;op.naqtKurs=nK;op.naqtGramm=nG;op.lomGramm=lG;op.lomKurs=lK;op.lomPul=lPul;op.lomGEq=lomGEq;op.jami=newJami;
   }
+  var oldSana=op.sana;
+  var logText = op.sana + ' · ';
+  if (isK) {
+    logText += fmtG(op.gramm)+'g → '+fmtG(parseNum(document.getElementById('e-gramm')?document.getElementById('e-gramm').value:op.gramm))+'g';
+  }
   op.sana=newSana;
   save('Tahrir | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom);
+  var logEl=document.getElementById('edit-log');
+  if(logEl){ logEl.textContent=logText+' (tahrirlandi)'; logEl.style.display='block'; }
   closeModal('modal-edit');
   renderHome();
   if(curHomeTab==='hisobot') renderHisobot();
@@ -1557,7 +1567,7 @@ function renderKlientHisobot() {
         // Klient indexi va op indexi
         var ki=-1, oi=-1;
         (data.klientlar||[]).forEach(function(k,kidx){
-          if(k.nom===knom){ ki=kidx; k.tarix.forEach(function(o,oidx){ if(o===op) oi=oidx; }); }
+          k.tarix.forEach(function(o,oidx){ if(o===op){ ki=kidx; oi=oidx; } });
         });
         html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
         html+='<div style="flex:1;">';
