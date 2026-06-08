@@ -2342,10 +2342,18 @@ function kTolovKlientChange(){
       +'</div>'
       +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">= <span style="color:var(--green);font-weight:600;" id="kt-eq-'+idx+'">0g</span> qarz kamayadi</div>'
       +'</div>';
-    vozvratHTML+='<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">'
-      +'<div style="flex:1;font-size:12px;color:var(--muted);">'+b.zavod+' · '+b.tur+'</div>'
-      +'<input type="number" id="kt-v-'+idx+'" data-zi="'+b.zi+'" data-ti="'+b.ti+'" placeholder="0g" oninput="kTolovCalc()" style="width:80px;padding:7px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--surf);color:var(--gold);">'
-      +'<span style="font-size:12px;color:var(--muted);">g</span></div>';
+    var qolganQ = Math.max(0, Math.round(b.qarz*100)/100);
+    vozvratHTML+='<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:6px;">'
+      +'<div style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="flex:1;">'
+      +'<div style="font-size:12px;color:var(--muted);">'+b.zavod+' · '+b.tur+'</div>'
+      +'<div style="font-size:10px;color:var(--red);">qarz: −'+fmtG(qolganQ)+'g</div>'
+      +'</div>'
+      +'<input type="number" id="kt-v-'+idx+'" data-zi="'+b.zi+'" data-ti="'+b.ti+'" data-qarz="'+qolganQ+'" placeholder="0g" oninput="ktVozvratUpdate(this,'+idx+')" style="width:80px;padding:7px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--surf);color:var(--gold);">'
+      +'<span style="font-size:12px;color:var(--muted);">g</span>'
+      +'</div>'
+      +'<div id="ktv-msg-'+idx+'" style="font-size:10px;margin-top:4px;display:none;"></div>'
+      +'</div>';
     idx++;
   });
   document.getElementById('kt-turlar-list').innerHTML=turlarHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
@@ -2359,6 +2367,23 @@ function toggleKtVozvrat(){
   var open=cont.style.display!=='none';
   cont.style.display=open?'none':'block';
   arr.style.transform=open?'':'rotate(90deg)';
+}
+
+function ktVozvratUpdate(el, idx) {
+  var qarz = parseFloat(el.dataset.qarz) || 0;
+  var g = parseNum(el.value) || 0;
+  var msgEl = document.getElementById('ktv-msg-' + idx);
+  if (g > qarz + 0.001) {
+    el.style.borderColor = 'var(--red)';
+    if (msgEl) { msgEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ '+fmtG(g - qarz)+'g ortiqcha! Faqat '+fmtG(qarz)+'g qarz bor</span>'; msgEl.style.display='block'; }
+  } else if (g > 0) {
+    el.style.borderColor = 'var(--green)';
+    if (msgEl) { msgEl.innerHTML = '<span style="color:var(--green);">qoladi: '+fmtG(qarz - g)+'g</span>'; msgEl.style.display='block'; }
+  } else {
+    el.style.borderColor = '';
+    if (msgEl) msgEl.style.display='none';
+  }
+  kTolovCalc();
 }
 
 function kTolovCalc(){
@@ -2419,6 +2444,16 @@ function saqlashKlientTolov(){
   var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kt-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  // Vozvrat qarzdan oshmasin
+  var vIdx2=0;
+  Object.keys(window._kTolovBD||{}).forEach(function(key){
+    var b=(window._kTolovBD||{})[key]; if(b.qarz<=0){vIdx2++;return;}
+    var vEl=document.getElementById('kt-v-'+vIdx2);
+    var v=parseNum((vEl||{}).value||0);
+    var qarz=parseFloat((vEl||{}).dataset&&(vEl||{}).dataset.qarz||0)||0;
+    if(v>qarz+0.001){ alert('Vozvrat qarzdan oshib ketdi! Tekshiring.'); return; }
+    vIdx2++;
+  });
   var bd=window._kTolovBD||{},idx=0,any=false;
   // Avval ortiqcha tolov tekshiruvi
   var hasErr=false;
