@@ -1205,6 +1205,12 @@ function openTurModal() { document.getElementById('tur-modal-title').textContent
 function saqlashZavod() { var nom=document.getElementById('zavod-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar.push({nom:nom,turlar:[]}); save(); closeModal('modal-zavod'); renderHome(); }
 function saqlashTur() { var nom=document.getElementById('tur-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar[curZ].turlar.push({nom:nom,ostatka:0,tarix:[]}); save(); closeModal('modal-tur'); renderZavod(); }
 
+document.addEventListener('wheel', function(e){
+  if(document.activeElement && document.activeElement.type==='number'){
+    e.preventDefault();
+  }
+}, {passive:false});
+
 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target===el) el.classList.remove('open'); }); });
 document.addEventListener('keydown', function(e){
   if(e.key==='Enter'){
