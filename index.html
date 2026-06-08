@@ -1266,14 +1266,8 @@ function editSaqla() {
     op.kimga=kimga;op.naqtSumma=nS;op.naqtKurs=nK;op.naqtGramm=nG;op.lomGramm=lG;op.lomKurs=lK;op.lomPul=lPul;op.lomGEq=lomGEq;op.jami=newJami;
   }
   var oldSana=op.sana;
-  var logText = op.sana + ' · ';
-  if (isK) {
-    logText += fmtG(op.gramm)+'g → '+fmtG(parseNum(document.getElementById('e-gramm')?document.getElementById('e-gramm').value:op.gramm))+'g';
-  }
   op.sana=newSana;
   save('Tahrir | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom);
-  var logEl=document.getElementById('edit-log');
-  if(logEl){ logEl.textContent=logText+' (tahrirlandi)'; logEl.style.display='block'; }
   closeModal('modal-edit');
   renderHome();
   if(curHomeTab==='hisobot') renderHisobot();
@@ -1549,11 +1543,18 @@ function renderKlientHisobot() {
       var kc=kBal>=0?'var(--green)':'var(--red)';
       var ks=kBal>=0?'+':'-';
 
+      // Klient ki topamiz
+      var klientKi=-1;
+      (data.klientlar||[]).forEach(function(k,kidx){ if(k.nom===knom) klientKi=kidx; });
+
       html+='<div class="hrow" style="margin-bottom:6px;">';
-      // Klient nomi
+      // Klient nomi + bitta tahrirlash tugmasi
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
       html+='<div style="font-size:13px;font-weight:600;color:var(--text);">'+knom+'</div>';
+      html+='<div style="display:flex;align-items:center;gap:6px;">';
       html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+kc+';">'+ks+fmtG(Math.abs(kBal))+'g</div>';
+      if(klientKi>=0) html+='<button data-ki="'+klientKi+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:26px;height:26px;font-size:11px;cursor:pointer;">✏</button>';
+      html+='</div>';
       html+='</div>';
       // Operatsiyalar
       ops.forEach(function(op,i){
@@ -1564,20 +1565,12 @@ function renderKlientHisobot() {
         var val=tip==='berish'?('-'+fmtG(op.gramm)+'g'):tip==='vozvrat'?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
         var sub2=tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
-        // Klient indexi va op indexi
-        var ki=-1, oi=-1;
-        (data.klientlar||[]).forEach(function(k,kidx){
-          k.tarix.forEach(function(o,oidx){ if(o===op){ ki=kidx; oi=oidx; } });
-        });
         html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
         html+='<div style="flex:1;">';
         html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
         if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
         html+='</div>';
-        html+='<div style="display:flex;align-items:center;gap:5px;">';
         html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
-        if(ki>=0&&oi>=0) html+='<button onclick="klientHisobotTahrir('+ki+','+oi+')" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:26px;height:26px;font-size:11px;cursor:pointer;">✏</button>';
-        html+='</div>';
         html+='</div>';
       });
       html+='</div>';
@@ -1585,6 +1578,17 @@ function renderKlientHisobot() {
     html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
   });
   cont.innerHTML = html;
+}
+
+function klientGunTahrir(ki, sana) {
+  var k = data.klientlar[ki];
+  // Shu sanagi operatsiyalarni topamiz
+  var gunOps = [];
+  k.tarix.forEach(function(op, oi){ if(op.sana===sana) gunOps.push({op:op, oi:oi}); });
+  if(!gunOps.length) return;
+  // Birinchi operatsiyani tahrirlash uchun ochamiz
+  var first = gunOps[0];
+  klientHisobotTahrir(ki, first.oi);
 }
 
 var _kopKi=-1, _kopOi=-1;
