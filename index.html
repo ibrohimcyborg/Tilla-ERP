@@ -2952,9 +2952,13 @@ function initPC() {
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
   mz.style.display = 'flex';
-  mk.style.display = 'flex';
+  if (getRol() === 'zavod') {
+    mk.style.display = 'none';
+  } else {
+    mk.style.display = 'flex';
+    renderKlientlar();
+  }
   renderHome();
-  renderKlientlar();
 }
 
 function openKlientPDFDavr() {
