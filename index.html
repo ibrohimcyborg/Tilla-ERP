@@ -1056,7 +1056,7 @@ function renderZavodHisobot() {
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
-      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'#5ab4e8':'var(--red)');
+      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : 'var(--red)';
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleZH(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
@@ -1137,10 +1137,21 @@ function kirimSaqlash() {
 }
 
 // ── CHIQIM ────────────────────────────────────────────────────────────────────
-// Kimgalar ro'yxati
-var kimgalar = JSON.parse(localStorage.getItem('tilla-kimgalar') || '[]');
+// Kimgalar ro'yxati — zavod bo'yicha
+var _kimgaZavod = ''; // hozirgi zavod nomi
+var kimgalar = [];
 
-function kimgaSaqla() { localStorage.setItem('tilla-kimgalar', JSON.stringify(kimgalar)); }
+function kimgaZavodSet(znom) {
+  _kimgaZavod = znom;
+  var all = JSON.parse(localStorage.getItem('tilla-kimgalar-v2') || '{}');
+  kimgalar = all[znom] || [];
+}
+
+function kimgaSaqla() {
+  var all = JSON.parse(localStorage.getItem('tilla-kimgalar-v2') || '{}');
+  all[_kimgaZavod] = kimgalar;
+  localStorage.setItem('tilla-kimgalar-v2', JSON.stringify(all));
+}
 
 function kimgaRender() {
   var cont = document.getElementById('c-kimga-list');
@@ -1195,6 +1206,8 @@ function cZavodChange() {
   var card = document.getElementById('c-turlar-card');
   var kcard = document.getElementById('c-kimga-card');
   if (isNaN(zi)||!data.zavodlar[zi]||!data.zavodlar[zi].turlar.length) { card.style.display='none'; kcard.style.display='none'; return; }
+  var znom = data.zavodlar[zi].nom;
+  kimgaZavodSet(znom);
   kcard.style.display = 'block'; card.style.display = 'block'; kimgaRender();
   var out = '';
   data.zavodlar[zi].turlar.forEach(function(t,ti) {
