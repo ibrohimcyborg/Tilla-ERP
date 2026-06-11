@@ -929,7 +929,7 @@ function renderZavod() {
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
     });
   });
-  klientda = Math.round(klientda*100)/100;
+  klientda = Math.max(0, Math.round(klientda*100)/100);
   var zG = Math.round((bizda+klientda)*100)/100;
   var g='<span>g</span>';
   var sg='<span style="font-size:11px;color:var(--muted);margin-left:2px;">g</span>';
@@ -1958,10 +1958,13 @@ function openKlientDetail(ki) {
   else st.style.display='none';
   var breakdown={};
   k.tarix.forEach(function(op){
-    if(op.tip==='berish'||op.tip==='vozvrat'){
-      var key=op.zavod+'|'+op.tur;
+    if(op.tip==='berish'||op.tip==='vozvrat'||op.tip==='tolov'){
+      var key=(op.zavod||'')+'|'+(op.tur||'');
+      if(!op.zavod) return;
       if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      breakdown[key].qarz+=(op.tip==='berish'?op.gramm:-op.gramm);
+      if(op.tip==='berish') breakdown[key].qarz+=op.gramm;
+      else if(op.tip==='vozvrat') breakdown[key].qarz-=op.gramm;
+      else if(op.tip==='tolov') breakdown[key].qarz-=(op.ekvivalent||0);
     }
   });
   var byZavod={};
