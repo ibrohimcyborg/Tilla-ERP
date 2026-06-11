@@ -2895,6 +2895,8 @@ function klientQarzChekPDF(ki) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 function klientQarzChekPrint(ki) {
+  var W=48;
+  function centerLine(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
   var d=_qarzTarkib(ki);
   var cnt=parseInt((document.getElementById('chek-cnt-'+ki)||{textContent:'1'}).textContent)||1;
   var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -2902,7 +2904,7 @@ function klientQarzChekPrint(ki) {
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
   var LINE='------------------------------------------------\n';
   var SEP='----------------\n';
-  var chekText='          TILLA HISOB\n'+'        - QARZ CHEKI -\n'+LINE+'Klient: '+d.k.nom+'\n'+'Sana:   '+today2+'\n'+'Soat:   '+soat+'\n'+LINE;
+  var chekText=centerLine('TILLA HISOB')+'\n'+centerLine('- QARZ CHEKI -')+'\n'+LINE+'Klient: '+d.k.nom+'\n'+'Sana:   '+today2+'\n'+'Soat:   '+soat+'\n'+LINE;
   var curZavod='';
   d.qarz_tarkib.forEach(function(b){
     if(b.zavod!==curZavod){if(curZavod!=='') chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+'\n';}
