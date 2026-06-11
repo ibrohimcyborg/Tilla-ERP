@@ -2904,7 +2904,10 @@ function klientQarzChekPrint(ki) {
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
   var LINE='--------------------------------\n';
   var SEP='--------\n';
-  var chekText=centerLine('TILLA HISOB')+'\n'+centerLine('- QARZ CHEKI -')+'\n'+LINE+'Klient: '+d.k.nom+'\n'+'Sana:   '+today2+'\n'+'Soat:   '+soat+'\n'+LINE;
+  var chekText=centerLine('⬡ TILLA HISOB')+'\n';
+  chekText+=today2+' · '+soat+'\n';
+  chekText+=d.k.nom+'\n';
+  chekText+=LINE;
   var curZavod='';
   d.qarz_tarkib.forEach(function(b){
     if(b.zavod!==curZavod){if(curZavod!=='') chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+'\n';}
@@ -2912,7 +2915,7 @@ function klientQarzChekPrint(ki) {
     var spaces=30-tur.length-gramm.length; if(spaces<1) spaces=1;
     chekText+='  '+tur+Array(spaces).join(' ')+gramm+'\n';
   });
-  chekText+=LINE+'JAMI: '+fmtG(d.jamiQarz)+' g\n';
+  chekText+=LINE+'Jami qarz: '+fmtG(d.jamiQarz)+' g\n';
   for(var i=0;i<cnt;i++){
     (function(idx){setTimeout(function(){
       fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:chekText})}).catch(function(){});
