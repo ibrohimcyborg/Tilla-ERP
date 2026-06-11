@@ -2707,20 +2707,26 @@ function klientQarzChek(ki) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 
   // Printer chek
-  var chekText = '================================\n'
-    + '       TILLA HISOB\n'
-    + '       QARZ CHEKI\n'
-    + '================================\n'
+  var chekText = '     TILLA HISOB\n'
+    + '   - QARZ CHEKI -\n'
+    + '------------------------\n'
     + 'Klient: ' + k.nom + '\n'
     + 'Sana:   ' + today2 + '\n'
-    + '--------------------------------\n';
+    + '========================\n';
+  var curZavod = '';
   qarz_tarkib.forEach(function(b){
-    chekText += b.zavod + ' - ' + b.tur + '\n';
-    chekText += '  Qarz: -' + fmtG(b.qarz) + ' g\n';
+    if(b.zavod !== curZavod){
+      curZavod = b.zavod;
+      chekText += b.zavod + ':\n';
+    }
+    var tur = b.tur;
+    var gramm = '-' + fmtG(b.qarz) + ' g';
+    var spaces = 24 - tur.length - gramm.length;
+    if(spaces < 1) spaces = 1;
+    chekText += '  ' + tur + Array(spaces).join(' ') + gramm + '\n';
   });
-  chekText += '--------------------------------\n'
-    + 'JAMI QARZ: -' + fmtG(jamiQarz) + ' g\n'
-    + '================================\n';
+  chekText += '========================\n'
+    + 'JAMI: -' + fmtG(jamiQarz) + ' g\n';
   fetch('http://localhost:5000/print',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
