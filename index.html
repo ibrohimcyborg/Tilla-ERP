@@ -1989,7 +1989,15 @@ function openKlientDetail(ki) {
   });
   if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
 
-  bHTML+='<button onclick="klientQarzChek('+ki+')" style="width:100%;margin-top:4px;padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">⎙ Qarz cheki PDF</button>';
+  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;">'
+    +'<button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button>'
+    +'<button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button>'
+    +'<div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;">'
+    +'<button onclick="chekCntChange('+ki+',-1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">&#8722;</button>'
+    +'<div id="chek-cnt-'+ki+'" style="padding:0 10px;font-size:13px;font-weight:600;color:var(--text);background:var(--surf);">1</div>'
+    +'<button onclick="chekCntChange('+ki+',1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">+</button>'
+    +'</div>'
+    +'</div>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
@@ -2678,66 +2686,59 @@ document.addEventListener('click', function(e) {
   if (tahrir) { e.stopPropagation(); klientTarixTahrir(tahrir); }
 });
 
-function klientQarzChek(ki) {
+function _qarzTarkib(ki) {
   var k=data.klientlar[ki];
-  // Qarz tarkibini hisoblash
   var qbd={};
   k.tarix.forEach(function(op){
     if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'||'+op.tur;
+    var key=op.zavod+"||"+op.tur;
     if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
-    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
-    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
+    if(op.tip==="berish") qbd[key].qarz+=op.gramm;
+    else if(op.tip==="vozvrat") qbd[key].qarz-=op.gramm;
+    else if(op.tip==="tolov") qbd[key].qarz-=(op.ekvivalent||0);
   });
   var qarz_tarkib=[];
   Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
-  var jamiQarz=klientJamiQarz(k);
-  var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
-  var payload={
-    tip:'klient_qarz_chek',
-    klient_nom:k.nom,
-    sana:today2,
-    jami_qarz:jamiQarz,
-    qarz_tarkib:qarz_tarkib
-  };
-  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
-  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
-  .catch(function(e){alert('PDF xato: '+e.message);});
-
-  // Printer chek
-  var nowT = new Date();
-  var soat = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
-  var LINE = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  var SEP  = '\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  var chekText = '     TILLA HISOB\n'
-    + '   - QARZ CHEKI -\n'
-    + LINE
-    + 'Klient: ' + k.nom + '\n'
-    + 'Sana:   ' + today2 + '\n'
-    + 'Soat:   ' + soat + '\n'
-    + LINE;
-  var curZavod = '';
-  qarz_tarkib.forEach(function(b){
-    if(b.zavod !== curZavod){
-      if(curZavod !== '') chekText += SEP;
-      curZavod = b.zavod;
-      chekText += b.zavod + '\n';
-    }
-    var tur = b.tur;
-    var gramm = '-' + fmtG(b.qarz) + ' g';
-    var spaces = 24 - tur.length - gramm.length;
-    if(spaces < 1) spaces = 1;
-    chekText += '  ' + tur + Array(spaces).join(' ') + gramm + '\n';
-  });
-  chekText += LINE + 'JAMI: -' + fmtG(jamiQarz) + ' g\n';
-  fetch('http://localhost:5000/print',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:chekText})
-  }).catch(function(){});
+  return {k:k, qarz_tarkib:qarz_tarkib, jamiQarz:klientJamiQarz(k)};
 }
+function chekCntChange(ki, delta) {
+  var el=document.getElementById("chek-cnt-"+ki);
+  if(!el) return;
+  el.textContent=Math.max(1,parseInt(el.textContent)+delta);
+}
+function klientQarzChekPDF(ki) {
+  var d=_qarzTarkib(ki);
+  var today2=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
+  var payload={tip:"klient_qarz_chek",klient_nom:d.k.nom,sana:today2,jami_qarz:d.jamiQarz,qarz_tarkib:d.qarz_tarkib};
+  fetch("/api/pdf.py",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok) throw new Error("Xato");return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,"_blank");setTimeout(function(){URL.revokeObjectURL(url);},15000);})
+  .catch(function(e){alert("PDF xato: "+e.message);});
+}
+function klientQarzChekPrint(ki) {
+  var d=_qarzTarkib(ki);
+  var cnt=parseInt((document.getElementById("chek-cnt-"+ki)||{textContent:"1"}).textContent)||1;
+  var today2=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
+  var nowT=new Date();
+  var soat=String(nowT.getHours()).padStart(2,"0")+":"+String(nowT.getMinutes()).padStart(2,"0");
+  var LINE="------------------------\n";
+  var SEP="------\n";
+  var chekText="     TILLA HISOB\n"+"   - QARZ CHEKI -\n"+LINE+"Klient: "+d.k.nom+"\n"+"Sana:   "+today2+"\n"+"Soat:   "+soat+"\n"+LINE;
+  var curZavod="";
+  d.qarz_tarkib.forEach(function(b){
+    if(b.zavod!==curZavod){if(curZavod!=="") chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+":\n";}
+    var tur=b.tur; var gramm="-"+fmtG(b.qarz)+" g";
+    var spaces=24-tur.length-gramm.length; if(spaces<1) spaces=1;
+    chekText+="  "+tur+Array(spaces).join(" ")+gramm+"\n";
+  });
+  chekText+=LINE+"JAMI: -"+fmtG(d.jamiQarz)+" g\n";
+  for(var i=0;i<cnt;i++){
+    (function(idx){setTimeout(function(){
+      fetch("http://localhost:5000/print",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chekText})}).catch(function(){});
+    },idx*1500);})(i);
+  }
+}
+function klientQarzChek(ki) { klientQarzChekPDF(ki); }
 
 function klientChekBtn(el) {
   var ki=parseInt(el.dataset.ki);
