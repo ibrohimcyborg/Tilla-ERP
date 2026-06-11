@@ -22,7 +22,16 @@ def send_to_printer(data: bytes):
         win32print.ClosePrinter(hPrinter)
 
 def safe(text):
-    return text.encode('ascii', errors='replace').decode('ascii')
+    # u2500 = ─ (box drawing) — cp437 da bor
+    result = []
+    for ch in text:
+        if ord(ch) < 128:
+            result.append(ch)
+        elif ch == '\u2500':
+            result.append('\xc4')  # cp437 da to'g'ri chiziq
+        else:
+            result.append('?')
+    return ''.join(result)
 
 @app.route('/print', methods=['POST'])
 def print_receipt():
@@ -34,12 +43,13 @@ def print_receipt():
         GS  = b'\x1d'
 
         cmd = bytearray()
-        cmd += ESC + b'@'        # reset
-        cmd += ESC + b'!\x00'   # normal font
-        cmd += ESC + b'a\x00'   # left align
+        cmd += ESC + b'@'       # reset
+        cmd += ESC + b'!\x00'  # normal font
+        cmd += ESC + b'a\x00'  # left align
 
         for line in text.split('\n'):
-            cmd += safe(line).encode('ascii', errors='replace') + b'\n'
+            encoded = safe(line).encode('cp437', errors='replace') + b'\n'
+            cmd += encoded
             time.sleep(0.01)
 
         cmd += b'\n\n\n'
