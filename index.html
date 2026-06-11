@@ -929,7 +929,7 @@ function renderZavod() {
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
     });
   });
-  klientda = Math.max(0, Math.round(klientda*100)/100);
+  klientda = Math.round(klientda*100)/100;
   var zG = Math.round((bizda+klientda)*100)/100;
   var g='<span>g</span>';
   var sg='<span style="font-size:11px;color:var(--muted);margin-left:2px;">g</span>';
@@ -1038,14 +1038,22 @@ function ochirTur(ti) {
 function zavodNomTahrir() {
   var z = data.zavodlar[curZ];
   if (!z) return;
-  var yangi = prompt("Zavod nomini o'zgartiring:", z.nom);
+  var eskiNom = z.nom;
+  var yangi = prompt("Zavod nomini o'zgartiring:", eskiNom);
   if (yangi === null) return;
   yangi = yangi.trim();
   if (!yangi) { alert("Nom bo'sh bo'lishi mumkin emas!"); return; }
   z.nom = yangi;
+  // Klient tarixidagi zavod nomini ham yangilash
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.zavod === eskiNom) op.zavod = yangi;
+    });
+  });
   save();
   document.getElementById('zavod-title').textContent = yangi;
   renderHome();
+  renderKlientlar();
 }
 
 function ochirZavod() {
@@ -2721,14 +2729,14 @@ function klientQarzChekPrint(ki) {
   var today2=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
   var nowT=new Date();
   var soat=String(nowT.getHours()).padStart(2,"0")+":"+String(nowT.getMinutes()).padStart(2,"0");
-  var LINE="--------------------------------\n";
+  var LINE="--------------------------------------\n";
   var SEP="--------\n";
-  var chekText="     TILLA HISOB\n"+"   - QARZ CHEKI -\n"+LINE+"Klient: "+d.k.nom+"\n"+"Sana:   "+today2+"\n"+"Soat:   "+soat+"\n"+LINE;
+  var chekText="       TILLA HISOB\n"+"     - QARZ CHEKI -\n"+LINE+"Klient: "+d.k.nom+"\n"+"Sana:   "+today2+"\n"+"Soat:   "+soat+"\n"+LINE;
   var curZavod="";
   d.qarz_tarkib.forEach(function(b){
     if(b.zavod!==curZavod){if(curZavod!=="") chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+":\n";}
     var tur=b.tur; var gramm="-"+fmtG(b.qarz)+" g";
-    var spaces=32-tur.length-gramm.length; if(spaces<1) spaces=1;
+    var spaces=38-tur.length-gramm.length; if(spaces<1) spaces=1;
     chekText+="  "+tur+Array(spaces).join(" ")+gramm+"\n";
   });
   chekText+=LINE+"JAMI: -"+fmtG(d.jamiQarz)+" g\n";
