@@ -1946,7 +1946,7 @@ function openKlientDetail(ki) {
   document.getElementById('kd-name').textContent=k.nom;
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
-  qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
+  qEl.textContent=Math.abs(qarz).toFixed(2)+' g';
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
