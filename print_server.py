@@ -1,19 +1,28 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import socket
+import win32print
+import time
 
 app = Flask(__name__)
 CORS(app)
 
-PRINTER_IP = "192.168.123.100"
-PRINTER_PORT = 9100
+def get_printer_name():
+    return win32print.GetDefaultPrinter()
 
 def send_to_printer(data: bytes):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(5)
-    s.connect((PRINTER_IP, PRINTER_PORT))
-    s.send(data)
-    s.close()
+    printer_name = get_printer_name()
+    hPrinter = win32print.OpenPrinter(printer_name)
+    try:
+        win32print.StartDocPrinter(hPrinter, 1, ("Receipt", None, "RAW"))
+        win32print.StartPagePrinter(hPrinter)
+        win32print.WritePrinter(hPrinter, data)
+        win32print.EndPagePrinter(hPrinter)
+        win32print.EndDocPrinter(hPrinter)
+    finally:
+        win32print.ClosePrinter(hPrinter)
+
+def safe(text):
+    return text.encode('ascii', errors='replace').decode('ascii')
 
 @app.route('/print', methods=['POST'])
 def print_receipt():
@@ -22,27 +31,33 @@ def print_receipt():
         text = body.get('text', '')
 
         ESC = b'\x1b'
-        GS = b'\x1d'
+        GS  = b'\x1d'
 
-        commands = bytearray()
-        commands += ESC + b'@'           # printer reset
-        commands += ESC + b'a\x01'      # center align
-        commands += ESC + b'!\x30'      # bold + double size
-        commands += "TILLA HISOB\n".encode('utf-8')
-        commands += ESC + b'!\x00'      # normal
-        commands += b'-' * 32 + b'\n'
-        commands += text.encode('utf-8')
-        commands += b'\n\n\n'
-        commands += GS + b'V\x41\x03'  # cut paper
+        cmd = bytearray()
+        cmd += ESC + b'@'        # reset
+        cmd += ESC + b'!\x00'   # normal font
+        cmd += ESC + b'a\x00'   # left align
 
-        send_to_printer(bytes(commands))
+        for line in text.split('\n'):
+            cmd += safe(line).encode('ascii', errors='replace') + b'\n'
+            time.sleep(0.01)
+
+        cmd += b'\n\n\n'
+        cmd += GS + b'V\x41\x03'  # cut
+
+        send_to_printer(bytes(cmd))
         return jsonify({"status": "ok"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/printers', methods=['GET'])
+def list_printers():
+    printers = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS)
+    return jsonify({"printers": [p[2] for p in printers], "default": win32print.GetDefaultPrinter()})
+
 @app.route('/ping', methods=['GET'])
 def ping():
-    return jsonify({"status": "ok", "printer": PRINTER_IP})
+    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
     print("Tilla ERP Print Server ishga tushdi!")
