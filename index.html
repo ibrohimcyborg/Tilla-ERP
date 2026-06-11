@@ -257,9 +257,10 @@ body.rol-zavod #main-tab-klient { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" style="width:auto;padding:0 10px;font-size:12px;font-weight:600;gap:4px;display:flex;align-items:center;">☀ Light</button>
-    <button class="theme-btn" onclick="openResetModal()" style="font-size:13px;">⚙</button>
-    <button class="theme-btn" onclick="doLogout()" style="font-size:13px;" title="Chiqish">⏻</button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
+    <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
+    <button class="theme-btn" onclick="openResetModal()" title="Sozlamalar">⚙</button>
+    <button class="theme-btn" onclick="doLogout()" title="Chiqish">⏻</button>
   </div>
 </div>
 <div class="main-tabs">
@@ -613,9 +614,37 @@ body.rol-zavod #main-tab-klient { display: none !important; }
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Sozlamalar</div>
-    <button class="davr-btn" onclick="cacheOchir()">🗑 Kesh tozalash</button>
-    <button class="davr-btn" onclick="resetTasdiqlash()" style="color:var(--red);border-color:var(--red);">⚠ Barcha malumotni ochirish</button>
+    <div id="reset-parol-blok" style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="reset-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+        <button onclick="resetParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+      </div>
+      <div id="reset-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
+    </div>
+    <div id="reset-tugmalar" style="display:none;">
+      <button class="davr-btn" onclick="cacheOchir()">Kesh tozalash</button>
+      <button class="davr-btn" onclick="resetTasdiqlash()" style="color:var(--red);border-color:var(--red);">Barcha malumotni ochirish</button>
+    </div>
     <button class="davr-btn" onclick="closeModal('modal-reset')" style="color:var(--muted);">Bekor</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-snapshot">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Vaqt mashinasi</div>
+    <div id="snapshot-parol-blok" style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="snap-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+        <button onclick="snapParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+      </div>
+      <div id="snap-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
+    </div>
+    <div id="snapshot-kontent" style="display:none;">
+      <div id="snapshot-list"></div>
+    </div>
   </div>
 </div>
 
@@ -750,6 +779,7 @@ if (!data.zavodlar) data.zavodlar = [];
 
 function save(logText) {
   localStorage.setItem('tilla-v2', JSON.stringify(data));
+  if(logText) snapSaqla(logText);
 }
 
 
@@ -1038,22 +1068,14 @@ function ochirTur(ti) {
 function zavodNomTahrir() {
   var z = data.zavodlar[curZ];
   if (!z) return;
-  var eskiNom = z.nom;
-  var yangi = prompt("Zavod nomini o'zgartiring:", eskiNom);
+  var yangi = prompt("Zavod nomini o'zgartiring:", z.nom);
   if (yangi === null) return;
   yangi = yangi.trim();
   if (!yangi) { alert("Nom bo'sh bo'lishi mumkin emas!"); return; }
   z.nom = yangi;
-  // Klient tarixidagi zavod nomini ham yangilash
-  (data.klientlar||[]).forEach(function(k){
-    k.tarix.forEach(function(op){
-      if(op.zavod === eskiNom) op.zavod = yangi;
-    });
-  });
   save();
   document.getElementById('zavod-title').textContent = yangi;
   renderHome();
-  renderKlientlar();
 }
 
 function ochirZavod() {
@@ -1327,6 +1349,8 @@ document.addEventListener('keydown', function(e){
     else if(document.getElementById('modal-kvozvrat').classList.contains('open')) saqlashKlientVozvrat();
     else if(document.getElementById('modal-ktolov').classList.contains('open')) saqlashKlientTolov();
     else if(document.getElementById('modal-kop-edit').classList.contains('open')) kopEditSaqla();
+    else if(document.getElementById('modal-snapshot').classList.contains('open')&&document.getElementById('snapshot-parol-blok').style.display!=='none') snapParolTekshir();
+    else if(document.getElementById('modal-reset').classList.contains('open')&&document.getElementById('reset-parol-blok').style.display!=='none') resetParolTekshir();
     else if(document.getElementById('s-kirim').classList.contains('active')) kirimSaqlash();
   }
 });
@@ -1400,7 +1424,155 @@ function editOchir() {
 }
 
 // ── RESET ─────────────────────────────────────────────────────────────────────
-function openResetModal() { document.getElementById('modal-reset').classList.add('open'); }
+function openResetModal() {
+  document.getElementById('modal-reset').classList.add('open');
+  document.getElementById('reset-parol').value='';
+  document.getElementById('reset-parol-err').textContent='';
+  document.getElementById('reset-tugmalar').style.display='none';
+  document.getElementById('reset-parol-blok').style.display='block';
+}
+function resetParolTekshir() {
+  var p = document.getElementById('reset-parol').value;
+  if(p === 'tilla7777') {
+    document.getElementById('reset-parol-blok').style.display='none';
+    document.getElementById('reset-tugmalar').style.display='block';
+    document.getElementById('reset-parol-err').textContent='';
+  } else {
+    document.getElementById('reset-parol-err').textContent='Parol xato!';
+  }
+}
+
+// ── SNAPSHOT / VAQT MASHINASI ────────────────────────────────────────────────
+var _snapDB = null;
+
+function snapDBOpen(cb) {
+  if(_snapDB) { cb(_snapDB); return; }
+  var req = indexedDB.open('tilla-snapshots', 1);
+  req.onupgradeneeded = function(e) {
+    var db = e.target.result;
+    if(!db.objectStoreNames.contains('snaps')) {
+      var store = db.createObjectStore('snaps', {keyPath:'id', autoIncrement:true});
+      store.createIndex('ts', 'ts', {unique:false});
+    }
+  };
+  req.onsuccess = function(e) { _snapDB = e.target.result; cb(_snapDB); };
+  req.onerror = function() { console.error('IndexedDB ochilmadi'); };
+}
+
+function snapSaqla(tavsif) {
+  snapDBOpen(function(db) {
+    var snap = {
+      ts: Date.now(),
+      tavsif: tavsif || 'Operatsiya',
+      data: JSON.stringify(data)
+    };
+    var tx = db.transaction('snaps', 'readwrite');
+    tx.objectStore('snaps').add(snap);
+  });
+}
+
+function openSnapshotModal() {
+  document.getElementById('modal-snapshot').classList.add('open');
+  document.getElementById('snap-parol').value='';
+  document.getElementById('snap-parol-err').textContent='';
+  document.getElementById('snapshot-kontent').style.display='none';
+  document.getElementById('snapshot-parol-blok').style.display='block';
+}
+
+function snapParolTekshir() {
+  var p = document.getElementById('snap-parol').value;
+  if(p === 'tilla7777') {
+    document.getElementById('snapshot-parol-blok').style.display='none';
+    document.getElementById('snapshot-kontent').style.display='block';
+    document.getElementById('snap-parol-err').textContent='';
+    snapRoHatRender();
+  } else {
+    document.getElementById('snap-parol-err').textContent='Parol xato!';
+  }
+}
+
+function snapRoHatRender() {
+  var list = document.getElementById('snapshot-list');
+  list.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Yuklanmoqda...</div>';
+
+  // Avval hozirgi holatni ko'rsatamiz
+  var now = new Date();
+  var nowStr = now.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+  snapDBOpen(function(db) {
+    var tx = db.transaction('snaps', 'readonly');
+    var req = tx.objectStore('snaps').index('ts').getAll();
+    req.onsuccess = function(e) {
+      var snaps = e.target.result.reverse();
+      var html = '';
+
+      // Hozirgi holat — birinchi qatorda
+      html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:#0f2a1a;border:1px solid #1e4a2a;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html += '<div><div style="font-size:13px;font-weight:600;color:var(--green);">Hozirgi holat</div>';
+      html += '<div style="font-size:11px;color:var(--muted);">'+nowStr+'</div></div>';
+      html += '<div style="font-size:11px;color:var(--green);padding:3px 10px;border-radius:6px;border:1px solid #1e4a2a;">Joriy</div>';
+      html += '</div></div>';
+
+      if(!snaps.length) {
+        html += '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px;">Hali snapshot yoq</div>';
+      } else {
+        snaps.forEach(function(s) {
+          var d = new Date(s.ts);
+          var dStr = d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+          html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:var(--surf2);border:1px solid var(--border);">';
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+          html += '<div style="flex:1;min-width:0;"><div style="font-size:13px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+s.tavsif+'</div>';
+          html += '<div style="font-size:11px;color:var(--muted);">'+dStr+'</div></div>';
+          html += '<div style="display:flex;gap:6px;margin-left:8px;">';
+          html += '<button onclick="snapQaytarish('+s.id+')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:12px;cursor:pointer;">Qaytarish</button>';
+          html += '<button onclick="snapOchir('+s.id+')" style="padding:5px 8px;border-radius:8px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:12px;cursor:pointer;">&#128465;</button>';
+          html += '</div></div></div>';
+        });
+      }
+      list.innerHTML = html;
+    };
+  });
+}
+
+function snapQaytarish(id) {
+  var p = prompt('Parolni kiriting (qaytarish uchun):');
+  if(p !== 'tilla7777') { alert('Parol xato!'); return; }
+  snapDBOpen(function(db) {
+    var tx = db.transaction('snaps', 'readonly');
+    var req = tx.objectStore('snaps').get(id);
+    req.onsuccess = function(e) {
+      var snap = e.target.result;
+      if(!snap) { alert('Snapshot topilmadi!'); return; }
+      if(!confirm(snap.tavsif+' — shu holatga qaytasizmi? Hozirgi malumotlar almashtiriladi!')) return;
+      // Hozirgi holatni ham saqlaymiz
+      snapSaqla('(Qaytarish oldidan) Zaxira');
+      try {
+        data = JSON.parse(snap.data);
+        if(!data.zavodlar) data.zavodlar=[];
+        if(!data.klientlar) data.klientlar=[];
+        localStorage.setItem('tilla-v2', snap.data);
+        closeModal('modal-snapshot');
+        renderHome();
+        renderKlientlar();
+        alert('Muvaffaqiyatli qaytarildi!');
+      } catch(err) {
+        alert('Xato: '+err.message);
+      }
+    };
+  });
+}
+
+function snapOchir(id) {
+  var p = prompt('Parolni kiriting (ochirish uchun):');
+  if(p !== 'tilla7777') { alert('Parol xato!'); return; }
+  if(!confirm('Bu snapshotni ochirmoqchimisiz?')) return;
+  snapDBOpen(function(db) {
+    var tx = db.transaction('snaps', 'readwrite');
+    tx.objectStore('snaps').delete(id);
+    tx.oncomplete = function() { snapRoHatRender(); };
+  });
+}
 function doLogout(){ localStorage.removeItem('tilla-auth'); localStorage.removeItem('tilla-rol'); document.cookie='tilla-auth=;max-age=0;path=/'; location.reload(); }
 async function cacheOchir() {
   if(confirm('localStorage tozalanadi va sahifa qayta yuklanadi. Davom etasizmi?')){
@@ -1946,7 +2118,7 @@ function openKlientDetail(ki) {
   document.getElementById('kd-name').textContent=k.nom;
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
-  qEl.textContent=Math.abs(qarz).toFixed(2)+' g';
+  qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
@@ -1958,13 +2130,10 @@ function openKlientDetail(ki) {
   else st.style.display='none';
   var breakdown={};
   k.tarix.forEach(function(op){
-    if(op.tip==='berish'||op.tip==='vozvrat'||op.tip==='tolov'){
-      var key=(op.zavod||'')+'|'+(op.tur||'');
-      if(!op.zavod) return;
+    if(op.tip==='berish'||op.tip==='vozvrat'){
+      var key=op.zavod+'|'+op.tur;
       if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      if(op.tip==='berish') breakdown[key].qarz+=op.gramm;
-      else if(op.tip==='vozvrat') breakdown[key].qarz-=op.gramm;
-      else if(op.tip==='tolov') breakdown[key].qarz-=(op.ekvivalent||0);
+      breakdown[key].qarz+=(op.tip==='berish'?op.gramm:-op.gramm);
     }
   });
   var byZavod={};
@@ -2000,15 +2169,7 @@ function openKlientDetail(ki) {
   });
   if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
 
-  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;">'
-    +'<button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button>'
-    +'<button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button>'
-    +'<div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;">'
-    +'<button onclick="chekCntChange('+ki+',-1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">&#8722;</button>'
-    +'<div id="chek-cnt-'+ki+'" style="padding:0 10px;font-size:13px;font-weight:600;color:var(--text);background:var(--surf);">1</div>'
-    +'<button onclick="chekCntChange('+ki+',1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">+</button>'
-    +'</div>'
-    +'</div>';
+  bHTML+='<button onclick="klientQarzChek('+ki+')" style="width:100%;margin-top:4px;padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">⎙ Qarz cheki PDF</button>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
@@ -2697,59 +2858,66 @@ document.addEventListener('click', function(e) {
   if (tahrir) { e.stopPropagation(); klientTarixTahrir(tahrir); }
 });
 
-function _qarzTarkib(ki) {
+function klientQarzChek(ki) {
   var k=data.klientlar[ki];
+  // Qarz tarkibini hisoblash
   var qbd={};
   k.tarix.forEach(function(op){
     if(!op.zavod||!op.tur) return;
-    var key=op.zavod+"||"+op.tur;
+    var key=op.zavod+'||'+op.tur;
     if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-    if(op.tip==="berish") qbd[key].qarz+=op.gramm;
-    else if(op.tip==="vozvrat") qbd[key].qarz-=op.gramm;
-    else if(op.tip==="tolov") qbd[key].qarz-=(op.ekvivalent||0);
+    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
+    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
   });
   var qarz_tarkib=[];
   Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
-  return {k:k, qarz_tarkib:qarz_tarkib, jamiQarz:klientJamiQarz(k)};
-}
-function chekCntChange(ki, delta) {
-  var el=document.getElementById("chek-cnt-"+ki);
-  if(!el) return;
-  el.textContent=Math.max(1,parseInt(el.textContent)+delta);
-}
-function klientQarzChekPDF(ki) {
-  var d=_qarzTarkib(ki);
-  var today2=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
-  var payload={tip:"klient_qarz_chek",klient_nom:d.k.nom,sana:today2,jami_qarz:d.jamiQarz,qarz_tarkib:d.qarz_tarkib};
-  fetch("/api/pdf.py",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-  .then(function(r){if(!r.ok) throw new Error("Xato");return r.blob();})
-  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,"_blank");setTimeout(function(){URL.revokeObjectURL(url);},15000);})
-  .catch(function(e){alert("PDF xato: "+e.message);});
-}
-function klientQarzChekPrint(ki) {
-  var d=_qarzTarkib(ki);
-  var cnt=parseInt((document.getElementById("chek-cnt-"+ki)||{textContent:"1"}).textContent)||1;
-  var today2=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"});
-  var nowT=new Date();
-  var soat=String(nowT.getHours()).padStart(2,"0")+":"+String(nowT.getMinutes()).padStart(2,"0");
-  var LINE="--------------------------------------\n";
-  var SEP="--------\n";
-  var chekText="       TILLA HISOB\n"+"     - QARZ CHEKI -\n"+LINE+"Klient: "+d.k.nom+"\n"+"Sana:   "+today2+"\n"+"Soat:   "+soat+"\n"+LINE;
-  var curZavod="";
-  d.qarz_tarkib.forEach(function(b){
-    if(b.zavod!==curZavod){if(curZavod!=="") chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+":\n";}
-    var tur=b.tur; var gramm="-"+fmtG(b.qarz)+" g";
-    var spaces=38-tur.length-gramm.length; if(spaces<1) spaces=1;
-    chekText+="  "+tur+Array(spaces).join(" ")+gramm+"\n";
+  var jamiQarz=klientJamiQarz(k);
+  var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var payload={
+    tip:'klient_qarz_chek',
+    klient_nom:k.nom,
+    sana:today2,
+    jami_qarz:jamiQarz,
+    qarz_tarkib:qarz_tarkib
+  };
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
+  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
+  .catch(function(e){alert('PDF xato: '+e.message);});
+
+  // Printer chek
+  var nowT = new Date();
+  var soat = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
+  var LINE = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+  var SEP  = '\u2500\u2500\u2500\u2500\u2500\u2500\n';
+  var chekText = '     TILLA HISOB\n'
+    + '   - QARZ CHEKI -\n'
+    + LINE
+    + 'Klient: ' + k.nom + '\n'
+    + 'Sana:   ' + today2 + '\n'
+    + 'Soat:   ' + soat + '\n'
+    + LINE;
+  var curZavod = '';
+  qarz_tarkib.forEach(function(b){
+    if(b.zavod !== curZavod){
+      if(curZavod !== '') chekText += SEP;
+      curZavod = b.zavod;
+      chekText += b.zavod + '\n';
+    }
+    var tur = b.tur;
+    var gramm = '-' + fmtG(b.qarz) + ' g';
+    var spaces = 24 - tur.length - gramm.length;
+    if(spaces < 1) spaces = 1;
+    chekText += '  ' + tur + Array(spaces).join(' ') + gramm + '\n';
   });
-  chekText+=LINE+"JAMI: -"+fmtG(d.jamiQarz)+" g\n";
-  for(var i=0;i<cnt;i++){
-    (function(idx){setTimeout(function(){
-      fetch("http://localhost:5000/print",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chekText})}).catch(function(){});
-    },idx*1500);})(i);
-  }
+  chekText += LINE + 'JAMI: -' + fmtG(jamiQarz) + ' g\n';
+  fetch('http://localhost:5000/print',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:chekText})
+  }).catch(function(){});
 }
-function klientQarzChek(ki) { klientQarzChekPDF(ki); }
 
 function klientChekBtn(el) {
   var ki=parseInt(el.dataset.ki);
@@ -2893,7 +3061,7 @@ function applyTheme(t){
   currentTheme=t;
   document.documentElement.setAttribute('data-theme',t==='light'?'light':'');
   var btn=document.getElementById('theme-btn');
-  if(btn) btn.innerHTML=t==='light'?'☽ Dark':'☀ Light';
+  if(btn) btn.innerHTML=t==='light'?'☽':'☀';
   localStorage.setItem('tilla-theme',t);
 }
 function toggleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
