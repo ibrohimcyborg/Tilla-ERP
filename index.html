@@ -2176,15 +2176,7 @@ function openKlientDetail(ki) {
   });
   if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
 
-  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;">'
-  +'<button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button>'
-  +'<button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button>'
-  +'<div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;">'
-  +'<button onclick="chekCntChange('+ki+',-1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">&#8722;</button>'
-  +'<div id="chek-cnt-'+ki+'" style="padding:0 10px;font-size:13px;font-weight:600;color:var(--text);background:var(--surf);">1</div>'
-  +'<button onclick="chekCntChange('+ki+',1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">+</button>'
-  +'</div>'
-  +'</div>';
+  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;"><button onclick="chekCntChange('+ki+',-1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">&#8722;</button><div id="chek-cnt-'+ki+'" style="padding:0 10px;font-size:13px;font-weight:600;color:var(--text);background:var(--surf);">1</div><button onclick="chekCntChange('+ki+',1)" style="padding:10px 11px;border:none;background:var(--surf2);font-size:16px;cursor:pointer;color:var(--muted);">+</button></div></div>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
