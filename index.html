@@ -2086,7 +2086,7 @@ function renderKlientlar() {
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
       +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
       +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
-      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+fmtG(Math.abs(qarz))+'g</div>'
+      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div>'
       +'</div></div>';
   });
   } // end filteredTop
@@ -2118,7 +2118,7 @@ function openKlientDetail(ki) {
   document.getElementById('kd-name').textContent=k.nom;
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
-  qEl.textContent=fmtG(Math.abs(qarz))+' g';
+  qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
@@ -2144,7 +2144,7 @@ function openKlientDetail(ki) {
   // Umumiy qarz
   bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
   bHTML+='<div style="font-size:12px;color:var(--muted);">Umumiy qarz</div>';
-  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+';">'+fmtG(Math.abs(jamiQarzVal))+'g</div>';
+  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+';">'+(jamiQarzVal>0?'−':'+')+fmtG(Math.abs(jamiQarzVal))+'g</div>';
   bHTML+='</div>';
 
   var hasQarz=false;
@@ -2156,13 +2156,13 @@ function openKlientDetail(ki) {
     bHTML+='<div style="margin-bottom:12px;">';
     bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
     bHTML+='<div style="font-size:12px;font-weight:600;color:var(--gold);">'+znom+'</div>';
-    bHTML+='<div style="font-size:12px;font-weight:600;color:var(--red);">−'+fmtG(Math.max(0,zT))+'g</div>';
+    bHTML+='<div style="font-size:12px;font-weight:600;color:var(--red);">'+fmtG(Math.max(0,zT))+'g</div>';
     bHTML+='</div>';
     turs.forEach(function(b){
       if(b.qarz<0.01) return;
       bHTML+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:var(--surf2);border-radius:8px;margin-bottom:4px;">';
       bHTML+='<div style="color:var(--muted);">'+b.tur+'</div>';
-      bHTML+='<div style="font-weight:600;color:var(--red);">−'+fmtG(b.qarz)+'g</div>';
+      bHTML+='<div style="font-weight:600;color:var(--red);">'+fmtG(b.qarz)+'g</div>';
       bHTML+='</div>';
     });
     bHTML+='</div>';
@@ -2889,10 +2889,10 @@ function klientQarzChek(ki) {
   // Printer chek
   var nowT = new Date();
   var soat = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
-  var LINE = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  var SEP  = '\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  var chekText = '     TILLA HISOB\n'
-    + '   - QARZ CHEKI -\n'
+  var LINE = '------------------------------------------------\n';
+  var SEP  = '----------------\n';
+  var chekText = '          TILLA HISOB\n'
+    + '        - QARZ CHEKI -\n'
     + LINE
     + 'Klient: ' + k.nom + '\n'
     + 'Sana:   ' + today2 + '\n'
@@ -2907,11 +2907,11 @@ function klientQarzChek(ki) {
     }
     var tur = b.tur;
     var gramm = '-' + fmtG(b.qarz) + ' g';
-    var spaces = 24 - tur.length - gramm.length;
+    var spaces = 46 - tur.length - gramm.length;
     if(spaces < 1) spaces = 1;
     chekText += '  ' + tur + Array(spaces).join(' ') + gramm + '\n';
   });
-  chekText += LINE + 'JAMI: -' + fmtG(jamiQarz) + ' g\n';
+  chekText += LINE + 'JAMI: ' + fmtG(jamiQarz) + ' g\n';
   fetch('http://localhost:5000/print',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
