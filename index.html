@@ -2086,7 +2086,7 @@ function renderKlientlar() {
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
       +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
       +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
-      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div>'
+      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+fmtG(Math.abs(qarz))+'g</div>'
       +'</div></div>';
   });
   } // end filteredTop
@@ -2118,7 +2118,7 @@ function openKlientDetail(ki) {
   document.getElementById('kd-name').textContent=k.nom;
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
-  qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
+  qEl.textContent=fmtG(Math.abs(qarz))+' g';
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
@@ -2144,7 +2144,7 @@ function openKlientDetail(ki) {
   // Umumiy qarz
   bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
   bHTML+='<div style="font-size:12px;color:var(--muted);">Umumiy qarz</div>';
-  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+';">'+(jamiQarzVal>0?'−':'+')+fmtG(Math.abs(jamiQarzVal))+'g</div>';
+  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+';">'+fmtG(Math.abs(jamiQarzVal))+'g</div>';
   bHTML+='</div>';
 
   var hasQarz=false;
