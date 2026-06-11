@@ -2705,6 +2705,27 @@ function klientQarzChek(ki) {
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
+
+  // Printer chek
+  var chekText = '================================\n'
+    + '       TILLA HISOB\n'
+    + '       QARZ CHEKI\n'
+    + '================================\n'
+    + 'Klient: ' + k.nom + '\n'
+    + 'Sana:   ' + today2 + '\n'
+    + '--------------------------------\n';
+  qarz_tarkib.forEach(function(b){
+    chekText += b.zavod + ' - ' + b.tur + '\n';
+    chekText += '  Qarz: -' + fmtG(b.qarz) + ' g\n';
+  });
+  chekText += '--------------------------------\n'
+    + 'JAMI QARZ: -' + fmtG(jamiQarz) + ' g\n'
+    + '================================\n';
+  fetch('http://localhost:5000/print',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:chekText})
+  }).catch(function(){});
 }
 
 function klientChekBtn(el) {
