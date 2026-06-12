@@ -2940,6 +2940,10 @@ function kSotuvGUpdate(el) {
   var ostEl = document.getElementById('ksg-ost-' + zi + '-' + ti);
   if (!ostEl) return;
   var qoladi = Math.round((ostatka - g) * 100) / 100;
+  // Klient joriy qarzi
+  var ki = parseInt(document.getElementById('ks-klient').value);
+  var joriyQarz = isNaN(ki) ? 0 : klientJamiQarz(data.klientlar[ki]);
+  var yangiQarz = Math.round((joriyQarz + g) * 100) / 100;
   if (g > ostatka + 0.001) {
     el.style.borderColor = 'var(--red)';
     ostEl.style.color = 'var(--red)';
@@ -2947,7 +2951,7 @@ function kSotuvGUpdate(el) {
   } else if (g > 0) {
     el.style.borderColor = 'var(--green-bd)';
     ostEl.style.color = 'var(--green)';
-    ostEl.innerHTML = 'qoladi: ' + fmtG(qoladi) + 'g';
+    ostEl.innerHTML = 'qoladi: ' + fmtG(qoladi) + 'g &nbsp;|&nbsp; <span style="color:var(--red);">qarz: ' + fmtG(yangiQarz) + 'g</span>';
   } else {
     el.style.borderColor = 'var(--green-bd)';
     ostEl.style.color = 'var(--muted)';
