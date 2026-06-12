@@ -2897,36 +2897,32 @@ function kSotuvRenderZavodlar() {
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
     var hasStat = z.turlar.some(function(t){ return t.ostatka > 0.001; });
-    var isOpen = firstOpen && hasStat;
-    if (firstOpen && hasStat) firstOpen = false;
+    if (!hasStat) return;
+    var isOpen = firstOpen;
+    if (firstOpen) firstOpen = false;
     var bodyDisplay = isOpen ? 'block' : 'none';
     var arrow = isOpen ? '⌄' : '›';
-    var disabled = !hasStat;
     out += '<div style="background:var(--surf2);border-radius:12px;margin-bottom:6px;overflow:hidden;">';
-    out += '<div onclick="' + (disabled ? '' : 'kSotuvToggleZ(this)') + '" style="padding:9px 12px;' + (disabled ? '' : 'cursor:pointer;') + 'display:flex;justify-content:space-between;align-items:center;opacity:' + (disabled ? '0.4' : '1') + ';">';
+    out += '<div onclick="kSotuvToggleZ(this)" style="padding:9px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">';
     out += '<div style="font-size:12px;font-weight:600;color:var(--gold);">' + z.nom + '</div>';
-    var zTot = z.turlar.reduce(function(a,t){return a+t.ostatka;},0);
-    out += '<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:var(--muted);">' + fmtG(zTot) + 'g</span>';
-    if (!disabled) out += '<span style="color:var(--muted);">' + arrow + '</span>';
-    out += '</div></div>';
-    if (!disabled) {
-      out += '<div style="display:' + bodyDisplay + ';padding:0 12px 10px;" class="ks-zavod-body">';
-      z.turlar.forEach(function(t, ti) {
-        if (t.ostatka <= 0.001) return;
-        var iid = 'ksg-' + zi + '-' + ti;
-        out += '<div style="padding:7px 0;border-top:1px solid var(--border);">';
-        out += '<div style="display:flex;align-items:center;gap:8px;">';
-        out += '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--text);">' + t.nom + '</div></div>';
-        out += '<input type="number" id="' + iid + '" data-zi="' + zi + '" data-ti="' + ti + '" data-ostatka="' + t.ostatka + '" placeholder="0g" oninput="kSotuvGUpdate(this)" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:14px;text-align:right;color:var(--green);font-weight:500;">';
-        out += '</div>';
-        out += '<div id="ksg-ost-' + zi + '-' + ti + '" style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: ' + fmtG(t.ostatka) + 'g</div>';
-        out += '</div>';
-      });
-      out += '</div>';
-    }
+    var zTot = z.turlar.reduce(function(a,t){return a+(t.ostatka>0?t.ostatka:0);},0);
+    out += '<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:var(--muted);">' + fmtG(zTot) + 'g</span><span style="color:var(--muted);">' + arrow + '</span></div>';
     out += '</div>';
+    out += '<div style="display:' + bodyDisplay + ';padding:0 12px 10px;" class="ks-zavod-body">';
+    z.turlar.forEach(function(t, ti) {
+      if (t.ostatka <= 0.001) return;
+      var iid = 'ksg-' + zi + '-' + ti;
+      out += '<div style="padding:7px 0;border-top:1px solid var(--border);">';
+      out += '<div style="display:flex;align-items:center;gap:8px;">';
+      out += '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--text);">' + t.nom + '</div></div>';
+      out += '<input type="number" id="' + iid + '" data-zi="' + zi + '" data-ti="' + ti + '" data-ostatka="' + t.ostatka + '" placeholder="0g" oninput="kSotuvGUpdate(this)" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:14px;text-align:right;color:var(--green);font-weight:500;">';
+      out += '</div>';
+      out += '<div id="ksg-ost-' + zi + '-' + ti + '" style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: ' + fmtG(t.ostatka) + 'g</div>';
+      out += '</div>';
+    });
+    out += '</div></div>';
   });
-  document.getElementById('ks-zavod-list').innerHTML = out;
+  document.getElementById('ks-zavod-list').innerHTML = out || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Zavodlarda tilla yoq</div>';
 }
 
 function kSotuvToggleZ(hdr) {
