@@ -2895,7 +2895,7 @@ function klientQarzChekPDF(ki) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 function klientQarzChekPrint(ki) {
-  var W=42;
+  var W=45;
   function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
   function rjust(left,right){var sp=W-left.length-right.length;if(sp<1)sp=1;return left+Array(sp+1).join(' ')+right;}
   var d=_qarzTarkib(ki);
@@ -2909,7 +2909,7 @@ function klientQarzChekPrint(ki) {
   chekText+=center('- QARZ CHEKI -')+'\n';
   chekText+=LINE;
   chekText+=center(d.k.nom)+'\n';
-  chekText+=center(today2+' · '+soat)+'\n';
+  chekText+=center(today2+' - '+soat)+'\n';
   chekText+=LINE;
   var curZavod='';
   d.qarz_tarkib.forEach(function(b){
