@@ -2895,7 +2895,7 @@ function klientQarzChekPDF(ki) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 function klientQarzChekPrint(ki) {
-  var W=45;
+  var W=48;
   function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
   function rjust(left,right){var sp=W-left.length-right.length;if(sp<1)sp=1;return left+Array(sp+1).join(' ')+right;}
   var d=_qarzTarkib(ki);
