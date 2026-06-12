@@ -7,84 +7,64 @@
 <title>Tilla Hisob</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
-:root{
-  --bg:#0c0b09;--surf:#161410;--surf2:#201d16;--border:#2c2820;
-  --gold:#d4ab55;--gold2:#f2d68a;--on-gold:#1c1300;
-  --gold-bg:#241c0a;--gold-bd:#4a3a14;--gold-ring:rgba(212,171,85,.16);
-  --text:#f2efe6;--muted:#8a8478;
-  --red:#e66060;--red-bg:#241010;--red-bd:#4a1f1f;
-  --green:#5fc285;--green-bg:#0e2316;--green-bd:#1f4a2c;
-  --blue:#5fb6e8;--blue-bg:#0e1a24;--blue-bd:#1f3a52;
-  --purple:#c08ad0;--purple-bg:#1d1226;--purple-bd:#462a52;
-  --yellow:#e8c050;--yellow-bg:#262007;
-  --shadow:0 1px 2px rgba(0,0,0,.3);
-  --r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
-}
-[data-theme="light"]{
-  --bg:#f6f4ee;--surf:#fffefb;--surf2:#f0ede3;--border:#e2ddcc;
-  --gold:#a3782a;--gold2:#c49a3e;--on-gold:#fff8e6;
-  --gold-bg:#f7eed6;--gold-bd:#e0cfa0;--gold-ring:rgba(163,120,42,.15);
-  --text:#211d12;--muted:#97917e;
-  --red:#c84545;--red-bg:#fbeaea;--red-bd:#eec6c6;
-  --green:#2e8f56;--green-bg:#e6f4ea;--green-bd:#bfe0cb;
-  --blue:#2e7cb0;--blue-bg:#e8f2fa;--blue-bd:#c2dcee;
-  --purple:#8a4f9e;--purple-bg:#f4eaf8;--purple-bd:#dcc6e6;
-  --yellow:#9a7416;--yellow-bg:#faf2d8;
-  --shadow:0 1px 3px rgba(60,50,20,.07);
-}
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
+:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
+[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#d04040;--green:#3a9060;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;font-variant-numeric:tabular-nums;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;}
 .topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;padding-top:var(--safe-top);height:calc(54px + var(--safe-top));display:flex;align-items:flex-end;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Roboto',sans-serif;font-size:14px;letter-spacing:.18em;font-weight:600;background:linear-gradient(120deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:var(--gold);-webkit-text-fill-color:transparent;}
+.logo{font-family:'Roboto',sans-serif;font-size:14px;color:var(--gold);letter-spacing:.1em;font-weight:500;}
 .topbar-right{display:flex;align-items:center;gap:8px;}
-.theme-btn{width:32px;height:32px;border-radius:50%;background:var(--surf2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.theme-btn:active{transform:scale(.92);}
+.theme-btn{width:32px;height:32px;border-radius:50%;background:var(--surf2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
 .main-tabs{display:flex;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:calc(54px + var(--safe-top));z-index:99;}
 .main-tab{flex:1;text-align:center;padding:10px;font-size:14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;}
 .main-tab.active{color:var(--gold);border-bottom:2px solid var(--gold);font-weight:600;}
 .screen{display:none;padding:16px;max-width:520px;margin:0 auto;}
 .screen.active{display:block;}
 .back-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
-.back-btn{background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .15s;}
-.back-btn:active{transform:scale(.94);}
+.back-btn{background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;}
 .stitle{font-size:19px;font-weight:600;color:var(--text);}
-.big-stat{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
-.big-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
-.big-stat::after{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--gold-ring),transparent 70%);pointer-events:none;}
-.big-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:500;}
-.big-stat-val{font-family:'Fraunces',serif;font-size:40px;color:var(--gold);font-weight:600;line-height:1;letter-spacing:-.01em;}
-.big-stat-val span{font-size:18px;color:var(--muted);margin-left:4px;font-weight:400;}
-.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);}
-.card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.big-stat{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;margin-bottom:16px;position:relative;overflow:hidden;}
+.big-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.big-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.big-stat-val{font-family:'Roboto',sans-serif;font-size:36px;color:var(--gold);font-weight:500;line-height:1;}
+.big-stat-val span{font-size:18px;color:var(--muted);margin-left:4px;}
+.big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.big-btn{border-radius:var(--r);padding:18px 16px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:all .15s;}
+.big-btn.kirim{background:#0f1f10;border-color:#1e3a1e;}
+.big-btn.chiqim{background:#1f0f0f;border-color:#3a1e1e;}
+.big-btn-icon{font-size:24px;opacity:.8;}
+.big-btn-label{font-size:17px;font-weight:600;}
+.big-btn.kirim .big-btn-label{color:var(--green);}
+.big-btn.chiqim .big-btn-label{color:var(--red);}
+.big-btn-sub{font-size:12px;color:var(--muted);}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;}
+.card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}
 .field{margin-bottom:12px;}
 .field label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;font-weight:500;}
-.field input,.field select{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:16px;font-family:'Roboto',sans-serif;background:var(--surf2);color:var(--text);-webkit-appearance:none;transition:border-color .15s,box-shadow .15s;}
-.field input:focus,.field select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-ring);}
-.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.field input,.field select{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:16px;font-family:'Roboto',sans-serif;background:var(--surf2);color:var(--text);-webkit-appearance:none;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold);}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
 .btn-row{display:flex;gap:10px;margin-top:16px;}
 .btn{padding:13px 18px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;font-family:'Outfit',sans-serif;font-weight:600;cursor:pointer;color:var(--text);background:var(--surf2);flex:1;transition:all .15s;}
-.btn:active{transform:scale(.98);}
-.btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--on-gold);border-color:transparent;box-shadow:0 2px 12px var(--gold-ring);}
-.btn.ok{background:var(--green-bg);color:var(--green);border-color:var(--green-bd);}
+.btn.gold{background:var(--gold);color:#1a1200;border-color:var(--gold);}
+.btn.ok{background:#0f2a1a;color:var(--green);border-color:#1e4a2a;}
 .action-btn{padding:8px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;font-weight:600;cursor:pointer;color:var(--text);background:var(--surf2);display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
-.action-btn:active{transform:scale(.96);}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:22px 20px;padding-bottom:calc(22px + var(--safe-bot));width:100%;max-width:520px;animation:slideUp .25s ease;max-height:90vh;overflow-y:auto;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
 .modal-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:16px;}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:2;}
-.empty-icon{font-size:36px;opacity:.25;margin-bottom:8px;}
-.zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s;}
-.zrow:active{border-color:var(--gold-bd);}
+.empty-icon{font-size:36px;opacity:.2;margin-bottom:8px;}
+.zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .zrow-name{font-size:16px;font-weight:600;color:var(--text);}
-.zrow-g{font-family:'Fraunces',serif;font-size:18px;color:var(--gold);font-weight:500;}
-.tacc{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;box-shadow:var(--shadow);}
+.zrow-g{font-family:'Roboto',sans-serif;font-size:18px;color:var(--gold);font-weight:500;}
+.tacc{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;}
 .tacc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .tacc-name{font-size:15px;font-weight:600;color:var(--text);}
-.tacc-g{font-family:'Fraunces',serif;font-size:16px;color:var(--gold);}
+.tacc-g{font-family:'Roboto',sans-serif;font-size:16px;color:var(--gold);}
 .tacc-body{display:none;border-top:1px solid var(--border);background:var(--surf2);padding:12px 14px;}
 .tacc.open .tacc-body{display:block;}
 .stat2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
@@ -93,41 +73,31 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .trow{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .trow:last-child{border-bottom:none;}
 .trow-info{color:var(--muted);margin-top:2px;font-size:11px;}
-.hrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow);}
+.hrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;}
 .nav-tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--surf2);border-radius:12px;padding:4px;}
 .nav-tab{flex:1;padding:9px;border-radius:9px;border:none;font-size:14px;font-family:'Outfit',sans-serif;cursor:pointer;background:transparent;color:var(--muted);text-align:center;transition:all .2s;font-weight:500;}
-.nav-tab.active{background:var(--surf);color:var(--text);font-weight:600;box-shadow:var(--shadow);}
+.nav-tab.active{background:var(--surf);color:var(--text);font-weight:600;}
 .ctur-block{background:var(--surf2);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
 .ctur-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .ctur-name{font-size:14px;font-weight:600;color:var(--text);}
 .ctur-bal{font-family:'Roboto',sans-serif;font-size:13px;color:var(--gold);}
 .ctur-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.ctur-field input{width:100%;padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:15px;font-family:'Roboto',sans-serif;background:var(--surf);color:var(--text);transition:border-color .15s,box-shadow .15s;}
-.ctur-field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-ring);}
+.ctur-field input{width:100%;padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:15px;font-family:'Roboto',sans-serif;background:var(--surf);color:var(--text);}
+.ctur-field input:focus{outline:none;border-color:var(--gold);}
 .davr-btn{width:100%;padding:14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;font-family:'Outfit',sans-serif;font-weight:600;cursor:pointer;color:var(--text);background:var(--surf2);margin-bottom:8px;text-align:center;}
 .davr-date-row{display:flex;gap:8px;align-items:flex-end;background:var(--surf2);border-radius:12px;padding:12px;border:1.5px solid var(--border);margin-bottom:8px;}
 .ptr-indicator{position:fixed;top:-60px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
-.proba{font-size:10px;color:var(--gold);border:1px solid var(--gold-bd);background:var(--gold-bg);border-radius:999px;padding:2px 9px;letter-spacing:.08em;font-weight:600;}
-.zrow.zv{display:block;}
-.zrow-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
-.zbar{height:3px;background:var(--surf2);border-radius:2px;margin-top:9px;overflow:hidden;}
-.zbar i{display:block;height:3px;border-radius:2px;background:var(--gold);}
-.trend-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
-.trend-lbl{font-size:12px;color:var(--gold);font-weight:500;}
-.act3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
-.abtn{border-radius:12px;padding:12px 6px;border:1px solid;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;background:none;transition:all .15s;}
-.abtn:active{transform:scale(.97);opacity:.85;}
-.abtn.kirim{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
-.abtn.chiqim{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
-.abtn.vozvrat{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+/* ── PC (1024px+) ──────────────────────────────────────────── */
 
-/* ── TABLET (600-1023px) ─────────────────────────────────────── */
+
+/* ── TABLET (600-1024px) ─────────────────────────────────────── */
 @media(min-width:600px) and (max-width:1023px){
   .screen{padding:20px;max-width:680px;}
-      .big-stat-val{font-size:42px;}
+  .big-btn-row{grid-template-columns:1fr 1fr;gap:14px;}
+  .big-btn{padding:22px 20px;}
+  .big-stat-val{font-size:42px;}
   .modal{border-radius:20px;margin-bottom:40px;max-width:500px;}
   .modal-overlay{align-items:center;padding:20px;}
   .nav-tab{font-size:15px;padding:11px;}
@@ -136,108 +106,134 @@ input[type=number]{-moz-appearance:textfield;}
   .field input,.field select{font-size:17px;padding:14px 16px;}
 }
 
-/* ── PC (1024px+) — ikki panel ───────────────────────────────── */
+/* ── PC (1024px+) ────────────────────────────────────────────── */
 @media(min-width:1024px){
   body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
-  .ptr-indicator{display:none!important;}
-  .main-tabs{display:none!important;}
   .topbar{max-width:100%;padding-left:24px;padding-right:24px;}
+  .main-tabs{display:none;}
 
   #s-home{
     display:flex!important;flex-direction:row;
-    padding:0;max-width:100%;margin:0;
     flex:1;overflow:hidden;
     border-top:1px solid var(--border);
   }
-  #main-zavod{
-    flex:1;min-width:0;display:none;
-    flex-direction:column;overflow:hidden;
-    border-right:1px solid var(--border);
-  }
-  #main-klient{
-    flex:1;min-width:0;display:none;
-    flex-direction:column;overflow:hidden;
-  }
-  #s-home.active #main-zavod{display:flex!important;}
-  #s-home.active #main-klient{display:flex!important;}
 
-  .pc-zavod-hdr,.pc-klient-hdr{
-    flex-shrink:0;padding:14px 16px;
-    background:var(--surf);border-bottom:1px solid var(--border);
-  }
-  .pc-zavod-body,.pc-klient-body{
-    flex:1;overflow-y:auto;padding:14px 16px;display:block;
-  }
-  .pc-btn-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:7px;}
-  .pc-btn-grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-  .pc-zbtn{
-    border-radius:10px;padding:10px 8px;border:1px solid;
-    display:flex;align-items:center;justify-content:center;
-    gap:7px;cursor:pointer;font-size:13px;font-weight:600;
-    font-family:'Outfit',sans-serif;background:none;transition:all .15s;
-  }
-  .pc-zbtn:active{opacity:.75;transform:scale(.98);}
-  .pc-zbtn.kirim{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
-  .pc-zbtn.chiqim{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
-  .pc-zbtn.vozvrat{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
-  .pc-zbtn.pdf{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);}
-  .pc-zbtn.add{background:var(--surf2);border-color:var(--border);color:var(--muted);}
-  .pc-kbtn{
-    border-radius:10px;padding:10px 8px;border:1px solid;
-    display:flex;flex-direction:column;align-items:center;
-    gap:5px;cursor:pointer;background:none;transition:all .15s;
-  }
-  .pc-kbtn:active{opacity:.75;transform:scale(.98);}
-  .pc-kbtn-ico{font-size:20px;line-height:1;}
-  .pc-kbtn-lbl{font-size:12px;font-weight:600;font-family:'Outfit',sans-serif;}
-  .pc-kbtn.berish{background:var(--red-bg);border-color:var(--red-bd);}
-  .pc-kbtn.vozvrat{background:var(--blue-bg);border-color:var(--blue-bd);}
-  .pc-kbtn.tolov{background:var(--green-bg);border-color:var(--green-bd);}
-  .pc-kbtn2{
-    border-radius:10px;padding:10px 8px;border:1px solid;
-    display:flex;align-items:center;justify-content:center;
-    gap:7px;cursor:pointer;font-size:13px;font-weight:600;
-    font-family:'Outfit',sans-serif;background:none;transition:all .15s;
-  }
-  .pc-kbtn2:active{opacity:.75;transform:scale(.98);}
-  .pc-kbtn2.pdf{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);}
-  .pc-kbtn2.add{background:var(--surf2);border-color:var(--border);color:var(--muted);}
-  .pc-panel-lbl{
-    font-size:10px;color:var(--muted);text-transform:uppercase;
-    letter-spacing:.08em;margin-bottom:10px;
-  }
-  .screen.active:not(#s-home){
-    position:fixed;
-    top:calc(54px + var(--safe-top));
-    left:0;right:0;bottom:0;
-    overflow-y:auto;
-    max-width:600px;
-    margin:0 auto;
-    z-index:50;
-    background:var(--bg);
-  }
+
+  .screen.active:not(#s-home){max-width:600px;margin:0 auto;}
   .modal{max-width:520px;border-radius:20px;margin-bottom:40px;}
   .modal-overlay{align-items:center;padding:20px;}
-  .mobile-zavod-hdr,.mobile-klient-hdr{display:none!important;}
+
+  .big-btn{padding:16px 12px;}
+  .zrow{padding:14px 16px;}
+  .hrow{padding:14px 16px;}
 }
 
 /* ── LANDSCAPE MOBILE ────────────────────────────────────────── */
 @media(max-width:860px) and (orientation:landscape){
   .topbar{height:calc(44px + var(--safe-top));}
-        .big-stat{padding:12px 16px;margin-bottom:10px;}
+  .big-btn{padding:12px 14px;}
+  .big-btn-icon{font-size:18px;}
+  .big-btn-label{font-size:14px;}
+  .big-stat{padding:12px 16px;margin-bottom:10px;}
   .big-stat-val{font-size:28px;}
   .modal{max-height:85vh;overflow-y:auto;}
 }
 
+/* ── PC (1024px+) ikki panel ──────────────────────────────────── */
+@media (min-width: 1024px) {
+  .ptr-indicator { display: none !important; }
+  .main-tabs { display: none !important; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .topbar { max-width: 100%; padding-left: 20px; padding-right: 20px; }
+
+  #s-home.active {
+    display: flex !important; flex-direction: row;
+    padding: 0; max-width: 100%; margin: 0; flex: 1; overflow: hidden;
+  }
+
+  #main-zavod {
+    flex: 1; min-width: 0; display: none;
+    flex-direction: column; overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+  #main-klient {
+    flex: 1; min-width: 0; display: none;
+    flex-direction: column; overflow: hidden;
+  }
+  #s-home.active #main-zavod { display: flex !important; }
+  #s-home.active #main-klient { display: flex !important; }
+  .pc-zavod-hdr, .pc-klient-hdr {
+    flex-shrink: 0; padding: 14px 16px;
+    background: var(--surf); border-bottom: 1px solid var(--border);
+  }
+  .pc-zavod-body, .pc-klient-body {
+    flex: 1; overflow-y: auto; padding: 14px 16px;
+  }
+  .pc-btn-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+  .pc-btn-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .pc-zbtn {
+    border-radius: 10px; padding: 10px 8px; border: 0.5px solid;
+    display: flex; align-items: center; justify-content: center;
+    gap: 7px; cursor: pointer; font-size: 13px; font-weight: 600;
+    font-family: 'Outfit', sans-serif; background: none;
+  }
+  .pc-zbtn:active { opacity: .75; }
+  .pc-zbtn.kirim   { background: #0a1a0a; border-color: #1e4a1e; color: var(--green); }
+  .pc-zbtn.chiqim  { background: #1a0a0a; border-color: #4a1e1e; color: var(--red); }
+  .pc-zbtn.vozvrat { background: #0a121a; border-color: #1e2a4a; color: #5ab4e8; }
+  .pc-zbtn.pdf     { background: var(--surf2); border-color: #3a2a0a; color: var(--gold); }
+  .pc-zbtn.add     { background: var(--surf2); border-color: var(--border); color: var(--muted); }
+  .pc-kbtn {
+    border-radius: 10px; padding: 10px 8px; border: 0.5px solid;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 5px; cursor: pointer; background: none;
+  }
+  .pc-kbtn:active { opacity: .75; }
+  .pc-kbtn-ico { font-size: 20px; line-height: 1; }
+  .pc-kbtn-lbl { font-size: 12px; font-weight: 600; font-family: 'Outfit', sans-serif; }
+  .pc-kbtn.berish  { background: #1a0a0a; border-color: #4a1e1e; }
+  .pc-kbtn.vozvrat { background: #0a121a; border-color: #1e2a4a; }
+  .pc-kbtn.tolov   { background: #0a1a0a; border-color: #1e4a1e; }
+  .pc-kbtn2 {
+    border-radius: 10px; padding: 10px 8px; border: 0.5px solid;
+    display: flex; align-items: center; justify-content: center;
+    gap: 7px; cursor: pointer; font-size: 13px; font-weight: 600;
+    font-family: 'Outfit', sans-serif; background: none;
+  }
+  .pc-kbtn2:active { opacity: .75; }
+  .pc-kbtn2.pdf  { background: var(--surf2); border-color: #3a2a0a; color: var(--gold); }
+  .pc-kbtn2.add  { background: var(--surf2); border-color: var(--border); color: var(--muted); }
+  .pc-panel-lbl {
+    font-size: 10px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .08em; margin-bottom: 10px;
+  }
+  .screen.active:not(#s-home) {
+    position: fixed;
+    top: calc(54px + var(--safe-top));
+    left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    z-index: 50;
+    background: var(--bg);
+  }
+  .modal { max-width: 520px; border-radius: 20px; margin-bottom: 40px; }
+  .modal-overlay { align-items: center; padding: 20px; }
+  /* PC da mobil headerlarni yashir */
+  .mobile-zavod-hdr, .mobile-klient-hdr { display: none !important; }
+  /* PC da zavod body to'g'ri flex */
+  .pc-zavod-body, .pc-klient-body { flex: 1; overflow-y: auto; padding: 14px 16px; display: block; }
+}
 /* Zavod roli — klient panelini yashir */
 body.rol-zavod #main-klient,
-body.rol-zavod #main-tab-klient{display:none!important;}
+body.rol-zavod #main-tab-klient { display: none !important; }
 
 /* Mobil da PC headerlarni yashir */
-@media(max-width:1023px){
-  .pc-zavod-hdr,.pc-klient-hdr{display:none!important;}
-  .pc-zavod-body{display:block;padding:0 16px 16px;}
-  .pc-klient-body{display:block;padding:0 16px 16px;}
+@media (max-width: 1023px) {
+  .pc-zavod-hdr, .pc-klient-hdr { display: none !important; }
+  .pc-zavod-body { display: block; padding: 0 16px 16px; }
+  .pc-klient-body { display: block; padding: 0 16px 16px; }
+  /* Mobilda main-klient JS boshqaradi (mainTab orqali) */
 }
 
 </style>
@@ -248,21 +244,18 @@ body.rol-zavod #main-tab-klient{display:none!important;}
   <div style="background:#1c1c1c;border:1px solid #333;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;margin:16px;">
     <div style="text-align:center;margin-bottom:24px;">
       <div style="font-size:32px;margin-bottom:8px;">⬡</div>
-      <div style="font-size:20px;font-weight:700;color:#d4ab55;">TILLA HISOB</div>
+      <div style="font-size:20px;font-weight:700;color:#c9a84c;">TILLA HISOB</div>
       <div style="font-size:12px;color:#666;margin-top:4px;">Kirish</div>
     </div>
     <input id="login-user" type="text" placeholder="Login" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:13px 14px;color:#fff;font-size:15px;margin-bottom:10px;display:block;box-sizing:border-box;" />
     <input id="login-pass" type="password" placeholder="Parol" style="width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:13px 14px;color:#fff;font-size:15px;margin-bottom:6px;display:block;box-sizing:border-box;" />
-    <div id="login-err" style="color:var(--red);font-size:12px;margin-bottom:10px;text-align:center;min-height:18px;"></div>
-    <button onclick="doLogin()" style="width:100%;background:#d4ab55;color:#111;border-radius:10px;padding:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;">Kirish</button>
+    <div id="login-err" style="color:#e05a5a;font-size:12px;margin-bottom:10px;text-align:center;min-height:18px;"></div>
+    <button onclick="doLogin()" style="width:100%;background:#c9a84c;color:#111;border-radius:10px;padding:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;">Kirish</button>
   </div>
 </div>
 <div class="ptr-indicator" id="ptr-indicator">↓</div>
 <div class="topbar">
-  <div style="display:flex;align-items:center;gap:8px;">
-    <div class="logo">TILLA HISOB</div>
-    <span class="proba">585</span>
-  </div>
+  <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
     <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
@@ -285,11 +278,10 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div class="pc-panel-lbl">Zavodlar</div>
       <div class="big-stat" style="margin-bottom:10px;">
         <div class="big-stat-val" id="home-total" style="font-size:28px;">0<span>g</span></div>
-        <div class="trend-row" id="home-trend" style="margin-top:8px;"></div>
         <div style="height:1px;background:var(--border);margin:10px 0;"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--green);font-weight:500;" id="home-bizda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
-          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
       <div class="pc-btn-grid3">
@@ -305,22 +297,37 @@ body.rol-zavod #main-tab-klient{display:none!important;}
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
     <div class="mobile-zavod-hdr" style="padding:16px;">
       <div class="big-stat" style="margin-bottom:12px;">
-        <div class="big-stat-val" id="home-total-mob" style="font-size:36px;">0<span>g</span></div>
-        <div class="trend-row" id="home-trend-mob" style="margin-top:10px;"></div>
+        <div class="big-stat-val" id="home-total-mob" style="font-size:28px;">0<span>g</span></div>
         <div style="height:1px;background:var(--border);margin:10px 0;"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--green);font-weight:500;" id="home-bizda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
-          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
-      <div class="act3">
-        <button class="abtn kirim" onclick="goTo('s-kirim')">↓ Kirim</button>
-        <button class="abtn chiqim" onclick="goTo('s-chiqim')">↑ Chiqim</button>
-        <button class="abtn vozvrat" onclick="goTo('s-zvozvrat')">↩ Vozvrat</button>
+      <div class="big-btn-row">
+        <div class="big-btn kirim" onclick="goTo('s-kirim')">
+          <div class="big-btn-icon">↓</div>
+          <div class="big-btn-label">Kirim</div>
+          <div class="big-btn-sub">Zavoddan mol olish</div>
+        </div>
+        <div class="big-btn chiqim" onclick="goTo('s-chiqim')">
+          <div class="big-btn-icon">↑</div>
+          <div class="big-btn-label">Chiqim</div>
+          <div class="big-btn-sub">Tolov qilish</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:#0f1a1f;border-color:#1e3a4a;flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
+          <div style="font-size:20px;color:#5ab4e8;">↩</div>
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#5ab4e8;">Zavodga vozvrat</div>
+            <div style="font-size:12px;color:var(--muted);">Tilla qaytarish</div>
+          </div>
+        </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <button class="action-btn" onclick="openZavodModal()">+ Zavod</button>
-        <button class="action-btn" onclick="openPDFModal(null)" style="border-color:var(--purple-bd);color:var(--purple);">⎙ PDF</button>
+        <button class="action-btn" onclick="openPDFModal(null)" style="border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
       </div>
     </div>
     <!-- Zavod roʻyxat body -->
@@ -350,8 +357,8 @@ body.rol-zavod #main-tab-klient{display:none!important;}
           <span class="pc-kbtn-lbl" style="color:var(--red);">Berish</span>
         </button>
         <button class="pc-kbtn vozvrat" onclick="openKlientVozvrat()">
-          <span class="pc-kbtn-ico" style="color:var(--blue);">↩</span>
-          <span class="pc-kbtn-lbl" style="color:var(--blue);">Vozvrat</span>
+          <span class="pc-kbtn-ico" style="color:#5ab4e8;">↩</span>
+          <span class="pc-kbtn-lbl" style="color:#5ab4e8;">Vozvrat</span>
         </button>
         <button class="pc-kbtn tolov" onclick="openKlientTolov()">
           <span class="pc-kbtn-ico" style="color:var(--green);">$</span>
@@ -377,7 +384,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
           <span style="font-size:18px;color:var(--gold);">↩</span>Vozvrat
         </button>
         <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="font-size:18px;color:var(--blue);">$</span>Tolov
+          <span style="font-size:18px;color:#5ab4e8;">$</span>Tolov
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -409,7 +416,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div class="stitle" id="zavod-title"></div>
       <button onclick="zavodNomTahrir()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;">✎</button>
     </div>
-    <button onclick="ochirZavod()" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 O'chirish</button>
+    <button onclick="ochirZavod()" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 O'chirish</button>
   </div>
   <div class="big-stat" style="margin-top:0;">
     <div class="big-stat-val" id="zavod-total" style="font-size:26px;">0<span>g</span></div>
@@ -428,7 +435,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
     <div class="empty" id="zavod-tur-empty" style="display:none;"><div class="empty-icon">📦</div>Hali tur yoq.</div>
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn gold" onclick="openTurModal()">+ Tur qoshish</button>
-      <button class="action-btn" onclick="openPDFModal(curZ)" style="border-color:var(--purple-bd);color:var(--purple);">⎙ PDF</button>
+      <button class="action-btn" onclick="openPDFModal(curZ)" style="border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
     </div>
   </div>
   <div id="zavod-hisobot-cont" style="display:none;"></div>
@@ -478,7 +485,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
   </div>
   <div class="btn-row">
     <button class="btn" onclick="goTo('s-home')">Bekor</button>
-    <button class="btn" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd);" onclick="zvSaqlash()">✓ Saqlash</button>
+    <button class="btn" style="background:#0f1a1f;color:#5ab4e8;border-color:#1e3a4a;" onclick="zvSaqlash()">✓ Saqlash</button>
   </div>
 </div>
 
@@ -520,7 +527,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div class="stitle" id="kd-name">Klient</div>
       <button onclick="klientNomTahrir()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;">✎</button>
     </div>
-    <button onclick="klientOchir()" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑</button>
+    <button onclick="klientOchir()" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑</button>
   </div>
   <div class="card" style="margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -544,7 +551,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div class="nav-tab active" id="kdt-tarix" onclick="kdTab('tarix')">Tarix</div>
       <div class="nav-tab" id="kdt-hisobot" onclick="kdTab('hisobot')">Hisobot</div>
     </div>
-    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:var(--purple-bd);color:var(--purple);margin-left:8px;">⎙ PDF</button>
+    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:#4a2a4a;color:#c084c0;margin-left:8px;">⎙ PDF</button>
   </div>
   <div id="kd-tarix"></div>
   <div id="kd-hisobot" style="display:none;"></div>
@@ -611,7 +618,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
       <div style="display:flex;gap:8px;">
         <input type="password" id="reset-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
-        <button onclick="resetParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+        <button onclick="resetParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
       </div>
       <div id="reset-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -631,7 +638,7 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
       <div style="display:flex;gap:8px;">
         <input type="password" id="snap-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
-        <button onclick="snapParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+        <button onclick="snapParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
       </div>
       <div id="snap-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -851,59 +858,20 @@ function renderHome() {
   var kdm=document.getElementById('home-klientda-mob'); if(kdm) kdm.innerHTML=fmtG(klientda)+sg;
   var list = document.getElementById('home-zavodlar');
   var empty = document.getElementById('home-empty');
-  if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; homeTrend(); return; }
+  if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   var out = '';
-  var maxAbs = 0;
-  data.zavodlar.forEach(function(z){ var s=0; z.turlar.forEach(function(t){ s+=t.ostatka; }); if(Math.abs(s)>maxAbs) maxAbs=Math.abs(s); });
   data.zavodlar.forEach(function(z, zi) {
     var zG = 0; z.turlar.forEach(function(t){ zG += t.ostatka; });
-    var pct = maxAbs>0 ? Math.max(2, Math.round(Math.abs(zG)/maxAbs*100)) : 0;
-    var barC = zG<0 ? 'var(--green)' : 'var(--gold)';
-    out += '<div class="zrow zv" onclick="openZavod(' + zi + ')">'
-      + '<div class="zrow-top">'
-      + '<div class="zrow-name">' + z.nom + ' <span style="font-size:12px;color:var(--muted);font-weight:400;">· ' + z.turlar.length + ' tur</span></div>'
+    out += '<div class="zrow" onclick="openZavod(' + zi + ')">'
+      + '<div><div class="zrow-name">' + z.nom + '</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<div class="zrow-g" style="color:'+(zG<0?'var(--green)':'var(--red)')+'">' + fmtG(zG) + ' g</div>'
-      + '</div>'
-      + '<div class="zbar"><i style="width:'+pct+'%;background:'+barC+';"></i></div>'
-      + '</div>';
+      + '<div style="color:var(--muted);">›</div></div></div>';
   });
   list.innerHTML = out;
-  homeTrend();
   if (curHomeTab === 'hisobot') renderHisobot();
-}
-
-function homeTrend() {
-  var dkey = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
-  var cur = 0;
-  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ cur += t.ostatka; }); });
-  var dayDelta = {};
-  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ (t.tarix||[]).forEach(function(op){
-    var v = 0;
-    if(op.tip==='mol') v = op.gramm||0;
-    else if(op.tip==='tolov') v = -(op.jami||0);
-    else if(op.tip==='vozvrat') v = -(op.gramm||0);
-    if(op.sana) dayDelta[op.sana] = (dayDelta[op.sana]||0) + v;
-  }); }); });
-  var pts = [], bal = cur, week = 0, today = new Date();
-  for(var i=0;i<30;i++){
-    var d = new Date(today); d.setDate(today.getDate()-i);
-    var k = dkey(d);
-    pts.unshift(bal);
-    if(i<7) week += (dayDelta[k]||0);
-    bal -= (dayDelta[k]||0);
-  }
-  var mn = Math.min.apply(null,pts), mx = Math.max.apply(null,pts), rng = mx-mn;
-  var poly = pts.map(function(v,i){
-    var x = Math.round(i*(92/29)*10)/10;
-    var y = rng>0 ? Math.round((20 - (v-mn)/rng*16)*10)/10 : 12;
-    return x+','+y;
-  }).join(' ');
-  var svg = '<svg width="92" height="24" viewBox="0 0 92 24" style="flex-shrink:0;"><polyline points="'+poly+'" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>';
-  week = Math.round(week*100)/100;
-  var lbl = '<span class="trend-lbl">'+(week>=0?'+':'−')+fmtG(Math.abs(week))+' g bu hafta</span>';
-  var t1 = document.getElementById('home-trend'); if(t1) t1.innerHTML = svg+lbl;
-  var t2 = document.getElementById('home-trend-mob'); if(t2) t2.innerHTML = svg+lbl;
 }
 
 function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); renderZavod(); }
@@ -931,11 +899,11 @@ function renderHisobot() {
     var out = '';
     groupOrder.forEach(function(key, idx) {
       var g = groups[key], isK = g.tip === 'mol', isV = g.tip === 'vozvrat', isOpen = expanded[idx];
-      var bc = isK ? 'var(--green)' : isV ? 'var(--blue)' : 'var(--red)';
+      var bc = isK ? 'var(--green)' : isV ? '#5ab4e8' : 'var(--red)';
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
-      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'var(--blue)':'var(--red)');
+      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'#5ab4e8':'var(--red)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleHrow(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK ? '↓ Kirim' : isV ? '↩ Vozvrat' : '↑ Chiqim') + '</div>';
@@ -957,7 +925,7 @@ function renderHisobot() {
           if (isK) {
             out += '<div style="font-size:12px;color:var(--green);">+' + fmtG(op.gramm) + ' g</div>';
           } else if (op.tip === 'vozvrat') {
-            out += '<div style="font-size:12px;color:var(--blue);">−' + fmtG(op.gramm) + ' g</div>';
+            out += '<div style="font-size:12px;color:#5ab4e8;">−' + fmtG(op.gramm) + ' g</div>';
           } else {
             if (op.naqtSumma>0&&op.naqtKurs>0) out += '<div style="font-size:12px;color:var(--muted);">naqt: ' + fmtD(op.naqtSumma) + '$ / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(op.naqtGramm) + 'g</b></div>';
             if (op.lomGramm>0&&op.lomKurs>0) out += '<div style="font-size:12px;color:var(--muted);">lom: ' + fmtG(op.lomGramm) + 'g × ' + op.lomKurs + '$/g = ' + fmtD(op.lomPul) + '$' + (op.naqtKurs>0?' / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(Math.round(op.lomPul/op.naqtKurs*100)/100) + 'g</b>':'') + '</div>';
@@ -1051,8 +1019,8 @@ function renderZavod() {
       + '<div class="tacc-name">' + t.nom + '</div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<div class="tacc-g">' + fmtG(turJami) + ' g</div>'
-      + '<button onclick="event.stopPropagation();turNomTahrir('+ti+')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✎</button>'
-      + '<button onclick="event.stopPropagation();ochirTur('+ti+')" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✕</button>'
+      + '<button onclick="event.stopPropagation();turNomTahrir('+ti+')" style="background:none;border:0.5px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✎</button>'
+      + '<button onclick="event.stopPropagation();ochirTur('+ti+')" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✕</button>'
       + '<div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div>'
       + '</div>'
       + '</div>'
@@ -1151,7 +1119,7 @@ function renderZavodHisobot() {
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
-      bc = isK ? 'var(--red)' : (isV2 ? 'var(--blue)' : 'var(--green)');
+      bc = isK ? 'var(--red)' : (isV2 ? '#5ab4e8' : 'var(--green)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleZH(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
@@ -1546,11 +1514,11 @@ function snapRoHatRender() {
       var html = '';
 
       // Hozirgi holat — birinchi qatorda
-      html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:var(--green-bg);border:1px solid var(--green-bd);">';
+      html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:#0f2a1a;border:1px solid #1e4a2a;">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       html += '<div><div style="font-size:13px;font-weight:600;color:var(--green);">Hozirgi holat</div>';
       html += '<div style="font-size:11px;color:var(--muted);">'+nowStr+'</div></div>';
-      html += '<div style="font-size:11px;color:var(--green);padding:3px 10px;border-radius:6px;border:1px solid var(--green-bd);">Joriy</div>';
+      html += '<div style="font-size:11px;color:var(--green);padding:3px 10px;border-radius:6px;border:1px solid #1e4a2a;">Joriy</div>';
       html += '</div></div>';
 
       if(!snaps.length) {
@@ -1731,7 +1699,7 @@ function renderKassa() {
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
   var html = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'
-    +'<button onclick="kassaPDF()" style="background:var(--surf2);border:1px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>'
+    +'<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid #3a2a0a;color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>'
     +'</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
     +'<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>'
@@ -1879,7 +1847,7 @@ function renderKlientHisobot() {
       ops.forEach(function(op,i){
         if(i>0) html+='<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
         var tip=op.tip;
-        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'var(--blue)';
+        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'#5ab4e8';
         var label=tip==='berish'?'Berildi':tip==='vozvrat'?'Vozvrat':'Tolov';
         var val=fmtG(op.gramm>0?op.gramm:(op.ekvivalent||0))+'g';
         var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
@@ -1925,7 +1893,7 @@ function klientGunTahrir(ki, sana) {
     var op = item.op, oi = item.oi;
     var tip = op.tip;
     var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
+    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
     var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
 
     body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
@@ -2116,7 +2084,7 @@ function renderKlientlar() {
     topHTML='<div class="empty" style="padding:24px 20px;"><div class="empty-icon">🔍</div>"'+qFilter+'" topilmadi.</div>';
   } else { filteredTop.forEach(function(item,rank){
     var k=item.k,ki=item.i,qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
-    var dc=holat.rang==='green'?'var(--green)':holat.rang==='yellow'?'var(--yellow)':'var(--red)';
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
     var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     topHTML+='<div class="hrow" style="cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
       +'<div style="display:flex;align-items:center;gap:10px;">'
@@ -2137,8 +2105,8 @@ function renderKlientlar() {
   if(!qSorted.length){qHTML='<div class="empty">Barcha klientlar faol!</div>';}
   else{qSorted.forEach(function(item){
     var k=item.k,ki=item.i,holat=item.holat,qarz=item.qarz;
-    var dc=holat.rang==='green'?'var(--green)':holat.rang==='yellow'?'var(--yellow)':'var(--red)';
-    var bg=holat.rang==='green'?'var(--green-bg)':holat.rang==='yellow'?'var(--yellow-bg)':'var(--red-bg)';
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+    var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
     var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     qHTML+='<div class="hrow" style="border-left:3px solid '+dc+';cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
       +'<div style="display:flex;align-items:center;gap:10px;">'
@@ -2161,8 +2129,8 @@ function openKlientDetail(ki) {
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
-  var dc=holat.rang==='green'?'var(--green)':holat.rang==='yellow'?'var(--yellow)':'var(--red)';
-  var bg=holat.rang==='green'?'var(--green-bg)':holat.rang==='yellow'?'var(--yellow-bg)':'var(--red-bg)';
+  var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+  var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
   var icon=holat.rang==='green'?'🟢':holat.rang==='yellow'?'🟡':'🔴';
   var st=document.getElementById('kd-status');
   if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
@@ -2208,7 +2176,7 @@ function openKlientDetail(ki) {
   });
   if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
 
-  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--blue-bd);background:transparent;color:var(--blue);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:4px 6px;gap:4px;"><button onclick="chekCntChange('+ki+',-1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#8722;</button><span id="chek-cnt-'+ki+'" style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:var(--text);">1</span><button onclick="chekCntChange('+ki+',1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button></div></div>';
+  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:4px 6px;gap:4px;"><button onclick="chekCntChange('+ki+',-1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#8722;</button><span id="chek-cnt-'+ki+'" style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:var(--text);">1</span><button onclick="chekCntChange('+ki+',1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button></div></div>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
@@ -2230,9 +2198,9 @@ function openKlientDetail(ki) {
     var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
     var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
     var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
-    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
+    var bc=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
     var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
-    var lcolor=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
+    var lcolor=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
 
     var jamiG=0;
     g.ops.forEach(function(op){
@@ -2250,7 +2218,7 @@ function openKlientDetail(ki) {
     var bVal=hasBerish?'1':'0';
     tHTML+='<div style="display:flex;align-items:center;gap:5px;">';
     tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(jamiG)+'g</div>';
-    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
+    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid #4a2a4a;color:#c084c0;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
     tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
     tHTML+='</div></div>';
 
@@ -2258,7 +2226,7 @@ function openKlientDetail(ki) {
       tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
       g.ops.forEach(function(op){
         var isOV=op.tip==='vozvrat',isOT=op.tip==='tolov',isOB=op.tip==='berish';
-        var oc=isOB?'var(--red)':isOV?'var(--gold)':'var(--blue)';
+        var oc=isOB?'var(--red)':isOV?'var(--gold)':'#5ab4e8';
         var ov=isOB?('−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g');
         if(op.zavod&&op.tur&&isOT) os=op.zavod+' · '+op.tur+' — '+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
@@ -2318,7 +2286,7 @@ function renderKdTel() {
     row.innerHTML = '<span style="font-size:13px;color:var(--muted);">📞 '+k.tel+'</span>'
       + '<button onclick="klientTelTahrir()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">✎</button>';
   } else {
-    row.innerHTML = '<button onclick="klientTelTahrir()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer;">+ Tel qoshish</button>';
+    row.innerHTML = '<button onclick="klientTelTahrir()" style="background:none;border:0.5px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer;">+ Tel qoshish</button>';
   }
 }
 
@@ -2399,7 +2367,7 @@ function renderKdHisobot() {
     ops.forEach(function(op, i){
       if(i>0) html += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
       var tip = op.tip;
-      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
+      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
       var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
       var val = fmtG(op.gramm>0?op.gramm:(op.ekvivalent||0))+'g';
       var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
@@ -3248,7 +3216,7 @@ function zvZavodChange() {
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(t.ostatka)+'g</div></div>'
       + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">'
       + '<div style="display:flex;align-items:center;gap:6px;">'
-      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+t.ostatka+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--blue);text-align:right;">'
+      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+t.ostatka+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:#5ab4e8;text-align:right;">'
       + '<span style="font-size:12px;color:var(--muted);">g</span></div>'
       + '<div id="zvc-'+ti+'" style="font-size:10px;color:var(--green);display:none;">qoladi: <b id="zvr-'+ti+'">0</b>g</div>'
       + '</div></div>';
