@@ -7,7 +7,7 @@
 <title>Tilla Hisob</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
 :root{
   --bg:#0c0b09;--surf:#161410;--surf2:#201d16;--border:#2c2820;
   --gold:#d4ab55;--gold2:#f2d68a;--on-gold:#1c1300;
@@ -53,18 +53,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .big-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
 .big-stat::after{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--gold-ring),transparent 70%);pointer-events:none;}
 .big-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:500;}
-.big-stat-val{font-family:'Roboto',sans-serif;font-size:38px;color:var(--gold);font-weight:600;line-height:1;letter-spacing:-.01em;}
+.big-stat-val{font-family:'Fraunces',serif;font-size:40px;color:var(--gold);font-weight:600;line-height:1;letter-spacing:-.01em;}
 .big-stat-val span{font-size:18px;color:var(--muted);margin-left:4px;font-weight:400;}
-.big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.big-btn{border-radius:var(--r);padding:18px 16px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:all .15s;}
-.big-btn:active{transform:scale(.98);}
-.big-btn.kirim{background:var(--green-bg);border-color:var(--green-bd);}
-.big-btn.chiqim{background:var(--red-bg);border-color:var(--red-bd);}
-.big-btn-icon{font-size:24px;opacity:.85;}
-.big-btn-label{font-size:17px;font-weight:600;}
-.big-btn.kirim .big-btn-label{color:var(--green);}
-.big-btn.chiqim .big-btn-label{color:var(--red);}
-.big-btn-sub{font-size:12px;color:var(--muted);}
 .card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);}
 .card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
 .field{margin-bottom:12px;}
@@ -90,11 +80,11 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s;}
 .zrow:active{border-color:var(--gold-bd);}
 .zrow-name{font-size:16px;font-weight:600;color:var(--text);}
-.zrow-g{font-family:'Roboto',sans-serif;font-size:18px;color:var(--gold);font-weight:500;}
+.zrow-g{font-family:'Fraunces',serif;font-size:18px;color:var(--gold);font-weight:500;}
 .tacc{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;box-shadow:var(--shadow);}
 .tacc-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .tacc-name{font-size:15px;font-weight:600;color:var(--text);}
-.tacc-g{font-family:'Roboto',sans-serif;font-size:16px;color:var(--gold);}
+.tacc-g{font-family:'Fraunces',serif;font-size:16px;color:var(--gold);}
 .tacc-body{display:none;border-top:1px solid var(--border);background:var(--surf2);padding:12px 14px;}
 .tacc.open .tacc-body{display:block;}
 .stat2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
@@ -119,14 +109,25 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ptr-indicator{position:fixed;top:-60px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:var(--surf);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
+.proba{font-size:10px;color:var(--gold);border:1px solid var(--gold-bd);background:var(--gold-bg);border-radius:999px;padding:2px 9px;letter-spacing:.08em;font-weight:600;}
+.zrow.zv{display:block;}
+.zrow-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.zbar{height:3px;background:var(--surf2);border-radius:2px;margin-top:9px;overflow:hidden;}
+.zbar i{display:block;height:3px;border-radius:2px;background:var(--gold);}
+.trend-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
+.trend-lbl{font-size:12px;color:var(--gold);font-weight:500;}
+.act3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.abtn{border-radius:12px;padding:12px 6px;border:1px solid;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Outfit',sans-serif;background:none;transition:all .15s;}
+.abtn:active{transform:scale(.97);opacity:.85;}
+.abtn.kirim{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
+.abtn.chiqim{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
+.abtn.vozvrat{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 
 /* ── TABLET (600-1023px) ─────────────────────────────────────── */
 @media(min-width:600px) and (max-width:1023px){
   .screen{padding:20px;max-width:680px;}
-  .big-btn-row{grid-template-columns:1fr 1fr;gap:14px;}
-  .big-btn{padding:22px 20px;}
-  .big-stat-val{font-size:42px;}
+      .big-stat-val{font-size:42px;}
   .modal{border-radius:20px;margin-bottom:40px;max-width:500px;}
   .modal-overlay{align-items:center;padding:20px;}
   .nav-tab{font-size:15px;padding:11px;}
@@ -223,10 +224,7 @@ input[type=number]{-moz-appearance:textfield;}
 /* ── LANDSCAPE MOBILE ────────────────────────────────────────── */
 @media(max-width:860px) and (orientation:landscape){
   .topbar{height:calc(44px + var(--safe-top));}
-  .big-btn{padding:12px 14px;}
-  .big-btn-icon{font-size:18px;}
-  .big-btn-label{font-size:14px;}
-  .big-stat{padding:12px 16px;margin-bottom:10px;}
+        .big-stat{padding:12px 16px;margin-bottom:10px;}
   .big-stat-val{font-size:28px;}
   .modal{max-height:85vh;overflow-y:auto;}
 }
@@ -261,7 +259,10 @@ body.rol-zavod #main-tab-klient{display:none!important;}
 </div>
 <div class="ptr-indicator" id="ptr-indicator">↓</div>
 <div class="topbar">
-  <div class="logo">⬡ TILLA HISOB</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="logo">TILLA HISOB</div>
+    <span class="proba">585</span>
+  </div>
   <div class="topbar-right">
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
     <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
@@ -284,10 +285,11 @@ body.rol-zavod #main-tab-klient{display:none!important;}
       <div class="pc-panel-lbl">Zavodlar</div>
       <div class="big-stat" style="margin-bottom:10px;">
         <div class="big-stat-val" id="home-total" style="font-size:28px;">0<span>g</span></div>
+        <div class="trend-row" id="home-trend" style="margin-top:8px;"></div>
         <div style="height:1px;background:var(--border);margin:10px 0;"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
-          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--green);font-weight:500;" id="home-bizda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
       <div class="pc-btn-grid3">
@@ -303,33 +305,18 @@ body.rol-zavod #main-tab-klient{display:none!important;}
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
     <div class="mobile-zavod-hdr" style="padding:16px;">
       <div class="big-stat" style="margin-bottom:12px;">
-        <div class="big-stat-val" id="home-total-mob" style="font-size:28px;">0<span>g</span></div>
+        <div class="big-stat-val" id="home-total-mob" style="font-size:36px;">0<span>g</span></div>
+        <div class="trend-row" id="home-trend-mob" style="margin-top:10px;"></div>
         <div style="height:1px;background:var(--border);margin:10px 0;"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--green);font-weight:500;" id="home-bizda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
-          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Bizda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--green);font-weight:500;" id="home-bizda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
+          <div><div class="big-stat-label">Klientda</div><div style="font-family:'Fraunces',serif;font-size:17px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
-      <div class="big-btn-row">
-        <div class="big-btn kirim" onclick="goTo('s-kirim')">
-          <div class="big-btn-icon">↓</div>
-          <div class="big-btn-label">Kirim</div>
-          <div class="big-btn-sub">Zavoddan mol olish</div>
-        </div>
-        <div class="big-btn chiqim" onclick="goTo('s-chiqim')">
-          <div class="big-btn-icon">↑</div>
-          <div class="big-btn-label">Chiqim</div>
-          <div class="big-btn-sub">Tolov qilish</div>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:var(--blue-bg);border-color:var(--blue-bd);flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
-          <div style="font-size:20px;color:var(--blue);">↩</div>
-          <div>
-            <div style="font-size:15px;font-weight:600;color:var(--blue);">Zavodga vozvrat</div>
-            <div style="font-size:12px;color:var(--muted);">Tilla qaytarish</div>
-          </div>
-        </div>
+      <div class="act3">
+        <button class="abtn kirim" onclick="goTo('s-kirim')">↓ Kirim</button>
+        <button class="abtn chiqim" onclick="goTo('s-chiqim')">↑ Chiqim</button>
+        <button class="abtn vozvrat" onclick="goTo('s-zvozvrat')">↩ Vozvrat</button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <button class="action-btn" onclick="openZavodModal()">+ Zavod</button>
@@ -864,20 +851,59 @@ function renderHome() {
   var kdm=document.getElementById('home-klientda-mob'); if(kdm) kdm.innerHTML=fmtG(klientda)+sg;
   var list = document.getElementById('home-zavodlar');
   var empty = document.getElementById('home-empty');
-  if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; homeTrend(); return; }
   empty.style.display = 'none';
   var out = '';
+  var maxAbs = 0;
+  data.zavodlar.forEach(function(z){ var s=0; z.turlar.forEach(function(t){ s+=t.ostatka; }); if(Math.abs(s)>maxAbs) maxAbs=Math.abs(s); });
   data.zavodlar.forEach(function(z, zi) {
     var zG = 0; z.turlar.forEach(function(t){ zG += t.ostatka; });
-    out += '<div class="zrow" onclick="openZavod(' + zi + ')">'
-      + '<div><div class="zrow-name">' + z.nom + '</div>'
-      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
-      + '<div style="display:flex;align-items:center;gap:8px;">'
+    var pct = maxAbs>0 ? Math.max(2, Math.round(Math.abs(zG)/maxAbs*100)) : 0;
+    var barC = zG<0 ? 'var(--green)' : 'var(--gold)';
+    out += '<div class="zrow zv" onclick="openZavod(' + zi + ')">'
+      + '<div class="zrow-top">'
+      + '<div class="zrow-name">' + z.nom + ' <span style="font-size:12px;color:var(--muted);font-weight:400;">· ' + z.turlar.length + ' tur</span></div>'
       + '<div class="zrow-g" style="color:'+(zG<0?'var(--green)':'var(--red)')+'">' + fmtG(zG) + ' g</div>'
-      + '<div style="color:var(--muted);">›</div></div></div>';
+      + '</div>'
+      + '<div class="zbar"><i style="width:'+pct+'%;background:'+barC+';"></i></div>'
+      + '</div>';
   });
   list.innerHTML = out;
+  homeTrend();
   if (curHomeTab === 'hisobot') renderHisobot();
+}
+
+function homeTrend() {
+  var dkey = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  var cur = 0;
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ cur += t.ostatka; }); });
+  var dayDelta = {};
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ (t.tarix||[]).forEach(function(op){
+    var v = 0;
+    if(op.tip==='mol') v = op.gramm||0;
+    else if(op.tip==='tolov') v = -(op.jami||0);
+    else if(op.tip==='vozvrat') v = -(op.gramm||0);
+    if(op.sana) dayDelta[op.sana] = (dayDelta[op.sana]||0) + v;
+  }); }); });
+  var pts = [], bal = cur, week = 0, today = new Date();
+  for(var i=0;i<30;i++){
+    var d = new Date(today); d.setDate(today.getDate()-i);
+    var k = dkey(d);
+    pts.unshift(bal);
+    if(i<7) week += (dayDelta[k]||0);
+    bal -= (dayDelta[k]||0);
+  }
+  var mn = Math.min.apply(null,pts), mx = Math.max.apply(null,pts), rng = mx-mn;
+  var poly = pts.map(function(v,i){
+    var x = Math.round(i*(92/29)*10)/10;
+    var y = rng>0 ? Math.round((20 - (v-mn)/rng*16)*10)/10 : 12;
+    return x+','+y;
+  }).join(' ');
+  var svg = '<svg width="92" height="24" viewBox="0 0 92 24" style="flex-shrink:0;"><polyline points="'+poly+'" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>';
+  week = Math.round(week*100)/100;
+  var lbl = '<span class="trend-lbl">'+(week>=0?'+':'−')+fmtG(Math.abs(week))+' g bu hafta</span>';
+  var t1 = document.getElementById('home-trend'); if(t1) t1.innerHTML = svg+lbl;
+  var t2 = document.getElementById('home-trend-mob'); if(t2) t2.innerHTML = svg+lbl;
 }
 
 function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); renderZavod(); }
