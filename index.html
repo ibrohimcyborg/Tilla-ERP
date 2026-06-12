@@ -2893,25 +2893,60 @@ function kSotuvKlientChange() {
 
 function kSotuvRenderZavodlar() {
   var out = '';
+  var firstOpen = true;
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
-    out += '<div style="background:var(--surf2);border-radius:12px;padding:10px 12px;margin-bottom:8px;">';
-    out += '<div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:8px;">' + z.nom + '</div>';
+    var hasStat = z.turlar.some(function(t){ return t.ostatka > 0.001; });
+    var isOpen = firstOpen && hasStat;
+    if (firstOpen && hasStat) firstOpen = false;
+    var bodyDisplay = isOpen ? 'block' : 'none';
+    var arrow = isOpen ? '⌄' : '›';
+    out += '<div style="background:var(--surf2);border-radius:12px;margin-bottom:8px;overflow:hidden;">';
+    out += '<div onclick="kSotuvToggleZ(this)" style="padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">';
+    out += '<div style="font-size:12px;font-weight:600;color:var(--gold);">' + z.nom + '</div>';
+    var zTot = z.turlar.reduce(function(a,t){return a+t.ostatka;},0);
+    out += '<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:var(--muted);">' + fmtG(zTot) + 'g</span><span style="color:var(--muted);">' + arrow + '</span></div>';
+    out += '</div>';
+    out += '<div style="display:' + bodyDisplay + ';padding:0 12px 10px;" class="ks-zavod-body">';
     z.turlar.forEach(function(t, ti) {
-      var inputId = 'ksg-' + zi + '-' + ti;
-      out += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">';
-      out += '<div style="flex:1;">';
-      out += '<div style="font-size:13px;font-weight:500;color:var(--text);">' + t.nom + '</div>';
-      out += '<div style="font-size:10px;color:var(--muted);">zavod: ' + fmtG(t.ostatka) + 'g</div>';
+      out += '<div style="padding:7px 0;border-top:1px solid var(--border);">';
+      out += '<div style="display:flex;align-items:center;gap:8px;">';
+      out += '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--text);">' + t.nom + '</div></div>';
+      out += '<input type="number" id="ksg-' + zi + '-' + ti + '" data-zi="' + zi + '" data-ti="' + ti + '" data-ostatka="' + t.ostatka + '" placeholder="0g" oninput="kSotuvGUpdate(this)" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:14px;text-align:right;color:var(--green);font-weight:500;">';
       out += '</div>';
-      out += '<input type="number" id="ksn-' + zi + '-' + ti + '" placeholder="$/g" oninput="kSotuvCalc()" style="width:56px;padding:5px 6px;border-radius:7px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);font-size:12px;text-align:right;color:var(--gold);">';
-      out += '<input type="number" id="' + inputId + '" data-zi="' + zi + '" data-ti="' + ti + '" data-ostatka="' + t.ostatka + '" placeholder="0g" oninput="kSotuvCalc()" style="width:64px;padding:5px 6px;border-radius:7px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:13px;text-align:right;color:var(--green);font-weight:500;">';
-      out += '<div id="ksg-res-' + zi + '-' + ti + '" style="font-size:10px;color:var(--green);min-width:36px;text-align:right;"></div>';
+      out += '<div id="ksg-ost-' + zi + '-' + ti + '" style="font-size:10px;color:var(--green);margin-top:3px;">ostatka: ' + fmtG(t.ostatka) + 'g</div>';
       out += '</div>';
     });
-    out += '</div>';
+    out += '</div></div>';
   });
   document.getElementById('ks-zavod-list').innerHTML = out;
+}
+
+function kSotuvToggleZ(hdr) {
+  var body = hdr.nextElementSibling;
+  var arr = hdr.querySelector('span:last-child');
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (arr) arr.textContent = open ? '›' : '⌄';
+}
+
+function kSotuvGUpdate(el) {
+  var zi = el.dataset.zi, ti = el.dataset.ti;
+  var ostatka = parseFloat(el.dataset.ostatka) || 0;
+  var g = parseNum(el.value) || 0;
+  var ostEl = document.getElementById('ksg-ost-' + zi + '-' + ti);
+  var qoladi = Math.round((ostatka - g) * 100) / 100;
+  if (g > ostatka + 0.001) {
+    el.style.borderColor = 'var(--red)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ ' + fmtG(Math.abs(qoladi)) + 'g yetmaydi!</span>';
+  } else if (g > 0) {
+    el.style.borderColor = 'var(--green-bd)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">qoladi: ' + fmtG(qoladi) + 'g</span>';
+  } else {
+    el.style.borderColor = 'var(--green-bd)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--muted);">ostatka: ' + fmtG(ostatka) + 'g</span>';
+  }
+  kSotuvCalc();
 }
 
 function kSotuvRenderVozvrat(ki) {
@@ -2962,22 +2997,13 @@ function kSotuvAddLom() {
 
 function kSotuvCalc() {
   var kurs = parseNum(document.getElementById('ks-kurs').value) || 0;
-  // Turlar
-  var jamiOldiPul = 0;
+  // Turlar — gramm tekshiruvi
+  var jamiOldiG = 0;
   document.querySelectorAll('[id^="ksg-"]').forEach(function(el) {
     if (!el.id.match(/^ksg-\d+-\d+$/)) return;
-    var parts = el.id.split('-');
-    var zi = parts[1], ti = parts[2];
     var g = parseNum(el.value) || 0;
-    var narx = parseNum((document.getElementById('ksn-' + zi + '-' + ti)||{}).value) || 0;
-    var pul = Math.round(g * narx * 100) / 100;
-    var resEl = document.getElementById('ksg-res-' + zi + '-' + ti);
-    if (resEl) resEl.textContent = g > 0 && narx > 0 ? '=' + pul + '$' : '';
-    jamiOldiPul += pul;
+    jamiOldiG += g;
   });
-  jamiOldiPul = Math.round(jamiOldiPul * 100) / 100;
-  var skidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul)) * 100) / 100;
-  var tolovPul = Math.floor(jamiOldiPul);
   // Naqt
   var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
   var naqtG = kurs > 0 ? Math.round(naqt / kurs * 100) / 100 : 0;
@@ -3004,30 +3030,23 @@ function kSotuvCalc() {
   });
   // Jami to'lov pul
   var jamiTolovPul = naqt + lomPulJami;
-  var qaytimPul = Math.max(0, Math.round((jamiTolovPul - tolovPul) * 100) / 100);
   // Hisob
   var hEl = document.getElementById('ks-hisob');
-  if (jamiOldiPul > 0 || naqt > 0 || lomPulJami > 0 || vozJami > 0) {
+  if (jamiOldiG > 0 || naqt > 0 || lomPulJami > 0 || vozJami > 0) {
     hEl.style.display = 'block';
     var rows = '';
-    rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">Jami sotildi</span><span>' + jamiOldiPul + '$</span></div>';
-    if (skidka > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--red);">Skidka</span><span style="color:var(--red);">− ' + fmtG(skidka) + '$</span></div>';
-    rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;border-top:1px solid var(--border);margin-top:3px;padding-top:3px;"><span style="color:var(--muted);">To\'lov</span><span style="color:var(--green);font-weight:600;">' + tolovPul + '$</span></div>';
-    if (naqt > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">− Naqt</span><span>' + naqt + '$</span></div>';
-    if (lomPulJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">− Lom</span><span style="color:var(--gold);">' + lomPulJami + '$</span></div>';
-    if (vozJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">− Vozvrat</span><span style="color:var(--blue);">' + fmtG(vozJami) + 'g</span></div>';
+    rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">Olindi</span><span>' + fmtG(jamiOldiG) + 'g</span></div>';
+    if (naqt > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>' + naqt + '$</span></div>';
+    if (lomPulJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">Lom</span><span style="color:var(--gold);">' + lomPulJami + '$</span></div>';
+    if (vozJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;"><span style="color:var(--muted);">Vozvrat</span><span style="color:var(--blue);">' + fmtG(vozJami) + 'g</span></div>';
+    if (naqt > 0 || lomPulJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0 2px;border-top:1px solid var(--border);margin-top:3px;"><span style="color:var(--muted);">Jami to\'lov</span><span style="color:var(--green);font-weight:600;">' + fmtD(jamiTolovPul) + '$</span></div>';
     document.getElementById('ks-hisob-rows').innerHTML = rows;
   } else {
     hEl.style.display = 'none';
   }
-  // Qaytim
+  // Qaytim — bu yerda qaytim hisob qilish uchun kurs kerak (naqt kurs)
   var qEl = document.getElementById('ks-qaytim');
-  if (qaytimPul > 0.01) {
-    qEl.style.display = 'block';
-    document.getElementById('ks-qaytim-val').textContent = fmtD(qaytimPul) + '$';
-  } else {
-    qEl.style.display = 'none';
-  }
+  qEl.style.display = 'none';
 }
 
 function saqlashKlientSotuv() {
@@ -3045,13 +3064,12 @@ function saqlashKlientSotuv() {
     var parts = el.id.split('-');
     var zi = parseInt(parts[1]), ti = parseInt(parts[2]);
     var g = parseNum(el.value) || 0;
-    var narx = parseNum((document.getElementById('ksn-' + zi + '-' + ti)||{}).value) || 0;
     if (g <= 0) return;
     var z = data.zavodlar[zi], t = z.turlar[ti];
     if (g > t.ostatka + 0.001) { alert(z.nom + ' · ' + t.nom + ' zavodda yetarli tilla yoq!'); throw new Error('stop'); }
     k.tarix.push({tip:'berish', sana:sana, zavod:z.nom, tur:t.nom, gramm:g});
     t.ostatka = Math.max(0, Math.round((t.ostatka - g)*100)/100);
-    oldilar.push({zavod:z.nom, tur:t.nom, gramm:g, narx:narx});
+    oldilar.push({zavod:z.nom, tur:t.nom, gramm:g, narx:0});
     any = true;
   });
   if (!any) { alert('Kamida 1 ta turga gramm kiriting!'); return; }
