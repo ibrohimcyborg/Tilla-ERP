@@ -2922,7 +2922,8 @@ function klientQarzChekPrint(ki) {
     chekText+=rjust('  '+b.tur, gramm)+'\n';
   });
   chekText+=LINE;
-  chekText+=rjust('JAMI QARZ:', fmtG(d.jamiQarz)+' g')+'\n';
+  var jamiStr='JAMI QARZ: '+fmtG(d.jamiQarz)+' g';
+  chekText+=center(jamiStr)+'\n';
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
     (function(idx){setTimeout(function(){
