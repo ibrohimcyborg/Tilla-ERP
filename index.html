@@ -8,8 +8,8 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
-:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
-[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#d04040;--green:#3a9060;}
+:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--green-bg:#0f1f10;--green-bd:#1e4a2a;--red-bg:#1f0f0f;--red-bd:#3a1e1e;--blue:#5ab4e8;--blue-bg:#0f1a1f;--blue-bd:#1e3a4a;--purple:#c084c0;--purple-bd:#4a2a4a;--yellow:#e8b84c;--yellow-bg:#2a1f0a;--gold-bg:#241c0a;--gold-bd:#3a2a0a;--on-gold:#1a1200;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
+[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#c84545;--green:#2e8f56;--green-bg:#c8edcf;--green-bd:#6cbd82;--red-bg:#f5caca;--red-bd:#d97878;--blue:#2e7cb0;--blue-bg:#c8dff0;--blue-bd:#6aafd6;--purple:#8a4f9e;--purple-bd:#c09aca;--yellow:#9a7416;--yellow-bg:#f5e4b0;--gold-bg:#f0d99a;--gold-bd:#c8a030;--on-gold:#fff8e6;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;}
 .topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;padding-top:var(--safe-top);height:calc(54px + var(--safe-top));display:flex;align-items:flex-end;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -31,8 +31,8 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .big-stat-val span{font-size:18px;color:var(--muted);margin-left:4px;}
 .big-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .big-btn{border-radius:var(--r);padding:18px 16px;cursor:pointer;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:all .15s;}
-.big-btn.kirim{background:#0f1f10;border-color:#1e3a1e;}
-.big-btn.chiqim{background:#1f0f0f;border-color:#3a1e1e;}
+.big-btn.kirim{background:var(--green-bg);border-color:var(--green-bd);}
+.big-btn.chiqim{background:var(--red-bg);border-color:var(--red-bd);}
 .big-btn-icon{font-size:24px;opacity:.8;}
 .big-btn-label{font-size:17px;font-weight:600;}
 .big-btn.kirim .big-btn-label{color:var(--green);}
@@ -317,17 +317,17 @@ body.rol-zavod #main-tab-klient { display: none !important; }
         </div>
       </div>
       <div style="margin-bottom:12px;">
-        <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:#0f1a1f;border-color:#1e3a4a;flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
-          <div style="font-size:20px;color:#5ab4e8;">↩</div>
+        <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:var(--blue-bg);border-color:var(--blue-bd);flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
+          <div style="font-size:20px;color:var(--blue);">↩</div>
           <div>
-            <div style="font-size:15px;font-weight:600;color:#5ab4e8;">Zavodga vozvrat</div>
+            <div style="font-size:15px;font-weight:600;color:var(--blue);">Zavodga vozvrat</div>
             <div style="font-size:12px;color:var(--muted);">Tilla qaytarish</div>
           </div>
         </div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <button class="action-btn" onclick="openZavodModal()">+ Zavod</button>
-        <button class="action-btn" onclick="openPDFModal(null)" style="border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
+        <button class="action-btn" onclick="openPDFModal(null)" style="border-color:var(--purple-bd);color:var(--purple);">⎙ PDF</button>
       </div>
     </div>
     <!-- Zavod roʻyxat body -->
@@ -357,8 +357,8 @@ body.rol-zavod #main-tab-klient { display: none !important; }
           <span class="pc-kbtn-lbl" style="color:var(--red);">Berish</span>
         </button>
         <button class="pc-kbtn vozvrat" onclick="openKlientVozvrat()">
-          <span class="pc-kbtn-ico" style="color:#5ab4e8;">↩</span>
-          <span class="pc-kbtn-lbl" style="color:#5ab4e8;">Vozvrat</span>
+          <span class="pc-kbtn-ico" style="color:var(--blue);">↩</span>
+          <span class="pc-kbtn-lbl" style="color:var(--blue);">Vozvrat</span>
         </button>
         <button class="pc-kbtn tolov" onclick="openKlientTolov()">
           <span class="pc-kbtn-ico" style="color:var(--green);">$</span>
@@ -384,7 +384,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
           <span style="font-size:18px;color:var(--gold);">↩</span>Vozvrat
         </button>
         <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="font-size:18px;color:#5ab4e8;">$</span>Tolov
+          <span style="font-size:18px;color:var(--blue);">$</span>Tolov
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -435,7 +435,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
     <div class="empty" id="zavod-tur-empty" style="display:none;"><div class="empty-icon">📦</div>Hali tur yoq.</div>
     <div class="btn-row" style="margin-top:12px;">
       <button class="btn gold" onclick="openTurModal()">+ Tur qoshish</button>
-      <button class="action-btn" onclick="openPDFModal(curZ)" style="border-color:#4a2a4a;color:#c084c0;">⎙ PDF</button>
+      <button class="action-btn" onclick="openPDFModal(curZ)" style="border-color:var(--purple-bd);color:var(--purple);">⎙ PDF</button>
     </div>
   </div>
   <div id="zavod-hisobot-cont" style="display:none;"></div>
@@ -485,7 +485,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
   </div>
   <div class="btn-row">
     <button class="btn" onclick="goTo('s-home')">Bekor</button>
-    <button class="btn" style="background:#0f1a1f;color:#5ab4e8;border-color:#1e3a4a;" onclick="zvSaqlash()">✓ Saqlash</button>
+    <button class="btn" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd);" onclick="zvSaqlash()">✓ Saqlash</button>
   </div>
 </div>
 
@@ -551,7 +551,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
       <div class="nav-tab active" id="kdt-tarix" onclick="kdTab('tarix')">Tarix</div>
       <div class="nav-tab" id="kdt-hisobot" onclick="kdTab('hisobot')">Hisobot</div>
     </div>
-    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:#4a2a4a;color:#c084c0;margin-left:8px;">⎙ PDF</button>
+    <button class="action-btn" onclick="klientPDF()" style="font-size:12px;border-color:var(--purple-bd);color:var(--purple);margin-left:8px;">⎙ PDF</button>
   </div>
   <div id="kd-tarix"></div>
   <div id="kd-hisobot" style="display:none;"></div>
@@ -618,7 +618,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
       <div style="display:flex;gap:8px;">
         <input type="password" id="reset-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
-        <button onclick="resetParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+        <button onclick="resetParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">OK</button>
       </div>
       <div id="reset-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -638,7 +638,7 @@ body.rol-zavod #main-tab-klient { display: none !important; }
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
       <div style="display:flex;gap:8px;">
         <input type="password" id="snap-parol" placeholder="Parol..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
-        <button onclick="snapParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1a1200;font-size:14px;font-weight:600;cursor:pointer;">OK</button>
+        <button onclick="snapParolTekshir()" style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">OK</button>
       </div>
       <div id="snap-parol-err" style="color:var(--red);font-size:12px;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -899,11 +899,11 @@ function renderHisobot() {
     var out = '';
     groupOrder.forEach(function(key, idx) {
       var g = groups[key], isK = g.tip === 'mol', isV = g.tip === 'vozvrat', isOpen = expanded[idx];
-      var bc = isK ? 'var(--green)' : isV ? '#5ab4e8' : 'var(--red)';
+      var bc = isK ? 'var(--green)' : isV ? 'var(--blue)' : 'var(--red)';
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
-      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'#5ab4e8':'var(--red)');
+      bc = isK ? (jamiG<0?'var(--green)':'var(--red)') : (isV?'var(--blue)':'var(--red)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleHrow(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK ? '↓ Kirim' : isV ? '↩ Vozvrat' : '↑ Chiqim') + '</div>';
@@ -925,7 +925,7 @@ function renderHisobot() {
           if (isK) {
             out += '<div style="font-size:12px;color:var(--green);">+' + fmtG(op.gramm) + ' g</div>';
           } else if (op.tip === 'vozvrat') {
-            out += '<div style="font-size:12px;color:#5ab4e8;">−' + fmtG(op.gramm) + ' g</div>';
+            out += '<div style="font-size:12px;color:var(--blue);">−' + fmtG(op.gramm) + ' g</div>';
           } else {
             if (op.naqtSumma>0&&op.naqtKurs>0) out += '<div style="font-size:12px;color:var(--muted);">naqt: ' + fmtD(op.naqtSumma) + '$ / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(op.naqtGramm) + 'g</b></div>';
             if (op.lomGramm>0&&op.lomKurs>0) out += '<div style="font-size:12px;color:var(--muted);">lom: ' + fmtG(op.lomGramm) + 'g × ' + op.lomKurs + '$/g = ' + fmtD(op.lomPul) + '$' + (op.naqtKurs>0?' / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(Math.round(op.lomPul/op.naqtKurs*100)/100) + 'g</b>':'') + '</div>';
@@ -1119,7 +1119,7 @@ function renderZavodHisobot() {
       var jamiG = 0;
       g.turlar.forEach(function(item){ if(item.op.tip==='mol'||item.op.tip==='vozvrat') jamiG+=item.op.gramm; else jamiG+=(item.op.jami||0); });
       jamiG = Math.round(jamiG*100)/100;
-      bc = isK ? 'var(--red)' : (isV2 ? '#5ab4e8' : 'var(--green)');
+      bc = isK ? 'var(--red)' : (isV2 ? 'var(--blue)' : 'var(--green)');
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleZH(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
@@ -1514,11 +1514,11 @@ function snapRoHatRender() {
       var html = '';
 
       // Hozirgi holat — birinchi qatorda
-      html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:#0f2a1a;border:1px solid #1e4a2a;">';
+      html += '<div style="padding:10px 12px;margin-bottom:6px;border-radius:10px;background:var(--green-bg);border:1px solid var(--green-bd);">';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       html += '<div><div style="font-size:13px;font-weight:600;color:var(--green);">Hozirgi holat</div>';
       html += '<div style="font-size:11px;color:var(--muted);">'+nowStr+'</div></div>';
-      html += '<div style="font-size:11px;color:var(--green);padding:3px 10px;border-radius:6px;border:1px solid #1e4a2a;">Joriy</div>';
+      html += '<div style="font-size:11px;color:var(--green);padding:3px 10px;border-radius:6px;border:1px solid var(--green-bd);">Joriy</div>';
       html += '</div></div>';
 
       if(!snaps.length) {
@@ -1699,7 +1699,7 @@ function renderKassa() {
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
   var html = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'
-    +'<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid #3a2a0a;color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>'
+    +'<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>'
     +'</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
     +'<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>'
@@ -1847,7 +1847,7 @@ function renderKlientHisobot() {
       ops.forEach(function(op,i){
         if(i>0) html+='<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
         var tip=op.tip;
-        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'var(--blue)';
         var label=tip==='berish'?'Berildi':tip==='vozvrat'?'Vozvrat':'Tolov';
         var val=fmtG(op.gramm>0?op.gramm:(op.ekvivalent||0))+'g';
         var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
@@ -1893,7 +1893,7 @@ function klientGunTahrir(ki, sana) {
     var op = item.op, oi = item.oi;
     var tip = op.tip;
     var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
     var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
 
     body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
@@ -2084,7 +2084,7 @@ function renderKlientlar() {
     topHTML='<div class="empty" style="padding:24px 20px;"><div class="empty-icon">🔍</div>"'+qFilter+'" topilmadi.</div>';
   } else { filteredTop.forEach(function(item,rank){
     var k=item.k,ki=item.i,qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
-    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'var(--yellow)':'#e05a5a';
     var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     topHTML+='<div class="hrow" style="cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
       +'<div style="display:flex;align-items:center;gap:10px;">'
@@ -2105,8 +2105,8 @@ function renderKlientlar() {
   if(!qSorted.length){qHTML='<div class="empty">Barcha klientlar faol!</div>';}
   else{qSorted.forEach(function(item){
     var k=item.k,ki=item.i,holat=item.holat,qarz=item.qarz;
-    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
-    var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
+    var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'var(--yellow)':'#e05a5a';
+    var bg=holat.rang==='green'?'var(--green-bg)':holat.rang==='yellow'?'var(--yellow-bg)':'var(--red-bg)';
     var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     qHTML+='<div class="hrow" style="border-left:3px solid '+dc+';cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
       +'<div style="display:flex;align-items:center;gap:10px;">'
@@ -2129,8 +2129,8 @@ function openKlientDetail(ki) {
   qEl.style.color=qarz>0?'var(--red)':'var(--green)';
   document.getElementById('kd-savdo').textContent=fmtG(savdo.g)+'g';
   document.getElementById('kd-pul').textContent=fmtD(savdo.pul)+'$';
-  var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'#e8b84c':'#e05a5a';
-  var bg=holat.rang==='green'?'#0f2a1a':holat.rang==='yellow'?'#2a1f0a':'#2a0f0f';
+  var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'var(--yellow)':'#e05a5a';
+  var bg=holat.rang==='green'?'var(--green-bg)':holat.rang==='yellow'?'var(--yellow-bg)':'var(--red-bg)';
   var icon=holat.rang==='green'?'🟢':holat.rang==='yellow'?'🟡':'🔴';
   var st=document.getElementById('kd-status');
   if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
@@ -2176,7 +2176,7 @@ function openKlientDetail(ki) {
   });
   if(!hasQarz) bHTML+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yoq</div>';
 
-  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #4a2a4a;background:transparent;color:#c084c0;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid #2a3a4a;background:transparent;color:#5ab4e8;font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:4px 6px;gap:4px;"><button onclick="chekCntChange('+ki+',-1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#8722;</button><span id="chek-cnt-'+ki+'" style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:var(--text);">1</span><button onclick="chekCntChange('+ki+',1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button></div></div>';
+  bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--blue-bd);background:transparent;color:var(--blue);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:4px 6px;gap:4px;"><button onclick="chekCntChange('+ki+',-1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#8722;</button><span id="chek-cnt-'+ki+'" style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:var(--text);">1</span><button onclick="chekCntChange('+ki+',1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button></div></div>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   // Sana boyicha guruhlash
@@ -2198,9 +2198,9 @@ function openKlientDetail(ki) {
     var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
     var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
     var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
-    var bc=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
+    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
     var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
-    var lcolor=hasBerish?'var(--red)':hasTolov?'#5ab4e8':'var(--gold)';
+    var lcolor=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
 
     var jamiG=0;
     g.ops.forEach(function(op){
@@ -2218,7 +2218,7 @@ function openKlientDetail(ki) {
     var bVal=hasBerish?'1':'0';
     tHTML+='<div style="display:flex;align-items:center;gap:5px;">';
     tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(jamiG)+'g</div>';
-    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid #4a2a4a;color:#c084c0;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
+    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
     tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
     tHTML+='</div></div>';
 
@@ -2226,7 +2226,7 @@ function openKlientDetail(ki) {
       tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
       g.ops.forEach(function(op){
         var isOV=op.tip==='vozvrat',isOT=op.tip==='tolov',isOB=op.tip==='berish';
-        var oc=isOB?'var(--red)':isOV?'var(--gold)':'#5ab4e8';
+        var oc=isOB?'var(--red)':isOV?'var(--gold)':'var(--blue)';
         var ov=isOB?('−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g');
         if(op.zavod&&op.tur&&isOT) os=op.zavod+' · '+op.tur+' — '+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
@@ -2367,7 +2367,7 @@ function renderKdHisobot() {
     ops.forEach(function(op, i){
       if(i>0) html += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
       var tip = op.tip;
-      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'#5ab4e8';
+      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
       var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
       var val = fmtG(op.gramm>0?op.gramm:(op.ekvivalent||0))+'g';
       var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
@@ -3216,7 +3216,7 @@ function zvZavodChange() {
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(t.ostatka)+'g</div></div>'
       + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">'
       + '<div style="display:flex;align-items:center;gap:6px;">'
-      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+t.ostatka+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:#5ab4e8;text-align:right;">'
+      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+t.ostatka+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--blue);text-align:right;">'
       + '<span style="font-size:12px;color:var(--muted);">g</span></div>'
       + '<div id="zvc-'+ti+'" style="font-size:10px;color:var(--green);display:none;">qoladi: <b id="zvr-'+ti+'">0</b>g</div>'
       + '</div></div>';
