@@ -2951,7 +2951,9 @@ function kSotuvGUpdate(el) {
   } else if (g > 0) {
     el.style.borderColor = 'var(--green-bd)';
     ostEl.style.color = 'var(--green)';
-    ostEl.innerHTML = 'qoladi: ' + fmtG(qoladi) + 'g &nbsp;&nbsp; qarz: <span style="color:var(--red);">' + fmtG(yangiQarz) + 'g</span>';
+    ostEl.style.display = 'flex';
+    ostEl.style.justifyContent = 'space-between';
+    ostEl.innerHTML = '<span>qoladi: ' + fmtG(qoladi) + 'g</span><span style="color:var(--red);">qarz: ' + fmtG(yangiQarz) + 'g</span>';
   } else {
     el.style.borderColor = 'var(--green-bd)';
     ostEl.style.color = 'var(--muted)';
