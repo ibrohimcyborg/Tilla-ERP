@@ -2895,27 +2895,35 @@ function klientQarzChekPDF(ki) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 function klientQarzChekPrint(ki) {
-  var W=32;
-  function centerLine(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
+  var W=50;
+  function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
+  function rjust(left,right){var sp=W-left.length-right.length;if(sp<1)sp=1;return left+Array(sp+1).join(' ')+right;}
   var d=_qarzTarkib(ki);
   var cnt=parseInt((document.getElementById('chek-cnt-'+ki)||{textContent:'1'}).textContent)||1;
   var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
   var nowT=new Date();
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
-  var LINE='--------------------------------\n';
-  var SEP='--------\n';
-  var chekText=centerLine('⬡ TILLA HISOB')+'\n';
-  chekText+=today2+' · '+soat+'\n';
-  chekText+=d.k.nom+'\n';
+  var LINE=Array(W+1).join('-')+'\n';
+  var SEP=Array(Math.floor(W/2)+1).join('-')+'\n';
+  var chekText=center('HISOB')+'\n';
+  chekText+=center('- QARZ CHEKI -')+'\n';
+  chekText+=LINE;
+  chekText+=center(d.k.nom)+'\n';
+  chekText+=center(today2+' · '+soat)+'\n';
   chekText+=LINE;
   var curZavod='';
   d.qarz_tarkib.forEach(function(b){
-    if(b.zavod!==curZavod){if(curZavod!=='') chekText+=SEP; curZavod=b.zavod; chekText+=b.zavod+'\n';}
-    var tur=b.tur; var gramm=fmtG(b.qarz)+' g';
-    var spaces=30-tur.length-gramm.length; if(spaces<1) spaces=1;
-    chekText+='  '+tur+Array(spaces).join(' ')+gramm+'\n';
+    if(b.zavod!==curZavod){
+      if(curZavod!=='') chekText+=SEP;
+      curZavod=b.zavod;
+      chekText+=b.zavod+'\n';
+    }
+    var gramm=fmtG(b.qarz)+' g';
+    chekText+=rjust('  '+b.tur, gramm)+'\n';
   });
-  chekText+=LINE+'Jami qarz: '+fmtG(d.jamiQarz)+' g\n';
+  chekText+=LINE;
+  chekText+=rjust('JAMI QARZ:', fmtG(d.jamiQarz)+' g')+'\n';
+  chekText+='\n\n';
   for(var i=0;i<cnt;i++){
     (function(idx){setTimeout(function(){
       fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:chekText})}).catch(function(){});
