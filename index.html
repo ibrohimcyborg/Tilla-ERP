@@ -3238,11 +3238,19 @@ function kTolovKlientChange(){
       +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>'
       +'<div style="font-size:12px;color:var(--red);">−'+fmtG(b.qarz)+'g</div>'
       +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">SUMMA ($)</div>'
-      +'<input type="number" id="kt-s-'+idx+'" placeholder="0" oninput="kTolovCalc()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
-      +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">KURS ($/g)</div>'
-      +'<input type="number" id="kt-k-'+idx+'" placeholder="87.5" oninput="kTolovCalc()" value="'+(getZavodNarx(b.zi,b.ti)||'')+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
+      +'<div style="display:flex;gap:4px;align-items:center;">'
+      +'<div style="flex:1.2;"><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SUMMA ($)</div>'
+      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--border);background:var(--surf);border-radius:7px;padding:0 7px;height:36px;">'
+      +'<input type="number" id="kt-s-'+idx+'" placeholder="0" oninput="ktUpd(\'s\','+idx+','+b.zi+','+b.ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--text);text-align:right;outline:none;width:0;">'
+      +'<span style="font-size:10px;color:var(--muted);">$</span></div></div>'
+      +'<div style="flex:1;"><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">$/g</div>'
+      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:7px;padding:0 7px;height:36px;">'
+      +'<input type="number" id="kt-k-'+idx+'" placeholder="0" oninput="ktUpd(\'n\','+idx+','+b.zi+','+b.ti+')" value="'+(getZavodNarx(b.zi,b.ti)||'')+'" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--gold);text-align:right;outline:none;width:0;">'
+      +'<span style="font-size:9px;color:var(--gold-bd);">$/g</span></div></div>'
+      +'<div style="flex:1;"><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">gramm</div>'
+      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:7px;padding:0 7px;height:36px;">'
+      +'<input type="number" id="kt-g-'+idx+'" placeholder="0" oninput="ktUpd(\'g\','+idx+','+b.zi+','+b.ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--green);text-align:right;outline:none;width:0;">'
+      +'<span style="font-size:9px;color:var(--green-bd);">g</span></div></div>'
       +'</div>'
       +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">= <span style="color:var(--green);font-weight:600;" id="kt-eq-'+idx+'">0g</span> qarz kamayadi</div>'
       +'</div>';
@@ -3290,12 +3298,33 @@ function ktVozvratUpdate(el, idx) {
   kTolovCalc();
 }
 
+function ktUpd(changed, idx, zi, ti) {
+  var sEl = document.getElementById('kt-s-'+idx);
+  var nEl = document.getElementById('kt-k-'+idx);
+  var gEl = document.getElementById('kt-g-'+idx);
+  if (!sEl || !nEl || !gEl) return;
+  var s = parseNum(sEl.value) || 0;
+  var n = parseNum(nEl.value) || 0;
+  var g = parseNum(gEl.value) || 0;
+  if (changed === 's' && s > 0 && n > 0) {
+    gEl.value = Math.round(s / n * 100) / 100;
+  } else if (changed === 'g' && g > 0 && n > 0) {
+    sEl.value = Math.round(g * n * 100) / 100;
+  } else if (changed === 'n') {
+    if (s > 0 && n > 0) gEl.value = Math.round(s / n * 100) / 100;
+    else if (g > 0 && n > 0) sEl.value = Math.round(g * n * 100) / 100;
+  }
+  kTolovCalc();
+}
+
 function kTolovCalc(){
   var bd=window._kTolovBD||{},totalEq=0,totalV=0,idx=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key];if(b.qarz<=0){idx++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
+    if (gInp > 0 && kurs > 0 && s <= 0) s = Math.round(gInp * kurs * 100) / 100;
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
     var eq=0;
     if(s>0&&kurs>0){
@@ -3371,6 +3400,8 @@ function saqlashKlientTolov(){
     var b=bd[key]; if(b.qarz<=0){idx++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
+    if (gInp > 0 && kurs > 0 && s <= 0) s = Math.round(gInp * kurs * 100) / 100;
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
     if(s>0&&kurs>0){ var eq=roundG(s/kurs); var limit5=kurs>0?roundG(5/kurs):0; if(eq>0.001&&eq>b.qarz+limit5) hasErr=true; }
     idx++;
@@ -3382,6 +3413,8 @@ function saqlashKlientTolov(){
     var b=bd[key];if(b.qarz<=0){idx++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
+    var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
+    if (gInp > 0 && kurs > 0 && s <= 0) s = Math.round(gInp * kurs * 100) / 100;
     var vEl=document.getElementById('kt-v-'+idx);
     var v=parseNum((vEl||{}).value||0);
     var zi=vEl?parseInt(vEl.dataset.zi):-1;
