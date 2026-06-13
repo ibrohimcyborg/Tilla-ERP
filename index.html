@@ -745,6 +745,20 @@ body.rol-zavod #main-klient { display: none !important; }
   </div>
 </div>
 
+<!-- TAHRIRLASH MODAL -->
+<div class="modal-overlay" id="modal-ktahrir">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Tahrirlash</div>
+    <div class="field"><label>Sana</label><input type="date" id="ktr-sana" style="font-size:16px;"></div>
+    <div id="ktr-ops-list" style="margin-top:8px;"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-ktahrir')">Bekor</button>
+      <button class="btn gold" onclick="saqlashKlientTahrir()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
 <!-- SOTUV MODAL -->
 <div class="modal-overlay" id="modal-ksotuv">
   <div class="modal">
@@ -3634,16 +3648,97 @@ function chekPDF(ki, ops_grouped, sana) {
 }
 
 function klientTarixTahrir(el) {
-  var ki=parseInt(el.dataset.ki);
-  var sana=el.dataset.sana;
-  var isBerish=el.dataset.berish==='1';
-  var k=data.klientlar[ki];
-  var ops=k.tarix.filter(function(op){
-    return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
+  var ki = parseInt(el.dataset.ki);
+  var sana = el.dataset.sana;
+  var isBerish = el.dataset.berish === '1';
+  var k = data.klientlar[ki];
+  var ops = k.tarix.filter(function(op) {
+    return op.sana === sana && (isBerish ? op.tip === 'berish' : (op.tip === 'tolov' || op.tip === 'vozvrat'));
   });
-  if(!ops.length) return;
-  // Hozircha tahrirlash = o'chirish (kelajakda to'liq tahrirlash modali)
-  alert('Tahrirlash funksiyasi tez orada qo\'shiladi.\nHozircha o\'chirish uchun 🗑 tugmasini ishlating.');
+  if (!ops.length) return;
+
+  window._ktrKi = ki;
+  window._ktrOps = ops;
+  window._ktrSana = sana;
+
+  // Sana
+  var parts = sana.split('.');
+  var dateVal = parts.length === 3 ? parts[2]+'-'+parts[1]+'-'+parts[0] : sana;
+  document.getElementById('ktr-sana').value = dateVal;
+
+  // Operatsiyalar
+  var out = '';
+  ops.forEach(function(op, i) {
+    out += '<div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">';
+    if (op.tip === 'berish') {
+      out += '<div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:8px;">↑ Berildi — '+op.zavod+' · '+op.tur+'</div>';
+      out += '<div style="font-size:10px;color:var(--muted);margin-bottom:4px;">GRAMM</div>';
+      out += '<input type="number" id="ktr-g-'+i+'" value="'+op.gramm+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
+    } else if (op.tip === 'vozvrat') {
+      out += '<div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:8px;">↩ Vozvrat — '+op.zavod+' · '+op.tur+'</div>';
+      out += '<div style="font-size:10px;color:var(--muted);margin-bottom:4px;">GRAMM</div>';
+      out += '<input type="number" id="ktr-g-'+i+'" value="'+op.gramm+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
+    } else if (op.tip === 'tolov') {
+      out += '<div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px;">$ To\'lov</div>';
+      out += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+      out += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">SUMMA ($)</div>';
+      out += '<input type="number" id="ktr-s-'+i+'" value="'+(op.summa||0)+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);"></div>';
+      out += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">KURS ($/g)</div>';
+      out += '<input type="number" id="ktr-k-'+i+'" value="'+(op.kurs||0)+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);"></div>';
+      out += '</div>';
+    }
+    out += '</div>';
+  });
+  document.getElementById('ktr-ops-list').innerHTML = out;
+  document.getElementById('modal-ktahrir').classList.add('open');
+}
+
+function saqlashKlientTahrir() {
+  var ki = window._ktrKi;
+  var ops = window._ktrOps;
+  var k = data.klientlar[ki];
+
+  var sanaEl = document.getElementById('ktr-sana').value;
+  var yangiSana = sanaEl ? sanaEl.split('-').reverse().join('.') : ops[0].sana;
+
+  ops.forEach(function(op, i) {
+    if (op.tip === 'berish') {
+      var yangiG = parseNum(document.getElementById('ktr-g-'+i).value) || 0;
+      var farq = yangiG - op.gramm;
+      // Ostatka farqini yangilash
+      data.zavodlar.forEach(function(z) {
+        z.turlar.forEach(function(t) {
+          if (z.nom === op.zavod && t.nom === op.tur) {
+            t.ostatka = Math.max(0, Math.round((t.ostatka - farq) * 100) / 100);
+          }
+        });
+      });
+      op.gramm = yangiG;
+    } else if (op.tip === 'vozvrat') {
+      var yangiG = parseNum(document.getElementById('ktr-g-'+i).value) || 0;
+      var farq = yangiG - op.gramm;
+      data.zavodlar.forEach(function(z) {
+        z.turlar.forEach(function(t) {
+          if (z.nom === op.zavod && t.nom === op.tur) {
+            t.ostatka = Math.max(0, Math.round((t.ostatka + farq) * 100) / 100);
+          }
+        });
+      });
+      op.gramm = yangiG;
+    } else if (op.tip === 'tolov') {
+      var yangiS = parseNum(document.getElementById('ktr-s-'+i).value) || 0;
+      var yangiK = parseNum(document.getElementById('ktr-k-'+i).value) || 0;
+      op.summa = yangiS;
+      op.kurs = yangiK;
+      op.ekvivalent = yangiK > 0 ? roundG(yangiS / yangiK) : 0;
+    }
+    op.sana = yangiSana;
+  });
+
+  save('Tahrirlandi: ' + yangiSana);
+  closeModal('modal-ktahrir');
+  openKlientDetail(ki);
+  renderHome();
 }
 
 function klientTarixOchir(el) {
