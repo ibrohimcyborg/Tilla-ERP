@@ -1267,7 +1267,7 @@ function hkChekPrint() {
   var lines2 = [];
   lines2.push(center('HISOB'));
   lines2.push(LINE);
-  lines2.push(center(sana+' - '+soat));
+  lines2.push(sana+' - '+soat);
   lines2.push(LINE);
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
@@ -1413,7 +1413,7 @@ function zKursChekPrint() {
   var lines2 = [];
   lines2.push(center('HISOB'));
   lines2.push(LINE);
-  lines2.push(center(sana+' - '+soat));
+  lines2.push(sana+' - '+soat);
   lines2.push(LINE);
   lines2.push(z.nom.toUpperCase());
   z.turlar.forEach(function(tt, ti) {
