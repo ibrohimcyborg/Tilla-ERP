@@ -1036,6 +1036,12 @@ function renderHomeKurs() {
   out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Kurs tarixi</div>';
   out += '<span style="color:var(--muted);font-size:14px;">›</span></div>';
   out += '<div style="display:none;padding:0 12px 10px;" id="hk-tarix-body">';
+  // Davr tanlash + PDF tugma
+  out += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;padding-top:4px;">';
+  out += '<div><div style="font-size:9px;color:var(--muted);margin-bottom:3px;">DAN</div><input type="date" id="hk-dan" style="width:100%;padding:6px 8px;border-radius:7px;border:0.5px solid var(--border);background:var(--surf);font-size:12px;color:var(--text);"></div>';
+  out += '<div><div style="font-size:9px;color:var(--muted);margin-bottom:3px;">GACHA</div><input type="date" id="hk-gacha" style="width:100%;padding:6px 8px;border-radius:7px;border:0.5px solid var(--border);background:var(--surf);font-size:12px;color:var(--text);"></div>';
+  out += '</div>';
+  out += '<button onclick="hkTarixPDF()" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--purple-bd);background:var(--surf);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;">⎙ PDF chiqarish</button>';
   if (!tarix.length) {
     out += '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>';
   } else {
@@ -1120,6 +1126,85 @@ function hkToggle(zi, ti) {
   hkRenderTurlar();
 }
 
+function hkTarixPDF() {
+  var danEl = document.getElementById('hk-dan');
+  var gachaEl = document.getElementById('hk-gacha');
+  var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
+  if (!tarix.length) { alert('Kurs tarixi yoq!'); return; }
+
+  // Davr filtri
+  var danV = danEl && danEl.value ? danEl.value : '';
+  var gachaV = gachaEl && gachaEl.value ? gachaEl.value : '';
+
+  function sanaToDt(s) {
+    // dd.mm.yyyy → yyyy-mm-dd
+    var p = s.split('.');
+    if (p.length === 3) return p[2]+'-'+p[1]+'-'+p[0];
+    return s;
+  }
+
+  var filtered = tarix.filter(function(item) {
+    var dt = sanaToDt(item.sana);
+    if (danV && dt < danV) return false;
+    if (gachaV && dt > gachaV) return false;
+    return true;
+  });
+
+  if (!filtered.length) { alert('Bu davrda kurs yozuvi yoq!'); return; }
+
+  // Foizlar
+  var foizlarAll = {};
+  data.zavodlar.forEach(function(z, zi) {
+    foizlarAll[zi] = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+  });
+  var manualAll = {};
+  data.zavodlar.forEach(function(z, zi) {
+    manualAll[zi] = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  });
+
+  var dan = danV ? danV.split('-').reverse().join('.') : filtered[0].sana;
+  var gacha = gachaV ? gachaV.split('-').reverse().join('.') : filtered[filtered.length-1].sana;
+
+  var payload = {
+    tip: 'kurs_tarix',
+    sarlavha: 'KURS TARIXI HISOBOTI',
+    davr: dan + ' — ' + gacha,
+    sana: new Date().toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}),
+    kunlar: filtered.slice().reverse().map(function(item) {
+      var kurs = item.kurs;
+      var turlar = [];
+      data.zavodlar.forEach(function(z, zi) {
+        z.turlar.forEach(function(t, ti) {
+          var foizlar = foizlarAll[zi];
+          var manual = manualAll[zi];
+          var narx;
+          if (manual[ti]) { narx = manual[ti]; }
+          else {
+            var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti])||0 : 0;
+            narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
+          }
+          turlar.push({zavod: z.nom, tur: t.nom, narx: narx});
+        });
+      });
+      return {sana: item.sana, soat: item.soat, kurs: kurs, turlar: turlar};
+    })
+  };
+
+  fetch('/api/pdf.py', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).then(function(r) {
+    if (!r.ok) throw new Error('Xato');
+    return r.blob();
+  }).then(function(blob) {
+    var url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(function(){URL.revokeObjectURL(url);}, 15000);
+  }).catch(function(e) {
+    alert('PDF xato: ' + e.message);
+  });
+}
 function hkToggleTarix(hdr) {
   var body = document.getElementById('hk-tarix-body');
   var arr = hdr.querySelector('span');
