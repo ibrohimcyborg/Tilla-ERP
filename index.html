@@ -3259,8 +3259,12 @@ function kSotuvRenderVozvrat(ki) {
   window._ksSotuvVozBD = bd;
   var qarzBorlar = Object.values(bd).filter(function(b){ return b.qarz > 0.01; });
   if (!qarzBorlar.length) { document.getElementById('ks-voz-cont').innerHTML = ''; return; }
-  var out = '<div style="background:var(--blue-bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;">';
-  out += '<div style="font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Vozvrat (ixtiyoriy)</div>';
+  var out = '<div style="background:var(--blue-bg);border-radius:12px;margin-bottom:8px;overflow:hidden;">';
+  out += '<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=this.nextElementSibling.style.display===\'none\'?\'›\':\'⌄\'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;">';
+  out += '<div style="font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;">Vozvrat (ixtiyoriy)</div>';
+  out += '<span style="color:var(--blue);font-size:14px;">›</span>';
+  out += '</div>';
+  out += '<div style="display:none;padding:0 12px 10px;">';
   qarzBorlar.forEach(function(b, idx) {
     out += '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--blue-bd);">';
     out += '<div><div style="font-size:12px;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>';
@@ -3268,7 +3272,7 @@ function kSotuvRenderVozvrat(ki) {
     out += '<input type="number" id="ks-voz-'+idx+'" data-key="'+b.zavod+'||'+b.tur+'" data-qarz="'+b.qarz+'" placeholder="0g" oninput="kSotuvCalc()" style="width:72px;padding:6px 8px;border-radius:8px;border:1px solid var(--blue-bd);background:var(--surf);font-size:13px;text-align:right;color:var(--blue);font-weight:500;">';
     out += '</div>';
   });
-  out += '</div>';
+  out += '</div></div>';
   document.getElementById('ks-voz-cont').innerHTML = out;
 }
 
