@@ -1265,11 +1265,10 @@ function hkChekPrint() {
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
   var LINE = Array(W+1).join('-');
   var lines2 = [];
-  lines2.push(center('TILLA HISOB'));
+  lines2.push(center('HISOB'));
   lines2.push(LINE);
-  lines2.push(center('KUN KURSI'));
+  lines2.push(center(sana+' - '+soat));
   lines2.push(LINE);
-  lines2.push(sana+' - '+soat);
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
     var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
@@ -1412,10 +1411,10 @@ function zKursChekPrint() {
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
   var LINE = Array(W+1).join('-');
   var lines2 = [];
-  lines2.push(center('TILLA HISOB'));
-  lines2.push(center('KUN KURSI'));
+  lines2.push(center('HISOB'));
   lines2.push(LINE);
-  lines2.push(sana+' - '+soat);
+  lines2.push(center(sana+' - '+soat));
+  lines2.push(LINE);
   lines2.push(z.nom.toUpperCase());
   z.turlar.forEach(function(tt, ti) {
     var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
