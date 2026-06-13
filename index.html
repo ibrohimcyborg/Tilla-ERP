@@ -2340,6 +2340,7 @@ function openKlientDetail(ki) {
     tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(jamiG)+'g</div>';
     tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
     tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
+    tHTML+='<button class="kochir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">🗑</button>';
     tHTML+='</div></div>';
 
     if(g.ops.length>1){
@@ -3637,23 +3638,34 @@ function klientTarixTahrir(el) {
   var sana=el.dataset.sana;
   var isBerish=el.dataset.berish==='1';
   var k=data.klientlar[ki];
-  // Shu sana dagi operatsiyalarni ol
   var ops=k.tarix.filter(function(op){
     return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
   });
   if(!ops.length) return;
-  if(confirm(sana+" sanasidagi "+ops.length+" ta operatsiyani ochirmoqchimisiz?")) {
+  // Hozircha tahrirlash = o'chirish (kelajakda to'liq tahrirlash modali)
+  alert('Tahrirlash funksiyasi tez orada qo\'shiladi.\nHozircha o\'chirish uchun 🗑 tugmasini ishlating.');
+}
+
+function klientTarixOchir(el) {
+  var ki=parseInt(el.dataset.ki);
+  var sana=el.dataset.sana;
+  var isBerish=el.dataset.berish==='1';
+  var k=data.klientlar[ki];
+  var ops=k.tarix.filter(function(op){
+    return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
+  });
+  if(!ops.length) return;
+  if(confirm(sana+' sanasidagi '+ops.length+' ta operatsiyani o\'chirasizmi?')) {
     ops.forEach(function(op){
       var idx=k.tarix.indexOf(op);
       if(idx>=0) k.tarix.splice(idx,1);
-      // Ostatka qaytarish
       if(op.tip==='berish'){
         data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka+=op.gramm;});});
       } else if(op.tip==='vozvrat'){
         data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka-=op.gramm;});});
       }
     });
-    save('Tahrir: '+sana+' operatsiyalar ochirildi');
+    save('O\'chirildi: '+sana);
     openKlientDetail(ki);
     renderHome();
   }
@@ -3663,16 +3675,12 @@ function klientTarixTahrir(el) {
 document.addEventListener('click', function(e) {
   var chek = e.target.closest('.kchek-btn');
   var tahrir = e.target.closest('.ktahrir-btn');
+  var ochir = e.target.closest('.kochir-btn');
   if (chek) { e.stopPropagation(); klientChekBtn(chek); }
   if (tahrir) { e.stopPropagation(); klientTarixTahrir(tahrir); }
+  if (ochir) { e.stopPropagation(); klientTarixOchir(ochir); }
 });
 
-document.addEventListener('click', function(e) {
-  var chek = e.target.closest ? e.target.closest('.kchek-btn') : null;
-  var tahrir = e.target.closest ? e.target.closest('.ktahrir-btn') : null;
-  if (chek) { e.stopPropagation(); klientChekBtn(chek); }
-  if (tahrir) { e.stopPropagation(); klientTarixTahrir(tahrir); }
-});
 
 function _qarzTarkib(ki) {
   var k=data.klientlar[ki];
