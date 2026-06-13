@@ -1427,6 +1427,11 @@ function zKursChekPrint() {
     var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
     lines2.push(rjust('  '+tt.nom, String(narx)));
   });
+  var lomNarx = parseFloat((document.getElementById('hk-lom-inp')||{}).value)||0;
+  if (lomNarx > 0) {
+    lines2.push(LINE);
+    lines2.push(rjust('  Lom', String(lomNarx)));
+  }
   lines2.push(LINE);
   var t = lines2.join(NL)+NL+NL+NL;
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
