@@ -3466,16 +3466,33 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   lines2.push(rjust('Tolov', tolovPul+'$'));
   lines2.push(LINE);
   lines2.push('TOLOVLAR');
-  if (naqt > 0) lines2.push(rjust('Naqt', fmtD(naqt)+'$'));
+
+  // To'lov bloki — har tur uchun
+  var tolovBor = false;
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t, ti) {
+      if (t.ostatka <= 0.001) return;
+      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+      if (s > 0 && n > 0) {
+        lines2.push(rjust('  '+z.nom+' · '+t.nom, s+'$ / '+n+'$/g = '+fmtG(Math.round(s/n*100)/100)+'g'));
+        tolovBor = true;
+      }
+    });
+  });
+
+  // Lom to'lovlar
   document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el) {
     var i = el.id.split('-')[2];
     var lg=parseNum((document.getElementById('ks-lg-'+i)||{}).value)||0;
     var lk=parseNum((document.getElementById('ks-lk-'+i)||{}).value)||0;
     var nom=(document.getElementById('ks-ln-'+i)||{}).value||'Lom';
-    if(lg>0&&lk>0) lines2.push(rjust(nom, lg+'g x '+lk+'$/g = '+fmtD(Math.round(lg*lk*100)/100)+'$'));
+    if(lg>0&&lk>0) { lines2.push(rjust(nom, lg+'g x '+lk+'$/g = '+fmtD(Math.round(lg*lk*100)/100)+'$')); tolovBor = true; }
   });
+
   if (vozJami > 0) lines2.push(rjust('Vozvrat', fmtG(vozJami)+'g'));
-  if (qaytimPul > 0.01) lines2.push(rjust('Qaytim', fmtD(qaytimPul)+'$'));
+  if (!tolovBor && vozJami <= 0) lines2.push(rjust('  —', 'tolov yoq'));
+
   lines2.push(LINE);
   lines2.push(rjust('Qolgan qarz', fmtG(finQarz)+' g'));
   if (ki >= 0) {
