@@ -1056,6 +1056,8 @@ function renderHomeKurs() {
   out += '<span style="color:var(--muted);font-size:14px;">›</span></div>';
   out += '<div style="display:none;padding:0 12px 10px;" id="hk-tarix-body">';
   if (!tarix.length) {
+    out += '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>';
+  } else {
     tarix.slice().reverse().forEach(function(item) {
       out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
       out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g</div>';
