@@ -1064,7 +1064,7 @@ function hkRenderTurlar(kurs) {
       var isManual = manual[ti] ? true : false;
       var narx = isManual
         ? (manual[ti] || '')
-        : (pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*100)/100 : '');
+        : (pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*10)/10 : '');
       var narxColor = isManual ? '#185fa5' : '#3b6d11';
       var narxBorder = isManual ? '#85b7eb' : '#97c459';
       var narxBg = isManual ? '#e6f1fb' : '#eaf3de';
@@ -1097,7 +1097,7 @@ function hkUpd() {
 function hkPctUpd(zi, ti) {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
   var pct = parseFloat((document.getElementById('hkp-'+zi+'-'+ti)||{}).value)||0;
-  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : '';
+  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
   var nEl = document.getElementById('hkn-'+zi+'-'+ti);
   if (nEl) nEl.value = narx;
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
@@ -1169,7 +1169,7 @@ function hkChekPrint() {
       if (manual[ti]) { narx = manual[ti]; }
       else {
         var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti])||0 : 0;
-        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : kurs;
+        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
       }
       lines2.push(rjust('  '+t.nom, narx+' $'));
     });
@@ -1225,7 +1225,7 @@ function zKursNarxUpd() {
   out += '<div style="font-size:9px;color:var(--muted);text-align:right;margin-bottom:4px;letter-spacing:.06em;">% &nbsp;&nbsp; $/g</div>';
   z.turlar.forEach(function(t, ti) {
     var pct = foizlar[ti] !== undefined ? foizlar[ti] : '';
-    var narx = pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*100)/100 : '';
+    var narx = pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*10)/10 : '';
     out += '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
     out += '<div style="flex:1;font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
     out += '<div style="display:flex;align-items:center;gap:6px;">';
@@ -1245,7 +1245,7 @@ function zPctUpd(ti) {
   var kurs = parseFloat(document.getElementById('z-kurs-inp').value) || 0;
   var pctEl = document.getElementById('zp-'+ti);
   var pct = pctEl ? parseFloat(pctEl.value) || 0 : 0;
-  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : '';
+  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
   var nEl = document.getElementById('znr-'+ti);
   if (nEl) nEl.textContent = narx ? narx+' $/g' : '—';
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
@@ -1295,7 +1295,7 @@ function zKursChekPrint() {
   lines2.push(LINE);
   z.turlar.forEach(function(tt, ti) {
     var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
-    var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : kurs;
+    var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
     lines2.push(rjust('  '+tt.nom, (pct?'+'+pct+'% = ':'')+narx+' $/g'));
   });
   lines2.push(LINE);
