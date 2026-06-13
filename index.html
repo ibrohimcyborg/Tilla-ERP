@@ -1047,7 +1047,7 @@ function renderHomeKurs() {
   out += '</div>';
 
   // Chek tugmasi
-  out += '<button onclick="document.getElementById(\'modal-kurs-pdf\').classList.add(\'open\')" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;">⎙ PDF chiqarish</button>';
+  out += '<button onclick="hkKursPDFModal()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;">⎙ PDF chiqarish</button>';
 
   // Kurs tarixi accordion
   out += '<div style="background:var(--surf2);border-radius:10px;overflow:hidden;">';
@@ -1135,6 +1135,16 @@ function hkToggle(zi, ti) {
   if (isManual) { delete manual[ti]; } else { manual[ti] = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0; }
   localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
   hkRenderTurlar();
+}
+
+function hkKursPDFModal() {
+  var now = new Date();
+  var y = now.getFullYear();
+  var m = String(now.getMonth()+1).padStart(2,'0');
+  var last = new Date(y, now.getMonth()+1, 0).getDate();
+  document.getElementById('kpdf-dan').value = y+'-'+m+'-01';
+  document.getElementById('kpdf-gacha').value = y+'-'+m+'-'+String(last).padStart(2,'0');
+  document.getElementById('modal-kurs-pdf').classList.add('open');
 }
 
 function hkPDFDavr(tip) {
