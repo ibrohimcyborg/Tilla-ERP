@@ -1146,16 +1146,6 @@ function hkToggle(zi, ti) {
   hkRenderTurlar();
 }
 
-function hkKursPDFModal() {
-  var now = new Date();
-  var y = now.getFullYear();
-  var m = String(now.getMonth()+1).padStart(2,'0');
-  var last = new Date(y, now.getMonth()+1, 0).getDate();
-  document.getElementById('kpdf-dan').value = y+'-'+m+'-01';
-  document.getElementById('kpdf-gacha').value = y+'-'+m+'-'+String(last).padStart(2,'0');
-  document.getElementById('modal-kurs-pdf').classList.add('open');
-}
-
 function hkPDFDavr(tip) {
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
   if (!tarix.length) { alert('Kurs tarixi yoq!'); closeModal('modal-kurs-pdf'); return; }
@@ -1304,25 +1294,6 @@ function hkChekPrint() {
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
 }
 function zKursRender() {
-
-  var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
-  var last = tarix.length ? tarix[tarix.length-1] : null;
-  if (last) document.getElementById('z-kurs-inp').value = last.kurs;
-  zKursNarxUpd();
-  var out = '';
-  if (!tarix.length) { out = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>'; }
-  else {
-    tarix.slice().reverse().forEach(function(item) {
-      out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
-      out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g</div>';
-      out += '<div style="font-size:10px;color:var(--muted);">'+item.sana+' · '+item.soat+'</div>';
-      out += '</div>';
-    });
-  }
-  document.getElementById('z-kurs-tarix-list').innerHTML = out;
-}
-
-function zKursRender() {
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
   var last = tarix.length ? tarix[tarix.length-1] : null;
   if (last) document.getElementById('z-kurs-inp').value = last.kurs;
@@ -1440,8 +1411,6 @@ function zKursChekPrint() {
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
 }
 
-function zKursCalc() { zKursNarxUpd(); }
-
 function zKursSaqla() {
   var val = parseFloat(document.getElementById('z-kurs-inp').value);
   if (!val || val <= 0) { alert('Kurs kiriting!'); return; }
@@ -1454,10 +1423,6 @@ function zKursSaqla() {
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
   localStorage.setItem('tilla-kurs-bugun', val);
   zKursRender();
-}
-
-function getKursBugun() {
-  return parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -2519,28 +2484,6 @@ function kopGUpdate(el) {
 }
 
 var _kopKi=-1, _kopOi=-1;
-
-function klientHisobotTahrir(ki, oi) {
-  var k = data.klientlar[ki];
-  var op = k.tarix[oi];
-  if (!op) return;
-  _kopKi = ki; _kopOi = oi;
-  var tip = op.tip;
-  var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-  document.getElementById('kop-edit-title').textContent = label + ' — ' + k.nom;
-  var body = '<div class="field"><label>Sana</label><input type="date" id="kop-sana" style="font-size:16px;" value="'+(op.sana?op.sana.split('.').reverse().join('-'):'')+'"></div>';
-  if (tip==='berish') {
-    body += '<div class="field"><label>Gramm</label><input type="number" id="kop-gramm" style="font-size:16px;" value="'+op.gramm+'"></div>';
-  } else if (tip==='vozvrat') {
-    body += '<div class="field"><label>Gramm</label><input type="number" id="kop-gramm" style="font-size:16px;" value="'+op.gramm+'"></div>';
-  } else {
-    body += '<div class="field"><label>Summa ($)</label><input type="number" id="kop-summa" style="font-size:16px;" value="'+(op.summa||0)+'"></div>';
-    body += '<div class="field"><label>Kurs ($/g)</label><input type="number" id="kop-kurs" style="font-size:16px;" value="'+(op.kurs||0)+'"></div>';
-  }
-  document.getElementById('kop-edit-body').innerHTML = body;
-  document.getElementById('kop-edit-log').style.display = 'none';
-  document.getElementById('modal-kop-edit').classList.add('open');
-}
 
 function kopEditSaqla() {
   var k = data.klientlar[_kopKi];
@@ -4212,20 +4155,6 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
   }
 }
 
-function chekPDF(ki, ops_grouped, sana) {
-  var k = data.klientlar[ki];
-  var payload = {
-    tip: 'klient_chek',
-    klient_nom: k.nom,
-    sana: sana,
-    ops_grouped: ops_grouped
-  };
-  fetch('/api/pdf.py', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
-  .then(function(r){ if(!r.ok) throw new Error('Server xatosi'); return r.blob(); })
-  .then(function(blob){ var url=URL.createObjectURL(blob); window.open(url,'_blank'); setTimeout(function(){URL.revokeObjectURL(url);},15000); })
-  .catch(function(e){ console.error('Chek PDF xato:', e.message); });
-}
-
 function klientTarixTahrir(el) {
   var ki = parseInt(el.dataset.ki);
   var sana = el.dataset.sana;
@@ -4414,66 +4343,6 @@ function klientQarzChekPrint(ki) {
     },idx*1500);})(i);
   }
 }
-function klientQarzChek(ki) { klientQarzChekPDF(ki); }
-
-function klientQarzChek_old(ki) {
-  var k=data.klientlar[ki];
-  var qbd={};
-  k.tarix.forEach(function(op){
-    if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'||'+op.tur;
-    if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
-    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
-    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
-  });
-  var qarz_tarkib=[];
-  Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
-  var jamiQarz=klientJamiQarz(k);
-  var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
-  var payload={
-    tip:'klient_qarz_chek',
-    klient_nom:k.nom,
-    sana:today2,
-    jami_qarz:jamiQarz,
-    qarz_tarkib:qarz_tarkib
-  };
-  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
-  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
-  .catch(function(e){alert('PDF xato: '+e.message);});
-  var nowT = new Date();
-  var soat = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
-  var LINE = '------------------------------------------------\n';
-  var SEP  = '----------------\n';
-  var chekText = '              HISOB\n'
-    + '        - QARZ CHEKI -\n'
-    + LINE
-    + 'Klient: ' + k.nom + '\n'
-    + 'Sana:   ' + today2 + '\n'
-    + 'Soat:   ' + soat + '\n'
-    + LINE;
-  var curZavod = '';
-  qarz_tarkib.forEach(function(b){
-    if(b.zavod !== curZavod){
-      if(curZavod !== '') chekText += SEP;
-      curZavod = b.zavod;
-      chekText += b.zavod + '\n';
-    }
-    var tur = b.tur;
-    var gramm = '-' + fmtG(b.qarz) + ' g';
-    var spaces = 46 - tur.length - gramm.length;
-    if(spaces < 1) spaces = 1;
-    chekText += '  ' + tur + Array(spaces).join(' ') + gramm + '\n';
-  });
-  chekText += LINE + 'JAMI: ' + fmtG(jamiQarz) + ' g\n';
-  fetch('http://localhost:5000/print',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:chekText})
-  }).catch(function(){});
-}
-
 function klientChekBtn(el) {
   var ki=parseInt(el.dataset.ki);
   var sana=el.dataset.sana;
@@ -4538,10 +4407,6 @@ function klientChekBasit(ki, sana, isBerish) {
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
   .catch(function(e){alert('PDF xato: '+e.message);});
-}
-
-function klientBerishTahrir(ki, gIdx) {
-  alert('Tahrirlash keyinroq qoshiladi');
 }
 
 function klientPDF(){
