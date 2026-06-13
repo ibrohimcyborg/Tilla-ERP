@@ -1302,9 +1302,17 @@ function hkChekPrint() {
         var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti])||0 : 0;
         narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
       }
-      lines2.push(rjust('  '+t.nom, narx+' $'));
+      lines2.push(rjust('  '+t.nom, String(narx)));
     });
   });
+  var lomFarqH = parseFloat(localStorage.getItem('tilla-lom-farq')||'-2');
+  var lomNarxH = Math.round((kurs + lomFarqH)*10)/10;
+  var lomEl = document.getElementById('hk-lom-inp');
+  if (lomEl && parseFloat(lomEl.value)) lomNarxH = parseFloat(lomEl.value);
+  if (lomNarxH > 0) {
+    lines2.push(LINE);
+    lines2.push(rjust('  Lom', String(lomNarxH)));
+  }
   lines2.push(LINE);
   var t = lines2.join('\n')+'\n\n\n';
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
@@ -1427,7 +1435,15 @@ function zKursChekPrint() {
     var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
     lines2.push(rjust('  '+tt.nom, String(narx)));
   });
-  var lomNarx = parseFloat((document.getElementById('hk-lom-inp')||{}).value)||0;
+  var lomNarx = 0;
+  var hkLomEl = document.getElementById('hk-lom-inp');
+  if (hkLomEl && parseFloat(hkLomEl.value)) {
+    lomNarx = parseFloat(hkLomEl.value);
+  } else {
+    var lomKurs = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+    var lomFarq = parseFloat(localStorage.getItem('tilla-lom-farq')||'-2');
+    if (lomKurs > 0) lomNarx = Math.round((lomKurs + lomFarq)*10)/10;
+  }
   if (lomNarx > 0) {
     lines2.push(LINE);
     lines2.push(rjust('  Lom', String(lomNarx)));
