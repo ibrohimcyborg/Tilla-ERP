@@ -1040,12 +1040,12 @@ function renderHomeKurs() {
   out += '<div><div style="font-size:13px;font-weight:500;color:var(--gold);">Bugungi kurs</div>';
   out += '<div style="font-size:10px;color:var(--muted);">'+(last?last.sana+' · '+last.soat:'Kurs kiritilmagan')+'</div></div>';
   out += '<div style="display:flex;align-items:center;gap:6px;">';
-  // Lom narxi oynasi
+  // Lom narxi
   out += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">';
-  out += '<div style="font-size:9px;color:var(--muted);">Lom narxi</div>';
-  out += '<div style="display:flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--surf2);border-radius:8px;padding:0 8px;height:38px;width:100px;">';
-  out += '<input type="number" id="hk-lom-inp" value="'+lomNarx+'" placeholder="0.0" oninput="hkLomUpd()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text);text-align:right;outline:none;width:0;">';
-  out += '<span style="font-size:11px;color:var(--muted);">$/g</span></div></div>';
+  out += '<div style="font-size:9px;color:var(--muted);text-align:right;">Lom narxi</div>';
+  out += '<div style="display:flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--surf2);border-radius:8px;padding:0 8px;height:38px;width:90px;">';
+  out += '<input type="number" id="hk-lom-inp" value="'+lomNarx+'" placeholder="0.0" oninput="hkLomUpd()" style="flex:1;border:none;background:transparent;font-size:14px;color:var(--text);text-align:right;outline:none;width:0;">';
+  out += '<span style="font-size:10px;color:var(--muted);">$/g</span></div></div>';
   // Kurs oynasi
   out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:110px;">';
   out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
@@ -1294,14 +1294,20 @@ function hkChekPrint() {
     if (!z.turlar.length) return;
     var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
     var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
-    lines2.push(z.nom);
+    var zNarxlar = z.turlar.filter(function(t,ti){
+      var n = manual[ti] ? manual[ti] : (parseFloat(foizlar[ti])||0)>0 ? Math.round(kurs*(1+parseFloat(foizlar[ti])/100)*10)/10 : 0;
+      return n > 0;
+    });
+    if (!zNarxlar.length) return;
+    lines2.push(z.nom.toUpperCase());
     z.turlar.forEach(function(t, ti) {
       var narx;
       if (manual[ti]) { narx = manual[ti]; }
       else {
-        var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti])||0 : 0;
-        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
+        var pct = parseFloat(foizlar[ti])||0;
+        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : 0;
       }
+      if (!narx) return;
       lines2.push(rjust('  '+t.nom, String(narx)));
     });
   });
@@ -1311,7 +1317,7 @@ function hkChekPrint() {
   if (lomEl && parseFloat(lomEl.value)) lomNarxH = parseFloat(lomEl.value);
   if (lomNarxH > 0) {
     lines2.push(LINE);
-    lines2.push(rjust('  Lom', String(lomNarxH)));
+    lines2.push(rjust('Lom', String(lomNarxH)));
   }
   lines2.push(LINE);
   var t = lines2.join('\n')+'\n\n\n';
@@ -1427,12 +1433,13 @@ function zKursChekPrint() {
   var lines2 = [];
   lines2.push(center('KUN KURSI'));
   lines2.push(LINE);
-  lines2.push(center(z.nom));
   lines2.push(center(sana+' - '+soat));
   lines2.push(LINE);
+  lines2.push(z.nom.toUpperCase());
   z.turlar.forEach(function(tt, ti) {
     var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
-    var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
+    var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : 0;
+    if (!narx) return;
     lines2.push(rjust('  '+tt.nom, String(narx)));
   });
   var lomNarx = 0;
@@ -1446,7 +1453,7 @@ function zKursChekPrint() {
   }
   if (lomNarx > 0) {
     lines2.push(LINE);
-    lines2.push(rjust('  Lom', String(lomNarx)));
+    lines2.push(rjust('Lom', String(lomNarx)));
   }
   lines2.push(LINE);
   var t = lines2.join(NL)+NL+NL+NL;
