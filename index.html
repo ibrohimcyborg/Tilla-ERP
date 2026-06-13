@@ -336,9 +336,11 @@ body.rol-zavod #main-klient { display: none !important; }
       <div class="nav-tabs">
         <div class="nav-tab active" id="ztab-home-zavodlar" onclick="homeTab('zavodlar')">Zavodlar</div>
         <div class="nav-tab" id="ztab-home-hisobot" onclick="homeTab('hisobot')">Hisobot</div>
+        <div class="nav-tab" id="ztab-home-kurs" onclick="homeTab('kurs')">Kurs</div>
       </div>
       <div id="home-zavodlar"></div>
       <div id="home-hisobot" style="display:none;"></div>
+      <div id="home-kurs" style="display:none;"></div>
       <div class="empty" id="home-empty" style="display:none;"><div class="empty-icon">🏭</div>Hali zavod yoq. "+ Zavod" bosing.</div>
     </div>
   </div>
@@ -981,9 +983,12 @@ function homeTab(tab) {
   curHomeTab = tab;
   document.getElementById('ztab-home-zavodlar').classList.toggle('active', tab === 'zavodlar');
   document.getElementById('ztab-home-hisobot').classList.toggle('active', tab === 'hisobot');
+  document.getElementById('ztab-home-kurs').classList.toggle('active', tab === 'kurs');
   document.getElementById('home-zavodlar').style.display = tab === 'zavodlar' ? 'block' : 'none';
   document.getElementById('home-hisobot').style.display = tab === 'hisobot' ? 'block' : 'none';
+  document.getElementById('home-kurs').style.display = tab === 'kurs' ? 'block' : 'none';
   if (tab === 'hisobot') renderHisobot();
+  if (tab === 'kurs') renderHomeKurs();
 }
 
 function zTab(tab) {
@@ -998,7 +1003,183 @@ function zTab(tab) {
   if (tab === 'kurs') zKursRender();
 }
 
+function renderHomeKurs() {
+  var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
+  var last = tarix.length ? tarix[tarix.length-1] : null;
+  var kurs = last ? last.kurs : 0;
+
+  var out = '';
+  // Kurs oynasi
+  out += '<div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">';
+  out += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">';
+  out += '<div><div style="font-size:13px;font-weight:500;color:var(--gold);">Bugungi kurs</div>';
+  out += '<div style="font-size:10px;color:var(--muted);">'+(last?last.sana+' · '+last.soat:'Kurs kiritilmagan')+'</div></div>';
+  out += '<div style="display:flex;align-items:center;gap:6px;">';
+  out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:120px;">';
+  out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
+  out += '<span style="font-size:12px;color:var(--gold-bd);">$/g</span></div>';
+  out += '<button onclick="hkSaqla()" style="padding:0 14px;height:42px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;">Saqlash</button>';
+  out += '</div></div></div>';
+
+  // Zavodlar turlar narxi
+  out += '<div style="background:var(--surf2);border-radius:12px;padding:12px;margin-bottom:8px;" id="hk-turlar-cont">';
+  out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Turlar narxi</div>';
+  out += '<div id="hk-turlar-list"></div>';
+  out += '</div>';
+
+  // Chek tugmasi
+  out += '<button onclick="hkChekPrint()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;">🖨 Kun kursi cheki</button>';
+
+  // Kurs tarixi accordion
+  out += '<div style="background:var(--surf2);border-radius:10px;overflow:hidden;">';
+  out += '<div onclick="hkToggleTarix(this)" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;">';
+  out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Kurs tarixi</div>';
+  out += '<span style="color:var(--muted);font-size:14px;">›</span></div>';
+  out += '<div style="display:none;padding:0 12px 10px;" id="hk-tarix-body">';
+  if (!tarix.length) {
+    out += '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>';
+  } else {
+    tarix.slice().reverse().forEach(function(item) {
+      out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
+      out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g</div>';
+      out += '<div style="font-size:10px;color:var(--muted);">'+item.sana+' · '+item.soat+'</div></div>';
+    });
+  }
+  out += '</div></div>';
+
+  document.getElementById('home-kurs').innerHTML = out;
+  hkRenderTurlar(kurs);
+}
+
+function hkRenderTurlar(kurs) {
+  if (!kurs) kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var out = '';
+  data.zavodlar.forEach(function(z, zi) {
+    if (!z.turlar.length) return;
+    var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+    var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+    out += '<div style="font-size:12px;font-weight:500;color:var(--gold);padding:5px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px;">'+z.nom+'</div>';
+    z.turlar.forEach(function(t, ti) {
+      var pct = foizlar[ti] !== undefined ? foizlar[ti] : '';
+      var isManual = manual[ti] ? true : false;
+      var narx = isManual
+        ? (manual[ti] || '')
+        : (pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*100)/100 : '');
+      var narxColor = isManual ? '#185fa5' : '#3b6d11';
+      var narxBorder = isManual ? '#85b7eb' : '#97c459';
+      var narxBg = isManual ? '#e6f1fb' : '#eaf3de';
+      out += '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:0.5px solid var(--border);">';
+      out += '<div style="flex:1;font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
+      // % oyna
+      out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 6px;height:30px;width:58px;'+(isManual?'opacity:.35;pointer-events:none;':'')+'">'+
+        '<input type="number" id="hkp-'+zi+'-'+ti+'" value="'+pct+'" placeholder="%" oninput="hkPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;width:0;">'+
+        '<span style="font-size:10px;color:var(--gold-bd);">%</span></div>';
+      out += '<span style="font-size:11px;color:var(--muted);">=</span>';
+      // Narx oyna
+      out += '<div style="display:flex;align-items:center;gap:2px;border:1.5px solid '+narxBorder+';background:'+narxBg+';border-radius:6px;padding:0 7px;height:30px;width:68px;" id="hkn-box-'+zi+'-'+ti+'">'+
+        '<input type="number" id="hkn-'+zi+'-'+ti+'" value="'+narx+'" placeholder="—" '+(isManual?'oninput="hkNarxUpd('+zi+','+ti+')"':'')+' style="flex:1;border:none;background:transparent;font-size:13px;color:'+narxColor+';font-weight:500;text-align:right;outline:none;width:0;">'+
+        '<span style="font-size:10px;color:'+narxColor+';">$</span></div>';
+      // Toggle
+      out += '<div onclick="hkToggle('+zi+','+ti+')" style="width:28px;height:16px;border-radius:20px;background:'+(isManual?'#ddd':'#97c459')+';position:relative;cursor:pointer;flex-shrink:0;" id="hkt-'+zi+'-'+ti+'">'+
+        '<div style="position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:2px;left:'+(isManual?'2px':'14px')+';"></div></div>';
+      out += '</div>';
+    });
+  });
+  var el = document.getElementById('hk-turlar-list');
+  if (el) el.innerHTML = out;
+}
+
+function hkUpd() {
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  hkRenderTurlar(kurs);
+}
+
+function hkPctUpd(zi, ti) {
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var pct = parseFloat((document.getElementById('hkp-'+zi+'-'+ti)||{}).value)||0;
+  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : '';
+  var nEl = document.getElementById('hkn-'+zi+'-'+ti);
+  if (nEl) nEl.value = narx;
+  var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+  foizlar[ti] = pct;
+  localStorage.setItem('tilla-foiz-'+zi, JSON.stringify(foizlar));
+}
+
+function hkNarxUpd(zi, ti) {
+  var narx = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0;
+  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  manual[ti] = narx;
+  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
+}
+
+function hkToggle(zi, ti) {
+  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  var isManual = manual[ti] ? true : false;
+  if (isManual) { delete manual[ti]; } else { manual[ti] = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0; }
+  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
+  hkRenderTurlar();
+}
+
+function hkToggleTarix(hdr) {
+  var body = document.getElementById('hk-tarix-body');
+  var arr = hdr.querySelector('span');
+  if (!body) return;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (arr) arr.textContent = open ? '›' : '⌄';
+}
+
+function hkSaqla() {
+  var val = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  if (!val) { alert('Kurs kiriting!'); return; }
+  var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
+  var now = new Date();
+  var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
+  var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  tarix.push({kurs:val, sana:sana, soat:soat});
+  if (tarix.length > 100) tarix = tarix.slice(-100);
+  localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
+  localStorage.setItem('tilla-kurs-bugun', val);
+  renderHomeKurs();
+}
+
+function hkChekPrint() {
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  if (!kurs) { alert('Kurs kiriting!'); return; }
+  var now = new Date();
+  var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
+  var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  var W = 32;
+  function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
+  function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
+  var LINE = Array(W+1).join('-');
+  var lines2 = [];
+  lines2.push(center('BUGUNGI KURS'));
+  lines2.push(center(sana+' - '+soat));
+  lines2.push('');
+  lines2.push(center(kurs+' $'));
+  lines2.push(LINE);
+  data.zavodlar.forEach(function(z, zi) {
+    if (!z.turlar.length) return;
+    var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+    var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+    lines2.push(z.nom);
+    z.turlar.forEach(function(t, ti) {
+      var narx;
+      if (manual[ti]) { narx = manual[ti]; }
+      else {
+        var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti])||0 : 0;
+        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*100)/100 : kurs;
+      }
+      lines2.push(rjust('  '+t.nom, narx+' $'));
+    });
+  });
+  lines2.push(LINE);
+  var t = lines2.join('\n')+'\n\n\n';
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
+}
 function zKursRender() {
+
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
   var last = tarix.length ? tarix[tarix.length-1] : null;
   if (last) document.getElementById('z-kurs-inp').value = last.kurs;
@@ -1013,6 +1194,17 @@ function zKursRender() {
       out += '</div>';
     });
   }
+  document.getElementById('z-kurs-tarix-list').innerHTML = out;
+}
+
+function zKursRender() {
+  var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
+  var last = tarix.length ? tarix[tarix.length-1] : null;
+  if (last) document.getElementById('z-kurs-inp').value = last.kurs;
+  zKursNarxUpd();
+  var out = '';
+  if (!tarix.length) { out = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>'; }
+  else { tarix.slice().reverse().forEach(function(item) { out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);"><div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g</div><div style="font-size:10px;color:var(--muted);">'+item.sana+' · '+item.soat+'</div></div>'; }); }
   document.getElementById('z-kurs-tarix-list').innerHTML = out;
 }
 
