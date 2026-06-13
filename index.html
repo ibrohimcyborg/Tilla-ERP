@@ -770,6 +770,9 @@ body.rol-zavod #main-klient { display: none !important; }
         <div id="kt-vozvrat-list"></div>
       </div>
       <div id="kt-jami" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:8px;border-left:2px solid var(--gold);display:none;"></div>
+      <div id="kt-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:10px;margin-top:8px;">
+        <div id="kt-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;"></div>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-ktolov')">Bekor</button>
@@ -3375,6 +3378,64 @@ function kTolovCalc(){
       jEl.innerHTML=txt;jEl.style.display='block';
     } else jEl.style.display='none';
   }
+  kTolovChekUpd();
+}
+
+function kTolovChekUpd() {
+  var ki = parseInt(document.getElementById('kt-klient').value);
+  var bd = window._kTolovBD || {};
+  var W = 48;
+  function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
+  function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
+  var LINE = Array(W+1).join('-');
+  var lines2 = [];
+  var k = !isNaN(ki) && ki >= 0 ? data.klientlar[ki] : null;
+  var kNom = k ? k.nom : '—';
+  var sana = (document.getElementById('kt-sana').value||'').split('-').reverse().join('.');
+  lines2.push(center('HISOB'));
+  lines2.push(center('TOLOV CHEKI'));
+  lines2.push(LINE);
+  lines2.push(center(kNom));
+  lines2.push(center(sana));
+  lines2.push(LINE);
+  lines2.push('TOLOVLAR');
+  var jamiG = 0, bor = false;
+  var idx = 0;
+  Object.keys(bd).forEach(function(key) {
+    var b = bd[key];
+    if (b.qarz <= 0) { idx++; return; }
+    var s = parseNum((document.getElementById('kt-s-'+idx)||{}).value) || 0;
+    var n = parseNum((document.getElementById('kt-k-'+idx)||{}).value) || 0;
+    var g = parseNum((document.getElementById('kt-g-'+idx)||{}).value) || 0;
+    if (g <= 0 && s > 0 && n > 0) g = Math.round(s/n*100)/100;
+    if (g > 0 && n > 0) {
+      var summa = s > 0 ? s : Math.round(g*n*100)/100;
+      lines2.push(rjust('  '+b.zavod+'·'+b.tur, fmtG(g)+'g × '+n+' = '+fmtD(summa)+'$'));
+      jamiG += g;
+      bor = true;
+    }
+    idx++;
+  });
+  if (!bor) { document.getElementById('kt-chek-preview').style.display='none'; return; }
+  document.getElementById('kt-chek-preview').style.display='block';
+  lines2.push(LINE);
+  lines2.push(rjust('Jami to\'landi', fmtG(Math.round(jamiG*100)/100)+'g'));
+  if (k) {
+    var d = _qarzTarkib(ki);
+    lines2.push(rjust('Qolgan qarz', fmtG(d.jamiQarz)+'g'));
+    if (d.qarz_tarkib.length) {
+      lines2.push(Array(Math.floor(W/2)+1).join('-'));
+      lines2.push('QARZ TARKIBI');
+      var cz = '';
+      d.qarz_tarkib.forEach(function(b) {
+        if (b.zavod !== cz) { cz = b.zavod; lines2.push(b.zavod); }
+        lines2.push(rjust('  '+b.tur, fmtG(b.qarz)+'g'));
+      });
+    }
+  }
+  lines2.push(LINE);
+  lines2.push(center('RAHMAT!'));
+  document.getElementById('kt-chek-body').textContent = lines2.join('\n');
 }
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
@@ -3429,6 +3490,12 @@ function saqlashKlientTolov(){
   });
   if(!any){alert('Tolov yoki vozvrat kiriting!');return;}
   save('Klient tolov: '+k.nom);
+  // Chek printer
+  var chekEl = document.getElementById('kt-chek-body');
+  if (chekEl && chekEl.textContent.trim()) {
+    fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:chekEl.textContent+'\n\n\n'})}).catch(function(){});
+  }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();
 }
