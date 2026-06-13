@@ -3197,6 +3197,7 @@ function kSotuvTolovCalc() {
 }
 
 function kSotuvToggleZ(hdr) {
+  var body = hdr.nextElementSibling;
   var arr = hdr.querySelector('span:last-child');
   var open = body.style.display !== 'none';
   body.style.display = open ? 'none' : 'block';
