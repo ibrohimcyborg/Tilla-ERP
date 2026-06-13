@@ -3072,7 +3072,7 @@ function kSotuvRenderZavodlar() {
       out += '<div style="display:flex;align-items:center;gap:8px;">';
       out += '<div style="flex:1;">';
       out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
-      out += '<div style="font-size:10px;color:var(--muted);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+
       out += '</div>';
       out += '<input type="number" id="'+iid+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" placeholder="0g" oninput="kSotuvGUpdate(this)" style="width:72px;padding:6px 8px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:14px;text-align:right;color:var(--green);font-weight:500;">';
       out += '</div>';
