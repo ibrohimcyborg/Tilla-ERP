@@ -3114,6 +3114,10 @@ function kSotuvRenderTolov() {
         turQarz = Math.max(0, Math.round(turQarz * 100) / 100);
       }
 
+      // Qarzi yo'q va yangi gramm ham yo'q — ko'rsatma
+      var yangiG2 = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
+      if (turQarz <= 0.001 && yangiG2 <= 0.001) return;
+
       if (z.nom !== curZ) {
         curZ = z.nom;
         out += '<div style="font-size:12px;font-weight:500;color:var(--gold);padding:5px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px;">'+z.nom+'</div>';
