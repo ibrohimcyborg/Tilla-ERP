@@ -3128,21 +3128,18 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</span>';
       out += '<span style="font-size:11px;color:var(--muted);" id="kst-lbl-'+zi+'-'+ti+'">'+lblHtml+'</span>';
       out += '</div>';
-      out += '<div style="display:flex;align-items:center;gap:4px;">';
-      // Summa $
-      out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--border);background:var(--surf);border-radius:7px;padding:0 6px;height:36px;flex:1.1;">';
-      out += '<input type="number" id="kst-s-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'s\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--text);text-align:right;outline:none;min-width:0;">';
-      out += '<span style="font-size:11px;color:var(--muted);flex-shrink:0;">$</span>';
+      out += '<div style="display:flex;align-items:center;gap:3px;">';
+      out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--border);background:var(--surf);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
+      out += '<input type="number" id="kst-s-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'s\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text);text-align:right;outline:none;min-width:0;width:0;">';
+      out += '<span style="font-size:10px;color:var(--muted);flex-shrink:0;">$</span>';
       out += '</div>';
-      // $/g narx
-      out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:7px;padding:0 6px;height:36px;flex:1;">';
-      out += '<input type="number" id="kst-n-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'n\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--gold);text-align:right;outline:none;min-width:0;">';
-      out += '<span style="font-size:10px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
+      out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
+      out += '<input type="number" id="kst-n-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'n\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;min-width:0;width:0;">';
+      out += '<span style="font-size:9px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
       out += '</div>';
-      // Gramm
-      out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:7px;padding:0 6px;height:36px;flex:1;">';
-      out += '<input type="number" id="kst-g-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'g\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--green);text-align:right;outline:none;min-width:0;">';
-      out += '<span style="font-size:10px;color:var(--green-bd);flex-shrink:0;">g</span>';
+      out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
+      out += '<input type="number" id="kst-g-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'g\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--green);text-align:right;outline:none;min-width:0;width:0;">';
+      out += '<span style="font-size:9px;color:var(--green-bd);flex-shrink:0;">g</span>';
       out += '</div>';
       out += '</div>';
       out += '<div id="kst-res-'+zi+'-'+ti+'" style="font-size:11px;margin-top:3px;min-height:14px;"></div>';
