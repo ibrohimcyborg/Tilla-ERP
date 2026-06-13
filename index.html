@@ -3194,6 +3194,7 @@ function kSotuvTolovCalc() {
   document.getElementById('ks-naqt').value = jamiNaqt;
   document.getElementById('ks-kurs').value = jamiNaqtG > 0 ? Math.round(jamiNaqt / jamiNaqtG * 100) / 100 : 0;
   kSotuvCalc();
+  kSotuvTolovCalc();
 }
 
 function kSotuvToggleZ(hdr) {
