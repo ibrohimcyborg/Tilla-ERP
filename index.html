@@ -1395,14 +1395,14 @@ function zKursChekPrint() {
   lines2.push(center('KUN KURSI'));
   lines2.push(LINE);
   lines2.push(center(z.nom));
-  lines2.push(center(sana+' · '+soat));
+  lines2.push(center(sana+' - '+soat));
   lines2.push(LINE);
   lines2.push(rjust('Kurs', kurs+' $/g'));
   lines2.push(LINE);
   z.turlar.forEach(function(tt, ti) {
     var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
     var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : kurs;
-    lines2.push(rjust('  '+tt.nom, (pct?'+'+pct+'% = ':'')+narx+' $/g'));
+    lines2.push(rjust('  '+tt.nom, narx+' $/g'));
   });
   lines2.push(LINE);
   var t = lines2.join(NL)+NL+NL+NL;
