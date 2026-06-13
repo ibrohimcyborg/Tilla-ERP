@@ -3242,7 +3242,7 @@ function kTolovKlientChange(){
       +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">SUMMA ($)</div>'
       +'<input type="number" id="kt-s-'+idx+'" placeholder="0" oninput="kTolovCalc()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
       +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">KURS ($/g)</div>'
-      +'<input type="number" id="kt-k-'+idx+'" placeholder="87.5" oninput="kTolovCalc()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
+      +'<input type="number" id="kt-k-'+idx+'" placeholder="87.5" oninput="kTolovCalc()" value="'+(getZavodNarx(b.zi,b.ti)||'')+'" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>'
       +'</div>'
       +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">= <span style="color:var(--green);font-weight:600;" id="kt-eq-'+idx+'">0g</span> qarz kamayadi</div>'
       +'</div>';
@@ -3555,6 +3555,16 @@ function kSotuvRenderZavodlar() {
   document.getElementById('ks-zavod-list').innerHTML = out || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Zavodlarda tilla yoq</div>';
 }
 
+function getZavodNarx(zi, ti) {
+  var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
+  if (!kurs) return '';
+  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  if (manual[ti]) return manual[ti];
+  var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+  var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
+  return pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
+}
+
 function kSotuvRenderTolov() {
   var out = '';
   var curZ = '';
@@ -3601,7 +3611,7 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:10px;color:var(--muted);flex-shrink:0;">$</span>';
       out += '</div>';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
-      out += '<input type="number" id="kst-n-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'n\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;min-width:0;width:0;">';
+      out += '<input type="number" id="kst-n-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'n\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;min-width:0;width:0;" value="'+getZavodNarx(zi,ti)+'">';
       out += '<span style="font-size:9px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
       out += '</div>';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
