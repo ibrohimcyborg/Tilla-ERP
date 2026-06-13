@@ -1030,14 +1030,24 @@ function renderHomeKurs() {
   var last = tarix.length ? tarix[tarix.length-1] : null;
   var kurs = last ? last.kurs : 0;
 
+  var lomNarxFarq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
+  var lomNarx = kurs > 0 ? Math.round((kurs + lomNarxFarq)*10)/10 : '';
+
   var out = '';
-  // Kurs oynasi
+  // Lom narxi + Kurs oynasi
   out += '<div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">';
   out += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">';
   out += '<div><div style="font-size:13px;font-weight:500;color:var(--gold);">Bugungi kurs</div>';
   out += '<div style="font-size:10px;color:var(--muted);">'+(last?last.sana+' · '+last.soat:'Kurs kiritilmagan')+'</div></div>';
   out += '<div style="display:flex;align-items:center;gap:6px;">';
-  out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:120px;">';
+  // Lom narxi oynasi
+  out += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">';
+  out += '<div style="font-size:9px;color:var(--muted);">Lom narxi</div>';
+  out += '<div style="display:flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--surf2);border-radius:8px;padding:0 8px;height:38px;width:100px;">';
+  out += '<input type="number" id="hk-lom-inp" value="'+lomNarx+'" placeholder="0.0" oninput="hkLomUpd()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text);text-align:right;outline:none;width:0;">';
+  out += '<span style="font-size:11px;color:var(--muted);">$/g</span></div></div>';
+  // Kurs oynasi
+  out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:110px;">';
   out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
   out += '<span style="font-size:12px;color:var(--gold-bd);">$/g</span></div>';
   out += '<button onclick="hkSaqla()" style="padding:0 14px;height:42px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;">Saqlash</button>';
@@ -1111,8 +1121,20 @@ function hkRenderTurlar(kurs) {
   if (el) el.innerHTML = out;
 }
 
+function hkLomUpd() {
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var lom = parseFloat((document.getElementById('hk-lom-inp')||{}).value)||0;
+  if (kurs > 0 && lom > 0) {
+    var farq = Math.round((lom - kurs)*10)/10;
+    localStorage.setItem('tilla-lom-farq', farq);
+  }
+}
+
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var farq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
+  var lomEl = document.getElementById('hk-lom-inp');
+  if (lomEl && kurs > 0) lomEl.value = Math.round((kurs + farq)*10)/10;
   hkRenderTurlar(kurs);
 }
 
