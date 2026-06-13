@@ -3100,8 +3100,19 @@ function kSotuvGUpdate(el) {
   if (!ostEl) return;
   var qoladi = Math.round((ostatka - g) * 100) / 100;
   var ki = _ksSotuvKi;
-  var joriyQarz = ki >= 0 ? klientJamiQarz(data.klientlar[ki]) : 0;
-  var yangiQarz = Math.round((joriyQarz + g) * 100) / 100;
+  var k = ki >= 0 ? data.klientlar[ki] : null;
+  var z = data.zavodlar[parseInt(zi)], t = z ? z.turlar[parseInt(ti)] : null;
+  var turQarz = 0;
+  if (k && z && t) {
+    k.tarix.forEach(function(op) {
+      if (op.zavod !== z.nom || op.tur !== t.nom) return;
+      if (op.tip === 'berish') turQarz += op.gramm;
+      else if (op.tip === 'vozvrat') turQarz -= op.gramm;
+      else if (op.tip === 'tolov') turQarz -= (op.ekvivalent || 0);
+    });
+    turQarz = Math.max(0, Math.round(turQarz * 100) / 100);
+  }
+  var yangiQarz = Math.round((turQarz + g) * 100) / 100;
   if (g > ostatka + 0.001) {
     el.style.borderColor = 'var(--red)';
     ostEl.style.color = 'var(--red)';
