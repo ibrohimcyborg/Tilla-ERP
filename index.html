@@ -3339,8 +3339,7 @@ function kTolovChekUpd() {
   var sana = (document.getElementById('kt-sana').value||'').split('-').reverse().join('.');
   var now = new Date();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  lines2.push(center('TILLA HISOB'));
-  lines2.push(LINE);
+  lines2.push(center('HISOB'));
   lines2.push(center('HISOB'));
   lines2.push(center('TOLOV CHEKI'));
   lines2.push(LINE);
@@ -4447,7 +4446,7 @@ function klientQarzChek_old(ki) {
   var soat = String(nowT.getHours()).padStart(2,'0') + ':' + String(nowT.getMinutes()).padStart(2,'0');
   var LINE = '------------------------------------------------\n';
   var SEP  = '----------------\n';
-  var chekText = '          TILLA HISOB\n'
+  var chekText = '              HISOB\n'
     + '        - QARZ CHEKI -\n'
     + LINE
     + 'Klient: ' + k.nom + '\n'
