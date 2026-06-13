@@ -791,20 +791,13 @@ body.rol-zavod #main-klient { display: none !important; }
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Sotilgan gramm</div>
       <div id="ks-zavod-list"></div>
 
-      <!-- Naqt -->
+      <!-- To'lov -->
       <div style="background:var(--surf2);border-radius:12px;padding:12px;margin-bottom:8px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Naqt to'lov</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="display:flex;align-items:center;gap:4px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:8px;padding:0 10px;height:40px;flex:1;">
-            <input type="number" id="ks-kurs" placeholder="0" oninput="kSotuvCalc()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--gold);text-align:right;outline:none;min-width:0;">
-            <span style="font-size:12px;color:var(--gold-bd);flex-shrink:0;">$/g</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:4px;border:0.5px solid var(--border);background:var(--surf);border-radius:8px;padding:0 10px;height:40px;flex:1;">
-            <input type="number" id="ks-naqt" placeholder="0" oninput="kSotuvCalc()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text);text-align:right;outline:none;min-width:0;">
-            <span style="font-size:13px;color:var(--muted);flex-shrink:0;">$</span>
-          </div>
-        </div>
-        <div id="ks-naqt-res" style="font-size:11px;color:var(--green);margin-top:4px;"></div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">To'lov</div>
+        <div id="ks-tolov-list"></div>
+        <div id="ks-naqt-res" style="font-size:11px;color:var(--green);margin-top:4px;display:none;"></div>
+        <input type="hidden" id="ks-naqt" value="0">
+        <input type="hidden" id="ks-kurs" value="0">
       </div>
 
       <!-- Lom -->
@@ -3001,6 +2994,7 @@ function ksSotuvPickK(ki) {
   document.getElementById('ks-sel-klient').style.display = 'block';
   document.getElementById('ks-main').style.display = 'block';
   kSotuvRenderZavodlar();
+  kSotuvRenderTolov();
   kSotuvRenderVozvrat(ki);
   kSotuvCalc();
 }
@@ -3022,6 +3016,7 @@ function ksSotuvAddNew() {
   document.getElementById('ks-sel-klient').style.display = 'block';
   document.getElementById('ks-main').style.display = 'block';
   kSotuvRenderZavodlar();
+  kSotuvRenderTolov();
   kSotuvRenderVozvrat(_ksSotuvKi);
   kSotuvCalc();
 }
@@ -3082,8 +3077,78 @@ function kSotuvRenderZavodlar() {
   document.getElementById('ks-zavod-list').innerHTML = out || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Zavodlarda tilla yoq</div>';
 }
 
+function kSotuvRenderTolov() {
+  var out = '';
+  var curZ = '';
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t, ti) {
+      if (t.ostatka <= 0.001) return;
+      var iid = 'kst-'+zi+'-'+ti;
+      if (z.nom !== curZ) {
+        curZ = z.nom;
+        out += '<div style="font-size:12px;font-weight:500;color:var(--gold);padding:5px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px;">'+z.nom+'</div>';
+      }
+      out += '<div style="padding:7px 0;border-bottom:0.5px solid var(--border);">';
+      out += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">';
+      out += '<span style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</span>';
+      out += '<span style="font-size:11px;color:var(--muted);" id="kst-lbl-'+zi+'-'+ti+'">ostatka: <b style="color:var(--text);">'+fmtG(t.ostatka)+'g</b></span>';
+      out += '</div>';
+      out += '<div style="display:flex;align-items:center;gap:8px;">';
+      out += '<div style="display:flex;align-items:center;gap:4px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:8px;padding:0 10px;height:40px;flex:1;">';
+      out += '<input type="number" id="kst-n-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovCalc()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--gold);text-align:right;outline:none;min-width:0;">';
+      out += '<span style="font-size:12px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
+      out += '</div>';
+      out += '<div style="display:flex;align-items:center;gap:4px;border:0.5px solid var(--border);background:var(--surf);border-radius:8px;padding:0 10px;height:40px;flex:1;">';
+      out += '<input type="number" id="kst-s-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovCalc()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text);text-align:right;outline:none;min-width:0;">';
+      out += '<span style="font-size:13px;color:var(--muted);flex-shrink:0;">$</span>';
+      out += '</div>';
+      out += '</div>';
+      out += '<div id="kst-res-'+zi+'-'+ti+'" style="font-size:11px;margin-top:3px;min-height:14px;"></div>';
+      out += '</div>';
+    });
+  });
+  document.getElementById('ks-tolov-list').innerHTML = out;
+}
+
+function kSotuvTolovCalc() {
+  var jamiNaqt = 0, jamiNaqtG = 0;
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t, ti) {
+      if (t.ostatka <= 0.001) return;
+      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+      var res = document.getElementById('kst-res-'+zi+'-'+ti);
+      var lbl = document.getElementById('kst-lbl-'+zi+'-'+ti);
+      if (n > 0) {
+        var maxPul = Math.round(t.ostatka * n * 100) / 100;
+        if (lbl) lbl.innerHTML = 'ostatka: <b style="color:var(--text);">'+fmtG(t.ostatka)+'g</b> × '+n+'$/g = <b>'+fmtD(maxPul)+'$</b>';
+        if (s > 0) {
+          var yopildiG = Math.round(s / n * 100) / 100;
+          var qoldiG = Math.max(0, Math.round((t.ostatka - yopildiG) * 100) / 100);
+          if (qoldiG < 0.001) {
+            if (res) res.innerHTML = '<span style="color:var(--green);">to\'liq yopildi ✓</span>';
+          } else {
+            if (res) res.innerHTML = '<span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
+          }
+          jamiNaqt += s;
+          jamiNaqtG += yopildiG;
+        } else {
+          if (res) res.innerHTML = '';
+        }
+      } else {
+        if (lbl) lbl.innerHTML = 'ostatka: <b style="color:var(--text);">'+fmtG(t.ostatka)+'g</b>';
+        if (res) res.innerHTML = '';
+        if (s > 0) jamiNaqt += s;
+      }
+    });
+  });
+  // hidden fieldlarni yangilash kSotuvCalc uchun
+  document.getElementById('ks-naqt').value = jamiNaqt;
+  document.getElementById('ks-kurs').value = jamiNaqtG > 0 ? Math.round(jamiNaqt / jamiNaqtG * 100) / 100 : 0;
+  kSotuvCalc();
+}
+
 function kSotuvToggleZ(hdr) {
-  var body = hdr.nextElementSibling;
   var arr = hdr.querySelector('span:last-child');
   var open = body.style.display !== 'none';
   body.style.display = open ? 'none' : 'block';
