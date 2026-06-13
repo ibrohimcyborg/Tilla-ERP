@@ -1040,20 +1040,16 @@ function renderHomeKurs() {
   out += '<div><div style="font-size:13px;font-weight:500;color:var(--gold);">Bugungi kurs</div>';
   out += '<div style="font-size:10px;color:var(--muted);">'+(last?last.sana+' · '+last.soat:'Kurs kiritilmagan')+'</div></div>';
   out += '<div style="display:flex;align-items:center;gap:6px;">';
+  // Lom narxi
+  out += '<div style="display:flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--surf);border-radius:8px;padding:0 8px;height:42px;width:90px;">';
+  out += '<input type="number" id="hk-lom-inp" value="'+lomNarx+'" placeholder="0.0" oninput="hkLomUpd()" style="flex:1;border:none;background:transparent;font-size:15px;color:var(--text);text-align:right;outline:none;width:0;">';
+  out += '<span style="font-size:10px;color:var(--muted);">$/g</span></div>';
   // Kurs oynasi
   out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:110px;">';
   out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
   out += '<span style="font-size:12px;color:var(--gold-bd);">$/g</span></div>';
   out += '<button onclick="hkSaqla()" style="padding:0 14px;height:42px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;">Saqlash</button>';
-  out += '</div></div>';
-  // Lom narxi — kurs ostida alohida qatorda
-  out += '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;">';
-  out += '<span style="font-size:11px;color:var(--muted);">Lom narxi</span>';
-  out += '<div style="display:flex;align-items:center;gap:3px;border:1px solid var(--border);background:var(--surf);border-radius:8px;padding:0 8px;height:34px;width:90px;">';
-  out += '<input type="number" id="hk-lom-inp" value="'+lomNarx+'" placeholder="0.0" oninput="hkLomUpd()" style="flex:1;border:none;background:transparent;font-size:14px;color:var(--text);text-align:right;outline:none;width:0;">';
-  out += '<span style="font-size:10px;color:var(--muted);">$/g</span></div>';
-  out += '</div>';
-  out += '</div>';
+  out += '</div></div></div>';
 
   // Zavodlar turlar narxi
   out += '<div style="background:var(--surf2);border-radius:12px;padding:12px;margin-bottom:8px;" id="hk-turlar-cont">';
@@ -1310,7 +1306,7 @@ function hkChekPrint() {
         narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : 0;
       }
       if (!narx) return;
-      var left = '        '+t.nom;
+      var left = '                '+t.nom;
       lines2.push(rjust(left, String(narx)));
     });
   });
@@ -1443,7 +1439,7 @@ function zKursChekPrint() {
     var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
     var narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : 0;
     if (!narx) return;
-    lines2.push(rjust('        '+tt.nom, String(narx)));
+    lines2.push(rjust('                '+tt.nom, String(narx)));
   });
   var lomNarx = 0;
   var hkLomEl = document.getElementById('hk-lom-inp');
