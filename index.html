@@ -3421,13 +3421,44 @@ function kTolovChekUpd() {
   lines2.push(LINE);
   lines2.push(rjust('Jami to\'landi', fmtG(Math.round(jamiG*100)/100)+'g'));
   if (k) {
-    var d = _qarzTarkib(ki);
-    lines2.push(rjust('Qolgan qarz', fmtG(d.jamiQarz)+'g'));
-    if (d.qarz_tarkib.length) {
+    var joriyQarz = 0;
+    k.tarix.forEach(function(op){
+      if(op.tip==='berish') joriyQarz+=op.gramm;
+      else if(op.tip==='vozvrat') joriyQarz-=op.gramm;
+      else if(op.tip==='tolov') joriyQarz-=(op.ekvivalent||0);
+    });
+    joriyQarz = Math.max(0, Math.round(joriyQarz*100)/100);
+    var qolgan = Math.max(0, Math.round((joriyQarz - jamiG)*100)/100);
+    lines2.push(rjust('Qolgan qarz', fmtG(qolgan)+'g'));
+    // Qarz tarkibi — joriy (to'lovdan keyin)
+    var qbd = {};
+    k.tarix.forEach(function(op){
+      if(!op.zavod||!op.tur) return;
+      var key = op.zavod+'||'+op.tur;
+      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      if(op.tip==='berish') qbd[key].qarz+=op.gramm;
+      else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
+      else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
+    });
+    // To'lov inputlaridan ayirish
+    var idx2 = 0;
+    Object.keys(bd).forEach(function(key){
+      var b = bd[key];
+      if(b.qarz<=0){idx2++;return;}
+      var g2 = parseNum((document.getElementById('kt-g-'+idx2)||{}).value)||0;
+      var s2 = parseNum((document.getElementById('kt-s-'+idx2)||{}).value)||0;
+      var n2 = parseNum((document.getElementById('kt-k-'+idx2)||{}).value)||0;
+      if(g2<=0 && s2>0 && n2>0) g2=Math.round(s2/n2*100)/100;
+      var qkey = b.zavod+'||'+b.tur;
+      if(qbd[qkey]) qbd[qkey].qarz = Math.max(0, Math.round((qbd[qkey].qarz - g2)*100)/100);
+      idx2++;
+    });
+    var qarz_tarkib = Object.values(qbd).filter(function(b){return b.qarz>0.01;});
+    if (qarz_tarkib.length) {
       lines2.push(Array(Math.floor(W/2)+1).join('-'));
       lines2.push('QARZ TARKIBI');
       var cz = '';
-      d.qarz_tarkib.forEach(function(b) {
+      qarz_tarkib.forEach(function(b) {
         if (b.zavod !== cz) { cz = b.zavod; lines2.push(b.zavod); }
         lines2.push(rjust('  '+b.tur, fmtG(b.qarz)+'g'));
       });
