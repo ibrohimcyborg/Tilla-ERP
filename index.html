@@ -907,6 +907,18 @@ body.rol-zavod #main-klient { display: none !important; }
       <!-- Vozvrat -->
       <div id="ks-voz-cont"></div>
 
+      <!-- Skidka -->
+      <div id="ks-skidka-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:12px;color:var(--muted);">Skidka</span>
+          <div style="display:flex;align-items:center;gap:4px;border:1px solid var(--red-bd);background:var(--red-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <span style="font-size:12px;color:var(--red);">−</span>
+            <input type="number" id="ks-skidka" placeholder="0" oninput="kSotuvCalc()" style="width:70px;border:none;background:transparent;font-size:14px;color:var(--red);text-align:right;outline:none;">
+            <span style="font-size:11px;color:var(--red);">#</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Hisob -->
       <div id="ks-hisob" style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;display:none;">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Hisob</div>
@@ -3587,6 +3599,8 @@ function openKlientSotuv() {
   document.getElementById('ks-kurs').value = '';
   document.getElementById('ks-naqt-res').textContent = '';
   document.getElementById('ks-cnt').textContent = '1';
+  var skEl = document.getElementById('ks-skidka'); if(skEl) skEl.value='';
+  var skBl = document.getElementById('ks-skidka-blok'); if(skBl) skBl.style.display='none';
   _ksSotuvCnt = 1;
   var n = new Date();
   document.getElementById('ks-sana').value = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
@@ -3986,8 +4000,12 @@ function kSotuvCalc() {
     }
   });
   jamiOldiPul = Math.round(jamiOldiPul * 100) / 100;
-  var skidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul)) * 100) / 100;
-  var tolovPul = Math.floor(jamiOldiPul);
+  var autoSkidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul)) * 100) / 100;
+  var manSkidka = parseNum((document.getElementById('ks-skidka')||{}).value) || 0;
+  var skidka = manSkidka > 0 ? manSkidka : autoSkidka;
+  var tolovPul = Math.max(0, Math.round((jamiOldiPul - skidka) * 100) / 100);
+  var skidkaBlok = document.getElementById('ks-skidka-blok');
+  if(skidkaBlok) skidkaBlok.style.display = jamiOldiPul > 0 ? 'block' : 'none';
   var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
   var naqtG = kurs > 0 ? roundG(naqt / kurs) : 0;
   var nRes = document.getElementById('ks-naqt-res');
@@ -4131,10 +4149,13 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   });
   if (vozJami > 0) lines2.push(rjust('  Vozvrat', fmtG(vozJami)+'g'));
   lines2.push(LINE);
-  var skidkaPul = Math.round((jamiTolovPul - Math.floor(jamiTolovPul))*100)/100;
+  var manSk = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
+  var autoSk = Math.round((jamiTolovPul - Math.floor(jamiTolovPul))*100)/100;
+  var skidkaPul = manSk > 0 ? manSk : autoSk;
+  var tolovYaxlit = Math.max(0, Math.round((jamiTolovPul - skidkaPul)*100)/100);
   lines2.push(rjust('Jami', fmtD(jamiTolovPul)+'#'));
   if (skidkaPul > 0.001) lines2.push(rjust('Skidka', '- '+fmtG(skidkaPul)+'#'));
-  lines2.push(rjust('Tolov (yaxlit)', Math.floor(jamiTolovPul)+'#'));
+  lines2.push(rjust('Tolov (yaxlit)', fmtD(tolovYaxlit)+'#'));
   lines2.push(rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g'));
   lines2.push(LINE);
   lines2.push(rjust('Qolgan qarz', fmtG(finQarz)+' g'));
@@ -4216,13 +4237,14 @@ function saqlashKlientSotuv() {
   }
   save('Sotuv: '+k.nom+' | '+sana);
   var _d = _qarzTarkib(data.klientlar.indexOf(k));
-  klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib);
+  var _skidka = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
+  klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib, _skidka);
   closeModal('modal-ksotuv');
   renderKlientlar();
   renderHome();
 }
 
-function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib) {
+function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan) {
   cnt = cnt || 1;
   if (jamiQarz === undefined) { var _d2 = _qarzTarkib(data.klientlar.indexOf(k)); jamiQarz = _d2.jamiQarz; qarz_tarkib = _d2.qarz_tarkib; }
   var W = 48;
@@ -4248,12 +4270,13 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     t += left + Array(sp+1).join(' ') + right + '\n';
   });
   jamiOldiPul = Math.round(jamiOldiPul*100)/100;
-  var skidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul))*100)/100;
-  var tolovPul = Math.floor(jamiOldiPul);
+  var autoSk2 = Math.round((jamiOldiPul - Math.floor(jamiOldiPul))*100)/100;
+  var skidka = (skidkaMan > 0) ? skidkaMan : autoSk2;
+  var tolovPul = Math.max(0, Math.round((jamiOldiPul - skidka)*100)/100);
   t += LINE;
   t += rjust('Jami', fmtD(jamiOldiPul)+'#')+'\n';
   if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'#')+'\n';
-  t += rjust("Tolov", tolovPul+'#')+'\n';
+  t += rjust("Tolov", fmtD(tolovPul)+'#')+'\n';
   t += LINE;
   t += "TO'LOVLAR\n";
   if (naqt > 0) t += rjust('Naqt', fmtD(naqt)+'#')+'\n';
