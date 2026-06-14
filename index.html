@@ -2304,11 +2304,11 @@ function renderKassa() {
   var cont = document.getElementById('klient-kassa-list');
   if (!cont) return;
   var allOps = [];
-  (data.klientlar||[]).forEach(function(k){
+  (data.klientlar||[]).forEach(function(k, ki){
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
       allOps.push({
-        sana: op.sana, knom: k.nom,
+        sana: op.sana, ki:ki, knom: k.nom,
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0,
         kurs: op.kurs||0, summa: op.summa||0
@@ -2322,10 +2322,14 @@ function renderKassa() {
   }
   var jamiSumma=0, jamiGramm=0;
   allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; });
+
+  // kun bo'yicha, keyin klient bo'yicha guruhlash
   var byDay={}, dayOrder=[];
   allOps.forEach(function(o){
-    if(!byDay[o.sana]){ byDay[o.sana]=[]; dayOrder.push(o.sana); }
-    byDay[o.sana].push(o);
+    if(!byDay[o.sana]){ byDay[o.sana]={}; dayOrder.push(o.sana); }
+    var key = o.ki+'|'+o.knom;
+    if(!byDay[o.sana][key]) byDay[o.sana][key]={ki:o.ki, knom:o.knom, ops:[]};
+    byDay[o.sana][key].ops.push(o);
   });
   dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
@@ -2339,33 +2343,85 @@ function renderKassa() {
     +'<div class="stat2-item"><div class="stat2-label">TOLOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>'
     +'</div>';
 
-  dayOrder.forEach(function(sana){
-    var ops = byDay[sana];
-    var daySumma = 0;
-    ops.forEach(function(o){ daySumma+=o.summa; });
+  var expKassa = {};
+  function kassaRender() {
+    var out = html;
+    dayOrder.forEach(function(sana){
+      var klientlar = byDay[sana];
+      var daySumma = 0;
+      Object.values(klientlar).forEach(function(kg){ kg.ops.forEach(function(o){ daySumma+=o.summa; }); });
 
-    html += '<div class="hrow" style="margin-bottom:8px;">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-    html += '<div style="font-size:12px;font-weight:600;color:var(--muted);">'+sana+'</div>';
-    html += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(daySumma)+'</div>';
-    html += '</div>';
+      out += '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;">'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span></div>';
 
-    ops.forEach(function(o, i){
-      if(i>0) html += '<div style="height:1px;background:var(--border);margin:6px 0;"></div>';
-      var turStr = (o.zavod&&o.tur)?(o.zavod+' · '+o.tur):'';
-      html += '<div style="display:flex;align-items:center;gap:10px;">';
-      html += '<div style="flex:1;">';
-      html += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+o.knom+'</div>';
-      if(turStr) html += '<div style="font-size:11px;color:var(--muted);">'+turStr+'</div>';
-      html += '</div>';
-      html += '<div style="text-align:right;">';
-      html += '<div style="font-size:12px;color:var(--text);">'+fmtG(o.gramm)+'g &middot; '+fmtD(o.kurs)+'$/g</div>';
-      html += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(o.summa)+'</div>';
-      html += '</div></div>';
+      Object.keys(klientlar).forEach(function(key){
+        var kg = klientlar[key];
+        var kSumma = 0, kGramm = 0;
+        kg.ops.forEach(function(o){ kSumma+=o.summa; kGramm+=o.gramm; });
+        var expKey = sana+'|'+key;
+        var isOpen = expKassa[expKey];
+
+        out += '<div class="hrow" style="margin-bottom:6px;cursor:pointer;" onclick="kassaToggle(\''+expKey+'\')">';
+        out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        out += '<div style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</div>';
+        out += '<div style="display:flex;align-items:center;gap:8px;">';
+        out += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
+        out += '<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
+        out += '</div></div>';
+
+        if(isOpen){
+          out += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+          kg.ops.forEach(function(o, i){
+            if(i>0) out += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
+            var turStr = (o.zavod&&o.tur)?(o.zavod+' · '+o.tur):'Naqt';
+            out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+            out += '<div><div style="font-size:12px;color:var(--text);">'+turStr+'</div>';
+            if(o.gramm>0&&o.kurs>0) out += '<div style="font-size:11px;color:var(--muted);">'+fmtG(o.gramm)+'g · '+fmtD(o.kurs)+'$/g</div>';
+            out += '</div>';
+            out += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(o.summa)+'</div>';
+            out += '</div>';
+          });
+          out += '</div>';
+        }
+        out += '</div>';
+      });
     });
-    html += '</div>';
+    cont.innerHTML = out;
+  }
+
+  window.kassaToggle = function(key){ expKassa[key]=!expKassa[key]; kassaRender(); };
+  kassaRender();
+}
+
+function kassaChek(ki, sana) {
+  var k = data.klientlar[ki];
+  if (!k) return;
+  var ops = k.tarix.filter(function(op){ return op.sana===sana && op.tip==='tolov'; });
+  if (!ops.length) return;
+  var W = 48;
+  function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
+  function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
+  var LINE = Array(W+1).join('-');
+  var DASH = Array(Math.floor(W/2)+1).join('-');
+  var now = new Date();
+  var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  var t = center('HISOB')+'\n'+LINE+'\n';
+  t += center(k.nom)+'\n';
+  t += center(sana+' - '+soat)+'\n'+LINE+'\n';
+  t += 'TOLOVLAR\n';
+  var jamiSumma = 0;
+  ops.forEach(function(op){
+    var turStr = (op.zavod&&op.tur) ? op.zavod+'  '+op.tur : 'Naqt';
+    var left = '  '+turStr;
+    var right = fmtG(op.ekvivalent||0)+'g x '+(op.kurs||0)+' = '+fmtD(op.summa)+'#';
+    var sp = W-left.length-right.length; if(sp<1)sp=1;
+    t += left+Array(sp+1).join(' ')+right+'\n';
+    jamiSumma += op.summa||0;
   });
-  cont.innerHTML = html;
+  t += LINE+'\n';
+  t += rjust('Jami', fmtD(jamiSumma)+'#')+'\n';
+  t += LINE+'\n';
+  t += center('RAHMAT!')+'\n\n\n';
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 
 function kassaPDF() {
