@@ -4099,14 +4099,16 @@ function saqlashKlientSotuv() {
     if(zi2>=0) data.zavodlar[zi2].turlar[ti2].ostatka=Math.max(0,Math.round((data.zavodlar[zi2].turlar[ti2].ostatka-_ksSotuvTaqsimG)*100)/100);
   }
   save('Sotuv: '+k.nom+' | '+sana);
-  klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt);
+  var _d = _qarzTarkib(data.klientlar.indexOf(k));
+  klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib);
   closeModal('modal-ksotuv');
   renderKlientlar();
   renderHome();
 }
 
-function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt) {
+function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib) {
   cnt = cnt || 1;
+  if (jamiQarz === undefined) { var _d2 = _qarzTarkib(data.klientlar.indexOf(k)); jamiQarz = _d2.jamiQarz; qarz_tarkib = _d2.qarz_tarkib; }
   var W = 48;
   function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
   function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
@@ -4148,13 +4150,12 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
   var qaytim = Math.max(0, Math.round((jamiTolovPul - tolovPul)*100)/100);
   if (qaytim > 0.01) t += rjust('Qaytim', fmtD(qaytim)+'#')+'\n';
   t += LINE;
-  var d = _qarzTarkib(data.klientlar.indexOf(k));
-  t += rjust('Qolgan qarz', fmtG(d.jamiQarz)+' g')+'\n';
-  if (d.qarz_tarkib.length) {
+  t += rjust('Qolgan qarz', fmtG(jamiQarz)+' g')+'\n';
+  if (qarz_tarkib && qarz_tarkib.length) {
     t += DASH;
     t += 'QARZ TARKIBI\n';
     var cz2 = '';
-    d.qarz_tarkib.forEach(function(b) {
+    qarz_tarkib.forEach(function(b) {
       if (b.zavod !== cz2) { cz2 = b.zavod; t += b.zavod+'\n'; }
       t += rjust('                '+b.tur, fmtG(b.qarz)+' g')+'\n';
     });
