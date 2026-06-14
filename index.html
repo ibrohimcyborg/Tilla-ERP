@@ -4346,6 +4346,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   var W = 48;
   function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
   function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
+  function row3(nom,mid,val){ var left='  '+nom; var right=val; var sp=W-left.length-mid.length-right.length; if(sp<1)sp=1; return left+Array(sp+1).join(' ')+mid+right; }
   var LINE = Array(W+1).join('-') + '\n';
   var DASH = Array(Math.floor(W/2)+1).join('-') + '\n';
   var t = '';
@@ -4354,36 +4355,52 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   t += center(k.nom)+'\n';
   t += center(sana)+'\n';
   t += LINE;
-  var curZ = '';
-  var jamiOldiPul = 0;
-  oldilar.forEach(function(o) {
-    if (o.zavod !== curZ) { curZ = o.zavod; t += o.zavod+'\n'; }
-    var left = '  '+o.tur;
-    var pul = Math.floor(o.gramm * o.narx);
-    jamiOldiPul += o.pul || pul;
-    var right = fmtG(o.gramm)+'g x '+o.narx+'#/g = '+pul+'#';
-    var sp = W - left.length - right.length; if(sp<1)sp=1;
-    t += left + Array(sp+1).join(' ') + right + '\n';
+  // faqat to'langan turlarni chiqarish (kst inputlaridan)
+  var ki2 = data.klientlar.indexOf(k);
+  var jamiTolovPul = 0, jamiTolovG = 0;
+  var tolovSatirlar = [];
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t2, ti) {
+      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      var g = s > 0 && n > 0 ? Math.round(s/n*100)/100 : 0;
+      if (s > 0 && n > 0) {
+        tolovSatirlar.push({zavod:z.nom, tur:t2.nom, s:s, n:n, g:g});
+        jamiTolovPul += s;
+        jamiTolovG += g;
+      }
+    });
   });
-  jamiOldiPul = Math.round(jamiOldiPul*100)/100;
-  var autoSk2 = Math.round((jamiOldiPul - Math.floor(jamiOldiPul))*100)/100;
-  var skidka = (skidkaMan > 0) ? skidkaMan : autoSk2;
-  var tolovPul = Math.max(0, Math.round((jamiOldiPul - skidka)*100)/100);
-  t += LINE;
-  t += rjust('Jami', fmtD(jamiOldiPul)+'#')+'\n';
-  if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'#')+'\n';
-  t += rjust("Tolov", fmtD(tolovPul)+'#')+'\n';
-  t += LINE;
-  t += "TO'LOVLAR\n";
-  if (naqt > 0) t += rjust('Naqt', fmtD(naqt)+'#')+'\n';
+  // lom
   lomlar.forEach(function(l) {
-    var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
-    t += rjust(lbl, l.gramm+'g x '+l.kurs+'#/g = '+fmtD(l.pul)+'#')+'\n';
+    if(l.gramm>0&&l.kurs>0){ jamiTolovPul+=l.pul; }
   });
-  vozlar.forEach(function(v) { t += rjust('Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
-  var jamiTolovPul = naqt + lomlar.reduce(function(a,l){return a+l.pul;},0);
-  var qaytim = Math.max(0, Math.round((jamiTolovPul - tolovPul)*100)/100);
-  if (qaytim > 0.01) t += rjust('Qaytim', fmtD(qaytim)+'#')+'\n';
+  if (tolovSatirlar.length) {
+    t += 'TOLOVLAR\n';
+    tolovSatirlar.forEach(function(item) {
+      t += row3(item.zavod+'  '+item.tur, fmtD(item.s)+'# x '+item.n+' = ', fmtG(item.g)+'g')+'\n';
+    });
+    lomlar.forEach(function(l) {
+      var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
+      t += row3(lbl, l.gramm+'g x '+l.kurs+' = ', fmtD(l.pul)+'#')+'\n';
+    });
+    if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
+    t += LINE;
+    var skidka = skidkaMan > 0 ? skidkaMan : 0;
+    t += rjust('Jami', fmtD(jamiTolovPul)+'#')+'\n';
+    if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'#')+'\n';
+    t += rjust('Tolov (yaxlit)', fmtD(Math.max(0,jamiTolovPul-skidka))+'#')+'\n';
+    t += rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g')+'\n';
+  }
+  // naqt
+  var naqtJami2 = naqt;
+  var qaytim = parseNum((document.getElementById('ks-qaytim-val')||{}).value)||0;
+  if (naqtJami2 > 0) {
+    t += LINE;
+    t += "TO'LOVLAR\n";
+    t += rjust('Naqt', fmtD(naqtJami2)+'#')+'\n';
+    if (qaytim > 0.01) t += rjust('Qaytim', fmtD(qaytim)+'#')+'\n';
+  }
   t += LINE;
   t += rjust('Qolgan qarz', fmtG(jamiQarz)+' g')+'\n';
   if (qarz_tarkib && qarz_tarkib.length) {
