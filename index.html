@@ -1151,32 +1151,47 @@ function renderHomeKurs() {
 
 function hkRenderTurlar(kurs) {
   if (!kurs) kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust') || '0') || 0;
   var out = '';
+  // Header with B ustama input
+  out += '<div style="display:grid;grid-template-columns:1fr 110px 110px 80px;gap:4px;padding:4px 0 6px;border-bottom:0.5px solid var(--border);margin-bottom:4px;align-items:center;">';
+  out += '<div style="font-size:9px;color:var(--muted);text-transform:uppercase;">Tur</div>';
+  out += '<div style="font-size:9px;color:var(--gold);text-align:center;">Zavod % = narx</div>';
+  out += '<div style="font-size:9px;color:var(--blue);text-align:center;">A % = narx</div>';
+  out += '<div style="display:flex;align-items:center;justify-content:center;gap:2px;font-size:9px;color:var(--green);">B +<input type="number" id="hk-b-ust" value="'+(bUst||'')+'" placeholder="0" step="0.5" oninput="hkBUstUpd()" style="width:28px;border:none;background:var(--green-bg);border-radius:4px;font-size:10px;color:var(--green);text-align:center;outline:none;padding:1px 2px;">$</div>';
+  out += '</div>';
+
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
     var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
-    var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+    var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
     out += '<div style="font-size:12px;font-weight:500;color:var(--gold);padding:5px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px;">'+z.nom+'</div>';
     z.turlar.forEach(function(t, ti) {
-      var pct = foizlar[ti] !== undefined ? foizlar[ti] : '';
-      var isManual = manual[ti] ? true : false;
-      var narx = isManual
-        ? (manual[ti] || '')
-        : (pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*10)/10 : '');
-      var narxColor = isManual ? '#185fa5' : '#3b6d11';
-      var narxBorder = isManual ? '#85b7eb' : '#97c459';
-      var narxBg = isManual ? '#e6f1fb' : '#eaf3de';
-      out += '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:0.5px solid var(--border);">';
-      out += '<div style="flex:1;font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
-      out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 6px;height:30px;width:58px;'+(isManual?'opacity:.35;pointer-events:none;':'')+'">'+
-        '<input type="number" id="hkp-'+zi+'-'+ti+'" value="'+pct+'" placeholder="%" oninput="hkPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;width:0;">'+
-        '<span style="font-size:10px;color:var(--gold-bd);">%</span></div>';
-      out += '<span style="font-size:11px;color:var(--muted);">=</span>';
-      out += '<div style="display:flex;align-items:center;gap:2px;border:1.5px solid '+narxBorder+';background:'+narxBg+';border-radius:6px;padding:0 7px;height:30px;width:68px;" id="hkn-box-'+zi+'-'+ti+'">'+
-        '<input type="number" id="hkn-'+zi+'-'+ti+'" value="'+narx+'" placeholder="—" '+(isManual?'oninput="hkNarxUpd('+zi+','+ti+')"':'')+' style="flex:1;border:none;background:transparent;font-size:13px;color:'+narxColor+';font-weight:500;text-align:right;outline:none;width:0;">'+
-        '<span style="font-size:10px;color:'+narxColor+';">$</span></div>';
-      out += '<div onclick="hkToggle('+zi+','+ti+')" style="width:28px;height:16px;border-radius:20px;background:'+(isManual?'#ddd':'#97c459')+';position:relative;cursor:pointer;flex-shrink:0;" id="hkt-'+zi+'-'+ti+'">'+
-        '<div style="position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:2px;left:'+(isManual?'2px':'14px')+';"></div></div>';
+      var zPct = foizlar[ti] !== undefined ? foizlar[ti] : '';
+      var aPct = aFoizlar[ti] !== undefined ? aFoizlar[ti] : '';
+      var zNarx = zPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(zPct)/100)*10)/10 : '';
+      var aNarx = aPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(aPct)/100)*10)/10 : '';
+      var bNarx = aNarx !== '' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : '';
+      out += '<div style="display:grid;grid-template-columns:1fr 110px 110px 80px;gap:4px;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
+      out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
+      // Zavod
+      out += '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">';
+      out += '<div style="display:flex;align-items:center;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 5px;height:28px;width:44px;">';
+      out += '<input type="number" id="hkp-'+zi+'-'+ti+'" value="'+zPct+'" placeholder="%" oninput="hkPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;width:0;">';
+      out += '<span style="font-size:9px;color:var(--gold-bd);">%</span></div>';
+      out += '<span style="font-size:10px;color:var(--muted);">=</span>';
+      out += '<span id="hkn-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:#3b6d11;min-width:38px;">'+(zNarx||'—')+'</span>';
+      out += '</div>';
+      // A
+      out += '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">';
+      out += '<div style="display:flex;align-items:center;border:0.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:6px;padding:0 5px;height:28px;width:44px;">';
+      out += '<input type="number" id="hka-'+zi+'-'+ti+'" value="'+aPct+'" placeholder="%" oninput="hkAPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--blue);text-align:right;outline:none;width:0;">';
+      out += '<span style="font-size:9px;color:var(--blue-bd);">%</span></div>';
+      out += '<span style="font-size:10px;color:var(--muted);">=</span>';
+      out += '<span id="hkan-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--blue);min-width:38px;">'+(aNarx||'—')+'</span>';
+      out += '</div>';
+      // B
+      out += '<div style="text-align:center;"><span id="hkbn-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">'+(bNarx||'—')+'</span></div>';
       out += '</div>';
     });
   });
@@ -1206,10 +1221,41 @@ function hkPctUpd(zi, ti) {
   var pct = parseFloat((document.getElementById('hkp-'+zi+'-'+ti)||{}).value)||0;
   var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
   var nEl = document.getElementById('hkn-'+zi+'-'+ti);
-  if (nEl) nEl.value = narx;
+  if (nEl) nEl.textContent = narx||'—';
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
   foizlar[ti] = pct;
   localStorage.setItem('tilla-foiz-'+zi, JSON.stringify(foizlar));
+}
+
+function hkAPctUpd(zi, ti) {
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust')||'0')||0;
+  var pct = parseFloat((document.getElementById('hka-'+zi+'-'+ti)||{}).value)||0;
+  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
+  var bNarx = narx && bUst > 0 ? Math.round((narx+bUst)*10)/10 : '';
+  var nEl = document.getElementById('hkan-'+zi+'-'+ti);
+  var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
+  if (nEl) nEl.textContent = narx||'—';
+  if (bEl) bEl.textContent = bNarx||'—';
+  var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+  aFoizlar[ti] = pct;
+  localStorage.setItem('tilla-a-foiz-'+zi, JSON.stringify(aFoizlar));
+}
+
+function hkBUstUpd() {
+  var bUst = parseFloat((document.getElementById('hk-b-ust')||{}).value)||0;
+  localStorage.setItem('tilla-b-ust', bUst);
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  data.zavodlar.forEach(function(z, zi) {
+    var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+    z.turlar.forEach(function(t, ti) {
+      var aPct = aFoizlar[ti]||0;
+      var aNarx = aPct>0&&kurs>0 ? Math.round(kurs*(1+aPct/100)*10)/10 : 0;
+      var bNarx = aNarx>0&&bUst>0 ? Math.round((aNarx+bUst)*10)/10 : '';
+      var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
+      if (bEl) bEl.textContent = bNarx||'—';
+    });
+  });
 }
 
 function hkNarxUpd(zi, ti) {
