@@ -4160,13 +4160,52 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   lines2.push(LINE);
   lines2.push(rjust('Qolgan qarz', fmtG(finQarz)+' g'));
   if (ki >= 0) {
-    var d = _qarzTarkib(ki);
-    if (d.qarz_tarkib.length) {
+    // joriy holatda qarz tarkibini hisoblash (saqlanmagan to'lovlarni ham hisobga olib)
+    var qbd2 = {};
+    data.klientlar[ki].tarix.forEach(function(op){
+      if(!op.zavod||!op.tur) return;
+      var key=op.zavod+'||'+op.tur;
+      if(!qbd2[key]) qbd2[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      if(op.tip==='berish') qbd2[key].qarz+=op.gramm;
+      else if(op.tip==='vozvrat') qbd2[key].qarz-=op.gramm;
+      else if(op.tip==='tolov') qbd2[key].qarz-=(op.ekvivalent||0);
+    });
+    // yangi berish (oldilar)
+    oldilar.forEach(function(o){
+      var key=o.zavod+'||'+o.tur;
+      if(!qbd2[key]) qbd2[key]={zavod:o.zavod,tur:o.tur,qarz:0};
+      qbd2[key].qarz+=o.gramm;
+    });
+    // to'lov inputlari (kst-s/kst-n)
+    data.zavodlar.forEach(function(z,zi){
+      z.turlar.forEach(function(t,ti){
+        var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+        var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+        var g=s>0&&n>0?Math.round(s/n*100)/100:0;
+        if(g>0){
+          var key=z.nom+'||'+t.nom;
+          if(!qbd2[key]) qbd2[key]={zavod:z.nom,tur:t.nom,qarz:0};
+          qbd2[key].qarz=Math.max(0,Math.round((qbd2[key].qarz-g)*100)/100);
+        }
+      });
+    });
+    // vozvrat (ks-voz)
+    document.querySelectorAll('[id^="ks-voz-"]').forEach(function(el){
+      var g=parseNum(el.value)||0;
+      if(g<=0) return;
+      var key=el.dataset.key;
+      var parts=key?key.split('||'):[];
+      if(parts.length<2) return;
+      var k2=parts[0]+'||'+parts[1];
+      if(qbd2[k2]) qbd2[k2].qarz=Math.max(0,Math.round((qbd2[k2].qarz-g)*100)/100);
+    });
+    var qt2=Object.values(qbd2).filter(function(b){return b.qarz>0.01;});
+    if(qt2.length){
       lines2.push(Array(Math.floor(W/2)+1).join('-'));
       lines2.push('QARZ TARKIBI');
-      var cz2 = '';
-      d.qarz_tarkib.forEach(function(b) {
-        if (b.zavod !== cz2) { cz2 = b.zavod; lines2.push(b.zavod); }
+      var cz2='';
+      qt2.forEach(function(b){
+        if(b.zavod!==cz2){cz2=b.zavod;lines2.push(b.zavod);}
         lines2.push(rjust('                '+b.tur, fmtG(b.qarz)+' g'));
       });
     }
