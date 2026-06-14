@@ -4465,14 +4465,45 @@ document.addEventListener('click', function(e) {
 function _qarzTarkib(ki) {
   var k=data.klientlar[ki];
   var qbd={};
+  var naqtTolov=0; // zavod/tur siz to'lovlar yig'indisi
   k.tarix.forEach(function(op){
-    if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'||'+op.tur;
-    if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-    if(op.tip==='berish') qbd[key].qarz+=op.gramm;
-    else if(op.tip==='vozvrat') qbd[key].qarz-=op.gramm;
-    else if(op.tip==='tolov') qbd[key].qarz-=(op.ekvivalent||0);
+    if(op.tip==='berish'&&op.zavod&&op.tur){
+      var key=op.zavod+'||'+op.tur;
+      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      qbd[key].qarz+=op.gramm;
+    } else if(op.tip==='vozvrat'&&op.zavod&&op.tur){
+      var key=op.zavod+'||'+op.tur;
+      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+      qbd[key].qarz-=op.gramm;
+    } else if(op.tip==='tolov'){
+      if(op.zavod&&op.tur){
+        var key=op.zavod+'||'+op.tur;
+        if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+        qbd[key].qarz-=(op.ekvivalent||0);
+      } else {
+        // zavod/tur siz tolov — umumiy qarzdan ayiramiz
+        naqtTolov+=(op.ekvivalent||0);
+      }
+    }
   });
+  // naqtTolov ni turlar bo'yicha proportsional ayirish
+  if(naqtTolov>0){
+    var jamiPos=Object.values(qbd).reduce(function(a,b){return a+(b.qarz>0?b.qarz:0);},0);
+    if(jamiPos>0.001){
+      var qoldi=naqtTolov;
+      var keys=Object.keys(qbd).filter(function(k){return qbd[k].qarz>0;});
+      keys.forEach(function(key,i){
+        if(i===keys.length-1){
+          qbd[key].qarz=Math.max(0,Math.round((qbd[key].qarz-qoldi)*100)/100);
+        } else {
+          var pay=Math.round(naqtTolov*(qbd[key].qarz/jamiPos)*100)/100;
+          pay=Math.min(pay,qbd[key].qarz);
+          qbd[key].qarz=Math.max(0,Math.round((qbd[key].qarz-pay)*100)/100);
+          qoldi=Math.round((qoldi-pay)*100)/100;
+        }
+      });
+    }
+  }
   var qarz_tarkib=[];
   Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
   return {k:k, qarz_tarkib:qarz_tarkib, jamiQarz:klientJamiQarz(k)};
