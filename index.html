@@ -2660,11 +2660,12 @@ function openKlientDetail(ki) {
   else st.style.display='none';
   var breakdown={};
   k.tarix.forEach(function(op){
-    if(op.tip==='berish'||op.tip==='vozvrat'){
-      var key=op.zavod+'|'+op.tur;
-      if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      breakdown[key].qarz+=(op.tip==='berish'?op.gramm:-op.gramm);
-    }
+    if(!op.zavod||!op.tur) return;
+    var key=op.zavod+'|'+op.tur;
+    if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+    if(op.tip==='berish') breakdown[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat') breakdown[key].qarz-=op.gramm;
+    else if(op.tip==='tolov') breakdown[key].qarz-=(op.ekvivalent||0);
   });
   var byZavod={};
   Object.values(breakdown).forEach(function(b){if(!byZavod[b.zavod])byZavod[b.zavod]=[];byZavod[b.zavod].push(b);});
