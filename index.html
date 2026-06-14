@@ -1103,7 +1103,8 @@ function renderHomeKurs() {
   var last = tarix.length ? tarix[tarix.length-1] : null;
   var kurs = last ? last.kurs : 0;
 
-  var lomNarx = parseFloat(localStorage.getItem('tilla-lom-bugun')||'0') || (kurs > 0 ? Math.round((kurs + parseFloat(localStorage.getItem('tilla-lom-farq')||'-2'))*10)/10 : '');
+  var savedLom = parseFloat(localStorage.getItem('tilla-lom-bugun')||'0');
+  var lomNarx = savedLom > 0 ? savedLom : (kurs > 0 ? Math.round((kurs - 2)*10)/10 : '');
 
   var out = '';
   out += '<div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">';
@@ -1222,7 +1223,12 @@ function hkLomUpd() {
 
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
-  // kurs o'zgarganda lomni qayta hisoblama — faqat turlarni yangilaymiz
+  var farq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
+  var lomEl = document.getElementById('hk-lom-inp');
+  if (lomEl && kurs > 0) {
+    var newLom = Math.round((kurs + farq)*10)/10;
+    lomEl.value = newLom;
+  }
   hkRenderTurlar(kurs);
 }
 
