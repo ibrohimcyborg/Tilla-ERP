@@ -919,6 +919,18 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <script>
+var _printXatoVaqt = 0;
+function printXato(){
+  var now = Date.now();
+  if (now - _printXatoVaqt > 3000) {
+    _printXatoVaqt = now;
+    alert('Chek chiqmadi — printer yoki print-server (localhost:5000) ishlamayapti.');
+  }
+}
+window.onerror = function(msg, src, line){
+  try { alert('Xatolik yuz berdi:\n' + msg + (line ? (' (qator ' + line + ')') : '')); } catch(e){}
+  return false;
+};
 var CREDS = [
   {login:'tilla', parol:'tilla9999', rol:'admin'},
   {login:'zavod', parol:'zavod9999', rol:'zavod'}
@@ -950,7 +962,13 @@ function doLogin(){
     if(lu) lu.addEventListener('keydown',function(e){if(e.key==='Enter'&&lp) lp.focus();});
   });
 })();
-var data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[],"klientlar":[]}');
+var data;
+try {
+  data = JSON.parse(localStorage.getItem('tilla-v2') || '{"zavodlar":[],"klientlar":[]}');
+} catch(e) {
+  alert('Maʼlumotni oʻqishda xato. Zaxiradan tiklash uchun 🕐 (Vaqt mashinasi) dan foydalaning.');
+  data = {zavodlar:[], klientlar:[]};
+}
 if (!data.klientlar) data.klientlar = [];
 if (!data.zavodlar) data.zavodlar = [];
 
@@ -1291,7 +1309,7 @@ function hkChekPrint() {
   }
   lines2.push(LINE);
   var t = lines2.join('\n')+'\n\n\n';
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 function zKursRender() {
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
@@ -1408,7 +1426,7 @@ function zKursChekPrint() {
   }
   lines2.push(LINE);
   var t = lines2.join(NL)+NL+NL+NL;
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 
 function zKursSaqla() {
@@ -1760,7 +1778,7 @@ function kirimSaqlash() {
     var el = document.getElementById('kg-'+ti);
     var g = el ? parseNum(el.value) : 0;
     if (g > 0) {
-      t.ostatka += g;
+      t.ostatka = Math.round((t.ostatka + g)*100)/100;
       t.tarix.push({tip:'mol', sana:sana, gramm:g});
       any = true;
     } else if (g < 0) {
@@ -1897,7 +1915,7 @@ function chiqimSaqlash() {
     var lPul=lG*lK;
     var lomGEq=(lG>0&&lK>0&&nK>0)?roundG(lPul/nK):0;
     var totalG=nG+lomGEq;
-    t.ostatka=Math.max(0, t.ostatka-totalG);
+    t.ostatka=Math.max(0, Math.round((t.ostatka-totalG)*100)/100);
     t.tarix.push({tip:'tolov',sana:sana,kimga:kimga,naqtSumma:nS,naqtGramm:nG,naqtKurs:nK,lomGramm:lG,lomKurs:lK,lomPul:lPul,lomGEq:lomGEq,jami:totalG});
     any=true;
   }
@@ -1961,7 +1979,7 @@ function editSaqla() {
   var newSana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):op.sana;
   if (isK) {
     var newG=parseNum(document.getElementById('e-gramm').value);
-    t.ostatka=Math.max(0, t.ostatka-op.gramm+newG);
+    t.ostatka=Math.max(0, Math.round((t.ostatka-op.gramm+newG)*100)/100);
     op.gramm=newG;
   } else {
     var nS=parseNum(document.getElementById('e-naqts').value);
@@ -1973,7 +1991,7 @@ function editSaqla() {
     var lPul=lG*lK;
     var lomGEq=(lG>0&&lK>0&&nK>0)?roundG(lPul/nK):0;
     var newJami=nG+lomGEq;
-    t.ostatka=Math.max(0, t.ostatka+op.jami-newJami);
+    t.ostatka=Math.max(0, Math.round((t.ostatka+op.jami-newJami)*100)/100);
     op.kimga=kimga;op.naqtSumma=nS;op.naqtKurs=nK;op.naqtGramm=nG;op.lomGramm=lG;op.lomKurs=lK;op.lomPul=lPul;op.lomGEq=lomGEq;op.jami=newJami;
   }
   var oldSana=op.sana;
@@ -2520,9 +2538,9 @@ function kopEditSaqla() {
         var newG = parseNum(gEl.value);
         var diff = newG - oldG;
         if(tip==='berish'){
-          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka-diff); }); });
+          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,Math.round((t.ostatka-diff)*100)/100); }); });
         } else {
-          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,t.ostatka+diff); }); });
+          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,Math.round((t.ostatka+diff)*100)/100); }); });
         }
         op.gramm = newG;
         if(Math.abs(newG-oldG)>0.001) op.tahrir = { eski: oldG, yangi: newG, vaqt: nowStr };
@@ -2553,9 +2571,9 @@ function kopEditOchir() {
   if (!op) return;
   if (!confirm("Bu operatsiyani ochirmoqchimisiz?")) return;
   if (op.tip==='berish') {
-    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka+=op.gramm; }); });
+    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.round((t.ostatka+op.gramm)*100)/100; }); });
   } else if (op.tip==='vozvrat') {
-    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka-=op.gramm; }); });
+    data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100; }); });
   }
   k.tarix.splice(_kopOi, 1);
   save();
@@ -2972,7 +2990,7 @@ function saqlashKlientBerish(){
       var zi=parseInt(el.dataset.zi),ti=parseInt(el.dataset.ti);
       var z=data.zavodlar[zi],t=z.turlar[ti];
       k.tarix.push({tip:'berish',sana:sana,zavod:z.nom,tur:t.nom,gramm:g});
-      t.ostatka=Math.max(0,t.ostatka-g);
+      t.ostatka=Math.max(0,Math.round((t.ostatka-g)*100)/100);
       any=true;
     }
   });
@@ -3079,7 +3097,7 @@ function saqlashKlientVozvrat(){
     var g=el?parseNum(el.value):0;
     if(g>0&&b.zi>=0&&b.ti>=0){
       k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:g});
-      data.zavodlar[b.zi].turlar[b.ti].ostatka+=g;
+      data.zavodlar[b.zi].turlar[b.ti].ostatka=Math.round((data.zavodlar[b.zi].turlar[b.ti].ostatka+g)*100)/100;
       any=true;
     }
     idx++;
@@ -3283,8 +3301,6 @@ function kTolovChekUpd() {
   var now = new Date();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   lines2.push(center('HISOB'));
-  lines2.push(center('HISOB'));
-  lines2.push(center('TOLOV CHEKI'));
   lines2.push(LINE);
   lines2.push(center(kNom));
   lines2.push(center(sana+' - '+soat));
@@ -3313,9 +3329,8 @@ function kTolovChekUpd() {
   document.getElementById('kt-chek-preview').style.display='block';
 
   Object.keys(byZavod).forEach(function(zavod) {
-    lines2.push(zavod);
     byZavod[zavod].forEach(function(item) {
-      lines2.push(rjust('                '+item.tur, fmtG(item.g)+'g x '+item.n+' = '+fmtD(item.summa)+'#'));
+      lines2.push(rjust(zavod+'  '+item.tur, fmtG(item.g)+'g x '+item.n+' = '+fmtD(item.summa)+'#'));
     });
   });
 
@@ -3410,7 +3425,7 @@ function saqlashKlientTolov(){
     var ti=vEl?parseInt(vEl.dataset.ti):-1;
     var eq=0;
     if(s>0&&kurs>0){eq=roundG(s/kurs);k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq});any=true;}
-    if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka+=v;any=true;}
+    if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
     if(s>0||v>0){
       ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:s,tolov_kurs:kurs});
     }
@@ -3421,7 +3436,7 @@ function saqlashKlientTolov(){
   var chekEl = document.getElementById('kt-chek-body');
   if (chekEl && chekEl.textContent.trim()) {
     fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:chekEl.textContent+'\n\n\n'})}).catch(function(){});
+      body:JSON.stringify({text:chekEl.textContent+'\n\n\n'})}).catch(printXato);
   }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();
@@ -4074,7 +4089,7 @@ function saqlashKlientSotuv() {
     var b = vozBD[key];
     if (!b || b.zi < 0 || b.ti < 0) return;
     k.tarix.push({tip:'vozvrat', sana:sana, zavod:b.zavod, tur:b.tur, gramm:g});
-    data.zavodlar[b.zi].turlar[b.ti].ostatka += g;
+    data.zavodlar[b.zi].turlar[b.ti].ostatka = Math.round((data.zavodlar[b.zi].turlar[b.ti].ostatka + g)*100)/100;
     vozlar.push({zavod:b.zavod, tur:b.tur, gramm:g});
   });
   if (_ksSotuvTaqsimTi >= 0 && _ksSotuvTaqsimG > 0 && oldilar[_ksSotuvTaqsimTi]) {
@@ -4150,7 +4165,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
   t += center('RAHMAT!')+'\n\n\n';
   for (var i = 0; i < cnt; i++) {
     (function(idx){ setTimeout(function(){
-      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(function(){});
+      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
     }, idx*1500); })(i);
   }
 }
@@ -4258,9 +4273,9 @@ function klientTarixOchir(el) {
       var idx=k.tarix.indexOf(op);
       if(idx>=0) k.tarix.splice(idx,1);
       if(op.tip==='berish'){
-        data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka+=op.gramm;});});
+        data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka=Math.round((t.ostatka+op.gramm)*100)/100;});});
       } else if(op.tip==='vozvrat'){
-        data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka-=op.gramm;});});
+        data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100;});});
       }
     });
     save('O\'chirildi: '+sana);
@@ -4339,7 +4354,7 @@ function klientQarzChekPrint(ki) {
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
     (function(idx){setTimeout(function(){
-      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:chekText})}).catch(function(){});
+      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:chekText})}).catch(printXato);
     },idx*1500);})(i);
   }
 }
