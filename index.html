@@ -933,7 +933,10 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="ks-qaytim" style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:10px 12px;display:none;margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span style="font-size:12px;color:var(--green);">Qaytim (sdacha)</span>
-          <span style="font-size:15px;font-weight:600;color:var(--green);" id="ks-qaytim-val">0$</span>
+          <div style="display:flex;align-items:center;gap:2px;border:1px solid var(--green-bd);border-radius:7px;padding:0 8px;height:30px;background:var(--surf);">
+            <input type="number" id="ks-qaytim-val" oninput="kSotuvCalc()" style="width:70px;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
+            <span style="font-size:11px;color:var(--green);">$</span>
+          </div>
         </div>
       </div>
 
@@ -3605,6 +3608,7 @@ function openKlientSotuv() {
   document.getElementById('ks-cnt').textContent = '1';
   var skEl = document.getElementById('ks-skidka'); if(skEl) skEl.value='';
   var skBl = document.getElementById('ks-skidka-blok'); if(skBl) skBl.style.display='none';
+  var qvEl = document.getElementById('ks-qaytim-val'); if(qvEl) qvEl.value='';
   _ksSotuvCnt = 1;
   var n = new Date();
   document.getElementById('ks-sana').value = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
@@ -4071,10 +4075,21 @@ function kSotuvCalc() {
     rows += '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:5px 0;"><span>Qolgan qarz</span><span style="color:var(--red);">'+fmtG(finQarz)+'g</span></div>';
     document.getElementById('ks-hisob-rows').innerHTML = rows;
   } else hEl.style.display = 'none';
-  var qaytimPul = Math.max(0, Math.round((jamiTolovPul - tolovPul) * 100) / 100);
+  var autoQaytim = Math.max(0, Math.round((jamiTolovPul - tolovPul) * 100) / 100);
   var qEl = document.getElementById('ks-qaytim');
-  if (qaytimPul > 0.01) { qEl.style.display = 'block'; document.getElementById('ks-qaytim-val').textContent = fmtD(qaytimPul)+'$'; }
-  else qEl.style.display = 'none';
+  var qValEl = document.getElementById('ks-qaytim-val');
+  if (autoQaytim > 0.01) {
+    qEl.style.display = 'block';
+    // faqat avtomatik qiymat kiritilmagan bo'lsa yangilaymiz
+    var curVal = parseNum((qValEl||{}).value) || 0;
+    if (Math.abs(curVal - autoQaytim) > 0.01 || curVal === 0) {
+      if(qValEl) qValEl.value = autoQaytim;
+    }
+  } else {
+    qEl.style.display = 'none';
+    if(qValEl) qValEl.value = '';
+  }
+  var qaytimPul = parseNum((qValEl||{}).value) || autoQaytim;
   var tqEl = document.getElementById('ks-taqsim');
   if (qolgan > 0.01 && oldilar.length > 0) {
     tqEl.style.display = 'block';
