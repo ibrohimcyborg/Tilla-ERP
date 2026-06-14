@@ -1969,6 +1969,13 @@ document.addEventListener('wheel', function(e){
 
 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target!==el) return; var locked=['modal-kberish','modal-kvozvrat','modal-ktolov','modal-ksotuv']; if(locked.indexOf(el.id)>=0) return; el.classList.remove('open'); }); });
 document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('modal-kberish').classList.contains('open')) closeModal('modal-kberish');
+    else if(document.getElementById('modal-kvozvrat').classList.contains('open')) closeModal('modal-kvozvrat');
+    else if(document.getElementById('modal-ktolov').classList.contains('open')) closeModal('modal-ktolov');
+    else if(document.getElementById('modal-ksotuv').classList.contains('open')) closeModal('modal-ksotuv');
+    else { document.querySelectorAll('.modal-overlay.open').forEach(function(el){el.classList.remove('open');}); }
+  }
   if(e.key==='Enter'){
     if(document.getElementById('modal-zavod').classList.contains('open')) saqlashZavod();
     else if(document.getElementById('modal-tur').classList.contains('open')) saqlashTur();
@@ -1976,6 +1983,7 @@ document.addEventListener('keydown', function(e){
     else if(document.getElementById('modal-kberish').classList.contains('open')) saqlashKlientBerish();
     else if(document.getElementById('modal-kvozvrat').classList.contains('open')) saqlashKlientVozvrat();
     else if(document.getElementById('modal-ktolov').classList.contains('open')) saqlashKlientTolov();
+    else if(document.getElementById('modal-ksotuv').classList.contains('open')) saqlashKlientSotuv();
     else if(document.getElementById('modal-kop-edit').classList.contains('open')) kopEditSaqla();
     else if(document.getElementById('modal-snapshot').classList.contains('open')&&document.getElementById('snapshot-parol-blok').style.display!=='none') snapParolTekshir();
     else if(document.getElementById('modal-reset').classList.contains('open')&&document.getElementById('reset-parol-blok').style.display!=='none') resetParolTekshir();
