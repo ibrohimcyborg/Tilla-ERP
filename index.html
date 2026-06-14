@@ -801,7 +801,14 @@ body.rol-zavod #main-klient { display: none !important; }
       </div>
       <div id="kt-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;max-height:200px;overflow-y:auto;"></div>
       <div id="kt-sel" style="display:none;margin-top:6px;padding:8px 12px;background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:10px;align-items:center;justify-content:space-between;">
-        <span id="kt-sel-nom" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+        <div style="flex:1;">
+          <span id="kt-sel-nom" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:5px;">
+            <button onclick="ktKatSet('A')" id="kt-kat-A" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:500;cursor:pointer;">A</button>
+            <button onclick="ktKatSet('B')" id="kt-kat-B" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;">B</button>
+            <button onclick="ktKatSet('C')" id="kt-kat-C" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;">C</button>
+          </div>
+        </div>
         <button onclick="ktResetKlient()" style="border:none;background:none;font-size:12px;color:var(--muted);cursor:pointer;">✎</button>
       </div>
       <input type="hidden" id="kt-klient" value="">
@@ -896,9 +903,13 @@ body.rol-zavod #main-klient { display: none !important; }
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="font-size:14px;font-weight:600;color:var(--text);" id="ks-nom-lbl"></span>
             <span id="ks-yangi-tag" style="display:none;font-size:10px;padding:1px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);">Yangi</span>
-            <span id="ks-kat-tag" style="display:none;font-size:10px;font-weight:600;padding:1px 8px;border-radius:20px;border:1px solid;"></span>
           </div>
-          <div style="font-size:11px;color:var(--red);margin-top:1px;" id="ks-qarz-lbl"></div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:5px;">
+            <button onclick="ksKatSet('A')" id="ks-kat-A" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:500;cursor:pointer;">A</button>
+            <button onclick="ksKatSet('B')" id="ks-kat-B" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;">B</button>
+            <button onclick="ksKatSet('C')" id="ks-kat-C" style="padding:2px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;">C</button>
+          </div>
+          <div style="font-size:11px;color:var(--red);margin-top:3px;" id="ks-qarz-lbl"></div>
         </div>
         <button onclick="ksResetKlient()" style="border:none;background:none;font-size:12px;color:var(--muted);cursor:pointer;">✎</button>
       </div>
@@ -2967,24 +2978,40 @@ function klientKatSet(kat) {
   if (ki < 0 || !data.klientlar[ki]) return;
   data.klientlar[ki].kat = kat;
   save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
+  _katBtnUpd('kd', kat);
+}
+
+function _katBtnUpd(prefix, kat) {
   var styles = {
-    A: {bg:'var(--blue-bg)',border:'var(--blue-bd)',color:'var(--blue)'},
-    B: {bg:'var(--green-bg)',border:'var(--green-bd)',color:'var(--green)'},
-    C: {bg:'var(--yellow-bg)',border:'var(--gold-bd)',color:'var(--gold)'}
+    A:{bg:'var(--blue-bg)',border:'var(--blue-bd)',color:'var(--blue)'},
+    B:{bg:'var(--green-bg)',border:'var(--green-bd)',color:'var(--green)'},
+    C:{bg:'var(--yellow-bg)',border:'var(--gold-bd)',color:'var(--gold)'}
   };
   ['A','B','C'].forEach(function(x){
-    var btn = document.getElementById('kd-kat-'+x);
-    if (!btn) return;
-    if (x === kat) {
-      btn.style.background = styles[x].bg;
-      btn.style.borderColor = styles[x].border;
-      btn.style.color = styles[x].color;
-    } else {
-      btn.style.background = 'var(--surf2)';
-      btn.style.borderColor = 'var(--border)';
-      btn.style.color = 'var(--muted)';
-    }
+    var btn=document.getElementById(prefix+'-kat-'+x);
+    if(!btn) return;
+    if(x===kat){btn.style.background=styles[x].bg;btn.style.borderColor=styles[x].border;btn.style.color=styles[x].color;}
+    else{btn.style.background='var(--surf2)';btn.style.borderColor='var(--border)';btn.style.color='var(--muted)';}
   });
+}
+
+function ksKatSet(kat) {
+  var ki = _ksSotuvKi;
+  if(ki<0||!data.klientlar[ki]) return;
+  data.klientlar[ki].kat = kat;
+  save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
+  _katBtnUpd('ks', kat);
+  kSotuvRenderTolov();
+  kSotuvCalc();
+}
+
+function ktKatSet(kat) {
+  var ki = parseInt(document.getElementById('kt-klient').value);
+  if(isNaN(ki)||!data.klientlar[ki]) return;
+  data.klientlar[ki].kat = kat;
+  save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
+  _katBtnUpd('kt', kat);
+  kTolovKlientChange();
 }
 
 function openKlientDetail(ki) {
@@ -2993,17 +3020,7 @@ function openKlientDetail(ki) {
   document.getElementById('kd-name').textContent=k.nom;
   // kategoriya tugmalarini yangilash
   var kat = k.kat || 'A';
-  var styles = {
-    A:{bg:'var(--blue-bg)',border:'var(--blue-bd)',color:'var(--blue)'},
-    B:{bg:'var(--green-bg)',border:'var(--green-bd)',color:'var(--green)'},
-    C:{bg:'var(--yellow-bg)',border:'var(--gold-bd)',color:'var(--gold)'}
-  };
-  ['A','B','C'].forEach(function(x){
-    var btn=document.getElementById('kd-kat-'+x);
-    if(!btn) return;
-    if(x===kat){btn.style.background=styles[x].bg;btn.style.borderColor=styles[x].border;btn.style.color=styles[x].color;}
-    else{btn.style.background='var(--surf2)';btn.style.borderColor='var(--border)';btn.style.color='var(--muted)';}
-  });
+  _katBtnUpd('kd', kat);
   var qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
   qEl.textContent=(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+' g';
@@ -3552,6 +3569,7 @@ function kTolovKlientChange(){
   var ks=katStyles[kat]||katStyles.A;
   var katEl=document.getElementById('kt-kat-info');
   if(katEl){katEl.textContent=ks.lbl;katEl.style.background=ks.bg;katEl.style.borderColor=ks.bd;katEl.style.color=ks.c;katEl.style.display='inline-block';}
+  _katBtnUpd('kt', kat);
   var breakdown={};
   k.tarix.forEach(function(op){
     if(op.tip==='berish'){
@@ -3977,12 +3995,10 @@ function ksSotuvPickK(ki) {
   document.getElementById('ks-qarz-lbl').textContent = 'qarz: '+fmtG(qarz)+'g';
   document.getElementById('ks-qarz-lbl').style.color = qarz > 0 ? 'var(--red)' : 'var(--green)';
   document.getElementById('ks-yangi-tag').style.display = 'none';
-  // kategoriya badge
   var kat = k.kat||'A';
-  var katStyles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C'}};
-  var ks=katStyles[kat]||katStyles.A;
+  _katBtnUpd('ks', kat);
   var katEl=document.getElementById('ks-kat-tag');
-  if(katEl){katEl.textContent=ks.lbl;katEl.style.background=ks.bg;katEl.style.borderColor=ks.bd;katEl.style.color=ks.c;katEl.style.display='inline-block';}
+  if(katEl) katEl.style.display='none';
   document.getElementById('ks-search-blok').style.display = 'none';
   document.getElementById('ks-sel-klient').style.display = 'block';
   document.getElementById('ks-main').style.display = 'block';
