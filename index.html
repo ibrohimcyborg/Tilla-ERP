@@ -1432,6 +1432,7 @@ function hkChekPrint(tip) {
   if (!kurs) { alert('Kurs kiriting!'); return; }
   var lomEl = document.getElementById('hk-lom-inp');
   var lom = lomEl ? parseFloat(lomEl.value)||0 : 0;
+  if (!lom) lom = parseFloat(localStorage.getItem('tilla-lom-bugun')||'0')||0;
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
@@ -1447,14 +1448,12 @@ function hkChekPrint(tip) {
   lines.push(LINE);
 
   if (tip === 'k') {
-    // Kun kursi — faqat kurs va lom
-    lines.push(rjust('Kurs', kurs+'$/g'));
+    lines.push(rjust('Kurs', kurs+' $/g'));
     if (lom > 0) {
       var lomFarq = Math.round((lom-kurs)*10)/10;
-      lines.push(rjust('Lom', lom+'$/g  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
+      lines.push(rjust('Lom', lom+' $/g  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
     }
   } else {
-    // A yoki B — turlar narxlari
     data.zavodlar.forEach(function(z, zi) {
       if (!z.turlar.length) return;
       var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
@@ -1465,7 +1464,7 @@ function hkChekPrint(tip) {
         var aNarx = aManual[ti] ? aManual[ti] : (parseFloat(aFoizlar[ti])||0)>0 ? Math.round(kurs*(1+parseFloat(aFoizlar[ti])/100)*10)/10 : 0;
         if (!aNarx) return;
         var narx = tip === 'b' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : aNarx;
-        turLines.push(rjust('  '+t.nom, narx+'$'));
+        turLines.push(rjust('  '+t.nom, String(narx)));
         hasNarx = true;
       });
       if (hasNarx) {
@@ -1476,7 +1475,7 @@ function hkChekPrint(tip) {
     if (lom > 0) {
       var lomFarq2 = Math.round((lom-kurs)*10)/10;
       lines.push(LINE);
-      lines.push(rjust('Lom', lom+'$/g  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
+      lines.push(rjust('Lom', lom+' $/g  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
     }
   }
   lines.push(LINE);
