@@ -1227,10 +1227,13 @@ function hkPctUpd(zi, ti) {
   var pct = parseFloat((document.getElementById('hkp-'+zi+'-'+ti)||{}).value)||0;
   var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
   var nEl = document.getElementById('hkn-'+zi+'-'+ti);
-  if (nEl) nEl.textContent = narx||'—';
+  if (nEl) nEl.value = narx||'';
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
   foizlar[ti] = pct;
   localStorage.setItem('tilla-foiz-'+zi, JSON.stringify(foizlar));
+  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  delete manual[ti];
+  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
 }
 
 function hkAPctUpd(zi, ti) {
@@ -1241,11 +1244,14 @@ function hkAPctUpd(zi, ti) {
   var bNarx = narx && bUst > 0 ? Math.round((narx+bUst)*10)/10 : '';
   var nEl = document.getElementById('hkan-'+zi+'-'+ti);
   var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
-  if (nEl) nEl.textContent = narx||'—';
+  if (nEl) nEl.value = narx||'';
   if (bEl) bEl.textContent = bNarx||'—';
   var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
   aFoizlar[ti] = pct;
   localStorage.setItem('tilla-a-foiz-'+zi, JSON.stringify(aFoizlar));
+  var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
+  delete aManual[ti];
+  localStorage.setItem('tilla-a-manual-'+zi, JSON.stringify(aManual));
 }
 
 function hkBUstUpd() {
@@ -1254,9 +1260,10 @@ function hkBUstUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
   data.zavodlar.forEach(function(z, zi) {
     var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+    var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
     z.turlar.forEach(function(t, ti) {
-      var aPct = aFoizlar[ti]||0;
-      var aNarx = aPct>0&&kurs>0 ? Math.round(kurs*(1+aPct/100)*10)/10 : 0;
+      var aNarxEl = document.getElementById('hkan-'+zi+'-'+ti);
+      var aNarx = aNarxEl ? parseFloat(aNarxEl.value)||0 : 0;
       var bNarx = aNarx>0&&bUst>0 ? Math.round((aNarx+bUst)*10)/10 : '';
       var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
       if (bEl) bEl.textContent = bNarx||'—';
@@ -1266,6 +1273,16 @@ function hkBUstUpd() {
 
 function hkNarxManUpd(zi, ti) {
   var narx = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0;
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  // teskari hisob: foiz
+  if (narx > 0 && kurs > 0) {
+    var pct = Math.round((narx/kurs*100-100)*10)/10;
+    var pEl = document.getElementById('hkp-'+zi+'-'+ti);
+    if (pEl) pEl.value = pct;
+    var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
+    foizlar[ti] = pct;
+    localStorage.setItem('tilla-foiz-'+zi, JSON.stringify(foizlar));
+  }
   var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
   if (narx > 0) manual[ti] = narx;
   else delete manual[ti];
@@ -1274,6 +1291,15 @@ function hkNarxManUpd(zi, ti) {
 
 function hkANarxManUpd(zi, ti) {
   var narx = parseFloat((document.getElementById('hkan-'+zi+'-'+ti)||{}).value)||0;
+  var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  if (narx > 0 && kurs > 0) {
+    var pct = Math.round((narx/kurs*100-100)*10)/10;
+    var pEl = document.getElementById('hka-'+zi+'-'+ti);
+    if (pEl) pEl.value = pct;
+    var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+    aFoizlar[ti] = pct;
+    localStorage.setItem('tilla-a-foiz-'+zi, JSON.stringify(aFoizlar));
+  }
   var bUst = parseFloat(localStorage.getItem('tilla-b-ust')||'0')||0;
   var bNarx = narx>0&&bUst>0 ? Math.round((narx+bUst)*10)/10 : '';
   var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
