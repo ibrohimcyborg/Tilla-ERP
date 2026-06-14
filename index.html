@@ -577,11 +577,6 @@ body.rol-zavod #main-klient { display: none !important; }
       <div class="stitle" id="kd-name">Klient</div>
       <button onclick="klientNomTahrir()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;">✎</button>
     </div>
-    <div style="display:flex;align-items:center;gap:4px;" id="kd-kat-btns">
-      <button onclick="klientKatSet('A')" id="kd-kat-A" style="padding:3px 10px;border-radius:20px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:12px;font-weight:500;cursor:pointer;">A</button>
-      <button onclick="klientKatSet('B')" id="kd-kat-B" style="padding:3px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;">B</button>
-      <button onclick="klientKatSet('C')" id="kd-kat-C" style="padding:3px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;">C</button>
-    </div>
     <button onclick="klientOchir()" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑</button>
   </div>
   <div class="card" style="margin-bottom:10px;">
@@ -3058,7 +3053,21 @@ function ksKatSet(kat) {
   var cG=document.getElementById('ks-c-global');
   if(cG) cG.style.display=kat==='C'?'flex':'none';
   if(kat==='C'){ var v=document.getElementById('ks-c-global-val'); if(v) v.value=0; }
-  kSotuvRenderTolov();
+  // faqat narxni yangilash, gramm va summani saqlab
+  data.zavodlar.forEach(function(z,zi){
+    z.turlar.forEach(function(t,ti){
+      var nEl=document.getElementById('kst-n-'+zi+'-'+ti);
+      var gEl=document.getElementById('kst-g-'+zi+'-'+ti);
+      var sEl=document.getElementById('kst-s-'+zi+'-'+ti);
+      if(!nEl) return;
+      var newNarx=getKatNarx(zi,ti,ki);
+      if(newNarx) nEl.value=newNarx;
+      // gramm o'zgarmaydi, summa = gramm × yangi narx
+      var g=parseFloat((gEl||{}).value)||0;
+      var n=parseFloat(nEl.value)||0;
+      if(g>0&&n>0&&sEl) sEl.value=Math.round(g*n*100)/100;
+    });
+  });
   kSotuvCalc();
 }
 
@@ -3075,7 +3084,24 @@ function ktKatSet(kat) {
   var s=styles[kat]||styles.A;
   if(katLblEl){katLblEl.textContent=s.lbl;katLblEl.style.background=s.bg;katLblEl.style.borderColor=s.bd;katLblEl.style.color=s.c;}
   if(kat==='C'){ var v=document.getElementById('kt-c-global-val'); if(v) v.value=0; }
-  kTolovKlientChange();
+  // faqat narxni yangilash, gramm va summani saqlab
+  var bd=window._kTolovBD||{};
+  var idx=0;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key];
+    if(b.qarz<=0){idx++;return;}
+    var nEl=document.getElementById('kt-k-'+idx);
+    var gEl=document.getElementById('kt-g-'+idx);
+    var sEl=document.getElementById('kt-s-'+idx);
+    if(!nEl){idx++;return;}
+    var newNarx=getKatNarx(b.zi,b.ti,ki);
+    if(newNarx) nEl.value=newNarx;
+    var g=parseFloat((gEl||{}).value)||0;
+    var n=parseFloat(nEl.value)||0;
+    if(g>0&&n>0&&sEl) sEl.value=Math.round(g*n*100)/100;
+    idx++;
+  });
+  kTolovCalc();
 }
 
 function openKlientDetail(ki) {
