@@ -2739,86 +2739,93 @@ function kassaPDFYukor(dan, gacha) {
 function renderKlientHisobot() {
   var cont = document.getElementById('klient-hisobot-list');
   if(!cont) return;
-  var byDay = {}, dayOrder = [];
-  (data.klientlar||[]).forEach(function(k){
-    k.tarix.forEach(function(op){
-      if(!byDay[op.sana]){ byDay[op.sana]={}; dayOrder.push(op.sana); }
-      if(!byDay[op.sana][k.nom]) byDay[op.sana][k.nom]=[];
-      byDay[op.sana][k.nom].push(op);
+
+  // Har bir operatsiyani sessiyaga yig'amiz: ki + sana + soat + tip
+  // (bir vaqtda saqlangan bir tip = 1 sessiya)
+  var sessions=[], byDay={}, dayOrder=[];
+
+  (data.klientlar||[]).forEach(function(k, ki){
+    // operatsiyalarni sessiyalarga ajratamiz
+    var sessMap={};
+    k.tarix.forEach(function(op, oi){
+      var sk = ki+'|'+op.sana+'|'+(op.soat||'')+'|'+op.tip;
+      if(!sessMap[sk]) sessMap[sk]={ki:ki,knom:k.nom,sana:op.sana,soat:op.soat||'',tip:op.tip,ops:[],order:sessions.length};
+      sessMap[sk].ops.push({op:op,oi:oi});
+    });
+    Object.values(sessMap).forEach(function(s){
+      sessions.push(s);
+      if(!byDay[s.sana]){ byDay[s.sana]=[]; dayOrder.push(s.sana); }
+      byDay[s.sana].push(s);
     });
   });
 
-  if(!dayOrder.length){
-    cont.innerHTML='<div class="empty">Hali tarix yoq</div>';
-    return;
-  }
-  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  if(!sessions.length){ cont.innerHTML='<div class="empty">Hali tarix yoq</div>'; return; }
+  dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
-  var html = '';
+  var html='';
   dayOrder.forEach(function(sana){
-    var klientlar = byDay[sana];
-    var dayBal=0;
-    Object.keys(klientlar).forEach(function(knom){
-      klientlar[knom].forEach(function(op){
-        if(op.tip==='berish') dayBal-=op.gramm;
-        else if(op.tip==='vozvrat') dayBal+=op.gramm;
-        else if(op.tip==='tolov') dayBal+=(op.ekvivalent||0);
-      });
-    });
-    var dc=dayBal>=0?'var(--green)':'var(--red)';
-    var ds='';
+    var daySessions=byDay[sana];
+    // sessiyalarni soat bo'yicha tartiblash
+    daySessions.sort(function(a,b){ return (b.soat||'').localeCompare(a.soat||''); });
+
     html+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;">'+sana+'</div>';
-    Object.keys(klientlar).forEach(function(knom){
-      var ops = klientlar[knom];
-      var kBal=0;
-      ops.forEach(function(op){
-        if(op.tip==='berish') kBal-=op.gramm;
-        else if(op.tip==='vozvrat') kBal+=op.gramm;
-        else if(op.tip==='tolov') kBal+=(op.ekvivalent||0);
+
+    daySessions.forEach(function(sess){
+      var tip=sess.tip;
+      var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'var(--blue)';
+      var label=tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':'$ Tolov';
+      var jamiG=0, jamiS=0;
+      sess.ops.forEach(function(x){
+        var op=x.op;
+        if(tip==='berish') jamiG+=op.gramm||0;
+        else if(tip==='vozvrat') jamiG+=op.gramm||0;
+        else jamiG+=(op.ekvivalent||0), jamiS+=(op.summa||0);
       });
-      var kc=kBal>=0?'var(--green)':'var(--red)';
-      var ks='';
-      var klientKi=-1;
-      (data.klientlar||[]).forEach(function(k,kidx){ if(k.nom===knom) klientKi=kidx; });
+      jamiG=Math.round(jamiG*100)/100;
 
       html+='<div class="hrow" style="margin-bottom:6px;">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-      html+='<div style="font-size:13px;font-weight:600;color:var(--text);">'+knom+'</div>';
-      if(klientKi>=0) html+='<button data-ki="'+klientKi+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html+='<div>';
+      html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
+      html+='<div style="font-size:13px;font-weight:600;color:var(--text);">'+sess.knom+'</div>';
+      if(sess.soat) html+='<div style="font-size:10px;color:var(--muted);">'+sess.soat+'</div>';
       html+='</div>';
-      ops.forEach(function(op,i){
-        if(i>0) html+='<div style="height:1px;background:var(--border);margin:4px 0;"></div>';
-        var tip=op.tip;
-        var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'var(--blue)';
-        var label=tip==='berish'?'Berildi':tip==='vozvrat'?'Vozvrat':'Tolov';
-        var val=fmtG(op.gramm>0?op.gramm:(op.ekvivalent||0))+'g';
-        var sub=(op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
-        var sub2=tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
-        html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-        html+='<div style="flex:1;">';
-        html+='<div style="font-size:11px;font-weight:600;color:'+color+';">'+label+'</div>';
-        if(sub||sub2) html+='<div style="font-size:11px;color:var(--muted);">'+(sub||'')+(sub&&sub2?' - ':'')+(sub2||'')+'</div>';
-        if(op.tahrir){
-          var tl=op.tahrir;
-          var logTxt=tl.vaqt+' · '+(op.zavod&&op.tur?op.zavod+' · '+op.tur:'');
-          if(tl.eski!==undefined) logTxt+=' · '+fmtG(tl.eski)+'g → '+fmtG(tl.yangi)+'g';
-          else if(tl.eskiS!==undefined) logTxt+=' · '+fmtD(tl.eskiS)+'$ → '+fmtD(tl.yangiS)+'$';
-          logTxt+=' [tahrirlandi]';
-          html+='<div style="font-size:10px;color:var(--muted);margin-top:3px;padding:2px 6px;background:var(--surf2);border-radius:5px;border-left:2px solid var(--gold);">'+logTxt+'</div>';
+      html+='<div style="text-align:right;display:flex;align-items:center;gap:8px;">';
+      html+='<div>';
+      html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?'-':'+')+''+fmtG(jamiG)+'g</div>';
+      if(tip==='tolov'&&jamiS>0) html+='<div style="font-size:11px;color:var(--muted);">$'+fmtD(jamiS)+'</div>';
+      html+='</div>';
+      html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
+      html+='</div></div>';
+
+      // turlar ro'yxati (accordion o'rniga har doim ko'rsatamiz agar 1dan ko'p bo'lsa)
+      if(sess.ops.length>1){
+        html+='<div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);">';
+        sess.ops.forEach(function(x){
+          var op=x.op;
+          var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+          var g=tip==='tolov'?(op.ekvivalent||0):(op.gramm||0);
+          var s=tip==='tolov'?(op.summa||0):0;
+          html+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:2px 0;">';
+          html+='<span>'+turStr+'</span>';
+          html+='<span style="color:'+color+';">'+fmtG(g)+'g'+(s>0?' · $'+fmtD(s):'')+'</span>';
+          html+='</div>';
+        });
+        html+='</div>';
+      } else {
+        var op=sess.ops[0].op;
+        var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+        var s=tip==='tolov'?(op.summa||0):0;
+        if(turStr||s>0){
+          html+='<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+turStr+(s>0?' · $'+fmtD(s):'')+'</div>';
         }
-        html+='</div>';
-        html+='<div style="font-family:Roboto,sans-serif;font-size:12px;font-weight:600;color:'+color+';">'+val+'</div>';
-        html+='</div>';
-      });
-      html+='<div style="display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
-      html+='<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+kc+';">'+ks+fmtG(Math.abs(kBal))+'g</div>';
-      html+='</div>';
+      }
       html+='</div>';
     });
     html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
   });
-  cont.innerHTML = html;
+  cont.innerHTML=html;
 }
 
 function klientGunTahrir(ki, sana) {
