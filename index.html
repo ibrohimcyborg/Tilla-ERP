@@ -4161,7 +4161,8 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   lines2.push(center('HISOB'));
   lines2.push(LINE);
   lines2.push(center(kNom));
-  lines2.push(center(sana));
+  var _now1=new Date(); var _soat1=String(_now1.getHours()).padStart(2,'0')+':'+String(_now1.getMinutes()).padStart(2,'0');
+  lines2.push(center(sana+' - '+_soat1));
   lines2.push(LINE);
   lines2.push('TOLOVLAR');
   var jamiTolovPul = 0, jamiTolovG = 0;
@@ -4172,7 +4173,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var g = s > 0 && n > 0 ? Math.round(s/n*100)/100 : 0;
       if (s > 0 && n > 0) {
-        lines2.push(row3(z.nom+' · '+t.nom, fmtD(s)+'# x '+n+' = ', fmtG(g)+'g'));
+        lines2.push(row3(z.nom+' · '+t.nom, fmtG(g)+'g x '+n+' = ', fmtD(s)+'#'));
         jamiTolovPul += s;
         jamiTolovG += g;
       }
@@ -4353,7 +4354,8 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   t += center('HISOB')+'\n';
   t += LINE;
   t += center(k.nom)+'\n';
-  t += center(sana)+'\n';
+  var _now2=new Date(); var _soat2=String(_now2.getHours()).padStart(2,'0')+':'+String(_now2.getMinutes()).padStart(2,'0');
+  t += center(sana+' - '+_soat2)+'\n';
   t += LINE;
   // faqat to'langan turlarni chiqarish (kst inputlaridan)
   var ki2 = data.klientlar.indexOf(k);
@@ -4378,7 +4380,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   if (tolovSatirlar.length) {
     t += 'TOLOVLAR\n';
     tolovSatirlar.forEach(function(item) {
-      t += row3(item.zavod+'  '+item.tur, fmtD(item.s)+'# x '+item.n+' = ', fmtG(item.g)+'g')+'\n';
+      t += row3(item.zavod+'  '+item.tur, fmtG(item.g)+'g x '+item.n+' = ', fmtD(item.s)+'#')+'\n';
     });
     lomlar.forEach(function(l) {
       var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
