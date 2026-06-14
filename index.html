@@ -4264,7 +4264,7 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</span>';
       out += '<div style="display:flex;align-items:center;gap:6px;">';
       out += '<span style="font-size:11px;color:var(--muted);" id="kst-lbl-'+zi+'-'+ti+'">'+lblHtml+'</span>';
-      if(obshiy > 0.001) out += '<button onclick="kstHammasi('+zi+','+ti+','+obshiy+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>';
+      if(obshiy > 0.001) out += '<button onclick="kstHammasi('+zi+','+ti+','+obshiy.toFixed(2)+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>';
       out += '</div></div>';
       var kat = k ? (k.kat||'A') : 'A';
       out += '<div style="display:flex;align-items:center;gap:3px;">';
@@ -4302,9 +4302,10 @@ function kstHammasi(zi, ti, obshiy) {
   var sEl = document.getElementById('kst-s-'+zi+'-'+ti);
   var gEl = document.getElementById('kst-g-'+zi+'-'+ti);
   if (!gEl) return;
-  gEl.value = obshiy;
+  var g = Math.round(obshiy * 100) / 100;
+  gEl.value = g;
   var n = parseNum((nEl||{}).value) || 0;
-  if (n > 0 && sEl) sEl.value = Math.round(obshiy * n * 100) / 100;
+  if (n > 0 && sEl) sEl.value = Math.round(g * n * 100) / 100;
   kSotuvTolovUpd('g', zi, ti);
 }
 
