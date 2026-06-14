@@ -853,17 +853,21 @@ body.rol-zavod #main-klient { display: none !important; }
 
     <!-- Klient qidiruv -->
     <div id="ks-search-blok">
-      <div style="position:relative;margin-bottom:6px;">
-        <input type="text" id="ks-q" placeholder="Klient ismini yozing..." oninput="ksSearFilter()"
-          style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
-        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+      <div style="position:relative;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
+        <div style="position:relative;flex:1;">
+          <input type="text" id="ks-q" placeholder="Klient ismini yozing..." oninput="ksSearFilter()"
+            style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+          <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+        </div>
+        <button id="ks-add-btn" onclick="ksSotuvQuickAdd()" style="display:none;width:42px;height:42px;border-radius:10px;border:none;background:var(--gold);color:var(--on-gold);font-size:22px;font-weight:700;cursor:pointer;flex-shrink:0;line-height:1;">+</button>
       </div>
       <div id="ks-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;max-height:200px;overflow-y:auto;"></div>
       <div id="ks-new-blok" style="display:none;">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Topilmadi — yangi klient:</div>
-        <div class="field" style="margin-bottom:8px;"><input type="text" id="ks-new-nom" placeholder="To'liq ism..." style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);"></div>
-        <div class="field" style="margin-bottom:10px;"><input type="tel" id="ks-new-tel" placeholder="+998 90 ..." style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);"></div>
-        <button onclick="ksSotuvAddNew()" style="width:100%;padding:11px;border-radius:10px;border:none;background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">Qo'shib davom etish →</button>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Yangi klient — telefon (ixtiyoriy):</div>
+        <div style="display:flex;gap:8px;">
+          <input type="tel" id="ks-new-tel" placeholder="+998 90 ..." style="flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+          <button onclick="ksSotuvAddNew()" style="padding:10px 16px;border-radius:10px;border:none;background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:600;cursor:pointer;">→</button>
+        </div>
       </div>
     </div>
 
@@ -3611,7 +3615,12 @@ function ksSearFilter() {
   var q = document.getElementById('ks-q').value.trim().toLowerCase();
   var drop = document.getElementById('ks-drop');
   var newB = document.getElementById('ks-new-blok');
-  if (!q) { drop.style.display = 'none'; newB.style.display = 'none'; return; }
+  var addBtn = document.getElementById('ks-add-btn');
+  if (!q) {
+    drop.style.display = 'none'; newB.style.display = 'none';
+    if(addBtn) addBtn.style.display = 'none';
+    return;
+  }
   var html = '';
   (data.klientlar||[]).forEach(function(k, ki) {
     if (k.nom.toLowerCase().indexOf(q) < 0) return;
@@ -3625,7 +3634,8 @@ function ksSearFilter() {
   });
   drop.innerHTML = html;
   drop.style.display = html ? 'block' : 'none';
-  newB.style.display = html ? 'none' : 'block';
+  newB.style.display = 'none';
+  if(addBtn) addBtn.style.display = 'flex';
 }
 
 function ksSotuvPickK(ki) {
@@ -3647,8 +3657,15 @@ function ksSotuvPickK(ki) {
   kSotuvCalc();
 }
 
+function ksSotuvQuickAdd() {
+  var newB = document.getElementById('ks-new-blok');
+  var tel = document.getElementById('ks-new-tel');
+  newB.style.display = 'block';
+  if(tel){ tel.value=''; setTimeout(function(){ tel.focus(); },100); }
+}
+
 function ksSotuvAddNew() {
-  var nom = (document.getElementById('ks-new-nom').value.trim()) || 'Yangi Klient';
+  var nom = document.getElementById('ks-q').value.trim() || 'Yangi Klient';
   var tel = document.getElementById('ks-new-tel').value.trim();
   if (!data.klientlar) data.klientlar = [];
   data.klientlar.push({nom:nom, tel:tel, tarix:[]});
@@ -3677,6 +3694,7 @@ function ksResetKlient() {
   document.getElementById('ks-q').value = '';
   document.getElementById('ks-drop').style.display = 'none';
   document.getElementById('ks-new-blok').style.display = 'none';
+  var ab=document.getElementById('ks-add-btn'); if(ab) ab.style.display='none';
   document.getElementById('ks-hisob').style.display = 'none';
   document.getElementById('ks-qaytim').style.display = 'none';
   document.getElementById('ks-taqsim').style.display = 'none';
