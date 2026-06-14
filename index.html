@@ -3741,19 +3741,17 @@ function kSotuvRenderTolov() {
   var ki = _ksSotuvKi;
   var k = ki >= 0 ? data.klientlar[ki] : null;
 
+  // _qarzTarkib dan qarz tarkibini olish (tolov.ekvivalent to'g'ri hisoblanadi)
+  var qarzMap = {};
+  if (k) {
+    var qt = _qarzTarkib(ki);
+    qt.qarz_tarkib.forEach(function(b){ qarzMap[b.zavod+'||'+b.tur] = b.qarz; });
+  }
+
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
       if (t.ostatka <= 0.001) return;
-      var turQarz = 0;
-      if (k) {
-        k.tarix.forEach(function(op) {
-          if (op.zavod !== z.nom || op.tur !== t.nom) return;
-          if (op.tip === 'berish') turQarz += op.gramm;
-          else if (op.tip === 'vozvrat') turQarz -= op.gramm;
-          else if (op.tip === 'tolov') turQarz -= (op.ekvivalent || 0);
-        });
-        turQarz = Math.max(0, Math.round(turQarz * 100) / 100);
-      }
+      var turQarz = qarzMap[z.nom+'||'+t.nom] || 0;
       var yangiG2 = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
       if (turQarz <= 0.001 && yangiG2 <= 0.001) return;
 
@@ -3901,13 +3899,8 @@ function kSotuvGUpdate(el) {
   var z = data.zavodlar[parseInt(zi)], t = z ? z.turlar[parseInt(ti)] : null;
   var turQarz = 0;
   if (k && z && t) {
-    k.tarix.forEach(function(op) {
-      if (op.zavod !== z.nom || op.tur !== t.nom) return;
-      if (op.tip === 'berish') turQarz += op.gramm;
-      else if (op.tip === 'vozvrat') turQarz -= op.gramm;
-      else if (op.tip === 'tolov') turQarz -= (op.ekvivalent || 0);
-    });
-    turQarz = Math.max(0, Math.round(turQarz * 100) / 100);
+    var qt2 = _qarzTarkib(ki);
+    qt2.qarz_tarkib.forEach(function(b){ if(b.zavod===z.nom&&b.tur===t.nom) turQarz=b.qarz; });
   }
   var yangiQarz = Math.round((turQarz + g) * 100) / 100;
   if (g > ostatka + 0.001) {
