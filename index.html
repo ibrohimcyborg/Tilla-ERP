@@ -3984,7 +3984,7 @@ function kSotuvCalc() {
     var parts = el.id.split('-');
     var zi = parts[1], ti = parts[2];
     var g = parseNum(el.value) || 0;
-    var narx = parseNum((document.getElementById('ksn-'+zi+'-'+ti)||{}).value) || 0;
+    var narx = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
     var pul = Math.round(g * narx * 100) / 100;
     if (g > 0) {
       var z = data.zavodlar[parseInt(zi)], t = z.turlar[parseInt(ti)];
@@ -4221,7 +4221,7 @@ function saqlashKlientSotuv() {
       var parts = el.id.split('-');
       var zi = parseInt(parts[1]), ti = parseInt(parts[2]);
       var g = parseNum(el.value) || 0;
-      var narx = parseNum((document.getElementById('ksn-'+zi+'-'+ti)||{}).value) || 0;
+      var narx = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       if (g <= 0) return;
       var z = data.zavodlar[zi], t = z.turlar[ti];
       if (g > t.ostatka + 0.001) { alert(z.nom+' · '+t.nom+': zavodda yetarli tilla yoq!'); throw new Error('stop'); }
@@ -4232,9 +4232,28 @@ function saqlashKlientSotuv() {
     });
   } catch(e) { return; }
   if (!any) { alert('Kamida 1 ta turga gramm kiriting!'); return; }
+  // Har bir tur uchun to'lovni zavod/tur bilan saqlash
+  var naqtJami = 0;
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t, ti) {
+      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      if (s > 0 && n > 0) {
+        var g = roundG(s / n);
+        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:s, kurs:n, ekvivalent:g});
+        naqtJami += s;
+      }
+    });
+  });
   var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
-  var naqtG = kurs > 0 ? roundG(naqt / kurs) : 0;
-  if (naqt > 0 && kurs > 0) k.tarix.push({tip:'tolov', sana:sana, summa:naqt, kurs:kurs, ekvivalent:naqtG});
+  var kurs2 = parseNum(document.getElementById('ks-kurs').value) || 0;
+  // Agar naqt > tur to'lovlar yig'indisi bo'lsa (qo'shimcha naqt) — zavod/tur siz saqlash
+  var qolganNaqt = Math.round((naqt - naqtJami) * 100) / 100;
+  if (qolganNaqt > 0.01 && kurs2 > 0) {
+    var qolganG = roundG(qolganNaqt / kurs2);
+    k.tarix.push({tip:'tolov', sana:sana, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
+  }
+  var naqtG = kurs2 > 0 ? roundG(naqt / kurs2) : 0;
   var lomlar = [];
   document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el) {
     var i = el.id.split('-')[2];
