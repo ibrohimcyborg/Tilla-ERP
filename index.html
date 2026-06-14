@@ -1974,7 +1974,12 @@ document.addEventListener('keydown', function(e){
     else if(document.getElementById('modal-kvozvrat').classList.contains('open')) closeModal('modal-kvozvrat');
     else if(document.getElementById('modal-ktolov').classList.contains('open')) closeModal('modal-ktolov');
     else if(document.getElementById('modal-ksotuv').classList.contains('open')) closeModal('modal-ksotuv');
-    else { document.querySelectorAll('.modal-overlay.open').forEach(function(el){el.classList.remove('open');}); }
+    else if(document.querySelectorAll('.modal-overlay.open').length) { document.querySelectorAll('.modal-overlay.open').forEach(function(el){el.classList.remove('open');}); }
+    else if(document.getElementById('s-zavod').classList.contains('active')) goTo('s-home');
+    else if(document.getElementById('s-kirim').classList.contains('active')) goTo('s-home');
+    else if(document.getElementById('s-chiqim').classList.contains('active')) goTo('s-home');
+    else if(document.getElementById('s-zvozvrat').classList.contains('active')) goTo('s-home');
+    else if(document.getElementById('s-klient-detail').classList.contains('active')) { goTo('s-home'); mainTab('klient'); }
   }
   if(e.key==='Enter'){
     if(document.getElementById('modal-zavod').classList.contains('open')) saqlashZavod();
