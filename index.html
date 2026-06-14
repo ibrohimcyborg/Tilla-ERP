@@ -453,11 +453,22 @@ body.rol-zavod #main-klient { display: none !important; }
     <div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">
       <div style="font-size:12px;color:var(--gold);margin-bottom:8px;font-weight:500;">Bugungi kurs</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;flex:1;">
-          <input type="number" id="z-kurs-inp" placeholder="0.00" oninput="zKursNarxUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:500;">
-          <span style="font-size:13px;color:var(--gold-bd);flex-shrink:0;">$/g</span>
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;">
+          <div style="font-size:10px;color:var(--gold);letter-spacing:.05em;">LOM</div>
+          <div style="display:flex;align-items:center;gap:4px;border:1px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:38px;">
+            <input type="number" id="z-lom-inp" placeholder="0.00" oninput="zLomUpd()" style="flex:1;border:none;background:transparent;font-size:16px;color:var(--gold);text-align:right;outline:none;font-weight:500;">
+            <span style="font-size:12px;color:var(--gold-bd);">$/g</span>
+          </div>
+          <div id="z-lom-diff" style="font-size:10px;color:var(--gold);text-align:right;min-height:14px;"></div>
         </div>
-        <button onclick="zKursSaqla()" style="padding:0 16px;height:42px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;">Saqlash</button>
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;">
+          <div style="font-size:10px;color:var(--gold);letter-spacing:.05em;">KURS</div>
+          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:38px;">
+            <input type="number" id="z-kurs-inp" placeholder="0.00" oninput="zKursNarxUpd()" style="flex:1;border:none;background:transparent;font-size:16px;color:var(--gold);text-align:right;outline:none;font-weight:500;">
+            <span style="font-size:13px;color:var(--gold-bd);flex-shrink:0;">$/g</span>
+          </div>
+        </div>
+        <button onclick="zKursSaqla()" style="padding:0 16px;height:38px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;align-self:flex-end;">Saqlash</button>
       </div>
     </div>
 
@@ -1367,40 +1378,75 @@ function zKursRender() {
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
   var last = tarix.length ? tarix[tarix.length-1] : null;
   if (last) document.getElementById('z-kurs-inp').value = last.kurs;
+  var lom = localStorage.getItem('tilla-lom-bugun');
+  var lomEl = document.getElementById('z-lom-inp');
+  if(lom && lomEl) lomEl.value = lom;
+  var bUst = localStorage.getItem('tilla-b-ust');
   zKursNarxUpd();
   var out = '';
   if (!tarix.length) { out = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px;">Kurs tarixi yoq</div>'; }
-  else { tarix.slice().reverse().forEach(function(item) { out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);"><div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g</div><div style="font-size:10px;color:var(--muted);">'+item.sana+' · '+item.soat+'</div></div>'; }); }
+  else { tarix.slice().reverse().forEach(function(item) { out += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);"><div style="font-size:13px;font-weight:500;color:var(--text);">'+item.kurs+' $/g'+(item.lom?' · lom: '+item.lom:'')+'</div><div style="font-size:10px;color:var(--muted);">'+item.sana+' · '+item.soat+'</div></div>'; }); }
   document.getElementById('z-kurs-tarix-list').innerHTML = out;
 }
 
+function zLomUpd() {
+  var k = parseFloat(document.getElementById('z-kurs-inp').value)||0;
+  var l = parseFloat(document.getElementById('z-lom-inp').value)||0;
+  var diff = Math.round((l-k)*10)/10;
+  var el = document.getElementById('z-lom-diff');
+  if(el) el.textContent = k>0&&l>0 ? (diff>=0?'+ ':'− ')+Math.abs(diff).toFixed(1)+' $ kursdan' : '';
+}
+
 function zKursNarxUpd() {
+  zLomUpd();
   var kurs = parseFloat(document.getElementById('z-kurs-inp').value) || 0;
   var zi = curZ;
   if (zi < 0 || !data.zavodlar[zi]) return;
   var z = data.zavodlar[zi];
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
-  var out = '';
+  var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust') || '0') || 0;
   if (!z.turlar.length) { document.getElementById('z-turlar-narx').innerHTML = ''; return; }
-  out += '<div style="background:var(--surf2);border-radius:12px;overflow:hidden;margin-bottom:4px;">';
+  var out = '<div style="background:var(--surf2);border-radius:12px;overflow:hidden;margin-bottom:4px;">';
   out += '<div onclick="zToggleNarx()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;">';
   out += '<div style="font-size:12px;font-weight:500;color:var(--gold);">'+z.nom+' — turlar narxi</div>';
   out += '<span id="z-narx-arr" style="color:var(--muted);font-size:14px;">⌄</span>';
   out += '</div>';
   out += '<div id="z-narx-body" style="padding:0 12px 10px;">';
-  out += '<div style="font-size:9px;color:var(--muted);text-align:right;margin-bottom:4px;letter-spacing:.06em;">% &nbsp;&nbsp; $/g</div>';
+  // Header
+  out += '<div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:6px;padding:4px 0 6px;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+  out += '<div style="font-size:9px;color:var(--muted);">TUR</div>';
+  out += '<div style="font-size:9px;color:var(--gold);text-align:center;">ZAVOD % → narx</div>';
+  out += '<div style="font-size:9px;color:var(--blue);text-align:center;">A % → narx</div>';
+  out += '<div style="display:flex;align-items:center;justify-content:center;gap:3px;font-size:9px;color:var(--green);">B + <input type="number" id="z-b-ust" value="'+(bUst||'')+'" placeholder="0" step="0.5" oninput="zBUstUpd()" style="width:30px;border:none;background:var(--green-bg);border-radius:4px;font-size:10px;color:var(--green);text-align:center;outline:none;padding:1px 2px;">$</div>';
+  out += '</div>';
   z.turlar.forEach(function(t, ti) {
-    var pct = foizlar[ti] !== undefined ? foizlar[ti] : '';
-    var narx = pct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(pct)/100)*10)/10 : '';
-    out += '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
-    out += '<div style="flex:1;font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
-    out += '<div style="display:flex;align-items:center;gap:6px;">';
-    out += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 6px;height:30px;width:62px;">';
-    out += '<input type="number" id="zp-'+ti+'" value="'+pct+'" placeholder="%" oninput="zPctUpd('+ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--gold);text-align:right;outline:none;width:0;">';
-    out += '<span style="font-size:10px;color:var(--gold-bd);">%</span>';
+    var zPct = foizlar[ti] !== undefined ? foizlar[ti] : '';
+    var aPct = aFoizlar[ti] !== undefined ? aFoizlar[ti] : '';
+    var zNarx = zPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(zPct)/100)*10)/10 : '';
+    var aNarx = aPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(aPct)/100)*10)/10 : '';
+    var bNarx = aNarx !== '' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : '';
+    out += '<div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:6px;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
+    out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
+    // Zavod
+    out += '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">';
+    out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:6px;padding:0 5px;height:28px;width:46px;">';
+    out += '<input type="number" id="zp-'+ti+'" value="'+zPct+'" placeholder="%" oninput="zPctUpd('+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;width:0;">';
+    out += '<span style="font-size:9px;color:var(--gold-bd);">%</span></div>';
+    out += '<span style="font-size:9px;color:var(--muted);">=</span>';
+    out += '<div id="znr-'+ti+'" style="font-size:12px;font-weight:500;color:#3b6d11;min-width:44px;">'+(zNarx?zNarx:'—')+'</div>';
     out += '</div>';
-    out += '<div id="znr-'+ti+'" style="font-size:12px;font-weight:500;color:#3b6d11;min-width:64px;text-align:right;">'+(narx?narx+' $/g':'—')+'</div>';
-    out += '</div></div>';
+    // A
+    out += '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">';
+    out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:6px;padding:0 5px;height:28px;width:46px;">';
+    out += '<input type="number" id="za-'+ti+'" value="'+aPct+'" placeholder="%" oninput="zAPctUpd('+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--blue);text-align:right;outline:none;width:0;">';
+    out += '<span style="font-size:9px;color:var(--blue-bd);">%</span></div>';
+    out += '<span style="font-size:9px;color:var(--muted);">=</span>';
+    out += '<div id="zanr-'+ti+'" style="font-size:12px;font-weight:500;color:var(--blue);min-width:44px;">'+(aNarx?aNarx:'—')+'</div>';
+    out += '</div>';
+    // B
+    out += '<div id="zbnr-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);text-align:center;">'+(bNarx?bNarx:'—')+'</div>';
+    out += '</div>';
   });
   out += '</div></div>';
   document.getElementById('z-turlar-narx').innerHTML = out;
@@ -1409,14 +1455,45 @@ function zKursNarxUpd() {
 function zPctUpd(ti) {
   var zi = curZ;
   var kurs = parseFloat(document.getElementById('z-kurs-inp').value) || 0;
-  var pctEl = document.getElementById('zp-'+ti);
-  var pct = pctEl ? parseFloat(pctEl.value) || 0 : 0;
+  var pct = parseFloat((document.getElementById('zp-'+ti)||{}).value) || 0;
   var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
   var nEl = document.getElementById('znr-'+ti);
-  if (nEl) nEl.textContent = narx ? narx+' $/g' : '—';
+  if (nEl) nEl.textContent = narx ? narx : '—';
   var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
   foizlar[ti] = pct;
   localStorage.setItem('tilla-foiz-'+zi, JSON.stringify(foizlar));
+}
+
+function zAPctUpd(ti) {
+  var zi = curZ;
+  var kurs = parseFloat(document.getElementById('z-kurs-inp').value) || 0;
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust') || '0') || 0;
+  var pct = parseFloat((document.getElementById('za-'+ti)||{}).value) || 0;
+  var narx = kurs > 0 && pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
+  var bNarx = narx && bUst > 0 ? Math.round((narx+bUst)*10)/10 : '';
+  var nEl = document.getElementById('zanr-'+ti);
+  var bEl = document.getElementById('zbnr-'+ti);
+  if (nEl) nEl.textContent = narx ? narx : '—';
+  if (bEl) bEl.textContent = bNarx ? bNarx : '—';
+  var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+  aFoizlar[ti] = pct;
+  localStorage.setItem('tilla-a-foiz-'+zi, JSON.stringify(aFoizlar));
+}
+
+function zBUstUpd() {
+  var bUst = parseFloat((document.getElementById('z-b-ust')||{}).value) || 0;
+  localStorage.setItem('tilla-b-ust', bUst);
+  var zi = curZ;
+  if (zi < 0 || !data.zavodlar[zi]) return;
+  var kurs = parseFloat(document.getElementById('z-kurs-inp').value) || 0;
+  var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+  data.zavodlar[zi].turlar.forEach(function(t, ti) {
+    var aPct = aFoizlar[ti] || 0;
+    var aNarx = aPct > 0 && kurs > 0 ? Math.round(kurs*(1+aPct/100)*10)/10 : 0;
+    var bNarx = aNarx > 0 && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : '';
+    var bEl = document.getElementById('zbnr-'+ti);
+    if (bEl) bEl.textContent = bNarx ? bNarx : '—';
+  });
 }
 
 function zToggleNarx() {
@@ -1484,14 +1561,16 @@ function zKursChekPrint() {
 function zKursSaqla() {
   var val = parseFloat(document.getElementById('z-kurs-inp').value);
   if (!val || val <= 0) { alert('Kurs kiriting!'); return; }
+  var lom = parseFloat((document.getElementById('z-lom-inp')||{}).value)||0;
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  tarix.push({kurs:val, sana:sana, soat:soat});
+  tarix.push({kurs:val, lom:lom, sana:sana, soat:soat});
   if (tarix.length > 100) tarix = tarix.slice(-100);
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
   localStorage.setItem('tilla-kurs-bugun', val);
+  if(lom>0) localStorage.setItem('tilla-lom-bugun', lom);
   zKursRender();
 }
 
