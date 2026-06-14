@@ -814,7 +814,16 @@ body.rol-zavod #main-klient { display: none !important; }
       <input type="hidden" id="kt-klient" value="">
     </div>
     <div class="field"><label>Sana</label><input type="date" id="kt-sana" style="font-size:16px;"></div>
-    <div id="kt-kat-info" style="display:none;font-size:12px;padding:5px 10px;border-radius:8px;border:0.5px solid;margin-bottom:6px;"></div>
+    <div id="kt-kat-info" style="display:none;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="kt-kat-lbl" style="font-size:12px;padding:4px 10px;border-radius:8px;border:0.5px solid;"></span>
+        <div id="kt-c-global" style="display:none;align-items:center;gap:5px;background:var(--yellow-bg);border:0.5px solid var(--gold-bd);border-radius:8px;padding:4px 10px;font-size:12px;color:var(--gold);">
+          Kirim +
+          <input type="number" id="kt-c-global-val" value="0" step="0.5" oninput="ktCGlobalUpd()" style="width:40px;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--gold);text-align:center;outline:none;border-bottom:1px solid var(--gold-bd);">
+          $
+        </div>
+      </div>
+    </div>
     <div id="kt-turlar-cont" style="display:none;">
       <div id="kt-turlar-list"></div>
       <div onclick="toggleKtVozvrat()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surf2);border-radius:10px;cursor:pointer;margin:10px 0 0;">
@@ -926,7 +935,14 @@ body.rol-zavod #main-klient { display: none !important; }
 
       <!-- To'lov -->
       <div style="background:var(--surf2);border-radius:12px;padding:12px;margin-bottom:8px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">To'lov</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">To'lov</div>
+          <div id="ks-c-global" style="display:none;align-items:center;gap:5px;background:var(--yellow-bg);border:0.5px solid var(--gold-bd);border-radius:8px;padding:3px 8px;font-size:11px;color:var(--gold);">
+            Kirim +
+            <input type="number" id="ks-c-global-val" value="0" step="0.5" oninput="ksCGlobalUpd()" style="width:36px;border:none;background:transparent;font-size:12px;font-weight:500;color:var(--gold);text-align:center;outline:none;border-bottom:1px solid var(--gold-bd);">
+            $
+          </div>
+        </div>
         <div id="ks-tolov-list"></div>
         <div id="ks-naqt-res" style="font-size:11px;color:var(--green);margin-top:4px;display:none;"></div>
         <input type="hidden" id="ks-naqt" value="0">
@@ -3001,6 +3017,9 @@ function ksKatSet(kat) {
   data.klientlar[ki].kat = kat;
   save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
   _katBtnUpd('ks', kat);
+  var cG=document.getElementById('ks-c-global');
+  if(cG) cG.style.display=kat==='C'?'flex':'none';
+  if(kat==='C'){ var v=document.getElementById('ks-c-global-val'); if(v) v.value=0; }
   kSotuvRenderTolov();
   kSotuvCalc();
 }
@@ -3011,6 +3030,13 @@ function ktKatSet(kat) {
   data.klientlar[ki].kat = kat;
   save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
   _katBtnUpd('kt', kat);
+  var cG=document.getElementById('kt-c-global');
+  if(cG) cG.style.display=kat==='C'?'flex':'none';
+  var katLblEl=document.getElementById('kt-kat-lbl');
+  var styles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A — Optom'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B — Guruh'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C — Ixtiyoriy'}};
+  var s=styles[kat]||styles.A;
+  if(katLblEl){katLblEl.textContent=s.lbl;katLblEl.style.background=s.bg;katLblEl.style.borderColor=s.bd;katLblEl.style.color=s.c;}
+  if(kat==='C'){ var v=document.getElementById('kt-c-global-val'); if(v) v.value=0; }
   kTolovKlientChange();
 }
 
@@ -3566,9 +3592,13 @@ function kTolovKlientChange(){
   var k=data.klientlar[ki];
   var kat=k.kat||'A';
   var katStyles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A — Optom'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B — Guruh'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C — Ixtiyoriy'}};
-  var ks=katStyles[kat]||katStyles.A;
-  var katEl=document.getElementById('kt-kat-info');
-  if(katEl){katEl.textContent=ks.lbl;katEl.style.background=ks.bg;katEl.style.borderColor=ks.bd;katEl.style.color=ks.c;katEl.style.display='inline-block';}
+  var ks2=katStyles[kat]||katStyles.A;
+  var katInfoEl=document.getElementById('kt-kat-info');
+  var katLblEl=document.getElementById('kt-kat-lbl');
+  var cGlobal=document.getElementById('kt-c-global');
+  if(katInfoEl) katInfoEl.style.display='flex';
+  if(katLblEl){katLblEl.textContent=ks2.lbl;katLblEl.style.background=ks2.bg;katLblEl.style.borderColor=ks2.bd;katLblEl.style.color=ks2.c;}
+  if(cGlobal) cGlobal.style.display=kat==='C'?'flex':'none';
   _katBtnUpd('kt', kat);
   var breakdown={};
   k.tarix.forEach(function(op){
@@ -3662,6 +3692,39 @@ function ktVozvratUpdate(el, idx) {
     if (msgEl) msgEl.style.display='none';
   }
   kTolovCalc();
+}
+
+function ktCGlobalUpd() {
+  var plus = parseFloat((document.getElementById('kt-c-global-val')||{}).value)||0;
+  var bd = window._kTolovBD||{};
+  var idx=0;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key];
+    if(b.qarz<=0){idx++;return;}
+    var base = getZavodNarx(b.zi,b.ti)||0;
+    if(base>0){
+      var newNarx=Math.round((parseFloat(base)+plus)*10)/10;
+      var kEl=document.getElementById('kt-k-'+idx);
+      if(kEl) kEl.value=newNarx;
+    }
+    idx++;
+  });
+  kTolovCalc();
+}
+
+function ksCGlobalUpd() {
+  var plus = parseFloat((document.getElementById('ks-c-global-val')||{}).value)||0;
+  data.zavodlar.forEach(function(z,zi){
+    z.turlar.forEach(function(t,ti){
+      var base = getZavodNarx(zi,ti)||0;
+      if(base>0){
+        var newNarx=Math.round((parseFloat(base)+plus)*10)/10;
+        var nEl=document.getElementById('kst-n-'+zi+'-'+ti);
+        if(nEl){ nEl.value=newNarx; kSotuvTolovUpd('n',zi,ti); }
+      }
+    });
+  });
+  kSotuvCalc();
 }
 
 function ktCUpd(idx, base) {
@@ -3997,6 +4060,8 @@ function ksSotuvPickK(ki) {
   document.getElementById('ks-yangi-tag').style.display = 'none';
   var kat = k.kat||'A';
   _katBtnUpd('ks', kat);
+  var cG=document.getElementById('ks-c-global');
+  if(cG) cG.style.display=kat==='C'?'flex':'none';
   var katEl=document.getElementById('ks-kat-tag');
   if(katEl) katEl.style.display='none';
   document.getElementById('ks-search-blok').style.display = 'none';
@@ -4161,14 +4226,6 @@ function kSotuvRenderTolov() {
       if(obshiy > 0.001) out += '<button onclick="kstHammasi('+zi+','+ti+','+obshiy+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>';
       out += '</div></div>';
       var kat = k ? (k.kat||'A') : 'A';
-      var zKirimN = getZavodNarx(zi,ti);
-      if(kat==='C'&&zKirimN){
-        out += '<div style="display:flex;align-items:center;gap:6px;background:var(--yellow-bg);border:0.5px solid var(--gold-bd);border-radius:7px;padding:5px 8px;margin-bottom:4px;font-size:12px;color:var(--gold);">';
-        out += 'Kirim: '+zKirimN+' + ';
-        out += '<input type="number" id="kst-c-'+zi+'-'+ti+'" value="0" step="0.5" oninput="kstCUpd('+zi+','+ti+','+zKirimN+')" style="width:36px;border:none;background:transparent;font-size:12px;color:var(--gold);outline:none;text-align:center;border-bottom:1px solid var(--gold-bd);">';
-        out += '$ = <span id="kst-c-res-'+zi+'-'+ti+'" style="font-weight:500;">'+zKirimN+'</span> $/g';
-        out += '</div>';
-      }
       out += '<div style="display:flex;align-items:center;gap:3px;">';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--border);background:var(--surf);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
       out += '<input type="number" id="kst-s-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'s\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text);text-align:right;outline:none;min-width:0;width:0;">';
