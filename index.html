@@ -2658,18 +2658,13 @@ function openKlientDetail(ki) {
   var st=document.getElementById('kd-status');
   if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
   else st.style.display='none';
-  var breakdown={};
-  k.tarix.forEach(function(op){
-    if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'|'+op.tur;
-    if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-    if(op.tip==='berish') breakdown[key].qarz+=op.gramm;
-    else if(op.tip==='vozvrat') breakdown[key].qarz-=op.gramm;
-    else if(op.tip==='tolov') breakdown[key].qarz-=(op.ekvivalent||0);
-  });
+  var _ktQarz = _qarzTarkib(ki);
+  var jamiQarzVal = _ktQarz.jamiQarz;
   var byZavod={};
-  Object.values(breakdown).forEach(function(b){if(!byZavod[b.zavod])byZavod[b.zavod]=[];byZavod[b.zavod].push(b);});
-  var jamiQarzVal=klientJamiQarz(k);
+  _ktQarz.qarz_tarkib.forEach(function(b){
+    if(!byZavod[b.zavod]) byZavod[b.zavod]=[];
+    byZavod[b.zavod].push(b);
+  });
   var bHTML='<div class="card">';
   bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
   bHTML+='<div style="font-size:12px;color:var(--muted);">Umumiy qarz</div>';
