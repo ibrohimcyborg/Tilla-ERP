@@ -853,14 +853,12 @@ body.rol-zavod #main-klient { display: none !important; }
 
     <!-- Klient qidiruv -->
     <div id="ks-search-blok">
-      <div style="position:relative;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
-      <div style="display:flex;align-items:center;border:1.5px solid var(--border);border-radius:10px;background:var(--surf2);margin-bottom:6px;overflow:hidden;">
+      <div style="display:flex;align-items:center;width:100%;border:1.5px solid var(--border);border-radius:10px;background:var(--surf2);margin-bottom:6px;overflow:hidden;">
           <span style="padding:0 10px;font-size:15px;color:var(--muted);flex-shrink:0;">🔍</span>
           <input type="text" id="ks-q" placeholder="Klient ismini yozing..." oninput="ksSearFilter()"
-            style="flex:1;padding:10px 8px 10px 0;border:none;background:transparent;font-size:15px;color:var(--text);outline:none;">
-          <button id="ks-add-btn" onclick="ksSotuvQuickAdd()" style="display:none;width:42px;height:42px;border:none;border-left:1.5px solid var(--border);background:var(--gold);color:var(--on-gold);font-size:22px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+            style="flex:1;min-width:0;padding:10px 8px 10px 0;border:none;background:transparent;font-size:15px;color:var(--text);outline:none;">
+          <button id="ks-add-btn" onclick="ksSotuvQuickAdd()" style="display:none;width:44px;height:44px;border:none;border-left:1.5px solid var(--border);background:var(--gold);color:var(--on-gold);font-size:22px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
         </div>
-      </div>
       <div id="ks-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;max-height:200px;overflow-y:auto;"></div>
       <div id="ks-new-blok" style="display:none;">
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Yangi klient — telefon (ixtiyoriy):</div>
