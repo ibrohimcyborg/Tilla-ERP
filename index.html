@@ -3184,23 +3184,27 @@ function openKlientDetail(ki) {
   document.getElementById('kd-breakdown').innerHTML=bHTML;
   var groups={}, groupOrder=[];
   k.tarix.forEach(function(op){
-    var groupKey=op.sana+(op.tip==='berish'?'|berish':'|payment');
+    var groupKey=op.sana+'|'+(op.soat||'')+'|'+op.tip;
     if(!groups[groupKey]){
-      groups[groupKey]={sana:op.sana, tip:op.tip, ops:[], isPayment:op.tip!=='berish'};
+      groups[groupKey]={sana:op.sana, soat:op.soat||'', tip:op.tip, ops:[], isPayment:op.tip!=='berish'};
       groupOrder.push(groupKey);
     }
     groups[groupKey].ops.push(op);
   });
-  groupOrder.sort(function(a,b){return groups[b].sana.localeCompare(groups[a].sana);});
+  groupOrder.sort(function(a,b){
+    var sa=groups[a].sana, sb=groups[b].sana;
+    if(sa!==sb) return sb.localeCompare(sa);
+    return (groups[b].soat||'').localeCompare(groups[a].soat||'');
+  });
 
   var tHTML='';
   groupOrder.forEach(function(gkey){
     var g=groups[gkey];
-    var hasTolov=g.ops.some(function(o){return o.tip==='tolov';});
-    var hasVozvrat=g.ops.some(function(o){return o.tip==='vozvrat';});
-    var hasBerish=g.ops.some(function(o){return o.tip==='berish';});
+    var hasTolov=g.tip==='tolov';
+    var hasVozvrat=g.tip==='vozvrat';
+    var hasBerish=g.tip==='berish';
     var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
-    var label=hasBerish?'↑ Berildi':(hasTolov&&hasVozvrat?'$ Tolov + ↩ Vozvrat':hasTolov?'$ Tolov':'↩ Vozvrat');
+    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':'↩ Vozvrat';
     var lcolor=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
 
     var jamiG=0;
@@ -3213,7 +3217,7 @@ function openKlientDetail(ki) {
     tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
     tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
     tHTML+='<div><div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
-    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+'</div></div>';
+    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+(g.soat?' · '+g.soat:'')+'</div></div>';
     var jCol=jamiG>=0?'var(--green)':'var(--red)';
     var jSign=jamiG>=0?'+':'';
     var bVal=hasBerish?'1':'0';
@@ -5240,16 +5244,15 @@ function klientPDFYukor(dan, gacha){
   dan = dan || null; gacha = gacha || null;
   var k=data.klientlar[curKlientIdx];
   if(!k) return;
-  var ops=[]; var bal=0;
+  var bal=0;
   var jami_berildi=0,jami_vozvrat=0,jami_tolov_g=0,jami_tolov_pul=0;
   var qarz_bd={};
+
+  // avval balansni to'liq hisoblash
   k.tarix.forEach(function(op){
     if(op.tip==='berish'){ bal+=op.gramm; jami_berildi+=op.gramm; }
     else if(op.tip==='vozvrat'){ bal-=op.gramm; jami_vozvrat+=op.gramm; }
     else if(op.tip==='tolov'){ bal-=(op.ekvivalent||0); jami_tolov_g+=(op.ekvivalent||0); jami_tolov_pul+=(op.summa||0); }
-    ops.push({sana:op.sana||'',tip:op.tip,zavod:op.zavod||'',tur:op.tur||'',
-      gramm:op.tip==='berish'?op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0)),
-      summa:op.summa||0,kurs:op.kurs||0,ostatka:Math.round(bal*100)/100});
     if(op.zavod&&op.tur){
       var key=op.zavod+'||'+op.tur;
       if(!qarz_bd[key]) qarz_bd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
@@ -5258,16 +5261,41 @@ function klientPDFYukor(dan, gacha){
       else if(op.tip==='tolov') qarz_bd[key].qarz-=(op.ekvivalent||0);
     }
   });
-  var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});
+
+  // sessiyaga yig'ish: sana + soat + tip
+  var sessMap={}, sessOrder=[];
+  var runBal=0;
+  k.tarix.forEach(function(op){
+    var g = op.tip==='berish'?op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0));
+    if(op.tip==='berish') runBal+=g;
+    else runBal-=g;
+    var sk=op.sana+'|'+(op.soat||'')+'|'+op.tip;
+    if(!sessMap[sk]){
+      sessMap[sk]={sana:op.sana,soat:op.soat||'',tip:op.tip,turlar:[],gramm:0,summa:0,ostatka:Math.round(runBal*100)/100};
+      sessOrder.push(sk);
+    }
+    sessMap[sk].gramm=Math.round((sessMap[sk].gramm+g)*100)/100;
+    sessMap[sk].summa=Math.round((sessMap[sk].summa+(op.summa||0))*100)/100;
+    sessMap[sk].ostatka=Math.round(runBal*100)/100;
+    if(op.zavod&&op.tur){
+      sessMap[sk].turlar.push({zavod:op.zavod,tur:op.tur,
+        gramm:g, summa:op.summa||0, kurs:op.kurs||0});
+    }
+  });
+
+  var ops=sessOrder.map(function(sk){ return sessMap[sk]; });
+
   if(dan||gacha){
-    ops = ops.filter(function(o){
+    ops=ops.filter(function(o){
       var s=o.sana?o.sana.split('.').reverse().join('-'):'';
       if(dan && s<dan) return false;
       if(gacha && s>gacha) return false;
       return true;
     });
   }
-  ops.sort(function(a,b){return (a.sana||'').localeCompare(b.sana||'');});
+  ops.sort(function(a,b){ var r=a.sana.localeCompare(b.sana); return r||a.soat.localeCompare(b.soat); });
+
+  var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});
   var payload={
     tip:'klient_tarix', klient_nom:k.nom, klient_tel:k.tel||'',
     ops:ops, dan:null, gacha:null,
