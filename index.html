@@ -3962,7 +3962,7 @@ function kSotuvGUpdate(el) {
     ostEl.style.color = 'var(--green)';
     ostEl.style.display = 'flex';
     ostEl.style.justifyContent = 'space-between';
-    ostEl.innerHTML = '<span>qoladi: '+fmtG(qoladi)+'g</span><span style="color:var(--red);">qarz: '+fmtG(yangiQarz)+'g</span>';
+    ostEl.innerHTML = '<span>qoladi: '+fmtG(qoladi)+'g</span><span style="color:'+(turQarz>0.001?'var(--red)':'var(--muted)')+';">'+(turQarz>0.001?'qarz: '+fmtG(yangiQarz)+'g':'yangi: '+fmtG(g)+'g')+'</span>';
   } else {
     el.style.borderColor = 'var(--green-bd)';
     ostEl.style.color = 'var(--muted)';
@@ -4076,14 +4076,9 @@ function kSotuvCalc() {
   var finQarz = Math.max(0, Math.round((joriyQarz + oldiG - naqtG - lomGJami - vozJami) * 100) / 100);
 
   var hEl = document.getElementById('ks-hisob');
-  if (jamiOldiPul > 0 || naqt > 0 || lomPulJami > 0 || vozJami > 0) {
+  if (naqt > 0 || lomPulJami > 0 || vozJami > 0 || oldiG > 0) {
     hEl.style.display = 'block';
     var rows = '';
-    if (jamiOldiPul > 0) {
-      rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">Jami sotildi</span><span>'+fmtD(jamiOldiPul)+'$</span></div>';
-      if (skidka > 0.001) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--red);">Skidka</span><span style="color:var(--red);">− '+fmtG(skidka)+'$</span></div>';
-      rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">Tolov summasi</span><span style="color:var(--green);font-weight:600;">'+tolovPul+'$</span></div>';
-    }
     if (naqt > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">− Naqt</span><span>'+fmtD(naqt)+'$</span></div>';
     if (lomPulJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">− Lom</span><span style="color:var(--gold);">'+fmtD(lomPulJami)+'$</span></div>';
     if (vozJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">− Vozvrat</span><span style="color:var(--blue);">'+fmtG(vozJami)+'g</span></div>';
@@ -4095,7 +4090,6 @@ function kSotuvCalc() {
   var qValEl = document.getElementById('ks-qaytim-val');
   if (autoQaytim > 0.01) {
     qEl.style.display = 'block';
-    // faqat avtomatik qiymat kiritilmagan bo'lsa yangilaymiz
     var curVal = parseNum((qValEl||{}).value) || 0;
     if (Math.abs(curVal - autoQaytim) > 0.01 || curVal === 0) {
       if(qValEl) qValEl.value = autoQaytim;
@@ -4105,24 +4099,9 @@ function kSotuvCalc() {
     if(qValEl) qValEl.value = '';
   }
   var qaytimPul = parseNum((qValEl||{}).value) || autoQaytim;
+  // taqsim bloki o'chirilgan
   var tqEl = document.getElementById('ks-taqsim');
-  if (qolgan > 0.01 && oldilar.length > 0) {
-    tqEl.style.display = 'block';
-    document.getElementById('ks-qolgan-sum').textContent = fmtD(qolgan);
-    var opts = '';
-    oldilar.forEach(function(o, idx) {
-      if (!o.narx) return;
-      var gr = Math.round(qolgan / o.narx * 100) / 100;
-      opts += '<div onclick="ksSotuvPickTaqsim(this,'+idx+','+gr+','+o.narx+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);margin-bottom:5px;cursor:pointer;background:var(--surf);" id="ks-topt-'+idx+'">'
-        +'<div style="width:14px;height:14px;border-radius:50%;border:1.5px solid var(--muted);flex-shrink:0;" id="ks-tdot-'+idx+'"></div>'
-        +'<div style="flex:1;"><div style="font-size:12px;font-weight:500;color:var(--text);">'+o.zavod+' · '+o.tur+'</div>'
-        +'<div style="font-size:10px;color:var(--muted);">'+fmtD(qolgan)+'$ ÷ '+o.narx+'$/g = '+fmtG(gr)+'g</div></div>'
-        +'<div style="font-size:12px;font-weight:500;color:var(--muted);">+'+fmtG(gr)+'g</div>'
-        +'</div>';
-    });
-    document.getElementById('ks-taqsim-opts').innerHTML = opts;
-    if (_ksSotuvTaqsimTi >= 0) ksSotuvPickTaqsim(document.getElementById('ks-topt-'+_ksSotuvTaqsimTi), _ksSotuvTaqsimTi, _ksSotuvTaqsimG, oldilar[_ksSotuvTaqsimTi]?oldilar[_ksSotuvTaqsimTi].narx:0);
-  } else tqEl.style.display = 'none';
+  if(tqEl) tqEl.style.display = 'none';
   kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, vozJami, finQarz, jamiOldiPul, qaytimPul);
 }
 
