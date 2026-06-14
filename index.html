@@ -854,12 +854,12 @@ body.rol-zavod #main-klient { display: none !important; }
     <!-- Klient qidiruv -->
     <div id="ks-search-blok">
       <div style="position:relative;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
-        <div style="position:relative;flex:1;">
+      <div style="position:relative;flex:1;">
           <input type="text" id="ks-q" placeholder="Klient ismini yozing..." oninput="ksSearFilter()"
-            style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+            style="width:100%;padding:10px 44px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
           <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+          <button id="ks-add-btn" onclick="ksSotuvQuickAdd()" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:20px;font-weight:700;cursor:pointer;line-height:1;">+</button>
         </div>
-        <button id="ks-add-btn" onclick="ksSotuvQuickAdd()" style="display:none;width:42px;height:42px;border-radius:10px;border:none;background:var(--gold);color:var(--on-gold);font-size:22px;font-weight:700;cursor:pointer;flex-shrink:0;line-height:1;">+</button>
       </div>
       <div id="ks-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;max-height:200px;overflow-y:auto;"></div>
       <div id="ks-new-blok" style="display:none;">
