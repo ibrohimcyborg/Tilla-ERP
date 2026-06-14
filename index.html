@@ -3359,8 +3359,9 @@ function kTolovChekUpd() {
       var s2 = parseNum((document.getElementById('kt-s-'+idx2)||{}).value)||0;
       var n2 = parseNum((document.getElementById('kt-k-'+idx2)||{}).value)||0;
       if(g2<=0 && s2>0 && n2>0) g2=Math.round(s2/n2*100)/100;
+      var v2 = parseNum((document.getElementById('kt-v-'+idx2)||{}).value)||0;
       var qkey = b.zavod+'||'+b.tur;
-      if(qbd[qkey]) qbd[qkey].qarz = Math.max(0, Math.round((qbd[qkey].qarz - g2)*100)/100);
+      if(qbd[qkey]) qbd[qkey].qarz = Math.max(0, Math.round((qbd[qkey].qarz - g2 - v2)*100)/100);
       idx2++;
     });
     var qarz_tarkib = Object.values(qbd).filter(function(b){return b.qarz>0.01;});
