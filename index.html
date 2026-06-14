@@ -1165,12 +1165,14 @@ function hkRenderTurlar(kurs) {
     if (!z.turlar.length) return;
     var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
     var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+    var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+    var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
     out += '<div style="font-size:12px;font-weight:500;color:var(--gold);padding:5px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px;">'+z.nom+'</div>';
     z.turlar.forEach(function(t, ti) {
       var zPct = foizlar[ti] !== undefined ? foizlar[ti] : '';
       var aPct = aFoizlar[ti] !== undefined ? aFoizlar[ti] : '';
-      var zNarx = zPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(zPct)/100)*10)/10 : '';
-      var aNarx = aPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(aPct)/100)*10)/10 : '';
+      var zNarx = manual[ti] ? manual[ti] : (zPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(zPct)/100)*10)/10 : '');
+      var aNarx = aManual[ti] ? aManual[ti] : (aPct !== '' && kurs > 0 ? Math.round(kurs*(1+parseFloat(aPct)/100)*10)/10 : '');
       var bNarx = aNarx !== '' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : '';
       out += '<div style="display:grid;grid-template-columns:1fr 110px 110px 80px;gap:4px;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);">';
       out += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</div>';
@@ -1180,7 +1182,9 @@ function hkRenderTurlar(kurs) {
       out += '<input type="number" id="hkp-'+zi+'-'+ti+'" value="'+zPct+'" placeholder="%" oninput="hkPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--gold);text-align:right;outline:none;width:0;">';
       out += '<span style="font-size:9px;color:var(--gold-bd);">%</span></div>';
       out += '<span style="font-size:10px;color:var(--muted);">=</span>';
-      out += '<span id="hkn-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:#3b6d11;min-width:38px;">'+(zNarx||'—')+'</span>';
+      out += '<div style="display:flex;align-items:center;border:0.5px solid #97c459;background:#eaf3de;border-radius:6px;padding:0 5px;height:28px;width:52px;">';
+      out += '<input type="number" id="hkn-'+zi+'-'+ti+'" value="'+(zNarx||'')+'" placeholder="—" oninput="hkNarxManUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:#3b6d11;font-weight:500;text-align:right;outline:none;width:0;">';
+      out += '</div>';
       out += '</div>';
       // A
       out += '<div style="display:flex;align-items:center;gap:3px;justify-content:center;">';
@@ -1188,7 +1192,9 @@ function hkRenderTurlar(kurs) {
       out += '<input type="number" id="hka-'+zi+'-'+ti+'" value="'+aPct+'" placeholder="%" oninput="hkAPctUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--blue);text-align:right;outline:none;width:0;">';
       out += '<span style="font-size:9px;color:var(--blue-bd);">%</span></div>';
       out += '<span style="font-size:10px;color:var(--muted);">=</span>';
-      out += '<span id="hkan-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--blue);min-width:38px;">'+(aNarx||'—')+'</span>';
+      out += '<div style="display:flex;align-items:center;border:0.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:6px;padding:0 5px;height:28px;width:52px;">';
+      out += '<input type="number" id="hkan-'+zi+'-'+ti+'" value="'+(aNarx||'')+'" placeholder="—" oninput="hkANarxManUpd('+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--blue);font-weight:500;text-align:right;outline:none;width:0;">';
+      out += '</div>';
       out += '</div>';
       // B
       out += '<div style="text-align:center;"><span id="hkbn-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">'+(bNarx||'—')+'</span></div>';
@@ -1256,6 +1262,26 @@ function hkBUstUpd() {
       if (bEl) bEl.textContent = bNarx||'—';
     });
   });
+}
+
+function hkNarxManUpd(zi, ti) {
+  var narx = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0;
+  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
+  if (narx > 0) manual[ti] = narx;
+  else delete manual[ti];
+  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
+}
+
+function hkANarxManUpd(zi, ti) {
+  var narx = parseFloat((document.getElementById('hkan-'+zi+'-'+ti)||{}).value)||0;
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust')||'0')||0;
+  var bNarx = narx>0&&bUst>0 ? Math.round((narx+bUst)*10)/10 : '';
+  var bEl = document.getElementById('hkbn-'+zi+'-'+ti);
+  if (bEl) bEl.textContent = bNarx||'—';
+  var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
+  if (narx > 0) aManual[ti] = narx;
+  else delete aManual[ti];
+  localStorage.setItem('tilla-a-manual-'+zi, JSON.stringify(aManual));
 }
 
 function hkNarxUpd(zi, ti) {
