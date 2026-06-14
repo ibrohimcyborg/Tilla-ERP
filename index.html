@@ -3844,7 +3844,7 @@ function kTolovChekUpd() {
   lines2.push(center(kNom));
   lines2.push(center(sana+' - '+soat));
   lines2.push(LINE);
-  var jamiG = 0, bor = false;
+  var jamiG = 0, jamiPul = 0, bor = false;
   var idx = 0;
   var byZavod = {};
   Object.keys(bd).forEach(function(key) {
@@ -3859,6 +3859,7 @@ function kTolovChekUpd() {
       if (!byZavod[b.zavod]) byZavod[b.zavod] = [];
       byZavod[b.zavod].push({tur:b.tur, g:g, n:n, summa:summa});
       jamiG += g;
+      jamiPul += summa;
       bor = true;
     }
     idx++;
@@ -3874,7 +3875,8 @@ function kTolovChekUpd() {
   });
 
   lines2.push(LINE);
-  lines2.push(rjust('Jami to\'landi', fmtG(Math.round(jamiG*100)/100)+'g'));
+  lines2.push(rjust('Jami to\'landi', fmtD(Math.round(jamiPul*100)/100)+'#'));
+  lines2.push(rjust('= gramm', fmtG(Math.round(jamiG*100)/100)+'g'));
   if (k) {
     var joriyQarz = 0;
     k.tarix.forEach(function(op){
