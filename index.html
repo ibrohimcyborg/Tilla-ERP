@@ -4047,7 +4047,7 @@ function saqlashKlientTolov(){
       body:JSON.stringify({text:chekEl.textContent+'\n\n\n'})}).catch(printXato);
   }
   closeModal('modal-ktolov');
-  renderKlientlar();renderHome();
+  renderKlientlar();renderHome();renderKassa();
 }
 var _ksLomIdx = 0;
 
@@ -4835,6 +4835,7 @@ function saqlashKlientSotuv() {
   closeModal('modal-ksotuv');
   renderKlientlar();
   renderHome();
+  renderKassa();
 }
 
 function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan) {
