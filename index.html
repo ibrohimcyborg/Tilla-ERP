@@ -3987,7 +3987,6 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   var LINE = Array(W+1).join('-');
   var lines2 = [];
   lines2.push(center('HISOB'));
-  lines2.push(center('TOLOV CHEKI'));
   lines2.push(LINE);
   lines2.push(center(kNom));
   lines2.push(center(sana));
@@ -4001,7 +4000,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var g = s > 0 && n > 0 ? Math.round(s/n*100)/100 : 0;
       if (s > 0 && n > 0) {
-        lines2.push(row3(z.nom+' · '+t.nom, fmtD(s)+'$ x '+n+' = ', fmtG(g)+'g'));
+        lines2.push(row3(z.nom+' · '+t.nom, fmtD(s)+'# x '+n+' = ', fmtG(g)+'g'));
         jamiTolovPul += s;
         jamiTolovG += g;
       }
@@ -4012,14 +4011,14 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
     var lg=parseNum((document.getElementById('ks-lg-'+i)||{}).value)||0;
     var lk=parseNum((document.getElementById('ks-lk-'+i)||{}).value)||0;
     var nom=(document.getElementById('ks-ln-'+i)||{}).value||'Lom';
-    if(lg>0&&lk>0){var lp=Math.round(lg*lk*100)/100;lines2.push(row3(nom,lg+'g x '+lk+' = ',fmtD(lp)+'$'));jamiTolovPul+=lp;}
+    if(lg>0&&lk>0){var lp=Math.round(lg*lk*100)/100;lines2.push(row3(nom,lg+'g x '+lk+' = ',fmtD(lp)+'#'));jamiTolovPul+=lp;}
   });
   if (vozJami > 0) lines2.push(rjust('  Vozvrat', fmtG(vozJami)+'g'));
   lines2.push(LINE);
   var skidkaPul = Math.round((jamiTolovPul - Math.floor(jamiTolovPul))*100)/100;
-  lines2.push(rjust('Jami', fmtD(jamiTolovPul)+'$'));
-  if (skidkaPul > 0.001) lines2.push(rjust('Skidka', '- '+fmtG(skidkaPul)+'$'));
-  lines2.push(rjust('Tolov (yaxlit)', Math.floor(jamiTolovPul)+'$'));
+  lines2.push(rjust('Jami', fmtD(jamiTolovPul)+'#'));
+  if (skidkaPul > 0.001) lines2.push(rjust('Skidka', '- '+fmtG(skidkaPul)+'#'));
+  lines2.push(rjust('Tolov (yaxlit)', Math.floor(jamiTolovPul)+'#'));
   lines2.push(rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g'));
   lines2.push(LINE);
   lines2.push(rjust('Qolgan qarz', fmtG(finQarz)+' g'));
@@ -4031,7 +4030,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
       var cz2 = '';
       d.qarz_tarkib.forEach(function(b) {
         if (b.zavod !== cz2) { cz2 = b.zavod; lines2.push(b.zavod); }
-        lines2.push(rjust('  '+b.tur, fmtG(b.qarz)+' g'));
+        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)+' g'));
       });
     }
   }
@@ -4115,7 +4114,6 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
   var DASH = Array(Math.floor(W/2)+1).join('-') + '\n';
   var t = '';
   t += center('HISOB')+'\n';
-  t += center('TOLOV CHEKI')+'\n';
   t += LINE;
   t += center(k.nom)+'\n';
   t += center(sana)+'\n';
@@ -4127,7 +4125,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
     var left = '  '+o.tur;
     var pul = Math.floor(o.gramm * o.narx);
     jamiOldiPul += o.pul || pul;
-    var right = fmtG(o.gramm)+'g x '+o.narx+'$/g = '+pul+'$';
+    var right = fmtG(o.gramm)+'g x '+o.narx+'#/g = '+pul+'#';
     var sp = W - left.length - right.length; if(sp<1)sp=1;
     t += left + Array(sp+1).join(' ') + right + '\n';
   });
@@ -4135,20 +4133,20 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
   var skidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul))*100)/100;
   var tolovPul = Math.floor(jamiOldiPul);
   t += LINE;
-  t += rjust('Jami', fmtD(jamiOldiPul)+'$')+'\n';
-  if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'$')+'\n';
-  t += rjust("Tolov", tolovPul+'$')+'\n';
+  t += rjust('Jami', fmtD(jamiOldiPul)+'#')+'\n';
+  if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'#')+'\n';
+  t += rjust("Tolov", tolovPul+'#')+'\n';
   t += LINE;
   t += "TO'LOVLAR\n";
-  if (naqt > 0) t += rjust('Naqt', fmtD(naqt)+'$')+'\n';
+  if (naqt > 0) t += rjust('Naqt', fmtD(naqt)+'#')+'\n';
   lomlar.forEach(function(l) {
     var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
-    t += rjust(lbl, l.gramm+'g x '+l.kurs+'$/g = '+fmtD(l.pul)+'$')+'\n';
+    t += rjust(lbl, l.gramm+'g x '+l.kurs+'#/g = '+fmtD(l.pul)+'#')+'\n';
   });
   vozlar.forEach(function(v) { t += rjust('Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
   var jamiTolovPul = naqt + lomlar.reduce(function(a,l){return a+l.pul;},0);
   var qaytim = Math.max(0, Math.round((jamiTolovPul - tolovPul)*100)/100);
-  if (qaytim > 0.01) t += rjust('Qaytim', fmtD(qaytim)+'$')+'\n';
+  if (qaytim > 0.01) t += rjust('Qaytim', fmtD(qaytim)+'#')+'\n';
   t += LINE;
   var d = _qarzTarkib(data.klientlar.indexOf(k));
   t += rjust('Qolgan qarz', fmtG(d.jamiQarz)+' g')+'\n';
@@ -4158,7 +4156,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt)
     var cz2 = '';
     d.qarz_tarkib.forEach(function(b) {
       if (b.zavod !== cz2) { cz2 = b.zavod; t += b.zavod+'\n'; }
-      t += rjust('  '+b.tur, fmtG(b.qarz)+' g')+'\n';
+      t += rjust('                '+b.tur, fmtG(b.qarz)+' g')+'\n';
     });
   }
   t += LINE;
@@ -4346,7 +4344,7 @@ function klientQarzChekPrint(ki) {
       chekText+=b.zavod+'\n';
     }
     var gramm=fmtG(b.qarz)+' g';
-    chekText+=rjust('  '+b.tur, gramm)+'\n';
+    chekText+=rjust('                '+b.tur, gramm)+'\n';
   });
   chekText+=LINE;
   var jamiStr='JAMI QARZ: '+fmtG(d.jamiQarz)+' g';
