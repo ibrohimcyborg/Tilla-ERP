@@ -2527,7 +2527,7 @@ function renderKassa() {
         ? Math.round((op.kurs - op.kirimNarx) * op.ekvivalent * 100) / 100
         : 0;
       allOps.push({
-        sana: op.sana, ki:ki, knom: k.nom, kat: k.kat||'A',
+        sana: op.sana, soat: op.soat||'', ki:ki, knom: k.nom, kat: k.kat||'A',
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0, kurs: op.kurs||0,
         summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda
@@ -2541,12 +2541,25 @@ function renderKassa() {
   allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
   jamiFoyda = Math.round(jamiFoyda*100)/100;
 
+  // bir vaqtda saqlangan turlarni bitta sessiyaga yig'amiz (ki + sana + soat)
+  var sessions={}, sessionOrder=[];
+  allOps.forEach(function(o, idx){
+    var sk = o.ki+'|'+o.sana+'|'+(o.soat||'');
+    if(!sessions[sk]){
+      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0};
+      sessionOrder.push(sk);
+    }
+    sessions[sk].ops.push(o);
+    sessions[sk].summa+=o.summa;
+    sessions[sk].gramm+=o.gramm;
+    sessions[sk].foyda+=o.foyda;
+  });
+
   var byDay={}, dayOrder=[];
-  allOps.forEach(function(o){
-    if(!byDay[o.sana]){ byDay[o.sana]={}; dayOrder.push(o.sana); }
-    var key=o.ki+'|'+o.knom;
-    if(!byDay[o.sana][key]) byDay[o.sana][key]={ki:o.ki, knom:o.knom, kat:o.kat, ops:[]};
-    byDay[o.sana][key].ops.push(o);
+  sessionOrder.forEach(function(sk){
+    var s=sessions[sk];
+    if(!byDay[s.sana]){ byDay[s.sana]={}; dayOrder.push(s.sana); }
+    byDay[s.sana][sk]=s;
   });
   dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
@@ -2560,7 +2573,7 @@ function renderKassa() {
   html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
-  html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>';
+  html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
   html+='<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+'$'+fmtD(jamiFoyda)+'</div></div>';
   html+='</div>';
 
@@ -2570,7 +2583,7 @@ function renderKassa() {
     dayOrder.forEach(function(sana){
       var klientlar=byDay[sana];
       var daySumma=0, dayFoyda=0;
-      Object.values(klientlar).forEach(function(kg){ kg.ops.forEach(function(o){ daySumma+=o.summa; dayFoyda+=o.foyda; }); });
+      Object.values(klientlar).forEach(function(kg){ daySumma+=kg.summa; dayFoyda+=kg.foyda; });
       dayFoyda=Math.round(dayFoyda*100)/100;
 
       out+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;display:flex;justify-content:space-between;">';
@@ -2580,9 +2593,9 @@ function renderKassa() {
 
       Object.keys(klientlar).forEach(function(key){
         var kg=klientlar[key];
-        var kSumma=0,kGramm=0,kFoyda=0;
-        kg.ops.forEach(function(o){ kSumma+=o.summa; kGramm+=o.gramm; kFoyda+=o.foyda; });
-        kFoyda=Math.round(kFoyda*100)/100;
+        var kSumma=Math.round(kg.summa*100)/100;
+        var kGramm=Math.round(kg.gramm*100)/100;
+        var kFoyda=Math.round(kg.foyda*100)/100;
         var expKey=sana+'|'+key;
         var isOpen=expKassa[expKey];
         var ks=katStyles[kg.kat]||katStyles.A;
@@ -2594,7 +2607,8 @@ function renderKassa() {
         out+='<span style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</span>';
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
         out+='</div>';
-        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+fmtG(kGramm)+'g</div>';
+        var soat = kg.ops[0] && kg.ops[0].soat ? kg.ops[0].soat : '';
+        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kGramm)+'g</div>';
         out+='</div>';
         out+='<div style="display:flex;align-items:center;gap:8px;">';
         out+='<div style="text-align:right;">';
