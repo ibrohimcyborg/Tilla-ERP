@@ -3373,8 +3373,8 @@ function kTolovChekUpd() {
       lines2.push(center('QARZ TARKIBI'));
       var cz = '';
       qarz_tarkib.forEach(function(b) {
-        if (b.zavod !== cz) { cz = b.zavod; lines2.push(center(b.zavod)); }
-        lines2.push(rjust('  '+b.tur, fmtG(b.qarz)+'g'));
+        if (b.zavod !== cz) { cz = b.zavod; lines2.push(b.zavod); }
+        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)+'g'));
       });
     }
   }
