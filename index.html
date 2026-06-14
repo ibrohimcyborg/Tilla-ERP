@@ -2863,8 +2863,8 @@ function klientGunTahrir(ki, sana) {
     } else {
       var gramm = op.ekvivalent || (op.summa&&op.kurs ? Math.round(op.summa/op.kurs*100)/100 : 0);
       body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">GRAMM (g)</div><input type="number" id="kop-g2-'+oi+'" data-oi="'+oi+'" data-tip="tolov" value="'+gramm+'" oninput="var k=parseNum((document.getElementById(\'kop-k2-'+oi+'\')|| {}).value)||0;var s=k>0?Math.round(parseNum(this.value)*k*100)/100:0;var se=document.getElementById(\'kop-s-'+oi+'\');if(se)se.value=s;" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
-      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">KURS ($/g)</div><input type="number" id="kop-k2-'+oi+'" value="'+(op.kurs||0)+'" oninput="var g=parseNum((document.getElementById(\'kop-g2-'+oi+'\')|| {}).value)||0;var s=g>0?Math.round(g*parseNum(this.value)*100)/100:0;var se=document.getElementById(\'kop-s-'+oi+'\');if(se)se.value=s;" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
+      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">GRAMM (g)</div><input type="number" id="kop-g2-'+oi+'" data-oi="'+oi+'" data-tip="tolov" value="'+gramm+'" oninput="kopTolovUpd(\''+oi+'\')" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
+      body += '<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">KURS ($/g)</div><input type="number" id="kop-k2-'+oi+'" value="'+(op.kurs||0)+'" oninput="kopTolovUpd(\''+oi+'\')" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);"></div>';
       body += '</div>';
       body += '<input type="hidden" id="kop-s-'+oi+'" value="'+(op.summa||0)+'">';
       body += '<div id="kop-tolov-res-'+oi+'" style="font-size:11px;color:var(--muted);margin-top:4px;">= '+fmtD(op.summa||0)+'$</div>';
@@ -2877,6 +2877,16 @@ function klientGunTahrir(ki, sana) {
   document.getElementById('kop-edit-body').innerHTML = body;
   document.getElementById('kop-edit-log').style.display = 'none';
   document.getElementById('modal-kop-edit').classList.add('open');
+}
+
+function kopTolovUpd(oi) {
+  var g = parseNum((document.getElementById('kop-g2-'+oi)||{}).value)||0;
+  var k = parseNum((document.getElementById('kop-k2-'+oi)||{}).value)||0;
+  var s = g>0&&k>0 ? Math.round(g*k*100)/100 : 0;
+  var sEl = document.getElementById('kop-s-'+oi);
+  var rEl = document.getElementById('kop-tolov-res-'+oi);
+  if(sEl) sEl.value = s;
+  if(rEl) rEl.textContent = s>0 ? '= '+fmtD(s)+'$' : '';
 }
 
 function kopGUpdate(el) {
