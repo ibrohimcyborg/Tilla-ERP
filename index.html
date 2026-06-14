@@ -1103,8 +1103,7 @@ function renderHomeKurs() {
   var last = tarix.length ? tarix[tarix.length-1] : null;
   var kurs = last ? last.kurs : 0;
 
-  var lomNarxFarq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
-  var lomNarx = kurs > 0 ? Math.round((kurs + lomNarxFarq)*10)/10 : '';
+  var lomNarx = parseFloat(localStorage.getItem('tilla-lom-bugun')||'0') || (kurs > 0 ? Math.round((kurs + parseFloat(localStorage.getItem('tilla-lom-farq')||'-2'))*10)/10 : '');
 
   var out = '';
   out += '<div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">';
@@ -1212,17 +1211,18 @@ function hkRenderTurlar(kurs) {
 function hkLomUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
   var lom = parseFloat((document.getElementById('hk-lom-inp')||{}).value)||0;
-  if (kurs > 0 && lom > 0) {
-    var farq = Math.round((lom - kurs)*10)/10;
-    localStorage.setItem('tilla-lom-farq', farq);
+  if (lom > 0) {
+    localStorage.setItem('tilla-lom-bugun', lom);
+    if (kurs > 0) {
+      var farq = Math.round((lom - kurs)*10)/10;
+      localStorage.setItem('tilla-lom-farq', farq);
+    }
   }
 }
 
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
-  var farq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
-  var lomEl = document.getElementById('hk-lom-inp');
-  if (lomEl && kurs > 0) lomEl.value = Math.round((kurs + farq)*10)/10;
+  // kurs o'zgarganda lomni qayta hisoblama — faqat turlarni yangilaymiz
   hkRenderTurlar(kurs);
 }
 
@@ -1442,16 +1442,17 @@ function hkChekPrint(tip) {
   var LINE = Array(W+1).join('-');
   var bUst = parseFloat(localStorage.getItem('tilla-b-ust')||'0')||0;
   var lines = [];
-  lines.push(center('HISOB'));
+  var title = tip==='a' ? 'A HISOB' : tip==='b' ? 'B HISOB' : 'UMUMIY HISOB';
+  lines.push(center(title));
   lines.push(LINE);
   lines.push(center(sana+' - '+soat));
   lines.push(LINE);
 
   if (tip === 'k') {
-    lines.push(rjust('Kurs', kurs+' $/g'));
+    lines.push(rjust('Kurs', String(kurs)));
     if (lom > 0) {
       var lomFarq = Math.round((lom-kurs)*10)/10;
-      lines.push(rjust('Lom', lom+' $/g  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
+      lines.push(rjust('Lom', lom+'  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
     }
   } else {
     data.zavodlar.forEach(function(z, zi) {
@@ -1475,7 +1476,7 @@ function hkChekPrint(tip) {
     if (lom > 0) {
       var lomFarq2 = Math.round((lom-kurs)*10)/10;
       lines.push(LINE);
-      lines.push(rjust('Lom', lom+' $/g  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
+      lines.push(rjust('Lom', lom+'  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
     }
   }
   lines.push(LINE);
