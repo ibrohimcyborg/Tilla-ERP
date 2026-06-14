@@ -1456,10 +1456,7 @@ function hkChekPrint(tip) {
 
   if (tip === 'k') {
     lines.push(rjust('Kurs', String(kurs)));
-    if (lom > 0) {
-      var lomFarq = Math.round((lom-kurs)*10)/10;
-      lines.push(rjust('Lom', lom+'  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
-    }
+    if (lom > 0) lines.push(rjust('Lom', String(lom)));
   } else {
     data.zavodlar.forEach(function(z, zi) {
       if (!z.turlar.length) return;
@@ -1479,11 +1476,7 @@ function hkChekPrint(tip) {
         turLines.forEach(function(l){ lines.push(l); });
       }
     });
-    if (lom > 0) {
-      var lomFarq2 = Math.round((lom-kurs)*10)/10;
-      lines.push(LINE);
-      lines.push(rjust('Lom', lom+'  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
-    }
+    if (lom > 0) { lines.push(LINE); lines.push(rjust('Lom', String(lom))); }
   }
   lines.push(LINE);
   var t = lines.join('\n')+'\n\n\n';
