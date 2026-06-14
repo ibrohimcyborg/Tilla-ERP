@@ -2964,13 +2964,12 @@ function openKlientBerish(){
   document.getElementById('kb-klient').value='';
   document.getElementById('kb-q').value='';
   document.getElementById('kb-drop').style.display='none';
+  document.getElementById('kb-drop').innerHTML='';
   document.getElementById('kb-sel').style.display='none';
   document.getElementById('kb-sana').value=nowDate();
   document.getElementById('kb-turlar-inputs').innerHTML='';
   document.getElementById('kb-turlar-card').style.display='none';
   document.getElementById('modal-kberish').classList.add('open');
-  document.getElementById('kb-drop').innerHTML=_klientDropHTML('','kbPickK');
-  document.getElementById('kb-drop').style.display='block';
   setTimeout(function(){ document.getElementById('kb-q').focus(); },200);
 }
 function kbFilter(){
@@ -3076,13 +3075,12 @@ function openKlientVozvrat(){
   document.getElementById('kv-klient').value='';
   document.getElementById('kv-q').value='';
   document.getElementById('kv-drop').style.display='none';
+  document.getElementById('kv-drop').innerHTML='';
   document.getElementById('kv-sel').style.display='none';
   document.getElementById('kv-sana').value=nowDate();
   document.getElementById('kv-turlar-cont').style.display='none';
   document.getElementById('kv-turlar-list').innerHTML='';
   document.getElementById('modal-kvozvrat').classList.add('open');
-  document.getElementById('kv-drop').innerHTML=_klientDropHTML('','kvPickK');
-  document.getElementById('kv-drop').style.display='block';
   setTimeout(function(){ document.getElementById('kv-q').focus(); },200);
 }
 function kvFilter(){
@@ -3200,12 +3198,11 @@ function openKlientTolov(){
   document.getElementById('kt-klient').value='';
   document.getElementById('kt-q').value='';
   document.getElementById('kt-drop').style.display='none';
+  document.getElementById('kt-drop').innerHTML='';
   document.getElementById('kt-sel').style.display='none';
   document.getElementById('kt-sana').value=nowDate();
   document.getElementById('kt-turlar-cont').style.display='none';
   document.getElementById('modal-ktolov').classList.add('open');
-  document.getElementById('kt-drop').innerHTML=_klientDropHTML('','ktPickK');
-  document.getElementById('kt-drop').style.display='block';
   setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
 function ktFilter(){
