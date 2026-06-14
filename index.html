@@ -1128,7 +1128,11 @@ function renderHomeKurs() {
   out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Turlar narxi</div>';
   out += '<div id="hk-turlar-list"></div>';
   out += '</div>';
-  out += '<button onclick="hkChekPrint()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px;">🖨 Kun kursi cheki</button>';
+  out += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
+  out += '<button onclick="hkChekPrint(\'a\')" style="padding:9px 6px;border-radius:10px;border:1px solid var(--blue-bd);background:var(--surf2);color:var(--blue);font-size:12px;font-weight:500;cursor:pointer;">🖨 A kategoriya</button>';
+  out += '<button onclick="hkChekPrint(\'b\')" style="padding:9px 6px;border-radius:10px;border:1px solid var(--green-bd);background:var(--surf2);color:var(--green);font-size:12px;font-weight:500;cursor:pointer;">🖨 B kategoriya</button>';
+  out += '<button onclick="hkChekPrint(\'k\')" style="padding:9px 6px;border-radius:10px;border:1px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:12px;font-weight:500;cursor:pointer;">🖨 Kun kursi</button>';
+  out += '</div>';
   out += '<div style="background:var(--surf2);border-radius:10px;overflow:hidden;">';
   out += '<div onclick="hkToggleTarix(this)" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;">';
   out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Kurs tarixi</div>';
@@ -1423,9 +1427,11 @@ function hkSaqla() {
   renderHomeKurs();
 }
 
-function hkChekPrint() {
+function hkChekPrint(tip) {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
   if (!kurs) { alert('Kurs kiriting!'); return; }
+  var lomEl = document.getElementById('hk-lom-inp');
+  var lom = lomEl ? parseFloat(lomEl.value)||0 : 0;
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
@@ -1433,43 +1439,48 @@ function hkChekPrint() {
   function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
   var LINE = Array(W+1).join('-');
-  var lines2 = [];
-  lines2.push(center('HISOB'));
-  lines2.push(LINE);
-  lines2.push(sana+' - '+soat);
-  lines2.push(LINE);
-  data.zavodlar.forEach(function(z, zi) {
-    if (!z.turlar.length) return;
-    var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
-    var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
-    var zNarxlar = z.turlar.filter(function(t,ti){
-      var n = manual[ti] ? manual[ti] : (parseFloat(foizlar[ti])||0)>0 ? Math.round(kurs*(1+parseFloat(foizlar[ti])/100)*10)/10 : 0;
-      return n > 0;
-    });
-    if (!zNarxlar.length) return;
-    lines2.push(z.nom.toUpperCase());
-    z.turlar.forEach(function(t, ti) {
-      var narx;
-      if (manual[ti]) { narx = manual[ti]; }
-      else {
-        var pct = parseFloat(foizlar[ti])||0;
-        narx = pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : 0;
+  var bUst = parseFloat(localStorage.getItem('tilla-b-ust')||'0')||0;
+  var lines = [];
+  lines.push(center('HISOB'));
+  lines.push(LINE);
+  lines.push(center(sana+' - '+soat));
+  lines.push(LINE);
+
+  if (tip === 'k') {
+    // Kun kursi — faqat kurs va lom
+    lines.push(rjust('Kurs', kurs+'$/g'));
+    if (lom > 0) {
+      var lomFarq = Math.round((lom-kurs)*10)/10;
+      lines.push(rjust('Lom', lom+'$/g  ('+(lomFarq>=0?'+':'')+lomFarq+'$)'));
+    }
+  } else {
+    // A yoki B — turlar narxlari
+    data.zavodlar.forEach(function(z, zi) {
+      if (!z.turlar.length) return;
+      var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
+      var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
+      var hasNarx = false;
+      var turLines = [];
+      z.turlar.forEach(function(t, ti) {
+        var aNarx = aManual[ti] ? aManual[ti] : (parseFloat(aFoizlar[ti])||0)>0 ? Math.round(kurs*(1+parseFloat(aFoizlar[ti])/100)*10)/10 : 0;
+        if (!aNarx) return;
+        var narx = tip === 'b' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : aNarx;
+        turLines.push(rjust('  '+t.nom, narx+'$'));
+        hasNarx = true;
+      });
+      if (hasNarx) {
+        lines.push(z.nom.toUpperCase());
+        turLines.forEach(function(l){ lines.push(l); });
       }
-      if (!narx) return;
-      var left = '                '+t.nom;
-      lines2.push(rjust(left, String(narx)));
     });
-  });
-  var lomFarqH = parseFloat(localStorage.getItem('tilla-lom-farq')||'-2');
-  var lomNarxH = Math.round((kurs + lomFarqH)*10)/10;
-  var lomEl = document.getElementById('hk-lom-inp');
-  if (lomEl && parseFloat(lomEl.value)) lomNarxH = parseFloat(lomEl.value);
-  if (lomNarxH > 0) {
-    lines2.push(LINE);
-    lines2.push(rjust('Lom', String(lomNarxH)));
+    if (lom > 0) {
+      var lomFarq2 = Math.round((lom-kurs)*10)/10;
+      lines.push(LINE);
+      lines.push(rjust('Lom', lom+'$/g  ('+(lomFarq2>=0?'+':'')+lomFarq2+'$)'));
+    }
   }
-  lines2.push(LINE);
-  var t = lines2.join('\n')+'\n\n\n';
+  lines.push(LINE);
+  var t = lines.join('\n')+'\n\n\n';
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 function zKursRender() {
