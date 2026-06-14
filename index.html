@@ -4085,14 +4085,12 @@ function kSotuvCalc() {
     rows += '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:5px 0;"><span>Qolgan qarz</span><span style="color:var(--red);">'+fmtG(finQarz)+'g</span></div>';
     document.getElementById('ks-hisob-rows').innerHTML = rows;
   } else hEl.style.display = 'none';
-  var autoQaytim = Math.max(0, Math.round((jamiTolovPul - naqtJamiTolov) * 100) / 100);
-  // naqtJamiTolov = kst inputlaridan to'langan summa
   var naqtJamiTolov2 = 0;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     naqtJamiTolov2+=s;
   }); });
-  autoQaytim = Math.max(0, Math.round((naqt - naqtJamiTolov2)*100)/100);
+  var autoQaytim = Math.max(0, Math.round((naqt - naqtJamiTolov2)*100)/100);
   var qEl = document.getElementById('ks-qaytim');
   var qValEl = document.getElementById('ks-qaytim-val');
   if (autoQaytim > 0.01) {
