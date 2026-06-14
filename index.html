@@ -2528,88 +2528,126 @@ function renderKassa() {
   (data.klientlar||[]).forEach(function(k, ki){
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
+      var foyda = op.kirimNarx && op.kurs && op.ekvivalent
+        ? Math.round((op.kurs - op.kirimNarx) * op.ekvivalent * 100) / 100
+        : 0;
       allOps.push({
-        sana: op.sana, ki:ki, knom: k.nom,
+        sana: op.sana, ki:ki, knom: k.nom, kat: k.kat||'A',
         zavod: op.zavod||'', tur: op.tur||'',
-        gramm: op.ekvivalent||0,
-        kurs: op.kurs||0, summa: op.summa||0
+        gramm: op.ekvivalent||0, kurs: op.kurs||0,
+        summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda
       });
     });
   });
 
-  if(!allOps.length){
-    cont.innerHTML='<div class="empty">Hali tolov yoq</div>';
-    return;
-  }
-  var jamiSumma=0, jamiGramm=0;
-  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; });
+  if(!allOps.length){ cont.innerHTML='<div class="empty">Hali tolov yoq</div>'; return; }
 
-  // kun bo'yicha, keyin klient bo'yicha guruhlash
+  var jamiSumma=0, jamiGramm=0, jamiFoyda=0;
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
+  jamiFoyda = Math.round(jamiFoyda*100)/100;
+
   var byDay={}, dayOrder=[];
   allOps.forEach(function(o){
     if(!byDay[o.sana]){ byDay[o.sana]={}; dayOrder.push(o.sana); }
-    var key = o.ki+'|'+o.knom;
-    if(!byDay[o.sana][key]) byDay[o.sana][key]={ki:o.ki, knom:o.knom, ops:[]};
+    var key=o.ki+'|'+o.knom;
+    if(!byDay[o.sana][key]) byDay[o.sana][key]={ki:o.ki, knom:o.knom, kat:o.kat, ops:[]};
     byDay[o.sana][key].ops.push(o);
   });
-  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
-  var html = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'
-    +'<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>'
-    +'</div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
-    +'<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>'
-    +'<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>'
-    +'<div class="stat2-item"><div class="stat2-label">TOLOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>'
-    +'</div>';
+  var katStyles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C'}};
 
-  var expKassa = {};
-  function kassaRender() {
-    var out = html;
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+  html+='<div></div>';
+  html+='<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>';
+  html+='</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">';
+  html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
+  html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
+  html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>';
+  html+='<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+'$'+fmtD(jamiFoyda)+'</div></div>';
+  html+='</div>';
+
+  var expKassa={};
+  function kassaRender(){
+    var out=html;
     dayOrder.forEach(function(sana){
-      var klientlar = byDay[sana];
-      var daySumma = 0;
-      Object.values(klientlar).forEach(function(kg){ kg.ops.forEach(function(o){ daySumma+=o.summa; }); });
+      var klientlar=byDay[sana];
+      var daySumma=0, dayFoyda=0;
+      Object.values(klientlar).forEach(function(kg){ kg.ops.forEach(function(o){ daySumma+=o.summa; dayFoyda+=o.foyda; }); });
+      dayFoyda=Math.round(dayFoyda*100)/100;
 
-      out += '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;">'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span></div>';
+      out+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;display:flex;justify-content:space-between;">';
+      out+='<span>'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span></span>';
+      out+='<span style="color:var(--green);font-size:11px;">+$'+fmtD(dayFoyda)+'</span>';
+      out+='</div>';
 
       Object.keys(klientlar).forEach(function(key){
-        var kg = klientlar[key];
-        var kSumma = 0, kGramm = 0;
-        kg.ops.forEach(function(o){ kSumma+=o.summa; kGramm+=o.gramm; });
-        var expKey = sana+'|'+key;
-        var isOpen = expKassa[expKey];
+        var kg=klientlar[key];
+        var kSumma=0,kGramm=0,kFoyda=0;
+        kg.ops.forEach(function(o){ kSumma+=o.summa; kGramm+=o.gramm; kFoyda+=o.foyda; });
+        kFoyda=Math.round(kFoyda*100)/100;
+        var expKey=sana+'|'+key;
+        var isOpen=expKassa[expKey];
+        var ks=katStyles[kg.kat]||katStyles.A;
 
-        out += '<div class="hrow" style="margin-bottom:6px;cursor:pointer;" onclick="kassaToggle(\''+expKey+'\')">';
-        out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-        out += '<div style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</div>';
-        out += '<div style="display:flex;align-items:center;gap:8px;">';
-        out += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
-        out += '<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
-        out += '</div></div>';
+        out+='<div class="hrow" style="margin-bottom:6px;cursor:pointer;" onclick="kassaToggle(\''+expKey+'\')">';
+        out+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+        out+='<div>';
+        out+='<div style="display:flex;align-items:center;gap:6px;">';
+        out+='<span style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</span>';
+        out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
+        out+='</div>';
+        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+fmtG(kGramm)+'g</div>';
+        out+='</div>';
+        out+='<div style="display:flex;align-items:center;gap:8px;">';
+        out+='<div style="text-align:right;">';
+        out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
+        if(kFoyda>0) out+='<div style="font-size:11px;color:var(--green);">+$'+fmtD(kFoyda)+'</div>';
+        out+='</div>';
+        out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
+        out+='</div></div>';
 
         if(isOpen){
-          out += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
-          kg.ops.forEach(function(o, i){
-            if(i>0) out += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
-            var turStr = (o.zavod&&o.tur)?(o.zavod+' · '+o.tur):'Naqt';
-            out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-            out += '<div><div style="font-size:12px;color:var(--text);">'+turStr+'</div>';
-            if(o.gramm>0&&o.kurs>0) out += '<div style="font-size:11px;color:var(--muted);">'+fmtG(o.gramm)+'g · '+fmtD(o.kurs)+'$/g</div>';
-            out += '</div>';
-            out += '<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(o.summa)+'</div>';
-            out += '</div>';
+          out+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+          // tur bo'yicha
+          out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+          out+='<div>Tur</div><div>Gramm</div><div>Narx</div><div style="color:var(--green);">Foyda</div></div>';
+          kg.ops.forEach(function(o){
+            if(!o.zavod||!o.tur) return;
+            var turFoyda=o.foyda>0?'+$'+fmtD(o.foyda):'—';
+            out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:start;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
+            out+='<div style="color:var(--text);">'+o.zavod+' · '+o.tur+'</div>';
+            out+='<div style="color:var(--muted);">'+fmtG(o.gramm)+'g</div>';
+            out+='<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
+            if(o.kirimNarx) out+='<div style="font-size:10px;color:var(--muted);">kirim: '+fmtD(o.kirimNarx)+'</div>';
+            out+='</div>';
+            out+='<div style="color:var(--green);text-align:right;">'+turFoyda+'</div>';
+            out+='</div>';
           });
-          out += '</div>';
+          out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
+          out+='<span style="color:var(--muted);">Jami to\'landi</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma)+'</span></div>';
+          if(kFoyda>0){
+            out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;">';
+            out+='<span style="color:var(--muted);">Jami foyda</span><span style="color:var(--green);font-weight:500;">+$'+fmtD(kFoyda)+'</span></div>';
+          }
+          out+='</div>';
         }
-        out += '</div>';
+        out+='</div>';
       });
+
+      // kun jami
+      out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 6px;margin-bottom:12px;background:var(--surf2);border-radius:8px;">';
+      out+='<span style="color:var(--muted);">Kun jami</span>';
+      out+='<span><span style="color:var(--gold);font-weight:500;">$'+fmtD(daySumma)+'</span>';
+      if(dayFoyda>0) out+=' · <span style="color:var(--green);font-weight:500;">+$'+fmtD(dayFoyda)+'</span>';
+      out+='</span></div>';
     });
-    cont.innerHTML = out;
+    cont.innerHTML=out;
   }
 
-  window.kassaToggle = function(key){ expKassa[key]=!expKassa[key]; kassaRender(); };
+  window.kassaToggle=function(key){ expKassa[key]=!expKassa[key]; kassaRender(); };
   kassaRender();
 }
 
@@ -3968,7 +4006,7 @@ function saqlashKlientTolov(){
     var zi=vEl?parseInt(vEl.dataset.zi):-1;
     var ti=vEl?parseInt(vEl.dataset.ti):-1;
     var eq=0;
-    if(s>0&&kurs>0){eq=roundG(s/kurs);k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq});any=true;}
+    if(s>0&&kurs>0){eq=roundG(s/kurs);var kirimN=getZavodNarx(b.zi,b.ti)||0;k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN});any=true;}
     if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
     if(s>0||v>0){
       ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:s,tolov_kurs:kurs});
@@ -4716,7 +4754,8 @@ function saqlashKlientSotuv() {
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       if (s > 0 && n > 0) {
         var g = roundG(s / n);
-        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:s, kurs:n, ekvivalent:g});
+        var kirimN2 = getZavodNarx(zi,ti)||0;
+        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:s, kurs:n, ekvivalent:g, kirimNarx:kirimN2});
         naqtJami += s;
       }
     });
