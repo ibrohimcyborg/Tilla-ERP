@@ -722,7 +722,18 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Klientga berish</div>
-    <div class="field"><label>Klient</label><select id="kb-klient" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
+    <div class="field"><label>Klient</label>
+      <div style="position:relative;">
+        <input type="text" id="kb-q" placeholder="Klient qidirish..." oninput="kbFilter()" style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+      </div>
+      <div id="kb-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;max-height:200px;overflow-y:auto;"></div>
+      <div id="kb-sel" style="display:none;margin-top:6px;padding:8px 12px;background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:10px;display:none;align-items:center;justify-content:space-between;">
+        <span id="kb-sel-nom" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+        <button onclick="kbResetKlient()" style="border:none;background:none;font-size:12px;color:var(--muted);cursor:pointer;">✎</button>
+      </div>
+      <input type="hidden" id="kb-klient" value="">
+    </div>
     <div class="field"><label>Sana</label><input type="date" id="kb-sana" style="font-size:16px;"></div>
     <div id="kb-turlar-card" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Turlar — gramm</div>
@@ -739,7 +750,18 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Vozvrat</div>
-    <div class="field"><label>Klient</label><select id="kv-klient" onchange="kVozvratKlientChange()" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
+    <div class="field"><label>Klient</label>
+      <div style="position:relative;">
+        <input type="text" id="kv-q" placeholder="Klient qidirish..." oninput="kvFilter()" style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+      </div>
+      <div id="kv-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;max-height:200px;overflow-y:auto;"></div>
+      <div id="kv-sel" style="display:none;margin-top:6px;padding:8px 12px;background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:10px;align-items:center;justify-content:space-between;">
+        <span id="kv-sel-nom" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+        <button onclick="kvResetKlient()" style="border:none;background:none;font-size:12px;color:var(--muted);cursor:pointer;">✎</button>
+      </div>
+      <input type="hidden" id="kv-klient" value="">
+    </div>
     <div class="field"><label>Sana</label><input type="date" id="kv-sana" style="font-size:16px;"></div>
     <div id="kv-turlar-cont" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Qarz bo'yicha turlar</div>
@@ -756,7 +778,18 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">To'lov</div>
-    <div class="field"><label>Klient</label><select id="kt-klient" onchange="kTolovKlientChange()" style="font-size:16px;"><option value="">— Tanlang —</option></select></div>
+    <div class="field"><label>Klient</label>
+      <div style="position:relative;">
+        <input type="text" id="kt-q" placeholder="Klient qidirish..." oninput="ktFilter()" style="width:100%;padding:10px 12px 10px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--surf2);color:var(--text);">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
+      </div>
+      <div id="kt-drop" style="display:none;background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:4px;max-height:200px;overflow-y:auto;"></div>
+      <div id="kt-sel" style="display:none;margin-top:6px;padding:8px 12px;background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:10px;align-items:center;justify-content:space-between;">
+        <span id="kt-sel-nom" style="font-size:14px;font-weight:600;color:var(--text);"></span>
+        <button onclick="ktResetKlient()" style="border:none;background:none;font-size:12px;color:var(--muted);cursor:pointer;">✎</button>
+      </div>
+      <input type="hidden" id="kt-klient" value="">
+    </div>
     <div class="field"><label>Sana</label><input type="date" id="kt-sana" style="font-size:16px;"></div>
     <div id="kt-turlar-cont" style="display:none;">
       <div id="kt-turlar-list"></div>
@@ -2896,17 +2929,61 @@ function renderKdHisobot() {
 function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('klient-tel').value='';document.getElementById('modal-klient').classList.add('open');setTimeout(function(){document.getElementById('klient-nom').focus();},100);}
 function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();var tel=document.getElementById('klient-tel').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tel:tel,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
 
+function _klientDropHTML(q, pickFn) {
+  var html = '';
+  (data.klientlar||[]).forEach(function(k, ki) {
+    if (q && k.nom.toLowerCase().indexOf(q.toLowerCase()) < 0) return;
+    var qarz = klientJamiQarz(k);
+    var ini = k.nom.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
+    html += '<div onclick="'+pickFn+'('+ki+')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);">'
+      +'<div style="width:30px;height:30px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--muted);">'+ini+'</div>'
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text);">'+k.nom+'</div>'
+      +'<div style="font-size:11px;color:'+(qarz>0?'var(--red)':'var(--green)')+';">qarz: '+fmtG(qarz)+'g</div></div>'
+      +'</div>';
+  });
+  return html;
+}
+function _klientPickSel(prefix, ki) {
+  var k = data.klientlar[ki];
+  document.getElementById(prefix+'-klient').value = ki;
+  document.getElementById(prefix+'-q').value = k.nom;
+  document.getElementById(prefix+'-drop').style.display = 'none';
+  var sel = document.getElementById(prefix+'-sel');
+  sel.style.display = 'flex';
+  document.getElementById(prefix+'-sel-nom').textContent = k.nom;
+}
+function _klientResetSel(prefix) {
+  document.getElementById(prefix+'-klient').value = '';
+  document.getElementById(prefix+'-q').value = '';
+  document.getElementById(prefix+'-drop').style.display = 'none';
+  document.getElementById(prefix+'-sel').style.display = 'none';
+  setTimeout(function(){ document.getElementById(prefix+'-q').focus(); }, 100);
+}
+
 function openKlientBerish(){
-  var sel=document.getElementById('kb-klient');
-  sel.innerHTML='<option value="">— Tanlang —</option>';
-  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  document.getElementById('kb-klient').value='';
+  document.getElementById('kb-q').value='';
+  document.getElementById('kb-drop').style.display='none';
+  document.getElementById('kb-sel').style.display='none';
   document.getElementById('kb-sana').value=nowDate();
-  sel.value='';
-  sel.onchange=kberishKlientChange;
   document.getElementById('kb-turlar-inputs').innerHTML='';
+  document.getElementById('kb-turlar-card').style.display='none';
   document.getElementById('modal-kberish').classList.add('open');
+  document.getElementById('kb-drop').innerHTML=_klientDropHTML('','kbPickK');
+  document.getElementById('kb-drop').style.display='block';
+  setTimeout(function(){ document.getElementById('kb-q').focus(); },200);
+}
+function kbFilter(){
+  var q=document.getElementById('kb-q').value;
+  var drop=document.getElementById('kb-drop');
+  drop.innerHTML=_klientDropHTML(q,'kbPickK');
+  drop.style.display='block';
+}
+function kbPickK(ki){
+  _klientPickSel('kb',ki);
   renderBerishTurlar(data.zavodlar);
 }
+function kbResetKlient(){ _klientResetSel('kb'); document.getElementById('kb-turlar-card').style.display='none'; }
 
 function kberishKlientChange(){
   var ki=parseInt(document.getElementById('kb-klient').value);
@@ -2996,14 +3073,30 @@ function saqlashKlientBerish(){
 }
 
 function openKlientVozvrat(){
-  var sel=document.getElementById('kv-klient');
-  sel.innerHTML='<option value="">— Tanlang —</option>';
-  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  document.getElementById('kv-klient').value='';
+  document.getElementById('kv-q').value='';
+  document.getElementById('kv-drop').style.display='none';
+  document.getElementById('kv-sel').style.display='none';
   document.getElementById('kv-sana').value=nowDate();
   document.getElementById('kv-turlar-cont').style.display='none';
   document.getElementById('kv-turlar-list').innerHTML='';
   document.getElementById('modal-kvozvrat').classList.add('open');
+  document.getElementById('kv-drop').innerHTML=_klientDropHTML('','kvPickK');
+  document.getElementById('kv-drop').style.display='block';
+  setTimeout(function(){ document.getElementById('kv-q').focus(); },200);
 }
+function kvFilter(){
+  var q=document.getElementById('kv-q').value;
+  var drop=document.getElementById('kv-drop');
+  drop.innerHTML=_klientDropHTML(q,'kvPickK');
+  drop.style.display='block';
+}
+function kvPickK(ki){
+  _klientPickSel('kv',ki);
+  document.getElementById('kv-klient').value=ki;
+  kVozvratKlientChange();
+}
+function kvResetKlient(){ _klientResetSel('kv'); document.getElementById('kv-turlar-cont').style.display='none'; }
 
 function kVozvratKlientChange(){
   var ki=parseInt(document.getElementById('kv-klient').value);
@@ -3104,13 +3197,29 @@ function saqlashKlientVozvrat(){
 }
 
 function openKlientTolov(){
-  var sel=document.getElementById('kt-klient');
-  sel.innerHTML='<option value="">— Tanlang —</option>';
-  (data.klientlar||[]).forEach(function(k,i){sel.innerHTML+='<option value="'+i+'">'+k.nom+'</option>';});
+  document.getElementById('kt-klient').value='';
+  document.getElementById('kt-q').value='';
+  document.getElementById('kt-drop').style.display='none';
+  document.getElementById('kt-sel').style.display='none';
   document.getElementById('kt-sana').value=nowDate();
   document.getElementById('kt-turlar-cont').style.display='none';
   document.getElementById('modal-ktolov').classList.add('open');
+  document.getElementById('kt-drop').innerHTML=_klientDropHTML('','ktPickK');
+  document.getElementById('kt-drop').style.display='block';
+  setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
+function ktFilter(){
+  var q=document.getElementById('kt-q').value;
+  var drop=document.getElementById('kt-drop');
+  drop.innerHTML=_klientDropHTML(q,'ktPickK');
+  drop.style.display='block';
+}
+function ktPickK(ki){
+  _klientPickSel('kt',ki);
+  document.getElementById('kt-klient').value=ki;
+  kTolovKlientChange();
+}
+function ktResetKlient(){ _klientResetSel('kt'); document.getElementById('kt-turlar-cont').style.display='none'; }
 function kTolovKlientChange(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){document.getElementById('kt-turlar-cont').style.display='none';return;}
