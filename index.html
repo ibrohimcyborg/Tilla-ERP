@@ -645,7 +645,7 @@ body.rol-zavod #main-klient { display: none !important; }
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-kop-edit">
+<div class="modal-overlay locked" id="modal-kop-edit">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="kop-edit-title">Tahrirlash</div>
@@ -1765,7 +1765,7 @@ function renderHome() {
       + '<div><div class="zrow-name">' + z.nom + '</div>'
       + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
-      + '<div class="zrow-g" style="color:'+(zG>0?'var(--red)':zG<0?'var(--green)':'var(--muted)')+'">' + fmtG(Math.abs(zG)) + ' g</div>'
+      + '<div class="zrow-g" style="color:'+(zG>0?'var(--red)':zG<0?'var(--green)':'var(--muted)')+'">'+(zG<0?'−':'')+fmtG(Math.abs(zG)) + ' g</div>'
       + '<div style="color:var(--muted);">›</div></div></div>';
   });
   list.innerHTML = out;
@@ -2223,10 +2223,11 @@ document.addEventListener('wheel', function(e){
   }
 }, {passive:true});
 
-document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target!==el) return; var locked=['modal-kberish','modal-kvozvrat','modal-ktolov','modal-ksotuv']; if(locked.indexOf(el.id)>=0) return; el.classList.remove('open'); }); });
+document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target!==el) return; var locked=['modal-kberish','modal-kvozvrat','modal-ktolov','modal-ksotuv','modal-kop-edit']; if(locked.indexOf(el.id)>=0||el.classList.contains('locked')) return; el.classList.remove('open'); }); });
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape'){
-    if(document.getElementById('modal-kberish').classList.contains('open')) closeModal('modal-kberish');
+    if(document.getElementById('modal-kop-edit').classList.contains('open')) closeModal('modal-kop-edit');
+    else if(document.getElementById('modal-kberish').classList.contains('open')) closeModal('modal-kberish');
     else if(document.getElementById('modal-kvozvrat').classList.contains('open')) closeModal('modal-kvozvrat');
     else if(document.getElementById('modal-ktolov').classList.contains('open')) closeModal('modal-ktolov');
     else if(document.getElementById('modal-ksotuv').classList.contains('open')) closeModal('modal-ksotuv');
