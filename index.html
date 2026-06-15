@@ -2795,7 +2795,7 @@ function renderKlientHisobot() {
 
     daySessions.forEach(function(sess){
       var tip=sess.tip;
-      var color=tip==='berish'?'var(--red)':tip==='vozvrat'?'var(--gold)':'var(--blue)';
+      var color=tip==='berish'?(jamiG<0?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':'var(--blue)';
       var label=tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':'$ Tolov';
       var jamiG=0, jamiS=0;
       sess.ops.forEach(function(x){
@@ -2815,7 +2815,7 @@ function renderKlientHisobot() {
       html+='</div>';
       html+='<div style="text-align:right;display:flex;align-items:center;gap:8px;">';
       html+='<div>';
-      html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?'-':'+')+''+fmtG(jamiG)+'g</div>';
+      html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?(jamiG<0?'+':'-'):('+'))+fmtG(Math.abs(jamiG))+'g</div>';
       if(tip==='tolov'&&jamiS>0) html+='<div style="font-size:11px;color:var(--muted);">$'+fmtD(jamiS)+'</div>';
       html+='</div>';
       html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
