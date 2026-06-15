@@ -997,7 +997,15 @@ body.rol-zavod #main-klient { display: none !important; }
 
       <!-- Chek preview -->
       <div id="ks-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Chek</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+          <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span style="font-size:12px;color:var(--muted);" id="ks-chek-toggle-lbl">🖨 chiqarish</span>
+            <div id="ks-chek-sw" style="width:36px;height:20px;background:var(--green);border-radius:20px;position:relative;transition:.2s;flex-shrink:0;">
+              <div id="ks-chek-sw-dot" style="position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:18px;transition:.2s;"></div>
+            </div>
+          </div>
+        </div>
         <div id="ks-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--border);overflow:hidden;"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
           <span style="font-size:12px;color:var(--muted);">Nechta nusxa</span>
@@ -4190,6 +4198,10 @@ function openKlientSotuv() {
   var n = new Date();
   document.getElementById('ks-sana').value = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
   document.getElementById('modal-ksotuv').classList.add('open');
+  _ksChekOn = true;
+  var sw2=document.getElementById('ks-chek-sw'); if(sw2){sw2.style.background='var(--green)';}
+  var dot2=document.getElementById('ks-chek-sw-dot'); if(dot2){dot2.style.left='18px';}
+  var lbl2=document.getElementById('ks-chek-toggle-lbl'); if(lbl2){lbl2.textContent='🖨 chiqarish';}
 }
 
 function ksSearFilter() {
@@ -4286,6 +4298,23 @@ function ksResetKlient() {
   document.getElementById('ks-qaytim').style.display = 'none';
   document.getElementById('ks-taqsim').style.display = 'none';
   document.getElementById('ks-chek-preview').style.display = 'none';
+}
+
+var _ksChekOn = true;
+function ksChekToggle() {
+  _ksChekOn = !_ksChekOn;
+  var sw=document.getElementById('ks-chek-sw');
+  var dot=document.getElementById('ks-chek-sw-dot');
+  var lbl=document.getElementById('ks-chek-toggle-lbl');
+  if(_ksChekOn){
+    sw.style.background='var(--green)';
+    dot.style.left='18px';
+    lbl.textContent='🖨 chiqarish';
+  } else {
+    sw.style.background='var(--muted)';
+    dot.style.left='2px';
+    lbl.textContent='🚫 chiqarmaydi';
+  }
 }
 
 function ksSotuvCntChg(d) {
@@ -4669,7 +4698,7 @@ function kSotuvCalc() {
   document.querySelectorAll('[id^="ks-voz-"]').forEach(function(el) {
     vozJami += parseNum(el.value) || 0;
   });
-  var jamiTolovPul = naqt + lomPulJami;
+  var jamiTolovPul = naqt - lomPulJami;
   var qolgan = Math.max(0, Math.round((tolovPul - jamiTolovPul) * 100) / 100);
   var oldiG = oldilar.reduce(function(a,o){return a+o.gramm;}, 0);
   var finQarz = Math.max(0, Math.round((joriyQarz + oldiG - naqtG - lomGJami - vozJami) * 100) / 100);
@@ -4689,7 +4718,7 @@ function kSotuvCalc() {
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     naqtJamiTolov2+=s;
   }); });
-  var autoQaytim = Math.max(0, Math.round((naqt - naqtJamiTolov2)*100)/100);
+  var autoQaytim = Math.max(0, Math.round((naqt - naqtJamiTolov2 + lomPulJami)*100)/100);
   var qEl = document.getElementById('ks-qaytim');
   var qValEl = document.getElementById('ks-qaytim-val');
   if (autoQaytim > 0.01) {
@@ -4946,7 +4975,7 @@ function saqlashKlientSotuv() {
   save('Sotuv: '+k.nom+' | '+sana);
   var _d = _qarzTarkib(data.klientlar.indexOf(k));
   var _skidka = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib, _skidka);
+  if(_ksChekOn) klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib, _skidka);
   closeModal('modal-ksotuv');
   renderKlientlar();
   renderHome();
@@ -4989,21 +5018,30 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   lomlar.forEach(function(l) {
     if(l.gramm>0&&l.kurs>0){ jamiTolovPul+=l.pul; }
   });
+  // lom - ayiriladi
+  var lomJami = 0;
+  lomlar.forEach(function(l) {
+    if(l.gramm>0&&l.kurs>0){ lomJami+=l.pul; }
+  });
   if (tolovSatirlar.length) {
     t += 'TOLOVLAR\n';
     tolovSatirlar.forEach(function(item) {
       t += row3(item.zavod+'  '+item.tur, fmtG(item.g)+'g x '+item.n+' = ', fmtD(item.s)+'#')+'\n';
     });
-    lomlar.forEach(function(l) {
-      var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
-      t += row3(lbl, l.gramm+'g x '+l.kurs+' = ', fmtD(l.pul)+'#')+'\n';
-    });
-    if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
     t += LINE;
+    t += rjust('Jami sotuv', fmtD(jamiTolovPul)+'#')+'\n';
+    if (lomJami > 0) {
+      lomlar.forEach(function(l) {
+        var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
+        t += row3(lbl, l.gramm+'g x '+l.kurs+' = ', fmtD(l.pul)+'#')+'\n';
+      });
+      t += rjust('Lom ayrildi', '- '+fmtD(lomJami)+'#')+'\n';
+      t += LINE;
+      t += rjust("Naqt to'landi", fmtD(Math.max(0,jamiTolovPul-lomJami))+'#')+'\n';
+    }
+    if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
     var skidka = skidkaMan > 0 ? skidkaMan : 0;
-    t += rjust('Jami', fmtD(jamiTolovPul)+'#')+'\n';
-    if (skidka > 0.001) t += rjust('Skidka', '- '+fmtG(skidka)+'#')+'\n';
-    t += rjust('Tolov (yaxlit)', fmtD(Math.max(0,jamiTolovPul-skidka))+'#')+'\n';
+    if (skidka > 0.001) t += rjust('Skidka', '- '+fmtD(skidka)+'#')+'\n';
     t += rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g')+'\n';
   }
   // naqt
