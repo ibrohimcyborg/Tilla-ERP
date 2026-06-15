@@ -1728,7 +1728,7 @@ function renderHome() {
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
     });
   });
-  klientda = Math.max(0, Math.round(klientda*100)/100);
+  klientda = Math.round(klientda*100)/100;
   var tot = Math.round((bizda+klientda)*100)/100;
   var g = '<span>g</span>';
   var sg = '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
@@ -1851,7 +1851,7 @@ function renderZavod() {
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
     });
   });
-  klientda = Math.max(0, Math.round(klientda*100)/100);
+  klientda = Math.round(klientda*100)/100;
   var zG = Math.round((bizda+klientda)*100)/100;
   var g='<span>g</span>';
   var sg='<span style="font-size:11px;color:var(--muted);margin-left:2px;">g</span>';
@@ -1876,7 +1876,7 @@ function renderZavod() {
         else if(op.tip==='tolov') q-=(op.ekvivalent||0);
       });
       q = Math.round(q*100)/100;
-      if(q > 0.001) turKlientlar[k.nom] = q;
+      if(Math.abs(q) > 0.001) turKlientlar[k.nom] = q;
     });
     var turKlientda = Object.values(turKlientlar).reduce(function(a,b){return a+b;},0);
     turKlientda = Math.round(turKlientda*100)/100;
@@ -1894,11 +1894,14 @@ function renderZavod() {
         rows += '<div class="trow"><div><span style="color:var(--red);">- Chiqim</span>' + (op.kimga?'<span style="color:var(--muted);margin-left:6px;font-size:11px;">'+op.kimga+'</span>':'') + '<div class="trow-info">' + op.sana + '</div></div><span style="font-family:Roboto,sans-serif;color:var(--red);">-' + fmtG(op.jami) + 'g</span></div>';
       }
     });
-    var klientRows = '';
     Object.keys(turKlientlar).forEach(function(nom){
+      var q=turKlientlar[nom];
+      var isNeg=q<0;
+      var qCol=isNeg?'var(--green)':'var(--red)';
+      var qSign=isNeg?'+':'−';
       klientRows += '<div class="trow">'
         + '<div style="font-size:13px;color:var(--text);">'+nom+'</div>'
-        + '<span style="font-family:Roboto,sans-serif;font-size:13px;color:var(--red);font-weight:500;">-'+fmtG(turKlientlar[nom])+'g</span>'
+        + '<span style="font-family:Roboto,sans-serif;font-size:13px;color:'+qCol+';font-weight:500;">'+qSign+fmtG(Math.abs(q))+'g</span>'
         + '</div>';
     });
 
@@ -2806,6 +2809,9 @@ function renderKlientHisobot() {
       });
       jamiG=Math.round(jamiG*100)/100;
 
+      var isNegBerish=tip==='berish'&&jamiG<0;
+      var color=tip==='berish'?(isNegBerish?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':'var(--blue)';
+
       html+='<div class="hrow" style="margin-bottom:6px;">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
       html+='<div>';
@@ -2815,13 +2821,12 @@ function renderKlientHisobot() {
       html+='</div>';
       html+='<div style="text-align:right;display:flex;align-items:center;gap:8px;">';
       html+='<div>';
-      html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?(jamiG<0?'+':'-'):('+'))+fmtG(Math.abs(jamiG))+'g</div>';
+      html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?(isNegBerish?'+':'−'):'+')+fmtG(Math.abs(jamiG))+'g</div>';
       if(tip==='tolov'&&jamiS>0) html+='<div style="font-size:11px;color:var(--muted);">$'+fmtD(jamiS)+'</div>';
       html+='</div>';
       html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
       html+='</div></div>';
 
-      // turlar ro'yxati (accordion o'rniga har doim ko'rsatamiz agar 1dan ko'p bo'lsa)
       if(sess.ops.length>1){
         html+='<div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);">';
         sess.ops.forEach(function(x){
@@ -2829,9 +2834,12 @@ function renderKlientHisobot() {
           var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
           var g=tip==='tolov'?(op.ekvivalent||0):(op.gramm||0);
           var s=tip==='tolov'?(op.summa||0):0;
-          html+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:2px 0;">';
-          html+='<span>'+turStr+'</span>';
-          html+='<span style="color:'+color+';">'+fmtG(g)+'g'+(s>0?' · $'+fmtD(s):'')+'</span>';
+          var negOp=tip==='berish'&&g<0;
+          var opColor=tip==='berish'?(negOp?'var(--green)':'var(--red)'):color;
+          var opSign=tip==='berish'?(negOp?'+':'−'):'+';
+          html+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;">';
+          html+='<span style="color:var(--muted);">'+turStr+'</span>';
+          html+='<span style="color:'+opColor+';">'+opSign+fmtG(Math.abs(g))+'g'+(s>0?' · $'+fmtD(s):'')+'</span>';
           html+='</div>';
         });
         html+='</div>';
