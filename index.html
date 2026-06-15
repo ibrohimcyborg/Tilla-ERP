@@ -1742,14 +1742,30 @@ function renderHome() {
   var empty = document.getElementById('home-empty');
   if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  var out = '';
-  data.zavodlar.forEach(function(z, zi) {
-    var zG = 0; z.turlar.forEach(function(t){ zG += t.ostatka; });
+  var zavodlarSorted = data.zavodlar.map(function(z, zi){
+    var zG=0; z.turlar.forEach(function(t){ zG+=t.ostatka; });
+    return {z:z, zi:zi, zG:Math.round(zG*100)/100};
+  }).sort(function(a,b){
+    // musbat → 0 → manfiy
+    var aPos=a.zG>0, bPos=b.zG>0;
+    var aZero=a.zG===0, bZero=b.zG===0;
+    var aNeg=a.zG<0, bNeg=b.zG<0;
+    if(aPos&&bPos) return b.zG-a.zG;   // musbat: kattadan kichikka
+    if(aPos) return -1;
+    if(bPos) return 1;
+    if(aZero&&bZero) return 0;
+    if(aZero) return -1;
+    if(bZero) return 1;
+    return a.zG-b.zG;                  // manfiy: kichikdan kattaga
+  });
+  var out='';
+  zavodlarSorted.forEach(function(item){
+    var z=item.z, zi=item.zi, zG=item.zG;
     out += '<div class="zrow" onclick="openZavod(' + zi + ')">'
       + '<div><div class="zrow-name">' + z.nom + '</div>'
       + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
-      + '<div class="zrow-g" style="color:'+(zG<0?'var(--green)':'var(--red)')+'">' + fmtG(zG) + ' g</div>'
+      + '<div class="zrow-g" style="color:'+(zG<0?'var(--red)':zG===0?'var(--muted)':'var(--green)')+'">' + fmtG(zG) + ' g</div>'
       + '<div style="color:var(--muted);">›</div></div></div>';
   });
   list.innerHTML = out;
