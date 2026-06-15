@@ -3241,20 +3241,24 @@ function openKlientDetail(ki) {
 
     var jamiG=0;
     g.ops.forEach(function(op){
-      if(op.tip==='berish') jamiG-=op.gramm;
+      if(op.tip==='berish') jamiG+=op.gramm;
       else if(op.tip==='vozvrat') jamiG+=op.gramm;
       else if(op.tip==='tolov') jamiG+=(op.ekvivalent||0);
     });
+    // manfiy berish = biz klientga qarzimiz = yashil +
+    var isNegBerish = hasBerish && jamiG < 0;
+    var bc=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):hasTolov?'var(--blue)':'var(--gold)';
+    var lcolor=bc;
+    var jCol=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):jamiG>=0?'var(--green)':'var(--red)';
+    var jSign=isNegBerish?'+':hasBerish?'−':'+';
 
     tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
     tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
     tHTML+='<div><div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
     tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+(g.soat?' · '+g.soat:'')+'</div></div>';
-    var jCol=jamiG>=0?'var(--green)':'var(--red)';
-    var jSign=jamiG>=0?'+':'';
     var bVal=hasBerish?'1':'0';
     tHTML+='<div style="display:flex;align-items:center;gap:5px;">';
-    tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(jamiG)+'g</div>';
+    tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(Math.abs(jamiG))+'g</div>';
     tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-soat="'+(g.soat||'')+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
     tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
     tHTML+='<button class="kochir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">🗑</button>';
@@ -3264,8 +3268,9 @@ function openKlientDetail(ki) {
       tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
       g.ops.forEach(function(op){
         var isOV=op.tip==='vozvrat',isOT=op.tip==='tolov',isOB=op.tip==='berish';
-        var oc=isOB?'var(--red)':isOV?'var(--gold)':'var(--blue)';
-        var ov=isOB?('−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
+        var negB=isOB&&(op.gramm<0);
+        var oc=isOB?(negB?'var(--green)':'var(--red)'):isOV?'var(--gold)':'var(--blue)';
+        var ov=isOB?(negB?'+'+fmtG(Math.abs(op.gramm))+'g':'−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g');
         if(op.zavod&&op.tur&&isOT) os=op.zavod+' · '+op.tur+' — '+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
         tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">';
