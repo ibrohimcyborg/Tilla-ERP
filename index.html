@@ -2051,7 +2051,7 @@ function kZavodChange() {
   data.zavodlar[zi].turlar.forEach(function(t,ti) {
     out += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
       + '<div style="font-size:14px;font-weight:600;min-width:70px;color:var(--text);">'+t.nom+'</div>'
-      + '<input type="number" id="kg-'+ti+'" placeholder="0" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">'
+      + '<input type="text" inputmode="decimal" id="kg-'+ti+'" placeholder="0" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">'
       + '<span style="font-size:13px;color:var(--muted);">g</span></div>';
   });
   document.getElementById('k-turlar-inputs').innerHTML = out;
