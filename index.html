@@ -3942,13 +3942,12 @@ function kTolovCalc(){
     var s=parseNum((document.getElementById('kt-s-'+idx2)||{}).value||0);
     jamiSummaKt+=s; idx2++;
   });
-  var autoSkKt=Math.round((jamiSummaKt-Math.floor(jamiSummaKt))*100)/100;
+  var autoSkKt=0;
   var skBlKt=document.getElementById('kt-skidka-blok');
   var skHint=document.getElementById('kt-skidka-hint');
   var manSkKt=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
   if(skBlKt) skBlKt.style.display=jamiSummaKt>0?'block':'none';
-  if(skHint&&autoSkKt>0&&manSkKt<=0) skHint.textContent='auto: '+fmtD(autoSkKt)+'$';
-  else if(skHint) skHint.textContent='';
+  if(skHint) skHint.textContent='';
   kTolovChekUpd();
 }
 
@@ -4091,8 +4090,7 @@ function saqlashKlientTolov(){
     if(gInp>0&&kurs>0&&s<=0) s=Math.round(gInp*kurs*100)/100;
     _ktJamiRaw+=s; _tmpIdx++;
   });
-  var _ktAutoSk=Math.round((_ktJamiRaw-Math.floor(_ktJamiRaw))*100)/100;
-  var _ktSkidka=_ktSkidkaMan>0?_ktSkidkaMan:_ktAutoSk;
+  var _ktSkidka=_ktSkidkaMan>0?_ktSkidkaMan:0;
 
   idx=0;
   var ops_grouped=[];
@@ -4616,9 +4614,9 @@ function kSotuvCalc() {
     }
   });
   jamiOldiPul = Math.round(jamiOldiPul * 100) / 100;
-  var autoSkidka = Math.round((jamiOldiPul - Math.floor(jamiOldiPul)) * 100) / 100;
+  var autoSkidka = 0;
   var manSkidka = parseNum((document.getElementById('ks-skidka')||{}).value) || 0;
-  var skidka = manSkidka > 0 ? manSkidka : autoSkidka;
+  var skidka = manSkidka > 0 ? manSkidka : 0;
   var tolovPul = Math.max(0, Math.round((jamiOldiPul - skidka) * 100) / 100);
   var skidkaBlok = document.getElementById('ks-skidka-blok');
   if(skidkaBlok) skidkaBlok.style.display = jamiOldiPul > 0 ? 'block' : 'none';
@@ -4762,8 +4760,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   if (vozJami > 0) lines2.push(rjust('  Vozvrat', fmtG(vozJami)+'g'));
   lines2.push(LINE);
   var manSk = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  var autoSk = Math.round((jamiTolovPul - Math.floor(jamiTolovPul))*100)/100;
-  var skidkaPul = manSk > 0 ? manSk : autoSk;
+  var skidkaPul = manSk > 0 ? manSk : 0;
   var tolovYaxlit = Math.max(0, Math.round((jamiTolovPul - skidkaPul)*100)/100);
   lines2.push(rjust('Jami', fmtD(jamiTolovPul)+'#'));
   if (skidkaPul > 0.001) lines2.push(rjust('Skidka', '- '+fmtG(skidkaPul)+'#'));
@@ -4858,8 +4855,7 @@ function saqlashKlientSotuv() {
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     _jamiSummaRaw+=s;
   }); });
-  var _autoSk = Math.round((_jamiSummaRaw - Math.floor(_jamiSummaRaw))*100)/100;
-  var _skidka = _skidkaVal > 0 ? _skidkaVal : _autoSk;
+  var _skidka = _skidkaVal > 0 ? _skidkaVal : 0;
 
   // Har bir tur uchun to'lovni zavod/tur bilan saqlash
   var naqtJami = 0;
