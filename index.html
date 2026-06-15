@@ -4699,7 +4699,7 @@ function kSotuvCalc() {
   document.querySelectorAll('[id^="ks-voz-"]').forEach(function(el) {
     vozJami += parseNum(el.value) || 0;
   });
-  var jamiTolovPul = naqt - lomPulJami;
+  var jamiTolovPul = naqt + lomPulJami;
   var qolgan = Math.max(0, Math.round((tolovPul - jamiTolovPul) * 100) / 100);
   var oldiG = oldilar.reduce(function(a,o){return a+o.gramm;}, 0);
   var finQarz = Math.max(0, Math.round((joriyQarz + oldiG - naqtG - lomGJami - vozJami) * 100) / 100);
@@ -5019,30 +5019,20 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   lomlar.forEach(function(l) {
     if(l.gramm>0&&l.kurs>0){ jamiTolovPul+=l.pul; }
   });
-  // lom - ayiriladi
-  var lomJami = 0;
-  lomlar.forEach(function(l) {
-    if(l.gramm>0&&l.kurs>0){ lomJami+=l.pul; }
-  });
   if (tolovSatirlar.length) {
     t += 'TOLOVLAR\n';
     tolovSatirlar.forEach(function(item) {
       t += row3(item.zavod+'  '+item.tur, fmtG(item.g)+'g x '+item.n+' = ', fmtD(item.s)+'#')+'\n';
     });
-    t += LINE;
-    t += rjust('Jami sotuv', fmtD(jamiTolovPul)+'#')+'\n';
-    if (lomJami > 0) {
-      lomlar.forEach(function(l) {
-        var lbl = l.nom ? 'Lom ('+l.nom+')' : 'Lom';
-        t += row3(lbl, l.gramm+'g x '+l.kurs+' = ', fmtD(l.pul)+'#')+'\n';
-      });
-      t += rjust('Lom ayrildi', '- '+fmtD(lomJami)+'#')+'\n';
-      t += LINE;
-      t += rjust("Naqt to'landi", fmtD(Math.max(0,jamiTolovPul-lomJami))+'#')+'\n';
-    }
+    lomlar.forEach(function(l) {
+      var lbl = l.nom ? l.nom : 'Lom';
+      t += row3(lbl, l.gramm+'g x '+l.kurs+' = ', fmtD(l.pul)+'#')+'\n';
+    });
     if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
+    t += LINE;
     var skidka = skidkaMan > 0 ? skidkaMan : 0;
     if (skidka > 0.001) t += rjust('Skidka', '- '+fmtD(skidka)+'#')+'\n';
+    t += rjust("Jami to'landi", fmtD(Math.max(0, jamiTolovPul-skidka))+'#')+'\n';
     t += rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g')+'\n';
   }
   // naqt
