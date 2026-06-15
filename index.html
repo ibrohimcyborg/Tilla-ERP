@@ -1894,6 +1894,7 @@ function renderZavod() {
         rows += '<div class="trow"><div><span style="color:var(--red);">- Chiqim</span>' + (op.kimga?'<span style="color:var(--muted);margin-left:6px;font-size:11px;">'+op.kimga+'</span>':'') + '<div class="trow-info">' + op.sana + '</div></div><span style="font-family:Roboto,sans-serif;color:var(--red);">-' + fmtG(op.jami) + 'g</span></div>';
       }
     });
+    var klientRows = '';
     Object.keys(turKlientlar).forEach(function(nom){
       var q=turKlientlar[nom];
       var isNeg=q<0;
@@ -3570,7 +3571,7 @@ function saqlashKlientBerish(){
   });
   if(!any){alert('Gramm kiriting!');return;}
   save('Klient berish: '+k.nom);
-  closeModal('modal-kberish');renderKlientlar();renderHome();
+  closeModal('modal-kberish');renderKlientlar();renderHome();if(typeof renderZavod==='function'&&curZ>=0) renderZavod();
 }
 
 function openKlientVozvrat(){
