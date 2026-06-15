@@ -1126,12 +1126,10 @@ function zTab(tab) {
   curZTab = tab;
   document.getElementById('ztab-turlar').classList.toggle('active', tab === 'turlar');
   document.getElementById('ztab-hisobot').classList.toggle('active', tab === 'hisobot');
-  document.getElementById('ztab-kurs').classList.toggle('active', tab === 'kurs');
   document.getElementById('zavod-turlar-cont').style.display = tab === 'turlar' ? 'block' : 'none';
   document.getElementById('zavod-hisobot-cont').style.display = tab === 'hisobot' ? 'block' : 'none';
-  document.getElementById('zavod-kurs-cont').style.display = tab === 'kurs' ? 'block' : 'none';
+  var kursEl = document.getElementById('zavod-kurs-cont'); if(kursEl) kursEl.style.display = 'none';
   if (tab === 'hisobot') renderZavodHisobot();
-  if (tab === 'kurs') zKursRender();
 }
 
 function renderHomeKurs() {
