@@ -1756,7 +1756,7 @@ function renderHome() {
   if (curHomeTab === 'hisobot') renderHisobot();
 }
 
-function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); renderZavod(); }
+function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); zTab('turlar'); renderZavod(); }
 function renderHisobot() {
   var cont = document.getElementById('home-hisobot');
   var allOps = [];
