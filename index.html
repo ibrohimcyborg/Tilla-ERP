@@ -3233,7 +3233,7 @@ function openKlientDetail(ki) {
     var bVal=hasBerish?'1':'0';
     tHTML+='<div style="display:flex;align-items:center;gap:5px;">';
     tHTML+='<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:600;color:'+jCol+';">'+jSign+fmtG(jamiG)+'g</div>';
-    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
+    tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-soat="'+(g.soat||'')+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
     tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
     tHTML+='<button class="kochir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">🗑</button>';
     tHTML+='</div></div>';
@@ -5177,11 +5177,12 @@ function klientQarzChekPrint(ki) {
 function klientChekBtn(el) {
   var ki=parseInt(el.dataset.ki);
   var sana=el.dataset.sana;
+  var soat=el.dataset.soat||'';
   var isBerish=el.dataset.berish==='1';
-  klientChekBasit(ki, sana, isBerish);
+  klientChekBasit(ki, sana, soat, isBerish);
 }
 
-function klientChekBasit(ki, sana, isBerish) {
+function klientChekBasit(ki, sana, soat, isBerish) {
   var k = data.klientlar[ki];
   var ops = k.tarix.filter(function(op){
     return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
@@ -5233,11 +5234,58 @@ function klientChekBasit(ki, sana, isBerish) {
   });
   Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
 
-  var payload={tip:'klient_chek',klient_nom:k.nom,sana:sana,ops_grouped:ops_grouped,qarz_tarkib:qarz_tarkib};
-  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-  .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
-  .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})
-  .catch(function(e){alert('PDF xato: '+e.message);});
+  var W=48;
+  function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
+  function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
+  var LINE=Array(W+1).join('-');
+
+  var t=center('HISOB')+'\n'+LINE+'\n';
+  t+=center(k.nom)+'\n';
+  t+=center(sana+(soat?' - '+soat:''))+'\n'+LINE+'\n';
+
+  var jamiSumma=0;
+  ops_grouped.forEach(function(b){
+    if(b.tolov_g>0){
+      var left='  '+(b.zavod&&b.tur?b.zavod+'  '+b.tur:'');
+      var right=fmtG(b.tolov_g)+'g x '+(b.tolov_kurs||0)+' = '+fmtD(b.tolov_summa)+'#';
+      var sp=W-left.length-right.length;if(sp<1)sp=1;
+      t+=left+Array(sp+1).join(' ')+right+'\n';
+      jamiSumma+=b.tolov_summa||0;
+    }
+    if(b.vozvrat_g>0){
+      t+='  Vozvrat '+(b.zavod||'')+' '+( b.tur||'')+' '+fmtG(b.vozvrat_g)+'g\n';
+    }
+  });
+
+  t+=LINE+'\n';
+  if(jamiSumma>0) t+=rjust("Jami to'landi",fmtD(jamiSumma)+'#')+'\n';
+
+  // Qolgan qarz
+  var joriyQarz=0;
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') joriyQarz+=op.gramm;
+    else if(op.tip==='vozvrat') joriyQarz-=op.gramm;
+    else if(op.tip==='tolov') joriyQarz-=(op.ekvivalent||0);
+  });
+  joriyQarz=Math.max(0,Math.round(joriyQarz*100)/100);
+  t+=rjust('Qolgan qarz',fmtG(joriyQarz)+'g')+'\n';
+
+  // QARZ TARKIBI
+  if(qarz_tarkib.length){
+    t+=LINE+'\n'+center('QARZ TARKIBI')+'\n';
+    qarz_tarkib.forEach(function(b){
+      t+='  '+b.zavod+'\n';
+      t+='    '+b.tur+Array(W-4-b.tur.length-fmtG(b.qarz).length-1+1).join(' ')+fmtG(b.qarz)+'g\n';
+    });
+  }
+
+  t+=LINE+'\n';
+  // DUBLIKAT — kichik
+  var now2=new Date();
+  var dubSoat=String(now2.getHours()).padStart(2,'0')+':'+String(now2.getMinutes()).padStart(2,'0');
+  t+=center('DUBLIKAT · '+sana+(soat?' '+soat:'')+' ('+dubSoat+')')+'\n\n\n';
+
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 
 function klientPDF(){
