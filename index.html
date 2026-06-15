@@ -829,6 +829,14 @@ body.rol-zavod #main-klient { display: none !important; }
         <div id="kt-vozvrat-list"></div>
       </div>
       <div id="kt-jami" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:8px;border-left:2px solid var(--gold);display:none;"></div>
+      <div id="kt-skidka-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:8px 12px;margin-top:8px;border-left:2px solid var(--red-bd);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:var(--muted);">Skidka</span>
+          <input type="number" id="kt-skidka" placeholder="0" oninput="kTolovCalc()" style="width:70px;border:none;background:transparent;font-size:14px;color:var(--red);text-align:right;outline:none;">
+          <span style="font-size:12px;color:var(--muted);">$</span>
+          <span id="kt-skidka-hint" style="font-size:11px;color:var(--muted);margin-left:4px;"></span>
+        </div>
+      </div>
       <div id="kt-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:10px;margin-top:8px;">
         <div id="kt-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
@@ -3670,8 +3678,10 @@ function openKlientTolov(){
   document.getElementById('kt-sel').style.display='none';
   document.getElementById('kt-sana').value=nowDate();
   document.getElementById('kt-turlar-cont').style.display='none';
-  var ki=document.getElementById('kt-kat-info'); if(ki) ki.style.display='none';
+  var ki2=document.getElementById('kt-kat-info'); if(ki2) ki2.style.display='none';
   var cg=document.getElementById('kt-c-global'); if(cg) cg.style.display='none';
+  var skBl=document.getElementById('kt-skidka-blok'); if(skBl) skBl.style.display='none';
+  var skInp=document.getElementById('kt-skidka'); if(skInp) skInp.value='';
   document.getElementById('modal-ktolov').classList.add('open');
   setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
@@ -3924,6 +3934,21 @@ function kTolovCalc(){
       jEl.innerHTML=txt;jEl.style.display='block';
     } else jEl.style.display='none';
   }
+  // skidka
+  var jamiSummaKt=0;
+  var bd2=window._kTolovBD||{}; var idx2=0;
+  Object.keys(bd2).forEach(function(key){
+    var b=bd2[key]; if(b.qarz<=0){idx2++;return;}
+    var s=parseNum((document.getElementById('kt-s-'+idx2)||{}).value||0);
+    jamiSummaKt+=s; idx2++;
+  });
+  var autoSkKt=Math.round((jamiSummaKt-Math.floor(jamiSummaKt))*100)/100;
+  var skBlKt=document.getElementById('kt-skidka-blok');
+  var skHint=document.getElementById('kt-skidka-hint');
+  var manSkKt=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  if(skBlKt) skBlKt.style.display=jamiSummaKt>0?'block':'none';
+  if(skHint&&autoSkKt>0&&manSkKt<=0) skHint.textContent='auto: '+fmtD(autoSkKt)+'$';
+  else if(skHint) skHint.textContent='';
   kTolovChekUpd();
 }
 
@@ -4054,6 +4079,21 @@ function saqlashKlientTolov(){
     idx++;
   });
   if(hasErr){ alert('Ortiqcha tolov kiritilgan! Kurs yoki summani tekshiring.'); return; }
+  // skidka hisoblash
+  var _ktSkidkaMan=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  var _ktJamiRaw=0;
+  var _tmpIdx=0;
+  Object.keys(bd).forEach(function(key){
+    var b=bd[key];if(b.qarz<=0){_tmpIdx++;return;}
+    var s=parseNum((document.getElementById('kt-s-'+_tmpIdx)||{}).value||0);
+    var kurs=parseNum((document.getElementById('kt-k-'+_tmpIdx)||{}).value||0);
+    var gInp=parseNum((document.getElementById('kt-g-'+_tmpIdx)||{}).value||0);
+    if(gInp>0&&kurs>0&&s<=0) s=Math.round(gInp*kurs*100)/100;
+    _ktJamiRaw+=s; _tmpIdx++;
+  });
+  var _ktAutoSk=Math.round((_ktJamiRaw-Math.floor(_ktJamiRaw))*100)/100;
+  var _ktSkidka=_ktSkidkaMan>0?_ktSkidkaMan:_ktAutoSk;
+
   idx=0;
   var ops_grouped=[];
   Object.keys(bd).forEach(function(key){
@@ -4062,15 +4102,18 @@ function saqlashKlientTolov(){
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
     var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
     if (gInp > 0 && kurs > 0 && s <= 0) s = Math.round(gInp * kurs * 100) / 100;
+    // skidkani proportsional ayirish
+    var sSk=_ktSkidka>0&&_ktJamiRaw>0?Math.round(_ktSkidka*(s/_ktJamiRaw)*100)/100:0;
+    var sNet=Math.max(0,Math.round((s-sSk)*100)/100);
     var vEl=document.getElementById('kt-v-'+idx);
     var v=parseNum((vEl||{}).value||0);
     var zi=vEl?parseInt(vEl.dataset.zi):-1;
     var ti=vEl?parseInt(vEl.dataset.ti):-1;
     var eq=0;
-    if(s>0&&kurs>0){eq=roundG(s/kurs);var kirimN=getZavodNarx(b.zi,b.ti)||0;k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:s,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN});any=true;}
+    if(sNet>0&&kurs>0){eq=roundG(sNet/kurs);var kirimN=getZavodNarx(b.zi,b.ti)||0;k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:sNet,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN,skidka:sSk});any=true;}
     if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
     if(s>0||v>0){
-      ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:s,tolov_kurs:kurs});
+      ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:sNet,tolov_kurs:kurs});
     }
     idx++;
   });
@@ -4808,6 +4851,16 @@ function saqlashKlientSotuv() {
     });
   } catch(e) { return; }
   if (!any) { alert('Kamida 1 ta turga gramm kiriting!'); return; }
+  // skidka
+  var _skidkaVal = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
+  var _jamiSummaRaw = 0;
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+    _jamiSummaRaw+=s;
+  }); });
+  var _autoSk = Math.round((_jamiSummaRaw - Math.floor(_jamiSummaRaw))*100)/100;
+  var _skidka = _skidkaVal > 0 ? _skidkaVal : _autoSk;
+
   // Har bir tur uchun to'lovni zavod/tur bilan saqlash
   var naqtJami = 0;
   data.zavodlar.forEach(function(z, zi) {
@@ -4815,10 +4868,13 @@ function saqlashKlientSotuv() {
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       if (s > 0 && n > 0) {
-        var g = roundG(s / n);
+        // skidkani proportsional ayirish
+        var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
+        var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
+        var g = roundG(sNet / n);
         var kirimN2 = getZavodNarx(zi,ti)||0;
-        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:s, kurs:n, ekvivalent:g, kirimNarx:kirimN2});
-        naqtJami += s;
+        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk});
+        naqtJami += sNet;
       }
     });
   });
