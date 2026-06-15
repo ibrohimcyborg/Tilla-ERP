@@ -1765,7 +1765,7 @@ function renderHome() {
       + '<div><div class="zrow-name">' + z.nom + '</div>'
       + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
-      + '<div class="zrow-g" style="color:'+(zG<0?'var(--red)':zG===0?'var(--muted)':'var(--green)')+'">' + fmtG(zG) + ' g</div>'
+      + '<div class="zrow-g" style="color:'+(zG>0?'var(--red)':zG<0?'var(--green)':'var(--muted)')+'">' + fmtG(Math.abs(zG)) + ' g</div>'
       + '<div style="color:var(--muted);">›</div></div></div>';
   });
   list.innerHTML = out;
