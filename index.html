@@ -4247,8 +4247,15 @@ function kTolovChekUpd() {
   if(ktLomSatirlar.length){
     lines2.push(LINE);
     ktLomSatirlar.forEach(function(l){lines2.push(rjust('L',l.lg+'g x '+l.lk+' = '+fmtD(l.lp)+'#'));});
-    var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
-    var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  }
+  // N / K — lom bo'lsa ham bo'lmasa ham
+  var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
+  var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  var ktCbN=document.getElementById('kt-cb-naqt');
+  var ktCbK=document.getElementById('kt-cb-karta');
+  if(ktCbK&&ktCbK.textContent==='✓'&&!ktCbN||ktCbN&&ktCbN.textContent!=='✓'){
+    if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
+  } else {
     if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
     if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
   }
@@ -5287,6 +5294,19 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     lines2.push(LINE);
     lines2.push(rjust("Jami to'landi", fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
     lines2.push(rjust('', '('+fmtG(naqtJamiG)+' g)'));
+    // N / K qatorlari (lom bo'lmasa ham)
+    var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
+    var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+    var cbN0=document.getElementById('ks-cb-naqt');
+    var cbK0=document.getElementById('ks-cb-karta');
+    var hasN = cbN0&&cbN0.textContent==='✓';
+    var hasK = cbK0&&cbK0.textContent==='✓';
+    if((hasN||hasK) && (hasN&&hasK || _kbPrev0>0)){
+      if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
+      if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
+    } else if(hasK && !hasN && _kbPrev0>0){
+      lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
+    }
     lines2.push(LINE);
   }
 
