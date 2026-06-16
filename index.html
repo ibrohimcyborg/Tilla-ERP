@@ -4823,7 +4823,6 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqt, kurs, lomPulJami, voz
   lines2.push(rjust('Jami', fmtD(jamiTolovPul)+'#'));
   if (skidkaPul > 0.001) lines2.push(rjust('Skidka', '- '+fmtG(skidkaPul)+'#'));
   lines2.push(rjust('Tolov (yaxlit)', fmtD(tolovYaxlit)+'#'));
-  lines2.push(rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g'));
   lines2.push(LINE);
   lines2.push(rjust('Qolgan qarz', fmtG(finQarz)+' g'));
   if (ki >= 0) {
@@ -5033,7 +5032,6 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     var skidka = skidkaMan > 0 ? skidkaMan : 0;
     if (skidka > 0.001) t += rjust('Skidka', '- '+fmtD(skidka)+'#')+'\n';
     t += rjust("Jami to'landi", fmtD(Math.max(0, jamiTolovPul-skidka))+'#')+'\n';
-    t += rjust('= gramm', fmtG(Math.round(jamiTolovG*100)/100)+' g')+'\n';
   }
   // naqt
   var naqtJami2 = naqt;
