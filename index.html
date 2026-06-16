@@ -5105,7 +5105,15 @@ function ksSotuvToggleTolov(tip) {
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';if(!on)inpK.value='';}
+    if(inpK){
+      inpK.disabled=!on;
+      inpK.style.opacity=on?'1':'0.4';
+      if(!on){ inpK.value=''; }
+      // Naqt o'chiq, karta yoniq bo'lsa — naqt qiymatini kartaga ko'chir
+      else if(cbN.textContent!=='✓' && inpN && inpN.value){
+        inpK.value=inpN.value; inpN.value='';
+      }
+    }
   }
   kSotuvNaqtBerildiUpd();
 }
@@ -5126,7 +5134,14 @@ function ktToggleTolov(tip) {
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';if(!on)inpK.value='';}
+    if(inpK){
+      inpK.disabled=!on;
+      inpK.style.opacity=on?'1':'0.4';
+      if(!on){ inpK.value=''; }
+      else if(cbN.textContent!=='✓' && inpN && inpN.value){
+        inpK.value=inpN.value; inpN.value='';
+      }
+    }
   }
   kTolovCalc();
 }
