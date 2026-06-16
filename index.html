@@ -2226,6 +2226,7 @@ function renderZavodKassa() {
 
 function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
+  var cont = document.getElementById('zavod-hisobot-cont');
   var allOps = [];
   z.turlar.forEach(function(t){ t.tarix.forEach(function(op){ allOps.push({tur:t.nom, op:op}); }); });
   if (!allOps.length) { cont.innerHTML = '<div class="empty">Hali tarix yoq.</div>'; return; }
