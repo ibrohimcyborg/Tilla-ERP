@@ -4960,10 +4960,6 @@ function kSotuvCalc() {
   if (naqtTolovPul > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
-    if (nbEl && !nbEl.dataset.userEdited) {
-      nbEl.value = kerakliNaqt;
-      nbEl.dataset.userEdited = '';
-    }
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
