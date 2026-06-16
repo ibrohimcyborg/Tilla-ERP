@@ -437,6 +437,7 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="nav-tabs">
     <div class="nav-tab active" id="ztab-turlar" onclick="zTab('turlar')">Turlar</div>
     <div class="nav-tab" id="ztab-hisobot" onclick="zTab('hisobot')">Hisobot</div>
+    <div class="nav-tab" id="ztab-kassa" onclick="zTab('kassa')">Kassa</div>
   </div>
   <div id="zavod-turlar-cont">
     <div id="zavod-tur-list"></div>
@@ -447,6 +448,7 @@ body.rol-zavod #main-klient { display: none !important; }
     </div>
   </div>
   <div id="zavod-hisobot-cont" style="display:none;"></div>
+  <div id="zavod-kassa-cont" style="display:none;"></div>
   <div id="zavod-kurs-cont" style="display:none;">
     <!-- Kurs kiritish -->
     <div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">
@@ -1211,10 +1213,13 @@ function zTab(tab) {
   curZTab = tab;
   document.getElementById('ztab-turlar').classList.toggle('active', tab === 'turlar');
   document.getElementById('ztab-hisobot').classList.toggle('active', tab === 'hisobot');
+  document.getElementById('ztab-kassa').classList.toggle('active', tab === 'kassa');
   document.getElementById('zavod-turlar-cont').style.display = tab === 'turlar' ? 'block' : 'none';
   document.getElementById('zavod-hisobot-cont').style.display = tab === 'hisobot' ? 'block' : 'none';
+  document.getElementById('zavod-kassa-cont').style.display = tab === 'kassa' ? 'block' : 'none';
   var kursEl = document.getElementById('zavod-kurs-cont'); if(kursEl) kursEl.style.display = 'none';
   if (tab === 'hisobot') renderZavodHisobot();
+  if (tab === 'kassa') renderZavodKassa();
 }
 
 function renderHomeKurs() {
@@ -2070,9 +2075,157 @@ function ochirZavod() {
   renderHome();
 }
 
+function renderZavodKassa() {
+  var cont = document.getElementById('zavod-kassa-cont');
+  if (!cont) return;
+  var z = data.zavodlar[curZ];
+  if (!z) return;
+
+  // Zavod turlariga tegishli barcha tolov operatsiyalarini yig'amiz
+  var allOps = [];
+  (data.klientlar||[]).forEach(function(k, ki) {
+    k.tarix.forEach(function(op) {
+      if (op.tip !== 'tolov') return;
+      if (!op.zavod || !op.tur) return;
+      if (op.zavod !== z.nom) return;
+      var foyda = op.kirimNarx && op.ekvivalent
+        ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100
+        : 0;
+      allOps.push({
+        sana: op.sana, soat: op.soat||'',
+        knom: k.nom, kat: k.kat||'A',
+        tur: op.tur,
+        gramm: op.ekvivalent||0,
+        kurs: op.kurs||0,
+        summa: op.summa||0,
+        kirimNarx: op.kirimNarx||0,
+        foyda: foyda
+      });
+    });
+  });
+
+  if (!allOps.length) {
+    cont.innerHTML = '<div class="empty">Bu zavoddan hali sotuv yo\'q</div>';
+    return;
+  }
+
+  // Jami statistika
+  var jamiSumma=0, jamiGramm=0, jamiFoyda=0;
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
+  jamiFoyda = Math.round(jamiFoyda*100)/100;
+
+  // Kunlar bo'yicha guruhlash
+  var byDay={}, dayOrder=[];
+  allOps.forEach(function(o){
+    if(!byDay[o.sana]){ byDay[o.sana]=[]; dayOrder.push(o.sana); }
+    byDay[o.sana].push(o);
+  });
+  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  dayOrder.sort(function(a,b){return b.localeCompare(a);});
+
+  // Tur bo'yicha jami
+  var byTur={};
+  allOps.forEach(function(o){
+    if(!byTur[o.tur]) byTur[o.tur]={tur:o.tur,gramm:0,summa:0,foyda:0,count:0};
+    byTur[o.tur].gramm+=o.gramm;
+    byTur[o.tur].summa+=o.summa;
+    byTur[o.tur].foyda+=o.foyda;
+    byTur[o.tur].count++;
+  });
+
+  var html = '';
+
+  // Umumiy statistika
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">SOTUVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>';
+  html += '<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+$'+fmtD(jamiFoyda)+'</div></div>';
+  html += '</div>';
+
+  // Tur bo'yicha breakdown
+  html += '<div style="background:var(--surf2);border-radius:12px;padding:10px 12px;margin-bottom:12px;">';
+  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Tur bo\'yicha</div>';
+  Object.values(byTur).forEach(function(t){
+    var tFoyda=Math.round(t.foyda*100)/100;
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+    html += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.tur+'</div>';
+    html += '<div style="display:flex;gap:12px;align-items:center;">';
+    html += '<span style="font-size:11px;color:var(--muted);">'+fmtG(Math.round(t.gramm*100)/100)+'g</span>';
+    html += '<span style="font-size:12px;color:var(--gold);">$'+fmtD(Math.round(t.summa*100)/100)+'</span>';
+    html += '<span style="font-size:12px;color:var(--green);font-weight:500;">+$'+fmtD(tFoyda)+'</span>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // Kun bo'yicha
+  var expZ = {};
+  function zKassaRender() {
+    var out = html;
+    dayOrder.forEach(function(sana){
+      var ops = byDay[sana];
+      var daySumma=0, dayFoyda=0, dayGramm=0;
+      ops.forEach(function(o){ daySumma+=o.summa; dayFoyda+=o.foyda; dayGramm+=o.gramm; });
+      dayFoyda=Math.round(dayFoyda*100)/100;
+      dayGramm=Math.round(dayGramm*100)/100;
+
+      out += '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">';
+      out += '<span>'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span>  <span style="color:var(--muted);">'+fmtG(dayGramm)+'g</span></span>';
+      out += '<span style="color:var(--green);font-size:11px;">+$'+fmtD(dayFoyda)+'</span></div>';
+
+      // Kun turlar bo'yicha guruhlash
+      var byTurDay={};
+      ops.forEach(function(o){
+        if(!byTurDay[o.tur]) byTurDay[o.tur]={tur:o.tur,ops:[],gramm:0,summa:0,foyda:0};
+        byTurDay[o.tur].ops.push(o);
+        byTurDay[o.tur].gramm+=o.gramm;
+        byTurDay[o.tur].summa+=o.summa;
+        byTurDay[o.tur].foyda+=o.foyda;
+      });
+
+      var expKey=sana;
+      var isOpen=expZ[expKey];
+
+      out += '<div class="hrow" style="margin-bottom:8px;cursor:pointer;" onclick="zKassaToggle(\''+expKey+'\')">';
+      out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      out += '<div style="display:grid;grid-template-columns:repeat('+Object.keys(byTurDay).length+',1fr);gap:6px;flex:1;">';
+      Object.values(byTurDay).forEach(function(td){
+        var tdF=Math.round(td.foyda*100)/100;
+        out += '<div><div style="font-size:12px;font-weight:600;color:var(--text);">'+td.tur+'</div>';
+        out += '<div style="font-size:11px;color:var(--muted);">'+fmtG(Math.round(td.gramm*100)/100)+'g · $'+fmtD(Math.round(td.summa*100)/100)+'</div>';
+        out += '<div style="font-size:11px;color:var(--green);">+$'+fmtD(tdF)+'</div></div>';
+      });
+      out += '</div></div>';
+
+      if(isOpen){
+        out += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+        out += '<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+        out += '<div>Klient</div><div>Tur</div><div>Gramm</div><div>Narx</div><div style="color:var(--green);">Foyda</div></div>';
+        ops.forEach(function(o){
+          var oF=Math.round(o.foyda*100)/100;
+          out += '<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:6px;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
+          out += '<div style="color:var(--text);">'+o.knom+'</div>';
+          out += '<div style="color:var(--muted);">'+o.tur+'</div>';
+          out += '<div style="color:var(--muted);">'+fmtG(o.gramm)+'g</div>';
+          out += '<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
+          if(o.kirimNarx) out += '<div style="font-size:10px;color:var(--muted);">kirim: '+fmtD(o.kirimNarx)+'</div>';
+          out += '</div>';
+          out += '<div style="color:var(--green);text-align:right;">'+(oF>0?'+$'+fmtD(oF):'—')+'</div>';
+          out += '</div>';
+        });
+        out += '</div>';
+      }
+      out += '</div>';
+    });
+    cont.innerHTML = out;
+  }
+
+  window.zKassaToggle = function(key){ expZ[key]=!expZ[key]; zKassaRender(); };
+  zKassaRender();
+}
+
 function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
-  var cont = document.getElementById('zavod-hisobot-cont');
   var allOps = [];
   z.turlar.forEach(function(t){ t.tarix.forEach(function(op){ allOps.push({tur:t.nom, op:op}); }); });
   if (!allOps.length) { cont.innerHTML = '<div class="empty">Hali tarix yoq.</div>'; return; }
@@ -2661,7 +2814,12 @@ function klientQarzHolat(k) {
 }
 function klientJamiQarz(k) {
   var q=0;
-  k.tarix.forEach(function(op){ if(op.tip==='berish') q+=op.gramm; else if(op.tip==='vozvrat') q-=op.gramm; else if(op.tip==='tolov') q-=(op.ekvivalent||0); });
+  k.tarix.forEach(function(op){
+    if(op.tip==='berish') q+=op.gramm;
+    else if(op.tip==='vozvrat') q-=op.gramm;
+    else if(op.tip==='tolov') q-=(op.ekvivalent||0);
+    else if(op.tip==='klientda') q-=op.gramm; // biz unga qarzdormiz
+  });
   return Math.round(q*100)/100;
 }
 function klientJamiSavdo(k) {
@@ -3403,15 +3561,17 @@ function openKlientDetail(ki) {
     var hasTolov=g.tip==='tolov';
     var hasVozvrat=g.tip==='vozvrat';
     var hasBerish=g.tip==='berish';
-    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
-    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':'↩ Vozvrat';
-    var lcolor=hasBerish?'var(--red)':hasTolov?'var(--blue)':'var(--gold)';
+    var hasKlientda=g.tip==='klientda';
+    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':hasKlientda?'var(--purple)':'var(--gold)';
+    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':hasKlientda?'↩ Bizda qolsin':'↩ Vozvrat';
+    var lcolor=bc;
 
     var jamiG=0;
     g.ops.forEach(function(op){
       if(op.tip==='berish') jamiG+=op.gramm;
       else if(op.tip==='vozvrat') jamiG+=op.gramm;
       else if(op.tip==='tolov') jamiG+=(op.ekvivalent||0);
+      else if(op.tip==='klientda') jamiG+=op.gramm;
     });
     // manfiy berish = biz klientga qarzimiz = yashil +
     var isNegBerish = hasBerish && jamiG < 0;
@@ -3925,6 +4085,15 @@ function kTolovKlientChange(){
       var key=op.zavod+'||'+op.tur;
       if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
       breakdown[key].qarz-=(op.ekvivalent||0);
+    } else if(op.tip==='klientda'){
+      // biz unga qarzdormiz — qarzdan ayiramiz
+      if(op.zavod&&op.tur){
+        var key=op.zavod+'||'+op.tur;
+        if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
+        breakdown[key].qarz-=op.gramm;
+      } else {
+        // umumiy — barcha turlarga proportsional (klientJamiQarz avtomatik hisobga oladi)
+      }
     }
   });
   data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){var key=z.nom+'||'+t.nom;if(breakdown[key]){breakdown[key].zi=zi;breakdown[key].ti=ti;}});});
@@ -5151,10 +5320,27 @@ function kSotuvCalc() {
     var optsHTML = '';
     // Sdacha
     var isSdacha = !taqsimTanlov || taqsimTanlov.tip === 'sdacha';
+    var isBizda = taqsimTanlov && taqsimTanlov.tip === 'bizda';
     optsHTML += '<div onclick="ksSotuvTanlovSet(\'sdacha\')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSdacha?'var(--green-bd)':'var(--border)')+';background:'+(isSdacha?'var(--green-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
     optsHTML += '<div style="width:12px;height:12px;border-radius:50%;background:'+(isSdacha?'var(--green)':'transparent')+';border:1.5px solid '+(isSdacha?'var(--green)':'var(--muted)')+'"></div>';
     optsHTML += '<div style="flex:1;font-size:13px;font-weight:600;color:'+(isSdacha?'var(--green)':'var(--text)')+';">Sdacha — naqt qaytarish</div>';
     optsHTML += '<div style="font-size:12px;color:'+(isSdacha?'var(--green)':'var(--muted)')+';">'+fmtD(ortiqcha)+'$</div>';
+    optsHTML += '</div>';
+    // Bizda qolsin
+    var ortiqchaGrBizda = '—';
+    var kursAvg = 0;
+    var naqtSumT=0, naqtGT=0;
+    data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+      var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+      var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+      if(s>0&&n>0){naqtSumT+=s;naqtGT+=s/n;}
+    });});
+    kursAvg = naqtGT>0 ? Math.round(naqtSumT/naqtGT*10)/10 : 0;
+    if(kursAvg>0) ortiqchaGrBizda = fmtG(roundG(ortiqcha/kursAvg));
+    optsHTML += '<div onclick="ksSotuvTanlovSet(\'bizda\',\'\',\'\',0,0,'+kursAvg+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isBizda?'var(--blue-bd)':'var(--border)')+';background:'+(isBizda?'var(--blue-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
+    optsHTML += '<div style="width:12px;height:12px;border-radius:50%;background:'+(isBizda?'var(--blue)':'transparent')+';border:1.5px solid '+(isBizda?'var(--blue)':'var(--muted)')+'"></div>';
+    optsHTML += '<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isBizda?'var(--blue)':'var(--text)')+';">Bizda qolsin</div>';
+    optsHTML += '<div style="font-size:10px;color:var(--muted);">'+fmtD(ortiqcha)+'$ ÷ '+(kursAvg||'?')+'$/g = −'+ortiqchaGrBizda+'g → biz unga qarzdor bo\'lamiz</div></div>';
     optsHTML += '</div>';
     // Har bir tur (qarzda bo'lsa)
     var qarzMap = {};
@@ -5584,10 +5770,14 @@ function saqlashKlientSotuv() {
   // Ortiqchani turga o'tkazish (tur tanlangan bo'lsa)
   if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'tur' && _ortiqchaTanlov.narx > 0) {
     var ortG = roundG(_ortiqcha / _ortiqchaTanlov.narx);
-    // Tolov sifatida saqla (ekvivalent gramm)
     var kirimN3 = getZavodNarx(_ortiqchaTanlov.zi, _ortiqchaTanlov.ti)||0;
     k.tarix.push({tip:'tolov', sana:sana, zavod:_ortiqchaTanlov.zavod, tur:_ortiqchaTanlov.tur,
       summa:_ortiqcha, kurs:_ortiqchaTanlov.narx, ekvivalent:ortG, kirimNarx:kirimN3, lomOrtiqcha:true});
+  }
+  // Bizda qolsin — klientda tip sifatida saqlash
+  if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'bizda' && _ortiqchaTanlov.narx > 0) {
+    var bizdaG = roundG(_ortiqcha / _ortiqchaTanlov.narx);
+    k.tarix.push({tip:'klientda', sana:sana, gramm:bizdaG, summa:_ortiqcha, kurs:_ortiqchaTanlov.narx});
   }
   // Sdacha bo'lsa — hech narsa saqlanmaydi (faqat chekda ko'rinadi)
   var vozlar = [];
@@ -5859,8 +6049,15 @@ function _qarzTarkib(ki) {
         if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
         qbd[key].qarz-=(op.ekvivalent||0);
       } else {
-        // zavod/tur siz tolov — umumiy qarzdan ayiramiz
         naqtTolov+=(op.ekvivalent||0);
+      }
+    } else if(op.tip==='klientda'){
+      if(op.zavod&&op.tur){
+        var key=op.zavod+'||'+op.tur;
+        if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
+        qbd[key].qarz-=op.gramm;
+      } else {
+        naqtTolov+=op.gramm;
       }
     }
   });
