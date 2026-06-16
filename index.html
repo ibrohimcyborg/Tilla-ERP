@@ -2081,146 +2081,175 @@ function renderZavodKassa() {
   var z = data.zavodlar[curZ];
   if (!z) return;
 
-  // Zavod turlariga tegishli barcha tolov operatsiyalarini yig'amiz
   var allOps = [];
-  (data.klientlar||[]).forEach(function(k, ki) {
+  (data.klientlar||[]).forEach(function(k) {
     k.tarix.forEach(function(op) {
       if (op.tip !== 'tolov') return;
-      if (!op.zavod || !op.tur) return;
-      if (op.zavod !== z.nom) return;
+      if (!op.zavod || !op.tur || op.zavod !== z.nom) return;
       var foyda = op.kirimNarx && op.ekvivalent
-        ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100
-        : 0;
-      allOps.push({
-        sana: op.sana, soat: op.soat||'',
-        knom: k.nom, kat: k.kat||'A',
-        tur: op.tur,
-        gramm: op.ekvivalent||0,
-        kurs: op.kurs||0,
-        summa: op.summa||0,
-        kirimNarx: op.kirimNarx||0,
-        foyda: foyda
-      });
+        ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100 : 0;
+      allOps.push({sana:op.sana, soat:op.soat||'', knom:k.nom,
+        tur:op.tur, gramm:op.ekvivalent||0, kurs:op.kurs||0,
+        summa:op.summa||0, kirimNarx:op.kirimNarx||0, foyda:foyda});
     });
   });
 
-  if (!allOps.length) {
-    cont.innerHTML = '<div class="empty">Bu zavoddan hali sotuv yo\'q</div>';
-    return;
-  }
+  if (!allOps.length) { cont.innerHTML = '<div class="empty">Bu zavoddan hali sotuv yo\'q</div>'; return; }
 
-  // Jami statistika
   var jamiSumma=0, jamiGramm=0, jamiFoyda=0;
   allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
-  jamiFoyda = Math.round(jamiFoyda*100)/100;
+  jamiFoyda=Math.round(jamiFoyda*100)/100;
+  jamiGramm=Math.round(jamiGramm*100)/100;
 
-  // Kunlar bo'yicha guruhlash
   var byDay={}, dayOrder=[];
   allOps.forEach(function(o){
     if(!byDay[o.sana]){ byDay[o.sana]=[]; dayOrder.push(o.sana); }
     byDay[o.sana].push(o);
   });
-  dayOrder = dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
-  // Tur bo'yicha jami
   var byTur={};
   allOps.forEach(function(o){
-    if(!byTur[o.tur]) byTur[o.tur]={tur:o.tur,gramm:0,summa:0,foyda:0,count:0};
-    byTur[o.tur].gramm+=o.gramm;
-    byTur[o.tur].summa+=o.summa;
-    byTur[o.tur].foyda+=o.foyda;
-    byTur[o.tur].count++;
+    if(!byTur[o.tur]) byTur[o.tur]={tur:o.tur,gramm:0,summa:0,foyda:0};
+    byTur[o.tur].gramm+=o.gramm; byTur[o.tur].summa+=o.summa; byTur[o.tur].foyda+=o.foyda;
   });
+  var turlar = Object.values(byTur);
 
-  var html = '';
-
-  // Umumiy statistika
-  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">';
-  html += '<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
-  html += '<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
-  html += '<div class="stat2-item"><div class="stat2-label">SOTUVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+allOps.length+' ta</div></div>';
-  html += '<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+$'+fmtD(jamiFoyda)+'</div></div>';
+  // Umumiy stat
+  var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(Math.round(jamiSumma*100)/100)+'</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">SOTUVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+allOps.length+' ta</div></div>';
+  html += '<div class="stat2-item" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+$'+fmtD(jamiFoyda)+'</div></div>';
   html += '</div>';
 
-  // Tur bo'yicha breakdown
-  html += '<div style="background:var(--surf2);border-radius:12px;padding:10px 12px;margin-bottom:12px;">';
-  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Tur bo\'yicha</div>';
-  Object.values(byTur).forEach(function(t){
-    var tFoyda=Math.round(t.foyda*100)/100;
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
-    html += '<div style="font-size:13px;font-weight:500;color:var(--text);">'+t.tur+'</div>';
-    html += '<div style="display:flex;gap:12px;align-items:center;">';
-    html += '<span style="font-size:11px;color:var(--muted);">'+fmtG(Math.round(t.gramm*100)/100)+'g</span>';
-    html += '<span style="font-size:12px;color:var(--gold);">$'+fmtD(Math.round(t.summa*100)/100)+'</span>';
-    html += '<span style="font-size:12px;color:var(--green);font-weight:500;">+$'+fmtD(tFoyda)+'</span>';
-    html += '</div></div>';
+  // Diagramma + tur jadvali
+  html += '<div style="background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">';
+  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Tur bo\'yicha tahlil</div>';
+  html += '<div style="display:flex;gap:12px;margin-bottom:8px;font-size:11px;color:var(--muted);">';
+  html += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--gold);display:inline-block;"></span>Summa ($)</span>';
+  html += '<span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block;"></span>Foyda ($)</span>';
+  html += '</div>';
+  html += '<div style="position:relative;width:100%;height:'+(Math.max(160, turlar.length*52))+'px;margin-bottom:12px;">';
+  html += '<canvas id="zk-chart" role="img" aria-label="Tur boyicha sotuv va foyda">Tur boyicha sotuv diagrammasi</canvas></div>';
+
+  // Tur jadvali
+  html += '<div style="display:grid;grid-template-columns:1fr 60px 70px 60px 70px;gap:4px;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+  html += '<div>Tur</div><div style="text-align:right;">Gramm</div><div style="text-align:right;">Summa</div><div style="text-align:right;">Kirim</div><div style="text-align:right;color:var(--green);">Foyda</div></div>';
+  turlar.forEach(function(t){
+    var tF=Math.round(t.foyda*100)/100;
+    var tS=Math.round(t.summa*100)/100;
+    var tG=Math.round(t.gramm*100)/100;
+    var avgKirim = t.gramm>0 ? Math.round(((tS-tF)/tG)*10)/10 : 0;
+    html += '<div style="display:grid;grid-template-columns:1fr 60px 70px 60px 70px;gap:4px;font-size:13px;padding:6px 0;border-bottom:0.5px solid var(--border);align-items:center;">';
+    html += '<div style="font-weight:500;color:var(--text);">'+t.tur+'</div>';
+    html += '<div style="text-align:right;color:var(--muted);font-size:12px;">'+fmtG(tG)+'g</div>';
+    html += '<div style="text-align:right;color:var(--gold);font-size:12px;">$'+fmtD(tS)+'</div>';
+    html += '<div style="text-align:right;color:var(--muted);font-size:11px;">'+(avgKirim||'—')+'$</div>';
+    html += '<div style="text-align:right;color:var(--green);font-weight:500;font-size:12px;">+$'+fmtD(tF)+'</div>';
+    html += '</div>';
   });
   html += '</div>';
 
-  // Kun bo'yicha
+  // Kun bo'yicha accordion
   var expZ = {};
   function zKassaRender() {
-    var out = html;
+    var dayHtml = '';
     dayOrder.forEach(function(sana){
-      var ops = byDay[sana];
-      var daySumma=0, dayFoyda=0, dayGramm=0;
-      ops.forEach(function(o){ daySumma+=o.summa; dayFoyda+=o.foyda; dayGramm+=o.gramm; });
+      var ops=byDay[sana];
+      var daySumma=0,dayFoyda=0,dayGramm=0;
+      ops.forEach(function(o){daySumma+=o.summa;dayFoyda+=o.foyda;dayGramm+=o.gramm;});
       dayFoyda=Math.round(dayFoyda*100)/100;
       dayGramm=Math.round(dayGramm*100)/100;
-
-      out += '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">';
-      out += '<span>'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span>  <span style="color:var(--muted);">'+fmtG(dayGramm)+'g</span></span>';
-      out += '<span style="color:var(--green);font-size:11px;">+$'+fmtD(dayFoyda)+'</span></div>';
-
-      // Kun turlar bo'yicha guruhlash
       var byTurDay={};
       ops.forEach(function(o){
         if(!byTurDay[o.tur]) byTurDay[o.tur]={tur:o.tur,ops:[],gramm:0,summa:0,foyda:0};
         byTurDay[o.tur].ops.push(o);
-        byTurDay[o.tur].gramm+=o.gramm;
-        byTurDay[o.tur].summa+=o.summa;
-        byTurDay[o.tur].foyda+=o.foyda;
+        byTurDay[o.tur].gramm+=o.gramm; byTurDay[o.tur].summa+=o.summa; byTurDay[o.tur].foyda+=o.foyda;
       });
-
-      var expKey=sana;
-      var isOpen=expZ[expKey];
-
-      out += '<div class="hrow" style="margin-bottom:8px;cursor:pointer;" onclick="zKassaToggle(\''+expKey+'\')">';
-      out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-      out += '<div style="display:grid;grid-template-columns:repeat('+Object.keys(byTurDay).length+',1fr);gap:6px;flex:1;">';
-      Object.values(byTurDay).forEach(function(td){
+      var isOpen=expZ[sana];
+      dayHtml += '<div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">';
+      dayHtml += '<span>'+sana+'</span>';
+      dayHtml += '<span><span style="color:var(--gold);">$'+fmtD(Math.round(daySumma*100)/100)+'</span> · <span style="color:var(--muted);">'+fmtG(dayGramm)+'g</span> · <span style="color:var(--green);">+$'+fmtD(dayFoyda)+'</span></span></div>';
+      dayHtml += '<div class="hrow" style="margin-bottom:8px;cursor:pointer;border-left:3px solid var(--gold-bd);" onclick="zKassaToggle(\''+sana+'\')">';
+      // Tur mini cards
+      var turKeys=Object.keys(byTurDay);
+      dayHtml += '<div style="display:grid;grid-template-columns:repeat('+Math.min(turKeys.length,3)+',1fr);gap:8px;">';
+      turKeys.forEach(function(tur){
+        var td=byTurDay[tur];
         var tdF=Math.round(td.foyda*100)/100;
-        out += '<div><div style="font-size:12px;font-weight:600;color:var(--text);">'+td.tur+'</div>';
-        out += '<div style="font-size:11px;color:var(--muted);">'+fmtG(Math.round(td.gramm*100)/100)+'g · $'+fmtD(Math.round(td.summa*100)/100)+'</div>';
-        out += '<div style="font-size:11px;color:var(--green);">+$'+fmtD(tdF)+'</div></div>';
+        dayHtml += '<div>';
+        dayHtml += '<div style="font-size:12px;font-weight:500;color:var(--text);">'+td.tur+'</div>';
+        dayHtml += '<div style="font-size:11px;color:var(--muted);">'+fmtG(Math.round(td.gramm*100)/100)+'g · $'+fmtD(Math.round(td.summa*100)/100)+'</div>';
+        dayHtml += '<div style="font-size:11px;color:var(--green);">+$'+fmtD(tdF)+'</div>';
+        dayHtml += '</div>';
       });
-      out += '</div></div>';
-
+      dayHtml += '</div>';
+      // Ochilgan detail
       if(isOpen){
-        out += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
-        out += '<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
-        out += '<div>Klient</div><div>Tur</div><div>Gramm</div><div>Narx</div><div style="color:var(--green);">Foyda</div></div>';
+        dayHtml += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
+        dayHtml += '<div style="display:grid;grid-template-columns:1fr 55px 55px 70px 65px;gap:4px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+        dayHtml += '<div>Klient</div><div style="text-align:right;">Tur</div><div style="text-align:right;">g</div><div style="text-align:right;">Narx</div><div style="text-align:right;color:var(--green);">Foyda</div></div>';
         ops.forEach(function(o){
           var oF=Math.round(o.foyda*100)/100;
-          out += '<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:6px;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
-          out += '<div style="color:var(--text);">'+o.knom+'</div>';
-          out += '<div style="color:var(--muted);">'+o.tur+'</div>';
-          out += '<div style="color:var(--muted);">'+fmtG(o.gramm)+'g</div>';
-          out += '<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
-          if(o.kirimNarx) out += '<div style="font-size:10px;color:var(--muted);">kirim: '+fmtD(o.kirimNarx)+'</div>';
-          out += '</div>';
-          out += '<div style="color:var(--green);text-align:right;">'+(oF>0?'+$'+fmtD(oF):'—')+'</div>';
-          out += '</div>';
+          dayHtml += '<div style="display:grid;grid-template-columns:1fr 55px 55px 70px 65px;gap:4px;align-items:start;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
+          dayHtml += '<div style="color:var(--text);">'+o.knom+'</div>';
+          dayHtml += '<div style="text-align:right;color:var(--muted);">'+o.tur+'</div>';
+          dayHtml += '<div style="text-align:right;color:var(--muted);">'+fmtG(o.gramm)+'</div>';
+          dayHtml += '<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
+          if(o.kirimNarx) dayHtml += '<div style="font-size:10px;color:var(--muted);">k:'+fmtD(o.kirimNarx)+'</div>';
+          dayHtml += '</div>';
+          dayHtml += '<div style="text-align:right;color:'+(oF>0?'var(--green)':'var(--muted)')+';">'+(oF>0?'+$'+fmtD(oF):'—')+'</div>';
+          dayHtml += '</div>';
         });
-        out += '</div>';
+        dayHtml += '</div>';
       }
-      out += '</div>';
+      dayHtml += '</div>';
     });
-    cont.innerHTML = out;
+    cont.innerHTML = html + dayHtml;
+    // Chart.js
+    if(typeof Chart !== 'undefined') {
+      var canvas=document.getElementById('zk-chart');
+      if(canvas){
+        var labels=turlar.map(function(t){return t.tur;});
+        var sums=turlar.map(function(t){return Math.round(t.summa*100)/100;});
+        var foydas=turlar.map(function(t){return Math.round(t.foyda*100)/100;});
+        new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[
+          {label:'Summa',data:sums,backgroundColor:'#c9a84c',borderRadius:4,borderSkipped:false},
+          {label:'Foyda',data:foydas,backgroundColor:'#5ab87a',borderRadius:4,borderSkipped:false}
+        ]},options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{grid:{display:false},ticks:{color:'#666',font:{size:12}}},
+            y:{grid:{color:'rgba(100,100,100,0.1)'},ticks:{color:'#666',font:{size:11},callback:function(v){return '$'+v;}}}
+          }
+        }});
+      }
+    } else {
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      s.onload=function(){
+        var canvas=document.getElementById('zk-chart');
+        if(!canvas) return;
+        var labels=turlar.map(function(t){return t.tur;});
+        var sums=turlar.map(function(t){return Math.round(t.summa*100)/100;});
+        var foydas=turlar.map(function(t){return Math.round(t.foyda*100)/100;});
+        new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[
+          {label:'Summa',data:sums,backgroundColor:'#c9a84c',borderRadius:4,borderSkipped:false},
+          {label:'Foyda',data:foydas,backgroundColor:'#5ab87a',borderRadius:4,borderSkipped:false}
+        ]},options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{
+            x:{grid:{display:false},ticks:{color:'#666',font:{size:12}}},
+            y:{grid:{color:'rgba(100,100,100,0.1)'},ticks:{color:'#666',font:{size:11},callback:function(v){return '$'+v;}}}
+          }
+        }});
+      };
+      document.head.appendChild(s);
+    }
   }
-
-  window.zKassaToggle = function(key){ expZ[key]=!expZ[key]; zKassaRender(); };
+  window.zKassaToggle=function(key){expZ[key]=!expZ[key];zKassaRender();};
   zKassaRender();
 }
 
@@ -2899,11 +2928,39 @@ function renderKassa() {
   html+='<div></div>';
   html+='<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>';
   html+='</div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
   html+='<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+'$'+fmtD(jamiFoyda)+'</div></div>';
+  html+='</div>';
+
+  // Grafik bloki
+  html+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px;">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+  // Davr tugmalari
+  html+='<div style="display:flex;background:var(--surf2);border-radius:8px;padding:3px;gap:2px;" id="kassa-davr-tabs">';
+  ['kun','hafta','oy','yil'].forEach(function(d,i){
+    var lbl={kun:'Kun',hafta:'Hafta',oy:'Oy',yil:'Yil'}[d];
+    html+='<button onclick="kassaGrafikDavr(\''+d+'\')" id="kgd-'+d+'" style="padding:5px 10px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;'+(i===0?'background:var(--surf);color:var(--text);font-weight:600;':'background:transparent;color:var(--muted);')+'">'+lbl+'</button>';
+  });
+  html+='</div>';
+  // Grafik toggle
+  html+='<button onclick="kassaGrafikToggle()" id="kassa-grafik-btn" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;">📈 Grafik</button>';
+  html+='</div>';
+  // Grafik container (yopiq)
+  html+='<div id="kassa-grafik-cont" style="display:none;">';
+  html+='<div style="display:flex;gap:10px;margin-bottom:6px;font-size:11px;color:var(--muted);">';
+  html+='<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:1px;background:var(--gold);display:inline-block;"></span>Sotuv</span>';
+  html+='<span style="display:flex;align-items:center;gap:3px;"><span style="width:12px;border-top:2px dashed var(--green);display:inline-block;"></span>Foyda</span>';
+  html+='</div>';
+  html+='<div style="position:relative;width:100%;height:180px;"><canvas id="kassa-main-chart" role="img" aria-label="Sotuv va foyda dinamikasi">Sotuv va foyda grafigi</canvas></div>';
+  html+='</div>';
+  // Yopiq holda mini statistika
+  html+='<div id="kassa-mini-stat" style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">';
+  html+='<span>'+dayOrder.length+' kun · '+sessionOrder.length+' ta sotuv</span>';
+  html+='<span style="color:var(--green);">umumiy foyda: +$'+fmtD(jamiFoyda)+'</span>';
+  html+='</div>';
   html+='</div>';
 
   var expKassa={};
@@ -3034,6 +3091,117 @@ function kassaChek(ki, sana) {
   t += LINE+'\n';
   t += center('RAHMAT!')+'\n\n';
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
+}
+
+var _kassaGrafikOpen = false;
+var _kassaGrafikDavr = 'kun';
+var _kassaChart = null;
+
+function kassaGrafikToggle() {
+  _kassaGrafikOpen = !_kassaGrafikOpen;
+  var cont = document.getElementById('kassa-grafik-cont');
+  var mini = document.getElementById('kassa-mini-stat');
+  var btn = document.getElementById('kassa-grafik-btn');
+  if (!cont) return;
+  cont.style.display = _kassaGrafikOpen ? 'block' : 'none';
+  if (mini) mini.style.display = _kassaGrafikOpen ? 'none' : 'flex';
+  if (btn) { btn.style.background = _kassaGrafikOpen ? 'var(--green-bg)' : 'var(--surf2)'; btn.style.color = _kassaGrafikOpen ? 'var(--green)' : 'var(--muted)'; btn.style.borderColor = _kassaGrafikOpen ? 'var(--green-bd)' : 'var(--border)'; }
+  if (_kassaGrafikOpen) kassaGrafikChiz();
+}
+
+function kassaGrafikDavr(davr) {
+  _kassaGrafikDavr = davr;
+  ['kun','hafta','oy','yil'].forEach(function(d){
+    var btn = document.getElementById('kgd-'+d);
+    if (!btn) return;
+    if (d === davr) { btn.style.background='var(--surf)'; btn.style.color='var(--text)'; btn.style.fontWeight='600'; }
+    else { btn.style.background='transparent'; btn.style.color='var(--muted)'; btn.style.fontWeight='400'; }
+  });
+  if (_kassaGrafikOpen) kassaGrafikChiz();
+}
+
+function kassaGrafikChiz() {
+  var canvas = document.getElementById('kassa-main-chart');
+  if (!canvas) return;
+
+  // Ma'lumotlarni yig'amiz
+  var allOps = [];
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if (op.tip !== 'tolov') return;
+      var foyda = op.kirimNarx && op.ekvivalent ? Math.round((op.summa - op.kirimNarx*op.ekvivalent)*100)/100 : 0;
+      allOps.push({sana:op.sana, summa:op.summa||0, foyda:foyda});
+    });
+  });
+  if (!allOps.length) return;
+
+  // Sana parse
+  function sanaToDt(s){ var p=s.split('.'); return p.length===3?new Date(p[2]+'-'+p[1]+'-'+p[0]):new Date(s); }
+  function dtToKey(dt, davr){
+    var y=dt.getFullYear(), m=dt.getMonth(), d=dt.getDate();
+    if(davr==='kun') return String(d).padStart(2,'0')+'.'+String(m+1).padStart(2,'0')+'.'+y;
+    if(davr==='hafta'){ var w=Math.ceil(d/7); return y+' '+String(m+1).padStart(2,'0')+' H'+w; }
+    if(davr==='oy') return String(m+1).padStart(2,'0')+'.'+y;
+    if(davr==='yil') return String(y);
+  }
+  function keyToLbl(key, davr){
+    if(davr==='kun') return key.slice(0,5);
+    if(davr==='hafta') return key.slice(-2);
+    if(davr==='oy'){ var ms=['Yan','Feb','Mar','Apr','May','Iyn','Iyl','Avg','Sen','Okt','Noy','Dek']; var p=key.split('.'); return ms[parseInt(p[0])-1]; }
+    if(davr==='yil') return key;
+  }
+
+  var grouped = {};
+  var keyOrder = [];
+  allOps.forEach(function(o){
+    var dt = sanaToDt(o.sana);
+    var key = dtToKey(dt, _kassaGrafikDavr);
+    if (!grouped[key]) { grouped[key]={summa:0,foyda:0}; keyOrder.push(key); }
+    grouped[key].summa += o.summa;
+    grouped[key].foyda += o.foyda;
+  });
+  keyOrder = keyOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
+  keyOrder.sort();
+
+  var labels = keyOrder.map(function(k){ return keyToLbl(k, _kassaGrafikDavr); });
+  var summas = keyOrder.map(function(k){ return Math.round(grouped[k].summa*100)/100; });
+  var foydas = keyOrder.map(function(k){ return Math.round(grouped[k].foyda*100)/100; });
+
+  if (_kassaChart) { _kassaChart.destroy(); _kassaChart = null; }
+
+  function drawKassaChart() {
+    _kassaChart = new Chart(canvas, {
+      data: {
+        labels: labels,
+        datasets: [
+          {type:'bar', label:'Sotuv', data:summas, backgroundColor:'#c9a84c', borderRadius:4, borderSkipped:false, yAxisID:'y'},
+          {type:'line', label:'Foyda', data:foydas, borderColor:'#5ab87a', borderWidth:2.5, borderDash:[5,3], pointBackgroundColor:'#5ab87a', pointRadius:4, fill:false, yAxisID:'y2'}
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(ctx){ return (ctx.dataset.label==='Sotuv'?'Sotuv: $':'Foyda: $')+ctx.parsed.y.toLocaleString('en-US',{maximumFractionDigits:1}); }}}
+        },
+        scales:{
+          x:{grid:{display:false}, ticks:{color:'#666',font:{size:11},autoSkip:false,maxRotation:0}},
+          y:{position:'left', grid:{color:'rgba(100,100,100,0.1)'}, ticks:{color:'#888',font:{size:10},callback:function(v){return '$'+v;}}},
+          y2:{position:'right', grid:{display:false}, ticks:{color:'#5ab87a',font:{size:10},callback:function(v){return '+$'+v;}}}
+        }
+      }
+    });
+  }
+
+  if (typeof Chart !== 'undefined') {
+    drawKassaChart();
+  } else {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+    s.onload = drawKassaChart;
+    document.head.appendChild(s);
+  }
 }
 
 function kassaPDF() {
