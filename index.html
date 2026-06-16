@@ -955,22 +955,6 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="ks-lom-list"></div>
       <button onclick="kSotuvAddLom()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--gold-bd);background:transparent;color:var(--gold);font-size:12px;cursor:pointer;margin-bottom:8px;">+ Lom qo'shish</button>
 
-      <!-- Naqt berildi (faqat lom bo'lganda) -->
-      <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
-          <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <span style="font-size:12px;color:var(--muted);">Klient berdi (naqt)</span>
-          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:36px;">
-            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd()" autocomplete="off"
-              style="width:90px;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--green);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--green);">$</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Vozvrat -->
       <div id="ks-voz-cont"></div>
 
@@ -982,6 +966,22 @@ body.rol-zavod #main-klient { display: none !important; }
             <span style="font-size:12px;color:var(--red);">−</span>
             <input type="number" id="ks-skidka" placeholder="0" oninput="kSotuvCalc()" style="width:70px;border:none;background:transparent;font-size:14px;color:var(--red);text-align:right;outline:none;">
             <span style="font-size:11px;color:var(--red);">#</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Naqt berildi (faqat lom bo'lganda) -->
+      <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
+          <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span style="font-size:12px;color:var(--muted);">Klient berdi (naqt)</span>
+          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:36px;">
+            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
+              style="width:90px;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--green);text-align:right;outline:none;">
+            <span style="font-size:12px;color:var(--green);">$</span>
           </div>
         </div>
       </div>
@@ -4201,7 +4201,7 @@ function openKlientSotuv() {
   document.getElementById('ks-drop').innerHTML = '';
   document.getElementById('ks-new-blok').style.display = 'none';
   document.getElementById('ks-lom-list').innerHTML = '';
-  var nbEl = document.getElementById('ks-naqt-berildi'); if(nbEl) nbEl.value='';
+  var nbEl = document.getElementById('ks-naqt-berildi'); if(nbEl){ nbEl.value=''; nbEl.dataset.userEdited=''; }
   var nbBl = document.getElementById('ks-naqt-berildi-blok'); if(nbBl) nbBl.style.display='none';
   document.getElementById('ks-voz-cont').innerHTML = '';
   document.getElementById('ks-hisob').style.display = 'none';
@@ -4746,11 +4746,13 @@ function kSotuvCalc() {
   if (lomPulJami > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) knEl.textContent = fmtD(kerakliNaqt) + '$';
-    // Avtomatik to'ldirish — faqat input bo'sh bo'lsa
-    if (nbEl && !parseNum(nbEl.value)) nbEl.value = kerakliNaqt;
+    if (nbEl && !nbEl.dataset.userEdited) {
+      nbEl.value = kerakliNaqt;
+      nbEl.dataset.userEdited = '';
+    }
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
-    if (nbEl) nbEl.value = '';
+    if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
   }
 
   var naqtBerildi = lomPulJami > 0 ? (parseNum((nbEl||{}).value) || 0) : naqtTolovPul;
@@ -4788,14 +4790,13 @@ function kSotuvCalc() {
   // 12. Hisob bloki
   var hEl = document.getElementById('ks-hisob');
   var oldiG = oldilar.reduce(function(a,o){return a+o.gramm;}, 0);
+  // Naqt to'lov grammi
+  var naqtBerildiVal = lomPulJami > 0 ? naqtBerildi : naqtTolovPul;
+  var naqtG2 = tolovPul > 0 ? roundG(naqtBerildiVal / tolovPul * oldiG) : 0;
   if (naqtTolovPul > 0 || lomPulJami > 0 || vozJami > 0 || oldiG > 0) {
     hEl.style.display = 'block';
     var rows = '';
-    if (naqtTolovPul > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">To\'lov (naqt)</span><span>'+fmtD(naqtTolovPul)+'$</span></div>';
-    if (lomPulJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">Lom</span><span style="color:var(--gold);">'+fmtD(lomPulJami)+'$</span></div>';
-    if (ortiqcha > 0.01) {
-      rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--gold);">Ortiqcha</span><span style="color:var(--gold);font-weight:600;">+'+fmtD(ortiqcha)+'$</span></div>';
-    }
+    if (naqtBerildiVal > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">To\'lov (naqt)</span><span>'+fmtD(naqtBerildiVal)+'$ <span style="color:var(--muted);font-size:11px;">('+fmtG(naqtG2)+'g)</span></span></div>';
     if (vozJami > 0) rows += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:0.5px solid var(--border);"><span style="color:var(--muted);">Vozvrat</span><span style="color:var(--blue);">'+fmtG(vozJami)+'g</span></div>';
     rows += '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:5px 0;"><span>Qolgan qarz</span><span style="color:'+(finQarz>0?'var(--red)':'var(--green)')+';">'+fmtG(finQarz)+'g</span></div>';
     document.getElementById('ks-hisob-rows').innerHTML = rows;
