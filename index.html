@@ -1522,7 +1522,7 @@ function hkChekPrint(tip) {
     if (lom > 0) { lines.push(LINE); lines.push(rjust('Lom', String(lom))); }
   }
   lines.push(LINE);
-  var t = lines.join('\n')+'\n\n\n';
+  var t = lines.join('\n')+'\n\n';
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 function zKursRender() {
@@ -1680,7 +1680,7 @@ function zKursChekPrint() {
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
   var LINE = Array(W+1).join('-');
   var lines2 = [];
-  lines2.push(center('HISOB'));
+  lines2.push(''); lines2.push(center('HISOB'));
   lines2.push(LINE);
   lines2.push(sana+' - '+soat);
   lines2.push(LINE);
@@ -2707,7 +2707,7 @@ function kassaChek(ki, sana) {
   var DASH = Array(Math.floor(W/2)+1).join('-');
   var now = new Date();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  var t = center('HISOB')+'\n'+LINE+'\n';
+  var t = '\n'+center('HISOB')+'\n'+LINE+'\n';
   t += center(k.nom)+'\n';
   t += center(sana+' - '+soat)+'\n'+LINE+'\n';
   t += 'TOLOVLAR\n';
@@ -2723,7 +2723,7 @@ function kassaChek(ki, sana) {
   t += LINE+'\n';
   t += rjust('Jami', fmtD(jamiSumma)+'#')+'\n';
   t += LINE+'\n';
-  t += center('RAHMAT!')+'\n\n\n';
+  t += center('RAHMAT!')+'\n\n';
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 
@@ -4001,7 +4001,7 @@ function kTolovChekUpd() {
   var sana = (document.getElementById('kt-sana').value||'').split('-').reverse().join('.');
   var now = new Date();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  lines2.push(center('HISOB'));
+  lines2.push(''); lines2.push(center('HISOB'));
   lines2.push(LINE);
   lines2.push(center(kNom));
   lines2.push(center(sana+' - '+soat));
@@ -4157,7 +4157,7 @@ function saqlashKlientTolov(){
   var chekEl = document.getElementById('kt-chek-body');
   if (chekEl && chekEl.textContent.trim()) {
     fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:chekEl.textContent+'\n\n\n'})}).catch(printXato);
+      body:JSON.stringify({text:chekEl.textContent+'\n\n'})}).catch(printXato);
   }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();renderKassa();
@@ -4718,8 +4718,10 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Ortiqcha — faqat lom bo'lganda va jami kelgan pul sotuv narxidan oshsa
-  var ortiqcha = (lomPulJami > 0) ? Math.max(0, Math.round((jamiTolovPul - tolovPul) * 100) / 100) : 0;
+  // 7. Ortiqcha — lom sotuv qoldiqidan (tolovPul - naqtTolovPul) oshsa
+  // Ya'ni: lom$ - (sotuv narxi - naqt to'lov) = ortiqcha
+  var qolganTolov = Math.max(0, Math.round((tolovPul - naqtTolovPul) * 100) / 100);
+  var ortiqcha = (lomPulJami > 0) ? Math.max(0, Math.round((lomPulJami - qolganTolov) * 100) / 100) : 0;
 
   // 8. Naqt to'lov grammini hisoblash (faqat kst inputlaridan, lom emas)
   var naqtTolovG = 0;
@@ -4904,7 +4906,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
   }
   var LINE = Array(W+1).join('-');
   var lines2 = [];
-  lines2.push(center('HISOB'));
+  lines2.push(''); lines2.push(center('HISOB'));
   lines2.push(LINE);
   lines2.push(center(kNom));
   var _now1=new Date(); var _soat1=String(_now1.getHours()).padStart(2,'0')+':'+String(_now1.getMinutes()).padStart(2,'0');
@@ -5118,12 +5120,12 @@ function saqlashKlientSotuv() {
     _naqtTolovPulSave+=s;
   }); });
 
-  // Ortiqcha hisoblash
-  var _tolovPulSave = Math.max(0, Math.round((_naqtTolovPulSave + _lomPulJamiSave) * 100) / 100);
+  // Ortiqcha hisoblash: lom qancha qolgan to'lovdan oshdi
   var _jamiSotuvPulSave = oldilar.reduce(function(a,o){return a+o.pul;},0);
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
   var _sotuvPulNet = Math.max(0, Math.round((_jamiSotuvPulSave - _skidka2)*100)/100);
-  var _ortiqcha = (_lomPulJamiSave > 0) ? Math.max(0, Math.round((_tolovPulSave - _sotuvPulNet)*100)/100) : 0;
+  var _qolganTolovSave = Math.max(0, Math.round((_sotuvPulNet - _naqtTolovPulSave)*100)/100);
+  var _ortiqcha = (_lomPulJamiSave > 0) ? Math.max(0, Math.round((_lomPulJamiSave - _qolganTolovSave)*100)/100) : 0;
 
   // Ortiqchani turga o'tkazish (tur tanlangan bo'lsa)
   if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'tur' && _ortiqchaTanlov.narx > 0) {
@@ -5166,7 +5168,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   var LINE = Array(W+1).join('-') + '\n';
   var DASH = Array(Math.floor(W/2)+1).join('-') + '\n';
   var t = '';
-  t += center('HISOB')+'\n';
+  t += '\n'+center('HISOB')+'\n';
   t += LINE;
   t += center(k.nom)+'\n';
   var _now2=new Date(); var _soat2=String(_now2.getHours()).padStart(2,'0')+':'+String(_now2.getMinutes()).padStart(2,'0');
@@ -5210,10 +5212,10 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     });
     t += LINE;
     t += rjust('Lom jami', fmtD(lomPulJami2)+'#')+'\n';
-    // Ortiqcha
+    // Ortiqcha: lom - (sotuv - naqt to'lov) = lom qancha oshdi
     var _sotuvNet2 = Math.max(0, Math.round((oldilar.reduce(function(a,o){return a+o.pul;},0) - skidka)*100)/100);
-    var _jamiKeldi = Math.round((naqtTolovPul2 + lomPulJami2)*100)/100;
-    var _ortiqcha2 = Math.max(0, Math.round((_jamiKeldi - _sotuvNet2)*100)/100);
+    var _qolgan2 = Math.max(0, Math.round((_sotuvNet2 - naqtTolovPul2)*100)/100);
+    var _ortiqcha2 = Math.max(0, Math.round((lomPulJami2 - _qolgan2)*100)/100);
     if (_ortiqcha2 > 0.01) {
       var _tanlov2 = window._ksSotuvOrtiqchaTanlov || null;
       if (_tanlov2 && _tanlov2.tip === 'tur') {
@@ -5239,7 +5241,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     });
   }
   t += LINE;
-  t += center('RAHMAT!')+'\n\n\n';
+  t += center('RAHMAT!')+'\n\n';
   for (var i = 0; i < cnt; i++) {
     (function(idx){ setTimeout(function(){
       fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
@@ -5440,7 +5442,7 @@ function klientQarzChekPrint(ki) {
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
   var LINE=Array(W+1).join('-')+'\n';
   var SEP=Array(Math.floor(W/2)+1).join('-')+'\n';
-  var chekText=center('HISOB')+'\n';
+  var chekText='\n'+center('HISOB')+'\n';
   chekText+=center('- QARZ CHEKI -')+'\n';
   chekText+=LINE;
   chekText+=center(d.k.nom)+'\n';
@@ -5531,7 +5533,7 @@ function klientChekBasit(ki, sana, soat, isBerish) {
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
   var LINE=Array(W+1).join('-');
 
-  var t=center('HISOB')+'\n'+LINE+'\n';
+  var t='\n'+center('HISOB')+'\n'+LINE+'\n';
   t+=center(k.nom)+'\n';
   t+=center(sana+(soat?' - '+soat:''))+'\n'+LINE+'\n';
 
@@ -5575,7 +5577,7 @@ function klientChekBasit(ki, sana, soat, isBerish) {
   // DUBLIKAT — kichik
   var now2=new Date();
   var dubSoat=String(now2.getHours()).padStart(2,'0')+':'+String(now2.getMinutes()).padStart(2,'0');
-  t+=center('DUBLIKAT · '+sana+(soat?' '+soat:'')+' ('+dubSoat+')')+'\n\n\n';
+  t+=center('DUBLIKAT · '+sana+(soat?' '+soat:'')+' ('+dubSoat+')')+'\n\n';
 
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
