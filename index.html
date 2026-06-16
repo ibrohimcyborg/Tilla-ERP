@@ -4128,7 +4128,7 @@ function kTolovCalc(){
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok');
   var ktNbEl=document.getElementById('kt-naqt-berildi');
   var ktKnEl=document.getElementById('kt-kerakli-naqt');
-  if(ktLomPulJami>0){
+  if(jamiSummaKt>0){
     if(ktNbBlok) ktNbBlok.style.display='block';
     if(ktKnEl) ktKnEl.textContent=fmtD(ktKerakli)+'$';
     if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli;
@@ -4932,12 +4932,12 @@ function kSotuvCalc() {
   // 7. Kerakli naqt va ortiqcha — kst inputlar yig'indisidan lom va skidka ayiriladi
   var kerakliNaqt = Math.max(0, Math.round((naqtTolovPul - lomPulJami - skidka) * 100) / 100);
 
-  // Naqt berildi bloki — faqat lom bo'lganda
+  // Naqt berildi bloki — doim ko'rinadi (lom bo'lsa kerakli naqt, bo'lmasa to'liq summa)
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
   var nbEl = document.getElementById('ks-naqt-berildi');
   var nbKEl = document.getElementById('ks-karta-berildi');
   var knEl = document.getElementById('ks-kerakli-naqt');
-  if (lomPulJami > 0) {
+  if (naqtTolovPul > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) knEl.textContent = fmtD(kerakliNaqt) + '$';
     if (nbEl && !nbEl.dataset.userEdited) {
@@ -4950,10 +4950,10 @@ function kSotuvCalc() {
     if (nbKEl) { nbKEl.value = ''; }
   }
 
-  var naqtVal = lomPulJami > 0 ? (parseNum((nbEl||{}).value) || 0) : naqtTolovPul;
-  var kartaVal = lomPulJami > 0 ? (parseNum((nbKEl||{}).value) || 0) : 0;
+  var naqtVal = parseNum((nbEl||{}).value) || 0;
+  var kartaVal = parseNum((nbKEl||{}).value) || 0;
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
-  var ortiqcha = (lomPulJami > 0 && naqtBerildi > kerakliNaqt)
+  var ortiqcha = naqtBerildi > kerakliNaqt
     ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
     : 0;
 
