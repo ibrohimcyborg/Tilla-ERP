@@ -4131,7 +4131,7 @@ function kTolovCalc(){
   var ktKnEl=document.getElementById('kt-kerakli-naqt');
   if(jamiSummaKt>0){
     if(ktNbBlok) ktNbBlok.style.display='block';
-    if(ktKnEl) ktKnEl.textContent=fmtD(ktKerakli)+'$';
+    if(ktKnEl){ktKnEl.textContent=fmtD(ktKerakli)+'$';ktKnEl.dataset.val=ktKerakli;}
     if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli;
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
@@ -4955,7 +4955,7 @@ function kSotuvCalc() {
   var knEl = document.getElementById('ks-kerakli-naqt');
   if (naqtTolovPul > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
-    if (knEl) knEl.textContent = fmtD(kerakliNaqt) + '$';
+    if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
     if (nbEl && !nbEl.dataset.userEdited) {
       nbEl.value = kerakliNaqt;
       nbEl.dataset.userEdited = '';
@@ -5130,7 +5130,7 @@ function ksSotuvToggleTolov(tip) {
   var cbK=document.getElementById('ks-cb-karta');
   var inpN=document.getElementById('ks-naqt-berildi');
   var inpK=document.getElementById('ks-karta-berildi');
-  var kerakli=parseNum((document.getElementById('ks-kerakli-naqt')||{}).textContent)||0;
+  var kerakli=parseFloat((document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.val||0)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
@@ -5163,7 +5163,7 @@ function ktToggleTolov(tip) {
   var cbK=document.getElementById('kt-cb-karta');
   var inpN=document.getElementById('kt-naqt-berildi');
   var inpK=document.getElementById('kt-karta-berildi');
-  var kerakli=parseNum((document.getElementById('kt-kerakli-naqt')||{}).textContent)||0;
+  var kerakli=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.val||0)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
