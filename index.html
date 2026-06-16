@@ -879,6 +879,13 @@ body.rol-zavod #main-klient { display: none !important; }
         <div id="kt-sdacha-opts"></div>
       </div>
       <div id="kt-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:10px;margin-top:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+          <div onclick="ktChekToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <div id="kt-chek-sw" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
+            <span style="font-size:12px;color:var(--muted);" id="kt-chek-toggle-lbl">Chek chiqarish</span>
+          </div>
+        </div>
         <div id="kt-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
     </div>
@@ -1069,11 +1076,9 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="ks-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
-          <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <span style="font-size:12px;color:var(--muted);" id="ks-chek-toggle-lbl">🖨 chiqarish</span>
-            <div id="ks-chek-sw" style="width:36px;height:20px;background:var(--green);border-radius:20px;position:relative;transition:.2s;flex-shrink:0;">
-              <div id="ks-chek-sw-dot" style="position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:18px;transition:.2s;"></div>
-            </div>
+          <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <div id="ks-chek-sw" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
+            <span style="font-size:12px;color:var(--muted);" id="ks-chek-toggle-lbl">Chek chiqarish</span>
           </div>
         </div>
         <div id="ks-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--border);overflow:hidden;"></div>
@@ -3814,6 +3819,7 @@ function openKlientTolov(){
   var ktTaqsim=document.getElementById('kt-sdacha-taqsim'); if(ktTaqsim) ktTaqsim.style.display='none';
   window._ktLomIdx=0;
   window._ktSdachaTanlov=null;
+  _ktChekOn=true;
   document.getElementById('modal-ktolov').classList.add('open');
   setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
@@ -4353,7 +4359,7 @@ function saqlashKlientTolov(){
   if(!any){alert('Tolov yoki vozvrat kiriting!');return;}
   save('Klient tolov: '+k.nom);
   var chekEl = document.getElementById('kt-chek-body');
-  if (chekEl && chekEl.textContent.trim()) {
+  if (_ktChekOn && chekEl && chekEl.textContent.trim()) {
     fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text:chekEl.textContent+'\n\n'})}).catch(printXato);
   }
@@ -4508,17 +4514,22 @@ var _ksChekOn = true;
 function ksChekToggle() {
   _ksChekOn = !_ksChekOn;
   var sw=document.getElementById('ks-chek-sw');
-  var dot=document.getElementById('ks-chek-sw-dot');
   var lbl=document.getElementById('ks-chek-toggle-lbl');
-  if(_ksChekOn){
-    sw.style.background='var(--green)';
-    dot.style.left='18px';
-    lbl.textContent='🖨 chiqarish';
-  } else {
-    sw.style.background='var(--muted)';
-    dot.style.left='2px';
-    lbl.textContent='🚫 chiqarmaydi';
-  }
+  sw.style.background=_ksChekOn?'var(--green)':'transparent';
+  sw.style.borderColor=_ksChekOn?'var(--green-bd)':'var(--border)';
+  sw.textContent=_ksChekOn?'✓':'';
+  lbl.textContent=_ksChekOn?'Chek chiqarish':'Chek chiqarmaydi';
+}
+
+var _ktChekOn = true;
+function ktChekToggle() {
+  _ktChekOn = !_ktChekOn;
+  var sw=document.getElementById('kt-chek-sw');
+  var lbl=document.getElementById('kt-chek-toggle-lbl');
+  sw.style.background=_ktChekOn?'var(--green)':'transparent';
+  sw.style.borderColor=_ktChekOn?'var(--green-bd)':'var(--border)';
+  sw.textContent=_ktChekOn?'✓':'';
+  lbl.textContent=_ktChekOn?'Chek chiqarish':'Chek chiqarmaydi';
 }
 
 function ksSotuvCntChg(d) {
