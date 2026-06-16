@@ -4217,8 +4217,26 @@ function kTolovChekUpd() {
   });
 
   lines2.push(LINE);
-  lines2.push(rjust('Jami to\'landi', fmtD(Math.round(jamiPul*100)/100)+'#'));
-  lines2.push(rjust('= gramm', fmtG(Math.round(jamiG*100)/100)+'g'));
+  var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  lines2.push(rjust('Jami to\'landi', fmtD(Math.max(0,Math.round((jamiPul-manSkKt2)*100)/100))+'#'));
+  lines2.push(rjust('', '('+fmtG(Math.round(jamiG*100)/100)+'g)'));
+  // LOM bloki
+  var ktLomSatirlar=[];var ktLomJami=0;
+  document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
+    var i=el.id.split('-')[2];
+    var lg=parseNum((document.getElementById('kt-lg-'+i)||{}).value)||0;
+    var lk=parseNum((document.getElementById('kt-lk-'+i)||{}).value)||0;
+    if(lg>0&&lk>0){var lp=Math.round(lg*lk*100)/100;ktLomSatirlar.push({lg:lg,lk:lk,lp:lp});ktLomJami+=lp;}
+  });
+  if(ktLomSatirlar.length){
+    lines2.push(LINE);
+    ktLomSatirlar.forEach(function(l){lines2.push(rjust('L',l.lg+'g x '+l.lk+' = '+fmtD(l.lp)+'#'));});
+    var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
+    var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+    if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
+    if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
+  }
+  lines2.push(LINE);
   if (k) {
     var joriyQarz = 0;
     k.tarix.forEach(function(op){
