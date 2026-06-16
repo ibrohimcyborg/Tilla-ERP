@@ -2551,15 +2551,41 @@ function snapOchir(id) {
 }
 function doLogout(){ localStorage.removeItem('tilla-auth'); localStorage.removeItem('tilla-rol'); document.cookie='tilla-auth=;max-age=0;path=/'; location.reload(); }
 function skidkaGrammTuzat() {
-  // Skidka bo'lgan eski operatsiyalarda gramm sNet/kurs bilan hisoblangan
+  // 1. Skidka bo'lgan eski operatsiyalarda gramm sNet/kurs bilan hisoblangan
   // To'g'risi: gramm = to'liq summa (sNet + skidka) / kurs
   var tuzatildi = 0;
   (data.klientlar||[]).forEach(function(k) {
+    // Yetim skidka tolovlarini topib o'chirish:
+    // zavod/tur yo'q, summa kichik, skidka operatsiyasi bilan bir sana/soatda
+    // Avval skidkali operatsiyalar sanalarini yig'amiz
+    var skidkaOps = [];
+    k.tarix.forEach(function(op) {
+      if (op.tip === 'tolov' && op.skidka && op.skidka > 0 && op.zavod && op.tur) {
+        skidkaOps.push({sana: op.sana, soat: op.soat||'', skidka: op.skidka});
+      }
+    });
+    // Yetim qatorlarni o'chirish (zavod/tur yo'q, sana/soat mos keladi)
+    var ochiriladigan = [];
+    k.tarix.forEach(function(op, oi) {
+      if (op.tip !== 'tolov') return;
+      if (op.zavod || op.tur) return; // zavod/tur bor — normal tolov
+      if (!op.summa || op.summa <= 0) return;
+      // Bu sana/soatda skidkali operatsiya bormi?
+      var mos = skidkaOps.find(function(s) {
+        return s.sana === op.sana && (s.soat||'') === (op.soat||'');
+      });
+      if (mos) ochiriladigan.push(oi);
+    });
+    // Orqadan o'chirish
+    ochiriladigan.reverse().forEach(function(oi) {
+      k.tarix.splice(oi, 1);
+      tuzatildi++;
+    });
+    // 2. Gramm tuzatish
     k.tarix.forEach(function(op) {
       if (op.tip !== 'tolov') return;
       if (!op.skidka || op.skidka <= 0) return;
       if (!op.kurs || op.kurs <= 0) return;
-      // To'liq summa = sNet + skidka
       var toliqSumma = Math.round((op.summa + op.skidka) * 100) / 100;
       var togriGramm = roundG(toliqSumma / op.kurs);
       if (Math.abs(togriGramm - (op.ekvivalent||0)) > 0.001) {
@@ -5537,7 +5563,10 @@ function saqlashKlientSotuv() {
   });
   var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
   var kurs2 = parseNum(document.getElementById('ks-kurs').value) || 0;
-  var qolganNaqt = Math.round((naqt - naqtJami) * 100) / 100;
+  // naqtJami = sNet lar yig'indisi (skidka ayirilgan), naqt = kst inputlar yig'indisi (skidkasiz)
+  // Farq faqat haqiqiy "qolgan" bo'lsa (skidkadan keyin ham farq bor bo'lsa) saqlash
+  var _skidkaJami = _skidka > 0 ? _skidka : 0;
+  var qolganNaqt = Math.round((naqt - naqtJami - _skidkaJami) * 100) / 100;
   if (qolganNaqt > 0.01 && kurs2 > 0) {
     var qolganG = roundG(qolganNaqt / kurs2);
     k.tarix.push({tip:'tolov', sana:sana, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
