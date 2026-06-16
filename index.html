@@ -5226,6 +5226,11 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     });
     lines2.push(LINE);
     lines2.push(rjust('Lom jami', fmtD(lomJami)+'#'));
+    // N K qatorlari
+    var _nbPrev = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
+    var _kbPrev = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+    if(_nbPrev>0) lines2.push(rjust('N', fmtD(_nbPrev)+'#'));
+    if(_kbPrev>0) lines2.push(rjust('K', fmtD(_kbPrev)+'#'));
     // Ortiqcha / sdacha
     if (ortiqcha > 0.01) {
       if (taqsimTanlov && taqsimTanlov.tip === 'tur') {
