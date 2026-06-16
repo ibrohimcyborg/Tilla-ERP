@@ -3124,82 +3124,136 @@ function kassaGrafikChiz() {
   var canvas = document.getElementById('kassa-main-chart');
   if (!canvas) return;
 
-  // Ma'lumotlarni yig'amiz
   var allOps = [];
   (data.klientlar||[]).forEach(function(k){
     k.tarix.forEach(function(op){
       if (op.tip !== 'tolov') return;
-      var foyda = op.kirimNarx && op.ekvivalent ? Math.round((op.summa - op.kirimNarx*op.ekvivalent)*100)/100 : 0;
+      var foyda = op.kirimNarx && op.ekvivalent
+        ? Math.round((op.summa - op.kirimNarx*op.ekvivalent)*100)/100 : 0;
       allOps.push({sana:op.sana, summa:op.summa||0, foyda:foyda});
     });
   });
   if (!allOps.length) return;
 
-  // Sana parse
-  function sanaToDt(s){ var p=s.split('.'); return p.length===3?new Date(p[2]+'-'+p[1]+'-'+p[0]):new Date(s); }
-  function dtToKey(dt, davr){
-    var y=dt.getFullYear(), m=dt.getMonth(), d=dt.getDate();
-    if(davr==='kun') return String(d).padStart(2,'0')+'.'+String(m+1).padStart(2,'0')+'.'+y;
-    if(davr==='hafta'){ var w=Math.ceil(d/7); return y+' '+String(m+1).padStart(2,'0')+' H'+w; }
-    if(davr==='oy') return String(m+1).padStart(2,'0')+'.'+y;
-    if(davr==='yil') return String(y);
-  }
-  function keyToLbl(key, davr){
-    if(davr==='kun') return key.slice(0,5);
-    if(davr==='hafta') return key.slice(-2);
-    if(davr==='oy'){ var ms=['Yan','Feb','Mar','Apr','May','Iyn','Iyl','Avg','Sen','Okt','Noy','Dek']; var p=key.split('.'); return ms[parseInt(p[0])-1]; }
-    if(davr==='yil') return key;
+  function sanaToDt(s){
+    var p=s.split('.');
+    return p.length===3 ? new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])) : new Date(s);
   }
 
-  var grouped = {};
-  var keyOrder = [];
-  allOps.forEach(function(o){
-    var dt = sanaToDt(o.sana);
-    var key = dtToKey(dt, _kassaGrafikDavr);
-    if (!grouped[key]) { grouped[key]={summa:0,foyda:0}; keyOrder.push(key); }
-    grouped[key].summa += o.summa;
-    grouped[key].foyda += o.foyda;
-  });
-  keyOrder = keyOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
-  keyOrder.sort();
+  var now = new Date();
+  var labels=[], summas=[], foydas=[];
 
-  var labels = keyOrder.map(function(k){ return keyToLbl(k, _kassaGrafikDavr); });
-  var summas = keyOrder.map(function(k){ return Math.round(grouped[k].summa*100)/100; });
-  var foydas = keyOrder.map(function(k){ return Math.round(grouped[k].foyda*100)/100; });
+  if (_kassaGrafikDavr === 'kun') {
+    // Oxirgi 14 kun
+    var kunMap={};
+    allOps.forEach(function(o){ kunMap[o.sana]=(kunMap[o.sana]||{s:0,f:0}); kunMap[o.sana].s+=o.summa; kunMap[o.sana].f+=o.foyda; });
+    var keys=Object.keys(kunMap).sort();
+    keys.slice(-14).forEach(function(k){
+      var p=k.split('.'); labels.push(p[0]+'.'+p[1]);
+      summas.push(Math.round(kunMap[k].s*100)/100);
+      foydas.push(Math.round(kunMap[k].f*100)/100);
+    });
 
-  if (_kassaChart) { _kassaChart.destroy(); _kassaChart = null; }
+  } else if (_kassaGrafikDavr === 'hafta') {
+    // Joriy hafta: Du-Ya (7 kun)
+    var dow=now.getDay()||7; // 1=Du ... 7=Ya
+    var weekDays=[];
+    for(var i=1;i<=7;i++){
+      var d=new Date(now); d.setDate(now.getDate()-dow+i);
+      var dd=String(d.getDate()).padStart(2,'0');
+      var mm=String(d.getMonth()+1).padStart(2,'0');
+      var yy=d.getFullYear();
+      weekDays.push({key:dd+'.'+mm+'.'+yy, lbl:['Du','Se','Ch','Pa','Ju','Sh','Ya'][i-1]});
+    }
+    var kunMap={};
+    allOps.forEach(function(o){ kunMap[o.sana]=(kunMap[o.sana]||{s:0,f:0}); kunMap[o.sana].s+=o.summa; kunMap[o.sana].f+=o.foyda; });
+    weekDays.forEach(function(wd){
+      labels.push(wd.lbl);
+      summas.push(Math.round(((kunMap[wd.key]||{s:0}).s)*100)/100);
+      foydas.push(Math.round(((kunMap[wd.key]||{f:0}).f)*100)/100);
+    });
 
-  function drawKassaChart() {
+  } else if (_kassaGrafikDavr === 'oy') {
+    // Joriy oy: 1-kundan oxirigacha
+    var y=now.getFullYear(), m=now.getMonth();
+    var daysInMonth=new Date(y,m+1,0).getDate();
+    var kunMap={};
+    allOps.forEach(function(o){ kunMap[o.sana]=(kunMap[o.sana]||{s:0,f:0}); kunMap[o.sana].s+=o.summa; kunMap[o.sana].f+=o.foyda; });
+    for(var d=1;d<=daysInMonth;d++){
+      var dd=String(d).padStart(2,'0');
+      var mm2=String(m+1).padStart(2,'0');
+      var key=dd+'.'+mm2+'.'+y;
+      labels.push(d%5===1||d===daysInMonth?String(d):'');
+      summas.push(Math.round(((kunMap[key]||{s:0}).s)*100)/100);
+      foydas.push(Math.round(((kunMap[key]||{f:0}).f)*100)/100);
+    }
+
+  } else if (_kassaGrafikDavr === 'yil') {
+    // Joriy yil: 12 oy
+    var y2=now.getFullYear();
+    var oyMap={};
+    allOps.forEach(function(o){
+      var p=o.sana.split('.');
+      if(parseInt(p[2])!==y2) return;
+      var mk=p[1]; // '01'..'12'
+      oyMap[mk]=(oyMap[mk]||{s:0,f:0});
+      oyMap[mk].s+=o.summa; oyMap[mk].f+=o.foyda;
+    });
+    var oyNom=['Yan','Feb','Mar','Apr','May','Iyn','Iyl','Avg','Sen','Okt','Noy','Dek'];
+    for(var i=0;i<12;i++){
+      var mk2=String(i+1).padStart(2,'0');
+      labels.push(oyNom[i]);
+      summas.push(Math.round(((oyMap[mk2]||{s:0}).s)*100)/100);
+      foydas.push(Math.round(((oyMap[mk2]||{f:0}).f)*100)/100);
+    }
+  }
+
+  if (_kassaChart) { _kassaChart.destroy(); _kassaChart=null; }
+
+  var barW = _kassaGrafikDavr==='oy' ? 0.5 : _kassaGrafikDavr==='hafta' ? 0.6 : 0.7;
+
+  function doDraw(){
     _kassaChart = new Chart(canvas, {
-      data: {
-        labels: labels,
-        datasets: [
-          {type:'bar', label:'Sotuv', data:summas, backgroundColor:'#c9a84c', borderRadius:4, borderSkipped:false, yAxisID:'y'},
-          {type:'line', label:'Foyda', data:foydas, borderColor:'#5ab87a', borderWidth:2.5, borderDash:[5,3], pointBackgroundColor:'#5ab87a', pointRadius:4, fill:false, yAxisID:'y2'}
+      data:{
+        labels:labels,
+        datasets:[
+          {type:'bar', label:'Sotuv', data:summas, backgroundColor:'#c9a84c',
+           borderRadius:_kassaGrafikDavr==='oy'?1:3, borderSkipped:false,
+           barPercentage:barW, categoryPercentage:0.8, yAxisID:'y'},
+          {type:'line', label:'Foyda', data:foydas,
+           borderColor:'#5ab87a', borderWidth:_kassaGrafikDavr==='oy'?1.2:2,
+           borderDash:[4,3], pointRadius:_kassaGrafikDavr==='oy'?0:3,
+           pointBackgroundColor:'#5ab87a', fill:false, tension:0.3, yAxisID:'y2'}
         ]
       },
-      options: {
+      options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
         plugins:{
           legend:{display:false},
-          tooltip:{callbacks:{label:function(ctx){ return (ctx.dataset.label==='Sotuv'?'Sotuv: $':'Foyda: $')+ctx.parsed.y.toLocaleString('en-US',{maximumFractionDigits:1}); }}}
+          tooltip:{callbacks:{label:function(ctx){
+            return (ctx.dataset.label==='Sotuv'?'Sotuv: $':'Foyda: +$')+
+              ctx.parsed.y.toLocaleString('en-US',{maximumFractionDigits:1});
+          }}}
         },
         scales:{
-          x:{grid:{display:false}, ticks:{color:'#666',font:{size:11},autoSkip:false,maxRotation:0}},
-          y:{position:'left', grid:{color:'rgba(100,100,100,0.1)'}, ticks:{color:'#888',font:{size:10},callback:function(v){return '$'+v;}}},
-          y2:{position:'right', grid:{display:false}, ticks:{color:'#5ab87a',font:{size:10},callback:function(v){return '+$'+v;}}}
+          x:{grid:{display:false}, ticks:{color:'#888',font:{size:10},
+             autoSkip:false, maxRotation:0}},
+          y:{position:'left', grid:{color:'rgba(100,100,100,0.08)'},
+             ticks:{color:'#888',font:{size:10},callback:function(v){return '$'+v;}}},
+          y2:{position:'right', grid:{display:false},
+              ticks:{color:'#5ab87a',font:{size:10},callback:function(v){return '+$'+v;}}}
         }
       }
     });
   }
 
   if (typeof Chart !== 'undefined') {
-    drawKassaChart();
+    doDraw();
   } else {
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-    s.onload = drawKassaChart;
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+    s.onload=doDraw;
     document.head.appendChild(s);
   }
 }
