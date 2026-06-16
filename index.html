@@ -862,7 +862,7 @@ body.rol-zavod #main-klient { display: none !important; }
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
           <div onclick="ktToggleTolov('karta')" id="kt-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="kTolovCalc();" autocomplete="off" disabled
+            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="this.dataset.kartaEdited='1';kTolovCalc();" autocomplete="off" disabled
               style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
@@ -1040,7 +1040,7 @@ body.rol-zavod #main-klient { display: none !important; }
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
           <div onclick="ksSotuvToggleTolov('karta')" id="ks-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd();" autocomplete="off" disabled
+            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="this.dataset.kartaEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off" disabled
               style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
@@ -3816,6 +3816,7 @@ function openKlientTolov(){
   var ktLomBtn=document.getElementById('kt-lom-btn'); if(ktLomBtn) ktLomBtn.style.display='none';
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok'); if(ktNbBlok) ktNbBlok.style.display='none';
   var ktNbEl=document.getElementById('kt-naqt-berildi'); if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
+  var ktKbEl=document.getElementById('kt-karta-berildi'); if(ktKbEl){ktKbEl.value='';ktKbEl.dataset.kartaEdited='';}
   var ktTaqsim=document.getElementById('kt-sdacha-taqsim'); if(ktTaqsim) ktTaqsim.style.display='none';
   window._ktLomIdx=0;
   window._ktSdachaTanlov=null;
@@ -4138,8 +4139,17 @@ function kTolovCalc(){
     var ktTq=document.getElementById('kt-sdacha-taqsim'); if(ktTq) ktTq.style.display='none';
   }
 
-  var ktBerdi=ktLomPulJami>0?(parseNum((ktNbEl||{}).value)||0):0;
-  var ktSdacha=ktLomPulJami>0&&ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0;
+  var ktBerdiN=ktLomPulJami>0?(parseNum((ktNbEl||{}).value)||0):(parseNum((ktNbEl||{}).value)||0);
+  var ktBerdiK=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  var ktCbN2=document.getElementById('kt-cb-naqt');
+  var ktCbK2=document.getElementById('kt-cb-karta');
+  var ktInpK=document.getElementById('kt-karta-berildi');
+  if(ktCbN2&&ktCbN2.textContent==='✓'&&ktCbK2&&ktCbK2.textContent==='✓'&&ktInpK&&!ktInpK.dataset.kartaEdited){
+    var autoKtKarta=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
+    ktInpK.value=autoKtKarta; ktBerdiK=autoKtKarta;
+  }
+  var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
+  var ktSdacha=ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0;
   var ktSdEl=document.getElementById('kt-sdacha-val');
   if(ktSdEl){ktSdEl.textContent=ktSdacha>0.01?fmtD(ktSdacha)+'$':'yo\'q';ktSdEl.style.color=ktSdacha>0.01?'var(--green)':'var(--muted)';}
 
@@ -4390,6 +4400,7 @@ function openKlientSotuv() {
   document.getElementById('ks-new-blok').style.display = 'none';
   document.getElementById('ks-lom-list').innerHTML = '';
   var nbEl = document.getElementById('ks-naqt-berildi'); if(nbEl){ nbEl.value=''; nbEl.dataset.userEdited=''; }
+  var nbKEl0 = document.getElementById('ks-karta-berildi'); if(nbKEl0){ nbKEl0.value=''; nbKEl0.dataset.kartaEdited=''; }
   var nbBl = document.getElementById('ks-naqt-berildi-blok'); if(nbBl) nbBl.style.display='none';
   document.getElementById('ks-voz-cont').innerHTML = '';
   document.getElementById('ks-hisob').style.display = 'none';
@@ -4952,6 +4963,13 @@ function kSotuvCalc() {
 
   var naqtVal = parseNum((nbEl||{}).value) || 0;
   var kartaVal = parseNum((nbKEl||{}).value) || 0;
+  // Ikkalasi yoniq bo'lsa — naqt kiritilganda karta avtomatik = kerakliNaqt - naqt
+  var cbN2=document.getElementById('ks-cb-naqt');
+  var cbK2=document.getElementById('ks-cb-karta');
+  if(cbN2&&cbN2.textContent==='✓'&&cbK2&&cbK2.textContent==='✓'&&nbKEl&&!nbKEl.dataset.kartaEdited){
+    var autoKarta=Math.max(0,Math.round((kerakliNaqt-naqtVal)*100)/100);
+    nbKEl.value=autoKarta; kartaVal=autoKarta;
+  }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = naqtBerildi > kerakliNaqt
     ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
@@ -5094,27 +5112,41 @@ function ksSotuvToggleTolov(tip) {
   var cbK=document.getElementById('ks-cb-karta');
   var inpN=document.getElementById('ks-naqt-berildi');
   var inpK=document.getElementById('ks-karta-berildi');
+  var kerakli=parseFloat((document.getElementById('ks-kerakli-naqt')||{}).textContent)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';if(!on)inpN.value='';}
+    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';}
+    if(on){
+      // Karta o'chiq bo'lsa — to'liq summa Naqtga
+      if(cbK.textContent!=='✓'&&inpN) inpN.value=kerakli;
+      // Karta yoniq bo'lsa — Naqtga 0, karta o'zgarmaydi
+      else if(inpN) inpN.value=0;
+    } else {
+      if(inpN){inpN.value='';inpN.dataset.userEdited='';}
+      // Karta yoniq bo'lsa — kartaga to'liq summa
+      if(cbK.textContent==='✓'&&inpK) inpK.value=kerakli;
+    }
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){
-      inpK.disabled=!on;
-      inpK.style.opacity=on?'1':'0.4';
-      if(!on){ inpK.value=''; }
-      // Naqt o'chiq, karta yoniq bo'lsa — naqt qiymatini kartaga ko'chir
-      else if(cbN.textContent!=='✓' && inpN && inpN.value){
-        inpK.value=inpN.value; inpN.value='';
-      }
+    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';}
+    if(on){
+      // Naqt o'chiq bo'lsa — to'liq summa Kartaga
+      if(cbN.textContent!=='✓'&&inpK) inpK.value=kerakli;
+      // Naqt yoniq bo'lsa — qolgan summa Kartaga
+      else { var naqtV=parseFloat((inpN||{}).value)||0; if(inpK) inpK.value=Math.max(0,Math.round((kerakli-naqtV)*100)/100); }
+    } else {
+      if(inpK) inpK.value='';
+      // Naqt yoniq bo'lsa — naqtga to'liq summa
+      if(cbN.textContent==='✓'&&inpN) inpN.value=kerakli;
     }
   }
+  if(inpN) inpN.dataset.userEdited='1';
   kSotuvNaqtBerildiUpd();
 }
 
@@ -5123,26 +5155,35 @@ function ktToggleTolov(tip) {
   var cbK=document.getElementById('kt-cb-karta');
   var inpN=document.getElementById('kt-naqt-berildi');
   var inpK=document.getElementById('kt-karta-berildi');
+  var kerakli=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).textContent)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';if(!on)inpN.value='';}
+    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';}
+    if(on){
+      if(cbK.textContent!=='✓'&&inpN) inpN.value=kerakli;
+      else if(inpN) inpN.value=0;
+    } else {
+      if(inpN){inpN.value='';inpN.dataset.userEdited='';}
+      if(cbK.textContent==='✓'&&inpK) inpK.value=kerakli;
+    }
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){
-      inpK.disabled=!on;
-      inpK.style.opacity=on?'1':'0.4';
-      if(!on){ inpK.value=''; }
-      else if(cbN.textContent!=='✓' && inpN && inpN.value){
-        inpK.value=inpN.value; inpN.value='';
-      }
+    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';}
+    if(on){
+      if(cbN.textContent!=='✓'&&inpK) inpK.value=kerakli;
+      else { var naqtV=parseFloat((inpN||{}).value)||0; if(inpK) inpK.value=Math.max(0,Math.round((kerakli-naqtV)*100)/100); }
+    } else {
+      if(inpK) inpK.value='';
+      if(cbN.textContent==='✓'&&inpN) inpN.value=kerakli;
     }
   }
+  if(inpN) inpN.dataset.userEdited='1';
   kTolovCalc();
 }
 
