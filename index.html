@@ -4746,6 +4746,8 @@ function kSotuvCalc() {
   if (lomPulJami > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) knEl.textContent = fmtD(kerakliNaqt) + '$';
+    // Avtomatik to'ldirish — faqat input bo'sh bo'lsa
+    if (nbEl && !parseNum(nbEl.value)) nbEl.value = kerakliNaqt;
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) nbEl.value = '';
