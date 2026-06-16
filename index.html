@@ -5334,35 +5334,7 @@ function saqlashKlientSotuv() {
   }); });
   var _skidka = _skidkaVal > 0 ? _skidkaVal : 0;
 
-  // Har bir tur uchun to'lovni zavod/tur bilan saqlash
-  var naqtJami = 0;
-  data.zavodlar.forEach(function(z, zi) {
-    z.turlar.forEach(function(t, ti) {
-      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
-      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
-      if (s > 0 && n > 0) {
-        var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
-        var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
-        var g = roundG(sNet / n);
-        var kirimN2 = getZavodNarx(zi,ti)||0;
-        // naqt/karta nisbati (lom bo'lganda kst summasiga nisbatan)
-        var _naqtFrac = _jamiSummaRaw > 0 ? sNet / _jamiSummaRaw : 1;
-        var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : sNet;
-        var _opKarta = _lomPulJamiSave > 0 ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
-        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta});
-        naqtJami += sNet;
-      }
-    });
-  });
-  var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
-  var kurs2 = parseNum(document.getElementById('ks-kurs').value) || 0;
-  // Agar naqt > tur to'lovlar yig'indisi bo'lsa (qo'shimcha naqt) — zavod/tur siz saqlash
-  var qolganNaqt = Math.round((naqt - naqtJami) * 100) / 100;
-  if (qolganNaqt > 0.01 && kurs2 > 0) {
-    var qolganG = roundG(qolganNaqt / kurs2);
-    k.tarix.push({tip:'tolov', sana:sana, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
-  }
-  var naqtG = 0; // endi foydalanilmaydi (har tur alohida)
+  // 1. Avval lom hisoblash
   var lomlar = [];
   var _ortiqchaTanlov = window._ksSotuvOrtiqchaTanlov || null;
   var _lomPulJamiSave = 0;
@@ -5373,21 +5345,48 @@ function saqlashKlientSotuv() {
     var lnom=(document.getElementById('ks-ln-'+i)||{}).value||'';
     if(lg<=0||lk<=0) return;
     var lomPul=Math.round(lg*lk*100)/100;
-    // Lom — faqat to'lov manbasi sifatida saqlanadi (ekvivalent grammda emas)
     lomlar.push({nom:lnom,gramm:lg,kurs:lk,pul:lomPul});
     _lomPulJamiSave += lomPul;
   });
 
-  // Naqt to'lov (kst inputlar) summasi
+  // 2. Naqt to'lov (kst inputlar) summasi
   var _naqtTolovPulSave = 0;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     _naqtTolovPulSave+=s;
   }); });
 
-  // Klient naqt va karta qancha berdi
+  // 3. Klient naqt va karta qancha berdi
   var _naqtBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0) : _naqtTolovPulSave;
   var _kartaBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0) : 0;
+
+  // 4. Har bir tur uchun to'lovni zavod/tur bilan saqlash
+  var naqtJami = 0;
+  data.zavodlar.forEach(function(z, zi) {
+    z.turlar.forEach(function(t, ti) {
+      var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+      var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      if (s > 0 && n > 0) {
+        var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
+        var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
+        var g = roundG(sNet / n);
+        var kirimN2 = getZavodNarx(zi,ti)||0;
+        var _naqtFrac = _jamiSummaRaw > 0 ? sNet / _jamiSummaRaw : 1;
+        var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : sNet;
+        var _opKarta = _lomPulJamiSave > 0 ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
+        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta});
+        naqtJami += sNet;
+      }
+    });
+  });
+  var naqt = parseNum(document.getElementById('ks-naqt').value) || 0;
+  var kurs2 = parseNum(document.getElementById('ks-kurs').value) || 0;
+  var qolganNaqt = Math.round((naqt - naqtJami) * 100) / 100;
+  if (qolganNaqt > 0.01 && kurs2 > 0) {
+    var qolganG = roundG(qolganNaqt / kurs2);
+    k.tarix.push({tip:'tolov', sana:sana, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
+  }
+  var naqtG = 0;
 
   // Ortiqcha: klient bergan naqt+karta kerakli naqtdan ko'p bo'lsa
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
