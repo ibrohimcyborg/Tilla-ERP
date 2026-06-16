@@ -4790,9 +4790,16 @@ function kSotuvCalc() {
   // 12. Hisob bloki
   var hEl = document.getElementById('ks-hisob');
   var oldiG = oldilar.reduce(function(a,o){return a+o.gramm;}, 0);
-  // Naqt to'lov grammi
-  var naqtBerildiVal = lomPulJami > 0 ? naqtBerildi : naqtTolovPul;
-  var naqtG2 = tolovPul > 0 ? roundG(naqtBerildiVal / tolovPul * oldiG) : 0;
+  // Naqt to'lov = kst inputlar yig'indisi - skidka
+  var naqtBerildiVal = lomPulJami > 0 ? naqtBerildi : Math.max(0, Math.round((naqtTolovPul - skidka)*100)/100);
+  // Gramm: to'langan summa / tur narxi asosida
+  var naqtG2 = 0;
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+    var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+    if(s>0&&n>0) naqtG2+=Math.round(s/n*100)/100;
+  }); });
+  naqtG2 = Math.round(naqtG2*100)/100;
   if (naqtTolovPul > 0 || lomPulJami > 0 || vozJami > 0 || oldiG > 0) {
     hEl.style.display = 'block';
     var rows = '';
