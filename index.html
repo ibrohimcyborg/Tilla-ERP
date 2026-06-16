@@ -2575,7 +2575,7 @@ function renderKassa() {
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
       var foyda = op.kirimNarx && op.kurs && op.ekvivalent
-        ? Math.round((op.kurs - op.kirimNarx) * op.ekvivalent * 100) / 100
+        ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100
         : 0;
       allOps.push({
         sana: op.sana, soat: op.soat||'', ki:ki, knom: k.nom, kat: k.kat||'A',
@@ -4736,8 +4736,8 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Kerakli naqt va ortiqcha — kst inputlar yig'indisidan lom ayiriladi
-  var kerakliNaqt = Math.max(0, Math.round((naqtTolovPul - lomPulJami) * 100) / 100);
+  // 7. Kerakli naqt va ortiqcha — kst inputlar yig'indisidan lom va skidka ayiriladi
+  var kerakliNaqt = Math.max(0, Math.round((naqtTolovPul - lomPulJami - skidka) * 100) / 100);
 
   // Naqt berildi bloki — faqat lom bo'lganda
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
@@ -5169,7 +5169,7 @@ function saqlashKlientSotuv() {
 
   // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  var _kerakliNaqt = Math.max(0, Math.round((_naqtTolovPulSave - _lomPulJamiSave)*100)/100);
+  var _kerakliNaqt = Math.max(0, Math.round((_naqtTolovPulSave - _lomPulJamiSave - _skidka2)*100)/100);
   var _naqtBerildi = _lomPulJamiSave > 0
     ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0)
     : _naqtTolovPulSave;
@@ -5265,7 +5265,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     t += LINE;
     t += rjust('Lom jami', fmtD(lomPulJami2)+'#')+'\n';
     // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
-    var _kerakliNaqt2 = Math.max(0, Math.round((naqtTolovPul2 - lomPulJami2)*100)/100);
+    var _kerakliNaqt2 = Math.max(0, Math.round((naqtTolovPul2 - lomPulJami2 - skidka)*100)/100);
     var _ortiqcha2 = (lomPulJami2 > 0 && naqtBerildi2 > _kerakliNaqt2)
       ? Math.round((naqtBerildi2 - _kerakliNaqt2)*100)/100 : 0;
     if (_ortiqcha2 > 0.01) {
