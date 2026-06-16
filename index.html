@@ -955,6 +955,22 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="ks-lom-list"></div>
       <button onclick="kSotuvAddLom()" style="width:100%;padding:8px;border-radius:8px;border:1px dashed var(--gold-bd);background:transparent;color:var(--gold);font-size:12px;cursor:pointer;margin-bottom:8px;">+ Lom qo'shish</button>
 
+      <!-- Naqt berildi (faqat lom bo'lganda) -->
+      <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
+          <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span style="font-size:12px;color:var(--muted);">Klient berdi (naqt)</span>
+          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:36px;">
+            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd()" autocomplete="off"
+              style="width:90px;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--green);text-align:right;outline:none;">
+            <span style="font-size:12px;color:var(--green);">$</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Vozvrat -->
       <div id="ks-voz-cont"></div>
 
@@ -4185,6 +4201,8 @@ function openKlientSotuv() {
   document.getElementById('ks-drop').innerHTML = '';
   document.getElementById('ks-new-blok').style.display = 'none';
   document.getElementById('ks-lom-list').innerHTML = '';
+  var nbEl = document.getElementById('ks-naqt-berildi'); if(nbEl) nbEl.value='';
+  var nbBl = document.getElementById('ks-naqt-berildi-blok'); if(nbBl) nbBl.style.display='none';
   document.getElementById('ks-voz-cont').innerHTML = '';
   document.getElementById('ks-hisob').style.display = 'none';
   document.getElementById('ks-qaytim').style.display = 'none';
@@ -4718,12 +4736,24 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Ortiqcha: faqat lom bo'lganda
-  // Kerakli naqt = tolovPul - lomPulJami
-  // Ortiqcha = klient bergan naqt - kerakli naqt (agar ko'proq bersa)
+  // 7. Kerakli naqt va ortiqcha
   var kerakliNaqt = Math.max(0, Math.round((tolovPul - lomPulJami) * 100) / 100);
-  var ortiqcha = (lomPulJami > 0 && naqtTolovPul > kerakliNaqt)
-    ? Math.round((naqtTolovPul - kerakliNaqt) * 100) / 100
+
+  // Naqt berildi bloki — faqat lom bo'lganda
+  var nbBlok = document.getElementById('ks-naqt-berildi-blok');
+  var nbEl = document.getElementById('ks-naqt-berildi');
+  var knEl = document.getElementById('ks-kerakli-naqt');
+  if (lomPulJami > 0) {
+    if (nbBlok) nbBlok.style.display = 'block';
+    if (knEl) knEl.textContent = fmtD(kerakliNaqt) + '$';
+  } else {
+    if (nbBlok) nbBlok.style.display = 'none';
+    if (nbEl) nbEl.value = '';
+  }
+
+  var naqtBerildi = lomPulJami > 0 ? (parseNum((nbEl||{}).value) || 0) : naqtTolovPul;
+  var ortiqcha = (lomPulJami > 0 && naqtBerildi > kerakliNaqt)
+    ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
     : 0;
 
   // 8. Naqt to'lov grammini hisoblash (faqat kst inputlaridan, lom emas)
@@ -4850,6 +4880,10 @@ function kSotuvCalc() {
   window._ksSotuvFinQarz = finQarz;
 
   kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, vozJami, finQarz, jamiOldiPul, sdacha, ortiqcha, taqsimTanlov);
+}
+
+function kSotuvNaqtBerildiUpd() {
+  kSotuvCalc();
 }
 
 function ksSotuvTanlovSet(tip, zavod, tur, zi, ti, narx) {
@@ -5123,13 +5157,16 @@ function saqlashKlientSotuv() {
     _naqtTolovPulSave+=s;
   }); });
 
-  // Ortiqcha: faqat lom bo'lganda, klient bergan naqt kerakli naqtdan ko'p bo'lsa
+  // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
   var _jamiSotuvPulSave = oldilar.reduce(function(a,o){return a+o.pul;},0);
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
   var _sotuvPulNet = Math.max(0, Math.round((_jamiSotuvPulSave - _skidka2)*100)/100);
   var _kerakliNaqt = Math.max(0, Math.round((_sotuvPulNet - _lomPulJamiSave)*100)/100);
-  var _ortiqcha = (_lomPulJamiSave > 0 && _naqtTolovPulSave > _kerakliNaqt)
-    ? Math.round((_naqtTolovPulSave - _kerakliNaqt)*100)/100
+  var _naqtBerildi = _lomPulJamiSave > 0
+    ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0)
+    : _naqtTolovPulSave;
+  var _ortiqcha = (_lomPulJamiSave > 0 && _naqtBerildi > _kerakliNaqt)
+    ? Math.round((_naqtBerildi - _kerakliNaqt)*100)/100
     : 0;
 
   // Ortiqchani turga o'tkazish (tur tanlangan bo'lsa)
@@ -5194,6 +5231,8 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
       }
     });
   });
+  // Klient aslida qancha naqt berdi (naqt berildi inputidan)
+  var naqtBerildi2 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value) || naqtTolovPul2;
   var skidka = skidkaMan > 0 ? skidkaMan : 0;
   if (tolovSatirlar.length) {
     t += 'TOLOVLAR\n';
@@ -5220,8 +5259,8 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
     var _sotuvNet2 = Math.max(0, Math.round((oldilar.reduce(function(a,o){return a+o.pul;},0) - skidka)*100)/100);
     var _kerakliNaqt2 = Math.max(0, Math.round((_sotuvNet2 - lomPulJami2)*100)/100);
-    var _ortiqcha2 = (lomPulJami2 > 0 && naqtTolovPul2 > _kerakliNaqt2)
-      ? Math.round((naqtTolovPul2 - _kerakliNaqt2)*100)/100 : 0;
+    var _ortiqcha2 = (lomPulJami2 > 0 && naqtBerildi2 > _kerakliNaqt2)
+      ? Math.round((naqtBerildi2 - _kerakliNaqt2)*100)/100 : 0;
     if (_ortiqcha2 > 0.01) {
       var _tanlov2 = window._ksSotuvOrtiqchaTanlov || null;
       if (_tanlov2 && _tanlov2.tip === 'tur') {
