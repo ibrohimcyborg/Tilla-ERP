@@ -841,21 +841,33 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="kt-lom-list" style="margin-top:8px;"></div>
       <button onclick="kTolovAddLom()" id="kt-lom-btn" style="display:none;width:100%;padding:8px;border-radius:8px;border:1px dashed var(--gold-bd);background:transparent;color:var(--gold);font-size:12px;cursor:pointer;margin-top:6px;">+ Lom qo'shish</button>
 
-      <!-- Kerakli naqt (lom bo'lganda) -->
+      <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
       <div id="kt-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;border-left:3px solid var(--green-bd);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
           <span id="kt-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <span style="font-size:12px;color:var(--muted);">Klient berdi (naqt)</span>
-          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:36px;">
+        <!-- Naqt -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
+          <div onclick="ktToggleTolov('naqt')" id="kt-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
             <input type="number" id="kt-naqt-berildi" placeholder="0" oninput="this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
-              style="width:90px;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--green);text-align:right;outline:none;">
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--green);">$</span>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-size:13px;">
+        <!-- Karta -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
+          <div onclick="ktToggleTolov('karta')" id="kt-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="kTolovCalc();" autocomplete="off" disabled
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
+            <span style="font-size:12px;color:var(--blue);">$</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:13px;">
           <span style="color:var(--muted);">Sdacha</span>
           <span id="kt-sdacha-val" style="font-weight:500;color:var(--muted);">yo'q</span>
         </div>
@@ -1000,18 +1012,30 @@ body.rol-zavod #main-klient { display: none !important; }
         </div>
       </div>
 
-      <!-- Naqt berildi (faqat lom bo'lganda) -->
+      <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
       <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
           <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <span style="font-size:12px;color:var(--muted);">Klient berdi (naqt)</span>
-          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:36px;">
+        <!-- Naqt -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
+          <div onclick="ksSotuvToggleTolov('naqt')" id="ks-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
             <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
-              style="width:90px;border:none;background:transparent;font-size:15px;font-weight:600;color:var(--green);text-align:right;outline:none;">
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--green);">$</span>
+          </div>
+        </div>
+        <!-- Karta -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
+          <div onclick="ksSotuvToggleTolov('karta')" id="ks-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd();" autocomplete="off" disabled
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
+            <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
         </div>
       </div>
@@ -2611,7 +2635,9 @@ function renderKassa() {
         sana: op.sana, soat: op.soat||'', ki:ki, knom: k.nom, kat: k.kat||'A',
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0, kurs: op.kurs||0,
-        summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda
+        summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda,
+        naqtPul: op.naqtPul||0, kartaPul: op.kartaPul||0,
+        lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0
       });
     });
   });
@@ -2718,6 +2744,21 @@ function renderKassa() {
           });
           out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
           out+='<span style="color:var(--muted);">Jami to\'landi</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma)+'</span></div>';
+          // Naqt / Karta / Lom breakdown
+          var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0;
+          kg.ops.forEach(function(o){
+            kNaqt+=o.naqtPul||0;
+            kKarta+=o.kartaPul||0;
+            if(o.lomGramm){kLom+=o.lomPul||0;kLomG+=o.lomGramm||0;kLomKurs=o.lomKurs||0;}
+          });
+          kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;
+          if(kNaqt>0||kKarta>0||kLom>0){
+            out+='<div style="background:var(--surf2);border-radius:7px;padding:4px 8px;margin-top:2px;">';
+            if(kNaqt>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>$'+fmtD(kNaqt)+'</span></div>';
+            if(kKarta>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Karta</span><span>$'+fmtD(kKarta)+'</span></div>';
+            if(kLom>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Lom'+(kLomG>0?' '+fmtG(kLomG)+'g × '+kLomKurs:'')+'</span><span style="color:var(--gold);">$'+fmtD(kLom)+'</span></div>';
+            out+='</div>';
+          }
           if(kFoyda>0){
             out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;">';
             out+='<span style="color:var(--muted);">Jami foyda</span><span style="color:var(--green);font-weight:500;">+$'+fmtD(kFoyda)+'</span></div>';
@@ -4864,6 +4905,7 @@ function kSotuvCalc() {
   // Naqt berildi bloki — faqat lom bo'lganda
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
   var nbEl = document.getElementById('ks-naqt-berildi');
+  var nbKEl = document.getElementById('ks-karta-berildi');
   var knEl = document.getElementById('ks-kerakli-naqt');
   if (lomPulJami > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
@@ -4875,9 +4917,12 @@ function kSotuvCalc() {
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
+    if (nbKEl) { nbKEl.value = ''; }
   }
 
-  var naqtBerildi = lomPulJami > 0 ? (parseNum((nbEl||{}).value) || 0) : naqtTolovPul;
+  var naqtVal = lomPulJami > 0 ? (parseNum((nbEl||{}).value) || 0) : naqtTolovPul;
+  var kartaVal = lomPulJami > 0 ? (parseNum((nbKEl||{}).value) || 0) : 0;
+  var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = (lomPulJami > 0 && naqtBerildi > kerakliNaqt)
     ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
     : 0;
@@ -5013,6 +5058,50 @@ function kSotuvCalc() {
 
   kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, vozJami, finQarz, jamiOldiPul, sdacha, ortiqcha, taqsimTanlov);
 }
+
+function ksSotuvToggleTolov(tip) {
+  var cbN=document.getElementById('ks-cb-naqt');
+  var cbK=document.getElementById('ks-cb-karta');
+  var inpN=document.getElementById('ks-naqt-berildi');
+  var inpK=document.getElementById('ks-karta-berildi');
+  if(tip==='naqt'){
+    var on=cbN.textContent!=='✓';
+    cbN.style.background=on?'var(--green)':'transparent';
+    cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
+    cbN.textContent=on?'✓':'';
+    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';if(!on)inpN.value='';}
+  } else {
+    var on=cbK.textContent!=='✓';
+    cbK.style.background=on?'var(--blue)':'transparent';
+    cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
+    cbK.textContent=on?'✓':'';
+    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';if(!on)inpK.value='';}
+  }
+  kSotuvNaqtBerildiUpd();
+}
+
+function ktToggleTolov(tip) {
+  var cbN=document.getElementById('kt-cb-naqt');
+  var cbK=document.getElementById('kt-cb-karta');
+  var inpN=document.getElementById('kt-naqt-berildi');
+  var inpK=document.getElementById('kt-karta-berildi');
+  if(tip==='naqt'){
+    var on=cbN.textContent!=='✓';
+    cbN.style.background=on?'var(--green)':'transparent';
+    cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
+    cbN.textContent=on?'✓':'';
+    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';if(!on)inpN.value='';}
+  } else {
+    var on=cbK.textContent!=='✓';
+    cbK.style.background=on?'var(--blue)':'transparent';
+    cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
+    cbK.textContent=on?'✓':'';
+    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';if(!on)inpK.value='';}
+  }
+  kTolovCalc();
+}
+
+function ksSotuvNaqtBerildiUpd() { kSotuvNaqtBerildiUpd(); }
 
 function kSotuvNaqtBerildiUpd() {
   kSotuvCalc();
@@ -5251,12 +5340,15 @@ function saqlashKlientSotuv() {
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       if (s > 0 && n > 0) {
-        // skidkani proportsional ayirish
         var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
         var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
         var g = roundG(sNet / n);
         var kirimN2 = getZavodNarx(zi,ti)||0;
-        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk});
+        // naqt/karta nisbati (lom bo'lganda kst summasiga nisbatan)
+        var _naqtFrac = _jamiSummaRaw > 0 ? sNet / _jamiSummaRaw : 1;
+        var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : sNet;
+        var _opKarta = _lomPulJamiSave > 0 ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
+        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta});
         naqtJami += sNet;
       }
     });
@@ -5292,12 +5384,14 @@ function saqlashKlientSotuv() {
     _naqtTolovPulSave+=s;
   }); });
 
-  // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
+  // Klient naqt va karta qancha berdi
+  var _naqtBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0) : _naqtTolovPulSave;
+  var _kartaBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0) : 0;
+
+  // Ortiqcha: klient bergan naqt+karta kerakli naqtdan ko'p bo'lsa
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
   var _kerakliNaqt = Math.max(0, Math.round((_naqtTolovPulSave - _lomPulJamiSave - _skidka2)*100)/100);
-  var _naqtBerildi = _lomPulJamiSave > 0
-    ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0)
-    : _naqtTolovPulSave;
+  var _naqtBerildi = Math.round((_naqtBerdiSave + _kartaBerdiSave)*100)/100;
   var _ortiqcha = (_lomPulJamiSave > 0 && _naqtBerildi > _kerakliNaqt)
     ? Math.round((_naqtBerildi - _kerakliNaqt)*100)/100
     : 0;
@@ -5394,8 +5488,18 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     t += rjust('Lom jami', fmtD(lomPulJami2)+'#')+'\n';
     // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
     var _kerakliNaqt2 = Math.max(0, Math.round((naqtTolovPul2 - lomPulJami2 - skidka)*100)/100);
-    var _ortiqcha2 = (lomPulJami2 > 0 && naqtBerildi2 > _kerakliNaqt2)
-      ? Math.round((naqtBerildi2 - _kerakliNaqt2)*100)/100 : 0;
+    var _naqtBerdi2 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
+    var _kartaBerdi2 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+    var _berdiJami2 = Math.round((_naqtBerdi2+_kartaBerdi2)*100)/100;
+    var _ortiqcha2 = (lomPulJami2 > 0 && _berdiJami2 > _kerakliNaqt2)
+      ? Math.round((_berdiJami2 - _kerakliNaqt2)*100)/100 : 0;
+    // L N K qatorlari
+    t += LINE;
+    lomlar.forEach(function(l){
+      t += rjust('L', l.gramm+'g x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
+    });
+    if(_naqtBerdi2>0) t += rjust('N', fmtD(_naqtBerdi2)+'#')+'\n';
+    if(_kartaBerdi2>0) t += rjust('K', fmtD(_kartaBerdi2)+'#')+'\n';
     if (_ortiqcha2 > 0.01) {
       var _tanlov2 = window._ksSotuvOrtiqchaTanlov || null;
       if (_tanlov2 && _tanlov2.tip === 'tur') {
