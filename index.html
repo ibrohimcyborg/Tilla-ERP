@@ -4718,10 +4718,13 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Ortiqcha — lom sotuv qoldiqidan (tolovPul - naqtTolovPul) oshsa
-  // Ya'ni: lom$ - (sotuv narxi - naqt to'lov) = ortiqcha
-  var qolganTolov = Math.max(0, Math.round((tolovPul - naqtTolovPul) * 100) / 100);
-  var ortiqcha = (lomPulJami > 0) ? Math.max(0, Math.round((lomPulJami - qolganTolov) * 100) / 100) : 0;
+  // 7. Ortiqcha: faqat lom bo'lganda
+  // Kerakli naqt = tolovPul - lomPulJami
+  // Ortiqcha = klient bergan naqt - kerakli naqt (agar ko'proq bersa)
+  var kerakliNaqt = Math.max(0, Math.round((tolovPul - lomPulJami) * 100) / 100);
+  var ortiqcha = (lomPulJami > 0 && naqtTolovPul > kerakliNaqt)
+    ? Math.round((naqtTolovPul - kerakliNaqt) * 100) / 100
+    : 0;
 
   // 8. Naqt to'lov grammini hisoblash (faqat kst inputlaridan, lom emas)
   var naqtTolovG = 0;
@@ -5120,12 +5123,14 @@ function saqlashKlientSotuv() {
     _naqtTolovPulSave+=s;
   }); });
 
-  // Ortiqcha hisoblash: lom qancha qolgan to'lovdan oshdi
+  // Ortiqcha: faqat lom bo'lganda, klient bergan naqt kerakli naqtdan ko'p bo'lsa
   var _jamiSotuvPulSave = oldilar.reduce(function(a,o){return a+o.pul;},0);
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
   var _sotuvPulNet = Math.max(0, Math.round((_jamiSotuvPulSave - _skidka2)*100)/100);
-  var _qolganTolovSave = Math.max(0, Math.round((_sotuvPulNet - _naqtTolovPulSave)*100)/100);
-  var _ortiqcha = (_lomPulJamiSave > 0) ? Math.max(0, Math.round((_lomPulJamiSave - _qolganTolovSave)*100)/100) : 0;
+  var _kerakliNaqt = Math.max(0, Math.round((_sotuvPulNet - _lomPulJamiSave)*100)/100);
+  var _ortiqcha = (_lomPulJamiSave > 0 && _naqtTolovPulSave > _kerakliNaqt)
+    ? Math.round((_naqtTolovPulSave - _kerakliNaqt)*100)/100
+    : 0;
 
   // Ortiqchani turga o'tkazish (tur tanlangan bo'lsa)
   if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'tur' && _ortiqchaTanlov.narx > 0) {
@@ -5212,10 +5217,11 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     });
     t += LINE;
     t += rjust('Lom jami', fmtD(lomPulJami2)+'#')+'\n';
-    // Ortiqcha: lom - (sotuv - naqt to'lov) = lom qancha oshdi
+    // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
     var _sotuvNet2 = Math.max(0, Math.round((oldilar.reduce(function(a,o){return a+o.pul;},0) - skidka)*100)/100);
-    var _qolgan2 = Math.max(0, Math.round((_sotuvNet2 - naqtTolovPul2)*100)/100);
-    var _ortiqcha2 = Math.max(0, Math.round((lomPulJami2 - _qolgan2)*100)/100);
+    var _kerakliNaqt2 = Math.max(0, Math.round((_sotuvNet2 - lomPulJami2)*100)/100);
+    var _ortiqcha2 = (lomPulJami2 > 0 && naqtTolovPul2 > _kerakliNaqt2)
+      ? Math.round((naqtTolovPul2 - _kerakliNaqt2)*100)/100 : 0;
     if (_ortiqcha2 > 0.01) {
       var _tanlov2 = window._ksSotuvOrtiqchaTanlov || null;
       if (_tanlov2 && _tanlov2.tip === 'tur') {
