@@ -3816,7 +3816,9 @@ function openKlientTolov(){
   var ktLomBtn=document.getElementById('kt-lom-btn'); if(ktLomBtn) ktLomBtn.style.display='none';
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok'); if(ktNbBlok) ktNbBlok.style.display='none';
   var ktNbEl=document.getElementById('kt-naqt-berildi'); if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
-  var ktKbEl=document.getElementById('kt-karta-berildi'); if(ktKbEl){ktKbEl.value='';ktKbEl.dataset.kartaEdited='';}
+  var ktKbEl=document.getElementById('kt-karta-berildi'); if(ktKbEl){ktKbEl.value='';ktKbEl.readOnly=false;ktKbEl.style.pointerEvents='auto';}
+  var ktCbN0=document.getElementById('kt-cb-naqt'); if(ktCbN0){ktCbN0.textContent='';ktCbN0.style.background='transparent';}
+  var ktCbK0=document.getElementById('kt-cb-karta'); if(ktCbK0){ktCbK0.textContent='';ktCbK0.style.background='transparent';}
   var ktTaqsim=document.getElementById('kt-sdacha-taqsim'); if(ktTaqsim) ktTaqsim.style.display='none';
   window._ktLomIdx=0;
   window._ktSdachaTanlov=null;
@@ -4405,7 +4407,9 @@ function openKlientSotuv() {
   document.getElementById('ks-new-blok').style.display = 'none';
   document.getElementById('ks-lom-list').innerHTML = '';
   var nbEl = document.getElementById('ks-naqt-berildi'); if(nbEl){ nbEl.value=''; nbEl.dataset.userEdited=''; }
-  var nbKEl0 = document.getElementById('ks-karta-berildi'); if(nbKEl0){ nbKEl0.value=''; nbKEl0.dataset.kartaEdited=''; }
+  var nbKEl0 = document.getElementById('ks-karta-berildi'); if(nbKEl0){ nbKEl0.value=''; nbKEl0.readOnly=false; nbKEl0.style.pointerEvents='auto'; }
+  var cbN0=document.getElementById('ks-cb-naqt'); if(cbN0){cbN0.textContent='';cbN0.style.background='transparent';}
+  var cbK0=document.getElementById('ks-cb-karta'); if(cbK0){cbK0.textContent='';cbK0.style.background='transparent';}
   var nbBl = document.getElementById('ks-naqt-berildi-blok'); if(nbBl) nbBl.style.display='none';
   document.getElementById('ks-voz-cont').innerHTML = '';
   document.getElementById('ks-hisob').style.display = 'none';
