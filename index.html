@@ -850,9 +850,9 @@ body.rol-zavod #main-klient { display: none !important; }
         <!-- Naqt -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
-          <div onclick="ktToggleTolov('naqt')" id="kt-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</div>
+          <div onclick="ktToggleTolov('naqt')" id="kt-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-naqt-berildi" placeholder="0" oninput="this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
+            <input type="number" id="kt-naqt-berildi" placeholder="0" oninput="kTolovCalc();" autocomplete="off"
               style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--green);">$</span>
           </div>
@@ -862,8 +862,8 @@ body.rol-zavod #main-klient { display: none !important; }
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
           <div onclick="ktToggleTolov('karta')" id="kt-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="this.dataset.kartaEdited='1';kTolovCalc();" autocomplete="off" disabled
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
+            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="kTolovCalc();" autocomplete="off"
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
         </div>
@@ -1028,9 +1028,9 @@ body.rol-zavod #main-klient { display: none !important; }
         <!-- Naqt -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
-          <div onclick="ksSotuvToggleTolov('naqt')" id="ks-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</div>
+          <div onclick="ksSotuvToggleTolov('naqt')" id="ks-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
+            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd();" autocomplete="off"
               style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--green);">$</span>
           </div>
@@ -1040,8 +1040,8 @@ body.rol-zavod #main-klient { display: none !important; }
           <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
           <div onclick="ksSotuvToggleTolov('karta')" id="ks-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
           <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="this.dataset.kartaEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off" disabled
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;opacity:0.4;">
+            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="kSotuvNaqtBerildiUpd();" autocomplete="off"
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;">
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
         </div>
@@ -4139,14 +4139,18 @@ function kTolovCalc(){
     var ktTq=document.getElementById('kt-sdacha-taqsim'); if(ktTq) ktTq.style.display='none';
   }
 
-  var ktBerdiN=ktLomPulJami>0?(parseNum((ktNbEl||{}).value)||0):(parseNum((ktNbEl||{}).value)||0);
-  var ktBerdiK=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
-  var ktCbN2=document.getElementById('kt-cb-naqt');
-  var ktCbK2=document.getElementById('kt-cb-karta');
+  var ktBerdiN=parseNum((ktNbEl||{}).value)||0;
   var ktInpK=document.getElementById('kt-karta-berildi');
-  if(ktCbN2&&ktCbN2.textContent==='✓'&&ktCbK2&&ktCbK2.textContent==='✓'&&ktInpK&&!ktInpK.dataset.kartaEdited){
-    var autoKtKarta=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
-    ktInpK.value=autoKtKarta; ktBerdiK=autoKtKarta;
+  var ktBerdiK=parseNum((ktInpK||{}).value)||0;
+  // Naqt yozilsa karta avtomatik
+  if(ktNbEl&&document.activeElement===ktNbEl&&ktInpK&&!ktInpK.readOnly){
+    var ktAutoK=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
+    ktInpK.value=ktAutoK; ktBerdiK=ktAutoK;
+  }
+  // Karta yozilsa naqt avtomatik
+  if(ktInpK&&document.activeElement===ktInpK&&ktNbEl&&!ktNbEl.readOnly){
+    var ktAutoN=Math.max(0,Math.round((ktKerakli-ktBerdiK)*100)/100);
+    ktNbEl.value=ktAutoN; ktBerdiN=ktAutoN;
   }
   var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
   var ktSdacha=ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0;
@@ -4964,12 +4968,25 @@ function kSotuvCalc() {
 
   var naqtVal = parseNum((nbEl||{}).value) || 0;
   var kartaVal = parseNum((nbKEl||{}).value) || 0;
-  // Ikkalasi yoniq bo'lsa — naqt kiritilganda karta avtomatik = kerakliNaqt - naqt
   var cbN2=document.getElementById('ks-cb-naqt');
   var cbK2=document.getElementById('ks-cb-karta');
-  if(cbN2&&cbN2.textContent==='✓'&&cbK2&&cbK2.textContent==='✓'&&nbKEl&&!nbKEl.dataset.kartaEdited){
-    var autoKarta=Math.max(0,Math.round((kerakliNaqt-naqtVal)*100)/100);
-    nbKEl.value=autoKarta; kartaVal=autoKarta;
+  // Naqt yozilsa → karta avtomatik (faqat karta checkbox bo'sh bo'lsa)
+  if(cbN2&&cbN2.textContent!=='✓'&&cbK2&&cbK2.textContent!=='✓'){
+    // Ikkalasi ham qo'lda — hech nima o'zgarmaydi
+  } else if(cbN2&&cbN2.textContent==='✓'&&cbK2&&cbK2.textContent!=='✓'){
+    // Naqt auto, karta qo'lda — naqt o'zgarmaydi
+  } else if(cbN2&&cbN2.textContent!=='✓'&&cbK2&&cbK2.textContent==='✓'){
+    // Karta auto, naqt qo'lda — karta o'zgarmaydi
+  }
+  // Naqt inputga yozilganda karta = kerakli - naqt (agar karta bo'sh bo'lsa)
+  if(nbEl&&document.activeElement===nbEl&&nbKEl&&!nbKEl.readOnly){
+    var autoK=Math.max(0,Math.round((kerakliNaqt-naqtVal)*100)/100);
+    if(autoK>=0){nbKEl.value=autoK; kartaVal=autoK;}
+  }
+  // Karta inputga yozilganda naqt = kerakli - karta (agar naqt bo'sh bo'lsa)
+  if(nbKEl&&document.activeElement===nbKEl&&nbEl&&!nbEl.readOnly){
+    var autoN=Math.max(0,Math.round((kerakliNaqt-kartaVal)*100)/100);
+    if(autoN>=0){nbEl.value=autoN; naqtVal=autoN;}
   }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = naqtBerildi > kerakliNaqt
@@ -5113,55 +5130,32 @@ function ksSotuvToggleTolov(tip) {
   var cbK=document.getElementById('ks-cb-karta');
   var inpN=document.getElementById('ks-naqt-berildi');
   var inpK=document.getElementById('ks-karta-berildi');
-  // kerakliNaqt ni inputlardan hisoblash
-  var _naqtTov=0;
-  if(data&&data.zavodlar) data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){
-    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0; _naqtTov+=s;
-  });});
-  var _lomTov=0;
-  document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el){
-    var i=el.id.split('-')[2];
-    var lg=parseNum((document.getElementById('ks-lg-'+i)||{}).value)||0;
-    var lk=parseNum((document.getElementById('ks-lk-'+i)||{}).value)||0;
-    _lomTov+=Math.round(lg*lk*100)/100;
-  });
-  var _sk=parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  var kerakli=Math.max(0,Math.round((_naqtTov-_lomTov-_sk)*100)/100);
+  var kerakli=parseNum((document.getElementById('ks-kerakli-naqt')||{}).textContent)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';}
-    if(on){
-      // Karta o'chiq bo'lsa — to'liq summa Naqtga
-      if(cbK.textContent!=='✓'&&inpN) inpN.value=kerakli;
-      // Karta yoniq bo'lsa — Naqtga 0, karta o'zgarmaydi
-      else if(inpN) inpN.value=0;
-    } else {
-      if(inpN){inpN.value='';inpN.dataset.userEdited='';}
-      // Karta yoniq bo'lsa — kartaga to'liq summa
-      if(cbK.textContent==='✓'&&inpK) inpK.value=kerakli;
+    if(inpN){
+      // ✓ bo'lsa auto, bo'lmasa qo'lda
+      inpN.readOnly=on;
+      inpN.style.pointerEvents=on?'none':'auto';
+      if(on){ inpN.value=kerakli; }
+      else { inpN.value=''; }
     }
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';}
-    if(on){
-      // Naqt o'chiq bo'lsa — to'liq summa Kartaga
-      if(cbN.textContent!=='✓'&&inpK) inpK.value=kerakli;
-      // Naqt yoniq bo'lsa — qolgan summa Kartaga
-      else { var naqtV=parseFloat((inpN||{}).value)||0; if(inpK) inpK.value=Math.max(0,Math.round((kerakli-naqtV)*100)/100); }
-    } else {
-      if(inpK) inpK.value='';
-      // Naqt yoniq bo'lsa — naqtga to'liq summa
-      if(cbN.textContent==='✓'&&inpN) inpN.value=kerakli;
+    if(inpK){
+      inpK.readOnly=on;
+      inpK.style.pointerEvents=on?'none':'auto';
+      if(on){ inpK.value=kerakli; }
+      else { inpK.value=''; }
     }
   }
-  if(inpN) inpN.dataset.userEdited='1';
-  kSotuvNaqtBerildiUpd();
+  kSotuvCalc();
 }
 
 function ktToggleTolov(tip) {
@@ -5169,51 +5163,30 @@ function ktToggleTolov(tip) {
   var cbK=document.getElementById('kt-cb-karta');
   var inpN=document.getElementById('kt-naqt-berildi');
   var inpK=document.getElementById('kt-karta-berildi');
-  // kerakliNaqt ni inputlardan hisoblash
-  var _ktTov=0;
-  var _bd=window._kTolovBD||{},_idx=0;
-  Object.keys(_bd).forEach(function(key){
-    var b=_bd[key];if(b.qarz<=0){_idx++;return;}
-    var s=parseNum((document.getElementById('kt-s-'+_idx)||{}).value)||0;
-    _ktTov+=s;_idx++;
-  });
-  var _ktLom=0;
-  document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
-    var i=el.id.split('-')[2];
-    var lg=parseNum((document.getElementById('kt-lg-'+i)||{}).value)||0;
-    var lk=parseNum((document.getElementById('kt-lk-'+i)||{}).value)||0;
-    _ktLom+=Math.round(lg*lk*100)/100;
-  });
-  var _ktSk=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
-  var kerakli=Math.max(0,Math.round((_ktTov-_ktLom-_ktSk)*100)/100);
+  var kerakli=parseNum((document.getElementById('kt-kerakli-naqt')||{}).textContent)||0;
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){inpN.disabled=!on;inpN.style.opacity=on?'1':'0.4';}
-    if(on){
-      if(cbK.textContent!=='✓'&&inpN) inpN.value=kerakli;
-      else if(inpN) inpN.value=0;
-    } else {
-      if(inpN){inpN.value='';inpN.dataset.userEdited='';}
-      if(cbK.textContent==='✓'&&inpK) inpK.value=kerakli;
+    if(inpN){
+      inpN.readOnly=on;
+      inpN.style.pointerEvents=on?'none':'auto';
+      if(on){ inpN.value=kerakli; }
+      else { inpN.value=''; }
     }
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){inpK.disabled=!on;inpK.style.opacity=on?'1':'0.4';}
-    if(on){
-      if(cbN.textContent!=='✓'&&inpK) inpK.value=kerakli;
-      else { var naqtV=parseFloat((inpN||{}).value)||0; if(inpK) inpK.value=Math.max(0,Math.round((kerakli-naqtV)*100)/100); }
-    } else {
-      if(inpK) inpK.value='';
-      if(cbN.textContent==='✓'&&inpN) inpN.value=kerakli;
+    if(inpK){
+      inpK.readOnly=on;
+      inpK.style.pointerEvents=on?'none':'auto';
+      if(on){ inpK.value=kerakli; }
+      else { inpK.value=''; }
     }
   }
-  if(inpN) inpN.dataset.userEdited='1';
   kTolovCalc();
 }
 
