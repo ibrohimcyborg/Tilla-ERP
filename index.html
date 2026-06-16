@@ -844,7 +844,7 @@ body.rol-zavod #main-klient { display: none !important; }
       <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
       <div id="kt-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;border-left:3px solid var(--green-bd);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
+          <span style="font-size:12px;color:var(--muted);">Kerakli summa</span>
           <span id="kt-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
         </div>
         <!-- Naqt -->
@@ -1022,7 +1022,7 @@ body.rol-zavod #main-klient { display: none !important; }
       <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
       <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;color:var(--muted);">Kerakli naqt</span>
+          <span style="font-size:12px;color:var(--muted);">Kerakli summa</span>
           <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
         </div>
         <!-- Naqt -->
@@ -5136,24 +5136,17 @@ function ksSotuvToggleTolov(tip) {
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){
-      // ✓ bo'lsa auto, bo'lmasa qo'lda
-      inpN.readOnly=on;
-      inpN.style.pointerEvents=on?'none':'auto';
-      if(on){ inpN.value=kerakli; }
-      else { inpN.value=''; }
-    }
+    if(inpN){inpN.readOnly=on;inpN.style.pointerEvents=on?'none':'auto';}
+    if(on){if(inpN)inpN.value=kerakli;if(inpK)inpK.value='';}
+    else{if(inpN)inpN.value='';}
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){
-      inpK.readOnly=on;
-      inpK.style.pointerEvents=on?'none':'auto';
-      if(on){ inpK.value=kerakli; }
-      else { inpK.value=''; }
-    }
+    if(inpK){inpK.readOnly=on;inpK.style.pointerEvents=on?'none':'auto';}
+    if(on){if(inpK)inpK.value=kerakli;if(inpN)inpN.value='';}
+    else{if(inpK)inpK.value='';}
   }
   kSotuvCalc();
 }
@@ -5169,23 +5162,17 @@ function ktToggleTolov(tip) {
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){
-      inpN.readOnly=on;
-      inpN.style.pointerEvents=on?'none':'auto';
-      if(on){ inpN.value=kerakli; }
-      else { inpN.value=''; }
-    }
+    if(inpN){inpN.readOnly=on;inpN.style.pointerEvents=on?'none':'auto';}
+    if(on){if(inpN)inpN.value=kerakli;if(inpK)inpK.value='';}
+    else{if(inpN)inpN.value='';}
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){
-      inpK.readOnly=on;
-      inpK.style.pointerEvents=on?'none':'auto';
-      if(on){ inpK.value=kerakli; }
-      else { inpK.value=''; }
-    }
+    if(inpK){inpK.readOnly=on;inpK.style.pointerEvents=on?'none':'auto';}
+    if(on){if(inpK)inpK.value=kerakli;if(inpN)inpN.value='';}
+    else{if(inpK)inpK.value='';}
   }
   kTolovCalc();
 }
