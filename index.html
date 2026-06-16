@@ -4251,15 +4251,6 @@ function kTolovChekUpd() {
   // N / K — lom bo'lsa ham bo'lmasa ham
   var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
   var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
-  var ktTotal=Math.round((ktNb+ktKb)*100)/100;
-  if(ktTotal>0&&manSkKt2>0){
-    var ktNSk=Math.round(manSkKt2*(ktNb/ktTotal)*100)/100;
-    var ktKSk=Math.round(manSkKt2*(ktKb/ktTotal)*100)/100;
-    ktNb=Math.max(0,Math.round((ktNb-ktNSk)*100)/100);
-    ktKb=Math.max(0,Math.round((ktKb-ktKSk)*100)/100);
-  }
-  var ktCbN=document.getElementById('kt-cb-naqt');
-  var ktCbK=document.getElementById('kt-cb-karta');
   if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
   if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
   lines2.push(LINE);
@@ -5326,18 +5317,9 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     lines2.push(LINE);
     lines2.push(rjust("Jami to'landi", fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
     lines2.push(rjust('', '('+fmtG(naqtJamiG)+' g)'));
-    // N / K qatorlari — skidkani proportsional ayirish
+    // N / K qatorlari — skidka Jami to'landida allaqachon ayirilgan
     var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-    var _totalBerdi = Math.round((_nbPrev0+_kbPrev0)*100)/100;
-    var cbN0=document.getElementById('ks-cb-naqt');
-    var cbK0=document.getElementById('ks-cb-karta');
-    if(_totalBerdi > 0 && skidkaPul > 0){
-      var _nSk = Math.round(skidkaPul*(_nbPrev0/_totalBerdi)*100)/100;
-      var _kSk = Math.round(skidkaPul*(_kbPrev0/_totalBerdi)*100)/100;
-      _nbPrev0 = Math.max(0, Math.round((_nbPrev0-_nSk)*100)/100);
-      _kbPrev0 = Math.max(0, Math.round((_kbPrev0-_kSk)*100)/100);
-    }
     if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
     if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
     lines2.push(LINE);
