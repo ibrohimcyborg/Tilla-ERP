@@ -4251,14 +4251,17 @@ function kTolovChekUpd() {
   // N / K — lom bo'lsa ham bo'lmasa ham
   var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
   var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  var ktTotal=Math.round((ktNb+ktKb)*100)/100;
+  if(ktTotal>0&&manSkKt2>0){
+    var ktNSk=Math.round(manSkKt2*(ktNb/ktTotal)*100)/100;
+    var ktKSk=Math.round(manSkKt2*(ktKb/ktTotal)*100)/100;
+    ktNb=Math.max(0,Math.round((ktNb-ktNSk)*100)/100);
+    ktKb=Math.max(0,Math.round((ktKb-ktKSk)*100)/100);
+  }
   var ktCbN=document.getElementById('kt-cb-naqt');
   var ktCbK=document.getElementById('kt-cb-karta');
-  if(ktCbK&&ktCbK.textContent==='✓'&&!ktCbN||ktCbN&&ktCbN.textContent!=='✓'){
-    if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
-  } else {
-    if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
-    if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
-  }
+  if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
+  if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
   lines2.push(LINE);
   if (k) {
     var joriyQarz = 0;
@@ -5119,7 +5122,20 @@ function ksSotuvToggleTolov(tip) {
   var cbK=document.getElementById('ks-cb-karta');
   var inpN=document.getElementById('ks-naqt-berildi');
   var inpK=document.getElementById('ks-karta-berildi');
-  var kerakli=parseFloat((document.getElementById('ks-kerakli-naqt')||{}).textContent)||0;
+  // kerakliNaqt ni inputlardan hisoblash
+  var _naqtTov=0;
+  if(data&&data.zavodlar) data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){
+    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0; _naqtTov+=s;
+  });});
+  var _lomTov=0;
+  document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el){
+    var i=el.id.split('-')[2];
+    var lg=parseNum((document.getElementById('ks-lg-'+i)||{}).value)||0;
+    var lk=parseNum((document.getElementById('ks-lk-'+i)||{}).value)||0;
+    _lomTov+=Math.round(lg*lk*100)/100;
+  });
+  var _sk=parseNum((document.getElementById('ks-skidka')||{}).value)||0;
+  var kerakli=Math.max(0,Math.round((_naqtTov-_lomTov-_sk)*100)/100);
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
@@ -5162,7 +5178,23 @@ function ktToggleTolov(tip) {
   var cbK=document.getElementById('kt-cb-karta');
   var inpN=document.getElementById('kt-naqt-berildi');
   var inpK=document.getElementById('kt-karta-berildi');
-  var kerakli=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).textContent)||0;
+  // kerakliNaqt ni inputlardan hisoblash
+  var _ktTov=0;
+  var _bd=window._kTolovBD||{},_idx=0;
+  Object.keys(_bd).forEach(function(key){
+    var b=_bd[key];if(b.qarz<=0){_idx++;return;}
+    var s=parseNum((document.getElementById('kt-s-'+_idx)||{}).value)||0;
+    _ktTov+=s;_idx++;
+  });
+  var _ktLom=0;
+  document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
+    var i=el.id.split('-')[2];
+    var lg=parseNum((document.getElementById('kt-lg-'+i)||{}).value)||0;
+    var lk=parseNum((document.getElementById('kt-lk-'+i)||{}).value)||0;
+    _ktLom+=Math.round(lg*lk*100)/100;
+  });
+  var _ktSk=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  var kerakli=Math.max(0,Math.round((_ktTov-_ktLom-_ktSk)*100)/100);
   if(tip==='naqt'){
     var on=cbN.textContent!=='✓';
     cbN.style.background=on?'var(--green)':'transparent';
@@ -5294,19 +5326,20 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     lines2.push(LINE);
     lines2.push(rjust("Jami to'landi", fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
     lines2.push(rjust('', '('+fmtG(naqtJamiG)+' g)'));
-    // N / K qatorlari (lom bo'lmasa ham)
+    // N / K qatorlari — skidkani proportsional ayirish
     var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+    var _totalBerdi = Math.round((_nbPrev0+_kbPrev0)*100)/100;
     var cbN0=document.getElementById('ks-cb-naqt');
     var cbK0=document.getElementById('ks-cb-karta');
-    var hasN = cbN0&&cbN0.textContent==='✓';
-    var hasK = cbK0&&cbK0.textContent==='✓';
-    if((hasN||hasK) && (hasN&&hasK || _kbPrev0>0)){
-      if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
-      if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
-    } else if(hasK && !hasN && _kbPrev0>0){
-      lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
+    if(_totalBerdi > 0 && skidkaPul > 0){
+      var _nSk = Math.round(skidkaPul*(_nbPrev0/_totalBerdi)*100)/100;
+      var _kSk = Math.round(skidkaPul*(_kbPrev0/_totalBerdi)*100)/100;
+      _nbPrev0 = Math.max(0, Math.round((_nbPrev0-_nSk)*100)/100);
+      _kbPrev0 = Math.max(0, Math.round((_kbPrev0-_kSk)*100)/100);
     }
+    if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
+    if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
     lines2.push(LINE);
   }
 
