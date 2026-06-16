@@ -2636,7 +2636,8 @@ function renderKassa() {
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0, kurs: op.kurs||0,
         summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda,
-        naqtPul: op.naqtPul||0, kartaPul: op.kartaPul||0,
+        naqtPul: op.naqtPul !== undefined ? op.naqtPul : (op.kartaPul ? 0 : (op.summa||0)),
+        kartaPul: op.kartaPul||0,
         lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0
       });
     });
