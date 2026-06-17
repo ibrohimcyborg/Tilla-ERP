@@ -4680,7 +4680,7 @@ function kTolovCalc(){
       var hasQarz=(bd3qarzAfter[key]||0)>=0.01;
       var tavsif=hasQarz
         ? fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → qarzdan kamayadi'
-        : fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → ostatka qo\'shiladi';
+        : fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → biz klientga qarzdor (+)';
       opts+='<div onclick="kTolovSdachaTanlovSet(\'tur\',\''+b.zavod+'\',\''+b.tur+'\','+b.zi+','+b.ti+','+katNarx+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSel?'var(--gold-bd)':'var(--border)')+';background:'+(isSel?'var(--gold-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
       opts+='<div style="width:12px;height:12px;border-radius:50%;background:'+(isSel?'var(--gold)':'transparent')+';border:1.5px solid '+(isSel?'var(--gold)':'var(--muted)')+'"></div>';
       opts+='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isSel?'var(--gold)':'var(--text)')+';">'+b.zavod+' · '+b.tur+'</div>';
@@ -5661,7 +5661,7 @@ function kSotuvCalc() {
       var hasQarz = b.qarz >= 0.01;
       var tavsif = hasQarz
         ? fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → qarzdan kamayadi'
-        : fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → ostatka qo\'shiladi';
+        : fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → biz klientga qarzdor (+)';
       optsHTML += '<div onclick="ksSotuvTanlovSet(\'tur\',\''+b.zavod+'\',\''+b.tur+'\','+b.zi+','+b.ti+','+katNarx+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSel?'var(--gold-bd)':'var(--border)')+';background:'+(isSel?'var(--gold-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
       optsHTML += '<div style="width:12px;height:12px;border-radius:50%;background:'+(isSel?'var(--gold)':'transparent')+';border:1.5px solid '+(isSel?'var(--gold)':'var(--muted)')+'"></div>';
       optsHTML += '<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isSel?'var(--gold)':'var(--text)')+';">'+b.zavod+' · '+b.tur+'</div>';
@@ -6075,9 +6075,26 @@ function saqlashKlientSotuv() {
   // Ortiqchani turga o'tkazish (tur tanlangan bo'lsa)
   if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'tur' && _ortiqchaTanlov.narx > 0) {
     var ortG = roundG(_ortiqcha / _ortiqchaTanlov.narx);
-    var kirimN3 = getZavodNarx(_ortiqchaTanlov.zi, _ortiqchaTanlov.ti)||0;
-    k.tarix.push({tip:'tolov', sana:sana, zavod:_ortiqchaTanlov.zavod, tur:_ortiqchaTanlov.tur,
-      summa:_ortiqcha, kurs:_ortiqchaTanlov.narx, ekvivalent:ortG, kirimNarx:kirimN3, lomOrtiqcha:true});
+    // Tur qarzini tekshir — joriy operatsiyadan keyin
+    var turKey = _ortiqchaTanlov.zavod+'||'+_ortiqchaTanlov.tur;
+    var turQarzAfter = 0;
+    k.tarix.forEach(function(op){
+      if(!op.zavod||!op.tur||op.zavod!==_ortiqchaTanlov.zavod||op.tur!==_ortiqchaTanlov.tur) return;
+      if(op.tip==='berish') turQarzAfter+=op.gramm;
+      else if(op.tip==='vozvrat') turQarzAfter-=op.gramm;
+      else if(op.tip==='tolov') turQarzAfter-=(op.ekvivalent||0);
+    });
+    turQarzAfter = Math.max(0, Math.round(turQarzAfter*100)/100);
+    if(turQarzAfter >= 0.01){
+      // Qarz bor — qarzdan kamaytir
+      var kirimN3 = getZavodNarx(_ortiqchaTanlov.zi, _ortiqchaTanlov.ti)||0;
+      k.tarix.push({tip:'tolov', sana:sana, zavod:_ortiqchaTanlov.zavod, tur:_ortiqchaTanlov.tur,
+        summa:_ortiqcha, kurs:_ortiqchaTanlov.narx, ekvivalent:Math.min(ortG,turQarzAfter), kirimNarx:kirimN3, lomOrtiqcha:true});
+    } else {
+      // Qarz yo'q — biz klientga qarzdor (klientda tip)
+      k.tarix.push({tip:'klientda', sana:sana, gramm:ortG, summa:_ortiqcha, kurs:_ortiqchaTanlov.narx,
+        zavod:_ortiqchaTanlov.zavod, tur:_ortiqchaTanlov.tur});
+    }
   }
   // Bizda qolsin — klientda tip sifatida saqlash
   if (_ortiqcha > 0.01 && _ortiqchaTanlov && _ortiqchaTanlov.tip === 'bizda' && _ortiqchaTanlov.narx > 0) {
@@ -6189,11 +6206,11 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
       if (_tanlov2 && _tanlov2.tip === 'tur') {
         var _ortG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
         t += LINE;
-        t += rjust('Ortiqcha → '+_tanlov2.zavod, '')+'\n';
+        t += rjust('Biz qarzdor → '+_tanlov2.zavod, '')+'\n';
         t += rjust('  '+_tanlov2.tur, '+'+fmtG(_ortG2))+'\n';
       } else if (_tanlov2 && _tanlov2.tip === 'bizda') {
         var _bizdaG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
-        t += rjust('Bizda qoldi', '+'+fmtG(_bizdaG2)+'g')+'\n';
+        t += rjust('Bizda qoldi', '+'+fmtG(_bizdaG2))+'\n';
       } else {
         t += rjust('Sdacha', fmtD(_ortiqcha2)+'#')+'\n';
       }
