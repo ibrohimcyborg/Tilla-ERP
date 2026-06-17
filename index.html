@@ -6064,9 +6064,19 @@ function saqlashKlientSotuv() {
 
   // Ortiqcha hisoblash — lom ortiqcha yoki naqt ortiqcha
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  var _jamiSotuvPul = Math.round((_naqtTolovPulSave)*100)/100; // kst inputlar yig'indisi
-  var _lomOrtiqchaSave = Math.max(0, Math.round((_lomPulJamiSave - _jamiSotuvPul + _skidka2)*100)/100);
-  var _kerakliNaqt = Math.max(0, Math.round((_jamiSotuvPul - _lomPulJamiSave - _skidka2)*100)/100);
+  // Haqiqiy sotuv summasi ksg×narx dan
+  var _jamiSotuvPulReal = 0;
+  document.querySelectorAll('[id^="ksg-"]').forEach(function(el){
+    if(!el.id.match(/^ksg-\d+-\d+$/)) return;
+    var parts=el.id.split('-');
+    var g=parseNum(el.value)||0;
+    var n=parseNum((document.getElementById('kst-n-'+parts[1]+'-'+parts[2])||{}).value)||0;
+    var s=parseNum((document.getElementById('kst-s-'+parts[1]+'-'+parts[2])||{}).value)||0;
+    if(g>0&&n>0) _jamiSotuvPulReal+=s>0?s:Math.round(g*n*100)/100;
+  });
+  _jamiSotuvPulReal=Math.round(_jamiSotuvPulReal*100)/100;
+  var _lomOrtiqchaSave = Math.max(0, Math.round((_lomPulJamiSave - _jamiSotuvPulReal + _skidka2)*100)/100);
+  var _kerakliNaqt = Math.max(0, Math.round((_jamiSotuvPulReal - _lomPulJamiSave - _skidka2)*100)/100);
   var _naqtBerildi = Math.round((_naqtBerdiSave + _kartaBerdiSave)*100)/100;
   var _ortiqcha = _lomOrtiqchaSave > 0.01
     ? _lomOrtiqchaSave
