@@ -3749,18 +3749,20 @@ function openKlientDetail(ki) {
   Object.keys(byZavod).forEach(function(znom){
     var turs=byZavod[znom];
     var zT=turs.reduce(function(a,b){return a+b.qarz;},0);
-    if(zT<=0.01) return;
+    if(Math.abs(zT)<0.01) return;
     hasQarz=true;
+    var zIsNeg=zT<0;
     bHTML+='<div style="margin-bottom:12px;">';
     bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
     bHTML+='<div style="font-size:12px;font-weight:600;color:var(--gold);">'+znom+'</div>';
-    bHTML+='<div style="font-size:12px;font-weight:600;color:var(--red);">'+fmtG(Math.max(0,zT))+'g</div>';
+    bHTML+='<div style="font-size:12px;font-weight:600;color:'+(zIsNeg?'var(--green)':'var(--red)')+';">'+(zIsNeg?'+':'')+fmtG(zT)+'g</div>';
     bHTML+='</div>';
     turs.forEach(function(b){
-      if(b.qarz<0.01) return;
-      bHTML+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:var(--surf2);border-radius:8px;margin-bottom:4px;">';
-      bHTML+='<div style="color:var(--muted);">'+b.tur+'</div>';
-      bHTML+='<div style="font-weight:600;color:var(--red);">'+fmtG(b.qarz)+'g</div>';
+      if(Math.abs(b.qarz)<0.01) return;
+      var isNeg=b.qarz<0;
+      bHTML+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:'+(isNeg?'var(--green-bg)':'var(--surf2)')+';border-radius:8px;margin-bottom:4px;">';
+      bHTML+='<div style="color:var(--muted);">'+b.tur+(isNeg?' <span style="font-size:10px;color:var(--green);">↩ biz qarzdor</span>':'')+'</div>';
+      bHTML+='<div style="font-weight:600;color:'+(isNeg?'var(--green)':'var(--red)')+';">'+(isNeg?'+':'')+fmtG(Math.abs(b.qarz))+'g</div>';
       bHTML+='</div>';
     });
     bHTML+='</div>';
@@ -6491,7 +6493,10 @@ function _qarzTarkib(ki) {
     }
   }
   var qarz_tarkib=[];
-  Object.values(qbd).forEach(function(b){ if(b.qarz>0.01) qarz_tarkib.push(b); });
+  Object.values(qbd).forEach(function(b){
+    if(Math.abs(b.qarz)>0.01) qarz_tarkib.push(b);
+  });
+  qarz_tarkib.sort(function(a,b){ return Math.abs(b.qarz)-Math.abs(a.qarz); });
   return {k:k, qarz_tarkib:qarz_tarkib, jamiQarz:klientJamiQarz(k)};
 }
 function chekCntChange(ki, delta) {
