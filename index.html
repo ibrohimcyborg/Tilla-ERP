@@ -5474,16 +5474,17 @@ function kSotuvCalc() {
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
   // 7. Kerakli naqt = mahsulot narxi - lom - skidka
+  var lomOrtiqchaPul = Math.max(0, Math.round((lomPulJami - jamiOldiPul + skidka) * 100) / 100);
   var kerakliNaqt = Math.max(0, Math.round((jamiOldiPul - lomPulJami - skidka) * 100) / 100);
 
-  // Naqt berildi bloki — doim ko'rinadi (lom bo'lsa kerakli naqt, bo'lmasa to'liq summa)
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
   var nbEl = document.getElementById('ks-naqt-berildi');
   var nbKEl = document.getElementById('ks-karta-berildi');
   var knEl = document.getElementById('ks-kerakli-naqt');
-  if (naqtTolovPul > 0) {
-    if (nbBlok) nbBlok.style.display = 'block';
+  if (jamiOldiPul > 0) {
+    if (nbBlok) nbBlok.style.display = kerakliNaqt > 0 ? 'block' : 'none';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
+    if (kerakliNaqt <= 0 && nbEl) { nbEl.value = '0'; }
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
@@ -5502,9 +5503,9 @@ function kSotuvCalc() {
     nbEl.value = naqtVal || '';
   }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
-  var ortiqcha = naqtBerildi > kerakliNaqt
-    ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
-    : 0;
+  var ortiqcha = lomOrtiqchaPul > 0.01
+    ? lomOrtiqchaPul
+    : (naqtBerildi > kerakliNaqt ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100 : 0);
 
   // 8. Naqt to'lov grammini hisoblash — haqiqiy sotilgan gramm (kst-g inputidan)
   var naqtTolovG = 0;
@@ -5999,10 +6000,12 @@ function saqlashKlientSotuv() {
     z.turlar.forEach(function(t, ti) {
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
+      var gInp = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
       if (s > 0 && n > 0) {
         var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
         var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
-        var g = roundG(s / n); // gramm = to'liq summa / narx (skidka grammga ta'sir qilmaydi)
+        var g = gInp > 0 ? gInp : roundG(s / n);
+        if (g < 0.01) g = 0;
         var kirimN2 = getZavodNarx(zi,ti)||0;
         var _naqtFrac = _jamiSummaRaw > 0 ? s / _jamiSummaRaw : 1;
         var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : sNet;
