@@ -4765,6 +4765,24 @@ function kTolovChekUpd() {
   var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
   if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
   if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
+  // Sdacha / bizda / tur
+  var ktTanlovChek=window._ktSdachaTanlov||null;
+  var ktLomOrtiqchaChek=Math.max(0,Math.round((ktLomJami-jamiPul+manSkKt2)*100)/100);
+  var ktKerakliChek=Math.max(0,Math.round((jamiPul-ktLomJami-manSkKt2)*100)/100);
+  var ktSdachaChek=ktLomOrtiqchaChek>0.01?ktLomOrtiqchaChek:
+    (ktNb+ktKb>ktKerakliChek?Math.round((ktNb+ktKb-ktKerakliChek)*100)/100:0);
+  if(ktSdachaChek>0.01&&ktTanlovChek){
+    if(ktTanlovChek.tip==='tur'&&ktTanlovChek.narx>0){
+      var ortGChek=roundG(ktSdachaChek/ktTanlovChek.narx);
+      lines2.push(rjust('Biz qarzdor → '+ktTanlovChek.zavod,''));
+      lines2.push(rjust('  '+ktTanlovChek.tur,'+'+fmtG(ortGChek)));
+    } else if(ktTanlovChek.tip==='bizda'&&ktTanlovChek.narx>0){
+      var bizdaGChek=roundG(ktSdachaChek/ktTanlovChek.narx);
+      lines2.push(rjust('Bizda qoldi','+'+fmtG(bizdaGChek)));
+    } else if(ktTanlovChek.tip==='sdacha'){
+      lines2.push(rjust('Sdacha',fmtD(ktSdachaChek)+'#'));
+    }
+  }
   lines2.push(LINE);
   if (k) {
     var joriyQarz = 0;
