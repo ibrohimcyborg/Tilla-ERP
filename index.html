@@ -3792,8 +3792,12 @@ function openKlientDetail(ki) {
     var hasVozvrat=g.tip==='vozvrat';
     var hasBerish=g.tip==='berish';
     var hasKlientda=g.tip==='klientda';
-    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':hasKlientda?'var(--purple)':'var(--gold)';
-    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':hasKlientda?'↩ Bizda qolsin':'↩ Vozvrat';
+    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':hasKlientda?'var(--green)':'var(--gold)';
+    var klientdaOp=hasKlientda&&g.ops.length>0?g.ops[0]:null;
+    var klientdaLabel=klientdaOp&&klientdaOp.zavod&&klientdaOp.tur
+      ? '↩ '+klientdaOp.zavod+' · '+klientdaOp.tur
+      : '↩ Bizda qolsin';
+    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':hasKlientda?klientdaLabel:'↩ Vozvrat';
     var lcolor=bc;
 
     var jamiG=0;
