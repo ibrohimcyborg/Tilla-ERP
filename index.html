@@ -4653,19 +4653,22 @@ function kTolovCalc(){
     opts+='<div style="width:12px;height:12px;border-radius:50%;background:'+(isBizda?'var(--blue)':'transparent')+';border:1.5px solid '+(isBizda?'var(--blue)':'var(--muted)')+'"></div>';
     opts+='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isBizda?'var(--blue)':'var(--text)')+';">Bizda qolsin</div>';
     opts+='<div style="font-size:11px;color:var(--muted);">'+fmtD(ktSdacha)+'$ ÷ '+(ktKursAvg||'?')+'$/g = −'+bizdaGr+'g → keyingi to\'lovda hisoblanadi</div></div></div>';
-    // Qarzlardagi turlar
+    // Barcha turlar (qarz bor ham, yo'q ham)
     var bd3=window._kTolovBD||{},idx3=0;
     Object.keys(bd3).forEach(function(key){
-      var b=bd3[key]; if(b.qarz<=0){idx3++;return;}
+      var b=bd3[key]; idx3++;
       var katNarx=getKatNarx(b.zi,b.ti,parseInt(document.getElementById('kt-klient').value))||0;
-      if(!katNarx){idx3++;return;}
+      if(!katNarx) return;
       var isSel=tanlov&&tanlov.tip==='tur'&&tanlov.zavod===b.zavod&&tanlov.tur===b.tur;
       var ortG=katNarx>0?fmtG(roundG(ktSdacha/katNarx)):'—';
+      var hasQarz=b.qarz>=0.01;
+      var tavsif=hasQarz
+        ? fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → qarzdan kamayadi'
+        : fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → ostatka qo\'shiladi';
       opts+='<div onclick="kTolovSdachaTanlovSet(\'tur\',\''+b.zavod+'\',\''+b.tur+'\','+b.zi+','+b.ti+','+katNarx+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSel?'var(--gold-bd)':'var(--border)')+';background:'+(isSel?'var(--gold-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
       opts+='<div style="width:12px;height:12px;border-radius:50%;background:'+(isSel?'var(--gold)':'transparent')+';border:1.5px solid '+(isSel?'var(--gold)':'var(--muted)')+'"></div>';
       opts+='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isSel?'var(--gold)':'var(--text)')+';">'+b.zavod+' · '+b.tur+'</div>';
-      opts+='<div style="font-size:11px;color:var(--muted);">'+fmtD(ktSdacha)+'$ ÷ '+katNarx+'$/g = '+ortG+'g → qarzdan kamayadi</div></div></div>';
-      idx3++;
+      opts+='<div style="font-size:11px;color:var(--muted);">'+tavsif+'</div></div></div>';
     });
     document.getElementById('kt-sdacha-opts').innerHTML=opts;
   } else if(ktTaqsim) ktTaqsim.style.display='none';
@@ -5633,16 +5636,19 @@ function kSotuvCalc() {
     }); });
 
     Object.values(qarzMap).forEach(function(b){
-      if(b.qarz < 0.01) return;
       data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){ if(z.nom===b.zavod&&t.nom===b.tur){b.zi=zi;b.ti=ti;} }); });
       var katNarx = getKatNarx(b.zi, b.ti, ki) || 0;
       if(!katNarx) return;
       var ortiqchaGr = katNarx > 0 ? fmtG(roundG(ortiqcha/katNarx)) : '—';
       var isSel = taqsimTanlov && taqsimTanlov.tip==='tur' && taqsimTanlov.zavod===b.zavod && taqsimTanlov.tur===b.tur;
+      var hasQarz = b.qarz >= 0.01;
+      var tavsif = hasQarz
+        ? fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → qarzdan kamayadi'
+        : fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → ostatka qo\'shiladi';
       optsHTML += '<div onclick="ksSotuvTanlovSet(\'tur\',\''+b.zavod+'\',\''+b.tur+'\','+b.zi+','+b.ti+','+katNarx+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSel?'var(--gold-bd)':'var(--border)')+';background:'+(isSel?'var(--gold-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
       optsHTML += '<div style="width:12px;height:12px;border-radius:50%;background:'+(isSel?'var(--gold)':'transparent')+';border:1.5px solid '+(isSel?'var(--gold)':'var(--muted)')+'"></div>';
       optsHTML += '<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isSel?'var(--gold)':'var(--text)')+';">'+b.zavod+' · '+b.tur+'</div>';
-      optsHTML += '<div style="font-size:10px;color:var(--muted);">'+fmtD(ortiqcha)+'$ ÷ '+katNarx+'$/g = '+ortiqchaGr+'g → qarzdan kamayadi</div></div>';
+      optsHTML += '<div style="font-size:10px;color:var(--muted);">'+tavsif+'</div></div>';
       optsHTML += '</div>';
     });
     if(taqsimOptsEl) taqsimOptsEl.innerHTML = optsHTML;
