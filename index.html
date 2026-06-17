@@ -4507,7 +4507,9 @@ function kTolovAddLom() {
 }
 
 function kTolovSdachaTanlovSet(tip, zavod, tur, zi, ti, narx) {
-  window._ktSdachaTanlov = tip==='sdacha' ? {tip:'sdacha'} : {tip:'tur',zavod:zavod,tur:tur,zi:zi,ti:ti,narx:narx};
+  if(tip==='sdacha') window._ktSdachaTanlov={tip:'sdacha'};
+  else if(tip==='bizda') window._ktSdachaTanlov={tip:'bizda',narx:narx};
+  else window._ktSdachaTanlov={tip:'tur',zavod:zavod,tur:tur,zi:zi,ti:ti,narx:narx};
   kTolovCalc();
 }
 
@@ -6386,7 +6388,7 @@ function klientTarixOchir(el) {
   var isBerish=el.dataset.berish==='1';
   var k=data.klientlar[ki];
   var ops=k.tarix.filter(function(op){
-    return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'));
+    return op.sana===sana && (isBerish ? op.tip==='berish' : (op.tip==='tolov'||op.tip==='vozvrat'||op.tip==='klientda'));
   });
   if(!ops.length) return;
   if(confirm(sana+' sanasidagi '+ops.length+' ta operatsiyani o\'chirasizmi?')) {
