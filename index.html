@@ -5247,8 +5247,7 @@ function kstHammasi(zi, ti, obshiy) {
   var n = parseNum((nEl||{}).value) || 0;
   gEl.value = g;
   if (n > 0 && sEl) {
-    // g*n ni aniq hisoblash — float xatosini oldini olish
-    var s = Math.round(g * n * 10) / 10;
+    var s = Math.round(g * n * 100) / 100;
     sEl.value = s;
   }
   kSotuvTolovUpd('g', zi, ti);
@@ -5319,7 +5318,8 @@ function kSotuvTolovCalc() {
       if (n > 0 && obshiy > 0) {
         var maxPul = Math.round(obshiy * n * 100) / 100;
         if (s > 0) {
-          var yopildiG = Math.round(s / n * 100) / 100;
+          var gInp2 = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+          var yopildiG = gInp2 > 0 ? gInp2 : Math.round(s / n * 100) / 100;
           var qoldiG = Math.max(0, Math.round((obshiy - yopildiG) * 100) / 100);
           if (qoldiG < 0.02) {
             if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ — to\'liq yopildi ✓</span>';
