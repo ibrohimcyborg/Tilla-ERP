@@ -4878,17 +4878,53 @@ function saqlashKlientTolov(){
   });
   if(!any){alert('Tolov yoki vozvrat kiriting!');return;}
 
-  // Sdacha taqsim — bizda qolsin
+  // Sdacha taqsim
   var ktTanlov = window._ktSdachaTanlov||null;
-  if(ktTanlov && ktTanlov.tip==='bizda' && ktTanlov.narx>0){
-    var ktSdachaSum=0;
+  var ktSdachaSum2=0;
+  if(ktTanlov && ktTanlov.tip!=='sdacha'){
     var ktBerdiN2=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
     var ktBerdiK2=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
-    var ktKerakli2=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset.val||0)||0;
-    ktSdachaSum=Math.max(0,Math.round((ktBerdiN2+ktBerdiK2-ktKerakli2)*100)/100);
-    if(ktSdachaSum>0.01){
-      var bizdaG=roundG(ktSdachaSum/ktTanlov.narx);
-      k.tarix.push({tip:'klientda',sana:sana,gramm:bizdaG,summa:ktSdachaSum,kurs:ktTanlov.narx});
+    var ktKerakli2=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.val||0)||0;
+    var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+    var jamiSummaKt2=0;
+    var idx99=0;
+    Object.keys(window._kTolovBD||{}).forEach(function(key){
+      var b=(window._kTolovBD||{})[key];if(b.qarz<=0){idx99++;return;}
+      var s=parseNum((document.getElementById('kt-s-'+idx99)||{}).value||0);
+      jamiSummaKt2+=s;idx99++;
+    });
+    var ktLomPulJami2=0;
+    document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
+      var i=el.id.split('-')[2];
+      var lg=parseNum((document.getElementById('kt-lg-'+i)||{}).value)||0;
+      var lk=parseNum((document.getElementById('kt-lk-'+i)||{}).value)||0;
+      ktLomPulJami2+=Math.round(lg*lk*100)/100;
+    });
+    var ktLomOrtiqcha2=Math.max(0,Math.round((ktLomPulJami2-jamiSummaKt2+manSkKt2)*100)/100);
+    ktSdachaSum2=ktLomOrtiqcha2>0.01?ktLomOrtiqcha2:Math.max(0,Math.round((ktBerdiN2+ktBerdiK2-ktKerakli2)*100)/100);
+  }
+  if(ktTanlov && ktTanlov.tip==='bizda' && ktTanlov.narx>0 && ktSdachaSum2>0.01){
+    var bizdaG=roundG(ktSdachaSum2/ktTanlov.narx);
+    k.tarix.push({tip:'klientda',sana:sana,gramm:bizdaG,summa:ktSdachaSum2,kurs:ktTanlov.narx});
+  }
+  if(ktTanlov && ktTanlov.tip==='tur' && ktTanlov.narx>0 && ktSdachaSum2>0.01){
+    var ortGKt=roundG(ktSdachaSum2/ktTanlov.narx);
+    // Tur qarzini tekshir
+    var turQarzKt=0;
+    k.tarix.forEach(function(op){
+      if(!op.zavod||!op.tur||op.zavod!==ktTanlov.zavod||op.tur!==ktTanlov.tur) return;
+      if(op.tip==='berish') turQarzKt+=op.gramm;
+      else if(op.tip==='vozvrat') turQarzKt-=op.gramm;
+      else if(op.tip==='tolov') turQarzKt-=(op.ekvivalent||0);
+    });
+    turQarzKt=Math.max(0,Math.round(turQarzKt*100)/100);
+    if(turQarzKt>=0.01){
+      var kirimNKt=getZavodNarx(ktTanlov.zi,ktTanlov.ti)||0;
+      k.tarix.push({tip:'tolov',sana:sana,zavod:ktTanlov.zavod,tur:ktTanlov.tur,
+        summa:ktSdachaSum2,kurs:ktTanlov.narx,ekvivalent:Math.min(ortGKt,turQarzKt),kirimNarx:kirimNKt,lomOrtiqcha:true});
+    } else {
+      k.tarix.push({tip:'klientda',sana:sana,gramm:ortGKt,summa:ktSdachaSum2,
+        kurs:ktTanlov.narx,zavod:ktTanlov.zavod,tur:ktTanlov.tur});
     }
   }
   window._ktSdachaTanlov=null;
