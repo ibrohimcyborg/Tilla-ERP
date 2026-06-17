@@ -3807,8 +3807,8 @@ function openKlientDetail(ki) {
     var isNegBerish = hasBerish && jamiG < 0;
     var bc=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):hasTolov?'var(--blue)':'var(--gold)';
     var lcolor=bc;
-    var jCol=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):jamiG>=0?'var(--green)':'var(--red)';
-    var jSign=isNegBerish?'+':hasBerish?'−':'+';
+    var jCol=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):hasKlientda?'var(--green)':jamiG>=0?'var(--green)':'var(--red)';
+    var jSign=isNegBerish?'+':hasBerish?'−':hasKlientda?'+':'+';
 
     tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
     tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
@@ -5244,9 +5244,13 @@ function kstHammasi(zi, ti, obshiy) {
   var gEl = document.getElementById('kst-g-'+zi+'-'+ti);
   if (!gEl) return;
   var g = Math.round(obshiy * 100) / 100;
-  gEl.value = g;
   var n = parseNum((nEl||{}).value) || 0;
-  if (n > 0 && sEl) sEl.value = Math.round(g * n * 100) / 100;
+  gEl.value = g;
+  if (n > 0 && sEl) {
+    // g*n ni aniq hisoblash — float xatosini oldini olish
+    var s = Math.round(g * n * 10) / 10;
+    sEl.value = s;
+  }
   kSotuvTolovUpd('g', zi, ti);
 }
 
@@ -5317,7 +5321,7 @@ function kSotuvTolovCalc() {
         if (s > 0) {
           var yopildiG = Math.round(s / n * 100) / 100;
           var qoldiG = Math.max(0, Math.round((obshiy - yopildiG) * 100) / 100);
-          if (qoldiG < 0.01) {
+          if (qoldiG < 0.02) {
             if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ — to\'liq yopildi ✓</span>';
           } else {
             if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ &nbsp;— </span><span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
@@ -6124,11 +6128,11 @@ function saqlashKlientSotuv() {
     data.zavodlar[b.zi].turlar[b.ti].ostatka = Math.round((data.zavodlar[b.zi].turlar[b.ti].ostatka + g)*100)/100;
     vozlar.push({zavod:b.zavod, tur:b.tur, gramm:g});
   });
+  var _chekTanlov = window._ksSotuvOrtiqchaTanlov || null;
+  var _chekOrtiqcha = _ortiqcha;
   save('Sotuv: '+k.nom+' | '+sana);
   var _d = _qarzTarkib(data.klientlar.indexOf(k));
   var _skidka = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
-  var _chekTanlov = window._ksSotuvOrtiqchaTanlov || null;
-  var _chekOrtiqcha = _ortiqcha;
   if(_ksChekOn) klientSotuvChekPrint(k, sana, oldilar, 0, 0, lomlar, vozlar, _ksSotuvCnt, _d.jamiQarz, _d.qarz_tarkib, _skidka, _chekTanlov, _chekOrtiqcha);
   closeModal('modal-ksotuv');
   renderKlientlar();
