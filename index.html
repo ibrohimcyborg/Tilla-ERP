@@ -5471,15 +5471,8 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Kerakli naqt = mahsulot narxi (gramm × narx) - lom - skidka
-  // naqtTolovPul bu klient kiritgan summa, mahsulotning haqiqiy narxi alohida hisoblanadi
-  var mahsulotNarxi = 0;
-  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
-    var g=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
-    var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
-    if(g>0&&n>0) mahsulotNarxi+=Math.round(g*n*100)/100;
-  }); });
-  var kerakliNaqt = Math.max(0, Math.round((mahsulotNarxi - lomPulJami - skidka) * 100) / 100);
+  // 7. Kerakli naqt = mahsulot narxi - lom - skidka
+  var kerakliNaqt = Math.max(0, Math.round((jamiOldiPul - lomPulJami - skidka) * 100) / 100);
 
   // Naqt berildi bloki — doim ko'rinadi (lom bo'lsa kerakli naqt, bo'lmasa to'liq summa)
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
