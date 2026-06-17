@@ -5650,8 +5650,11 @@ function kSotuvCalc() {
   if (jamiOldiPul > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
-    if (!nbEl.dataset.userEdited && kerakliNaqt > 0) nbEl.value = kerakliNaqt;
-    else if (!nbEl.dataset.userEdited && kerakliNaqt <= 0) nbEl.value = '';
+    // Faqat input bo'sh bo'lsa avtomatik to'ldir
+    var curNaqt = parseNum(nbEl.value)||0;
+    if (!nbEl.dataset.userEdited && (curNaqt === 0 || Math.abs(curNaqt - kerakliNaqt) > 0.01)) {
+      nbEl.value = kerakliNaqt > 0 ? kerakliNaqt : '';
+    }
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
@@ -6174,9 +6177,8 @@ function saqlashKlientSotuv() {
   }); });
 
   // 3. Klient naqt va karta qancha berdi
-  var _naqtBerdiSave = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
-  if(_naqtBerdiSave <= 0) _naqtBerdiSave = _naqtTolovPulSave;
-  var _kartaBerdiSave = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+  var _naqtBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0) : _naqtTolovPulSave;
+  var _kartaBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0) : 0;
 
   // 4. Har bir tur uchun to'lovni zavod/tur bilan saqlash
   var naqtJami = 0;
