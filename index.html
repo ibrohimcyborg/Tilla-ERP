@@ -6955,8 +6955,10 @@ function initPC() {
   }
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
-  mz.style.display = 'flex';
-  mk.style.display = 'flex';
+  var ma = document.getElementById('main-analitika');
+  if(mz) mz.style.display = 'flex';
+  if(mk) mk.style.display = 'flex';
+  if(ma) ma.style.display = 'none';
   renderHome();
   renderKlientlar();
 }
