@@ -1167,7 +1167,7 @@ function fmtG(g) { var v=parseFloat(g); return (v<0?'-':'')+Math.abs(v).toFixed(
 function fmtD(d) { return parseFloat(d).toLocaleString('en-US', {maximumFractionDigits:2}); }
 function nowSoat() { var n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
 function today() { return new Date().toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}); }
-function roundG(v) { var t = Math.floor(v * 1000) % 10; return t >= 5 ? Math.ceil(v*100)/100 : Math.floor(v*100)/100; }
+function roundG(v) { return Math.round(v * 100) / 100; }
 function nowDate() { var n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
 var curZ = -1, openTurIdx = -1, curHomeTab = 'zavodlar', curZTab = 'turlar';
 
@@ -4522,11 +4522,12 @@ function kTolovCalc(){
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
     var eq=0;
     if(s>0&&kurs>0){
-      eq=roundG(s/kurs);
+      var gInpKt=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
+      eq=gInpKt>0?gInpKt:roundG(s/kurs);
       var cEl=document.getElementById('kt-calc-'+idx);
       if(cEl){
         var qolgan=Math.max(0,Math.round((b.qarz-eq-v)*100)/100);
-        if(qolgan<0.01) qolgan=0;
+        if(qolgan<0.02) qolgan=0;
         var ortiqcha=Math.round((eq-b.qarz)*100)/100;
         if(ortiqcha>0.001){
           var qaytimPul=Math.round(ortiqcha*kurs*100)/100;
