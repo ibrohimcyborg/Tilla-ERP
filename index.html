@@ -4591,15 +4591,16 @@ function kTolovCalc(){
     ktLomPulJami+=lomPul;
   });
 
-  // Kerakli naqt va sdacha
+  // Lom ortiqcha bo'lsa
+  var ktLomOrtiqcha=Math.max(0,Math.round((ktLomPulJami-jamiSummaKt+manSkKt)*100)/100);
   var ktKerakli=Math.max(0,Math.round((jamiSummaKt-ktLomPulJami-manSkKt)*100)/100);
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok');
   var ktNbEl=document.getElementById('kt-naqt-berildi');
   var ktKnEl=document.getElementById('kt-kerakli-naqt');
   if(jamiSummaKt>0){
-    if(ktNbBlok) ktNbBlok.style.display='block';
+    if(ktNbBlok) ktNbBlok.style.display=ktKerakli>0?'block':'none';
     if(ktKnEl){ktKnEl.textContent=fmtD(ktKerakli)+'$';ktKnEl.dataset.val=ktKerakli;}
-    if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli;
+    if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli||'0';
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
     if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
@@ -4616,14 +4617,17 @@ function kTolovCalc(){
   var ktLastChanged=(document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.lastChanged||'';
   if(!ktNaqtAuto&&!ktKartaAuto&&ktLastChanged==='naqt'&&ktInpK){
     ktBerdiK=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
-    ktInpK.value=ktBerdiK;
+    ktInpK.value=ktBerdiK||'';
   }
   if(!ktNaqtAuto&&!ktKartaAuto&&ktLastChanged==='karta'&&ktNbEl){
     ktBerdiN=Math.max(0,Math.round((ktKerakli-ktBerdiK)*100)/100);
-    ktNbEl.value=ktBerdiN;
+    ktNbEl.value=ktBerdiN||'';
   }
   var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
-  var ktSdacha=ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0;
+  // Lom ortiqcha yoki naqt ortiqcha
+  var ktSdacha=ktLomOrtiqcha>0.01
+    ? ktLomOrtiqcha
+    : (ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0);
   var ktSdEl=document.getElementById('kt-sdacha-val');
   if(ktSdEl){ktSdEl.textContent=ktSdacha>0.01?fmtD(ktSdacha)+'$':'yo\'q';ktSdEl.style.color=ktSdacha>0.01?'var(--green)':'var(--muted)';}
 
