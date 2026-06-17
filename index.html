@@ -4631,9 +4631,9 @@ function kTolovCalc(){
   var ktNbEl=document.getElementById('kt-naqt-berildi');
   var ktKnEl=document.getElementById('kt-kerakli-naqt');
   if(jamiSummaKt>0){
-    if(ktNbBlok) ktNbBlok.style.display=ktKerakli>0?'block':'none';
+    if(ktNbBlok) ktNbBlok.style.display='block';
     if(ktKnEl){ktKnEl.textContent=fmtD(ktKerakli)+'$';ktKnEl.dataset.val=ktKerakli;}
-    if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli||'0';
+    if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli>0?ktKerakli:'';
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
     if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
