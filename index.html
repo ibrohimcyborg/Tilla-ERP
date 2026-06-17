@@ -5943,7 +5943,11 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     if (ortiqcha > 0.01) {
       if (taqsimTanlov && taqsimTanlov.tip === 'tur') {
         var ortiqchaG = taqsimTanlov.narx > 0 ? roundG(ortiqcha / taqsimTanlov.narx) : 0;
-        lines2.push(rjust('Ortiqcha → '+taqsimTanlov.zavod+' '+taqsimTanlov.tur, fmtG(ortiqchaG)+'g'));
+        lines2.push(rjust('Biz qarzdor → '+taqsimTanlov.zavod, ''));
+        lines2.push(rjust('  '+taqsimTanlov.tur, '+'+fmtG(ortiqchaG)));
+      } else if (taqsimTanlov && taqsimTanlov.tip === 'bizda') {
+        var bizdaG3 = taqsimTanlov.narx > 0 ? roundG(ortiqcha / taqsimTanlov.narx) : 0;
+        lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG3)));
       } else {
         lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
       }
