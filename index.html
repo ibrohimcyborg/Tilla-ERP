@@ -4525,8 +4525,9 @@ function kTolovCalc(){
       eq=roundG(s/kurs);
       var cEl=document.getElementById('kt-calc-'+idx);
       if(cEl){
-        var qolgan=Math.max(0,b.qarz-eq-v);
-        var ortiqcha=eq-b.qarz;
+        var qolgan=Math.max(0,Math.round((b.qarz-eq-v)*100)/100);
+        if(qolgan<0.01) qolgan=0;
+        var ortiqcha=Math.round((eq-b.qarz)*100)/100;
         if(ortiqcha>0.001){
           var qaytimPul=Math.round(ortiqcha*kurs*100)/100;
           cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'
@@ -5293,7 +5294,7 @@ function kSotuvTolovCalc() {
         if (s > 0) {
           var yopildiG = Math.round(s / n * 100) / 100;
           var qoldiG = Math.max(0, Math.round((obshiy - yopildiG) * 100) / 100);
-          if (qoldiG < 0.001) {
+          if (qoldiG < 0.01) {
             if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ — to\'liq yopildi ✓</span>';
           } else {
             if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ &nbsp;— </span><span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
@@ -5524,7 +5525,7 @@ function kSotuvCalc() {
 
   // 10. finQarz: joriy qarz + yangi berilgan - naqt to'lov grammda - ortiqcha grammda (tur tanlansa) - vozvrat
   var finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - naqtTolovG - ortiqchaG - vozJami) * 100) / 100;
-  finQarz = Math.max(0, finQarz);
+  finQarz = finQarz < 0.01 ? 0 : Math.max(0, finQarz);
 
   // 11. Sdacha (agar ortiqcha, qarz 0 yoki sdacha tanlansa)
   var sdacha = 0;
