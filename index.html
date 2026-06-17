@@ -5524,8 +5524,15 @@ function kSotuvCalc() {
     ortiqchaG = roundG(ortiqcha / taqsimTanlov.narx);
   }
 
-  // 10. finQarz: joriy qarz + yangi berilgan - naqt to'lov grammda - ortiqcha grammda (tur tanlansa) - vozvrat
+  // 10. finQarz
+  var lomTolovG = lomOrtiqchaPul > 0.01
+    ? Math.round((jamiOldiPul / (jamiOldiPul > 0 ? jamiOldiPul : 1)) * oldilar.reduce(function(a,o){return a+o.gramm;},0) * 100) / 100
+    : 0;
   var finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - naqtTolovG - ortiqchaG - vozJami) * 100) / 100;
+  if (lomOrtiqchaPul > 0.01) {
+    // Lom hammasini yopdi
+    finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - oldilar.reduce(function(a,o){return a+o.gramm;},0) - vozJami) * 100) / 100;
+  }
   finQarz = finQarz < 0.01 ? 0 : Math.max(0, finQarz);
 
   // 11. Sdacha (agar ortiqcha, qarz 0 yoki sdacha tanlansa)
