@@ -5490,19 +5490,14 @@ function kSotuvCalc() {
 
   var naqtVal = parseNum((nbEl||{}).value) || 0;
   var kartaVal = parseNum((nbKEl||{}).value) || 0;
-  var cbN2=document.getElementById('ks-cb-naqt');
-  var cbK2=document.getElementById('ks-cb-karta');
-  var naqtAuto = cbN2&&cbN2.textContent==='✓';
-  var kartaAuto = cbK2&&cbK2.textContent==='✓';
-  // Oxirgi o'zgargan input dataset orqali aniqlanadi
   var lastChanged = (document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.lastChanged||'';
-  if(!naqtAuto && !kartaAuto && lastChanged==='naqt' && nbKEl && !kartaAuto){
+  if(lastChanged==='naqt' && nbKEl){
     kartaVal = Math.max(0, Math.round((kerakliNaqt-naqtVal)*100)/100);
-    nbKEl.value = kartaVal;
+    if(kartaVal>0) nbKEl.value = kartaVal;
   }
-  if(!naqtAuto && !kartaAuto && lastChanged==='karta' && nbEl && !naqtAuto){
+  if(lastChanged==='karta' && nbEl){
     naqtVal = Math.max(0, Math.round((kerakliNaqt-kartaVal)*100)/100);
-    nbEl.value = naqtVal;
+    if(naqtVal>0) nbEl.value = naqtVal;
   }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = naqtBerildi > kerakliNaqt
@@ -5669,16 +5664,16 @@ function ksSotuvToggleTolov(tip) {
     cbN.style.background=on?'var(--green)':'transparent';
     cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
     cbN.textContent=on?'✓':'';
-    if(inpN){inpN.readOnly=on;inpN.style.pointerEvents=on?'none':'auto';}
-    if(on){if(inpN)inpN.value=kerakli;if(inpK)inpK.value='';}
+    if(inpN){inpN.readOnly=false;inpN.style.pointerEvents='auto';}
+    if(on){if(inpN&&!parseNum(inpN.value))inpN.value=kerakli;if(inpK)inpK.value='';}
     else{if(inpN)inpN.value='';}
   } else {
     var on=cbK.textContent!=='✓';
     cbK.style.background=on?'var(--blue)':'transparent';
     cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
     cbK.textContent=on?'✓':'';
-    if(inpK){inpK.readOnly=on;inpK.style.pointerEvents=on?'none':'auto';}
-    if(on){if(inpK)inpK.value=kerakli;if(inpN)inpN.value='';}
+    if(inpK){inpK.readOnly=false;inpK.style.pointerEvents='auto';}
+    if(on){if(inpK&&!parseNum(inpK.value))inpK.value=kerakli;if(inpN)inpN.value='';}
     else{if(inpK)inpK.value='';}
   }
   kSotuvCalc();
