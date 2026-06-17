@@ -4910,11 +4910,12 @@ function saqlashKlientTolov(){
   // === YANGI: "klientda" qarzlarni avtomatik tolov sifatida yopish ===
   var _now_kt = new Date();
   var _soat_kt = String(_now_kt.getHours()).padStart(2,'0')+':'+String(_now_kt.getMinutes()).padStart(2,'0');
+  var _idx_bq = 0;
   Object.keys(bd).forEach(function(key) {
     var b = bd[key];
-    if (b.qarz <= 0) { return; }
-    var kurs_kt = parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
-    idx++;
+    if (b.qarz <= 0) { _idx_bq++; return; }
+    var kurs_kt = parseNum((document.getElementById('kt-k-'+_idx_bq)||{}).value||0);
+    _idx_bq++;
     var bizQarz_kt = 0;
     k.tarix.forEach(function(op) {
       if (op.zavod !== b.zavod || op.tur !== b.tur) return;
@@ -4935,7 +4936,6 @@ function saqlashKlientTolov(){
       });
     }
   });
-  idx = 0;
   // === YANGI TUGADI ===
   var hasErr=false;
   Object.keys(bd).forEach(function(key){
@@ -5419,7 +5419,26 @@ function kstHammasi(zi, ti, obshiy) {
   var sEl = document.getElementById('kst-s-'+zi+'-'+ti);
   var gEl = document.getElementById('kst-g-'+zi+'-'+ti);
   if (!gEl) return;
-  var g = Math.round(obshiy * 100) / 100;
+  // obshiy = turQarz + yangiG bo'lishi mumkin, manfiy qarz (bizda) bo'lsa faqat yangiG ishlatiladi
+  var yangiG = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
+  var ki = _ksSotuvKi;
+  var k = ki >= 0 ? data.klientlar[ki] : null;
+  var turQarz = 0;
+  if (k) {
+    k.tarix.forEach(function(op) {
+      if (!op.zavod || !op.tur) return;
+      var z = data.zavodlar[parseInt(zi)], t = z ? z.turlar[parseInt(ti)] : null;
+      if (!z || !t || op.zavod !== z.nom || op.tur !== t.nom) return;
+      if (op.tip === 'berish')   turQarz += op.gramm;
+      if (op.tip === 'vozvrat')  turQarz -= op.gramm;
+      if (op.tip === 'tolov')    turQarz -= (op.ekvivalent||0);
+      if (op.tip === 'klientda') turQarz -= op.gramm;
+    });
+    turQarz = Math.round(turQarz * 100) / 100;
+  }
+  // Foydalanuvchi uchun to'lov: musbat qarz + yangi gramm (manfiy qarzni hisobga olmaydi)
+  var tolovG = Math.round((Math.max(0, turQarz) + yangiG) * 100) / 100;
+  var g = tolovG > 0 ? tolovG : Math.round(obshiy * 100) / 100;
   var n = parseNum((nEl||{}).value) || 0;
   gEl.value = g;
   if (n > 0 && sEl) {
@@ -5512,15 +5531,22 @@ function kSotuvTolovCalc() {
           var yopildiG = gInp2 > 0 ? gInp2 : Math.round(s / n * 100) / 100;
           var qoldiG = Math.max(0, Math.round((obshiy - yopildiG) * 100) / 100);
           if (qoldiG < 0.02) {
-            if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ — to\'liq yopildi ✓</span>';
+            if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(yopildiG)+'g × '+n+'$/g = '+fmtD(Math.round(yopildiG*n*100)/100)+'$ — to\'liq yopildi ✓</span>';
           } else {
-            if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(obshiy)+'g × '+n+'$/g = '+fmtD(maxPul)+'$ &nbsp;— </span><span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
+            if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(yopildiG)+'g × '+n+'$/g = '+fmtD(Math.round(yopildiG*n*100)/100)+'$ &nbsp;— </span><span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
           }
           jamiNaqt += s;
           jamiNaqtG += yopildiG;
         } else {
           if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(obshiy)+'g × '+n+'$/g = <b>'+fmtD(maxPul)+'$</b></span>';
         }
+      } else if (turQarz < -0.001 && s > 0) {
+        // Bizda qarz — to'lov faqat yangi gramm uchun
+        var gInp3 = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+        var yopildiG3 = gInp3 > 0 ? gInp3 : Math.round(s / n * 100) / 100;
+        jamiNaqt += s;
+        jamiNaqtG += yopildiG3;
+        if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(yopildiG3)+'g × '+n+'$/g = '+fmtD(s)+'$ ✓</span>';
       } else {
         if (res) res.innerHTML = '';
         if (s > 0) { jamiNaqt += s; }
