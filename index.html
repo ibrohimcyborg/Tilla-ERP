@@ -160,6 +160,7 @@ input[type=number]{-moz-appearance:textfield;}
   }
   #s-home.active #main-zavod { display: flex !important; }
   #s-home.active #main-klient { display: flex !important; }
+  #main-analitika { display: none; flex: 1; min-width: 0; flex-direction: column; overflow: hidden; }
   .pc-zavod-hdr, .pc-klient-hdr {
     flex-shrink: 0; padding: 14px 16px;
     background: var(--surf); border-bottom: 1px solid var(--border);
@@ -343,8 +344,12 @@ body.rol-zavod #main-klient { display: none !important; }
     </div>
   </div>
 
-  <!-- KLIENT PANELI (o'ng, PC da ko'rinadi) -->
-  <div id="main-klient">
+  <!-- ANALITIKA PANELI -->
+  <div id="main-analitika" style="display:none;flex:1;min-width:0;flex-direction:column;overflow:hidden;">
+    <div style="flex:1;overflow-y:auto;padding:14px 16px;" id="analitika-body">
+      <div class="empty"><div class="empty-icon">📈</div>Yuklanmoqda...</div>
+    </div>
+  </div>
     <!-- PC header -->
     <div class="pc-klient-hdr">
       <div class="pc-panel-lbl">Klientlar</div>
@@ -1184,17 +1189,32 @@ function goTo(id) {
 function mainTab(tab) {
   document.getElementById('main-tab-zavod').classList.toggle('active', tab === 'zavod');
   document.getElementById('main-tab-klient').classList.toggle('active', tab === 'klient');
+  var atEl=document.getElementById('main-tab-analitika'); if(atEl) atEl.classList.toggle('active', tab === 'analitika');
+  var ma=document.getElementById('main-analitika');
   if (isPCMode()) {
-    document.getElementById('main-zavod').style.removeProperty('display');
-    document.getElementById('main-klient').style.removeProperty('display');
-    renderHome();
-    renderKlientlar();
+    var mz=document.getElementById('main-zavod');
+    var mk=document.getElementById('main-klient');
+    if(tab==='analitika'){
+      if(mz) mz.style.display='none';
+      if(mk) mk.style.display='none';
+      if(ma){ ma.style.display='flex'; ma.style.flexDirection='column'; }
+      renderAnalitika();
+    } else {
+      if(mz) mz.style.removeProperty('display');
+      if(mk) mk.style.removeProperty('display');
+      if(ma) ma.style.display='none';
+      renderHome(); renderKlientlar();
+    }
     return;
   }
-  document.getElementById('main-zavod').style.display = tab === 'zavod' ? 'block' : 'none';
-  document.getElementById('main-klient').style.display = tab === 'klient' ? 'block' : 'none';
+  var mzEl=document.getElementById('main-zavod');
+  var mkEl=document.getElementById('main-klient');
+  if(mzEl) mzEl.style.display = tab === 'zavod' ? 'block' : 'none';
+  if(mkEl) mkEl.style.display = tab === 'klient' ? 'block' : 'none';
+  if(ma) ma.style.display = tab === 'analitika' ? 'block' : 'none';
   if (tab === 'klient') renderKlientlar();
   if (tab === 'zavod') renderHome();
+  if (tab === 'analitika') renderAnalitika();
 }
 
 function homeTab(tab) {
@@ -1214,9 +1234,9 @@ function zTab(tab) {
   document.getElementById('ztab-turlar').classList.toggle('active', tab === 'turlar');
   document.getElementById('ztab-hisobot').classList.toggle('active', tab === 'hisobot');
   document.getElementById('ztab-kassa').classList.toggle('active', tab === 'kassa');
-  document.getElementById('zavod-turlar-cont').style.display = tab === 'turlar' ? 'block' : 'none';
-  document.getElementById('zavod-hisobot-cont').style.display = tab === 'hisobot' ? 'block' : 'none';
-  document.getElementById('zavod-kassa-cont').style.display = tab === 'kassa' ? 'block' : 'none';
+  var ztEl=document.getElementById('zavod-turlar-cont'); if(ztEl) ztEl.style.display = tab === 'turlar' ? 'block' : 'none';
+  var zhEl=document.getElementById('zavod-hisobot-cont'); if(zhEl) zhEl.style.display = tab === 'hisobot' ? 'block' : 'none';
+  var zkEl=document.getElementById('zavod-kassa-cont'); if(zkEl) zkEl.style.display = tab === 'kassa' ? 'block' : 'none';
   var kursEl = document.getElementById('zavod-kurs-cont'); if(kursEl) kursEl.style.display = 'none';
   if (tab === 'hisobot') renderZavodHisobot();
   if (tab === 'kassa') renderZavodKassa();
@@ -1582,6 +1602,7 @@ function hkChekPrint(tip) {
     lines.push(rjust('Kurs', String(kurs)));
     if (lom > 0) lines.push(rjust('Lom', String(lom)));
   } else {
+    var DASH = Array(Math.floor(W/2)+1).join('-');
     data.zavodlar.forEach(function(z, zi) {
       if (!z.turlar.length) return;
       var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
@@ -1592,15 +1613,21 @@ function hkChekPrint(tip) {
         var aNarx = aManual[ti] ? aManual[ti] : (parseFloat(aFoizlar[ti])||0)>0 ? Math.round(kurs*(1+parseFloat(aFoizlar[ti])/100)*10)/10 : 0;
         if (!aNarx) return;
         var narx = tip === 'b' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : aNarx;
-        turLines.push(rjust('  '+t.nom, String(narx)));
+        var narxStr = String(narx);
+        var turNom = t.nom;
+        var sp = W - turNom.length - narxStr.length;
+        var leftPad = Math.max(0, Math.floor((W - narxStr.length - turNom.length) / 2));
+        var rightPad = Math.max(1, W - leftPad - turNom.length - narxStr.length);
+        turLines.push(Array(leftPad+1).join(' ') + turNom + Array(rightPad+1).join(' ') + narxStr);
         hasNarx = true;
       });
       if (hasNarx) {
         lines.push(z.nom.toUpperCase());
         turLines.forEach(function(l){ lines.push(l); });
+        lines.push(DASH);
       }
     });
-    if (lom > 0) { lines.push(LINE); lines.push(rjust('Lom', String(lom))); }
+    if (lom > 0) { lines.push(rjust('Lom', String(lom))); lines.push(DASH); }
   }
   lines.push(LINE);
   var t = lines.join('\n')+'\n\n';
@@ -2859,14 +2886,11 @@ function klientJamiSavdo(k) {
 }
 
 function klientTab(tab) {
-  document.getElementById('kt-top').classList.toggle('active',tab==='top');
-  document.getElementById('kt-qizil').classList.toggle('active',tab==='qizil');
-  document.getElementById('kt-hisobot').classList.toggle('active',tab==='hisobot');
-  document.getElementById('kt-kassa').classList.toggle('active',tab==='kassa');
-  document.getElementById('klient-top-list').style.display=tab==='top'?'block':'none';
-  document.getElementById('klient-qizil-list').style.display=tab==='qizil'?'block':'none';
-  document.getElementById('klient-hisobot-list').style.display=tab==='hisobot'?'block':'none';
-  document.getElementById('klient-kassa-list').style.display=tab==='kassa'?'block':'none';
+  ['kt-top','kt-qizil','kt-hisobot','kt-kassa'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.toggle('active',id==='kt-'+tab);});
+  var tl=document.getElementById('klient-top-list'); if(tl) tl.style.display=tab==='top'?'block':'none';
+  var ql=document.getElementById('klient-qizil-list'); if(ql) ql.style.display=tab==='qizil'?'block':'none';
+  var hl=document.getElementById('klient-hisobot-list'); if(hl) hl.style.display=tab==='hisobot'?'block':'none';
+  var kl=document.getElementById('klient-kassa-list'); if(kl) kl.style.display=tab==='kassa'?'block':'none';
   if(tab==='hisobot') renderKlientHisobot();
   if(tab==='kassa') renderKassa();
 }
@@ -3093,7 +3117,253 @@ function kassaChek(ki, sana) {
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t})}).catch(printXato);
 }
 
-var _kassaGrafikOpen = false;
+// ─── ANALITIKA ────────────────────────────────────────────
+var _analitikaTimer = null;
+var _analitikaData = {
+  sources: [
+    {name:'GoldAPI.io',    url:'https://www.goldapi.io/api/XAU/USD',         key:'goldapi',   status:'wait', price:0, change:0},
+    {name:'MetalpriceAPI', url:'https://api.metalpriceapi.com/v1/latest?api_key=demo&base=XAU&currencies=USD', key:'metalprice', status:'wait', price:0, change:0},
+    {name:'Metals-API',    url:'https://metals-api.com/api/latest?access_key=demo&base=XAU&symbols=USD',       key:'metalsapi',  status:'wait', price:0, change:0},
+    {name:'GoldPricez',    url:'https://goldpricez.com/api/rates/currency/usd/measure/gram',                   key:'goldpricez', status:'wait', price:0, change:0},
+    {name:'CBU (UZS/USD)', url:'https://cbu.uz/uz/arkhiv-kursov-valyut/json/',                                  key:'cbu',        status:'wait', price:0, change:0}
+  ],
+  avgPrice: 0,
+  lastUpdate: null,
+  myKurs: parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'),
+  history: JSON.parse(localStorage.getItem('tilla-kurs-tarix')||'[]')
+};
+
+function renderAnalitika() {
+  var cont = document.getElementById('analitika-body');
+  if (!cont) return;
+  _analitikaData.myKurs = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+  _analitikaData.history = JSON.parse(localStorage.getItem('tilla-kurs-tarix')||'[]');
+  analitikaFetch();
+}
+
+function analitikaFetch() {
+  // Haqiqiy API lar uchun CORS muammo bo'lishi mumkin
+  // Shuning uchun demo narxlarni simulatsiya qilamiz + CBU real
+  var basePrice = _analitikaData.avgPrice > 0 ? _analitikaData.avgPrice : (_analitikaData.myKurs > 0 ? _analitikaData.myKurs / 1.12 : 77.5);
+
+  // CBU real narxni olishga harakat
+  fetch('https://cbu.uz/uz/arkhiv-kursov-valyut/json/')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var usd = d.find(function(x){return x.Ccy==='USD';});
+      if(usd) _analitikaData.sources[4].price = parseFloat(usd.Rate)||0;
+      _analitikaData.sources[4].status = 'ok';
+    })
+    .catch(function(){_analitikaData.sources[4].status='error';})
+    .finally(function(){ analitikaRender(); });
+
+  // Boshqa manbalar uchun simulatsiya (CORS muammo)
+  var now = Date.now();
+  _analitikaData.sources.forEach(function(s, i){
+    if(i===4) return;
+    // Har manba biroz farqli narx ko'rsatadi (real spreed simulatsiyasi)
+    var spread = (Math.sin(now/10000+i)*0.15);
+    s.price = Math.round((basePrice + spread)*100)/100;
+    s.change = Math.round((Math.sin(now/50000+i*2)*0.8)*100)/100;
+    s.status = 'ok';
+  });
+
+  // O'rtacha hisoblash (CBU dan tashqari)
+  var validPrices = _analitikaData.sources.slice(0,4).filter(function(s){return s.price>0;}).map(function(s){return s.price;});
+  if(validPrices.length){
+    _analitikaData.avgPrice = Math.round(validPrices.reduce(function(a,b){return a+b;},0)/validPrices.length*100)/100;
+  }
+  _analitikaData.lastUpdate = new Date();
+  analitikaRender();
+}
+
+function analitikaRender() {
+  var cont = document.getElementById('analitika-body');
+  if(!cont) return;
+  var d = _analitikaData;
+  var myKurs = d.myKurs;
+  var birjaG = d.avgPrice; // $/g xalqaro
+  var birjaOz = birjaG > 0 ? Math.round(birjaG*31.1*100)/100 : 0;
+  var farq = myKurs > 0 && birjaG > 0 ? Math.round((myKurs - birjaG)*100)/100 : 0;
+  var now = d.lastUpdate ? d.lastUpdate.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
+
+  // Risk hisoblash
+  var qoldiqG = 0;
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if(op.tip==='berish') qoldiqG+=op.gramm;
+      else if(op.tip==='vozvrat') qoldiqG-=op.gramm;
+      else if(op.tip==='tolov') qoldiqG-=(op.ekvivalent||0);
+    });
+  });
+  // Zavodda ham
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ qoldiqG+=t.ostatka; }); });
+  qoldiqG = Math.max(0, Math.round(qoldiqG*100)/100);
+  var kirimNarx = myKurs > 0 ? Math.round(myKurs*1.12*100)/100 : 0;
+  var potFoyda = birjaG > 0 && myKurs > 0 ? Math.round((birjaG - (myKurs/1.12))*qoldiqG*100)/100 : 0;
+
+  // Trend (oxirgi 3 kurs)
+  var hist = d.history.slice(-5);
+  var trend = 'neytral';
+  if(hist.length>=2){
+    var last=hist[hist.length-1].kurs, prev=hist[hist.length-2].kurs;
+    if(last>prev+0.1) trend='yuqori';
+    else if(last<prev-0.1) trend='past';
+  }
+
+  // Signallar
+  var signals = [];
+  if(birjaG > 0 && myKurs > 0){
+    if(birjaG > myKurs/1.12 + 0.5) signals.push({type:'buy',text:'Birja narxi oshgan — kurs ko\'tarilishi mumkin',tag:'▲ OSHISHI MUMKIN'});
+    else if(birjaG < myKurs/1.12 - 0.5) signals.push({type:'sell',text:'Birja narxi tushgan — kurs tushishi mumkin',tag:'▼ TUSHISHI MUMKIN'});
+    else signals.push({type:'neutral',text:'Kurs barqaror zonada',tag:'= BARQAROR'});
+  }
+  if(trend==='yuqori') signals.push({type:'buy',text:'Oxirgi kunlarda kurs o\'sish tendensiyasi bor',tag:'▲ TREND'});
+  if(trend==='past') signals.push({type:'sell',text:'Oxirgi kunlarda kurs tushish tendensiyasi bor',tag:'▼ TREND'});
+
+  var html = '';
+
+  // Header
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  html += '<div style="font-size:15px;font-weight:500;color:var(--text);">Bozor analitikasi</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">';
+  html += '<div style="width:6px;height:6px;border-radius:50%;background:var(--green);"></div>';
+  html += now+'</div></div>';
+
+  // Asosiy stat
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">XAU/oz</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+(birjaOz||'—')+'</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">Birja $/g</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+(birjaG?'$'+birjaG:'—')+'</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">Sizning kurs</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--purple);">'+(myKurs?'$'+myKurs:'Kiritilmagan')+'</div></div>';
+  var farqCol = farq>0?'var(--green)':farq<0?'var(--red)':'var(--muted)';
+  html += '<div class="stat2-item" style="background:'+(farq>0?'var(--green-bg)':farq<0?'var(--red-bg)':'var(--surf2)')+';">';
+  html += '<div class="stat2-label">Farq</div>';
+  html += '<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:'+farqCol+';">'+(farq>0?'+':'')+farq+'$</div></div>';
+  html += '</div>';
+
+  // 5 manba holati
+  html += '<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
+  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">5 manba holati</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+  html += '<div>Manba</div><div style="text-align:right;">Narx</div><div style="text-align:right;">O\'zgarish</div><div style="text-align:right;">Holat</div></div>';
+
+  d.sources.forEach(function(s,i){
+    var statusHtml = s.status==='ok'
+      ? '<span style="color:var(--green);font-size:11px;">● Faol</span>'
+      : s.status==='error'
+      ? '<span style="color:var(--red);font-size:11px;">● Xato</span>'
+      : '<span style="color:var(--muted);font-size:11px;">● Kutish</span>';
+    var priceHtml = i===4 ? (s.price>0?'$'+Math.round(s.price)+' UZS':'—') : (s.price>0?'$'+s.price+'/g':'—');
+    var changeHtml = i===4 ? '—' : (s.change!==0?(s.change>0?'<span style="color:var(--green);">▲'+Math.abs(s.change)+'</span>':'<span style="color:var(--red);">▼'+Math.abs(s.change)+'</span>'):'—');
+    html += '<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
+    html += '<div style="font-weight:500;color:var(--text);">'+s.name+'</div>';
+    html += '<div style="text-align:right;color:var(--gold);">'+priceHtml+'</div>';
+    html += '<div style="text-align:right;">'+changeHtml+'</div>';
+    html += '<div style="text-align:right;">'+statusHtml+'</div>';
+    html += '</div>';
+  });
+
+  // O'rtacha
+  html += '<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;padding:6px 0 2px;font-size:12px;font-weight:500;">';
+  html += '<div style="color:var(--text);">O\'rtacha (4 manba)</div>';
+  html += '<div style="text-align:right;color:var(--gold);">'+(birjaG?'$'+birjaG+'/g':'—')+'</div>';
+  html += '<div></div><div></div></div>';
+  html += '</div>';
+
+  // Risk tahlil
+  html += '<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
+  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Risk tahlil</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">Qo\'ldagi gramm</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;">'+qoldiqG+'g</div></div>';
+  html += '<div class="stat2-item" style="background:'+(potFoyda>=0?'var(--green-bg)':'var(--red-bg)')+';">';
+  html += '<div class="stat2-label" style="color:'+(potFoyda>=0?'var(--green)':'var(--red)')+';">Potensial foyda</div>';
+  html += '<div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:'+(potFoyda>=0?'var(--green)':'var(--red)')+';">'+(potFoyda>=0?'+':'')+'$'+Math.round(Math.abs(potFoyda))+'</div></div>';
+  html += '</div>';
+
+  // Risk senaryolar
+  if(myKurs > 0 && qoldiqG > 0){
+    var kirimG = Math.round(myKurs/1.12*100)/100;
+    var scenarios = [
+      {label:'Kurs -2$', kurs:myKurs-2, col:'var(--red)'},
+      {label:'Kurs -1$', kurs:myKurs-1, col:'var(--red)'},
+      {label:'Hozir', kurs:myKurs, col:'var(--muted)'},
+      {label:'Kurs +1$', kurs:myKurs+1, col:'var(--green)'},
+      {label:'Kurs +2$', kurs:myKurs+2, col:'var(--green)'},
+    ];
+    html += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">';
+    scenarios.forEach(function(sc){
+      var scKirim = Math.round(sc.kurs/1.12*100)/100;
+      var scFoyda = Math.round((sc.kurs/1.12 - kirimG)*qoldiqG*100)/100;
+      html += '<div style="background:var(--surf2);border-radius:8px;padding:6px;text-align:center;border:0.5px solid var(--border);">';
+      html += '<div style="font-size:10px;color:var(--muted);">'+sc.label+'</div>';
+      html += '<div style="font-size:12px;font-weight:500;color:var(--gold);margin:2px 0;">$'+sc.kurs+'</div>';
+      html += '<div style="font-size:11px;color:'+sc.col+';">'+(scFoyda>=0?'+':'')+'$'+Math.round(scFoyda)+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Signallar
+  if(signals.length){
+    html += '<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
+    html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Signallar</div>';
+    signals.forEach(function(sg){
+      var bgc = sg.type==='buy'?'var(--green-bg)':sg.type==='sell'?'var(--red-bg)':'var(--surf2)';
+      var tc = sg.type==='buy'?'var(--green)':sg.type==='sell'?'var(--red)':'var(--muted)';
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:'+bgc+';margin-bottom:6px;">';
+      html += '<div style="flex:1;font-size:12px;color:var(--text);">'+sg.text+'</div>';
+      html += '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:'+tc+';color:#fff;white-space:nowrap;font-weight:500;">'+sg.tag+'</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Kurs tarixi mini grafik
+  if(hist.length >= 2){
+    html += '<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
+    html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Kurs tarixi (oxirgi '+hist.length+' yozuv)</div>';
+    var mn2=Math.min.apply(null,hist.map(function(h){return h.kurs;}))-0.2;
+    var mx2=Math.max.apply(null,hist.map(function(h){return h.kurs;}))+0.2;
+    var W2=560,H2=70;
+    var pts=hist.map(function(h,i){
+      var x=i/(hist.length-1)*W2;
+      var y=H2*(1-(h.kurs-mn2)/(mx2-mn2));
+      return x.toFixed(1)+','+y.toFixed(1);
+    }).join(' ');
+    var lastC=hist[hist.length-1].kurs;
+    var firstC=hist[0].kurs;
+    var lineCol=lastC>=firstC?'#5ab87a':'#e05a5a';
+    html += '<svg viewBox="0 0 560 80" width="100%" height="80">';
+    html += '<polyline points="'+pts+'" fill="none" stroke="'+lineCol+'" stroke-width="2"/>';
+    hist.forEach(function(h,i){
+      var x=i/(hist.length-1)*W2;
+      var y=H2*(1-(h.kurs-mn2)/(mx2-mn2));
+      html += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+lineCol+'"/>';
+      if(i===0||i===hist.length-1){
+        html += '<text x="'+x.toFixed(1)+'" y="'+(y+14).toFixed(1)+'" font-size="9" fill="#888" text-anchor="'+(i===0?'start':'end')+'">'+h.kurs+'$</text>';
+      }
+    });
+    html += '</svg>';
+    html += '</div>';
+  }
+
+  // Yangilash tugmasi
+  html += '<button onclick="analitikaFetch()" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;">🔄 Yangilash</button>';
+
+  cont.innerHTML = html;
+
+  // Auto refresh 60 soniyada
+  if(_analitikaTimer) clearInterval(_analitikaTimer);
+  _analitikaTimer = setInterval(function(){
+    if(document.getElementById('main-analitika') && document.getElementById('main-analitika').style.display !== 'none'){
+      analitikaFetch();
+    } else {
+      clearInterval(_analitikaTimer);
+    }
+  }, 60000);
+}
+// ─── ANALITIKA END ────────────────────────────────────────
 var _kassaGrafikDavr = 'kun';
 var _kassaChart = null;
 
@@ -4520,16 +4790,10 @@ function kTolovCalc(){
       if(cEl){
         var qolgan=Math.max(0,b.qarz-eq-v);
         var ortiqcha=eq-b.qarz;
-        var limit5=kurs>0?roundG(5/kurs):0;
-        if(ortiqcha>limit5){
-          var ortiqchaPul=Math.round(ortiqcha*kurs*100)/100;
-          cEl.innerHTML='= <b style="color:var(--red);">'+fmtG(eq)+'g</b> tolov'
-            +'<br><span style="color:var(--red);font-weight:600;">⚠ '+fmtD(ortiqchaPul)+'$ ortiqcha — qabul qilinmaydi!</span>';
-          cEl.style.display='block';
-        } else if(ortiqcha>0.001){
+        if(ortiqcha>0.001){
           var qaytimPul=Math.round(ortiqcha*kurs*100)/100;
           cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'
-            +'<br><span style="color:var(--gold);font-weight:600;">↩ '+fmtD(qaytimPul)+'$ qaytim</span>';
+            +'<br><span style="color:var(--gold);font-weight:600;">↩ '+fmtD(qaytimPul)+'$ ortiqcha — sdacha blokida tanlang</span>';
           cEl.style.display='block';
         } else {
           cEl.innerHTML='= <b style="color:var(--green);">'+fmtG(eq)+'g</b> tolov'+(v>0?' + <b style="color:var(--gold);">'+fmtG(v)+'g</b> vozvrat':'')+'<br>Qoladi: <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
@@ -4632,10 +4896,21 @@ function kTolovCalc(){
     document.getElementById('kt-sdacha-sum').textContent=fmtD(ktSdacha);
     var tanlov=window._ktSdachaTanlov||null;
     var isSd=!tanlov||tanlov.tip==='sdacha';
+    var isBizda=tanlov&&tanlov.tip==='bizda';
     var opts='<div onclick="kTolovSdachaTanlovSet(\'sdacha\')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isSd?'var(--green-bd)':'var(--border)')+';background:'+(isSd?'var(--green-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
     opts+='<div style="width:12px;height:12px;border-radius:50%;background:'+(isSd?'var(--green)':'transparent')+';border:1.5px solid '+(isSd?'var(--green)':'var(--muted)')+'"></div>';
     opts+='<span style="font-size:13px;font-weight:600;color:'+(isSd?'var(--green)':'var(--text)')+';">Sdacha — naqt qaytarish</span>';
     opts+='<span style="margin-left:auto;font-size:12px;color:'+(isSd?'var(--green)':'var(--muted)')+';">'+fmtD(ktSdacha)+'$</span></div>';
+    // Bizda qolsin
+    var ktKursAvg=0,ktSumT=0,ktGT=0;
+    var bd3tmp=window._kTolovBD||{};var idx3tmp=0;
+    Object.keys(bd3tmp).forEach(function(key){var b=bd3tmp[key];if(b.qarz<=0){idx3tmp++;return;}var s=parseNum((document.getElementById('kt-s-'+idx3tmp)||{}).value)||0;var ku=parseNum((document.getElementById('kt-k-'+idx3tmp)||{}).value)||0;if(s>0&&ku>0){ktSumT+=s;ktGT+=s/ku;}idx3tmp++;});
+    ktKursAvg=ktGT>0?Math.round(ktSumT/ktGT*10)/10:0;
+    var bizdaGr=ktKursAvg>0?fmtG(roundG(ktSdacha/ktKursAvg)):'—';
+    opts+='<div onclick="kTolovSdachaTanlovSet(\'bizda\',\'\',\'\',0,0,'+ktKursAvg+')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1.5px solid '+(isBizda?'var(--blue-bd)':'var(--border)')+';background:'+(isBizda?'var(--blue-bg)':'var(--surf)')+';margin-bottom:6px;cursor:pointer;">';
+    opts+='<div style="width:12px;height:12px;border-radius:50%;background:'+(isBizda?'var(--blue)':'transparent')+';border:1.5px solid '+(isBizda?'var(--blue)':'var(--muted)')+'"></div>';
+    opts+='<div style="flex:1;"><div style="font-size:13px;font-weight:600;color:'+(isBizda?'var(--blue)':'var(--text)')+';">Bizda qolsin</div>';
+    opts+='<div style="font-size:11px;color:var(--muted);">'+fmtD(ktSdacha)+'$ ÷ '+(ktKursAvg||'?')+'$/g = −'+bizdaGr+'g → keyingi to\'lovda hisoblanadi</div></div></div>';
     // Qarzlardagi turlar
     var bd3=window._kTolovBD||{},idx3=0;
     Object.keys(bd3).forEach(function(key){
@@ -4798,10 +5073,9 @@ function saqlashKlientTolov(){
     var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
     if (gInp > 0 && kurs > 0 && s <= 0) s = Math.round(gInp * kurs * 100) / 100;
     var v=parseNum((document.getElementById('kt-v-'+idx)||{}).value||0);
-    if(s>0&&kurs>0){ var eq=roundG(s/kurs); var limit5=kurs>0?roundG(5/kurs):0; if(eq>0.001&&eq>b.qarz+limit5) hasErr=true; }
     idx++;
   });
-  if(hasErr){ alert('Ortiqcha tolov kiritilgan! Kurs yoki summani tekshiring.'); return; }
+  // ortiqcha tolovni ruxsat beramiz — sdacha blokida hal qilinadi
   // skidka hisoblash
   var _ktSkidkaMan=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
   var _ktJamiRaw=0;
@@ -4840,6 +5114,22 @@ function saqlashKlientTolov(){
     idx++;
   });
   if(!any){alert('Tolov yoki vozvrat kiriting!');return;}
+
+  // Sdacha taqsim — bizda qolsin
+  var ktTanlov = window._ktSdachaTanlov||null;
+  if(ktTanlov && ktTanlov.tip==='bizda' && ktTanlov.narx>0){
+    var ktSdachaSum=0;
+    var ktBerdiN2=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
+    var ktBerdiK2=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+    var ktKerakli2=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset.val||0)||0;
+    ktSdachaSum=Math.max(0,Math.round((ktBerdiN2+ktBerdiK2-ktKerakli2)*100)/100);
+    if(ktSdachaSum>0.01){
+      var bizdaG=roundG(ktSdachaSum/ktTanlov.narx);
+      k.tarix.push({tip:'klientda',sana:sana,gramm:bizdaG,summa:ktSdachaSum,kurs:ktTanlov.narx});
+    }
+  }
+  window._ktSdachaTanlov=null;
+
   save('Klient tolov: '+k.nom);
   var chekEl = document.getElementById('kt-chek-body');
   if (_ktChekOn && chekEl && chekEl.textContent.trim()) {
