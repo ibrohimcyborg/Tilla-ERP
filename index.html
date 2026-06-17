@@ -5417,7 +5417,7 @@ function kSotuvCalc() {
   var joriyQarz = klientJamiQarz(k);
   var kurs = parseNum(document.getElementById('ks-kurs').value) || 0;
 
-  // 1. Sotilgan mol
+  // 1. Sotilgan mol — jamiOldiPul ham kst-s dan olinadi (naqtTolovPul bilan bir xil manba)
   var oldilar = [], jamiOldiPul = 0;
   document.querySelectorAll('[id^="ksg-"]').forEach(function(el) {
     if (!el.id.match(/^ksg-\d+-\d+$/)) return;
@@ -5425,8 +5425,9 @@ function kSotuvCalc() {
     var zi = parts[1], ti = parts[2];
     var g = parseNum(el.value) || 0;
     var narx = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
-    var pul = Math.round(g * narx * 100) / 100;
-    if (g > 0) {
+    var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
+    var pul = s > 0 ? s : Math.round(g * narx * 100) / 100;
+    if (g > 0 && narx > 0) {
       var z = data.zavodlar[parseInt(zi)], t = z.turlar[parseInt(ti)];
       oldilar.push({zavod:z.nom, tur:t.nom, gramm:g, narx:narx, pul:pul, zi:parseInt(zi), ti:parseInt(ti)});
       jamiOldiPul += pul;
