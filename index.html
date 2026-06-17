@@ -4625,18 +4625,8 @@ function kTolovCalc(){
 
   // Lom ortiqcha bo'lsa
   var ktLomOrtiqcha=Math.max(0,Math.round((ktLomPulJami-jamiSummaKt+manSkKt)*100)/100);
-  // Kerakli summa = qarz × narx (klient kiritgan summadan emas)
-  var jamiQarzSumma=0;
-  var _idx99=0;
-  Object.keys(window._kTolovBD||{}).forEach(function(key){
-    var b=(window._kTolovBD||{})[key];if(b.qarz<=0){_idx99++;return;}
-    var ku=parseNum((document.getElementById('kt-k-'+_idx99)||{}).value)||0;
-    if(ku>0) jamiQarzSumma+=Math.round(b.qarz*ku*100)/100;
-    _idx99++;
-  });
-  jamiQarzSumma=Math.round(jamiQarzSumma*100)/100;
-  var ktKerakliBase=Math.max(0,Math.round((jamiQarzSumma-ktLomPulJami-manSkKt)*100)/100);
-  var ktKerakli=ktLomOrtiqcha>0.01?0:ktKerakliBase;
+  var ktKerakli=Math.max(0,Math.round((jamiSummaKt-ktLomPulJami-manSkKt)*100)/100);
+  var ktKerakliBase=ktKerakli;
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok');
   var ktNbEl=document.getElementById('kt-naqt-berildi');
   var ktKnEl=document.getElementById('kt-kerakli-naqt');
@@ -4667,10 +4657,9 @@ function kTolovCalc(){
     ktNbEl.value=ktBerdiN||'';
   }
   var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
-  // Lom ortiqcha yoki naqt ortiqcha
   var ktSdacha=ktLomOrtiqcha>0.01
     ? ktLomOrtiqcha
-    : (ktBerdi>ktKerakliBase?Math.round((ktBerdi-ktKerakliBase)*100)/100:0);
+    : (ktBerdi>ktKerakli?Math.round((ktBerdi-ktKerakli)*100)/100:0);
   var ktSdEl=document.getElementById('kt-sdacha-val');
   if(ktSdEl){ktSdEl.textContent=ktSdacha>0.01?fmtD(ktSdacha)+'$':'yo\'q';ktSdEl.style.color=ktSdacha>0.01?'var(--green)':'var(--muted)';}
 
@@ -5639,22 +5628,24 @@ function kSotuvCalc() {
   // 6. Jami to'lov (naqt + lom)
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
-  // 7. Kerakli naqt = mahsulot narxi - lom - skidka
-  var lomOrtiqchaPul = Math.max(0, Math.round((lomPulJami - jamiOldiPul + skidka) * 100) / 100);
-  var kerakliNaqt = Math.max(0, Math.round((jamiOldiPul - lomPulJami - skidka) * 100) / 100);
+  // 7. Kerakli naqt = kst-g × narx - lom - skidka
+  var mahsulotNarxi = 0;
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var g=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+    var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+    if(g>0&&n>0) mahsulotNarxi+=Math.round(g*n*100)/100;
+  }); });
+  var lomOrtiqchaPul = Math.max(0, Math.round((lomPulJami - mahsulotNarxi + skidka) * 100) / 100);
+  var kerakliNaqt = Math.max(0, Math.round((mahsulotNarxi - lomPulJami - skidka) * 100) / 100);
 
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
   var nbEl = document.getElementById('ks-naqt-berildi');
   var nbKEl = document.getElementById('ks-karta-berildi');
   var knEl = document.getElementById('ks-kerakli-naqt');
-  if (jamiOldiPul > 0) {
+  if (mahsulotNarxi > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
-    // Faqat input bo'sh bo'lsa avtomatik to'ldir
-    var curNaqt = parseNum(nbEl.value)||0;
-    if (!nbEl.dataset.userEdited && (curNaqt === 0 || Math.abs(curNaqt - kerakliNaqt) > 0.01)) {
-      nbEl.value = kerakliNaqt > 0 ? kerakliNaqt : '';
-    }
+    if (!nbEl.dataset.userEdited) nbEl.value = kerakliNaqt > 0 ? kerakliNaqt : '';
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
