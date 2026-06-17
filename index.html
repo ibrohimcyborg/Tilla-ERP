@@ -1598,9 +1598,9 @@ function hkChekPrint(tip) {
         var narx = tip === 'b' && bUst > 0 ? Math.round((aNarx+bUst)*10)/10 : aNarx;
         var narxStr = String(narx);
         var turNom = t.nom;
-        var sp = W - turNom.length - narxStr.length;
-        var leftPad = Math.max(0, Math.floor((W - narxStr.length - turNom.length) / 2));
-        var rightPad = Math.max(1, W - leftPad - turNom.length - narxStr.length);
+        var totalLen = turNom.length + narxStr.length;
+        var leftPad = Math.max(0, Math.floor((W - totalLen) / 2));
+        var rightPad = Math.max(1, W - leftPad - totalLen);
         turLines.push(Array(leftPad+1).join(' ') + turNom + Array(rightPad+1).join(' ') + narxStr);
         hasNarx = true;
       });
