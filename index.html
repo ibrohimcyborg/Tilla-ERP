@@ -5787,10 +5787,12 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       if (t.ostatka <= 0.001) return;
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
-      var g = s > 0 && n > 0 ? Math.round(s/n*100)/100 : 0;
-      if (s > 0 && n > 0) {
-        naqtSatirlar.push({nom:z.nom+' · '+t.nom, g:g, n:n, s:s});
-        naqtJami += s;
+      var g = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
+      if (!g && s > 0 && n > 0) g = Math.round(s/n*100)/100;
+      var realS = g > 0 && n > 0 ? Math.round(g*n*100)/100 : s;
+      if (g > 0 && n > 0) {
+        naqtSatirlar.push({nom:z.nom+' · '+t.nom, g:g, n:n, s:realS});
+        naqtJami += realS;
       }
     });
   });
@@ -5809,11 +5811,23 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     lines2.push(LINE);
     lines2.push(rjust("Jami to'landi", fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
     lines2.push(rjust('', '('+fmtG(naqtJamiG)+' g)'));
-    // N / K qatorlari — skidka Jami to'landida allaqachon ayirilgan
+    // N / K qatorlari
     var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
     if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
     if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
+    // Ortiqcha / sdacha / bizda qolsin
+    if(ortiqcha > 0.01){
+      if(taqsimTanlov && taqsimTanlov.tip==='tur'){
+        var ortG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
+        lines2.push(rjust('Ortiqcha → '+taqsimTanlov.tur, '+'+fmtG(ortG2)+'g'));
+      } else if(taqsimTanlov && taqsimTanlov.tip==='bizda'){
+        var bizdaG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
+        lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)+'g'));
+      } else {
+        lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
+      }
+    }
     lines2.push(LINE);
   }
 
