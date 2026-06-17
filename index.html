@@ -4048,6 +4048,17 @@ function kberishKlientChange(){
 }
 
 function renderBerishTurlar(zavodlar){
+  var ki=parseInt(document.getElementById('kb-klient').value);
+  var k=!isNaN(ki)&&ki>=0?data.klientlar[ki]:null;
+  // klientda qarzlarni hisoblash
+  var klientdaMap={};
+  if(k) k.tarix.forEach(function(op){
+    if(op.tip==='klientda'&&op.zavod&&op.tur){
+      var key=op.zavod+'||'+op.tur;
+      if(!klientdaMap[key]) klientdaMap[key]=0;
+      klientdaMap[key]+=op.gramm;
+    }
+  });
   var out='';
   zavodlar.forEach(function(z,idx){
     var zi=data.zavodlar.indexOf(z);
@@ -4059,14 +4070,20 @@ function renderBerishTurlar(zavodlar){
     out+='<div id="bz-'+idx+'" style="display:none;padding:0 4px;">';
     z.turlar.forEach(function(t,ti){
       var inputId='kbg-'+zi+'-'+ti;
+      var kdKey=z.nom+'||'+t.nom;
+      var kdG=klientdaMap[kdKey]||0;
       out+='<div style="display:flex;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);">';
       out+='<div style="flex:1;font-size:14px;color:var(--text);padding-top:8px;">'+t.nom+'</div>';
       out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
       out+='<div style="display:flex;align-items:center;gap:6px;">';
-      out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
+      out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" data-klientda="'+kdG+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
       out+='<span style="font-size:12px;color:var(--muted);">g</span>';
       out+='</div>';
-      out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+      if(kdG>0.01){
+        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">bizda: +'+fmtG(kdG)+' | ostatka: '+fmtG(t.ostatka)+'g</div>';
+      } else {
+        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+      }
       out+='</div>';
       out+='</div>';
     });
@@ -4078,6 +4095,7 @@ function renderBerishTurlar(zavodlar){
 
 function berishOstatkaUpdate(el) {
   var ostatka = parseFloat(el.dataset.ostatka) || 0;
+  var kdG = parseFloat(el.dataset.klientda) || 0;
   var g = parseNum(el.value) || 0;
   var qolgan = ostatka - g;
   var ostEl = document.getElementById('ost-' + el.id);
@@ -4086,10 +4104,14 @@ function berishOstatkaUpdate(el) {
     if (ostEl) ostEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ '+fmtG(Math.abs(qolgan))+'g yetmaydi!</span>';
   } else if (g > 0) {
     el.style.borderColor = 'var(--green)';
-    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(qolgan)+'g</span>';
+    // klientda qarzni hisobga olish
+    var netG = Math.round((g - kdG) * 100) / 100;
+    var kdInfo = kdG > 0.01 ? ' | bizda: <b style="color:var(--green);">+'+fmtG(kdG)+'</b> → net: <b>'+(netG>0?'+':'')+fmtG(netG)+'</b>' : '';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(qolgan)+'g'+kdInfo+'</span>';
   } else {
     el.style.borderColor = '';
-    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(ostatka)+'g</span>';
+    var kdInfo0 = kdG > 0.01 ? ' | bizda: <b style="color:var(--green);">+'+fmtG(kdG)+'</b>' : '';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(ostatka)+'g'+kdInfo0+'</span>';
   }
 }
 
@@ -5361,20 +5383,32 @@ function kSotuvTolovCalc() {
           if (op.tip === 'berish') turQarz += op.gramm;
           else if (op.tip === 'vozvrat') turQarz -= op.gramm;
           else if (op.tip === 'tolov') turQarz -= (op.ekvivalent || 0);
+          else if (op.tip === 'klientda') turQarz -= op.gramm;
         });
-        turQarz = Math.max(0, Math.round(turQarz * 100) / 100);
+        turQarz = Math.round(turQarz * 100) / 100; // manfiy bo'lishi mumkin
       }
       var yangiG = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
       var obshiy = Math.round((turQarz + yangiG) * 100) / 100;
 
       if (lbl) {
-        var lblHtml = obshiy > 0.001
-          ? (turQarz > 0.001 && yangiG > 0.001
-              ? 'qarz: '+fmtG(turQarz)+'g + yangi: '+fmtG(yangiG)+'g = <b style="color:var(--red);">'+fmtG(obshiy)+'g</b>'
-              : turQarz > 0.001
-                ? 'qarz: <b style="color:var(--red);">'+fmtG(turQarz)+'g</b>'
-                : 'yangi: <b style="color:var(--text);">'+fmtG(yangiG)+'g</b>')
-          : 'qarz yoq';
+        var lblHtml;
+        if (turQarz < -0.001) {
+          // Biz ushbu turda klientga qarzdormiz
+          if (yangiG > 0) {
+            var qoldiQarz = Math.round((turQarz + yangiG) * 100) / 100;
+            lblHtml = 'bizda: <b style="color:var(--green);">+'+fmtG(Math.abs(turQarz))+'</b> + yangi: '+fmtG(yangiG)+'g = <b style="color:'+(qoldiQarz<0?'var(--green)':'var(--red)')+';">'+(qoldiQarz<0?'+':'')+fmtG(Math.abs(qoldiQarz))+'g</b>';
+          } else {
+            lblHtml = 'bizda: <b style="color:var(--green);">+'+fmtG(Math.abs(turQarz))+'</b>';
+          }
+        } else if (obshiy > 0.001) {
+          lblHtml = turQarz > 0.001 && yangiG > 0.001
+            ? 'qarz: '+fmtG(turQarz)+'g + yangi: '+fmtG(yangiG)+'g = <b style="color:var(--red);">'+fmtG(obshiy)+'g</b>'
+            : turQarz > 0.001
+              ? 'qarz: <b style="color:var(--red);">'+fmtG(turQarz)+'g</b>'
+              : 'yangi: <b style="color:var(--text);">'+fmtG(yangiG)+'g</b>';
+        } else {
+          lblHtml = 'qarz yoq';
+        }
         lbl.innerHTML = lblHtml;
       }
 
