@@ -5493,23 +5493,25 @@ function kSotuvCalc() {
   var lastChanged = (document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.lastChanged||'';
   if(lastChanged==='naqt' && nbKEl){
     kartaVal = Math.max(0, Math.round((kerakliNaqt-naqtVal)*100)/100);
-    if(kartaVal>0) nbKEl.value = kartaVal;
+    nbKEl.value = kartaVal || '';
   }
   if(lastChanged==='karta' && nbEl){
     naqtVal = Math.max(0, Math.round((kerakliNaqt-kartaVal)*100)/100);
-    if(naqtVal>0) nbEl.value = naqtVal;
+    nbEl.value = naqtVal || '';
   }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = naqtBerildi > kerakliNaqt
     ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100
     : 0;
 
-  // 8. Naqt to'lov grammini hisoblash (faqat kst inputlaridan, lom emas)
+  // 8. Naqt to'lov grammini hisoblash — haqiqiy sotilgan gramm (kst-g inputidan)
   var naqtTolovG = 0;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var g=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
-    if(s>0&&n>0) naqtTolovG+=Math.round(s/n*100)/100;
+    if(g>0) naqtTolovG+=g;
+    else if(s>0&&n>0) naqtTolovG+=Math.round(s/n*100)/100;
   }); });
 
   // 9. Ortiqchani taqsimlash: tanlangan tur yoki sdacha
@@ -5714,6 +5716,8 @@ function kSotuvNaqtBerildiUpd() {
 function ksSotuvTanlovSet(tip, zavod, tur, zi, ti, narx) {
   if (tip === 'sdacha') {
     window._ksSotuvOrtiqchaTanlov = {tip:'sdacha'};
+  } else if (tip === 'bizda') {
+    window._ksSotuvOrtiqchaTanlov = {tip:'bizda', narx:narx};
   } else {
     window._ksSotuvOrtiqchaTanlov = {tip:'tur', zavod:zavod, tur:tur, zi:zi, ti:ti, narx:narx};
   }
