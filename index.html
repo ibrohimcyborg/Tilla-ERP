@@ -4398,7 +4398,8 @@ function kTolovKlientChange(){
   var idx=0;
   Object.keys(breakdown).forEach(function(key){
     var b=breakdown[key];
-    if(b.qarz<=0){idx++;return;}
+    if(Math.abs(b.qarz)<0.001){idx++;return;}
+    var bizQarzdor = b.qarz < -0.001;
     var katNarx=getKatNarx(b.zi,b.ti,ki);
     var zKirimNarx=getZavodNarx(b.zi,b.ti)||'';
     var kat2=k.kat||'A';
