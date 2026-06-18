@@ -4630,12 +4630,11 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   var klientTurlar = {};
   Object.keys(allTurlarMap).forEach(function(key){
     var b = allTurlarMap[key];
-    // Agar klientda qarz bor bo'lsa yoki tarixda shu tur bor bo'lsa ko'rsat
     if(Math.abs(b.qarz) > 0.001) { klientTurlar[key] = b; return; }
-    // Klient tarixida shu turda operatsiya bormi?
+    // Klient tarixida shu turda istalgan operatsiya bormi?
     if(ki >= 0 && data.klientlar[ki]) {
       var hasOp = data.klientlar[ki].tarix.some(function(op){
-        return op.zavod === b.zavod && op.tur === b.tur;
+        return op.zavod && op.tur && op.zavod === b.zavod && op.tur === b.tur;
       });
       if(hasOp) klientTurlar[key] = b;
     }
@@ -4845,12 +4844,26 @@ function kTolovCalc(){
     var key=z.nom+'||'+t.nom;
     ktTaqsimAllMap[key]={zavod:z.nom,tur:t.nom,qarz:0,zi:zi,ti:ti};
   }); });
+  var ki_kt2=parseInt(document.getElementById('kt-klient').value);
+  var k_kt2=!isNaN(ki_kt2)&&ki_kt2>=0?data.klientlar[ki_kt2]:null;
+  if(k_kt2){
+    k_kt2.tarix.forEach(function(op){
+      if(!op.zavod||!op.tur) return;
+      var key=op.zavod+'||'+op.tur;
+      if(!ktTaqsimAllMap[key]){
+        var zi2=-1,ti2=-1;
+        data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+          if(z.nom===op.zavod&&t.nom===op.tur){zi2=zi;ti2=ti;}
+        }); });
+        ktTaqsimAllMap[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:zi2,ti:ti2};
+      }
+    });
+  }
   var bd3kt=window._kTolovBD||{};
   Object.keys(bd3kt).forEach(function(key){
     var b=bd3kt[key];
     if(ktTaqsimAllMap[key]) ktTaqsimAllMap[key].qarz=b.qarz;
   });
-  var ki_kt2=parseInt(document.getElementById('kt-klient').value);
   sdachaTaqsimRender('kt', ktSdacha, ktTaqsimAllMap, ki_kt2);
 
   kTolovChekUpd();
@@ -5975,23 +5988,38 @@ function kSotuvCalc() {
   // 13. Ortiqcha bloki (taqsim)
   // Sdacha taqsimlash bloki — yangi sodda dizayn
   var ksSdachaMap = {};
-  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
-    var key=z.nom+'||'+t.nom; var qarz=0;
-    if(k){ k.tarix.forEach(function(op){
-      if(!op.zavod||!op.tur||op.zavod!==z.nom||op.tur!==t.nom) return;
-      if(op.tip==='berish') qarz+=op.gramm;
-      else if(op.tip==='vozvrat') qarz-=op.gramm;
-      else if(op.tip==='tolov') qarz-=(op.ekvivalent||0);
-      else if(op.tip==='klientda') qarz-=op.gramm;
-    }); }
-    oldilar.forEach(function(o){ if(o.zavod===z.nom&&o.tur===t.nom) qarz+=o.gramm; });
-    var sg=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
-    var ng=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
-    var gInp=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
-    var payG=gInp>0?gInp:(sg>0&&ng>0?Math.round(sg/ng*100)/100:0);
-    if(payG>0) qarz=Math.max(0,Math.round((qarz-payG)*100)/100);
-    ksSdachaMap[key]={zavod:z.nom,tur:t.nom,qarz:Math.round(qarz*100)/100,zi:zi,ti:ti};
-  }); });
+  // Faqat klient tarixida bo'lgan turlarni qo'shish
+  if(k) {
+    k.tarix.forEach(function(op){
+      if(!op.zavod||!op.tur) return;
+      var key=op.zavod+'||'+op.tur;
+      if(!ksSdachaMap[key]){
+        var zi2=-1,ti2=-1;
+        data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+          if(z.nom===op.zavod&&t.nom===op.tur){zi2=zi;ti2=ti;}
+        }); });
+        ksSdachaMap[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:zi2,ti:ti2};
+      }
+    });
+    // Qarzlarni hisoblash
+    Object.keys(ksSdachaMap).forEach(function(key){
+      var b=ksSdachaMap[key]; var qarz=0;
+      k.tarix.forEach(function(op){
+        if(!op.zavod||!op.tur||op.zavod!==b.zavod||op.tur!==b.tur) return;
+        if(op.tip==='berish') qarz+=op.gramm;
+        else if(op.tip==='vozvrat') qarz-=op.gramm;
+        else if(op.tip==='tolov') qarz-=(op.ekvivalent||0);
+        else if(op.tip==='klientda') qarz-=op.gramm;
+      });
+      oldilar.forEach(function(o){ if(o.zavod===b.zavod&&o.tur===b.tur) qarz+=o.gramm; });
+      var sg=parseNum((document.getElementById('kst-s-'+b.zi+'-'+b.ti)||{}).value)||0;
+      var ng=parseNum((document.getElementById('kst-n-'+b.zi+'-'+b.ti)||{}).value)||0;
+      var gInp=parseNum((document.getElementById('kst-g-'+b.zi+'-'+b.ti)||{}).value)||0;
+      var payG=gInp>0?gInp:(sg>0&&ng>0?Math.round(sg/ng*100)/100:0);
+      if(payG>0) qarz=Math.max(0,Math.round((qarz-payG)*100)/100);
+      b.qarz=Math.round(qarz*100)/100;
+    });
+  }
   sdachaTaqsimRender('ks', ortiqcha, ksSdachaMap, ki);
   if(ortiqcha <= 0.01) { var tqEl2=document.getElementById('ks-taqsim'); if(tqEl2) tqEl2.style.display='none'; }
 
