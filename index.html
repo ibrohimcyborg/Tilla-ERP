@@ -4611,19 +4611,21 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   html += fmtD(sdacha) + '$ — qaysi turga?</div>';
 
   // Sarlavha
-  html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px;gap:4px;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
-  html += '<div>Tur</div><div style="text-align:right">$/g</div><div></div><div style="text-align:right">$</div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px 44px;gap:4px;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+  html += '<div>Tur</div><div style="text-align:right">$/g</div><div></div><div style="text-align:right">$</div><div style="text-align:right">g</div></div>';
 
   // Naqt qaytarish qatori
   var naqtKey = modal+'||naqt';
   var naqtVal = savedVals[naqtKey] || 0;
-  html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+  html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px 44px;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
   html += '<div style="font-size:12px;color:var(--muted);">Naqt qaytarish</div>';
   html += '<div></div>';
   html += '<button onclick="sdachaPrich(\''+modal+'\',\''+naqtKey+'\')" style="padding:2px 6px;border-radius:6px;border:0.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;cursor:pointer;">→</button>';
   html += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--border);background:var(--surf2);border-radius:7px;padding:0 6px;height:28px;">';
   html += '<input type="number" id="sdtr-'+modal+'-naqt" data-key="'+naqtKey+'" data-modal="'+modal+'" value="'+(naqtVal||'')+'" placeholder="0" oninput="sdachaInpUpd(this)" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text);text-align:right;outline:none;width:0;">';
-  html += '</div></div>';
+  html += '</div>';
+  html += '<div></div>';
+  html += '</div>';
 
   // Turlar
   Object.values(allTurlarMap).forEach(function(b){
@@ -4632,7 +4634,7 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
     var val = savedVals[key] || 0;
     var hasQarz = (b.qarz||0) >= 0.01;
     var narxStr = katNarx > 0 ? fmtD(katNarx) : '—';
-    html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
+    html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px 44px;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
     html += '<div><div style="font-size:12px;font-weight:500;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>';
     if(hasQarz) html += '<div style="font-size:10px;color:var(--red);">qarz: −'+fmtG(b.qarz)+'g</div>';
     html += '</div>';
@@ -4640,7 +4642,11 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
     html += '<button onclick="sdachaPrich(\''+modal+'\',\''+key+'\')" style="padding:2px 6px;border-radius:6px;border:0.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;cursor:pointer;">→</button>';
     html += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid '+(val>0?'var(--green-bd)':'var(--border)')+';background:'+(val>0?'var(--green-bg)':'var(--surf2)')+';border-radius:7px;padding:0 6px;height:28px;">';
     html += '<input type="number" id="sdtr-'+modal+'-'+b.zi+'-'+b.ti+'" data-key="'+key+'" data-modal="'+modal+'" data-narx="'+katNarx+'" value="'+(val||'')+'" placeholder="0" oninput="sdachaInpUpd(this)" style="flex:1;border:none;background:transparent;font-size:12px;color:'+(val>0?'var(--green)':'var(--text)')+';text-align:right;outline:none;width:0;">';
-    html += '</div></div>';
+    html += '</div>';
+    // Gramm ko'rsatish
+    var grammStr = (val>0 && katNarx>0) ? fmtG(Math.round(val/katNarx*100)/100)+'g' : '';
+    html += '<div id="sdtr-g-'+b.zi+'-'+b.ti+'" style="font-size:10px;color:var(--green);min-width:36px;text-align:right;">'+grammStr+'</div>';
+    html += '</div>';
   });
 
   // Jami
@@ -4655,12 +4661,18 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
 function sdachaInpUpd(el) {
   var modal = el.dataset.modal;
   var sdacha = parseFloat(document.getElementById(modal==='kt'?'kt-sdacha-sum':'ks-qolgan-sum').textContent)||0;
-  // inputga rang
   var v = parseFloat(el.value)||0;
   var wrap = el.parentElement;
   wrap.style.borderColor = v>0 ? 'var(--green-bd)' : 'var(--border)';
   wrap.style.background  = v>0 ? 'var(--green-bg)' : 'var(--surf2)';
   el.style.color = v>0 ? 'var(--green)' : 'var(--text)';
+  // Gramm labelini yangilash
+  var narx = parseFloat(el.dataset.narx)||0;
+  var parts = el.id.replace('sdtr-'+modal+'-','').split('-');
+  if(parts.length === 2) {
+    var gLbl = document.getElementById('sdtr-g-'+parts[0]+'-'+parts[1]);
+    if(gLbl) gLbl.textContent = (v>0 && narx>0) ? fmtG(Math.round(v/narx*100)/100)+'g' : '';
+  }
   sdachaJamiUpd(modal, sdacha);
 }
 
