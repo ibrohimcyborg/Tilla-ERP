@@ -5878,14 +5878,15 @@ function kSotuvCalc() {
         turQarz_sc=Math.round(turQarz_sc*100)/100;
       }
       var yangiG_sc=parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0;
-      // kerakG: klient qancha to'lashi kerak (qarz + yangi)
-      // Agar ksg bo'sh (0) bo'lsa, kst-g ni to'liq kerak deb hisoblaymiz
       var kerakG_sc;
-      if(yangiG_sc > 0 || turQarz_sc > 0.001) {
-        kerakG_sc=Math.round((Math.max(0,turQarz_sc)+yangiG_sc)*100)/100;
+      if(turQarz_sc < -0.001) {
+        // Biz klientga qarzdormiz — klient to'lasa hammasi ortiqcha (bizda qarz yopiladi)
+        kerakG_sc = 0;
+      } else if(yangiG_sc > 0 || turQarz_sc > 0.001) {
+        kerakG_sc = Math.round((turQarz_sc + yangiG_sc)*100)/100;
       } else {
         // ksg kiritilmagan — kst-g to'liq kerak (ortiqcha yo'q)
-        kerakG_sc=g;
+        kerakG_sc = g;
       }
       var ortG_sc=Math.max(0,Math.round((g-kerakG_sc)*100)/100);
       kerakliNarxi+=Math.round(Math.min(g,kerakG_sc)*n*100)/100;
