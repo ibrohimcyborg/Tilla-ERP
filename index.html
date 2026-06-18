@@ -5279,6 +5279,12 @@ function getZavodNarx(zi, ti) {
 }
 
 function kSotuvRenderTolov() {
+  // C kategoriya ustama qiymatlarini render oldidan saqlab qo'yamiz
+  var savedUst = {};
+  document.querySelectorAll('[id^="kst-ust-"]').forEach(function(el){
+    var v = parseFloat(el.value)||0;
+    if(v) savedUst[el.id] = v;
+  });
   var out = '';
   var curZ = '';
   var ki = _ksSotuvKi;
@@ -5374,6 +5380,11 @@ function kSotuvRenderTolov() {
     });
   });
   document.getElementById('ks-tolov-list').innerHTML = out;
+  // C kategoriya ustama qiymatlarini tiklash
+  Object.keys(savedUst).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.value = savedUst[id]; el.dispatchEvent(new Event('input')); }
+  });
 }
 
 function kstCUpd(zi, ti, base) {
@@ -5397,7 +5408,8 @@ function ktUstUpd(idx, zi, ti) {
 
 function kstUstUpd(zi, ti, zNarx) {
   var plus = parseFloat((document.getElementById('kst-ust-'+zi+'-'+ti)||{}).value)||0;
-  var narx = zNarx > 0 ? Math.round((zNarx + plus)*10)/10 : plus;
+  var base = getZavodNarx(zi, ti) || zNarx || 0;
+  var narx = base > 0 ? Math.round((base + plus)*10)/10 : plus;
   var nEl = document.getElementById('kst-n-'+zi+'-'+ti);
   if(nEl) { nEl.value = narx > 0 ? narx : ''; kSotuvTolovUpd('n', zi, ti); }
 }
@@ -5730,7 +5742,15 @@ function kSotuvCalc() {
         turQarz_sc=Math.round(turQarz_sc*100)/100;
       }
       var yangiG_sc=parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0;
-      var kerakG_sc=Math.round((Math.max(0,turQarz_sc)+yangiG_sc)*100)/100;
+      // kerakG: klient qancha to'lashi kerak (qarz + yangi)
+      // Agar ksg bo'sh (0) bo'lsa, kst-g ni to'liq kerak deb hisoblaymiz
+      var kerakG_sc;
+      if(yangiG_sc > 0 || turQarz_sc > 0.001) {
+        kerakG_sc=Math.round((Math.max(0,turQarz_sc)+yangiG_sc)*100)/100;
+      } else {
+        // ksg kiritilmagan — kst-g to'liq kerak (ortiqcha yo'q)
+        kerakG_sc=g;
+      }
       var ortG_sc=Math.max(0,Math.round((g-kerakG_sc)*100)/100);
       kerakliNarxi+=Math.round(Math.min(g,kerakG_sc)*n*100)/100;
       gramOrtiqchaPul+=Math.round(ortG_sc*n*100)/100;
