@@ -844,7 +844,7 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="kt-lom-list" style="margin-top:8px;"></div>
       <button onclick="kTolovAddLom()" id="kt-lom-btn" style="display:none;width:100%;padding:8px;border-radius:8px;border:1px dashed var(--gold-bd);background:transparent;color:var(--gold);font-size:12px;cursor:pointer;margin-top:6px;">+ Lom qo'shish</button>
 
-      <!-- Naqt / Karta -->
+      <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
       <div id="kt-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;border-left:3px solid var(--green-bd);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:12px;color:var(--muted);">Kerakli summa</span>
@@ -4641,8 +4641,21 @@ function kTolovCalc(){
   }
 
   var ktInpK=document.getElementById('kt-karta-berildi');
+  var ktNaqtEdited = ktNbEl && ktNbEl.dataset.userEdited;
+  var ktKartaEdited = ktInpK && ktInpK.dataset.userEdited;
   var ktBerdiN=parseNum((ktNbEl||{}).value)||0;
   var ktBerdiK=parseNum((ktInpK||{}).value)||0;
+  var ktLastChanged=(document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.lastChanged||'';
+  // Faqat foydalanuvchi hech narsa kiritmagan bo'lsa auto-to'ldirish
+  if(!ktNaqtEdited && !ktKartaEdited) {
+    if(ktLastChanged==='naqt' && ktInpK){
+      ktBerdiK=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
+      ktInpK.value=ktBerdiK||'';
+    } else if(ktLastChanged==='karta' && ktNbEl){
+      ktBerdiN=Math.max(0,Math.round((ktKerakli-ktBerdiK)*100)/100);
+      ktNbEl.value=ktBerdiN||'';
+    }
+  }
   var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
   var ktSdacha=ktLomOrtiqcha>0.01
     ? ktLomOrtiqcha
@@ -5705,14 +5718,36 @@ function kSotuvCalc() {
   var jamiTolovPul = Math.round((naqtTolovPul + lomPulJami) * 100) / 100;
 
   // 7. Kerakli naqt = kst-g × narx - lom - skidka
+  // gramm ortiqcha: kst-g > (turQarz + yangiG) bo'lsa ortiqcha gramm puli ham hisobga olinadi
   var mahsulotNarxi = 0;
+  var gramOrtiqchaPul = 0; // kst-g inputda qarzdan ortiq gramm kiritilsa
+  var ki_sc = _ksSotuvKi;
+  var k_sc = ki_sc >= 0 ? data.klientlar[ki_sc] : null;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
     var g=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
     var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
-    if(g>0&&n>0) mahsulotNarxi+=Math.round(g*n*100)/100;
+    if(g>0&&n>0){
+      mahsulotNarxi+=Math.round(g*n*100)/100;
+      // turQarz: klientning bu turdagi qarzi (klientda ham hisobga olinadi)
+      var turQarz_sc=0;
+      if(k_sc){
+        k_sc.tarix.forEach(function(op){
+          if(!op.zavod||!op.tur||op.zavod!==z.nom||op.tur!==t.nom) return;
+          if(op.tip==='berish')   turQarz_sc+=op.gramm;
+          if(op.tip==='vozvrat')  turQarz_sc-=op.gramm;
+          if(op.tip==='tolov')    turQarz_sc-=(op.ekvivalent||0);
+          if(op.tip==='klientda') turQarz_sc-=op.gramm;
+        });
+        turQarz_sc=Math.round(turQarz_sc*100)/100;
+      }
+      var yangiG_sc=parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0;
+      var tolovKerak_sc=Math.max(0,turQarz_sc)+yangiG_sc; // foydalanuvchi to'lashi kerak
+      var ortG_sc=Math.round((g-tolovKerak_sc)*100)/100;
+      if(ortG_sc>0.001) gramOrtiqchaPul+=Math.round(ortG_sc*n*100)/100;
+    }
   }); });
   var lomOrtiqchaPul = Math.max(0, Math.round((lomPulJami - mahsulotNarxi + skidka) * 100) / 100);
-  var kerakliNaqt = Math.max(0, Math.round((mahsulotNarxi - lomPulJami - skidka) * 100) / 100);
+  var kerakliNaqt = Math.max(0, Math.round((mahsulotNarxi - lomPulJami - skidka - gramOrtiqchaPul) * 100) / 100);
 
   var nbBlok = document.getElementById('ks-naqt-berildi-blok');
   var nbEl = document.getElementById('ks-naqt-berildi');
@@ -5730,10 +5765,25 @@ function kSotuvCalc() {
 
   var naqtVal = parseNum((nbEl||{}).value) || 0;
   var kartaVal = parseNum((nbKEl||{}).value) || 0;
+  var nbEdited = nbEl && nbEl.dataset.userEdited;
+  var nbKEdited = nbKEl && nbKEl.dataset.userEdited;
+  var lastChanged = (document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.lastChanged||'';
+  // faqat foydalanuvchi o'zi kiritgan bo'lsa lastChanged ishlatilsin
+  if(!nbEdited && !nbKEdited) {
+    if(lastChanged==='naqt' && nbKEl){
+      kartaVal = Math.max(0, Math.round((kerakliNaqt-naqtVal)*100)/100);
+      nbKEl.value = kartaVal || '';
+    } else if(lastChanged==='karta' && nbEl){
+      naqtVal = Math.max(0, Math.round((kerakliNaqt-kartaVal)*100)/100);
+      nbEl.value = naqtVal || '';
+    }
+  }
   var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
   var ortiqcha = lomOrtiqchaPul > 0.01
     ? lomOrtiqchaPul
-    : (naqtBerildi > kerakliNaqt + 0.001 ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100 : 0);
+    : gramOrtiqchaPul > 0.01
+      ? gramOrtiqchaPul
+      : (naqtBerildi > kerakliNaqt + 0.001 ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100 : 0);
 
   // 8. Naqt to'lov grammini hisoblash — haqiqiy sotilgan gramm (kst-g inputidan)
   var naqtTolovG = 0;
