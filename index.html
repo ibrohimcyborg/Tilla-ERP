@@ -5986,7 +5986,14 @@ function kSotuvCalc() {
         ksSdachaMap[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:zi2,ti:ti2};
       }
     });
-    // Qarzlarni hisoblash
+  }
+  // Hozirgi sotuvdagi turlar ham qo'shilsin (yangi klient yoki yangi tur bo'lsa)
+  oldilar.forEach(function(o){
+    var key=o.zavod+'||'+o.tur;
+    if(!ksSdachaMap[key])
+      ksSdachaMap[key]={zavod:o.zavod,tur:o.tur,qarz:0,zi:o.zi,ti:o.ti};
+  });
+  // Qarzlarni hisoblash
     Object.keys(ksSdachaMap).forEach(function(key){
       var b=ksSdachaMap[key]; var qarz=0;
       k.tarix.forEach(function(op){
@@ -6004,7 +6011,6 @@ function kSotuvCalc() {
       if(payG>0) qarz=Math.max(0,Math.round((qarz-payG)*100)/100);
       b.qarz=Math.round(qarz*100)/100;
     });
-  }
   sdachaTaqsimRender('ks', ortiqcha, ksSdachaMap, ki);
   if(ortiqcha <= 0.01) { var tqEl2=document.getElementById('ks-taqsim'); if(tqEl2) tqEl2.style.display='none'; }
 
