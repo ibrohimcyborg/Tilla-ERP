@@ -4548,7 +4548,13 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
     if(parts.length < 2) return;
     var zavod = parts[0], tur = parts[1];
     var narx = parseFloat(el.dataset.narx)||0;
-    if(!narx) return;
+    if(!narx) {
+      // Narx yo'q — faqat klientda summa sifatida saqlash (grammsiz)
+      k.tarix.push({tip:'klientda', sana:sana, soat:soat,
+        gramm:0, summa:val, kurs:0,
+        zavod:zavod, tur:tur});
+      return;
+    }
     var gramm = Math.round(val / narx * 100) / 100;
     // Bu turda klientning hozirgi qarzi
     var turQarz = 0;
@@ -4622,11 +4628,10 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   // Turlar
   Object.values(allTurlarMap).forEach(function(b){
     var katNarx = getKatNarx(b.zi, b.ti, ki) || 0;
-    if(!katNarx) return;
     var key = b.zavod+'||'+b.tur;
     var val = savedVals[key] || 0;
     var hasQarz = (b.qarz||0) >= 0.01;
-    var narxStr = fmtD(katNarx);
+    var narxStr = katNarx > 0 ? fmtD(katNarx) : '—';
     html += '<div style="display:grid;grid-template-columns:1fr 64px 36px 60px;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">';
     html += '<div><div style="font-size:12px;font-weight:500;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>';
     if(hasQarz) html += '<div style="font-size:10px;color:var(--red);">qarz: −'+fmtG(b.qarz)+'g</div>';
@@ -4636,7 +4641,7 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
     html += '<div style="display:flex;align-items:center;gap:2px;border:0.5px solid '+(val>0?'var(--green-bd)':'var(--border)')+';background:'+(val>0?'var(--green-bg)':'var(--surf2)')+';border-radius:7px;padding:0 6px;height:28px;">';
     html += '<input type="number" id="sdtr-'+modal+'-'+b.zi+'-'+b.ti+'" data-key="'+key+'" data-modal="'+modal+'" data-narx="'+katNarx+'" value="'+(val||'')+'" placeholder="0" oninput="sdachaInpUpd(this)" style="flex:1;border:none;background:transparent;font-size:12px;color:'+(val>0?'var(--green)':'var(--text)')+';text-align:right;outline:none;width:0;">';
     html += '</div></div>';
-  }.bind(null));
+  });
 
   // Jami
   html += '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;" id="sdtr-jami-'+modal+'">';
