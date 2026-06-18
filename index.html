@@ -4946,7 +4946,7 @@ function kTolovChekUpd() {
   lines2.push(LINE);
   var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
   lines2.push(rjust('Jami to\'landi', fmtD(Math.max(0,Math.round((jamiPul-manSkKt2)*100)/100))+'#'));
-  lines2.push(rjust('', '('+fmtG(Math.round(jamiG*100)/100)+'g)'));
+  lines2.push(rjust('', '('+fmtG(Math.round(jamiG*100)/100)+')'));
   // LOM bloki
   var ktLomSatirlar=[];var ktLomJami=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
@@ -4957,7 +4957,7 @@ function kTolovChekUpd() {
   });
   if(ktLomSatirlar.length){
     lines2.push(LINE);
-    ktLomSatirlar.forEach(function(l){lines2.push(rjust('L',l.lg+'g x '+l.lk+' = '+fmtD(l.lp)+'#'));});
+    ktLomSatirlar.forEach(function(l){lines2.push(rjust('L',l.lg+' x '+l.lk+' = '+fmtD(l.lp)+'#'));});
   }
   // N / K — lom bo'lsa ham bo'lmasa ham
   var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
@@ -4992,7 +4992,7 @@ function kTolovChekUpd() {
     });
     joriyQarz = Math.max(0, Math.round(joriyQarz*100)/100);
     var qolgan = Math.max(0, Math.round((joriyQarz - jamiG)*100)/100);
-    lines2.push(rjust('Ostatka', fmtG(qolgan)+'g'));
+    lines2.push(rjust('Ostatka', fmtG(qolgan)));
     var qbd = {};
     k.tarix.forEach(function(op){
       if(!op.zavod||!op.tur) return;
@@ -5022,7 +5022,7 @@ function kTolovChekUpd() {
       var cz = '';
       qarz_tarkib.forEach(function(b) {
         if (b.zavod !== cz) { cz = b.zavod; lines2.push(b.zavod); }
-        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)+'g'));
+        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)));
       });
     }
   }
@@ -6231,7 +6231,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     if (skidkaPul > 0.001) lines2.push(rjust('  Skidka', '- '+fmtD(skidkaPul)+'#'));
     lines2.push(LINE);
     lines2.push(rjust("Jami to'landi", fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
-    lines2.push(rjust('', '('+fmtG(naqtJamiG)+' g)'));
+    lines2.push(rjust('', '('+fmtG(naqtJamiG)+')'));
     // N / K qatorlari
     var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
@@ -6244,7 +6244,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         lines2.push(rjust('Ortiqcha → '+taqsimTanlov.tur, '+'+fmtG(ortG2)));
       } else if(taqsimTanlov && taqsimTanlov.tip==='bizda'){
         var bizdaG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
-        lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)+'g'));
+        lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)));
       } else {
         lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
       }
@@ -6294,9 +6294,9 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     lines2.push(LINE);
   }
 
-  if (vozJami > 0) lines2.push(rjust('  Vozvrat', fmtG(vozJami)+'g'));
+  if (vozJami > 0) lines2.push(rjust('  Vozvrat', fmtG(vozJami)));
 
-  lines2.push(rjust('Ostatka', fmtG(finQarz)+' g'));
+  lines2.push(rjust('Ostatka', fmtG(finQarz)));
 
   // QARZ TARKIBI
   if (ki >= 0) {
@@ -6348,7 +6348,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       var cz2='';
       qt2.forEach(function(b){
         if(b.zavod!==cz2){cz2=b.zavod;lines2.push(b.zavod);}
-        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)+' g'));
+        lines2.push(rjust('                '+b.tur, fmtG(b.qarz)));
       });
     }
   }
@@ -6564,12 +6564,12 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     naqtJamiG2 = Math.round(naqtJamiG2*100)/100;
     t += 'TOLOVLAR\n';
     tolovSatirlar.forEach(function(item) {
-      t += row3(item.zavod+'  '+item.tur, fmtG(item.g)+'g x '+item.n+' = ', fmtD(item.s)+'#')+'\n';
+      t += row3(item.zavod+'  '+item.tur, fmtG(item.g)+' x '+item.n+' = ', fmtD(item.s)+'#')+'\n';
     });
     if (skidka > 0.001) t += rjust('  Skidka', '- '+fmtD(skidka)+'#')+'\n';
     t += LINE;
     t += rjust("Jami to'landi", fmtD(Math.max(0, naqtTolovPul2 - skidka))+'#')+'\n';
-    t += rjust('', '('+fmtG(naqtJamiG2)+' g)')+'\n';
+    t += rjust('', '('+fmtG(naqtJamiG2)+')')+'\n';
     t += LINE;
   }
 
@@ -6597,7 +6597,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     // L N K qatorlari
     t += LINE;
     lomlar.forEach(function(l){
-      t += rjust('L', l.gramm+'g x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
+      t += rjust('L', l.gramm+' x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
     });
     if(_naqtBerdi2>0) t += rjust('N', fmtD(_naqtBerdi2)+'#')+'\n';
     if(_kartaBerdi2>0) t += rjust('K', fmtD(_kartaBerdi2)+'#')+'\n';
@@ -6617,9 +6617,9 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     t += LINE;
   }
 
-  if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm)+'g')+'\n'; });
+  if (vozlar.length) vozlar.forEach(function(v){ t += rjust('  Vozvrat', fmtG(v.gramm))+'\n'; });
 
-  t += rjust('Ostatka', fmtG(jamiQarz)+' g')+'\n';
+  t += rjust('Ostatka', fmtG(jamiQarz))+'\n';
   if (qarz_tarkib && qarz_tarkib.length) {
     t += DASH;
     t += 'QARZ TARKIBI\n';
@@ -6854,11 +6854,11 @@ function klientQarzChekPrint(ki) {
       curZavod=b.zavod;
       chekText+=b.zavod+'\n';
     }
-    var gramm=fmtG(b.qarz)+' g';
+    var gramm=fmtG(b.qarz);
     chekText+=rjust('                '+b.tur, gramm)+'\n';
   });
   chekText+=LINE;
-  var jamiStr='JAMI QARZ: '+fmtG(d.jamiQarz)+' g';
+  var jamiStr='JAMI QARZ: '+fmtG(d.jamiQarz);
   chekText+=center(jamiStr)+'\n';
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
