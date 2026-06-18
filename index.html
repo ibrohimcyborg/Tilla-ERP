@@ -1977,6 +1977,7 @@ function renderZavod() {
         if(op.tip==='berish') q+=op.gramm;
         else if(op.tip==='vozvrat') q-=op.gramm;
         else if(op.tip==='tolov') q-=(op.ekvivalent||0);
+        else if(op.tip==='klientda') q-=op.gramm;
       });
       q = Math.round(q*100)/100;
       if(Math.abs(q) > 0.001) turKlientlar[k.nom] = q;
@@ -4610,33 +4611,18 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
     turQarz = Math.round(turQarz*100)/100;
 
     if(turQarz >= 0.001) {
-      // Klientda qarz bor — tolov sifatida
+      // Klientda qarz bor — tolov sifatida yopish
       k.tarix.push({tip:'tolov', sana:sana, soat:soat,
         zavod:zavod, tur:tur,
         summa:val, kurs:narx,
         ekvivalent:Math.min(gramm, turQarz),
         kirimNarx:kirimN, _bizQarzYopildi:true});
     } else {
-      // Qarz yo'q — zavoddan ayirish + ortgani bizda qarz
-      var berganG = Math.min(gramm, ostatka); // zavoddan chiqadigan gramm
-      var bizQarzG = Math.round((gramm - berganG)*100)/100; // ortgani bizda qarz
-      if(berganG > 0.001) {
-        // Zavoddan chiqarish
-        data.zavodlar[zi2].turlar[ti2].ostatka = Math.round((ostatka - berganG)*100)/100;
-        k.tarix.push({tip:'berish', sana:sana, soat:soat,
-          zavod:zavod, tur:tur, gramm:berganG});
-        // Tolov sifatida yopish
-        k.tarix.push({tip:'tolov', sana:sana, soat:soat,
-          zavod:zavod, tur:tur,
-          summa:Math.round(berganG*narx*100)/100, kurs:narx,
-          ekvivalent:berganG, kirimNarx:kirimN});
-      }
-      if(bizQarzG > 0.001) {
-        // Biz klientga qarzdor
-        k.tarix.push({tip:'klientda', sana:sana, soat:soat,
-          gramm:bizQarzG, summa:Math.round(bizQarzG*narx*100)/100,
-          kurs:narx, zavod:zavod, tur:tur});
-      }
+      // Qarz yo'q — to'liq bizda qarz (klientda tip)
+      // Ostatka tekshirmasdan — sdacha bu zavoddan emas, puldan kelayapti
+      k.tarix.push({tip:'klientda', sana:sana, soat:soat,
+        gramm:gramm, summa:val, kurs:narx,
+        zavod:zavod, tur:tur});
     }
   });
 }
