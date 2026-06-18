@@ -4699,14 +4699,12 @@ function sdachaJamiUpd(modal, sdacha) {
 }
 
 function sdachaPrich(modal, key) {
-  // Qolgan summani shu inputga yoz, boshqalar 0 bo'lsa
   var sdacha = parseFloat(document.getElementById(modal==='kt'?'kt-sdacha-sum':'ks-qolgan-sum').textContent)||0;
   var jamiInfo = window['_sdachaTaqsim_'+modal] || {jami:0};
-  var hozir = parseFloat((document.getElementById('sdtr-'+modal+'-'+key.replace('||','-'))||{value:'0'}).value)||0;
-  // Qolgan = sdacha - (jami - hozir)
+  var el = document.querySelector('[data-key="'+key+'"][data-modal="'+modal+'"]');
+  var hozir = el ? (parseFloat(el.value)||0) : 0;
   var qoldi = Math.round((sdacha - (jamiInfo.jami - hozir))*100)/100;
   if(qoldi < 0) qoldi = 0;
-  var el = document.querySelector('[data-key="'+key+'"][data-modal="'+modal+'"]');
   if(el) { el.value = qoldi > 0 ? qoldi : ''; sdachaInpUpd(el); }
 }
 
