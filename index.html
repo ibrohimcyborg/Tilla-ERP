@@ -4699,11 +4699,16 @@ function sdachaJamiUpd(modal, sdacha) {
 
 function sdachaPrich(modal, key) {
   var sdacha = parseFloat(document.getElementById(modal==='kt'?'kt-sdacha-sum':'ks-qolgan-sum').textContent)||0;
-  var jamiInfo = window['_sdachaTaqsim_'+modal] || {jami:0};
+  // DOM dan joriy jami hisoblash
+  var jami = 0;
+  document.querySelectorAll('[id^="sdtr-'+modal+'-"]').forEach(function(el){
+    if(el.tagName!=='INPUT') return;
+    if(el.dataset.key === key) return; // bu inputni hisobga olmaymiz
+    jami += parseFloat(el.value)||0;
+  });
+  jami = Math.round(jami*100)/100;
+  var qoldi = Math.max(0, Math.round((sdacha - jami)*100)/100);
   var el = document.querySelector('[data-key="'+key+'"][data-modal="'+modal+'"]');
-  var hozir = el ? (parseFloat(el.value)||0) : 0;
-  var qoldi = Math.round((sdacha - (jamiInfo.jami - hozir))*100)/100;
-  if(qoldi < 0) qoldi = 0;
   if(el) { el.value = qoldi > 0 ? qoldi : ''; sdachaInpUpd(el); }
 }
 
