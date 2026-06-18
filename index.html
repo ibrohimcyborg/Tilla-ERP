@@ -5499,6 +5499,8 @@ function kSotuvRenderTolov() {
     var el = document.getElementById(id);
     if(el){ el.value = savedUst[id]; el.dispatchEvent(new Event('input')); }
   });
+  // ksg inputlari bilan sinxronlash
+  kSotuvTolovCalc();
 }
 
 function kstCUpd(zi, ti, base) {
