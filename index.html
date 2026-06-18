@@ -2822,6 +2822,37 @@ function grammHisoblashTuzat() {
         }
       }
     });
+    // 3. Eski vozvrat operatsiyalar uchun klientda qarzni tuzatish
+    var vozlarMap = {};
+    k.tarix.forEach(function(op) {
+      if(op.tip==='vozvrat'&&op.zavod&&op.tur) {
+        var key=op.zavod+'||'+op.tur;
+        if(!vozlarMap[key]) vozlarMap[key]=0;
+        vozlarMap[key]+=op.gramm;
+      }
+    });
+    Object.keys(vozlarMap).forEach(function(key) {
+      var vozG = vozlarMap[key];
+      if(vozG < 0.001) return;
+      var klientdaG = 0, kdVozG = 0;
+      k.tarix.forEach(function(op) {
+        if(!op.zavod||!op.tur||(op.zavod+'||'+op.tur)!==key) return;
+        if(op.tip==='klientda') klientdaG+=op.gramm;
+        if(op.tip==='tolov'&&op._kdVoz) kdVozG+=(op.ekvivalent||0);
+      });
+      klientdaG=Math.round(klientdaG*100)/100;
+      kdVozG=Math.round(kdVozG*100)/100;
+      var qolganKd = Math.max(0, Math.round((klientdaG-kdVozG)*100)/100);
+      if(qolganKd < 0.001) return;
+      var tuzatG = Math.min(vozG, qolganKd);
+      if(tuzatG < 0.001) return;
+      var parts = key.split('||');
+      var lastSana = '';
+      k.tarix.forEach(function(op){if(op.tip==='vozvrat'&&op.zavod===parts[0]&&op.tur===parts[1]) lastSana=op.sana;});
+      k.tarix.push({tip:'tolov',sana:lastSana,zavod:parts[0],tur:parts[1],
+        summa:0,kurs:0,ekvivalent:tuzatG,kirimNarx:0,_kdVoz:true});
+      tuzatildi++;
+    });
   });
   if (tuzatildi === 0) {
     alert('Tuzatiladigan operatsiya topilmadi.');
@@ -4219,8 +4250,13 @@ function kVozvratKlientChange(){
   var k=data.klientlar[ki];
   var breakdown={};
   k.tarix.forEach(function(op){
-    if(op.tip==='berish'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz+=op.gramm;}
-    else if(op.tip==='vozvrat'){var key=op.zavod+'||'+op.tur;if(!breakdown[key])breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};breakdown[key].qarz-=op.gramm;}
+    if(!op.zavod||!op.tur) return;
+    var key=op.zavod+'||'+op.tur;
+    if(!breakdown[key]) breakdown[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:-1,ti:-1};
+    if(op.tip==='berish')        breakdown[key].qarz+=op.gramm;
+    else if(op.tip==='vozvrat')  breakdown[key].qarz-=op.gramm;
+    else if(op.tip==='tolov')    breakdown[key].qarz-=(op.ekvivalent||0);
+    else if(op.tip==='klientda') breakdown[key].qarz-=op.gramm;
   });
   data.zavodlar.forEach(function(z,zi){z.turlar.forEach(function(t,ti){var key=z.nom+'||'+t.nom;if(breakdown[key]){breakdown[key].zi=zi;breakdown[key].ti=ti;}});});
   window._kVozvratBD=breakdown;
@@ -4303,6 +4339,19 @@ function saqlashKlientVozvrat(){
     if(g>0&&b.zi>=0&&b.ti>=0){
       k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:g});
       data.zavodlar[b.zi].turlar[b.ti].ostatka=Math.round((data.zavodlar[b.zi].turlar[b.ti].ostatka+g)*100)/100;
+      // klientda qarz bo'lsa vozvrat uni kamaytiradi
+      var _kdG = 0;
+      k.tarix.forEach(function(op2) {
+        if(op2.zavod!==b.zavod||op2.tur!==b.tur) return;
+        if(op2.tip==='klientda') _kdG+=op2.gramm;
+        else if(op2.tip==='tolov'&&op2._kdVoz) _kdG-=(op2.ekvivalent||0);
+      });
+      _kdG = Math.round(_kdG*100)/100;
+      if(_kdG > 0.001) {
+        var _vozKd = Math.min(g, _kdG);
+        k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,
+          summa:0,kurs:0,ekvivalent:_vozKd,kirimNarx:0,_kdVoz:true});
+      }
       any=true;
     }
     idx++;
