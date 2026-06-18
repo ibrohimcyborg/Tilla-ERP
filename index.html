@@ -675,6 +675,7 @@ body.rol-zavod #main-klient { display: none !important; }
     </div>
     <div id="reset-tugmalar" style="display:none;">
       <button class="davr-btn" onclick="skidkaGrammTuzat()" style="color:var(--gold);border-color:var(--gold-bd);">⚙ Skidka grammini tuzatish</button>
+      <button class="davr-btn" onclick="grammHisoblashTuzat()" style="color:var(--gold);border-color:var(--gold-bd);">⚙ Gramm hisoblashni tuzatish</button>
       <button class="davr-btn" onclick="cacheOchir()">Kesh tozalash</button>
       <button class="davr-btn" onclick="resetTasdiqlash()" style="color:var(--red);border-color:var(--red);">Barcha malumotni ochirish</button>
     </div>
@@ -1950,6 +1951,7 @@ function renderZavod() {
       if(op.tip==='berish') klientda+=op.gramm;
       else if(op.tip==='vozvrat') klientda-=op.gramm;
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
+      else if(op.tip==='klientda') klientda-=op.gramm;
     });
   });
   klientda = Math.round(klientda*100)/100;
@@ -2798,6 +2800,37 @@ function skidkaGrammTuzat() {
   renderKlientlar();
   if (document.getElementById('klient-kassa-list').style.display !== 'none') renderKassa();
   alert(tuzatildi+' ta operatsiya tuzatildi!');
+}
+
+function grammHisoblashTuzat() {
+  var tuzatildi = 0;
+  (data.klientlar||[]).forEach(function(k) {
+    k.tarix.forEach(function(op) {
+      // 1. klientda - gramm 0 bo'lsa summa/kurs dan hisoblash
+      if (op.tip === 'klientda') {
+        if ((!op.gramm || op.gramm < 0.001) && op.summa > 0 && op.kurs > 0) {
+          op.gramm = Math.round(op.summa / op.kurs * 100) / 100;
+          tuzatildi++;
+        }
+      }
+      // 2. tolov - ekvivalent 0 bo'lsa summa/kurs dan hisoblash
+      if (op.tip === 'tolov') {
+        if ((!op.ekvivalent || op.ekvivalent < 0.001) && op.summa > 0 && op.kurs > 0) {
+          op.ekvivalent = Math.round(op.summa / op.kurs * 100) / 100;
+          tuzatildi++;
+        }
+      }
+    });
+  });
+  if (tuzatildi === 0) {
+    alert('Tuzatiladigan operatsiya topilmadi.');
+    return;
+  }
+  save('Gramm hisoblash tuzatish: ' + tuzatildi + ' ta operatsiya');
+  closeModal('modal-reset');
+  renderHome();
+  renderKlientlar();
+  alert(tuzatildi + ' ta operatsiya tuzatildi!');
 }
 
 async function cacheOchir() {
