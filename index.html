@@ -4625,8 +4625,22 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   html += '<input type="number" id="sdtr-'+modal+'-naqt" data-key="'+naqtKey+'" data-modal="'+modal+'" value="'+(naqtVal||'')+'" placeholder="0" oninput="sdachaInpUpd(this)" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text);text-align:right;outline:none;width:0;">';
   html += '</div></div>';
 
-  // Turlar
-  Object.values(allTurlarMap).forEach(function(b){
+  // Turlar — faqat klient ishlagan turlar (tarixda bor) + naqt qaytarish
+  // klientda ishlagan turlarni aniqlaymiz
+  var klientTurlar = {};
+  Object.keys(allTurlarMap).forEach(function(key){
+    var b = allTurlarMap[key];
+    // Agar klientda qarz bor bo'lsa yoki tarixda shu tur bor bo'lsa ko'rsat
+    if(Math.abs(b.qarz) > 0.001) { klientTurlar[key] = b; return; }
+    // Klient tarixida shu turda operatsiya bormi?
+    if(ki >= 0 && data.klientlar[ki]) {
+      var hasOp = data.klientlar[ki].tarix.some(function(op){
+        return op.zavod === b.zavod && op.tur === b.tur;
+      });
+      if(hasOp) klientTurlar[key] = b;
+    }
+  });
+  Object.values(klientTurlar).forEach(function(b){
     var katNarx = getKatNarx(b.zi, b.ti, ki) || 0;
     var key = b.zavod+'||'+b.tur;
     var val = savedVals[key] || 0;
