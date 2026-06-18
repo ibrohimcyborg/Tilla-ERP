@@ -1826,6 +1826,7 @@ function renderHome() {
       if(op.tip==='berish') klientda+=op.gramm;
       else if(op.tip==='vozvrat') klientda-=op.gramm;
       else if(op.tip==='tolov') klientda-=(op.ekvivalent||0);
+      else if(op.tip==='klientda') klientda-=op.gramm;
     });
   });
   klientda = Math.round(klientda*100)/100;
