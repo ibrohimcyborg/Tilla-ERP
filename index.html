@@ -5530,7 +5530,10 @@ function kSotuvTolovCalc() {
           var gInp2 = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
           var yopildiG = gInp2 > 0 ? gInp2 : Math.round(s / n * 100) / 100;
           var qoldiG = Math.max(0, Math.round((obshiy - yopildiG) * 100) / 100);
-          if (qoldiG < 0.02) {
+          var ortiqchaG = Math.max(0, Math.round((yopildiG - obshiy) * 100) / 100);
+          if (ortiqchaG > 0.001) {
+            if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(obshiy)+'g to\'liq yopildi ✓</span> <span style="color:var(--gold);">+'+fmtG(ortiqchaG)+'g ('+fmtD(Math.round(ortiqchaG*n*100)/100)+'$) ortiqcha</span>';
+          } else if (qoldiG < 0.02) {
             if (res) res.innerHTML = '<span style="color:var(--green);">'+fmtG(yopildiG)+'g × '+n+'$/g = '+fmtD(Math.round(yopildiG*n*100)/100)+'$ — to\'liq yopildi ✓</span>';
           } else {
             if (res) res.innerHTML = '<span style="color:var(--muted);">'+fmtG(yopildiG)+'g × '+n+'$/g = '+fmtD(Math.round(yopildiG*n*100)/100)+'$ &nbsp;— </span><span style="color:var(--red);">qoldi: '+fmtG(qoldiG)+'g</span>';
