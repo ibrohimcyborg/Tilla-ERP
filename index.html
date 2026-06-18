@@ -3734,7 +3734,7 @@ function ktKatSet(kat) {
   var idx=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key];
-    if(Math.abs(b.qarz)<0.001){idx++;return;}
+    if(b.qarz<=0){idx++;return;}
     var nEl=document.getElementById('kt-k-'+idx);
     var gEl=document.getElementById('kt-g-'+idx);
     var sEl=document.getElementById('kt-s-'+idx);
@@ -4412,12 +4412,12 @@ function kTolovKlientChange(){
         +(zNarx2?'<span style="font-size:10px;color:var(--muted);">kirim: '+zNarx2+'$/g</span>':'')
         +'</div>';
     }
-    turlarHTML+='<div style="background:'+(b.qarz<-0.001?'var(--green-bg)':'var(--surf2)')+';border:1px solid '+(b.qarz<-0.001?'var(--green-bd)':'var(--border)')+';border-radius:10px;padding:12px;margin-bottom:8px;">'
+    turlarHTML+='<div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
       +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<div style="font-size:12px;color:'+(b.qarz<-0.001?'var(--green)':'var(--red)')+';font-weight:'+(b.qarz<-0.001?'600':'400')+';">'+(b.qarz<-0.001?'+':'−')+fmtG(Math.abs(b.qarz))+'g</div>'
-      +(b.qarz>0.001?'<button onclick="ktHammasi('+idx+','+b.qarz+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>':'')
+      +'<div style="font-size:12px;color:var(--red);">−'+fmtG(b.qarz)+'g</div>'
+      +'<button onclick="ktHammasi('+idx+','+b.qarz+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>'
       +'</div></div>'
       +cUstamaRow
       +'<div style="display:flex;gap:4px;align-items:center;">'
