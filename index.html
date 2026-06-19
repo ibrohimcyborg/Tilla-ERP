@@ -231,8 +231,6 @@ body.rol-zavod #main-klient { display: none !important; }
   .pc-zavod-hdr, .pc-klient-hdr { display: none !important; }
   .pc-zavod-body { display: block; padding: 0 16px 16px; }
   .pc-klient-body { display: block; padding: 0 16px 16px; }
-  #s-home.active #main-zavod { display: unset !important; }
-  #s-home.active #main-klient { display: unset !important; }
 }
 
 </style>
@@ -5745,6 +5743,18 @@ function kSotuvTolovUpd(changed, zi, ti) {
       sEl.value = Math.round(g * n * 100) / 100;
     }
   }
+  // O blok narxini yangilash (agar bizQarzdor tur uchun ochiq bo'lsa)
+  var koBlok = document.getElementById('kso-blok-'+zi+'-'+ti);
+  if (koBlok && koBlok.style.display !== 'none') {
+    var gVal = parseNum(gEl.value) || 0;
+    var newNarx = n;
+    var newSum = Math.round(gVal * newNarx * 100) / 100;
+    var lbl = koBlok.querySelector('span');
+    var sumEl = document.getElementById('kso-sum-'+zi+'-'+ti);
+    if (lbl) lbl.innerHTML = 'O  ' + fmtG(gVal) + 'g × ' + newNarx + '$/g';
+    if (sumEl) sumEl.textContent = '= ' + fmtD(newSum) + '$';
+    if (changed === 'n' && sEl) sEl.value = newSum > 0 ? newSum : '';
+  }
   kSotuvTolovCalc();
 }
 
@@ -6021,19 +6031,22 @@ function kSotuvCalc() {
         turQarz_sc=Math.round(turQarz_sc*100)/100;
       }
       var yangiG_sc=parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0;
-      var kerakG_sc;
       if(turQarz_sc < -0.001) {
-        kerakG_sc = 0;
-      } else if(yangiG_sc > 0 || turQarz_sc > 0.001) {
-        kerakG_sc = Math.round((turQarz_sc + yangiG_sc)*100)/100;
+        // Biz qarzdor tur — bu offset mexanizmi orqali ishlaydi, ortiqcha hisobiga kirmaydi
+        kerakliNarxi += Math.round(g*n*100)/100;
       } else {
-        kerakG_sc = g;
+        var kerakG_sc;
+        if(yangiG_sc > 0 || turQarz_sc > 0.001) {
+          kerakG_sc = Math.round((turQarz_sc + yangiG_sc)*100)/100;
+        } else {
+          kerakG_sc = g;
+        }
+        var ortG_sc=Math.max(0,Math.round((g-kerakG_sc)*100)/100);
+        kerakliNarxi+=Math.round(Math.min(g,kerakG_sc)*n*100)/100;
+        var ortPul=Math.round(ortG_sc*n*100)/100;
+        gramOrtiqchaPul+=ortPul;
+        if(ortPul > 0.001 && gramOrtiqchaZi < 0){ gramOrtiqchaZi=zi; gramOrtiqchaTi=ti; }
       }
-      var ortG_sc=Math.max(0,Math.round((g-kerakG_sc)*100)/100);
-      kerakliNarxi+=Math.round(Math.min(g,kerakG_sc)*n*100)/100;
-      var ortPul=Math.round(ortG_sc*n*100)/100;
-      gramOrtiqchaPul+=ortPul;
-      if(ortPul > 0.001 && gramOrtiqchaZi < 0){ gramOrtiqchaZi=zi; gramOrtiqchaTi=ti; }
     }
   }); });
   var lomOrtiqchaPul = Math.max(0, Math.round((lomPulJami - kerakliNarxi + skidka) * 100) / 100);
