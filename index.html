@@ -7013,10 +7013,7 @@ function klientQarzChekPrint(ki) {
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
   var LINE=Array(W+1).join('-')+'\n';
   var SEP=Array(Math.floor(W/2)+1).join('-')+'\n';
-  var chekText='\n'+center('HISOB')+'\n';
-  chekText+=center('- QARZ CHEKI -')+'\n';
-  chekText+=LINE;
-  chekText+=center(d.k.nom)+'\n';
+  var chekText='\n'+center(d.k.nom)+'\n';
   chekText+=center(today2+' - '+soat)+'\n';
   chekText+=LINE;
   var curZavod='';
@@ -7030,7 +7027,7 @@ function klientQarzChekPrint(ki) {
     chekText+=rjust('                '+b.tur, gramm)+'\n';
   });
   chekText+=LINE;
-  var jamiStr='JAMI QARZ: '+fmtG(d.jamiQarz);
+  var jamiStr='OSTATKA: '+fmtG(d.jamiQarz);
   chekText+=center(jamiStr)+'\n';
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
