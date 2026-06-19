@@ -1117,7 +1117,8 @@ window.onerror = function(msg, src, line){
 };
 var CREDS = [
   {login:'tilla', parol:'tilla9999', rol:'admin'},
-  {login:'zavod', parol:'zavod9999', rol:'zavod'}
+  {login:'zavod', parol:'zavod9999', rol:'zavod'},
+  {login:'abdulhamid_7777', parol:'Scoplon2003', rol:'admin'}
 ];
 function setAuth(rol){ localStorage.setItem('tilla-auth','1'); localStorage.setItem('tilla-rol',rol); document.cookie='tilla-auth=1;max-age=31536000;path=/'; }
 function getAuth(){ return localStorage.getItem('tilla-auth') || document.cookie.indexOf('tilla-auth=1')>=0; }
@@ -6628,9 +6629,19 @@ function saqlashKlientSotuv() {
   var naqtJami = 0;
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
+      var koBlokSv2 = document.getElementById('kso-blok-'+zi+'-'+ti);
+      var isOffsetSv2 = koBlokSv2 && koBlokSv2.style.display !== 'none';
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       var gInp = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
+      if (isOffsetSv2) {
+        // Offset — biz qarzdor turni yopuvchi tolov (klientda qarzni kamaytiradi)
+        if (s > 0 && n > 0 && gInp > 0) {
+          var kirimNOff = getZavodNarx(zi,ti)||0;
+          k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:s, kurs:n, ekvivalent:gInp, kirimNarx:kirimNOff, _kdYopish:true});
+        }
+        return;
+      }
       if (s > 0 && n > 0) {
         var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
         var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
@@ -6661,6 +6672,7 @@ function saqlashKlientSotuv() {
   var _skidka2 = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
   // Haqiqiy sotuv summasi ksg×narx dan
   var _jamiSotuvPulReal = 0;
+  var _offsetPulSave = 0;
   document.querySelectorAll('[id^="ksg-"]').forEach(function(el){
     if(!el.id.match(/^ksg-\d+-\d+$/)) return;
     var parts=el.id.split('-');
@@ -6669,9 +6681,20 @@ function saqlashKlientSotuv() {
     var s=parseNum((document.getElementById('kst-s-'+parts[1]+'-'+parts[2])||{}).value)||0;
     if(g>0&&n>0) _jamiSotuvPulReal+=s>0?s:Math.round(g*n*100)/100;
   });
+  // Offset turlar (biz qarzdor) — alohida hisoblanadi
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var koBlokSv = document.getElementById('kso-blok-'+zi+'-'+ti);
+    if(koBlokSv && koBlokSv.style.display !== 'none') {
+      var sOff=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+      var nOff=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+      var gOff=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+      _offsetPulSave += sOff>0?sOff:Math.round(gOff*nOff*100)/100;
+    }
+  }); });
   _jamiSotuvPulReal=Math.round(_jamiSotuvPulReal*100)/100;
-  var _lomOrtiqchaSave = Math.max(0, Math.round((_lomPulJamiSave - _jamiSotuvPulReal + _skidka2)*100)/100);
-  var _kerakliNaqt = Math.max(0, Math.round((_jamiSotuvPulReal - _lomPulJamiSave - _skidka2)*100)/100);
+  _offsetPulSave=Math.round(_offsetPulSave*100)/100;
+  var _lomOrtiqchaSave = Math.max(0, Math.round((_lomPulJamiSave - _jamiSotuvPulReal + _skidka2 + _offsetPulSave)*100)/100);
+  var _kerakliNaqt = Math.max(0, Math.round((_jamiSotuvPulReal - _lomPulJamiSave - _skidka2 - _offsetPulSave)*100)/100);
   var _naqtBerildi = Math.round((_naqtBerdiSave + _kartaBerdiSave)*100)/100;
   var _ortiqcha = _lomOrtiqchaSave > 0.01
     ? _lomOrtiqchaSave
