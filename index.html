@@ -250,10 +250,11 @@ body.rol-zavod #main-klient { display: none !important; }
     <button onclick="doLogin()" style="width:100%;background:#c9a84c;color:#111;border-radius:10px;padding:14px;font-size:15px;font-weight:700;border:none;cursor:pointer;">Kirish</button>
   </div>
 </div>
-<div class="ptr-indicator" id="ptr-indicator">↓</div>
+
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
+    <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
     <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
     <button class="theme-btn" onclick="openResetModal()" title="Sozlamalar">⚙</button>
@@ -1184,18 +1185,16 @@ function goTo(id) {
 function mainTab(tab) {
   document.getElementById('main-tab-zavod').classList.toggle('active', tab === 'zavod');
   document.getElementById('main-tab-klient').classList.toggle('active', tab === 'klient');
+  var mzEl=document.getElementById('main-zavod');
+  var mkEl=document.getElementById('main-klient');
   if (isPCMode()) {
-    var mz=document.getElementById('main-zavod');
-    var mk=document.getElementById('main-klient');
-    if(mz) mz.style.removeProperty('display');
-    if(mk) mk.style.removeProperty('display');
+    if(mzEl) mzEl.style.removeProperty('display');
+    if(mkEl) mkEl.style.removeProperty('display');
     renderHome(); renderKlientlar();
     return;
   }
-  var mzEl=document.getElementById('main-zavod');
-  var mkEl=document.getElementById('main-klient');
-  if(mzEl) mzEl.style.display = tab === 'zavod' ? 'block' : 'none';
-  if(mkEl) mkEl.style.display = tab === 'klient' ? 'block' : 'none';
+  if(mzEl) { mzEl.style.setProperty('display', tab === 'zavod' ? 'block' : 'none', 'important'); }
+  if(mkEl) { mkEl.style.setProperty('display', tab === 'klient' ? 'block' : 'none', 'important'); }
   if (tab === 'klient') renderKlientlar();
   if (tab === 'zavod') renderHome();
 }
@@ -2508,7 +2507,24 @@ document.addEventListener('wheel', function(e){
   }
 }, {passive:true});
 
-document.querySelectorAll('.modal-overlay').forEach(function(el){ el.addEventListener('click', function(e){ if(e.target!==el) return; var locked=['modal-kberish','modal-kvozvrat','modal-ktolov','modal-ksotuv','modal-kop-edit']; if(locked.indexOf(el.id)>=0||el.classList.contains('locked')) return; el.classList.remove('open'); }); });
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  var _downX=0, _downY=0, _downTarget=null;
+  el.addEventListener('mousedown', function(e){ _downX=e.clientX; _downY=e.clientY; _downTarget=e.target; });
+  el.addEventListener('touchstart', function(e){ if(e.touches&&e.touches[0]){ _downX=e.touches[0].clientX; _downY=e.touches[0].clientY; } _downTarget=e.target; }, {passive:true});
+  function tryClose(e, upX, upY){
+    if(_downTarget!==el || e.target!==el) return;
+    var dx=Math.abs(upX-_downX), dy=Math.abs(upY-_downY);
+    if(dx>10||dy>10) return; // drag/scroll bo'lsa yopilmaydi
+    var locked=['modal-kberish','modal-kvozvrat','modal-ktolov','modal-ksotuv','modal-kop-edit'];
+    if(locked.indexOf(el.id)>=0||el.classList.contains('locked')) return;
+    el.classList.remove('open');
+  }
+  el.addEventListener('mouseup', function(e){ tryClose(e, e.clientX, e.clientY); });
+  el.addEventListener('touchend', function(e){
+    var t = e.changedTouches && e.changedTouches[0];
+    if(t) tryClose(e, t.clientX, t.clientY);
+  });
+});
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape'){
     if(document.getElementById('modal-kop-edit').classList.contains('open')) closeModal('modal-kop-edit');
@@ -6796,8 +6812,8 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   }
 
   // LOM (alohida blok)
+  var lomPulJami2 = 0;
   if (lomlar.length) {
-    var lomPulJami2 = 0;
     t += 'LOM\n';
     lomlar.forEach(function(l) {
       var lbl = l.nom ? l.nom : 'Lom';
@@ -6806,17 +6822,18 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     });
     t += LINE;
     t += rjust('Lom jami', fmtD(lomPulJami2)+'#')+'\n';
-    // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa
-    var _kerakliNaqt2 = Math.max(0, Math.round((naqtTolovPul2 - lomPulJami2 - skidka - offsetJami2)*100)/100);
-    var _lomOrtiqcha2 = Math.max(0, Math.round((lomPulJami2 - naqtTolovPul2 + skidka + offsetJami2)*100)/100);
-    var _naqtBerdi2 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
-    var _kartaBerdi2 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-    var _berdiJami2 = Math.round((_naqtBerdi2+_kartaBerdi2)*100)/100;
-    var _ortiqcha2 = chekOrtiqcha > 0.01 ? chekOrtiqcha :
-      (_lomOrtiqcha2 > 0.01 ? _lomOrtiqcha2 :
-      (_berdiJami2 > _kerakliNaqt2 ? Math.round((_berdiJami2 - _kerakliNaqt2)*100)/100 : 0));
-    var _tanlov2 = chekTanlov || window._ksSotuvOrtiqchaTanlov || null;
-    // L N K qatorlari
+  }
+  // Ortiqcha: klient bergan naqt kerakli naqtdan ko'p bo'lsa (lom bo'lsa ham, bo'lmasa ham)
+  var _kerakliNaqt2 = Math.max(0, Math.round((naqtTolovPul2 - lomPulJami2 - skidka - offsetJami2)*100)/100);
+  var _lomOrtiqcha2 = Math.max(0, Math.round((lomPulJami2 - naqtTolovPul2 + skidka + offsetJami2)*100)/100);
+  var _naqtBerdi2 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
+  var _kartaBerdi2 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+  var _berdiJami2 = Math.round((_naqtBerdi2+_kartaBerdi2)*100)/100;
+  var _ortiqcha2 = chekOrtiqcha > 0.01 ? chekOrtiqcha :
+    (_lomOrtiqcha2 > 0.01 ? _lomOrtiqcha2 :
+    (_berdiJami2 > _kerakliNaqt2 ? Math.round((_berdiJami2 - _kerakliNaqt2)*100)/100 : 0));
+  var _tanlov2 = chekTanlov || window._ksSotuvOrtiqchaTanlov || null;
+  if (lomlar.length || _naqtBerdi2 > 0 || _kartaBerdi2 > 0 || _ortiqcha2 > 0.01) {
     t += LINE;
     lomlar.forEach(function(l){
       t += rjust('L', l.gramm+' x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
@@ -7291,13 +7308,11 @@ function applyTheme(t){
 }
 function toggleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
 applyTheme(currentTheme);
-(function(){
-  var startY=0,curY=0,pulling=false,threshold=80;
-  var ind=document.getElementById('ptr-indicator');
-  document.addEventListener('touchstart',function(e){startY=e.touches[0].pageY;pulling=(window.pageYOffset===0);},{passive:true});
-  document.addEventListener('touchmove',function(e){if(!pulling)return;curY=e.touches[0].pageY;var dy=Math.min(curY-startY,120);if(dy>15){ind.style.top=Math.min(dy*0.5,60)+'px';ind.style.opacity=Math.min(dy/threshold,1);ind.textContent=dy>threshold?'↻':'↓';}},{passive:true});
-  document.addEventListener('touchend',function(e){if(!pulling)return;pulling=false;var dy=curY-startY;if(dy>threshold){ind.textContent='↻';var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';sessionStorage.setItem('activeTab',curTab);setTimeout(function(){location.reload();},400);}else{ind.style.top='-60px';ind.style.opacity='0';}},{passive:true});
-})();
+function manualRefresh(){
+  var curTab=document.getElementById('main-klient').style.display!=='none'?'klient':'zavod';
+  sessionStorage.setItem('activeTab',curTab);
+  location.reload();
+}
 var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 applyRol();
@@ -7306,9 +7321,8 @@ mainTab(_savedTab);
 (function(){
   var swipeStartX=0, swipeStartY=0, swiping=false;
   var THRESHOLD=60, VERT_MAX=80;
-  
+
   document.addEventListener('touchstart', function(e){
-    if(!document.getElementById('s-home').classList.contains('active')) return;
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
     swiping=true;
@@ -7320,10 +7334,26 @@ mainTab(_savedTab);
     var dx=e.changedTouches[0].clientX - swipeStartX;
     var dy=Math.abs(e.changedTouches[0].clientY - swipeStartY);
     if(dy > VERT_MAX) return; // vertikal scroll
-    if(dx < -THRESHOLD) {
-      mainTab('klient');
-    } else if(dx > THRESHOLD) {
-      mainTab('zavod');
+
+    var isHome = document.getElementById('s-home').classList.contains('active');
+
+    if(isHome){
+      if(dx < -THRESHOLD) mainTab('klient');
+      else if(dx > THRESHOLD) mainTab('zavod');
+      return;
+    }
+
+    // Home bo'lmagan ekranlarda: o'ngga swipe (chapdan o'ngga, dx>0) -> Home'ga qaytarish
+    // Modal ochiq bo'lsa swipe bilan yopilmasin
+    var anyModalOpen = document.querySelectorAll('.modal-overlay.open').length > 0;
+    if(anyModalOpen) return;
+
+    if(dx > THRESHOLD){
+      if(document.getElementById('s-zavod').classList.contains('active')) { goTo('s-home'); }
+      else if(document.getElementById('s-kirim').classList.contains('active')) { goTo('s-home'); }
+      else if(document.getElementById('s-chiqim').classList.contains('active')) { goTo('s-home'); }
+      else if(document.getElementById('s-zvozvrat').classList.contains('active')) { goTo('s-home'); }
+      else if(document.getElementById('s-klient-detail').classList.contains('active')) { goTo('s-home'); mainTab('klient'); }
     }
   }, {passive:true});
 })();
@@ -7388,12 +7418,15 @@ function zvSaqlash() {
 function isPCMode(){ return window.innerWidth >= 1024; }
 
 function initPC() {
-  if (!isPCMode()) {
-    mainTab(sessionStorage.getItem('activeTab')||'zavod');
-    return;
-  }
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
+  if (!isPCMode()) {
+    if(mz) mz.style.removeProperty('display');
+    if(mk) mk.style.removeProperty('display');
+    var curTab = document.getElementById('main-tab-klient').classList.contains('active') ? 'klient' : (sessionStorage.getItem('activeTab')||'zavod');
+    mainTab(curTab);
+    return;
+  }
   if(mz) mz.style.display = 'flex';
   if(mk) mk.style.display = 'flex';
   renderHome();
