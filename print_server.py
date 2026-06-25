@@ -366,11 +366,11 @@ def get_logo_bytes():
     except Exception:
         return b""
 
-def trim_logo_top(raw, trim_lines=20):
+def trim_logo_top(raw, trim_lines=8):
     """
-    Logo tepasidagi bo'sh qatorlarni olib tashlaydi.
+    Logo tepa va pastidagi ortiqcha bo'sh qatorlarni olib tashlaydi.
     GS v 0 format: [1d 76 30 mode xL xH yL yH] + data
-    trim_lines: logo tepasida nechta bo'sh qator qoldirish
+    trim_lines: logo atrofida nechta bo'sh qator qoldirish (tepa va past)
     """
     try:
         if len(raw) < 8:
@@ -379,30 +379,28 @@ def trim_logo_top(raw, trim_lines=20):
         xL, xH = raw[4], raw[5]
         yL, yH = raw[6], raw[7]
         src_w = xL + xH * 256   # bytes per row
-        src_h = yL + yH * 256   # rows
         data_start = 8
         src_data = raw[data_start:]
-
-        # Data to'liq bo'lmasa — mavjud qatorlar soni
         actual_rows = len(src_data) // src_w
 
-        # Tepadan birinchi bo'sh bo'lmagan qatorni topamiz
-        first_nonblank = 0
-        found = False
+        # Birinchi va oxirgi bo'sh bo'lmagan qatorlar
+        first_nonblank = None
+        last_nonblank = None
         for row in range(actual_rows):
             row_data = src_data[row * src_w:(row + 1) * src_w]
             if any(b != 0 for b in row_data):
-                first_nonblank = row
-                found = True
-                break
+                if first_nonblank is None:
+                    first_nonblank = row
+                last_nonblank = row
 
-        if not found:
-            return raw  # bo'sh logo, o'zgartirmaymiz
+        if first_nonblank is None:
+            return raw  # bo'sh logo
 
-        # Logoga yaqin trim_lines bo'sh qator qoldiramiz
-        cut = max(0, first_nonblank - trim_lines)
-        new_h = actual_rows - cut
-        new_data = src_data[cut * src_w:cut * src_w + new_h * src_w]
+        # Tepada va pastda trim_lines bo'sh qator qoldiramiz
+        top_cut = max(0, first_nonblank - trim_lines)
+        bottom_keep = min(actual_rows, last_nonblank + 1 + trim_lines)
+        new_h = bottom_keep - top_cut
+        new_data = src_data[top_cut * src_w: bottom_keep * src_w]
 
         new_yL = new_h & 0xFF
         new_yH = (new_h >> 8) & 0xFF
@@ -432,8 +430,8 @@ class handler(BaseHTTPRequestHandler):
             if with_logo:
                 logo = get_logo_bytes()
                 if logo:
-                    # Faqat tepadan bo'sh qatorlarni olib tashlaymiz
-                    logo = trim_logo_top(logo, trim_lines=20)
+                    # Logo atrofidagi ortiqcha bo'sh joyni olib tashlaymiz
+                    logo = trim_logo_top(logo, trim_lines=8)
                     data += ALIGN_CENTER
                     data += logo
                     # Logo tagida chiziq yo'q, to'g'ridan matn boshlanadi
