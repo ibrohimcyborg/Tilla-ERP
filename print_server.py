@@ -346,6 +346,9 @@ ESC_INIT        = b"\x1b\x40"        # ESC @  — printer reset
 ALIGN_CENTER    = b"\x1b\x61\x01"   # ESC a 1 — markazga
 ALIGN_LEFT      = b"\x1b\x61\x00"   # ESC a 0 — chapga
 LINE_FEED       = b"\x0a"           # \n
+PAPER_FEED      = b"\x0a\x0a\x0a"  # 3 qator tashlash (kesiш oldidan)
+FULL_CUT        = b"\x1d\x56\x00"  # GS V 0 — to'liq kesish
+PARTIAL_CUT     = b"\x1d\x56\x01"  # GS V 1 — qisman kesish
 
 # ============================================================
 # Logo o'lchamini kichraytirish:
@@ -363,77 +366,46 @@ def get_logo_bytes():
     except Exception:
         return b""
 
-def scale_logo(raw, target_width_bytes=18, target_height=144):
+def trim_logo_top(raw, trim_lines=60):
     """
-    GS v 0 formatidagi logo rasmini kichraytiradi.
-    Hozirgi: 72 bytes wide x 360 lines (~72mm x 45mm)
-    Target:  18 bytes wide x 144 lines (~18mm x 18mm) — ~20x20mm
+    Logo tepasidagi bo'sh qatorlarni olib tashlaydi.
+    GS v 0 format: [1d 76 30 mode xL xH yL yH] + data
+    trim_lines: tepadan nechta qatorni olib tashlash
     """
     try:
         if len(raw) < 8:
             return raw
-        # Header: [1d 76 30 mode xL xH yL yH]
         mode = raw[3]
         xL, xH = raw[4], raw[5]
         yL, yH = raw[6], raw[7]
-        src_w = xL + xH * 256   # bytes per row = 72
-        src_h = yL + yH * 256   # rows = 360
+        src_w = xL + xH * 256   # bytes per row
+        src_h = yL + yH * 256   # rows
         data_start = 8
-
         src_data = raw[data_start:]
-        expected = src_w * src_h
-        if len(src_data) < expected:
-            return raw  # to'liq emas, o'zgartirmasdan qaytaramiz
 
-        dst_w = target_width_bytes  # 18 bytes = 144 pixels
-        dst_h = target_height       # 144 lines
+        if len(src_data) < src_w * src_h:
+            return raw
 
-        # Raster bitmap — har bir bit bir pixel
-        # Birinchi src pixel matritsasini ochamiz
-        src_pixels = []
+        # Tepadan bo'sh qatorlarni topamiz (hammasi 0x00)
+        first_nonblank = 0
         for row in range(src_h):
-            row_pixels = []
-            for byte_i in range(src_w):
-                byte_val = src_data[row * src_w + byte_i]
-                for bit in range(7, -1, -1):
-                    row_pixels.append((byte_val >> bit) & 1)
-            src_pixels.append(row_pixels)
+            row_data = src_data[row * src_w:(row + 1) * src_w]
+            if any(b != 0 for b in row_data):
+                first_nonblank = row
+                break
 
-        src_px_w = src_w * 8  # 576
-        src_px_h = src_h       # 360
-        dst_px_w = dst_w * 8   # 144
+        # Bo'sh qatorlardan trim_lines qoldiramiz (logoga yaqin)
+        cut = max(0, first_nonblank - trim_lines)
+        new_h = src_h - cut
+        new_data = src_data[cut * src_w:]
 
-        # Nearest-neighbor downscale
-        dst_pixels = []
-        for dy in range(dst_h):
-            sy = int(dy * src_px_h / dst_h)
-            row = []
-            for dx in range(dst_px_w):
-                sx = int(dx * src_px_w / dst_px_w)
-                row.append(src_pixels[sy][sx])
-            dst_pixels.append(row)
-
-        # Qayta byte larga o'girish
-        new_data = bytearray()
-        for row in dst_pixels:
-            for byte_i in range(dst_w):
-                byte_val = 0
-                for bit in range(8):
-                    px = row[byte_i * 8 + bit]
-                    if px:
-                        byte_val |= (1 << (7 - bit))
-                new_data.append(byte_val)
-
-        # Yangi header
-        new_xL = dst_w & 0xFF
-        new_xH = (dst_w >> 8) & 0xFF
-        new_yL = dst_h & 0xFF
-        new_yH = (dst_h >> 8) & 0xFF
-        header = bytes([0x1d, 0x76, 0x30, mode, new_xL, new_xH, new_yL, new_yH])
-        return header + bytes(new_data)
+        new_yL = new_h & 0xFF
+        new_yH = (new_h >> 8) & 0xFF
+        header = bytes([0x1d, 0x76, 0x30, mode, xL, xH, new_yL, new_yH])
+        return header + bytes(new_data[:src_w * new_h])
 
     except Exception as e:
-        print("Logo scale xatosi:", e)
+        print("Logo trim xatosi:", e)
         return raw
 
 class handler(BaseHTTPRequestHandler):
@@ -455,8 +427,8 @@ class handler(BaseHTTPRequestHandler):
             if with_logo:
                 logo = get_logo_bytes()
                 if logo:
-                    # Logoni kichraytirish: ~20x20mm
-                    logo = scale_logo(logo, target_width_bytes=18, target_height=144)
+                    # Faqat tepadan bo'sh qatorlarni olib tashlaymiz
+                    logo = trim_logo_top(logo, trim_lines=20)
                     data += ALIGN_CENTER
                     data += logo
                     # Logo tagida chiziq yo'q, to'g'ridan matn boshlanadi
@@ -471,6 +443,9 @@ class handler(BaseHTTPRequestHandler):
 
             # Matn (chek tanasi)
             data += text.encode('utf-8', errors='replace')
+            # Oxirida qog'oz tashlash va kesish
+            data += PAPER_FEED
+            data += PARTIAL_CUT
 
             win32print.WritePrinter(hPrinter, data)
             win32print.EndPagePrinter(hPrinter)
