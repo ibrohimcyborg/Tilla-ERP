@@ -366,11 +366,11 @@ def get_logo_bytes():
     except Exception:
         return b""
 
-def trim_logo_top(raw, trim_lines=60):
+def trim_logo_top(raw, trim_lines=20):
     """
     Logo tepasidagi bo'sh qatorlarni olib tashlaydi.
     GS v 0 format: [1d 76 30 mode xL xH yL yH] + data
-    trim_lines: tepadan nechta qatorni olib tashlash
+    trim_lines: logo tepasida nechta bo'sh qator qoldirish
     """
     try:
         if len(raw) < 8:
@@ -383,26 +383,31 @@ def trim_logo_top(raw, trim_lines=60):
         data_start = 8
         src_data = raw[data_start:]
 
-        if len(src_data) < src_w * src_h:
-            return raw
+        # Data to'liq bo'lmasa — mavjud qatorlar soni
+        actual_rows = len(src_data) // src_w
 
-        # Tepadan bo'sh qatorlarni topamiz (hammasi 0x00)
+        # Tepadan birinchi bo'sh bo'lmagan qatorni topamiz
         first_nonblank = 0
-        for row in range(src_h):
+        found = False
+        for row in range(actual_rows):
             row_data = src_data[row * src_w:(row + 1) * src_w]
             if any(b != 0 for b in row_data):
                 first_nonblank = row
+                found = True
                 break
 
-        # Bo'sh qatorlardan trim_lines qoldiramiz (logoga yaqin)
+        if not found:
+            return raw  # bo'sh logo, o'zgartirmaymiz
+
+        # Logoga yaqin trim_lines bo'sh qator qoldiramiz
         cut = max(0, first_nonblank - trim_lines)
-        new_h = src_h - cut
-        new_data = src_data[cut * src_w:]
+        new_h = actual_rows - cut
+        new_data = src_data[cut * src_w:cut * src_w + new_h * src_w]
 
         new_yL = new_h & 0xFF
         new_yH = (new_h >> 8) & 0xFF
         header = bytes([0x1d, 0x76, 0x30, mode, xL, xH, new_yL, new_yH])
-        return header + bytes(new_data[:src_w * new_h])
+        return header + bytes(new_data)
 
     except Exception as e:
         print("Logo trim xatosi:", e)
