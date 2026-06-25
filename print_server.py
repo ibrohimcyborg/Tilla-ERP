@@ -338,28 +338,23 @@ LOGO_B64 = (
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 )
 
 # ESC/POS komandalar
-ESC_INIT = b"\x1b\x40"        # ESC @ — printerni reset qilish
-ALIGN_CENTER = b"\x1b\x61\x01"  # ESC a 1 — markazga
-ALIGN_LEFT = b"\x1b\x61\x00"    # ESC a 0 — chapga
-LINE_FEED = b"\x0a"            # qator tashlash
+ESC_INIT        = b"\x1b\x40"        # ESC @  — printer reset
+ALIGN_CENTER    = b"\x1b\x61\x01"   # ESC a 1 — markazga
+ALIGN_LEFT      = b"\x1b\x61\x00"   # ESC a 0 — chapga
+LINE_FEED       = b"\x0a"           # \n
+
+# ============================================================
+# Logo o'lchamini kichraytirish:
+# GS ( L — Set logo print scale (x2 scale = 50% kichik)
+# \x1d\x28\x4c\x04\x00\x30\x41\x01\x01 → scale x=1, y=1 (normal)
+# \x1d\x28\x4c\x04\x00\x30\x41\x02\x02 → scale x=2, y=2 (2x katta)
+# Biz 1x1 ishlatamiz — logo rasmi allaqachon to'g'ri o'lchamda
+# Lekin tepadan joy kamaytirish uchun avvalgi bo'sh qatorlarni olib tashlaymiz
+# ============================================================
 
 def get_logo_bytes():
     """Logo ESC/POS baytlarini qaytaradi"""
@@ -368,13 +363,86 @@ def get_logo_bytes():
     except Exception:
         return b""
 
+def scale_logo(raw, target_width_bytes=18, target_height=144):
+    """
+    GS v 0 formatidagi logo rasmini kichraytiradi.
+    Hozirgi: 72 bytes wide x 360 lines (~72mm x 45mm)
+    Target:  18 bytes wide x 144 lines (~18mm x 18mm) — ~20x20mm
+    """
+    try:
+        if len(raw) < 8:
+            return raw
+        # Header: [1d 76 30 mode xL xH yL yH]
+        mode = raw[3]
+        xL, xH = raw[4], raw[5]
+        yL, yH = raw[6], raw[7]
+        src_w = xL + xH * 256   # bytes per row = 72
+        src_h = yL + yH * 256   # rows = 360
+        data_start = 8
+
+        src_data = raw[data_start:]
+        expected = src_w * src_h
+        if len(src_data) < expected:
+            return raw  # to'liq emas, o'zgartirmasdan qaytaramiz
+
+        dst_w = target_width_bytes  # 18 bytes = 144 pixels
+        dst_h = target_height       # 144 lines
+
+        # Raster bitmap — har bir bit bir pixel
+        # Birinchi src pixel matritsasini ochamiz
+        src_pixels = []
+        for row in range(src_h):
+            row_pixels = []
+            for byte_i in range(src_w):
+                byte_val = src_data[row * src_w + byte_i]
+                for bit in range(7, -1, -1):
+                    row_pixels.append((byte_val >> bit) & 1)
+            src_pixels.append(row_pixels)
+
+        src_px_w = src_w * 8  # 576
+        src_px_h = src_h       # 360
+        dst_px_w = dst_w * 8   # 144
+
+        # Nearest-neighbor downscale
+        dst_pixels = []
+        for dy in range(dst_h):
+            sy = int(dy * src_px_h / dst_h)
+            row = []
+            for dx in range(dst_px_w):
+                sx = int(dx * src_px_w / dst_px_w)
+                row.append(src_pixels[sy][sx])
+            dst_pixels.append(row)
+
+        # Qayta byte larga o'girish
+        new_data = bytearray()
+        for row in dst_pixels:
+            for byte_i in range(dst_w):
+                byte_val = 0
+                for bit in range(8):
+                    px = row[byte_i * 8 + bit]
+                    if px:
+                        byte_val |= (1 << (7 - bit))
+                new_data.append(byte_val)
+
+        # Yangi header
+        new_xL = dst_w & 0xFF
+        new_xH = (dst_w >> 8) & 0xFF
+        new_yL = dst_h & 0xFF
+        new_yH = (dst_h >> 8) & 0xFF
+        header = bytes([0x1d, 0x76, 0x30, mode, new_xL, new_xH, new_yL, new_yH])
+        return header + bytes(new_data)
+
+    except Exception as e:
+        print("Logo scale xatosi:", e)
+        return raw
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(length))
         text = body.get('text', '')
-        # Logo yoqilgan/o'chirilganligi (default: yoqilgan)
         with_logo = body.get('logo', True)
+
         try:
             import win32print
             printer = win32print.GetDefaultPrinter()
@@ -382,17 +450,24 @@ class handler(BaseHTTPRequestHandler):
             hJob = win32print.StartDocPrinter(hPrinter, 1, ('chek', None, 'RAW'))
             win32print.StartPagePrinter(hPrinter)
 
-            # === Chek ma'lumotlarini yig'ish ===
-            data = ESC_INIT  # printerni reset
+            data = ESC_INIT  # printer reset
 
-            # Logo (rasm) — chek boshida, markazda
             if with_logo:
                 logo = get_logo_bytes()
                 if logo:
+                    # Logoni kichraytirish: ~20x20mm
+                    logo = scale_logo(logo, target_width_bytes=18, target_height=144)
                     data += ALIGN_CENTER
                     data += logo
-                    data += LINE_FEED
-                    data += ALIGN_LEFT  # matn uchun chapga qaytarish
+                    # Logo tagida chiziq yo'q, to'g'ridan matn boshlanadi
+                    data += ALIGN_LEFT
+                    # Matn boshidagi bo'sh qator va chiziqni olib tashlaymiz
+                    text = text.lstrip('\n').lstrip('\r')
+                    # Birinchi qator chiziq bo'lsa (---) uni ham o'chiramiz
+                    lines_tmp = text.split('\n')
+                    if lines_tmp and set(lines_tmp[0].strip()) <= set('-'):
+                        text = '\n'.join(lines_tmp[1:])
+                    text = text.lstrip('\n')
 
             # Matn (chek tanasi)
             data += text.encode('utf-8', errors='replace')
@@ -402,6 +477,7 @@ class handler(BaseHTTPRequestHandler):
             win32print.EndDocPrinter(hPrinter)
             win32print.ClosePrinter(hPrinter)
             self._ok('OK')
+
         except Exception as e:
             self._ok('ERROR: ' + str(e))
 
@@ -423,6 +499,7 @@ class handler(BaseHTTPRequestHandler):
         pass
 
 if __name__ == '__main__':
+    logo_bytes = get_logo_bytes()
     print('Print server ishga tushdi: http://localhost:5000')
-    print('Logo: ' + ('YOQILGAN (' + str(len(get_logo_bytes())) + ' bayt)' if get_logo_bytes() else 'YOQ'))
+    print('Logo: ' + ('YOQILGAN (' + str(len(logo_bytes)) + ' bayt)' if logo_bytes else 'YOQ'))
     HTTPServer(('0.0.0.0', 5000), handler).serve_forever()
