@@ -430,8 +430,8 @@ class handler(BaseHTTPRequestHandler):
             if with_logo:
                 logo = get_logo_bytes()
                 if logo:
-                    # Logo atrofidagi ortiqcha bo'sh joyni olib tashlaymiz
-                    logo = trim_logo_top(logo, trim_lines=8)
+                    # Logo atrofidagi ortiqcha bo'sh joyni butunlay olib tashlaymiz
+                    logo = trim_logo_top(logo, trim_lines=0)
                     data += ALIGN_CENTER
                     data += logo
                     # Logo tagida chiziq yo'q, to'g'ridan matn boshlanadi
