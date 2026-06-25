@@ -259,6 +259,12 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
+    <div id="ls-bar-wrap" onclick="lsBarClick()" title="Xotira holati" style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:.2s;">
+      <div style="width:50px;height:4px;background:rgba(0,0,0,0.1);border-radius:3px;overflow:hidden;">
+        <div id="ls-bar-fill" style="height:100%;border-radius:3px;transition:width .4s,background .4s;"></div>
+      </div>
+      <span id="ls-bar-lbl" style="font-size:10px;font-weight:600;"></span>
+    </div>
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
     <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
@@ -1286,6 +1292,76 @@ if (!data.lomlar) data.lomlar = []; // {tip:'kirim'|'chiqim', manba:'klient'|'ko
 function save(logText) {
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if(logText) snapSaqla(logText);
+  lsBarUpd();
+}
+
+function lsBarUpd() {
+  try {
+    var used = 0;
+    for(var k in localStorage) { if(localStorage.hasOwnProperty(k)) used += (localStorage[k].length + k.length) * 2; }
+    var mb = Math.round(used / 1024 / 1024 * 100) / 100;
+    var pct = Math.min(100, Math.round(mb / 5 * 100));
+    var fill = document.getElementById('ls-bar-fill');
+    var lbl = document.getElementById('ls-bar-lbl');
+    var wrap = document.getElementById('ls-bar-wrap');
+    if(!fill || !lbl || !wrap) return;
+    fill.style.width = pct + '%';
+    if(pct >= 95) {
+      fill.style.background = 'var(--red)';
+      lbl.style.color = 'var(--red)';
+      lbl.textContent = mb + 'MB !';
+      wrap.style.background = 'var(--red-bg)';
+      wrap.style.border = '1px solid var(--red-bd)';
+    } else if(pct >= 80) {
+      fill.style.background = 'var(--gold)';
+      lbl.style.color = 'var(--gold)';
+      lbl.textContent = mb + 'MB';
+      wrap.style.background = '';
+      wrap.style.border = 'none';
+    } else {
+      fill.style.background = 'var(--green)';
+      lbl.style.color = 'var(--muted)';
+      lbl.textContent = mb + 'MB';
+      wrap.style.background = '';
+      wrap.style.border = 'none';
+    }
+  } catch(e) {}
+}
+
+function lsBarClick() {
+  try {
+    var used = 0;
+    for(var k in localStorage) { if(localStorage.hasOwnProperty(k)) used += (localStorage[k].length + k.length) * 2; }
+    var mb = Math.round(used / 1024 / 1024 * 100) / 100;
+    var pct = Math.min(100, Math.round(mb / 5 * 100));
+    if(pct < 80) { alert('Xotira holati: ' + mb + 'MB / 5MB (' + pct + '%) — yaxshi'); return; }
+    var msg = 'Xotira holati: ' + mb + 'MB / 5MB (' + pct + '%)\n\n';
+    if(pct >= 95) msg += '⚠ Xotira to\'lmoqda!\n\nEski tarixni tozalashdan oldin JSON eksport qilinadi.\nDavom etilsinmi?';
+    else msg += 'Xotira to\'lmoqda. Eski tarixni tozalashni xohlaysizmi?';
+    if(confirm(msg)) {
+      // Eksport
+      var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'tilla-backup-' + today().replace(/\./g,'-') + '.json';
+      a.click();
+      setTimeout(function() {
+        // 6 oydan eski tarixni o'chirish
+        var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - 6);
+        var cutStr = cutoff.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+        var count = 0;
+        data.klientlar.forEach(function(k) {
+          var before = k.tarix.length;
+          k.tarix = k.tarix.filter(function(op) { return !op.sana || op.sana >= cutStr; });
+          count += before - k.tarix.length;
+        });
+        save('Eski tarix tozalandi: ' + count + ' ta yozuv');
+        alert('Tozalandi: ' + count + ' ta eski yozuv o\'chirildi. Backup faylni saqlang!');
+        lsBarUpd();
+      }, 1000);
+    }
+  } catch(e) { alert('Xato: ' + e.message); }
 }
 
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
@@ -7868,6 +7944,7 @@ var _savedTab=sessionStorage.getItem('activeTab')||'zavod';
 sessionStorage.removeItem('activeTab');
 applyRol();
 renderHome();
+lsBarUpd();
 mainTab(_savedTab);
 (function(){
   var swipeStartX=0, swipeStartY=0, swiping=false;
