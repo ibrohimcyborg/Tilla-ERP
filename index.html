@@ -2794,9 +2794,25 @@ function skTurChange(){
 
 function skArr(){ return skState.mode === 1 ? skState.pass1 : skState.pass2; }
 
+// Mustahkam gramm parser: raqamlar orasidagi har qanday belgi (vergul, probel,
+// unicode vergul/o'nlik) avtomat o'nlik nuqtaga aylanadi. Skaner qanday belgi
+// yuborsa ham .59 qismi yo'qolmaydi.
+function skParseGram(v){
+  if (v == null) return 0;
+  var s = String(v).trim();
+  if (!s) return 0;
+  s = s.replace(/[^\d]+/g, '.');     // raqamsiz belgilar -> nuqta
+  s = s.replace(/\.+$/g, '');        // oxiridagi nuqtalar
+  if (s.charAt(0) === '.') s = '0' + s;
+  var p = s.split('.');
+  if (p.length > 2) s = p[0] + '.' + p.slice(1).join('');
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
 function skScanAdd(){
   var el = document.getElementById('sk-scan');
-  var g = parseNum(el.value); // ',' -> '.' avtomat
+  var g = skParseGram(el.value);
   if (!g || g <= 0){ el.value = ''; el.focus(); return; }
   skArr().push(roundG(g));
   el.value = ''; el.focus();
@@ -2852,7 +2868,7 @@ function skRender(){
     }
   }
   var vesEl = document.getElementById('sk-ves');
-  var ves = vesEl ? parseNum(vesEl.value) : 0;
+  var ves = vesEl ? skParseGram(vesEl.value) : 0;
   skState.ves = ves;
   var sum = skSum(a);
   var cntEl = document.getElementById('sk-cnt'), sumEl = document.getElementById('sk-sum'), qoldiEl = document.getElementById('sk-qoldi');
