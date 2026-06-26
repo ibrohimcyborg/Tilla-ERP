@@ -296,6 +296,7 @@ body.rol-zavod #main-klient { display: none !important; }
         <button class="pc-zbtn pdf" onclick="openPDFModal(null)">⎙ PDF</button>
         <button class="pc-zbtn add" onclick="openZavodModal()">+ Zavod</button>
       </div>
+      <button class="pc-zbtn kirim" style="width:100%;margin-top:8px;" onclick="goTo('s-skan')">⊹ Skan kirim — barcode bilan dona-dona</button>
     </div>
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
     <div class="mobile-zavod-hdr" style="padding:16px;">
@@ -318,6 +319,11 @@ body.rol-zavod #main-klient { display: none !important; }
           <div class="big-btn-label">Chiqim</div>
           <div class="big-btn-sub">Tolov qilish</div>
         </div>
+      </div>
+      <div class="big-btn kirim" style="margin-bottom:16px;" onclick="goTo('s-skan')">
+        <div class="big-btn-icon">⊹</div>
+        <div class="big-btn-label">Skan kirim</div>
+        <div class="big-btn-sub">Barcode bilan dona-dona</div>
       </div>
       <div style="margin-bottom:12px;">
         <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:var(--blue-bg);border-color:var(--blue-bd);flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
@@ -522,6 +528,58 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="btn-row">
     <button class="btn" onclick="goTo('s-home')">Bekor</button>
     <button class="btn gold" onclick="kirimSaqlash()">✓ Saqlash</button>
+  </div>
+</div>
+
+<!-- SKAN KIRIM -->
+<div class="screen" id="s-skan">
+  <div class="back-row">
+    <button class="back-btn" onclick="goTo('s-home')">←</button>
+    <div class="stitle">Skan kirim</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Zavod / Tur</div>
+    <div class="field"><select id="sk-zavod" onchange="skZavodChange()"><option value="">— Zavod tanlang —</option></select></div>
+    <div class="field" id="sk-tur-wrap" style="display:none;margin-bottom:0;"><select id="sk-tur" onchange="skTurChange()"></select></div>
+  </div>
+
+  <div class="card" id="sk-scan-card" style="display:none;">
+    <div class="card-title">Skan</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">Zavod bergan ves (g)</div>
+        <input type="text" inputmode="decimal" id="sk-ves" placeholder="150" autocomplete="off" oninput="skRender()" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">
+      </div>
+      <div style="display:flex;gap:5px;align-items:flex-end;">
+        <button id="sk-mode1" onclick="skSetMode(1)" style="padding:9px 11px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">1-skan</button>
+        <button id="sk-mode2" onclick="skSetMode(2)" style="padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">2-skan</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
+      <input type="text" inputmode="decimal" id="sk-scan" placeholder="Gramm skan qiling…" autocomplete="off" autocorrect="off" onkeydown="if(event.key==='Enter'){event.preventDefault();skScanAdd();}" style="flex:1;padding:11px 12px;border-radius:8px;border:1px solid var(--gold-bd);font-size:15px;background:var(--surf2);color:var(--text);">
+      <button onclick="skScanAdd()" aria-label="Qoshish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:20px;cursor:pointer;">+</button>
+      <button onclick="skDelLast()" aria-label="Oxirgini ochirish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:20px;cursor:pointer;">−</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">USB / Bluetooth — Enter bilan avtomat · 2,59 = 2.59</div>
+
+    <div style="display:grid;grid-template-columns:30px 1fr 28px;gap:6px;font-size:11px;color:var(--muted);padding:0 2px 5px;border-bottom:1px solid var(--border);"><span>#</span><span>Gramm</span><span></span></div>
+    <div id="sk-rows" style="margin-bottom:12px;"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div style="background:var(--surf2);border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--muted);">Dona</div><div id="sk-cnt" style="font-size:20px;font-weight:600;color:var(--text);">0</div></div>
+      <div style="background:var(--surf2);border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--muted);">Skan jami</div><div id="sk-sum" style="font-size:20px;font-weight:600;color:var(--text);">0.00 g</div></div>
+    </div>
+    <div id="sk-qoldi" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;"></div>
+
+    <div id="sk-rec" style="display:none;border-top:1px solid var(--border);padding-top:12px;"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="goTo('s-home')">Bekor</button>
+    <button class="btn gold" onclick="skSaqlash()">✓ Kirim qilish</button>
   </div>
 </div>
 
@@ -1360,6 +1418,7 @@ function goTo(id) {
   if (id === 's-home') renderHome();
   if (id === 's-zavod') renderZavod();
   if (id === 's-kirim') initKirim();
+  if (id === 's-skan') initSkan();
   if (id === 's-zvozvrat') zvInit();
   if (id === 's-chiqim') initChiqim();
 }
@@ -2689,6 +2748,163 @@ function kirimSaqlash() {
   save('Kirim | '+z.nom+' | '+sana);
   goTo('s-home');
 }
+
+// ===== SKAN KIRIM moduli =====
+var skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[] };
+
+function initSkan(){
+  skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[] };
+  var zs = document.getElementById('sk-zavod');
+  zs.innerHTML = '<option value="">— Zavod tanlang —</option>';
+  data.zavodlar.forEach(function(z,i){ zs.innerHTML += '<option value="'+i+'">'+z.nom+'</option>'; });
+  zs.value = '';
+  document.getElementById('sk-tur-wrap').style.display = 'none';
+  document.getElementById('sk-tur').innerHTML = '';
+  document.getElementById('sk-ves').value = '';
+  document.getElementById('sk-scan-card').style.display = 'none';
+  skSetModeUI(1);
+  skRender();
+}
+
+function skZavodChange(){
+  var zi = parseInt(document.getElementById('sk-zavod').value);
+  var w = document.getElementById('sk-tur-wrap');
+  var ts = document.getElementById('sk-tur');
+  skState.zi = isNaN(zi) ? -1 : zi; skState.ti = -1;
+  skState.pass1 = []; skState.pass2 = []; skSetMode(1);
+  if (isNaN(zi) || !data.zavodlar[zi] || !data.zavodlar[zi].turlar.length){
+    w.style.display = 'none'; ts.innerHTML = '';
+    document.getElementById('sk-scan-card').style.display = 'none'; skRender(); return;
+  }
+  ts.innerHTML = '<option value="">— Tur tanlang —</option>';
+  data.zavodlar[zi].turlar.forEach(function(t,ti){ ts.innerHTML += '<option value="'+ti+'">'+t.nom+'</option>'; });
+  ts.value = '';
+  w.style.display = 'block';
+  document.getElementById('sk-scan-card').style.display = 'none';
+  skRender();
+}
+
+function skTurChange(){
+  var ti = parseInt(document.getElementById('sk-tur').value);
+  skState.ti = isNaN(ti) ? -1 : ti;
+  document.getElementById('sk-scan-card').style.display = isNaN(ti) ? 'none' : 'block';
+  if (!isNaN(ti)) setTimeout(function(){ var s=document.getElementById('sk-scan'); if(s) s.focus(); }, 50);
+  skRender();
+}
+
+function skArr(){ return skState.mode === 1 ? skState.pass1 : skState.pass2; }
+
+function skScanAdd(){
+  var el = document.getElementById('sk-scan');
+  var g = parseNum(el.value); // ',' -> '.' avtomat
+  if (!g || g <= 0){ el.value = ''; el.focus(); return; }
+  skArr().push(roundG(g));
+  el.value = ''; el.focus();
+  skRender();
+}
+function skDelLast(){ var a = skArr(); if (a.length){ a.pop(); skRender(); } }
+function skRemoveAt(i){ var a = skArr(); if (i >= 0 && i < a.length){ a.splice(i,1); skRender(); } }
+
+function skSetModeUI(m){
+  var b1 = document.getElementById('sk-mode1'), b2 = document.getElementById('sk-mode2');
+  if (!b1 || !b2) return;
+  function on(b){ b.style.background='var(--gold)'; b.style.color='var(--on-gold)'; b.style.borderColor='var(--gold)'; }
+  function off(b){ b.style.background='var(--surf2)'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)'; }
+  if (m === 1){ on(b1); off(b2); } else { on(b2); off(b1); }
+}
+function skSetMode(m){
+  skState.mode = m;
+  skSetModeUI(m);
+  setTimeout(function(){ var s=document.getElementById('sk-scan'); if(s) s.focus(); }, 50);
+  skRender();
+}
+
+function skMultiset(arr){ var m={}; arr.forEach(function(g){ var k=roundG(g).toFixed(2); m[k]=(m[k]||0)+1; }); return m; }
+function skSum(arr){ var s=0; arr.forEach(function(g){ s+=g; }); return roundG(s); }
+
+function skReconcile(){
+  var ma = skMultiset(skState.pass1), mb = skMultiset(skState.pass2);
+  var keys = {}; for (var k in ma) keys[k]=1; for (var k2 in mb) keys[k2]=1;
+  var matched = 0, kam = [], ortiq = [];
+  Object.keys(keys).sort(function(a,b){return parseFloat(a)-parseFloat(b);}).forEach(function(kk){
+    var ca = ma[kk]||0, cb = mb[kk]||0;
+    matched += Math.min(ca,cb);
+    if (ca > cb) kam.push({g:kk, n:ca-cb});
+    if (cb > ca) ortiq.push({g:kk, n:cb-ca});
+  });
+  return { matched:matched, kam:kam, ortiq:ortiq };
+}
+
+function skRender(){
+  var a = skArr();
+  var rowsEl = document.getElementById('sk-rows');
+  if (rowsEl){
+    if (!a.length){ rowsEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:14px 0;">Hali skan yo\'q</div>'; }
+    else {
+      var out = '';
+      a.forEach(function(g,i){
+        out += '<div style="display:grid;grid-template-columns:30px 1fr 28px;gap:6px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--border);font-size:14px;">'
+          + '<span style="color:var(--muted);font-size:12px;">'+(i+1)+'</span>'
+          + '<span style="color:var(--text);">'+fmtG(g)+' g</span>'
+          + '<span onclick="skRemoveAt('+i+')" style="cursor:pointer;color:var(--red);text-align:center;font-size:16px;">×</span></div>';
+      });
+      rowsEl.innerHTML = out;
+    }
+  }
+  var vesEl = document.getElementById('sk-ves');
+  var ves = vesEl ? parseNum(vesEl.value) : 0;
+  skState.ves = ves;
+  var sum = skSum(a);
+  var cntEl = document.getElementById('sk-cnt'), sumEl = document.getElementById('sk-sum'), qoldiEl = document.getElementById('sk-qoldi');
+  if (cntEl) cntEl.textContent = a.length;
+  if (sumEl) sumEl.textContent = fmtG(sum) + ' g';
+  if (qoldiEl){
+    if (ves > 0){ var q = roundG(ves - sum); qoldiEl.innerHTML = (skState.mode===1?'1-skan':'2-skan')+' qoldi: <b style="color:'+(Math.abs(q)<0.005?'var(--green)':'var(--gold)')+';">'+fmtG(q)+' g</b>'; }
+    else qoldiEl.innerHTML = '';
+  }
+  var recEl = document.getElementById('sk-rec');
+  if (recEl){
+    if (skState.pass1.length && skState.pass2.length){
+      var r = skReconcile();
+      var s1 = skSum(skState.pass1), s2 = skSum(skState.pass2);
+      var h = '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Solishtirish — 1-skan ↔ 2-skan</div>';
+      h += '<div style="display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:8px 10px;margin-bottom:6px;"><span style="color:var(--green);">✓</span><span style="font-size:13px;color:var(--green);">'+r.matched+' ta gramm mos keldi</span></div>';
+      r.kam.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:8px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:8px 10px;margin-bottom:6px;"><span style="color:var(--red);">↓</span><span style="font-size:13px;color:var(--red);">2-skanda kam — <b>'+x.g+' g</b> ('+x.n+' ta)</span></div>'; });
+      r.ortiq.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:8px;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:8px 10px;margin-bottom:6px;"><span style="color:var(--yellow);">↑</span><span style="font-size:13px;color:var(--yellow);">2-skanda ortiq — <b>'+x.g+' g</b> ('+x.n+' ta)</span></div>'; });
+      if (!r.kam.length && !r.ortiq.length) h += '<div style="text-align:center;font-size:13px;color:var(--green);padding:4px 0 8px;">Ikkala skan to\'liq mos! ✓</div>';
+      h += '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px 0 0;border-top:1px solid var(--border);">1-skan <b style="color:var(--text);">'+fmtG(s1)+'</b> · 2-skan <b style="color:var(--text);">'+fmtG(s2)+'</b>'+(ves>0?' · Zavod <b style="color:var(--text);">'+fmtG(ves)+'</b>':'')+'</div>';
+      recEl.innerHTML = h;
+      recEl.style.display = 'block';
+    } else {
+      recEl.style.display = 'none'; recEl.innerHTML = '';
+    }
+  }
+}
+
+function skSaqlash(){
+  if (skState.zi < 0 || skState.ti < 0){ alert('Zavod va tur tanlang!'); return; }
+  if (!skState.pass1.length){ alert('Kamida 1 ta dona skan qiling!'); return; }
+  var z = data.zavodlar[skState.zi];
+  var t = z.turlar[skState.ti];
+  var total = skSum(skState.pass1);
+  if (skState.pass2.length){
+    var r = skReconcile();
+    if (r.kam.length || r.ortiq.length){
+      if (!confirm('Diqqat: 1-skan va 2-skan mos kelmadi (kam: '+r.kam.length+', ortiq: '+r.ortiq.length+').\n1-skan boyicha kirim qilinsinmi?')) return;
+    }
+  }
+  if (skState.ves > 0 && Math.abs(skState.ves - total) >= 0.005){
+    if (!confirm('Skan jami '+fmtG(total)+' g, zavod bergani '+fmtG(skState.ves)+' g.\nFarq: '+fmtG(roundG(skState.ves - total))+' g. Davom etilsinmi?')) return;
+  }
+  var sana = today();
+  t.ostatka = roundG((t.ostatka||0) + total);
+  if (!t.tarix) t.tarix = [];
+  t.tarix.push({ tip:'mol', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
+  save('Skan kirim | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
+  alert('✓ Kirim qilindi: '+fmtG(total)+' g ('+skState.pass1.length+' dona)');
+  goTo('s-home');
+}
+
 var _kimgaZavod = ''; // hozirgi zavod nomi
 var kimgalar = [];
 
