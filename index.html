@@ -2717,8 +2717,9 @@ function kZavodChange() {
   card.style.display = 'block';
   var out = '';
   data.zavodlar[zi].turlar.forEach(function(t,ti) {
-    out += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
-      + '<div style="font-size:14px;font-weight:600;min-width:70px;color:var(--text);">'+t.nom+'</div>'
+    out += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+      + '<div style="font-size:14px;font-weight:600;min-width:60px;color:var(--text);">'+t.nom+'</div>'
+      + '<button type="button" id="sgn-kg-'+ti+'" onclick="kirimSignToggle(\'kg-'+ti+'\')" style="width:34px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:17px;font-weight:600;cursor:pointer;flex-shrink:0;">±</button>'
       + '<input type="text" inputmode="decimal" id="kg-'+ti+'" placeholder="0" autocomplete="off" autocorrect="off" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">'
       + '<span style="font-size:13px;color:var(--muted);">g</span></div>';
   });
@@ -2747,6 +2748,21 @@ function kirimSaqlash() {
   if (!any) { alert('Kamida 1 ta turga gramm kiriting!'); return; }
   save('Kirim | '+z.nom+' | '+sana);
   goTo('s-home');
+}
+
+function kirimSignToggle(id){
+  var el = document.getElementById(id);
+  if (!el) return;
+  var v = String(el.value || '').trim();
+  if (v.charAt(0) === '-') el.value = v.slice(1);
+  else el.value = v ? ('-' + v) : '-';
+  var sgn = document.getElementById('sgn-' + id);
+  if (sgn) {
+    var neg = String(el.value || '').trim().charAt(0) === '-';
+    if (neg) { sgn.style.background='var(--green-bg)'; sgn.style.borderColor='var(--green-bd)'; sgn.style.color='var(--green)'; sgn.textContent='−'; }
+    else { sgn.style.background='var(--surf2)'; sgn.style.borderColor='var(--border)'; sgn.style.color='var(--muted)'; sgn.textContent='±'; }
+  }
+  try { el.focus(); } catch(e){}
 }
 
 // ===== SKAN KIRIM moduli =====
