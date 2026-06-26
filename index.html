@@ -4775,6 +4775,7 @@ function renderBerishTurlar(zavodlar){
       out+='<div style="flex:1;font-size:14px;color:var(--text);padding-top:8px;">'+t.nom+'</div>';
       out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
       out+='<div style="display:flex;align-items:center;gap:6px;">';
+      out+='<button type="button" id="sgn-'+inputId+'" onclick="berishSignToggle(\''+inputId+'\')" style="width:34px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:17px;font-weight:600;cursor:pointer;flex-shrink:0;">±</button>';
       out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" data-klientda="'+kdG+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
       out+='<span style="font-size:12px;color:var(--muted);">g</span>';
       out+='</div>';
@@ -4798,6 +4799,11 @@ function berishOstatkaUpdate(el) {
   var g = parseNum(el.value) || 0;
   var qolgan = ostatka - g;
   var ostEl = document.getElementById('ost-' + el.id);
+  var sgn = document.getElementById('sgn-' + el.id);
+  if (sgn) {
+    if (g < 0) { sgn.style.background='var(--green-bg)'; sgn.style.borderColor='var(--green-bd)'; sgn.style.color='var(--green)'; sgn.textContent='−'; }
+    else { sgn.style.background='var(--surf2)'; sgn.style.borderColor='var(--border)'; sgn.style.color='var(--muted)'; sgn.textContent='±'; }
+  }
   if (g > ostatka) {
     el.style.borderColor = 'var(--red)';
     if (ostEl) ostEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ '+fmtG(Math.abs(qolgan))+'g yetmaydi!</span>';
@@ -4807,11 +4813,24 @@ function berishOstatkaUpdate(el) {
     var netG = Math.round((g - kdG) * 100) / 100;
     var kdInfo = kdG > 0.01 ? ' | bizda: <b style="color:var(--green);">+'+fmtG(kdG)+'</b> → net: <b>'+(netG>0?'+':'')+fmtG(netG)+'</b>' : '';
     if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(qolgan)+'g'+kdInfo+'</span>';
+  } else if (g < 0) {
+    el.style.borderColor = 'var(--green)';
+    if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">tuzatish / qaytarish: '+fmtG(g)+'g</span>';
   } else {
     el.style.borderColor = '';
     var kdInfo0 = kdG > 0.01 ? ' | bizda: <b style="color:var(--green);">+'+fmtG(kdG)+'</b>' : '';
     if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(ostatka)+'g'+kdInfo0+'</span>';
   }
+}
+
+function berishSignToggle(id){
+  var el = document.getElementById(id);
+  if (!el) return;
+  var v = String(el.value || '').trim();
+  if (v.charAt(0) === '-') el.value = v.slice(1);
+  else el.value = v ? ('-' + v) : '-';
+  berishOstatkaUpdate(el);
+  try { el.focus(); } catch(e){}
 }
 
 function toggleBerishZ(head){
