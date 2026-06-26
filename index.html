@@ -3513,20 +3513,33 @@ function klientJamiQarz(k) {
 
 // Klient qarzi va bizning qarzimizni alohida hisoblaydi
 function klientQarzSplit(k, zavodFilter) {
-  var klientQarzi = 0; // klient bizga qancha qarz (musbat son)
-  var bizQarzi = 0;    // biz klientga qancha qarz (musbat son)
+  // Har (zavod, tur) bo'yicha alohida hisoblanadi: turdagi klient qarzi manfiyga
+  // ketsa (qarzdan ortiq qaytarish/to'lov), ortig'i o'sha tur bo'yicha biz qarzga o'tadi.
+  var turKq = {};        // tur kaliti -> klient qarzi (berish+ − vozvrat − turli tolov)
+  var bizQarzi = 0;      // biz klientga qancha qarz (musbat son)
+  var globalTolov = 0;   // turi yo'q umumiy to'lov — qarzni umumiy kamaytiradi
+  function _tk(op){ var key=(op.zavod||'')+'|'+(op.tur||''); if(turKq[key]===undefined) turKq[key]=0; return key; }
   k.tarix.forEach(function(op){
     if(zavodFilter && op.zavod !== zavodFilter) return;
     if(op.tip==='berish') {
-      if(op.gramm >= 0) klientQarzi += op.gramm;
+      if(op.gramm >= 0) turKq[_tk(op)] += op.gramm;
       else bizQarzi += Math.abs(op.gramm);
     }
-    else if(op.tip==='vozvrat') klientQarzi -= op.gramm;
-    else if(op.tip==='tolov' && !op._kdYopish) klientQarzi -= (op.ekvivalent||0);
+    else if(op.tip==='vozvrat') turKq[_tk(op)] -= op.gramm;
+    else if(op.tip==='tolov' && !op._kdYopish) {
+      if(op.zavod && op.tur) turKq[_tk(op)] -= (op.ekvivalent||0);
+      else globalTolov += (op.ekvivalent||0);
+    }
     else if(op.tip==='tolov' && op._kdYopish) bizQarzi -= (op.ekvivalent||0);
     else if(op.tip==='klientda') bizQarzi += op.gramm;
   });
-  klientQarzi = Math.round(klientQarzi*100)/100;
+  var klientQarzi = 0;
+  Object.keys(turKq).forEach(function(key){
+    var kq = Math.round(turKq[key]*100)/100;
+    if(kq > 0) klientQarzi += kq;
+    else if(kq < 0) bizQarzi += -kq; // qarzdan ortiq qaytarildi -> shu tur biz qarz
+  });
+  klientQarzi = Math.round((klientQarzi - globalTolov)*100)/100;
   bizQarzi = Math.round(bizQarzi*100)/100;
   if (klientQarzi < 0) klientQarzi = 0;
   if (bizQarzi < 0) bizQarzi = 0;
@@ -4962,10 +4975,11 @@ function kvUpdate(el) {
   var idx = idParts[idParts.length-1];
   var rEl = document.getElementById('kvr-' + idx);
   if (g > qarz) {
-    el.style.borderColor = 'var(--red)';
-    var ortiqcha = g - qarz;
+    el.style.borderColor = 'var(--green)';
+    var ortiqcha = Math.round((g - qarz) * 100) / 100;
+    var yangiZavod2 = ostatka + g;
     if (rEl) {
-      rEl.innerHTML = '<span style="color:var(--red);font-weight:600;">⚠ ' + fmtG(ortiqcha) + 'g ortiqcha!</span>';
+      rEl.innerHTML = '<span style="color:var(--green);">biz qarz: +' + fmtG(ortiqcha) + 'g | zavod: +' + fmtG(yangiZavod2) + 'g</span>';
     }
   } else if (g > 0) {
     el.style.borderColor = 'var(--green)';
@@ -4989,15 +5003,18 @@ function saqlashKlientVozvrat(){
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
   var bd=window._kVozvratBD||{};
   var any=false,idx=0;
-  var hasError=false;
+  var ortiqcha=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key]; if(b.qarz<=0){idx++;return;}
     var el=document.getElementById('kv-g-'+idx);
     var g=el?parseNum(el.value):0;
-    if(g>b.qarz){ hasError=true; }
+    if(g>b.qarz){ ortiqcha += (g - b.qarz); }
     idx++;
   });
-  if(hasError){ alert('Qarzdan ortiq gramm kiritilgan! Tuzating.'); return; }
+  ortiqcha = Math.round(ortiqcha*100)/100;
+  if(ortiqcha > 0.001){
+    if(!confirm('Qarzdan '+fmtG(ortiqcha)+'g ortiq qaytarilyapti — bu biz qarzga aylanadi (zavodga to\'liq qo\'shiladi). Davom etilsinmi?')) return;
+  }
   idx=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key];
