@@ -257,7 +257,7 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <div class="topbar">
-  <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX6</span></div>
+  <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX12</span></div>
   <div class="topbar-right">
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
@@ -4018,13 +4018,14 @@ function renderKlientHisobot() {
 
   // Har bir operatsiyani sessiyaga yig'amiz: ki + sana + soat + tip
   // (bir vaqtda saqlangan bir tip = 1 sessiya)
-  var sessions=[], byDay={}, dayOrder=[];
+  var sessions=[], byDay={}, dayOrder=[], lomMap={};
 
   (data.klientlar||[]).forEach(function(k, ki){
     // operatsiyalarni sessiyalarga ajratamiz
     var sessMap={};
     k.tarix.forEach(function(op, oi){
-      if (isBadVozvrat(op) || op.tip==='lom') return; // yaroqsiz vozvrat va lom klient tarixida ko'rsatilmasin
+      if(op.tip==='lom'){ var lmk=ki+'|'+op.sana; (lomMap[lmk]=lomMap[lmk]||[]).push(op); return; } // lom — to'lov ichida ko'rsatamiz
+      if (isBadVozvrat(op)) return; // yaroqsiz vozvrat ko'rsatilmasin
       var sk = ki+'|'+op.sana+'|'+(op.soat||'')+'|'+op.tip;
       if(!sessMap[sk]) sessMap[sk]={ki:ki,knom:k.nom,sana:op.sana,soat:op.soat||'',tip:op.tip,ops:[],order:sessions.length};
       sessMap[sk].ops.push({op:op,oi:oi});
@@ -4041,6 +4042,7 @@ function renderKlientHisobot() {
   dayOrder.sort(function(a,b){return b.localeCompare(a);});
 
   var html='';
+  var shownLom={};
   dayOrder.forEach(function(sana){
     var daySessions=byDay[sana];
     // sessiyalarni soat bo'yicha tartiblash
@@ -4107,6 +4109,17 @@ function renderKlientHisobot() {
         var s=tip==='tolov'?(op.summa||0):0;
         if(turStr||s>0){
           html+='<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+turStr+(s>0?' · $'+fmtD(s):'')+'</div>';
+        }
+      }
+      if(tip==='tolov'){
+        var _lmk=sess.ki+'|'+sana;
+        if(lomMap[_lmk] && !shownLom[_lmk]){
+          shownLom[_lmk]=true;
+          var _lkurs=(sess.ops[0]&&sess.ops[0].op.kurs)||0;
+          lomMap[_lmk].forEach(function(L){
+            var _leq=(_lkurs>0)?Math.round((L.summa/_lkurs)*100)/100:0;
+            html+='<div style="font-size:11px;color:var(--gold);margin-top:2px;">↩ Lom '+(L.proba||'')+': '+fmtG(L.gramm||0)+'g × '+(L.narx||0)+'$/g = $'+fmtD(L.summa||0)+(_lkurs>0?' ('+fmtG(_leq)+'g)':'')+'</div>';
+          });
         }
       }
       html+='</div>';
@@ -4275,6 +4288,15 @@ function kopEditOchir() {
     data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100; }); });
   }
   k.tarix.splice(_kopOi, 1);
+  // lomli to'lov o'chirilsa — aynan o'sha to'lovning (sana+soat) lomini ham o'chirish
+  if(op.tip==='tolov'){
+    var _sn=op.sana, _st=op.soat||'';
+    var qoldi = k.tarix.some(function(o){ return o.tip==='tolov' && o.sana===_sn && (o.soat||'')===_st; });
+    if(!qoldi && _st){
+      k.tarix = k.tarix.filter(function(o){ return !(o.tip==='lom' && o.sana===_sn && (o.soat||'')===_st); });
+      if(data.lomlar) data.lomlar = data.lomlar.filter(function(l){ return !(l.manba==='klient' && l.klientNom===k.nom && l.sana===_sn && (l.soat||'')===_st); });
+    }
+  }
   save();
   closeModal('modal-kop-edit');
   renderKlientHisobot();
@@ -4485,9 +4507,10 @@ function openKlientDetail(ki) {
   bHTML+='<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:4px;align-items:center;"><button onclick="klientQarzChekPDF('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#9108; PDF</button><button onclick="klientQarzChekPrint('+ki+')" style="padding:11px;border-radius:10px;border:1px solid var(--blue-bd);background:transparent;color:var(--blue);font-size:13px;font-family:Outfit,sans-serif;font-weight:600;cursor:pointer;">&#128424; Printer</button><div style="display:flex;align-items:center;background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:4px 6px;gap:4px;"><button onclick="chekCntChange('+ki+',-1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">&#8722;</button><span id="chek-cnt-'+ki+'" style="min-width:22px;text-align:center;font-size:14px;font-weight:600;color:var(--text);">1</span><button onclick="chekCntChange('+ki+',1)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--surf);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button></div></div>';
   bHTML+='</div>';
   document.getElementById('kd-breakdown').innerHTML=bHTML;
-  var groups={}, groupOrder=[];
+  var groups={}, groupOrder=[], lomMapKd={};
   k.tarix.forEach(function(op){
-    if(isBadVozvrat(op) || op.tip==='lom') return; // yaroqsiz vozvrat va lom klient tarixida ko'rsatilmasin
+    if(op.tip==='lom'){ var lmk=op.sana+'|'+(op.soat||''); (lomMapKd[lmk]=lomMapKd[lmk]||[]).push(op); return; } // lom — to'lov ichida ko'rsatamiz
+    if(isBadVozvrat(op)) return; // yaroqsiz vozvrat ko'rsatilmasin
     var groupKey=op.sana+'|'+(op.soat||'')+'|'+op.tip;
     if(!groups[groupKey]){
       groups[groupKey]={sana:op.sana, soat:op.soat||'', tip:op.tip, ops:[], isPayment:op.tip!=='berish'};
@@ -4588,6 +4611,16 @@ function openKlientDetail(ki) {
       if(op.tip==='berish'||op.tip==='vozvrat') sub2=(op.zavod||'')+' · '+(op.tur||'');
       else if(op.tip==='tolov') sub2=fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g'+(op.zavod?' — '+op.zavod+' · '+op.tur:'');
       if(sub2) tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:4px;">'+sub2+'</div>';
+    }
+    if(hasTolov){
+      var _lmkKd=g.sana+'|'+(g.soat||'');
+      if(lomMapKd[_lmkKd]){
+        var _lkursKd=(g.ops[0]&&g.ops[0].kurs)||0;
+        lomMapKd[_lmkKd].forEach(function(L){
+          var _leqKd=(_lkursKd>0)?Math.round((L.summa/_lkursKd)*100)/100:0;
+          tHTML+='<div style="font-size:11px;color:var(--gold);margin-top:4px;">↩ Lom '+(L.proba||'')+': '+fmtG(L.gramm||0)+'g × '+(L.narx||0)+'$/g = $'+fmtD(L.summa||0)+(_lkursKd>0?' ('+fmtG(_leqKd)+'g)':'')+'</div>';
+        });
+      }
     }
     tHTML+='</div>';
   });
@@ -6081,7 +6114,7 @@ function saqlashKlientTolov(){
         var _ktOffFrac=_ktJamiRaw>0?s/_ktJamiRaw:0;
         var _ktOffDeduct=Math.round(_ktOffsetPulSave*_ktOffFrac*100)/100;
         var _ktOpNaqt=Math.max(0,Math.round((sNet-_ktOffDeduct)*100)/100);
-        k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,summa:sNet,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN,skidka:sSk,naqtPul:_ktOpNaqt,kartaPul:0});
+        k.tarix.push({tip:'tolov',sana:sana,soat:_soat_kt,zavod:b.zavod,tur:b.tur,summa:sNet,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN,skidka:sSk,naqtPul:_ktOpNaqt,kartaPul:0});
       }
       any=true;
     }
@@ -6158,6 +6191,7 @@ function saqlashKlientTolov(){
   }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();renderKassa();
+  if(typeof renderLomAnywhere==='function') renderLomAnywhere();
 }
 var _ksLomIdx = 0;
 
@@ -7932,7 +7966,7 @@ function klientTarixOchir(el) {
     if(isBerish) return op.tip==='berish';
     if(tip==='vozvrat') return op.tip==='vozvrat';
     if(tip==='lom') return op.tip==='lom';
-    return op.tip==='tolov'||op.tip==='vozvrat'||op.tip==='klientda';
+    return op.tip==='tolov'||op.tip==='vozvrat'||op.tip==='klientda'||op.tip==='lom';
   });
   if(!ops.length){alert('Operatsiya topilmadi'); return;}
   if(confirm(sana+' sanasidagi '+ops.length+' ta operatsiyani o\'chirasizmi?')) {
@@ -7943,11 +7977,15 @@ function klientTarixOchir(el) {
         data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka=Math.round((t.ostatka+op.gramm)*100)/100;});});
       } else if(op.tip==='vozvrat'){
         data.zavodlar.forEach(function(z){z.turlar.forEach(function(t){if(z.nom===op.zavod&&t.nom===op.tur)t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100;});});
+      } else if(op.tip==='lom'){
+        // lom o'chsa — lom modulidan (data.lomlar) ham mosini o'chirish
+        if(data.lomlar) data.lomlar=data.lomlar.filter(function(l){ return !(l.manba==='klient'&&l.klientNom===k.nom&&l.sana===op.sana&&Math.abs((l.gramm||0)-(op.gramm||0))<0.001&&String(l.proba)===String(op.proba)&&Math.abs((l.summa||0)-(op.summa||0))<0.001); });
       }
     });
     save('O\'chirildi: '+sana);
     openKlientDetail(ki);
     renderHome();
+    if(typeof renderLomAnywhere==='function') renderLomAnywhere();
   }
 }
 document.addEventListener('click', function(e) {
@@ -8755,7 +8793,10 @@ function renderLomInto(contId) {
       var manba=l.manba==='klient'?l.klientNom:l.manba==='zavod'?l.zavodNom:"Ko\'cha";
       html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surf2);border-radius:10px;margin-bottom:6px;">';
       html+='<div><div style="font-size:12px;font-weight:600;color:'+col+';">'+(isK?'\u2193 Kirim':'\u2191 Chiqim')+' \u00b7 '+l.proba+'</div><div style="font-size:11px;color:var(--muted);">'+manba+' \u00b7 '+l.sana+'</div></div>';
-      html+='<div style="text-align:right;"><div style="font-size:13px;font-weight:700;">'+(isK?'+':'-')+fmtG(l.gramm)+'g</div><div style="font-size:11px;color:var(--muted);">'+fmtD(l.summa)+'$</div></div></div>';
+      html+='<div style="display:flex;align-items:center;gap:8px;">';
+      html+='<div style="text-align:right;"><div style="font-size:13px;font-weight:700;">'+(isK?'+':'-')+fmtG(l.gramm)+'g</div><div style="font-size:11px;color:var(--muted);">'+fmtD(l.summa)+'$</div></div>';
+      html+='<button onclick="lomYozuvOchir(\''+(l.id||l.sana_ts)+'\')" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:8px;width:28px;height:28px;font-size:13px;cursor:pointer;flex-shrink:0;">\uD83D\uDDD1</button>';
+      html+='</div></div>';
     });
   }
   html+='</div>';
@@ -8768,6 +8809,23 @@ function renderLomInto(contId) {
 }
 
 function renderLom() { renderLomInto('lom-list-cont'); }
+function lomYozuvOchir(key){
+  if(!confirm("Bu lom yozuvini o'chirasizmi?")) return;
+  var idx = (data.lomlar||[]).findIndex(function(l){ return String(l.id)===String(key) || String(l.sana_ts)===String(key); });
+  if(idx<0) return;
+  var L = data.lomlar[idx];
+  data.lomlar.splice(idx,1);
+  // klient tarixidan mos lom yozuvini ham o'chirish
+  if(L.klientNom){
+    var k = (data.klientlar||[]).find(function(x){ return x.nom===L.klientNom; });
+    if(k && k.tarix){
+      var ti = k.tarix.findIndex(function(op){ return op.tip==='lom' && op.sana===L.sana && (op.soat||'')===(L.soat||'') && Math.abs((op.gramm||0)-(L.gramm||0))<0.001 && String(op.proba)===String(L.proba); });
+      if(ti>=0) k.tarix.splice(ti,1);
+    }
+  }
+  save("Lom o'chirildi");
+  renderLomAnywhere();
+}
 function renderLomAnywhere() {
   var hz = document.getElementById('home-zavodlar');
   if(hz && hz.getAttribute('data-lom-mode')==='1') { renderLomInto('home-zavodlar'); }
