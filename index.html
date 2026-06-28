@@ -1394,11 +1394,25 @@ try {
 }
 if (!data.klientlar) data.klientlar = [];
 if (!data.zavodlar) data.zavodlar = [];
+// Xavfsizlik: yuklashda ham 0g yoki zavod/tur-siz vozvrat yozuvlarini tozalash (eskilari ham darrov yo'qoladi)
+data.klientlar.forEach(function(k){
+  if (k && k.tarix) k.tarix = k.tarix.filter(function(op){
+    return !(op.tip==='vozvrat' && (Math.abs(op.gramm||0) < 0.005 || !op.zavod || !op.tur));
+  });
+});
 if (!data.lomlar) data.lomlar = []; // {tip:'kirim'|'chiqim', manba:'klient'|'kocha'|'zavod'|'boshqa', klientIdx, zavodNom, boshqaNom, sana, proba, gramm, narx, sotuvNarx, summa, foyda, izoh, sana_ts}
 if (!data.lomNarxTarix) data.lomNarxTarix = []; // {id, sana, sana_ts, narx, zaxiraG}
 if (!data.lomProbalar) data.lomProbalar = []; // foydalanuvchi o'zi qo'shadigan probalar: ['585','750',...]
 
 function save(logText) {
+  // Xavfsizlik: 0g yoki zavod/tur-siz vozvrat yozuvlarini har saqlashda tozalash (har qanday manba)
+  if (data && data.klientlar) {
+    data.klientlar.forEach(function(k){
+      if (k && k.tarix) k.tarix = k.tarix.filter(function(op){
+        return !(op.tip==='vozvrat' && (Math.abs(op.gramm||0) < 0.005 || !op.zavod || !op.tur));
+      });
+    });
+  }
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if(logText) snapSaqla(logText);
 }
@@ -6050,7 +6064,7 @@ function saqlashKlientTolov(){
       }
       any=true;
     }
-    if(v>0&&zi>=0&&ti>=0){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
+    if(v>=0.005&&zi>=0&&ti>=0&&b.zavod&&b.tur){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
     if(s>0||v>0){
       ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:sNet,tolov_kurs:kurs});
     }
@@ -6111,6 +6125,9 @@ function saqlashKlientTolov(){
   }
   sdachaTaqsimSaqla('kt', k, sana, _now_kt ? _now_kt : (function(){var n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');})());
   window._ktSdachaTanlov=null;
+
+  // Xavfsizlik: 0g yoki zavod/tur-siz vozvrat yozuvlarini tozalash (manbasidan qat'i nazar)
+  k.tarix = k.tarix.filter(function(op){ return !(op.tip==='vozvrat' && (Math.abs(op.gramm||0) < 0.005 || !op.zavod || !op.tur)); });
 
   save('Klient tolov: '+k.nom);
   var chekEl = document.getElementById('kt-chek-body');
@@ -7652,6 +7669,8 @@ function saqlashKlientSotuv() {
   });
   var _chekTanlov = window._ksSotuvOrtiqchaTanlov || null;
   var _chekOrtiqcha = _ortiqcha;
+  // Xavfsizlik: 0g yoki zavod/tur-siz vozvrat yozuvlarini tozalash
+  k.tarix = k.tarix.filter(function(op){ return !(op.tip==='vozvrat' && (Math.abs(op.gramm||0) < 0.005 || !op.zavod || !op.tur)); });
   save('Sotuv: '+k.nom+' | '+sana);
   var _d = _qarzTarkib(data.klientlar.indexOf(k));
   var _skidka = parseNum((document.getElementById('ks-skidka')||{}).value)||0;
