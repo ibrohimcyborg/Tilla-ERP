@@ -364,19 +364,43 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     HDR = ["Sana","Amal","Zavod","Tur","Gramm","Summa ($)","Kurs ($/g)","Ostatka"]
     CW  = [x*mm for x in [26, 22, 30, 22, 26, 26, 24, 28]]
     tdata = [[P(h,'Helvetica-Bold',9,C_WHITE,'CENTER') for h in HDR]]; rstyles = []
-    for ri, row in enumerate(ops, 1):
-        tip=row.get('tip',''); gramm=row.get('gramm',0); summa=row.get('summa',0)
-        kurs=row.get('kurs',0); ostatka=row.get('ostatka',0)
-        if tip=='berish': amal_txt='↑ Berildi'; ac=C_RED; gc=C_RED; gs=f"{abs(gramm):,.2f}g"
-        elif tip=='vozvrat': amal_txt='↩ Vozvrat'; ac=C_BLUE; gc=C_GREEN; gs=f"+{abs(gramm):,.2f}g"
-        else: amal_txt='$ Tolov'; ac=C_GREEN; gc=C_GREEN; gs=f"+{abs(gramm):,.2f}g"
-        oc=C_RED if ostatka<-0.001 else C_GREEN; bg=C_GRAY if ri%2==0 else C_WHITE
-        tdata.append([P(row.get('sana',''),size=9,color=C_MUTED),P(amal_txt,'Helvetica-Bold',9,ac,'CENTER'),
-            P(row.get('zavod',''),size=9,color=C_MUTED),P(row.get('tur',''),size=9,color=C_MUTED),
-            P(gs,'Helvetica-Bold',9,gc,'RIGHT'),P(f"{summa:,.0f}$" if summa else "—",size=9,align='RIGHT'),
-            P(f"{kurs:,.1f}$/g" if kurs else "—",size=9,color=C_MUTED,align='RIGHT'),
-            P(f"{ostatka:,.2f}g",'Helvetica-Bold',9,oc,'RIGHT')])
-        rstyles.append(('BACKGROUND',(0,ri),(-1,ri),bg))
+    for si, row in enumerate(ops):
+        tip=row.get('tip',''); ostatka=row.get('ostatka',0)
+        if tip=='berish': amal_txt='↑ Berildi'; ac=C_RED; gc=C_RED; gsign=''
+        elif tip=='vozvrat': amal_txt='↩ Vozvrat'; ac=C_BLUE; gc=C_GREEN; gsign='+'
+        else: amal_txt='$ Tolov'; ac=C_GREEN; gc=C_GREEN; gsign='+'
+        oc=C_RED if ostatka<-0.001 else C_GREEN
+        bg=C_GRAY if si%2 else C_WHITE
+        turlar=row.get('turlar') or []
+        r0=len(tdata)
+        if turlar:
+            for ti, t in enumerate(turlar):
+                tg=t.get('gramm',0); tsum=t.get('summa',0); tk=t.get('kurs',0)
+                tdata.append([
+                    P(row.get('sana','') if ti==0 else '',size=9,color=C_MUTED),
+                    P(amal_txt if ti==0 else '','Helvetica-Bold',9,ac,'CENTER'),
+                    P(t.get('zavod',''),size=9,color=C_MUTED),
+                    P(t.get('tur',''),'Helvetica-Bold',9,C_DARK),
+                    P(f"{gsign}{abs(tg):,.2f}g",'Helvetica-Bold',9,gc,'RIGHT'),
+                    P(f"{tsum:,.0f}$" if tsum else "—",size=9,align='RIGHT'),
+                    P(f"{tk:,.1f}$/g" if tk else "—",size=9,color=C_MUTED,align='RIGHT'),
+                    P(f"{ostatka:,.2f}g" if ti==0 else '','Helvetica-Bold',9,oc,'RIGHT')])
+        else:
+            tg=row.get('gramm',0); tsum=row.get('summa',0); tk=row.get('kurs',0)
+            tdata.append([P(row.get('sana',''),size=9,color=C_MUTED),
+                P(amal_txt,'Helvetica-Bold',9,ac,'CENTER'),
+                P('',size=9,color=C_MUTED),P('',size=9),
+                P(f"{gsign}{abs(tg):,.2f}g",'Helvetica-Bold',9,gc,'RIGHT'),
+                P(f"{tsum:,.0f}$" if tsum else "—",size=9,align='RIGHT'),
+                P(f"{tk:,.1f}$/g" if tk else "—",size=9,color=C_MUTED,align='RIGHT'),
+                P(f"{ostatka:,.2f}g",'Helvetica-Bold',9,oc,'RIGHT')])
+        r1=len(tdata)-1
+        rstyles.append(('BACKGROUND',(0,r0),(-1,r1),bg))
+        if r1>r0:
+            rstyles.append(('SPAN',(0,r0),(0,r1)))
+            rstyles.append(('SPAN',(1,r0),(1,r1)))
+            rstyles.append(('SPAN',(7,r0),(7,r1)))
+        rstyles.append(('LINEBELOW',(0,r1),(-1,r1),0.4,colors.HexColor('#cccccc')))
     jr=len(tdata)
     tdata.append([P('JAMI','Helvetica-Bold',9,C_WHITE,'CENTER'),'','','',
         P(f"-{jami_berildi:,.2f}g",'Helvetica-Bold',9,colors.HexColor('#E05A5A'),'RIGHT'),
