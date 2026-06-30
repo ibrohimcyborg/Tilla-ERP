@@ -5995,8 +5995,9 @@ function kTolovChekUpd() {
     });
   });
 
-  lines2.push(LINE);
   var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  if (manSkKt2 > 0.001) lines2.push(rjust('  Skidka', '- '+fmtD(manSkKt2)+'#'));
+  lines2.push(LINE);
   var ktLomJamiChekPre=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
     var i=el.id.split('-')[2];
@@ -7575,7 +7576,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         var bizdaG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
         lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)));
       } else {
-        lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
+        lines2.push(rjust('Skidka', fmtD(ortiqcha)+'#'));
       }
     }
     lines2.push(LINE);
@@ -7620,7 +7621,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         var bizdaG3 = taqsimTanlov.narx > 0 ? roundG(ortiqcha / taqsimTanlov.narx) : 0;
         lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG3)));
       } else {
-        lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
+        lines2.push(rjust('Skidka', fmtD(ortiqcha)+'#'));
       }
     }
     lines2.push(LINE);
@@ -8014,7 +8015,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
         var _bizdaG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
         t += rjust('Bizda qoldi', '+'+fmtG(_bizdaG2))+'\n';
       } else {
-        t += rjust('Sdacha', fmtD(_ortiqcha2)+'#')+'\n';
+        t += rjust('Skidka', fmtD(_ortiqcha2)+'#')+'\n';
       }
     }
     t += LINE;
