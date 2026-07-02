@@ -258,7 +258,7 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <div class="topbar">
-  <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX29</span></div>
+  <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX27</span></div>
   <div class="topbar-right">
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
@@ -455,6 +455,7 @@ body.rol-zavod #main-klient { display: none !important; }
     <div class="nav-tab active" id="ztab-turlar" onclick="zTab('turlar')">Turlar</div>
     <div class="nav-tab" id="ztab-hisobot" onclick="zTab('hisobot')">Hisobot</div>
     <div class="nav-tab" id="ztab-kassa" onclick="zTab('kassa')">Kassa</div>
+    <div class="nav-tab" id="ztab-sherik" onclick="zTab('sherik')">Sherik</div>
   </div>
   <div id="zavod-turlar-cont">
     <div id="zavod-tur-list"></div>
@@ -466,6 +467,7 @@ body.rol-zavod #main-klient { display: none !important; }
   </div>
   <div id="zavod-hisobot-cont" style="display:none;"></div>
   <div id="zavod-kassa-cont" style="display:none;"></div>
+  <div id="zavod-sherik-cont" style="display:none;"></div>
   <div id="zavod-kurs-cont" style="display:none;">
     <!-- Kurs kiritish -->
     <div style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:12px;margin-bottom:8px;">
@@ -992,16 +994,27 @@ body.rol-zavod #main-klient { display: none !important; }
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Turlar — gramm</div>
       <div id="kb-turlar-inputs"></div>
     </div>
+
     <div id="kb-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
-        <div onclick="kbChekToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-          <div id="kb-chek-sw" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
-          <span style="font-size:12px;color:var(--muted);" id="kb-chek-toggle-lbl">Chek chiqarish</span>
+        <div onclick="kbChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <div id="kb-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
+            <div id="kb-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+          </div>
         </div>
       </div>
       <div id="kb-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--border);overflow:hidden;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+        <span style="font-size:12px;color:var(--muted);">Nechta nusxa</span>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--surf);border-radius:20px;padding:3px 10px;border:1px solid var(--border);">
+          <button onclick="kbCntChg(-1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">−</button>
+          <span style="font-size:13px;font-weight:500;min-width:16px;text-align:center;" id="kb-cnt">1</span>
+          <button onclick="kbCntChg(1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">+</button>
+        </div>
+      </div>
     </div>
+
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-kberish')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlientBerish()">Saqlash</button>
@@ -1030,6 +1043,27 @@ body.rol-zavod #main-klient { display: none !important; }
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Vozvrat — istalgan zavod/tur</div>
       <div id="kv-turlar-list"></div>
     </div>
+
+    <div id="kv-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+        <div onclick="kvChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <div id="kv-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
+            <div id="kv-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+          </div>
+        </div>
+      </div>
+      <div id="kv-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--border);overflow:hidden;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+        <span style="font-size:12px;color:var(--muted);">Nechta nusxa</span>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--surf);border-radius:20px;padding:3px 10px;border:1px solid var(--border);">
+          <button onclick="kvCntChg(-1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">−</button>
+          <span style="font-size:13px;font-weight:500;min-width:16px;text-align:center;" id="kv-cnt">1</span>
+          <button onclick="kvCntChg(1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">+</button>
+        </div>
+      </div>
+    </div>
+
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-kvozvrat')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlientVozvrat()">Saqlash</button>
@@ -1081,12 +1115,14 @@ body.rol-zavod #main-klient { display: none !important; }
         <div id="kt-vozvrat-list"></div>
       </div>
       <div id="kt-jami" style="background:var(--surf2);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:8px;border-left:2px solid var(--gold);display:none;"></div>
-      <div id="kt-skidka-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:8px 12px;margin-top:8px;border-left:2px solid var(--red-bd);">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;color:var(--muted);">Skidka</span>
-          <input type="number" id="kt-skidka" placeholder="0" oninput="kTolovCalc()" style="width:70px;border:none;background:transparent;font-size:14px;color:var(--red);text-align:right;outline:none;">
-          <span style="font-size:12px;color:var(--muted);">$</span>
-          <span id="kt-skidka-hint" style="font-size:11px;color:var(--muted);margin-left:4px;"></span>
+      <div id="kt-skidka-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span style="font-size:12px;color:var(--muted);">Skidka<span id="kt-skidka-hint" style="font-size:11px;color:var(--muted);margin-left:4px;"></span></span>
+          <div style="display:flex;align-items:center;gap:4px;border:1px solid var(--red-bd);background:var(--red-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <span style="font-size:12px;color:var(--red);">−</span>
+            <input type="number" id="kt-skidka" placeholder="0" oninput="kTolovCalc()" style="width:70px;border:none;background:transparent;font-size:14px;color:var(--red);text-align:right;outline:none;">
+            <span style="font-size:11px;color:var(--red);">$</span>
+          </div>
         </div>
       </div>
 
@@ -1134,12 +1170,22 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="kt-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:10px;margin-top:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
-          <div onclick="ktChekToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-            <div id="kt-chek-sw" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
-            <span style="font-size:12px;color:var(--muted);" id="kt-chek-toggle-lbl">Chek chiqarish</span>
+          <div onclick="ktChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <div id="kt-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
+              <div id="kt-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+            </div>
+            <span style="font-size:12px;color:var(--muted);" id="kt-chek-toggle-lbl"></span>
           </div>
         </div>
         <div id="kt-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:12px;color:var(--muted);">Nechta nusxa</span>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--surf);border-radius:20px;padding:3px 10px;border:1px solid var(--border);">
+            <button onclick="ktCntChg(-1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">−</button>
+            <span style="font-size:13px;font-weight:500;min-width:16px;text-align:center;" id="kt-cnt">1</span>
+            <button onclick="ktCntChg(1)" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--surf2);color:var(--gold);font-size:16px;font-weight:700;cursor:pointer;line-height:1;">+</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="btn-row">
@@ -1329,9 +1375,11 @@ body.rol-zavod #main-klient { display: none !important; }
       <div id="ks-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
-          <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-            <div id="ks-chek-sw" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:var(--green);font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
-            <span style="font-size:12px;color:var(--muted);" id="ks-chek-toggle-lbl">Chek chiqarish</span>
+          <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <div id="ks-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
+              <div id="ks-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+            </div>
+            <span style="font-size:12px;color:var(--muted);" id="ks-chek-toggle-lbl"></span>
           </div>
         </div>
         <div id="ks-chek-body" style="font-family:'Courier New',monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-all;background:var(--surf);border-radius:8px;padding:10px;border:1px solid var(--border);overflow:hidden;"></div>
@@ -1499,12 +1547,15 @@ function zTab(tab) {
   document.getElementById('ztab-turlar').classList.toggle('active', tab === 'turlar');
   document.getElementById('ztab-hisobot').classList.toggle('active', tab === 'hisobot');
   document.getElementById('ztab-kassa').classList.toggle('active', tab === 'kassa');
+  document.getElementById('ztab-sherik').classList.toggle('active', tab === 'sherik');
   var ztEl=document.getElementById('zavod-turlar-cont'); if(ztEl) ztEl.style.display = tab === 'turlar' ? 'block' : 'none';
   var zhEl=document.getElementById('zavod-hisobot-cont'); if(zhEl) zhEl.style.display = tab === 'hisobot' ? 'block' : 'none';
   var zkEl=document.getElementById('zavod-kassa-cont'); if(zkEl) zkEl.style.display = tab === 'kassa' ? 'block' : 'none';
+  var zsEl=document.getElementById('zavod-sherik-cont'); if(zsEl) zsEl.style.display = tab === 'sherik' ? 'block' : 'none';
   var kursEl = document.getElementById('zavod-kurs-cont'); if(kursEl) kursEl.style.display = 'none';
   if (tab === 'hisobot') renderZavodHisobot();
   if (tab === 'kassa') renderZavodKassa();
+  if (tab === 'sherik') renderZavodSherik();
 }
 
 var _kursGrafikDavr = localStorage.getItem('tilla-kurs-grafik-davr')||'1K';
@@ -2262,15 +2313,12 @@ function zKursSaqla() {
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function renderHome() {
-  var _zStats = data.zavodlar.map(function(z, zi){
-    var zB=0; z.turlar.forEach(function(t){ zB+=t.ostatka; });
-    var zK=0; (data.klientlar||[]).forEach(function(k){ zK += klientQarzSplit(k, z.nom).klientQarzi; });
-    zB=Math.round(zB*100)/100; zK=Math.round(zK*100)/100;
-    return {z:z, zi:zi, zB:zB, zK:zK, zG:Math.round((zB+zK)*100)/100};
+  var bizda = 0;
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
+  var klientda = 0;
+  (data.klientlar||[]).forEach(function(k){
+    klientda += klientQarzSplit(k).klientQarzi;
   });
-  var bizda=0, klientda=0;
-  _zStats.forEach(function(s){ bizda+=s.zB; klientda+=s.zK; });
-  bizda=Math.round(bizda*100)/100;
   klientda = Math.round(klientda*100)/100;
   var tot = Math.round((bizda+klientda)*100)/100;
   var g = '<span>g</span>';
@@ -2287,7 +2335,10 @@ function renderHome() {
   if(list && list.getAttribute('data-lom-mode')==='1') return;
   if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  var zavodlarSorted = _zStats.slice().sort(function(a,b){
+  var zavodlarSorted = data.zavodlar.map(function(z, zi){
+    var zG=0; z.turlar.forEach(function(t){ zG+=t.ostatka; });
+    return {z:z, zi:zi, zG:Math.round(zG*100)/100};
+  }).sort(function(a,b){
     // musbat → 0 → manfiy
     var aPos=a.zG>0, bPos=b.zG>0;
     var aZero=a.zG===0, bZero=b.zG===0;
@@ -2378,6 +2429,61 @@ function renderHisobot() {
   }
   window.toggleHrow = function(idx) { expanded[idx] = !expanded[idx]; render(); };
   render();
+}
+function sherikFoizSet(zi, val) {
+  var f = parseNum(val) || 0;
+  if (f < 0) f = 0; if (f > 100) f = 100;
+  data.zavodlar[zi].sherikFoiz = f;
+  save();
+  renderZavodSherik();
+}
+function renderZavodSherik() {
+  var cont = document.getElementById('zavod-sherik-cont');
+  if (!cont) return;
+  var z = data.zavodlar[curZ];
+  if (!z) return;
+
+  var jamiSumma=0, jamiGramm=0, jamiSkidka=0, jamiFoyda=0, cnt=0;
+  (data.klientlar||[]).forEach(function(k){
+    k.tarix.forEach(function(op){
+      if (op.tip !== 'tolov' || !op.zavod || op.zavod !== z.nom || !op.tur) return;
+      var foyda = (op.kirimNarx && op.ekvivalent) ? Math.round((op.summa - op.kirimNarx*op.ekvivalent)*100)/100 : 0;
+      jamiSumma += op.summa||0; jamiGramm += op.ekvivalent||0;
+      jamiSkidka += op.skidka||0; jamiFoyda += foyda; cnt++;
+    });
+  });
+
+  var sherikFoiz = z.sherikFoiz||0;
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    + '<div style="font-size:13px;color:var(--muted);">Sherik foizi</div>'
+    + '<div style="display:flex;align-items:center;gap:6px;">'
+    + '<input type="number" min="0" max="100" value="'+sherikFoiz+'" onchange="sherikFoizSet('+curZ+',this.value)" style="width:56px;padding:6px 8px;border-radius:8px;border:1.5px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:14px;text-align:right;font-weight:600;">'
+    + '<span style="font-size:13px;color:var(--muted);">%</span>'
+    + '</div></div>';
+
+  if (!cnt) {
+    html += '<div class="empty"><div class="empty-icon">🤝</div>Bu zavoddan hali sotuv yoq.</div>';
+    cont.innerHTML = html;
+    return;
+  }
+
+  var grossFoyda = Math.round((jamiFoyda + jamiSkidka)*100)/100;
+  var toza = Math.round(jamiFoyda*100)/100;
+  var sherikUlush = Math.round((toza * sherikFoiz/100)*100)/100;
+  var bizniki = Math.round((toza - sherikUlush)*100)/100;
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">';
+  html += '<div class="stat2-item"><div class="stat2-label">GROSS</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtD(grossFoyda)+'$</div></div>';
+  html += '<div class="stat2-item"><div class="stat2-label">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−'+fmtD(Math.round(jamiSkidka*100)/100)+'$</div></div>';
+  html += '<div class="stat2-item" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">TOZA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">'+fmtD(toza)+'$</div></div>';
+  html += '</div>';
+
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:14px;">';
+  html += '<div><div style="font-size:12px;color:var(--muted);">Sherikka ('+sherikFoiz+'%)</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--gold);">'+(sherikFoiz>0?fmtD(sherikUlush)+'$':'yoq')+'</div></div>';
+  html += '<div style="text-align:right;"><div style="font-size:12px;color:var(--muted);">Bizniki</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--text);">'+fmtD(bizniki)+'$</div></div>';
+  html += '</div>';
+
+  cont.innerHTML = html;
 }
 function renderZavod() {
   var z = data.zavodlar[curZ];
@@ -2537,16 +2643,17 @@ function renderZavodKassa() {
         ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100 : 0;
       allOps.push({sana:op.sana, soat:op.soat||'', knom:k.nom,
         tur:op.tur, gramm:op.ekvivalent||0, kurs:op.kurs||0,
-        summa:op.summa||0, kirimNarx:op.kirimNarx||0, foyda:foyda});
+        summa:op.summa||0, kirimNarx:op.kirimNarx||0, foyda:foyda, skidka:op.skidka||0});
     });
   });
 
   if (!allOps.length) { cont.innerHTML = '<div class="empty">Bu zavoddan hali sotuv yo\'q</div>'; return; }
 
-  var jamiSumma=0, jamiGramm=0, jamiFoyda=0;
-  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
+  var jamiSumma=0, jamiGramm=0, jamiFoyda=0, jamiSkidka=0;
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; jamiSkidka+=o.skidka; });
   jamiFoyda=Math.round(jamiFoyda*100)/100;
   jamiGramm=Math.round(jamiGramm*100)/100;
+  jamiSkidka=Math.round(jamiSkidka*100)/100;
 
   var byDay={}, dayOrder=[];
   allOps.forEach(function(o){
@@ -2558,16 +2665,18 @@ function renderZavodKassa() {
 
   var byTur={};
   allOps.forEach(function(o){
-    if(!byTur[o.tur]) byTur[o.tur]={tur:o.tur,gramm:0,summa:0,foyda:0};
-    byTur[o.tur].gramm+=o.gramm; byTur[o.tur].summa+=o.summa; byTur[o.tur].foyda+=o.foyda;
+    if(!byTur[o.tur]) byTur[o.tur]={tur:o.tur,gramm:0,summa:0,foyda:0,skidka:0};
+    byTur[o.tur].gramm+=o.gramm; byTur[o.tur].summa+=o.summa; byTur[o.tur].foyda+=o.foyda; byTur[o.tur].skidka+=o.skidka;
   });
   var turlar = Object.values(byTur);
 
   // Umumiy stat
-  var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">';
+  var zkCols = jamiSkidka>0.001 ? 5 : 4;
+  var html = '<div style="display:grid;grid-template-columns:repeat('+zkCols+',1fr);gap:8px;margin-bottom:12px;">';
   html += '<div class="stat2-item"><div class="stat2-label">KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(Math.round(jamiSumma*100)/100)+'</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">SOTUVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+allOps.length+' ta</div></div>';
+  if(jamiSkidka>0.001) html += '<div class="stat2-item" style="background:var(--red-bg);border:1px solid var(--red-bd);"><div class="stat2-label" style="color:var(--red);">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−$'+fmtD(jamiSkidka)+'</div></div>';
   html += '<div class="stat2-item" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+$'+fmtD(jamiFoyda)+'</div></div>';
   html += '</div>';
 
@@ -2582,18 +2691,20 @@ function renderZavodKassa() {
   html += '<canvas id="zk-chart" role="img" aria-label="Tur boyicha sotuv va foyda">Tur boyicha sotuv diagrammasi</canvas></div>';
 
   // Tur jadvali
-  html += '<div style="display:grid;grid-template-columns:1fr 60px 70px 60px 70px;gap:4px;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
-  html += '<div>Tur</div><div style="text-align:right;">Gramm</div><div style="text-align:right;">Summa</div><div style="text-align:right;">Kirim</div><div style="text-align:right;color:var(--green);">Foyda</div></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 52px 62px 48px 58px 62px;gap:4px;font-size:10px;color:var(--muted);padding:4px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+  html += '<div>Tur</div><div style="text-align:right;">Gramm</div><div style="text-align:right;">Summa</div><div style="text-align:right;">Kirim</div><div style="text-align:right;color:var(--red);">Skidka</div><div style="text-align:right;color:var(--green);">Foyda</div></div>';
   turlar.forEach(function(t){
     var tF=Math.round(t.foyda*100)/100;
     var tS=Math.round(t.summa*100)/100;
     var tG=Math.round(t.gramm*100)/100;
+    var tSk=Math.round(t.skidka*100)/100;
     var avgKirim = t.gramm>0 ? Math.round(((tS-tF)/tG)*10)/10 : 0;
-    html += '<div style="display:grid;grid-template-columns:1fr 60px 70px 60px 70px;gap:4px;font-size:13px;padding:6px 0;border-bottom:0.5px solid var(--border);align-items:center;">';
+    html += '<div style="display:grid;grid-template-columns:1fr 52px 62px 48px 58px 62px;gap:4px;font-size:13px;padding:6px 0;border-bottom:0.5px solid var(--border);align-items:center;">';
     html += '<div style="font-weight:500;color:var(--text);">'+t.tur+'</div>';
     html += '<div style="text-align:right;color:var(--muted);font-size:12px;">'+fmtG(tG)+'g</div>';
     html += '<div style="text-align:right;color:var(--gold);font-size:12px;">$'+fmtD(tS)+'</div>';
     html += '<div style="text-align:right;color:var(--muted);font-size:11px;">'+(avgKirim||'—')+'$</div>';
+    html += '<div style="text-align:right;color:var(--red);font-size:12px;">'+(tSk>0.001?'−$'+fmtD(tSk):'—')+'</div>';
     html += '<div style="text-align:right;color:var(--green);font-weight:500;font-size:12px;">+$'+fmtD(tF)+'</div>';
     html += '</div>';
   });
@@ -2605,10 +2716,11 @@ function renderZavodKassa() {
     var dayHtml = '';
     dayOrder.forEach(function(sana){
       var ops=byDay[sana];
-      var daySumma=0,dayFoyda=0,dayGramm=0;
-      ops.forEach(function(o){daySumma+=o.summa;dayFoyda+=o.foyda;dayGramm+=o.gramm;});
+      var daySumma=0,dayFoyda=0,dayGramm=0,daySkidka=0;
+      ops.forEach(function(o){daySumma+=o.summa;dayFoyda+=o.foyda;dayGramm+=o.gramm;daySkidka+=o.skidka;});
       dayFoyda=Math.round(dayFoyda*100)/100;
       dayGramm=Math.round(dayGramm*100)/100;
+      daySkidka=Math.round(daySkidka*100)/100;
       var byTurDay={};
       ops.forEach(function(o){
         if(!byTurDay[o.tur]) byTurDay[o.tur]={tur:o.tur,ops:[],gramm:0,summa:0,foyda:0};
@@ -2618,7 +2730,7 @@ function renderZavodKassa() {
       var isOpen=expZ[sana];
       dayHtml += '<div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">';
       dayHtml += '<span>'+sana+'</span>';
-      dayHtml += '<span><span style="color:var(--gold);">$'+fmtD(Math.round(daySumma*100)/100)+'</span> · <span style="color:var(--muted);">'+fmtG(dayGramm)+'g</span> · <span style="color:var(--green);">+$'+fmtD(dayFoyda)+'</span></span></div>';
+      dayHtml += '<span><span style="color:var(--gold);">$'+fmtD(Math.round(daySumma*100)/100)+'</span> · <span style="color:var(--muted);">'+fmtG(dayGramm)+'g</span>'+(daySkidka>0.001?' · <span style="color:var(--red);">−$'+fmtD(daySkidka)+'</span>':'')+' · <span style="color:var(--green);">+$'+fmtD(dayFoyda)+'</span></span></div>';
       dayHtml += '<div class="hrow" style="margin-bottom:8px;cursor:pointer;border-left:3px solid var(--gold-bd);" onclick="zKassaToggle(\''+sana+'\')">';
       // Tur mini cards
       var turKeys=Object.keys(byTurDay);
@@ -2646,6 +2758,7 @@ function renderZavodKassa() {
           dayHtml += '<div style="text-align:right;color:var(--muted);">'+fmtG(o.gramm)+'</div>';
           dayHtml += '<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
           if(o.kirimNarx) dayHtml += '<div style="font-size:10px;color:var(--muted);">k:'+fmtD(o.kirimNarx)+'</div>';
+          if(o.skidka>0.001) dayHtml += '<div style="font-size:10px;color:var(--red);">sk:−'+fmtD(Math.round(o.skidka*100)/100)+'</div>';
           dayHtml += '</div>';
           dayHtml += '<div style="text-align:right;color:'+(oF>0?'var(--green)':'var(--muted)')+';">'+(oF>0?'+$'+fmtD(oF):'—')+'</div>';
           dayHtml += '</div>';
@@ -3257,7 +3370,7 @@ function backupExport(){
     var d=new Date();
     function pp(n){return (n<10?'0':'')+n;}
     var stamp=d.getFullYear()+'-'+pp(d.getMonth()+1)+'-'+pp(d.getDate())+'_'+pp(d.getHours())+pp(d.getMinutes());
-    var payload={_tilla_backup:true, versiya:'v-FIX29', sana:d.toISOString(), data:dump};
+    var payload={_tilla_backup:true, versiya:'v-FIX27', sana:d.toISOString(), data:dump};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');
@@ -3675,7 +3788,7 @@ function renderKassa() {
         gramm: op.ekvivalent||0, kurs: op.kurs||0,
         summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda,
         naqtPul: op.naqtPul !== undefined ? op.naqtPul : (op.kartaPul ? 0 : (op.summa||0)),
-        kartaPul: op.kartaPul||0,
+        kartaPul: op.kartaPul||0, skidka: op.skidka||0,
         lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0
       });
     });
@@ -3683,22 +3796,24 @@ function renderKassa() {
 
   if(!allOps.length){ cont.innerHTML='<div class="empty">Hali tolov yoq</div>'; return; }
 
-  var jamiSumma=0, jamiGramm=0, jamiFoyda=0;
-  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; });
+  var jamiSumma=0, jamiGramm=0, jamiFoyda=0, jamiSkidkaK=0;
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; jamiSkidkaK+=o.skidka; });
   jamiFoyda = Math.round(jamiFoyda*100)/100;
+  jamiSkidkaK = Math.round(jamiSkidkaK*100)/100;
 
   // bir vaqtda saqlangan turlarni bitta sessiyaga yig'amiz (ki + sana + soat)
   var sessions={}, sessionOrder=[];
   allOps.forEach(function(o, idx){
     var sk = o.ki+'|'+o.sana+'|'+(o.soat||'');
     if(!sessions[sk]){
-      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0};
+      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0, skidka:0};
       sessionOrder.push(sk);
     }
     sessions[sk].ops.push(o);
     sessions[sk].summa+=o.summa;
     sessions[sk].gramm+=o.gramm;
     sessions[sk].foyda+=o.foyda;
+    sessions[sk].skidka+=o.skidka;
   });
 
   var byDay={}, dayOrder=[];
@@ -3716,10 +3831,11 @@ function renderKassa() {
   html+='<div></div>';
   html+='<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>';
   html+='</div>';
-  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">';
+  html+='<div style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',1fr);gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
+  if(jamiSkidkaK>0.001) html+='<div class="stat2-item" style="background:var(--red-bg);border:0.5px solid var(--red-bd);"><div class="stat2-label" style="color:var(--red);">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−$'+fmtD(jamiSkidkaK)+'</div></div>';
   html+='<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+'$'+fmtD(jamiFoyda)+'</div></div>';
   html+='</div>';
 
@@ -3782,7 +3898,8 @@ function renderKassa() {
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
         out+='</div>';
         var soat = kg.ops[0] && kg.ops[0].soat ? kg.ops[0].soat : '';
-        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kGramm)+'g</div>';
+        var kgSk = Math.round((kg.skidka||0)*100)/100;
+        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kGramm)+'g'+(kgSk>0.001?' · <span style="color:var(--red);">skidka −$'+fmtD(kgSk)+'</span>':'')+'</div>';
         out+='</div>';
         out+='<div style="display:flex;align-items:center;gap:8px;">';
         out+='<div style="text-align:right;">';
@@ -3805,6 +3922,7 @@ function renderKassa() {
             out+='<div style="color:var(--muted);">'+fmtG(o.gramm)+'g</div>';
             out+='<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.kurs)+'$</div>';
             if(o.kirimNarx) out+='<div style="font-size:10px;color:var(--muted);">kirim: '+fmtD(o.kirimNarx)+'</div>';
+            if(o.skidka>0.001) out+='<div style="font-size:10px;color:var(--red);">sk: −'+fmtD(Math.round(o.skidka*100)/100)+'</div>';
             out+='</div>';
             out+='<div style="color:var(--green);text-align:right;">'+turFoyda+'</div>';
             out+='</div>';
@@ -4641,10 +4759,12 @@ function openKlientDetail(ki) {
     var jCol=hasBerish?(isNegBerish?'var(--green)':'var(--red)'):hasKlientda?'var(--green)':jamiG>=0?'var(--green)':'var(--red)';
     var jSign=isNegBerish?'+':hasBerish?'−':hasKlientda?'+':'+';
 
+    var _gSkidka=0; g.ops.forEach(function(o){ _gSkidka+=(o.skidka||0); });
+    _gSkidka=Math.round(_gSkidka*100)/100;
     tHTML+='<div class="hrow" style="margin-bottom:8px;border-left:3px solid '+bc+';">';
     tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
     tHTML+='<div><div style="font-size:13px;font-weight:600;color:'+lcolor+';">'+label+'</div>';
-    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+(g.soat?' · '+g.soat:'')+'</div></div>';
+    tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+g.sana+(g.soat?' · '+g.soat:'')+(_gSkidka>0.001?' · <span style="color:var(--red);">skidka −'+fmtD(_gSkidka)+'$</span>':'')+'</div></div>';
     var bVal=hasBerish?'1':'0';
     tHTML+='<div style="display:flex;align-items:center;gap:5px;">';
     if(isMixedBerish){
@@ -4684,6 +4804,7 @@ function openKlientDetail(ki) {
         var ov=isOB?(negB?'+'+fmtG(Math.abs(op.gramm))+'g':'−'+fmtG(op.gramm)+'g'):isOV?('+'+fmtG(op.gramm)+'g'):('+'+fmtG(op.ekvivalent||0)+'g');
         var os=isOB?(op.zavod+' · '+op.tur):isOV?(op.zavod+' · '+op.tur):(fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g');
         if(op.zavod&&op.tur&&isOT) os=op.zavod+' · '+op.tur+' — '+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
+        if(isOT&&(op.skidka||0)>0.001) os+=' <span style="color:var(--red);">(sk −'+fmtD(op.skidka)+'$)</span>';
         tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">';
         tHTML+='<div style="font-size:11px;color:var(--muted);">'+os+'</div>';
         tHTML+='<div style="font-size:12px;font-weight:600;color:'+oc+';">'+ov+'</div>';
@@ -4695,7 +4816,7 @@ function openKlientDetail(ki) {
       var op=g.ops[0];
       var sub2='';
       if(op.tip==='berish'||op.tip==='vozvrat') sub2=(op.zavod||'')+' · '+(op.tur||'');
-      else if(op.tip==='tolov') sub2=fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g'+(op.zavod?' — '+op.zavod+' · '+op.tur:'');
+      else if(op.tip==='tolov') sub2=fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g'+(op.zavod?' — '+op.zavod+' · '+op.tur:'')+((op.skidka||0)>0.001?' <span style="color:var(--red);">(sk −'+fmtD(op.skidka)+'$)</span>':'');
       if(sub2) tHTML+='<div style="font-size:11px;color:var(--muted);margin-top:4px;">'+sub2+'</div>';
     }
     if(hasTolov){
@@ -4776,11 +4897,11 @@ function kdTab(tab) {
 function renderKdHisobot() {
   var k = data.klientlar[curKlientIdx];
   if (!k) return;
-  var jami_berish=0, jami_vozvrat=0, jami_tolov_g=0, jami_tolov_pul=0;
+  var jami_berish=0, jami_vozvrat=0, jami_tolov_g=0, jami_tolov_pul=0, jami_skidka=0;
   k.tarix.forEach(function(op){
     if(op.tip==='berish' && op.gramm>=0) jami_berish+=op.gramm;
     else if(op.tip==='vozvrat') jami_vozvrat+=op.gramm;
-    else if(op.tip==='tolov' && !op._kdYopish){ jami_tolov_g+=(op.ekvivalent||0); jami_tolov_pul+=(op.summa||0); }
+    else if(op.tip==='tolov' && !op._kdYopish){ jami_tolov_g+=(op.ekvivalent||0); jami_tolov_pul+=(op.summa||0); jami_skidka+=(op.skidka||0); }
   });
   var qarz = Math.round((jami_berish - jami_vozvrat - jami_tolov_g)*100)/100;
   var qcolor = qarz>0 ? 'var(--red)' : 'var(--green)';
@@ -4791,6 +4912,9 @@ function renderKdHisobot() {
   html += '<div class="stat2-item"><div class="stat2-label">VOZVRAT</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+fmtG(jami_vozvrat)+'g</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">TOLOV (g)</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+fmtG(jami_tolov_g)+'g</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">TOLOV ($)</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+fmtD(jami_tolov_pul)+'$</div></div>';
+  if(Math.round(jami_skidka*100)/100>0.001){
+    html += '<div class="stat2-item" style="grid-column:1/-1;background:var(--red-bg);border:1px solid var(--red-bd);"><div class="stat2-label" style="color:var(--red);">JAMI SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−'+fmtD(Math.round(jami_skidka*100)/100)+'$</div></div>';
+  }
   html += '</div>';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;background:var(--surf2);margin-bottom:14px;">';
   html += '<div style="font-size:12px;color:var(--muted);">Qolgan qarz</div>';
@@ -4824,15 +4948,33 @@ function renderKdHisobot() {
     html += '</div>';
     var dayLoms = ops.filter(function(op){ return op.tip==='lom'; });
     var lomShownThisDay = false;
-    var shown = 0;
+    // Bir kundagi har kelish (soat+tip) — ALOHIDA sessiya sifatida ko'rsatiladi
+    var kdSess={}, kdSessOrder=[];
     ops.forEach(function(op){
       if(op.tip==='tolov'&&op._kdYopish) return; // offset — ko'rsatma
-      if(op.tip==='lom') return; // lom alohida emas — to'lov ostida ko'rsatiladi
+      if(op.tip==='lom') return; // lom — to'lov ostida ko'rsatiladi
+      var skk=(op.soat||'')+'|'+op.tip;
+      if(!kdSess[skk]){ kdSess[skk]={soat:op.soat||'',tip:op.tip,ops:[],skidka:0}; kdSessOrder.push(skk); }
+      kdSess[skk].ops.push(op);
+      kdSess[skk].skidka+=(op.skidka||0);
+    });
+    kdSessOrder.forEach(function(skk, si){
+      var S=kdSess[skk];
+      var sSkidka=Math.round(S.skidka*100)/100;
+      var hColor = S.tip==='berish'?'var(--red)': S.tip==='vozvrat'?'var(--gold)':'var(--blue)';
+      var hLabel = S.tip==='berish'?'Berildi': S.tip==='vozvrat'?'Vozvrat':'Tolov';
+      html += '<div style="border:0.5px solid var(--border);border-radius:9px;padding:7px 9px;'+(si>0?'margin-top:7px;':'')+'">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+      html += '<span style="font-size:11px;font-weight:600;color:'+hColor+';">'+hLabel+(S.soat?' · '+S.soat:'')+'</span>';
+      if(sSkidka>0.001) html += '<span style="font-size:11px;color:var(--red);">skidka −'+fmtD(sSkidka)+'$</span>';
+      html += '</div>';
+      var shown = 0;
+      S.ops.forEach(function(op){
       if(shown>0) html += '<div style="height:1px;background:var(--border);margin:5px 0;"></div>';
       shown++;
       var tip = op.tip;
-      var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
-      var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+      var color = hColor;
+      var label = hLabel;
       var val, valColor;
       if(tip==='berish'){
         val = fmtG(Math.abs(op.gramm||0))+'g';
@@ -4841,11 +4983,12 @@ function renderKdHisobot() {
         val = fmtG(op.ekvivalent||op.gramm||0)+'g';
         valColor = color;
       }      var sub = (op.zavod&&op.tur)?(op.zavod+' - '+op.tur):'';
-      var sub2 = tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'):'';
+      var opSk = Math.round((op.skidka||0)*100)/100;
+      var sub2 = tip==='tolov'?(fmtD(op.summa||0)+'$ / '+(op.kurs||0)+'$/g'+(opSk>0.001?' · <span style="color:var(--red);">sk −'+fmtD(opSk)+'$</span>':'')):'';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       html += '<div>';
-      html += '<div style="font-size:12px;font-weight:600;color:'+color+';">'+label+'</div>';
-      if(sub||sub2) html += '<div style="font-size:11px;color:var(--muted);">'+(sub?sub:'')+(sub&&sub2?' - ':' ')+(sub2?sub2:'')+'</div>';
+      html += '<div style="font-size:12px;font-weight:600;color:'+color+';">'+(sub?sub:label)+'</div>';
+      if(sub2) html += '<div style="font-size:11px;color:var(--muted);">'+sub2+'</div>';
       html += '</div>';
       html += '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+valColor+';">'+val+'</div>';
       html += '</div>';
@@ -4861,6 +5004,8 @@ function renderKdHisobot() {
           html += '</div>';
         });
       }
+      });
+      html += '</div>';
     });
     html += '</div>';
   });
@@ -4901,52 +5046,166 @@ function _klientResetSel(prefix) {
 }
 
 var _kbChekOn = true;
-function kbChekToggle(){
+var _kbCnt = 1;
+function kbChekToggle() {
   _kbChekOn = !_kbChekOn;
-  var sw=document.getElementById('kb-chek-sw'), lbl=document.getElementById('kb-chek-toggle-lbl');
-  if(sw){ sw.style.background=_kbChekOn?'var(--green)':'transparent'; sw.style.borderColor=_kbChekOn?'var(--green-bd)':'var(--border)'; sw.textContent=_kbChekOn?'\u2713':''; }
-  if(lbl) lbl.textContent=_kbChekOn?'Chek chiqarish':'Chek chiqarmaydi';
+  var sw=document.getElementById('kb-chek-sw');
+  var dot=document.getElementById('kb-chek-sw-dot');
+  sw.style.background=_kbChekOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_kbChekOn?'18px':'2px';
 }
-function kbUpdateChek(){
-  var prev=document.getElementById('kb-chek-preview'), body=document.getElementById('kb-chek-body');
-  if(!prev||!body) return;
-  var ki=parseInt(document.getElementById('kb-klient').value);
-  if(isNaN(ki)){ prev.style.display='none'; body.innerHTML=''; return; }
-  var k=data.klientlar[ki];
-  var lines=[]; var jami=0;
-  document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
-    var g=parseNum(el.value);
-    if(g>0.001){
-      var zi=parseInt(el.dataset.zi), ti=parseInt(el.dataset.ti);
-      var z=data.zavodlar[zi], t=z&&z.turlar[ti];
-      if(z&&t){ lines.push({zavod:z.nom,tur:t.nom,g:g}); jami+=g; }
+function kbCntChg(d) {
+  _kbCnt = Math.max(1, _kbCnt + d);
+  document.getElementById('kb-cnt').textContent = _kbCnt;
+}
+function kBerishUpdateChek() {
+  var prev = document.getElementById('kb-chek-preview');
+  var body = document.getElementById('kb-chek-body');
+  if (!prev || !body) return;
+  var ki = parseInt(document.getElementById('kb-klient').value);
+  if (isNaN(ki)) { prev.style.display = 'none'; return; }
+  var k = data.klientlar[ki];
+  var sanaEl = document.getElementById('kb-sana');
+  var sana = sanaEl && sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : today();
+  var rows = [];
+  document.querySelectorAll('[id^="kbg-"]').forEach(function(el) {
+    var g = parseNum(el.value);
+    if (!g) return;
+    var zi = parseInt(el.dataset.zi), ti = parseInt(el.dataset.ti);
+    var z = data.zavodlar[zi], t = z && z.turlar[ti];
+    if (!z || !t) return;
+    rows.push({ zavod: z.nom, tur: t.nom, g: g });
+  });
+  if (!rows.length) { prev.style.display = 'none'; return; }
+  var W = 48;
+  function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
+  function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
+  var LINE = Array(W+1).join('-');
+  var t = '';
+  t += center(k.nom) + '\n';
+  t += center(sana) + '\n';
+  t += LINE + '\n';
+  t += 'Klientga berildi\n';
+  rows.forEach(function(r) {
+    var val = r.g > 0 ? '-' + fmtG(r.g) + 'g' : '+' + fmtG(Math.abs(r.g)) + 'g';
+    t += rjust('  ' + r.zavod + ' - ' + r.tur, val) + '\n';
+  });
+  t += LINE + '\n';
+  t += center('RAHMAT!');
+  body.textContent = t;
+  prev.style.display = 'block';
+}
+var _kbSkanState = {};
+function kbSkanKey(zi,ti){ return zi+'_'+ti; }
+function kbSkanToggle(zi,ti){
+  var key = kbSkanKey(zi,ti);
+  var panel = document.getElementById('kbskan-'+key);
+  if (!panel) return;
+  var willOpen = panel.style.display === 'none';
+  document.querySelectorAll('[id^="kbskan-"]').forEach(function(p){
+    if (p.id.indexOf('kbskan-btn-')!==0 && p.id.indexOf('kbskan-inp-')!==0 && p.id.indexOf('kbskan-rows-')!==0
+      && p.id.indexOf('kbskan-rec-')!==0 && p.id.indexOf('kbskan-cnt-')!==0 && p.id.indexOf('kbskan-sum-')!==0
+      && p.id.indexOf('kbskan-m1-')!==0 && p.id.indexOf('kbskan-m2-')!==0) p.style.display = 'none';
+  });
+  if (willOpen) {
+    if (!_kbSkanState[key]) _kbSkanState[key] = { mode:1, pass1:[], pass2:[] };
+    panel.style.display = 'block';
+    kbSkanSetModeUI(zi,ti);
+    kbSkanRender(zi,ti);
+    setTimeout(function(){ var inp=document.getElementById('kbskan-inp-'+key); if(inp) inp.focus(); }, 50);
+  }
+}
+function kbSkanSetModeUI(zi,ti){
+  var key = kbSkanKey(zi,ti);
+  var st = _kbSkanState[key]; if(!st) return;
+  var b1=document.getElementById('kbskan-m1-'+key), b2=document.getElementById('kbskan-m2-'+key);
+  if(!b1||!b2) return;
+  function on(b){ b.style.background='var(--gold)'; b.style.color='var(--on-gold)'; b.style.borderColor='var(--gold)'; }
+  function off(b){ b.style.background='var(--surf2)'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)'; }
+  if (st.mode===1){ on(b1); off(b2); } else { on(b2); off(b1); }
+}
+function kbSkanSetMode(zi,ti,m){
+  var st = _kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
+  st.mode = m;
+  kbSkanSetModeUI(zi,ti);
+  kbSkanRender(zi,ti);
+}
+function kbSkanArr(zi,ti){
+  var st = _kbSkanState[kbSkanKey(zi,ti)];
+  if(!st) return [];
+  return st.mode===1 ? st.pass1 : st.pass2;
+}
+function kbSkanAdd(zi,ti,sign){
+  var key = kbSkanKey(zi,ti);
+  var st = _kbSkanState[key]; if(!st) return;
+  var inp = document.getElementById('kbskan-inp-'+key);
+  var v = skParseGram(inp.value);
+  if (!v || v <= 0){ inp.value=''; inp.focus(); return; }
+  var arr = st.mode===1 ? st.pass1 : st.pass2;
+  arr.push(sign*roundG(v));
+  inp.value=''; inp.focus();
+  kbSkanRender(zi,ti);
+  kbSkanApplyToField(zi,ti);
+}
+function kbSkanDelAt(zi,ti,i){
+  var arr = kbSkanArr(zi,ti);
+  if (i>=0 && i<arr.length){ arr.splice(i,1); kbSkanRender(zi,ti); kbSkanApplyToField(zi,ti); }
+}
+function kbSkanApplyToField(zi,ti){
+  var st = _kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
+  var total = skSum(st.pass1);
+  var fieldEl = document.getElementById('kbg-'+zi+'-'+ti);
+  if (fieldEl){ fieldEl.value = total ? fmtG(total) : ''; berishOstatkaUpdate(fieldEl); }
+}
+function kbSkanRender(zi,ti){
+  var key = kbSkanKey(zi,ti);
+  var st = _kbSkanState[key]; if(!st) return;
+  var arr = kbSkanArr(zi,ti);
+  var rowsEl = document.getElementById('kbskan-rows-'+key);
+  if (rowsEl){
+    if (!arr.length){ rowsEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yoq</div>'; }
+    else {
+      var out = '';
+      for (var i=arr.length-1; i>=0; i--){
+        var g = arr[i];
+        var hl = (i===arr.length-1) ? 'background:var(--gold-bg);' : '';
+        var neg = g < 0;
+        var val = (neg?'-':'+')+fmtG(Math.abs(g))+' g';
+        out += '<div style="display:grid;grid-template-columns:24px 1fr 22px;gap:6px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border);font-size:13px;'+hl+'">'
+          + '<span style="color:var(--muted);font-size:11px;">'+(i+1)+'</span>'
+          + '<span style="color:'+(neg?'var(--red)':'var(--text)')+';">'+val+'</span>'
+          + '<span onclick="kbSkanDelAt('+zi+','+ti+','+i+')" style="cursor:pointer;color:var(--red);text-align:center;font-size:16px;">×</span></div>';
+      }
+      rowsEl.innerHTML = out;
     }
-  });
-  if(!lines.length){ prev.style.display='none'; body.innerHTML=''; return; }
-  prev.style.display='block';
-  var sanaEl=document.getElementById('kb-sana');
-  var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
-  var W=32;
-  function center(s){var pad=Math.max(0,Math.floor((W-s.length)/2));return Array(pad+1).join(' ')+s;}
-  function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
-  var LINE=Array(W+1).join('-');
-  var t='\n'+center('BERISH')+'\n'+LINE+'\n';
-  t+=center(k.nom)+'\n'+center(sana)+'\n'+LINE+'\n';
-  var curZ='';
-  lines.forEach(function(ln){
-    if(ln.zavod!==curZ){ curZ=ln.zavod; t+=curZ+'\n'; }
-    t+=rjust('  '+ln.tur, fmtG(ln.g)+'g')+'\n';
-  });
-  t+=LINE+'\n';
-  t+=rjust('JAMI', fmtG(Math.round(jami*100)/100)+'g')+'\n';
-  body.textContent=t;
+  }
+  var cntEl = document.getElementById('kbskan-cnt-'+key), sumEl = document.getElementById('kbskan-sum-'+key);
+  if (cntEl) cntEl.textContent = arr.length;
+  if (sumEl) sumEl.textContent = fmtG(skSum(arr)) + ' g';
+  var recEl = document.getElementById('kbskan-rec-'+key);
+  if (recEl){
+    if (st.pass1.length && st.pass2.length){
+      var ma = skMultiset(st.pass1), mb = skMultiset(st.pass2);
+      var keys = {}; for (var k in ma) keys[k]=1; for (var k2 in mb) keys[k2]=1;
+      var kam = [], ortiq = [];
+      Object.keys(keys).sort(function(a,b){ return parseFloat(a)-parseFloat(b); }).forEach(function(kk){
+        var ca = ma[kk]||0, cb = mb[kk]||0;
+        if (ca>cb) kam.push({g:kk,n:ca-cb});
+        if (cb>ca) ortiq.push({g:kk,n:cb-ca});
+      });
+      var h = '';
+      kam.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--red);">↓ 2-skanda kam — '+x.g+'g ('+x.n+' ta)</div>'; });
+      ortiq.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:6px;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--yellow);">↑ 2-skanda ortiq — '+x.g+'g ('+x.n+' ta)</div>'; });
+      if (!kam.length && !ortiq.length) h = '<div style="text-align:center;font-size:11px;color:var(--green);padding:4px 0 8px;">Ikkala skan toliq mos ✓</div>';
+      recEl.innerHTML = h;
+      recEl.style.display = 'block';
+    } else {
+      recEl.style.display = 'none'; recEl.innerHTML = '';
+    }
+  }
 }
 function openKlientBerish(){
   document.getElementById('kb-klient').value='';
-  _kbChekOn=true;
-  var _kbsw=document.getElementById('kb-chek-sw'); if(_kbsw){_kbsw.style.background='var(--green)';_kbsw.textContent='✓';}
-  var _kblbl=document.getElementById('kb-chek-toggle-lbl'); if(_kblbl){_kblbl.textContent='Chek chiqarish';}
-  var _kbprev=document.getElementById('kb-chek-preview'); if(_kbprev){_kbprev.style.display='none';}
   document.getElementById('kb-q').value='';
   document.getElementById('kb-drop').style.display='none';
   document.getElementById('kb-drop').innerHTML='';
@@ -4954,6 +5213,13 @@ function openKlientBerish(){
   document.getElementById('kb-sana').value=nowDate();
   document.getElementById('kb-turlar-inputs').innerHTML='';
   document.getElementById('kb-turlar-card').style.display='none';
+  document.getElementById('kb-chek-preview').style.display='none';
+  _kbSkanState = {};
+  _kbChekOn=true;
+  _kbCnt=1;
+  var kbCntEl0=document.getElementById('kb-cnt'); if(kbCntEl0) kbCntEl0.textContent='1';
+  var kbSw0=document.getElementById('kb-chek-sw'); if(kbSw0) kbSw0.style.background='var(--green)';
+  var kbDot0=document.getElementById('kb-chek-sw-dot'); if(kbDot0) kbDot0.style.left='18px';
   document.getElementById('modal-kberish').classList.add('open');
   setTimeout(function(){ document.getElementById('kb-q').focus(); },200);
 }
@@ -5003,6 +5269,7 @@ function renderBerishTurlar(zavodlar){
       out+='<div style="flex:1;font-size:14px;color:var(--text);padding-top:8px;">'+t.nom+'</div>';
       out+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">';
       out+='<div style="display:flex;align-items:center;gap:6px;">';
+      out+='<button type="button" onclick="kbSkanToggle('+zi+','+ti+')" id="kbskan-btn-'+zi+'_'+ti+'" style="width:34px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:15px;cursor:pointer;flex-shrink:0;">⚖</button>';
       out+='<button type="button" class="sgn-btn" id="sgn-'+inputId+'" onclick="berishSignToggle(\''+inputId+'\')" style="width:34px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:17px;font-weight:600;cursor:pointer;flex-shrink:0;">±</button>';
       out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" data-klientda="'+kdG+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
       out+='<span style="font-size:12px;color:var(--muted);">g</span>';
@@ -5014,14 +5281,33 @@ function renderBerishTurlar(zavodlar){
       }
       out+='</div>';
       out+='</div>';
+      out+='<div id="kbskan-'+zi+'_'+ti+'" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin:-4px 0 10px;">';
+      out+='<div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:8px;">Skan · '+t.nom+'</div>';
+      out+='<div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">';
+      out+='<input type="text" inputmode="decimal" autocomplete="off" id="kbskan-inp-'+zi+'_'+ti+'" placeholder="Gramm — yozib +/- bosing" onkeydown="if(event.key===\'+\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',1);}else if(event.key===\'-\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',-1);}else if(event.key===\'Enter\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',1);}" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--gold-bd);font-size:14px;background:var(--surf);color:var(--text);">';
+      out+='<button type="button" onclick="kbSkanAdd('+zi+','+ti+',1)" style="width:36px;height:36px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;flex-shrink:0;">+</button>';
+      out+='<button type="button" onclick="kbSkanAdd('+zi+','+ti+',-1)" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--red);color:var(--red);background:transparent;font-size:18px;cursor:pointer;flex-shrink:0;">−</button>';
+      out+='</div>';
+      out+='<div style="display:flex;gap:5px;margin-bottom:10px;">';
+      out+='<button type="button" id="kbskan-m1-'+zi+'_'+ti+'" onclick="kbSkanSetMode('+zi+','+ti+',1)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:11px;font-weight:600;cursor:pointer;">1-skan</button>';
+      out+='<button type="button" id="kbskan-m2-'+zi+'_'+ti+'" onclick="kbSkanSetMode('+zi+','+ti+',2)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">2-skan</button>';
+      out+='</div>';
+      out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">';
+      out+='<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Dona</div><div id="kbskan-cnt-'+zi+'_'+ti+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>';
+      out+='<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Jami</div><div id="kbskan-sum-'+zi+'_'+ti+'" style="font-size:15px;font-weight:600;color:var(--text);">0.00 g</div></div>';
+      out+='</div>';
+      out+='<div id="kbskan-rows-'+zi+'_'+ti+'" style="margin-bottom:8px;"></div>';
+      out+='<div id="kbskan-rec-'+zi+'_'+ti+'" style="display:none;"></div>';
+      out+='</div>';
     });
     out+='</div></div>';
   });
   document.getElementById('kb-turlar-inputs').innerHTML=out;
-  document.getElementById('kb-turlar-card').style.display='block';  kbUpdateChek();
+  document.getElementById('kb-turlar-card').style.display='block';
 }
 
 function berishOstatkaUpdate(el) {
+  kBerishUpdateChek();
   var ostatka = parseFloat(el.dataset.ostatka) || 0;
   var kdG = parseFloat(el.dataset.klientda) || 0;
   var g = parseNum(el.value) || 0;
@@ -5048,7 +5334,7 @@ function berishOstatkaUpdate(el) {
     el.style.borderColor = '';
     var kdInfo0 = kdG > 0.01 ? ' | bizda: <b style="color:var(--green);">+'+fmtG(kdG)+'</b>' : '';
     if (ostEl) ostEl.innerHTML = '<span style="color:var(--green);">ostatka: '+fmtG(ostatka)+'g'+kdInfo0+'</span>';
-  }  kbUpdateChek();
+  }
 }
 
 function berishSignToggle(id){
@@ -5072,6 +5358,8 @@ function saqlashKlientBerish(){
   var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kb-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  var _nowKb=new Date();
+  var _soatKb=String(_nowKb.getHours()).padStart(2,'0')+':'+String(_nowKb.getMinutes()).padStart(2,'0');
   var hasErr = false;
   document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
     var g=parseNum(el.value);
@@ -5087,7 +5375,7 @@ function saqlashKlientBerish(){
     if(g!==0){
       var zi=parseInt(el.dataset.zi),ti=parseInt(el.dataset.ti);
       var z=data.zavodlar[zi],t=z.turlar[ti];
-      k.tarix.push({tip:'berish',sana:sana,zavod:z.nom,tur:t.nom,gramm:g});
+      k.tarix.push({tip:'berish',sana:sana,soat:_soatKb,zavod:z.nom,tur:t.nom,gramm:g});
       // Faqat musbat berish (haqiqiy tilla berish) zavod ostatkasiga ta'sir qiladi.
       // Manfiy berish (biz qarzdor) — pul-asoslangan, ostatkaga tegmaydi.
       if (g > 0) t.ostatka=Math.round((t.ostatka-g)*100)/100;
@@ -5095,11 +5383,17 @@ function saqlashKlientBerish(){
     }
   });
   if(!any){alert('Gramm kiriting!');return;}
-  var _kbChekEl=document.getElementById('kb-chek-body');
-  if(_kbChekOn && _kbChekEl && _kbChekEl.textContent.trim()){
-    fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_kbChekEl.textContent+'\n\n',logo:true})}).catch(printXato);
-  }
   save('Klient berish: '+k.nom);
+  var kbChekEl = document.getElementById('kb-chek-body');
+  if (_kbChekOn && kbChekEl && kbChekEl.textContent.trim()) {
+    var _kbText = kbChekEl.textContent+'\n\n';
+    for (var _kbI = 0; _kbI < _kbCnt; _kbI++) {
+      (function(idx){ setTimeout(function(){
+        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:_kbText,logo:true})}).catch(printXato);
+      }, idx*1500); })(_kbI);
+    }
+  }
   closeModal('modal-kberish');renderKlientlar();renderHome();if(typeof renderZavod==='function'&&curZ>=0) renderZavod();
 }
 
@@ -5112,6 +5406,12 @@ function openKlientVozvrat(){
   document.getElementById('kv-sana').value=nowDate();
   document.getElementById('kv-turlar-cont').style.display='none';
   document.getElementById('kv-turlar-list').innerHTML='';
+  document.getElementById('kv-chek-preview').style.display='none';
+  _kvChekOn=true;
+  _kvCnt=1;
+  var kvCntEl0=document.getElementById('kv-cnt'); if(kvCntEl0) kvCntEl0.textContent='1';
+  var kvSw0=document.getElementById('kv-chek-sw'); if(kvSw0) kvSw0.style.background='var(--green)';
+  var kvDot0=document.getElementById('kv-chek-sw-dot'); if(kvDot0) kvDot0.style.left='18px';
   document.getElementById('modal-kvozvrat').classList.add('open');
   setTimeout(function(){ document.getElementById('kv-q').focus(); },200);
 }
@@ -5177,7 +5477,57 @@ function kVozvratKlientChange(){
   document.getElementById('kv-turlar-cont').style.display='block';
 }
 
+var _kvChekOn = true;
+var _kvCnt = 1;
+function kvChekToggle() {
+  _kvChekOn = !_kvChekOn;
+  var sw=document.getElementById('kv-chek-sw');
+  var dot=document.getElementById('kv-chek-sw-dot');
+  sw.style.background=_kvChekOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_kvChekOn?'18px':'2px';
+}
+function kvCntChg(d) {
+  _kvCnt = Math.max(1, _kvCnt + d);
+  document.getElementById('kv-cnt').textContent = _kvCnt;
+}
+function kVozvratUpdateChek() {
+  var prev = document.getElementById('kv-chek-preview');
+  var body = document.getElementById('kv-chek-body');
+  if (!prev || !body) return;
+  var ki = parseInt(document.getElementById('kv-klient').value);
+  if (isNaN(ki)) { prev.style.display = 'none'; return; }
+  var k = data.klientlar[ki];
+  var sanaEl = document.getElementById('kv-sana');
+  var sana = sanaEl && sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : today();
+  var rows = [];
+  document.querySelectorAll('[id^="kv-g-"]').forEach(function(el) {
+    var g = parseNum(el.value);
+    if (!g || g <= 0) return;
+    var zi = parseInt(el.dataset.zi), ti = parseInt(el.dataset.ti);
+    var z = data.zavodlar[zi], t = z && z.turlar[ti];
+    if (!z || !t) return;
+    rows.push({ zavod: z.nom, tur: t.nom, g: g });
+  });
+  if (!rows.length) { prev.style.display = 'none'; return; }
+  var W = 48;
+  function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
+  function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
+  var LINE = Array(W+1).join('-');
+  var t = '';
+  t += center(k.nom) + '\n';
+  t += center(sana) + '\n';
+  t += LINE + '\n';
+  t += 'Vozvrat qilindi\n';
+  rows.forEach(function(r) {
+    t += rjust('  ' + r.zavod + ' - ' + r.tur, '+' + fmtG(r.g) + 'g') + '\n';
+  });
+  t += LINE + '\n';
+  t += center('RAHMAT!');
+  body.textContent = t;
+  prev.style.display = 'block';
+}
 function kvUpdate(el) {
+  kVozvratUpdateChek();
   var qarz = parseFloat(el.dataset.qarz) || 0;
   var ostatka = parseFloat(el.dataset.ostatka) || 0;
   var zi = el.dataset.zi, ti = el.dataset.ti;
@@ -5207,6 +5557,8 @@ function saqlashKlientVozvrat(){
   var k=data.klientlar[ki];
   var sanaEl=document.getElementById('kv-sana');
   var sana=sanaEl&&sanaEl.value?sanaEl.value.split('-').reverse().join('.'):today();
+  var _nowKv=new Date();
+  var _soatKv=String(_nowKv.getHours()).padStart(2,'0')+':'+String(_nowKv.getMinutes()).padStart(2,'0');
   function balansOf(zavod,tur){
     var q=0;
     k.tarix.forEach(function(op){
@@ -5237,7 +5589,7 @@ function saqlashKlientVozvrat(){
     if(!confirm('Qarzdan '+fmtG(ortiqcha)+'g ortiq qaytarilyapti \u2014 bu biz qarzga aylanadi (zavodga toliq qoshiladi). Davom etilsinmi?')) return;
   }
   items.forEach(function(it){
-    k.tarix.push({tip:'vozvrat',sana:sana,zavod:it.zavod,tur:it.tur,gramm:it.g});
+    k.tarix.push({tip:'vozvrat',sana:sana,soat:_soatKv,zavod:it.zavod,tur:it.tur,gramm:it.g});
     data.zavodlar[it.zi].turlar[it.ti].ostatka=Math.round((data.zavodlar[it.zi].turlar[it.ti].ostatka+it.g)*100)/100;
     var _kdG=0;
     k.tarix.forEach(function(op2){
@@ -5248,10 +5600,20 @@ function saqlashKlientVozvrat(){
     _kdG=Math.round(_kdG*100)/100;
     if(_kdG>0.001){
       var _vozKd=Math.min(it.g,_kdG);
-      k.tarix.push({tip:'tolov',sana:sana,zavod:it.zavod,tur:it.tur,summa:0,kurs:0,ekvivalent:_vozKd,kirimNarx:0,_kdVoz:true});
+      k.tarix.push({tip:'tolov',sana:sana,soat:_soatKv,zavod:it.zavod,tur:it.tur,summa:0,kurs:0,ekvivalent:_vozKd,kirimNarx:0,_kdVoz:true});
     }
   });
   save('Klient vozvrat: '+k.nom);
+  var kvChekEl = document.getElementById('kv-chek-body');
+  if (_kvChekOn && kvChekEl && kvChekEl.textContent.trim()) {
+    var _kvText = kvChekEl.textContent+'\n\n';
+    for (var _kvI = 0; _kvI < _kvCnt; _kvI++) {
+      (function(idx){ setTimeout(function(){
+        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:_kvText,logo:true})}).catch(printXato);
+      }, idx*1500); })(_kvI);
+    }
+  }
   closeModal('modal-kvozvrat');renderKlientlar();renderHome();
   if(typeof renderKassa==='function') renderKassa();
 }
@@ -5281,6 +5643,8 @@ function openKlientTolov(){
   window._ktSdachaTanlov=null;
   window['_sdachaRadio_kt'] = null;
   _ktChekOn=true;
+  _ktCnt=1;
+  var ktCntEl0=document.getElementById('kt-cnt'); if(ktCntEl0) ktCntEl0.textContent='1';
   document.getElementById('modal-ktolov').classList.add('open');
   setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
@@ -6054,8 +6418,9 @@ function kTolovChekUpd() {
     });
   });
 
-  lines2.push(LINE);
   var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
+  if (manSkKt2 > 0.001) lines2.push(rjust('  Skidka', '- '+fmtD(manSkKt2)+'#'));
+  lines2.push(LINE);
   var ktLomJamiChekPre=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
     var i=el.id.split('-')[2];
@@ -6421,8 +6786,13 @@ function saqlashKlientTolov(){
   save('Klient tolov: '+k.nom);
   var chekEl = document.getElementById('kt-chek-body');
   if (_ktChekOn && chekEl && chekEl.textContent.trim()) {
-    fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:chekEl.textContent+'\n\n',logo:true})}).catch(printXato);
+    var _ktText = chekEl.textContent+'\n\n';
+    for (var _ktI = 0; _ktI < _ktCnt; _ktI++) {
+      (function(idx){ setTimeout(function(){
+        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:_ktText,logo:true})}).catch(printXato);
+      }, idx*1500); })(_ktI);
+    }
   }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();renderKassa();
@@ -6478,7 +6848,6 @@ function openKlientSotuv() {
   _ksChekOn = true;
   var sw2=document.getElementById('ks-chek-sw'); if(sw2){sw2.style.background='var(--green)';}
   var dot2=document.getElementById('ks-chek-sw-dot'); if(dot2){dot2.style.left='18px';}
-  var lbl2=document.getElementById('ks-chek-toggle-lbl'); if(lbl2){lbl2.textContent='🖨 chiqarish';}
 }
 
 function ksSearFilter() {
@@ -6581,22 +6950,23 @@ var _ksChekOn = true;
 function ksChekToggle() {
   _ksChekOn = !_ksChekOn;
   var sw=document.getElementById('ks-chek-sw');
-  var lbl=document.getElementById('ks-chek-toggle-lbl');
-  sw.style.background=_ksChekOn?'var(--green)':'transparent';
-  sw.style.borderColor=_ksChekOn?'var(--green-bd)':'var(--border)';
-  sw.textContent=_ksChekOn?'✓':'';
-  lbl.textContent=_ksChekOn?'Chek chiqarish':'Chek chiqarmaydi';
+  var dot=document.getElementById('ks-chek-sw-dot');
+  sw.style.background=_ksChekOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_ksChekOn?'18px':'2px';
 }
 
 var _ktChekOn = true;
+var _ktCnt = 1;
+function ktCntChg(d) {
+  _ktCnt = Math.max(1, _ktCnt + d);
+  document.getElementById('kt-cnt').textContent = _ktCnt;
+}
 function ktChekToggle() {
   _ktChekOn = !_ktChekOn;
   var sw=document.getElementById('kt-chek-sw');
-  var lbl=document.getElementById('kt-chek-toggle-lbl');
-  sw.style.background=_ktChekOn?'var(--green)':'transparent';
-  sw.style.borderColor=_ktChekOn?'var(--green-bd)':'var(--border)';
-  sw.textContent=_ktChekOn?'✓':'';
-  lbl.textContent=_ktChekOn?'Chek chiqarish':'Chek chiqarmaydi';
+  var dot=document.getElementById('kt-chek-sw-dot');
+  sw.style.background=_ktChekOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_ktChekOn?'18px':'2px';
 }
 
 function ksSotuvCntChg(d) {
@@ -7634,7 +8004,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         var bizdaG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
         lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)));
       } else {
-        lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
+        lines2.push(rjust('Skidka', fmtD(ortiqcha)+'#'));
       }
     }
     lines2.push(LINE);
@@ -7679,7 +8049,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         var bizdaG3 = taqsimTanlov.narx > 0 ? roundG(ortiqcha / taqsimTanlov.narx) : 0;
         lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG3)));
       } else {
-        lines2.push(rjust('Sdacha', fmtD(ortiqcha)+'#'));
+        lines2.push(rjust('Skidka', fmtD(ortiqcha)+'#'));
       }
     }
     lines2.push(LINE);
@@ -7765,6 +8135,8 @@ function saqlashKlientSotuv() {
   var k = data.klientlar[ki];
   var sanaEl = document.getElementById('ks-sana');
   var sana = sanaEl && sanaEl.value ? sanaEl.value.split('-').reverse().join('.') : today();
+  var _nowSv = new Date();
+  var _soatSv = String(_nowSv.getHours()).padStart(2,'0')+':'+String(_nowSv.getMinutes()).padStart(2,'0');
   var kurs = parseNum(document.getElementById('ks-kurs').value) || 0;
   var oldilar = [], any = false;
   try {
@@ -7777,7 +8149,7 @@ function saqlashKlientSotuv() {
       if (g <= 0) return;
       var z = data.zavodlar[zi], t = z.turlar[ti];
       if (g > t.ostatka + 0.001) { alert(z.nom+' · '+t.nom+': zavodda yetarli tilla yoq!'); throw new Error('stop'); }
-      k.tarix.push({tip:'berish', sana:sana, zavod:z.nom, tur:t.nom, gramm:g});
+      k.tarix.push({tip:'berish', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, gramm:g});
       t.ostatka = Math.max(0, Math.round((t.ostatka - g)*100)/100);
       oldilar.push({zavod:z.nom, tur:t.nom, gramm:g, narx:narx, pul:Math.round(g*narx*100)/100, zi:zi, ti:ti});
       any = true;
@@ -7818,6 +8190,41 @@ function saqlashKlientSotuv() {
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
     _jamiSummaRaw+=s;
   }); });
+  var _jamiGrammRaw = 0;
+  var _skidka = _skidkaVal > 0 ? _skidkaVal : 0;
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+    var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+    var gInp=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+    if (s>0 && n>0) _jamiGrammRaw += gInp>0 ? gInp : roundG(s/n);
+  }); });
+  // Skidkani gramm ulushiga qarab taqsimlash — yaxlitlashda tiyin yoqolib
+  // ketmasligi uchun "eng katta qoldiq" usuli: har biriga pastga yaxlitlangan
+  // ulush beriladi, qolgan tiyinlar eng katta grammli turlarga navbat bilan tarqatiladi.
+  var _skTaqsim = {};
+  if (_skidka > 0 && _jamiGrammRaw > 0) {
+    var _skItems = [];
+    data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+      var koBlokPre = document.getElementById('kso-blok-'+zi+'-'+ti);
+      if (koBlokPre && koBlokPre.style.display !== 'none') return;
+      var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+      var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+      var gInp=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+      if (s>0 && n>0) {
+        var g = gInp>0 ? gInp : roundG(s/n);
+        var raw = _skidka*(g/_jamiGrammRaw)*100;
+        _skItems.push({key:zi+'_'+ti, base:Math.floor(raw)/100, rem:raw-Math.floor(raw)});
+      }
+    }); });
+    var _skTiyinJami = Math.round(_skidka*100);
+    var _skBazaJami = 0; _skItems.forEach(function(it){ _skBazaJami += Math.round(it.base*100); });
+    var _skQoldiq = _skTiyinJami - _skBazaJami;
+    _skItems.sort(function(a,b){ return b.rem - a.rem; });
+    _skItems.forEach(function(it,idx){
+      var tiyin = Math.round(it.base*100) + (idx < _skQoldiq ? 1 : 0);
+      _skTaqsim[it.key] = Math.round(tiyin)/100;
+    });
+  }
   var _offsetPulSave = 0;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
     var koBlokChk = document.getElementById('kso-blok-'+zi+'-'+ti);
@@ -7826,7 +8233,6 @@ function saqlashKlientSotuv() {
     }
   }); });
   var _jamiSummaRegular = Math.max(0, Math.round((_jamiSummaRaw - _offsetPulSave)*100)/100);
-  var _skidka = _skidkaVal > 0 ? _skidkaVal : 0;
 
   // 1. Avval lom hisoblash
   var lomlar = [];
@@ -7875,23 +8281,23 @@ function saqlashKlientSotuv() {
           var _svRowUsedG = n > 0 ? roundG(_svRowUsed / n) : 0;
           if (_svRowUsed > 0.001) {
             var kirimNOff = getZavodNarx(zi,ti)||0;
-            k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:_svRowUsed, kurs:n, ekvivalent:_svRowUsedG, kirimNarx:kirimNOff, _kdYopish:true, naqtPul:0, kartaPul:0});
+            k.tarix.push({tip:'tolov', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, summa:_svRowUsed, kurs:n, ekvivalent:_svRowUsedG, kirimNarx:kirimNOff, _kdYopish:true, naqtPul:0, kartaPul:0});
           }
         }
         return;
       }
       if (s > 0 && n > 0) {
-        var sSk = _skidka > 0 && _jamiSummaRaw > 0 ? Math.round(_skidka*(s/_jamiSummaRaw)*100)/100 : 0;
-        var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
         var g = gInp > 0 ? gInp : roundG(s / n);
         if (g < 0.01) g = 0;
+        var sSk = _skTaqsim[zi+'_'+ti] || 0;
+        var sNet = Math.max(0, Math.round((s - sSk)*100)/100);
         var kirimN2 = getZavodNarx(zi,ti)||0;
         var _naqtFrac = _jamiSummaRaw > 0 ? s / _jamiSummaRaw : 1;
         var _offFrac = _jamiSummaRegular > 0 ? s / _jamiSummaRegular : 0;
         var _offDeduct = _lomPulJamiSave > 0 ? 0 : Math.round(_offsetPulSave * _offFrac * 100)/100;
         var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : Math.max(0, Math.round((sNet - _offDeduct)*100)/100);
         var _opKarta = _lomPulJamiSave > 0 ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
-        k.tarix.push({tip:'tolov', sana:sana, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta});
+        k.tarix.push({tip:'tolov', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta});
         naqtJami += sNet;
       }
     });
@@ -7904,7 +8310,7 @@ function saqlashKlientSotuv() {
   var qolganNaqt = Math.round((naqt - naqtJami - _skidkaJami) * 100) / 100;
   if (qolganNaqt > 0.01 && kurs2 > 0) {
     var qolganG = roundG(qolganNaqt / kurs2);
-    k.tarix.push({tip:'tolov', sana:sana, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
+    k.tarix.push({tip:'tolov', sana:sana, soat:_soatSv, summa:qolganNaqt, kurs:kurs2, ekvivalent:qolganG});
   }
   var naqtG = 0;
 
@@ -7953,7 +8359,7 @@ function saqlashKlientSotuv() {
     var key = el.dataset.key;
     var b = vozBD[key];
     if (!b || b.zi < 0 || b.ti < 0) return;
-    k.tarix.push({tip:'vozvrat', sana:sana, zavod:b.zavod, tur:b.tur, gramm:g});
+    k.tarix.push({tip:'vozvrat', sana:sana, soat:_soatSv, zavod:b.zavod, tur:b.tur, gramm:g});
     data.zavodlar[b.zi].turlar[b.ti].ostatka = Math.round((data.zavodlar[b.zi].turlar[b.ti].ostatka + g)*100)/100;
     vozlar.push({zavod:b.zavod, tur:b.tur, gramm:g});
   });
@@ -8073,7 +8479,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
         var _bizdaG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
         t += rjust('Bizda qoldi', '+'+fmtG(_bizdaG2))+'\n';
       } else {
-        t += rjust('Sdacha', fmtD(_ortiqcha2)+'#')+'\n';
+        t += rjust('Skidka', fmtD(_ortiqcha2)+'#')+'\n';
       }
     }
     t += LINE;
