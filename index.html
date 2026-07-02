@@ -2661,7 +2661,7 @@ function renderZavodKassa() {
     byDay[o.sana].push(o);
   });
   dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
-  dayOrder.sort(function(a,b){return b.localeCompare(a);});
+  dayOrder.sort(function(a,b){ var pa=a.split('.'),pb=b.split('.'); var da=pa[2]+pa[1]+pa[0], db=pb[2]+pb[1]+pb[0]; return db.localeCompare(da); });
 
   var byTur={};
   allOps.forEach(function(o){
@@ -3823,7 +3823,7 @@ function renderKassa() {
     byDay[s.sana][sk]=s;
   });
   dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
-  dayOrder.sort(function(a,b){return b.localeCompare(a);});
+  dayOrder.sort(function(a,b){ var pa=a.split('.'),pb=b.split('.'); var da=pa[2]+pa[1]+pa[0], db=pb[2]+pb[1]+pb[0]; return db.localeCompare(da); });
 
   var katStyles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C'}};
 
@@ -4236,7 +4236,7 @@ function renderKlientHisobot() {
 
   if(!sessions.length){ cont.innerHTML='<div class="empty">Hali tarix yoq</div>'; return; }
   dayOrder=dayOrder.filter(function(v,i,a){return a.indexOf(v)===i;});
-  dayOrder.sort(function(a,b){return b.localeCompare(a);});
+  dayOrder.sort(function(a,b){ var pa=a.split('.'),pb=b.split('.'); var da=pa[2]+pa[1]+pa[0], db=pb[2]+pb[1]+pb[0]; return db.localeCompare(da); });
 
   var html='';
   var shownLom={};
@@ -4927,7 +4927,7 @@ function renderKdHisobot() {
     if(!byDay[op.sana]){ byDay[op.sana]=[]; dayOrder.push(op.sana); }
     byDay[op.sana].push(op);
   });
-  dayOrder.sort(function(a,b){ return b.localeCompare(a); });
+  dayOrder.sort(function(a,b){ var pa=a.split('.'),pb=b.split('.'); var da=pa[2]+pa[1]+pa[0], db=pb[2]+pb[1]+pb[0]; return db.localeCompare(da); });
 
   html += '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Kunlar boyicha</div>';
   dayOrder.forEach(function(sana){
