@@ -1433,11 +1433,15 @@ body.rol-zavod #main-klient { display: none !important; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 var _printXatoVaqt = 0;
+function printerYoq(){ return localStorage.getItem('tilla-printer-yoq')==='1'; }
 function printXato(){
+  if (printerYoq()) return; // bu qurilmada printer yo'q — jim
   var now = Date.now();
   if (now - _printXatoVaqt > 3000) {
     _printXatoVaqt = now;
-    alert('Chek chiqmadi — printer yoki print-server (localhost:5000) ishlamayapti.');
+    if (confirm('Chek chiqmadi — printer yoki print-server (localhost:5000) ishlamayapti.\n\nBu qurilmada printer YO\u2018Qmi? "OK" bossangiz bu qurilmada boshqa chek chiqarishga urinilmaydi va bu xato korsatilmaydi.')) {
+      localStorage.setItem('tilla-printer-yoq','1');
+    }
   }
 }
 window.onerror = function(msg, src, line){
@@ -5247,11 +5251,11 @@ function openKlientBerish(){
   document.getElementById('kb-turlar-card').style.display='none';
   document.getElementById('kb-chek-preview').style.display='none';
   _kbSkanState = {};
-  _kbChekOn=true;
+  _kbChekOn=!printerYoq();
   _kbCnt=1;
   var kbCntEl0=document.getElementById('kb-cnt'); if(kbCntEl0) kbCntEl0.textContent='1';
-  var kbSw0=document.getElementById('kb-chek-sw'); if(kbSw0) kbSw0.style.background='var(--green)';
-  var kbDot0=document.getElementById('kb-chek-sw-dot'); if(kbDot0) kbDot0.style.left='18px';
+  var kbSw0=document.getElementById('kb-chek-sw'); if(kbSw0) kbSw0.style.background=_kbChekOn?'var(--green)':'var(--border)';
+  var kbDot0=document.getElementById('kb-chek-sw-dot'); if(kbDot0) kbDot0.style.left=_kbChekOn?'18px':'2px';
   document.getElementById('modal-kberish').classList.add('open');
   setTimeout(function(){ document.getElementById('kb-q').focus(); },200);
 }
@@ -5439,11 +5443,11 @@ function openKlientVozvrat(){
   document.getElementById('kv-turlar-cont').style.display='none';
   document.getElementById('kv-turlar-list').innerHTML='';
   document.getElementById('kv-chek-preview').style.display='none';
-  _kvChekOn=true;
+  _kvChekOn=!printerYoq();
   _kvCnt=1;
   var kvCntEl0=document.getElementById('kv-cnt'); if(kvCntEl0) kvCntEl0.textContent='1';
-  var kvSw0=document.getElementById('kv-chek-sw'); if(kvSw0) kvSw0.style.background='var(--green)';
-  var kvDot0=document.getElementById('kv-chek-sw-dot'); if(kvDot0) kvDot0.style.left='18px';
+  var kvSw0=document.getElementById('kv-chek-sw'); if(kvSw0) kvSw0.style.background=_kvChekOn?'var(--green)':'var(--border)';
+  var kvDot0=document.getElementById('kv-chek-sw-dot'); if(kvDot0) kvDot0.style.left=_kvChekOn?'18px':'2px';
   document.getElementById('modal-kvozvrat').classList.add('open');
   setTimeout(function(){ document.getElementById('kv-q').focus(); },200);
 }
@@ -5674,9 +5678,11 @@ function openKlientTolov(){
   window._ktLomIdx=0;
   window._ktSdachaTanlov=null;
   window['_sdachaRadio_kt'] = null;
-  _ktChekOn=true;
+  _ktChekOn=!printerYoq();
   _ktCnt=1;
   var ktCntEl0=document.getElementById('kt-cnt'); if(ktCntEl0) ktCntEl0.textContent='1';
+  var ktSw0=document.getElementById('kt-chek-sw'); if(ktSw0) ktSw0.style.background=_ktChekOn?'var(--green)':'var(--border)';
+  var ktDot0=document.getElementById('kt-chek-sw-dot'); if(ktDot0) ktDot0.style.left=_ktChekOn?'18px':'2px';
   document.getElementById('modal-ktolov').classList.add('open');
   setTimeout(function(){ document.getElementById('kt-q').focus(); },200);
 }
@@ -6877,9 +6883,9 @@ function openKlientSotuv() {
   document.getElementById('ks-sana').value = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
   document.getElementById('modal-ksotuv').classList.add('open');
   setTimeout(function(){ document.getElementById('ks-q').focus(); }, 200);
-  _ksChekOn = true;
-  var sw2=document.getElementById('ks-chek-sw'); if(sw2){sw2.style.background='var(--green)';}
-  var dot2=document.getElementById('ks-chek-sw-dot'); if(dot2){dot2.style.left='18px';}
+  _ksChekOn = !printerYoq();
+  var sw2=document.getElementById('ks-chek-sw'); if(sw2){sw2.style.background=_ksChekOn?'var(--green)':'var(--border)';}
+  var dot2=document.getElementById('ks-chek-sw-dot'); if(dot2){dot2.style.left=_ksChekOn?'18px':'2px';}
 }
 
 function ksSearFilter() {
