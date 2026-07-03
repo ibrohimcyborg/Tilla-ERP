@@ -7115,9 +7115,16 @@ function kSotuvRenderTolov() {
 
       var bizQarz = turQarz < -0.001;
       var obshiy = Math.round((turQarz + yangiG2) * 100) / 100;
+      var vozG2 = ksVozOf(zi, ti);
+      var netT2 = Math.round((turQarz + yangiG2 - vozG2) * 100) / 100;
 
       var lblHtml;
-      if (bizQarz) {
+      if (!bizQarz && vozG2 > 0.001 && obshiy > 0.001) {
+        var natija2 = netT2 < -0.001
+          ? '<b style="color:var(--green);">biz qarz: +'+fmtG(-netT2)+'g</b>'
+          : '<b style="color:'+(netT2>0.001?'var(--red)':'var(--green)')+';">'+fmtG(Math.max(0,netT2))+'g</b>';
+        lblHtml = 'qarz: '+fmtG(Math.max(0,turQarz))+'g + yangi: '+fmtG(yangiG2)+'g − <b style="color:var(--gold);">'+fmtG(vozG2)+'g</b> vozvrat = '+natija2;
+      } else if (bizQarz) {
         if (yangiG2 > 0) {
           var net = Math.round((yangiG2 + turQarz) * 100) / 100;
           lblHtml = 'bizda: <b style="color:var(--green);">+'+fmtG(Math.abs(turQarz))+'g</b>'
@@ -7317,10 +7324,19 @@ function kSotuvTolovCalc() {
       }
       var yangiG = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
       var obshiy = Math.round((turQarz + yangiG) * 100) / 100;
+      var vozGx = ksVozOf(zi, ti);
+      var netTx = Math.round((turQarz + yangiG - vozGx) * 100) / 100;
+      // vozvrat bor bo'lsa to'lov hisobi netto (qarz+yangi−vozvrat) bo'yicha
+      if (!(turQarz < -0.001) && vozGx > 0.001) { obshiy = Math.max(0, netTx); }
 
       if (lbl) {
         var lblHtml;
-        if (turQarz < -0.001) {
+        if (!(turQarz < -0.001) && vozGx > 0.001 && Math.round((turQarz+yangiG)*100)/100 > 0.001) {
+          var natijaX = netTx < -0.001
+            ? '<b style="color:var(--green);">biz qarz: +'+fmtG(-netTx)+'g</b>'
+            : '<b style="color:'+(netTx>0.001?'var(--red)':'var(--green)')+';">'+fmtG(Math.max(0,netTx))+'g</b>';
+          lblHtml = 'qarz: '+fmtG(Math.max(0,turQarz))+'g + yangi: '+fmtG(yangiG)+'g − <b style="color:var(--gold);">'+fmtG(vozGx)+'g</b> vozvrat = '+natijaX;
+        } else if (turQarz < -0.001) {
           if (yangiG > 0) {
             var qoldiQarz = Math.round((turQarz + yangiG) * 100) / 100;
             lblHtml = 'bizda: <b style="color:var(--green);">+'+fmtG(Math.abs(turQarz))+'g</b>'
@@ -7469,6 +7485,10 @@ function kSotuvRenderVozvrat(ki) {
   document.getElementById('ks-voz-cont').innerHTML = out;
 }
 
+function ksVozOf(zi, ti) {
+  var el = document.getElementById('ks-voz-'+zi+'-'+ti);
+  return el ? (parseNum(el.value)||0) : 0;
+}
 function kSotuvVozUpd(el, zi, ti) {
   var bd=window._ksSotuvVozBD||{};
   var z2=data.zavodlar[parseInt(zi)],t2=z2?z2.turlar[parseInt(ti)]:null;
