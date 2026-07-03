@@ -2465,11 +2465,43 @@ function renderHisobot() {
   window.toggleHrow = function(idx) { expanded[idx] = !expanded[idx]; render(); };
   render();
 }
-function sherikFoizSet(zi, val) {
-  var f = parseNum(val) || 0;
-  if (f < 0) f = 0; if (f > 100) f = 100;
-  data.zavodlar[zi].sherikFoiz = f;
-  save();
+function sherikMigrate(z) {
+  // Eski bitta-foizli modelni ro'yxatga aylantirish (bir marta)
+  if (!z.sheriklar) {
+    z.sheriklar = [];
+    if (z.sherikFoiz > 0) z.sheriklar.push({nom:'Sherik', foiz:z.sherikFoiz});
+  }
+  return z.sheriklar;
+}
+function sherikQosh(zi) {
+  var z = data.zavodlar[zi]; if (!z) return;
+  sherikMigrate(z);
+  var nom = prompt('Sherik nomi:', 'Sherik ' + (z.sheriklar.length+1));
+  if (nom === null) return;
+  z.sheriklar.push({nom: (nom||'Sherik').trim() || 'Sherik', foiz: 0});
+  save('Sherik qoshildi: '+z.nom);
+  renderZavodSherik();
+}
+function sherikOchir(zi, si) {
+  var z = data.zavodlar[zi]; if (!z || !z.sheriklar || !z.sheriklar[si]) return;
+  if (!confirm(z.sheriklar[si].nom + ' o\'chirilsinmi?')) return;
+  z.sheriklar.splice(si, 1);
+  save('Sherik ochirildi: '+z.nom);
+  renderZavodSherik();
+}
+function sherikFoizSet(zi, si, val) {
+  var z = data.zavodlar[zi]; if (!z || !z.sheriklar || !z.sheriklar[si]) return;
+  var f = Math.max(0, Math.min(100, parseNum(val)||0));
+  z.sheriklar[si].foiz = f;
+  save('Sherik foizi: '+z.nom);
+  renderZavodSherik();
+}
+function sherikNomSet(zi, si) {
+  var z = data.zavodlar[zi]; if (!z || !z.sheriklar || !z.sheriklar[si]) return;
+  var nom = prompt('Sherik nomi:', z.sheriklar[si].nom);
+  if (nom === null) return;
+  z.sheriklar[si].nom = (nom||'').trim() || z.sheriklar[si].nom;
+  save('Sherik nomi: '+z.nom);
   renderZavodSherik();
 }
 function renderZavodSherik() {
@@ -2477,6 +2509,7 @@ function renderZavodSherik() {
   if (!cont) return;
   var z = data.zavodlar[curZ];
   if (!z) return;
+  var sheriklar = sherikMigrate(z);
 
   var jamiSumma=0, jamiGramm=0, jamiSkidka=0, jamiFoyda=0, cnt=0;
   (data.klientlar||[]).forEach(function(k){
@@ -2488,35 +2521,58 @@ function renderZavodSherik() {
     });
   });
 
-  var sherikFoiz = z.sherikFoiz||0;
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
-    + '<div style="font-size:13px;color:var(--muted);">Sherik foizi</div>'
-    + '<div style="display:flex;align-items:center;gap:6px;">'
-    + '<input type="number" min="0" max="100" value="'+sherikFoiz+'" onchange="sherikFoizSet('+curZ+',this.value)" style="width:56px;padding:6px 8px;border-radius:8px;border:1.5px solid var(--purple-bd);background:var(--surf2);color:var(--purple);font-size:14px;text-align:right;font-weight:600;">'
-    + '<span style="font-size:13px;color:var(--muted);">%</span>'
-    + '</div></div>';
-
-  if (!cnt) {
-    html += '<div class="empty"><div class="empty-icon">🤝</div>Bu zavoddan hali sotuv yoq.</div>';
-    cont.innerHTML = html;
-    return;
-  }
-
   var grossFoyda = Math.round((jamiFoyda + jamiSkidka)*100)/100;
   var toza = Math.round(jamiFoyda*100)/100;
-  var sherikUlush = Math.round((toza * sherikFoiz/100)*100)/100;
-  var bizniki = Math.round((toza - sherikUlush)*100)/100;
 
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">';
-  html += '<div class="stat2-item"><div class="stat2-label">GROSS</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtD(grossFoyda)+'$</div></div>';
-  html += '<div class="stat2-item"><div class="stat2-label">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−'+fmtD(Math.round(jamiSkidka*100)/100)+'$</div></div>';
-  html += '<div class="stat2-item" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">TOZA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">'+fmtD(toza)+'$</div></div>';
-  html += '</div>';
+  var html = '';
+  if (cnt) {
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">';
+    html += '<div class="stat2-item"><div class="stat2-label">GROSS</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtD(grossFoyda)+'$</div></div>';
+    html += '<div class="stat2-item"><div class="stat2-label">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">\u2212'+fmtD(Math.round(jamiSkidka*100)/100)+'$</div></div>';
+    html += '<div class="stat2-item" style="background:var(--green-bg);border:1px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">TOZA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">'+fmtD(toza)+'$</div></div>';
+    html += '</div>';
+  }
 
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:14px;">';
-  html += '<div><div style="font-size:12px;color:var(--muted);">Sherikka ('+sherikFoiz+'%)</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--gold);">'+(sherikFoiz>0?fmtD(sherikUlush)+'$':'yoq')+'</div></div>';
-  html += '<div style="text-align:right;"><div style="font-size:12px;color:var(--muted);">Bizniki</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--text);">'+fmtD(bizniki)+'$</div></div>';
-  html += '</div>';
+  // Sheriklar ro'yxati
+  html += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Sheriklar</div>';
+  var jamiFoiz = 0;
+  sheriklar.forEach(function(s){ jamiFoiz += (s.foiz||0); });
+  jamiFoiz = Math.round(jamiFoiz*100)/100;
+  var oshgan = jamiFoiz > 100.001;
+
+  if (!sheriklar.length) {
+    html += '<div style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0;">Hali sherik yoq</div>';
+  }
+  sheriklar.forEach(function(s, si){
+    var ulush = Math.round((toza * (s.foiz||0)/100)*100)/100;
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);">';
+    html += '<span onclick="sherikNomSet('+curZ+','+si+')" style="flex:1;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;" title="Nomni ozgartirish">'+s.nom+'</span>';
+    html += '<div style="display:flex;align-items:center;gap:3px;background:var(--surf2);border:1px solid var(--purple-bd);border-radius:7px;padding:2px 8px;">';
+    html += '<input type="number" min="0" max="100" step="0.1" value="'+(s.foiz||0)+'" onchange="sherikFoizSet('+curZ+','+si+',this.value)" style="width:52px;border:none;background:transparent;color:var(--purple);font-size:13px;text-align:right;font-weight:600;outline:none;">';
+    html += '<span style="font-size:11px;color:var(--muted);">%</span></div>';
+    html += '<span style="width:76px;text-align:right;font-size:13px;font-weight:600;color:var(--gold);">'+(cnt?fmtD(ulush)+'$':'\u2014')+'</span>';
+    html += '<span onclick="sherikOchir('+curZ+','+si+')" style="cursor:pointer;color:var(--red);font-size:16px;padding:0 2px;">\u00d7</span>';
+    html += '</div>';
+  });
+
+  html += '<button onclick="sherikQosh('+curZ+')" style="width:100%;margin-top:10px;padding:9px;border-radius:9px;border:1.5px dashed var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">+ Sherik qo\'shish</button>';
+
+  if (oshgan) {
+    html += '<div style="margin-top:10px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:9px;padding:8px 10px;font-size:12px;color:var(--red);">\u26a0 Foizlar yigindisi '+jamiFoiz+'% \u2014 100% dan oshib ketdi! Tekshiring.</div>';
+  }
+
+  if (cnt) {
+    var sherikJamiPul = 0;
+    sheriklar.forEach(function(s){ sherikJamiPul += Math.round((toza*(s.foiz||0)/100)*100)/100; });
+    sherikJamiPul = Math.round(sherikJamiPul*100)/100;
+    var bizniki = Math.round((toza - sherikJamiPul)*100)/100;
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:14px;">';
+    html += '<div><div style="font-size:12px;color:var(--muted);">Sheriklar jami ('+jamiFoiz+'%)</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--gold);">'+(jamiFoiz>0?fmtD(sherikJamiPul)+'$':'yoq')+'</div></div>';
+    html += '<div style="text-align:right;"><div style="font-size:12px;color:var(--muted);">Bizniki ('+Math.round((100-Math.min(100,jamiFoiz))*100)/100+'%)</div><div style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--text);">'+fmtD(bizniki)+'$</div></div>';
+    html += '</div>';
+  } else {
+    html += '<div class="empty" style="margin-top:14px;"><div class="empty-icon">\ud83e\udd1d</div>Bu zavoddan hali sotuv yoq \u2014 foyda kelgach taqsimot shu yerda korinadi.</div>';
+  }
 
   cont.innerHTML = html;
 }
