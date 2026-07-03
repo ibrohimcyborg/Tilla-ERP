@@ -10036,8 +10036,12 @@ function cloudListen(){
     var lokalVaqt = cloudVaqtLocal();
     var mening = localStorage.getItem('tilla-qurilma')||'';
     if (m.vaqt > lokalVaqt && m.qurilma !== mening) {
-      // Boshqa qurilmadan yangiroq ma'lumot keldi
-      if (confirm('☁ Clouddan yangi malumot keldi ('+(m.qurilma||'?')+', '+new Date(m.vaqt).toLocaleTimeString()+').\nYuklab olinsinmi? (Yuklamasangiz keyingi saqlashda ogohlantiriladi)')) {
+      var dirty = localStorage.getItem('tilla-cloud-dirty')==='1' || _cloudPending;
+      if (!dirty && lokalVaqt > 0) {
+        // Bu qurilmada yuborilmagan o'zgarish yo'q — SO'RAMASDAN avtomatik yuklab olamiz
+        cloudStatus('yellow','yangilanmoqda...');
+        cloudYuklab(m, true);
+      } else if (confirm('☁ Clouddan yangi malumot keldi ('+(m.qurilma||'?')+', '+new Date(m.vaqt).toLocaleTimeString()+').\nYuklab olinsinmi? (Yuklamasangiz keyingi saqlashda ogohlantiriladi)')) {
         cloudYuklab(m);
       } else {
         _cloudRemoteNewer = true;
@@ -10048,7 +10052,7 @@ function cloudListen(){
     }
   }, function(err){ console.error('cloudListen:', err); cloudStatus('red','xato'); });
 }
-function cloudYuklab(meta){
+function cloudYuklab(meta, jim){
   cloudStatus('yellow','yuklanmoqda');
   var n = meta.bolak || 1;
   var reads = [];
@@ -10062,8 +10066,9 @@ function cloudYuklab(meta){
     JSON.parse(json); // yaroqliligini tekshirish — buzuq bo'lsa yozmaymiz
     localStorage.setItem('tilla-v2', json);
     cloudVaqtSet(meta.vaqt);
+    localStorage.removeItem('tilla-cloud-dirty');
     _cloudRemoteNewer = false;
-    alert('☁ Cloud malumoti yuklab olindi. Sahifa yangilanadi.');
+    if (!jim) alert('☁ Cloud malumoti yuklab olindi. Sahifa yangilanadi.');
     location.reload();
   }).catch(function(e){
     console.error('cloudYuklab:', e);
@@ -10073,6 +10078,7 @@ function cloudYuklab(meta){
 }
 function cloudSaqla(){
   // save() ichidan chaqiriladi — debounce (ketma-ket saqlashlarni bitta yozishga yig'adi)
+  localStorage.setItem('tilla-cloud-dirty','1'); // bu qurilmada hali cloudga yetmagan o'zgarish bor
   if (typeof firebase === 'undefined' || !_cloudUser) return;
   _cloudPending = true;
   cloudStatus('yellow','yozilmoqda...');
@@ -10104,6 +10110,7 @@ function cloudSaqlaNow(){
   batch.commit().then(function(){
     _cloudBusy = false;
     cloudVaqtSet(vaqt);
+    localStorage.removeItem('tilla-cloud-dirty'); // hammasi cloudga yetdi
     if (_cloudPending) { cloudSaqlaNow(); return; }
     cloudStatus('green','sinxron');
   }).catch(function(e){
