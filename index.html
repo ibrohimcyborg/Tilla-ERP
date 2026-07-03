@@ -7166,13 +7166,13 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:9px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
       out += '</div>';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
-      if(bizQarz) { var _qolganBtnG=Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100); out += '<button onclick="event.stopPropagation();ksOffsetToggle('+zi+','+ti+','+_qolganBtnG+',this)" id="kso-btn-'+zi+'-'+ti+'" style="font-size:10px;font-weight:600;padding:0 6px;height:22px;border-radius:5px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);cursor:pointer;flex-shrink:0;">$</button>'; }
+      { var _qolganBtnG=bizQarz?Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100):0; out += '<button onclick="event.stopPropagation();ksOffsetToggle('+zi+','+ti+',this)" id="kso-btn-'+zi+'-'+ti+'" data-oqarz="'+_qolganBtnG+'" data-baseoq="'+_qolganBtnG+'" style="font-size:10px;font-weight:600;padding:0 6px;height:22px;border-radius:5px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);cursor:pointer;flex-shrink:0;'+(bizQarz?'':'display:none;')+'">$</button>'; }
       out += '<input type="number" id="kst-g-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'g\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--green);text-align:right;outline:none;min-width:0;width:0;">';
       out += '<span style="font-size:9px;color:var(--green-bd);flex-shrink:0;">g</span>';
       out += '</div>';
       out += '</div>';
       out += '<div id="kst-res-'+zi+'-'+ti+'" style="font-size:11px;margin-top:3px;min-height:14px;"></div>';
-      if(bizQarz) { var _oNarx=getKatNarx(zi,ti,_ksSotuvKi)||0; var _qolganG=Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100); var _oSum=Math.round(_qolganG*_oNarx*100)/100; out += '<div id="kso-blok-'+zi+'-'+ti+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:8px 10px;margin-top:4px;" data-qarzg="'+Math.abs(turQarz)+'"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;"><span id="kso-lbl-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">O  '+fmtG(_qolganG)+'g × '+_oNarx+'$/g</span><span id="kso-sum-'+zi+'-'+ti+'" style="font-size:12px;font-weight:600;color:var(--green);">'+fmtD(_oSum)+'$ → boshqa to\'lovdan ayiriladi</span></div></div>'; }
+      { var _oNarx=getKatNarx(zi,ti,_ksSotuvKi)||0; var _qolganG=bizQarz?Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100):0; var _oSum=Math.round(_qolganG*_oNarx*100)/100; out += '<div id="kso-blok-'+zi+'-'+ti+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:8px 10px;margin-top:4px;" data-qarzg="'+(bizQarz?Math.abs(turQarz):0)+'" data-narx="'+_oNarx+'"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;"><span id="kso-lbl-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">O  '+fmtG(_qolganG)+'g × '+_oNarx+'$/g</span><span id="kso-sum-'+zi+'-'+ti+'" style="font-size:12px;font-weight:600;color:var(--green);">'+fmtD(_oSum)+'$ → boshqa to\'lovdan ayiriladi</span></div></div>'; }
       out += '</div>';
     });
   });
@@ -7244,15 +7244,12 @@ function kstHammasi(zi, ti, obshiy) {
       if(z2&&t2&&el.dataset.key===z2.nom+'||'+t2.nom) vozG+=(parseNum(el.value)||0);
     }
   });
-  // Foydalanuvchi uchun to'lov: musbat qarz + yangi gramm - vozvrat (manfiy qarzni hisobga olmaydi)
-  var tolovG = Math.round((Math.max(0, turQarz - vozG) + yangiG) * 100) / 100;
-  var g = tolovG > 0 ? tolovG : Math.round(obshiy * 100) / 100;
+  // Foydalanuvchi uchun to'lov: (musbat qarz + yangi gramm − vozvrat), manfiy bo'lsa 0
+  var tolovG = Math.round(Math.max(0, turQarz + yangiG - vozG) * 100) / 100;
+  var g = tolovG;
   var n = parseNum((nEl||{}).value) || 0;
-  gEl.value = g;
-  if (n > 0 && sEl) {
-    var s = Math.round(g * n * 100) / 100;
-    sEl.value = s;
-  }
+  gEl.value = g > 0 ? g : '';
+  if (sEl) sEl.value = (n > 0 && g > 0) ? Math.round(g * n * 100) / 100 : '';
   kSotuvTolovUpd('g', zi, ti);
 }
 
@@ -7479,12 +7476,17 @@ function kSotuvVozUpd(el, zi, ti) {
   var bEntry=bKey&&bd[bKey]?bd[bKey]:null;
   var totalQarz=bEntry?bEntry.qarz:0;
   var vozG=parseNum(el.value)||0;
-  var qolgan=Math.max(0,Math.round((totalQarz-vozG)*100)/100);
+  var net=Math.round((totalQarz-vozG)*100)/100;
+  var qolgan=Math.max(0,net);
+  var bizQ=net<-0.001?Math.round(-net*100)/100:0;
+  var natijaHtml = bizQ>0
+    ? '<b style="color:var(--green);">biz qarz: +'+fmtG(bizQ)+'g</b>'
+    : '<b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
 
   // Vozvrat bo'limidagi label
   var lbl=el.previousElementSibling&&el.previousElementSibling.querySelector('div:last-child');
   if(lbl){
-    if(vozG>0) lbl.innerHTML='qarz: <b style="color:var(--red);">'+fmtG(totalQarz)+'g</b> − <b style="color:var(--gold);">'+fmtG(vozG)+'g</b> vozvrat = <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
+    if(vozG>0) lbl.innerHTML='qarz: <b style="color:var(--red);">'+fmtG(totalQarz)+'g</b> − <b style="color:var(--gold);">'+fmtG(vozG)+'g</b> vozvrat = '+natijaHtml;
     else lbl.textContent='qarz: '+fmtG(totalQarz)+'g';
   }
 
@@ -7495,12 +7497,32 @@ function kSotuvVozUpd(el, zi, ti) {
       var turQarzOld=Math.round((totalQarz-(bEntry?parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0:0))*100)/100;
       var yangiG=bEntry?parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value)||0:0;
       if(vozG>0){
-        kstLbl.innerHTML='qarz: '+fmtG(Math.max(0,turQarzOld))+'g + yangi: '+fmtG(yangiG)+'g − <b style="color:var(--gold);">'+fmtG(vozG)+'g</b> vozvrat = <b style="color:'+(qolgan>0?'var(--red)':'var(--green)')+';">'+fmtG(qolgan)+'g</b>';
+        kstLbl.innerHTML='qarz: '+fmtG(Math.max(0,turQarzOld))+'g + yangi: '+fmtG(yangiG)+'g − <b style="color:var(--gold);">'+fmtG(vozG)+'g</b> vozvrat = '+natijaHtml;
       } else {
         // Vozvrat 0 bo'lsa — kSotuvTolovCalc qayta chizsin
         kSotuvCalc();
         return;
       }
+    }
+    // Offset tugma/blokini jonli yangilash: vozvrat ortiqchasi = bizning qarzimiz
+    var oBtn=document.getElementById('kso-btn-'+zi+'-'+ti);
+    var oBlok=document.getElementById('kso-blok-'+zi+'-'+ti);
+    if(oBtn&&oBlok){
+      var baseOq=parseFloat(oBtn.dataset.baseoq)||0; // saqlangan biz-qarzdan kelgan qiymat
+      var effOq=bizQ>0.001?bizQ:baseOq;
+      oBtn.dataset.oqarz=effOq;
+      oBtn.style.display=effOq>0.001?'':'none';
+      var oNarx=parseFloat(oBlok.dataset.narx)||0;
+      var oLbl=document.getElementById('kso-lbl-'+zi+'-'+ti);
+      var oSum=document.getElementById('kso-sum-'+zi+'-'+ti);
+      if(oLbl) oLbl.innerHTML='O  '+fmtG(effOq)+'g × '+oNarx+'$/g';
+      if(oSum) oSum.innerHTML=fmtD(Math.round(effOq*oNarx*100)/100)+'$ → boshqa to\'lovdan ayiriladi';
+      // Agar offset yoqilgan (blok ochiq) bo'lsa — to'ldirilgan grammni ham yangilaymiz
+      if(oBlok.style.display!=='none'){
+        var gElO=document.getElementById('kst-g-'+zi+'-'+ti);
+        if(gElO){ gElO.value=effOq>0.001?effOq:''; kSotuvTolovUpd('g', zi, ti); }
+      }
+      if(effOq<=0.001&&oBlok.style.display!=='none'){ oBlok.style.display='none'; oBtn.textContent='$'; oBtn.style.background='var(--surf)'; }
     }
   }
   kSotuvCalc();
@@ -9179,9 +9201,10 @@ setTimeout(initPC, 150);
 window.addEventListener('resize', function() { initPC(); });
 
 
-function ksOffsetToggle(zi, ti, qarzG, btn) {
+function ksOffsetToggle(zi, ti, btn) {
   var blok = document.getElementById('kso-blok-'+zi+'-'+ti);
   if(!blok) return;
+  var qarzG = parseFloat(btn.dataset.oqarz)||0;
   var active = blok.style.display !== 'none';
   blok.style.display = active ? 'none' : 'flex';
   btn.style.background = active ? 'var(--surf)' : 'var(--green-bg)';
