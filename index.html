@@ -260,12 +260,12 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX27</span></div>
   <div class="topbar-right">
-    <button class="theme-btn" onclick="cloudChipClick()" id="cloud-chip" title="Cloud" style="display:flex;align-items:center;gap:5px;width:auto;padding:0 10px;font-size:11px;"><span id="cloud-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;"></span><span id="cloud-txt">cloud</span></button>
-    <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
-    <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
-    <button class="theme-btn" onclick="openResetModal()" title="Sozlamalar">⚙</button>
-    <button class="theme-btn" onclick="doLogout()" title="Chiqish">⏻</button>
+    <button class="theme-btn" onclick="cloudChipClick()" id="cloud-chip" title="Cloud"><svg id="cloud-ikon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke .3s;"><path d="M17.5 19a4.5 4.5 0 1 0-.42-8.98 6 6 0 1 0-11.06 3.1A3.5 3.5 0 0 0 7 19h10.5z"/></svg></button>
+    <button class="theme-btn" onclick="manualRefresh()" title="Yangilash"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema"></button>
+    <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></button>
+    <button class="theme-btn" onclick="openResetModal()" title="Sozlamalar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="theme-btn" onclick="doLogout()" title="Chiqish"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </div>
 </div>
 <div class="main-tabs">
@@ -8979,7 +8979,9 @@ function applyTheme(t){
   currentTheme=t;
   document.documentElement.setAttribute('data-theme',t==='light'?'light':'');
   var btn=document.getElementById('theme-btn');
-  if(btn) btn.innerHTML=t==='light'?'☽':'☀';
+  if(btn) btn.innerHTML = t==='light'
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="4.6" y1="4.6" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.4" y2="19.4"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="19.4" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.4" y2="4.6"/></svg>';
   localStorage.setItem('tilla-theme',t);
 }
 function toggleTheme(){applyTheme(currentTheme==='dark'?'light':'dark');}
@@ -9960,9 +9962,15 @@ function cloudQurilma(){
   return q;
 }
 function cloudStatus(rang, matn){
-  var d=document.getElementById('cloud-dot'), t=document.getElementById('cloud-txt');
-  if(d) d.style.background = rang==='green'?'var(--green)':rang==='yellow'?'var(--gold)':rang==='red'?'var(--red)':'var(--muted)';
-  if(t) t.textContent = matn;
+  var ik=document.getElementById('cloud-ikon');
+  var chip=document.getElementById('cloud-chip');
+  if(ik){
+    var c = rang==='green'?'var(--green)':rang==='yellow'?'var(--gold)':rang==='red'?'var(--red)':'var(--muted)';
+    ik.style.stroke = c;
+    ik.style.fill = rang==='green' ? c : 'none';
+    ik.style.fillOpacity = rang==='green' ? '0.25' : '0';
+  }
+  if(chip) chip.title = 'Cloud: ' + matn;
 }
 function cloudInit(){
   if (typeof firebase === 'undefined') { cloudStatus('gray','oflayn'); return; } // SDK yuklanmagan (internet yo'q)
