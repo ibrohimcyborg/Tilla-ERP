@@ -9948,8 +9948,9 @@ var _cloudDb = null, _cloudUser = null, _cloudUnsub = null;
 var _cloudPending = false, _cloudBusy = false, _cloudRemoteNewer = false;
 var _cloudTimer = null;
 
-function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt')||'0'); }
-function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt', String(v)); }
+function cloudKol(){ return 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza
+function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'))||'0'); }
+function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'), String(v)); }
 function cloudQurilma(){
   var q = localStorage.getItem('tilla-qurilma');
   if (!q) {
@@ -10016,7 +10017,7 @@ function cloudLogout(){
 }
 function cloudListen(){
   if (!_cloudDb || _cloudUnsub) return;
-  _cloudUnsub = _cloudDb.collection('tilla').doc('holat').onSnapshot(function(doc){
+  _cloudUnsub = _cloudDb.collection(cloudKol()).doc('holat').onSnapshot(function(doc){
     if (!doc.exists) {
       // Cloudda hali hech narsa yo'q — joriy lokalni birinchi bo'lib yozamiz
       cloudStatus('yellow','birinchi yuklash');
@@ -10043,7 +10044,7 @@ function cloudYuklab(meta){
   cloudStatus('yellow','yuklanmoqda');
   var n = meta.bolak || 1;
   var reads = [];
-  for (var i=0;i<n;i++) reads.push(_cloudDb.collection('tilla').doc('holat_b'+i).get());
+  for (var i=0;i<n;i++) reads.push(_cloudDb.collection(cloudKol()).doc('holat_b'+i).get());
   Promise.all(reads).then(function(docs){
     var json = '';
     for (var i=0;i<docs.length;i++){
@@ -10089,9 +10090,9 @@ function cloudSaqlaNow(){
   for (var i=0; i<json.length; i+=CLOUD_BOLAK) bolaklar.push(json.substr(i, CLOUD_BOLAK));
   var batch = _cloudDb.batch();
   bolaklar.forEach(function(b, i){
-    batch.set(_cloudDb.collection('tilla').doc('holat_b'+i), { j: b });
+    batch.set(_cloudDb.collection(cloudKol()).doc('holat_b'+i), { j: b });
   });
-  batch.set(_cloudDb.collection('tilla').doc('holat'), { vaqt: vaqt, qurilma: qurilma, bolak: bolaklar.length, hajm: json.length });
+  batch.set(_cloudDb.collection(cloudKol()).doc('holat'), { vaqt: vaqt, qurilma: qurilma, bolak: bolaklar.length, hajm: json.length });
   batch.commit().then(function(){
     _cloudBusy = false;
     cloudVaqtSet(vaqt);
