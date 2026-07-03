@@ -260,6 +260,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB <span style="color:var(--green);font-size:11px;font-weight:700;">v-FIX27</span></div>
   <div class="topbar-right">
+    <button class="theme-btn" onclick="cloudChipClick()" id="cloud-chip" title="Cloud" style="display:flex;align-items:center;gap:5px;width:auto;padding:0 10px;font-size:11px;"><span id="cloud-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;"></span><span id="cloud-txt">cloud</span></button>
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash">⟳</button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema">☀</button>
     <button class="theme-btn" onclick="openSnapshotModal()" title="Vaqt mashinasi">🕐</button>
@@ -973,6 +974,32 @@ body.rol-zavod #main-klient { display: none !important; }
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-cloud-login">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">☁ Cloud ulanish</div>
+    <div class="field"><label>Login (email)</label><input type="text" id="cl-email" autocomplete="username" style="font-size:16px;" placeholder="ibrohim@tilla.uz"></div>
+    <div class="field"><label>Parol</label><input type="password" id="cl-parol" autocomplete="current-password" style="font-size:16px;"></div>
+    <div id="cl-xato" style="display:none;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-cloud-login')">Bekor</button>
+      <button class="btn gold" id="cl-kirish-btn" onclick="cloudLogin()">Kirish</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-cloud-info">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">☁ Cloud holati</div>
+    <div id="cloud-info-body" style="font-size:13px;color:var(--text);line-height:1.8;margin-bottom:12px;"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-cloud-info')">Yopish</button>
+      <button class="btn" style="color:var(--red);" onclick="cloudLogout()">Chiqish</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-kberish">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1401,6 +1428,9 @@ body.rol-zavod #main-klient { display: none !important; }
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 var _printXatoVaqt = 0;
 function printXato(){
@@ -1478,6 +1508,7 @@ function save(logText) {
   }
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if(logText) snapSaqla(logText);
+  if (typeof cloudSaqla === 'function') cloudSaqla();
 }
 
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
@@ -9898,6 +9929,181 @@ function saqlashLomChiqim(){
   closeLomChiqim();
   renderLomAnywhere();
 }
+
+/* ═══════════════════════════════════════════════════
+   CLOUD SINXRON (Firebase Firestore) — 1-BOSQICH
+   Lokal (tilla-v2) ASOSIY bo'lib qoladi; cloud — nusxa/sinxron.
+   Tuzilish: tilla/holat (meta: vaqt, qurilma, bolak) + tilla/holat_bN (json bo'laklari)
+   ═══════════════════════════════════════════════════ */
+var CLOUD_CONFIG = {
+  apiKey: "AIzaSyAfZ45TmFvDRIOos19eG8msyiDFTJuc0PE",
+  authDomain: "tilla-erp-8b357.firebaseapp.com",
+  projectId: "tilla-erp-8b357",
+  storageBucket: "tilla-erp-8b357.firebasestorage.app",
+  messagingSenderId: "876933095476",
+  appId: "1:876933095476:web:a9fbf2c66fb496be0baa61"
+};
+var CLOUD_BOLAK = 800000; // ~800KB — Firestore 1MB hujjat limitidan pastda
+var _cloudDb = null, _cloudUser = null, _cloudUnsub = null;
+var _cloudPending = false, _cloudBusy = false, _cloudRemoteNewer = false;
+var _cloudTimer = null;
+
+function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt')||'0'); }
+function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt', String(v)); }
+function cloudQurilma(){
+  var q = localStorage.getItem('tilla-qurilma');
+  if (!q) {
+    q = prompt('Bu qurilmaga nom bering (masalan: Dokon-PC, Telefon):', 'Qurilma-1') || 'Qurilma-1';
+    localStorage.setItem('tilla-qurilma', q);
+  }
+  return q;
+}
+function cloudStatus(rang, matn){
+  var d=document.getElementById('cloud-dot'), t=document.getElementById('cloud-txt');
+  if(d) d.style.background = rang==='green'?'var(--green)':rang==='yellow'?'var(--gold)':rang==='red'?'var(--red)':'var(--muted)';
+  if(t) t.textContent = matn;
+}
+function cloudInit(){
+  if (typeof firebase === 'undefined') { cloudStatus('gray','oflayn'); return; } // SDK yuklanmagan (internet yo'q)
+  try {
+    firebase.initializeApp(CLOUD_CONFIG);
+    _cloudDb = firebase.firestore();
+    firebase.auth().onAuthStateChanged(function(u){
+      _cloudUser = u;
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); if(_cloudPending) cloudSaqlaNow(); }
+      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} }
+    });
+    window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
+  } catch(e) { console.error('cloudInit:', e); cloudStatus('red','xato'); }
+}
+function cloudChipClick(){
+  if (typeof firebase === 'undefined') { alert('Cloud SDK yuklanmagan — internetni tekshiring va sahifani yangilang.'); return; }
+  if (!_cloudUser) {
+    document.getElementById('cl-xato').style.display='none';
+    document.getElementById('modal-cloud-login').classList.add('open');
+    setTimeout(function(){ document.getElementById('cl-email').focus(); },200);
+  } else {
+    var v = cloudVaqtLocal();
+    var body = 'Login: <b>'+(_cloudUser.email||'')+'</b><br>'
+      + 'Qurilma: <b>'+(localStorage.getItem('tilla-qurilma')||'—')+'</b><br>'
+      + 'Oxirgi sinxron: <b>'+(v? new Date(v).toLocaleString() : '—')+'</b><br>'
+      + 'Holat: '+(_cloudPending?'<span style="color:var(--gold);">yozish kutilmoqda</span>':'<span style="color:var(--green);">sinxron</span>');
+    document.getElementById('cloud-info-body').innerHTML = body;
+    document.getElementById('modal-cloud-info').classList.add('open');
+  }
+}
+function cloudLogin(){
+  var em = document.getElementById('cl-email').value.trim();
+  var pa = document.getElementById('cl-parol').value;
+  var xEl = document.getElementById('cl-xato');
+  if (!em || !pa) { xEl.textContent='Login va parolni kiriting'; xEl.style.display='block'; return; }
+  var btn = document.getElementById('cl-kirish-btn'); btn.disabled = true; btn.textContent='...';
+  firebase.auth().signInWithEmailAndPassword(em, pa).then(function(){
+    btn.disabled=false; btn.textContent='Kirish';
+    closeModal('modal-cloud-login');
+    cloudQurilma();
+  }).catch(function(e){
+    btn.disabled=false; btn.textContent='Kirish';
+    xEl.textContent = 'Kirish xatosi: login yoki parol notogri';
+    xEl.style.display='block';
+    console.error('cloudLogin:', e);
+  });
+}
+function cloudLogout(){
+  if (!confirm('Cloud hisobdan chiqilsinmi? (Lokal malumot qoladi, sinxron toxtaydi)')) return;
+  firebase.auth().signOut();
+  closeModal('modal-cloud-info');
+}
+function cloudListen(){
+  if (!_cloudDb || _cloudUnsub) return;
+  _cloudUnsub = _cloudDb.collection('tilla').doc('holat').onSnapshot(function(doc){
+    if (!doc.exists) {
+      // Cloudda hali hech narsa yo'q — joriy lokalni birinchi bo'lib yozamiz
+      cloudStatus('yellow','birinchi yuklash');
+      cloudSaqlaNow();
+      return;
+    }
+    var m = doc.data();
+    var lokalVaqt = cloudVaqtLocal();
+    var mening = localStorage.getItem('tilla-qurilma')||'';
+    if (m.vaqt > lokalVaqt && m.qurilma !== mening) {
+      // Boshqa qurilmadan yangiroq ma'lumot keldi
+      if (confirm('☁ Clouddan yangi malumot keldi ('+(m.qurilma||'?')+', '+new Date(m.vaqt).toLocaleTimeString()+').\nYuklab olinsinmi? (Yuklamasangiz keyingi saqlashda ogohlantiriladi)')) {
+        cloudYuklab(m);
+      } else {
+        _cloudRemoteNewer = true;
+        cloudStatus('yellow','cloudda yangiroq bor');
+      }
+    } else {
+      if (!_cloudPending) cloudStatus('green','sinxron');
+    }
+  }, function(err){ console.error('cloudListen:', err); cloudStatus('red','xato'); });
+}
+function cloudYuklab(meta){
+  cloudStatus('yellow','yuklanmoqda');
+  var n = meta.bolak || 1;
+  var reads = [];
+  for (var i=0;i<n;i++) reads.push(_cloudDb.collection('tilla').doc('holat_b'+i).get());
+  Promise.all(reads).then(function(docs){
+    var json = '';
+    for (var i=0;i<docs.length;i++){
+      if (!docs[i].exists) throw new Error('bolak '+i+' topilmadi');
+      json += docs[i].data().j;
+    }
+    JSON.parse(json); // yaroqliligini tekshirish — buzuq bo'lsa yozmaymiz
+    localStorage.setItem('tilla-v2', json);
+    cloudVaqtSet(meta.vaqt);
+    _cloudRemoteNewer = false;
+    alert('☁ Cloud malumoti yuklab olindi. Sahifa yangilanadi.');
+    location.reload();
+  }).catch(function(e){
+    console.error('cloudYuklab:', e);
+    alert('Clouddan yuklashda xato: '+e.message+'\nLokal malumot ozgarmadi.');
+    cloudStatus('red','yuklash xatosi');
+  });
+}
+function cloudSaqla(){
+  // save() ichidan chaqiriladi — debounce (ketma-ket saqlashlarni bitta yozishga yig'adi)
+  if (typeof firebase === 'undefined' || !_cloudUser) return;
+  _cloudPending = true;
+  cloudStatus('yellow','yozilmoqda...');
+  if (_cloudTimer) clearTimeout(_cloudTimer);
+  _cloudTimer = setTimeout(cloudSaqlaNow, 900);
+}
+function cloudSaqlaNow(){
+  if (typeof firebase === 'undefined' || !_cloudUser || !_cloudDb) return;
+  if (_cloudBusy) { _cloudPending = true; return; }
+  if (_cloudRemoteNewer) {
+    if (!confirm('⚠ DIQQAT: cloudda boshqa qurilmadan yangiroq malumot bor edi va siz uni yuklamagansiz.\nBaribir SIZNIKI bilan ustidan yozilsinmi?')) {
+      cloudStatus('yellow','cloudda yangiroq bor');
+      return;
+    }
+    _cloudRemoteNewer = false;
+  }
+  var json = localStorage.getItem('tilla-v2') || '';
+  if (!json) return;
+  _cloudBusy = true; _cloudPending = false;
+  var vaqt = Date.now();
+  var qurilma = localStorage.getItem('tilla-qurilma') || 'Qurilma-1';
+  var bolaklar = [];
+  for (var i=0; i<json.length; i+=CLOUD_BOLAK) bolaklar.push(json.substr(i, CLOUD_BOLAK));
+  var batch = _cloudDb.batch();
+  bolaklar.forEach(function(b, i){
+    batch.set(_cloudDb.collection('tilla').doc('holat_b'+i), { j: b });
+  });
+  batch.set(_cloudDb.collection('tilla').doc('holat'), { vaqt: vaqt, qurilma: qurilma, bolak: bolaklar.length, hajm: json.length });
+  batch.commit().then(function(){
+    _cloudBusy = false;
+    cloudVaqtSet(vaqt);
+    if (_cloudPending) { cloudSaqlaNow(); return; }
+    cloudStatus('green','sinxron');
+  }).catch(function(e){
+    _cloudBusy = false; _cloudPending = true;
+    console.error('cloudSaqla:', e);
+    cloudStatus('red','yozilmadi (kutilmoqda)');
+  });
+}
+cloudInit();
 
 </script>
 </body>
