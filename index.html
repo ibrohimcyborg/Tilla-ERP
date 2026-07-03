@@ -3912,7 +3912,7 @@ function renderKassa() {
       out+='<span style="color:var(--green);font-size:11px;">+$'+fmtD(dayFoyda)+'</span>';
       out+='</div>';
 
-      Object.keys(klientlar).forEach(function(key){
+      Object.keys(klientlar).sort(function(a,b){ return (klientlar[b].soat||'').localeCompare(klientlar[a].soat||''); }).forEach(function(key){
         var kg=klientlar[key];
         var kSumma=Math.round(kg.summa*100)/100;
         var kGramm=Math.round(kg.gramm*100)/100;
@@ -4755,7 +4755,7 @@ function openKlientDetail(ki) {
   });
   groupOrder.sort(function(a,b){
     var sa=groups[a].sana, sb=groups[b].sana;
-    if(sa!==sb) return sb.localeCompare(sa);
+    if(sa!==sb){ var pa=sa.split('.'),pb=sb.split('.'); return (pb[2]+pb[1]+pb[0]).localeCompare(pa[2]+pa[1]+pa[0]); }
     return (groups[b].soat||'').localeCompare(groups[a].soat||'');
   });
 
@@ -4989,6 +4989,7 @@ function renderKdHisobot() {
       kdSess[skk].ops.push(op);
       kdSess[skk].skidka+=(op.skidka||0);
     });
+    kdSessOrder.sort(function(a,b){ return (kdSess[b].soat||'').localeCompare(kdSess[a].soat||''); });
     kdSessOrder.forEach(function(skk, si){
       var S=kdSess[skk];
       var sSkidka=Math.round(S.skidka*100)/100;
