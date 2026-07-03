@@ -7689,6 +7689,13 @@ function kSotuvCalc() {
           offsetRowsSc.push({zi:zi, ti:ti, s:sRow_sc, n:n});
         }
       } else {
+        // Dinamik offset (bugungi vozvrat ortiqchasidan) — blok ochiq bo'lsa bu ham offset qatori
+        var koBlok_d = document.getElementById('kso-blok-'+zi+'-'+ti);
+        if (koBlok_d && koBlok_d.style.display !== 'none') {
+          var sRow_d=Math.round(g*n*100)/100;
+          offsetPulRaw += sRow_d;
+          offsetRowsSc.push({zi:zi, ti:ti, s:sRow_d, n:n});
+        } else {
         var kerakG_sc;
         if(yangiG_sc > 0 || turQarz_sc > 0.001) {
           kerakG_sc = Math.round((turQarz_sc + yangiG_sc)*100)/100;
@@ -7703,6 +7710,7 @@ function kSotuvCalc() {
         var ortPul=Math.round(ortG_sc*n*100)/100;
         gramOrtiqchaPul+=ortPul;
         if(ortPul > 0.001 && gramOrtiqchaZi < 0){ gramOrtiqchaZi=zi; gramOrtiqchaTi=ti; }
+        }
       }
     }
   }); });
