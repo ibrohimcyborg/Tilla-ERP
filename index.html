@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v15: HAQIQIY KASSA — Z-hisobga DAVR SANASI qo'shildi: istalgan kunni retro yopish mumkin (sistema qiymatlari o'sha kungacha hisoblanadi), 2-3-4-kunlar ketma-ket shakllantiriladi -->
+<!-- v16: HAQIQIY KASSA — ZAKAZ (pul muzlatish): kurs qulflanadi, muddat (sana+soat), erkin/band bo'linishi, 1 soat/muddat o'tdi bannerlari, Bajarildi/Yechish (append-only) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -853,6 +853,28 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <!-- MODALS -->
+<!-- ===== HAQIQIY KASSA: zakaz (pul muzlatish) modali ===== -->
+<div class="modal-overlay" id="modal-kassa-zakaz" onclick="if(event.target===this)closeModal('modal-kassa-zakaz')">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Zakaz — pul muzlatish</span><button class="modal-close" onclick="closeModal('modal-kassa-zakaz')">✕</button></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Erkin pul: <b id="kzk-erkin" style="color:var(--green);">$0</b> · Kurs shu daqiqada qulflanadi</div>
+    <div class="field"><label>Zavod</label><select id="kzk-zavod"></select></div>
+    <div class="field"><label>Summa $</label><input type="number" id="kzk-summa" placeholder="0" inputmode="decimal"></div>
+    <div class="field"><label>Kurs (qulflanadi)</label><input type="number" id="kzk-kurs" placeholder="0.00" inputmode="decimal"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field"><label>Muddat — sana</label><input type="date" id="kzk-sana" style="font-size:16px;"></div>
+      <div class="field"><label>Muddat — soat</label><input type="time" id="kzk-soat" value="19:00" style="font-size:16px;"></div>
+    </div>
+    <div class="field"><label>Izoh (ixtiyoriy)</label><input type="text" id="kzk-izoh" placeholder="Butterfly 3D uchun..." maxlength="80" autocomplete="off"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kassa-zakaz')">Bekor</button>
+      <button class="btn gold" onclick="kassaZakazSaqla()">Muzlatish</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Muzlatilgan pul erkindan ajraladi — boshqa ishga ketmaydi.<br>Muddatga 1 soat qolganda ogohlantirish chiqadi.</div>
+  </div>
+</div>
+
 <!-- ===== HAQIQIY KASSA (v14): Z-hisob — kun yopish modali ===== -->
 <div class="modal-overlay" id="modal-kassa-z" onclick="if(event.target===this)closeModal('modal-kassa-z')">
   <div class="modal" style="max-width:480px;">
@@ -1547,8 +1569,10 @@ if (!data.lomProbalar) data.lomProbalar = []; // foydalanuvchi o'zi qo'shadigan 
 // zavod chiqimlar, lom moduli) jonli hisoblanadi + Z tafovut tuzatishlari. Alohida kassa lentasi YO'Q.
 // zlar: [{ts, sana, soat, naqd, lomEkv, toza, tafN, tafL, taf9, izoh}] — kun yopish muhrlari
 // tuzatishlar: [{ts, sana, soat, chontak:'naqd'|'lom'|'999', delta, izoh}] — append-only, Z tafovutdan
-if (!data.kassa || !data.kassa.zlar) data.kassa = { zlar: [], tuzatishlar: [] };
+if (!data.kassa || !data.kassa.zlar) data.kassa = { zlar: [], tuzatishlar: [], zakazlar: [] };
 if (!data.kassa.tuzatishlar) data.kassa.tuzatishlar = [];
+// zakazlar: [{id, ts, sana, soat, zavodNom, summa, kurs (qulflangan), muddatTs, holat:'ochiq'|'bajarildi'|'bekor', izoh, yopTs?}]
+if (!data.kassa.zakazlar) data.kassa.zakazlar = [];
 
 function save(logText) {
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
@@ -2514,21 +2538,115 @@ function kassaZSaqla(){
   renderKassaCard();
   alert('✓ Kun yopildi — Z muhrlandi.\nErtaga shu qoldiq boshlang\'ich bo\'ladi.');
 }
+// ---- ZAKAZ (pul muzlatish): kurs qulflanadi, muddat bilan, append-only ----
+function kassaMuzlatilgan(){
+  var s=0;
+  ((data.kassa&&data.kassa.zakazlar)||[]).forEach(function(z){ if(z.holat==='ochiq') s+=parseNum(z.summa); });
+  return Math.round(s*100)/100;
+}
+function openKassaZakaz(){
+  var o = kassaOqim();
+  var erkin = Math.round((o.naqd - kassaMuzlatilgan())*100)/100;
+  document.getElementById('kzk-erkin').textContent = '$'+fmtD(erkin);
+  var sel = document.getElementById('kzk-zavod');
+  sel.innerHTML = '<option value="">— Tanlang —</option>';
+  data.zavodlar.forEach(function(z){ sel.innerHTML += '<option value="'+z.nom+'">'+z.nom+'</option>'; });
+  document.getElementById('kzk-summa').value='';
+  document.getElementById('kzk-kurs').value = localStorage.getItem('tilla-kurs-bugun') || '';
+  document.getElementById('kzk-sana').value = nowDate();
+  document.getElementById('kzk-soat').value = '19:00';
+  document.getElementById('kzk-izoh').value='';
+  document.getElementById('modal-kassa-zakaz').classList.add('open');
+}
+function kassaZakazSaqla(){
+  var zavod = document.getElementById('kzk-zavod').value;
+  var summa = parseNum(document.getElementById('kzk-summa').value);
+  var kurs = parseNum(document.getElementById('kzk-kurs').value);
+  var msana = document.getElementById('kzk-sana').value;
+  var msoat = document.getElementById('kzk-soat').value;
+  var izoh = document.getElementById('kzk-izoh').value.trim();
+  if(!zavod){ alert('Zavod tanlang!'); return; }
+  if(summa<=0){ alert('Summa kiriting!'); return; }
+  if(kurs<=0){ alert('Kurs kiriting!'); return; }
+  if(!msana || !msoat){ alert('Muddat (sana va soat) kiriting!'); return; }
+  var o = kassaOqim();
+  var erkin = Math.round((o.naqd - kassaMuzlatilgan())*100)/100;
+  if(summa > erkin){ alert('Erkin puldan ortiq muzlatib bo\'lmaydi!\nErkin: $'+fmtD(erkin)); return; }
+  var muddatTs = new Date(msana+'T'+msoat).getTime();
+  if(muddatTs <= Date.now()){ if(!confirm('Muddat o\'tmishda — baribir saqlansinmi?')) return; }
+  if(!confirm('MUZLATILSINMI?\n\n'+zavod+' · $'+fmtD(summa)+'\nKurs qulf: '+kurs+'\nMuddat: '+msana.split('-').reverse().join('.')+' '+msoat)) return;
+  data.kassa.zakazlar.push({id:'zk'+Date.now(), ts:Date.now(), sana:today(), soat:nowSoat(), zavodNom:zavod, summa:Math.round(summa*100)/100, kurs:kurs, muddatTs:muddatTs, holat:'ochiq', izoh:izoh});
+  save('Zakaz | '+zavod+' | $'+fmtD(summa)+' @ '+kurs);
+  closeModal('modal-kassa-zakaz');
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
+function kassaZakazTop(id){ return ((data.kassa&&data.kassa.zakazlar)||[]).find(function(z){return z.id===id;}); }
+function kassaZakazBajarildi(id){
+  var z = kassaZakazTop(id); if(!z || z.holat!=='ochiq') return;
+  if(!confirm(z.zavodNom+' zakazi BAJARILDIMI?\n$'+fmtD(z.summa)+' @ kurs '+z.kurs+'\n\nPul erkinga qaytadi — endi chiqimni odatdagidek kiriting (↑ Chiqim).')) return;
+  z.holat='bajarildi'; z.yopTs=Date.now();
+  save('Zakaz bajarildi | '+z.zavodNom+' | $'+fmtD(z.summa));
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
+function kassaZakazYech(id){
+  var z = kassaZakazTop(id); if(!z || z.holat!=='ochiq') return;
+  if(!confirm(z.zavodNom+' zakazi YECHILSINMI (bekor)?\n$'+fmtD(z.summa)+' erkinga qaytadi — boshqa zavodga berish mumkin.\nYozuv tarixda qoladi.')) return;
+  z.holat='bekor'; z.yopTs=Date.now();
+  save('Zakaz yechildi | '+z.zavodNom+' | $'+fmtD(z.summa));
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
+function kassaZakazMuddatTxt(z){
+  var qoldi = z.muddatTs - Date.now();
+  var d = new Date(z.muddatTs);
+  var txt = String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  if(qoldi < 0) return {txt:txt, holat:'otdi'};
+  if(qoldi < 3600000) return {txt:txt, holat:'1soat'};
+  return {txt:txt, holat:'ok'};
+}
 // Kassa tabdagi qoldiq paneli (renderKassa ichida chaqiriladi)
 function kassaQoldiqPanelHTML(){
   var o = kassaOqim();
   var z = kassaOxirgiZ();
+  var band = kassaMuzlatilgan();
+  var erkin = Math.round((o.naqd - band)*100)/100;
+  var ochiqZ = ((data.kassa&&data.kassa.zakazlar)||[]).filter(function(z){return z.holat==='ochiq';});
   var h = '<div style="background:var(--surf);border:1px solid var(--gold-bd);border-top:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">';
   h += '<span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA QOLDIQ — HAQIQIY</span>';
+  h += '<div style="display:flex;gap:6px;">';
+  h += '<button onclick="openKassaZakaz()" style="background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">+ Zakaz</button>';
   h += '<button onclick="openKassaZ()" style="background:var(--gold);border:none;color:var(--on-gold);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">✓ Kunni yopish (Z)</button>';
-  h += '</div>';
+  h += '</div></div>';
+  // muddat banneri: 1 soat qolgan yoki o'tgan ochiq zakazlar
+  ochiqZ.forEach(function(z){
+    var m = kassaZakazMuddatTxt(z);
+    if(m.holat==='1soat') h += '<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:var(--red);font-weight:600;">⏱ 1 SOATDAN KAM QOLDI — '+m.txt+'</span><span style="font-size:11px;color:var(--muted);">'+z.zavodNom+' · $'+fmtD(z.summa)+'</span></div>';
+    else if(m.holat==='otdi') h += '<div style="background:var(--red-bg);border:1px solid var(--red-bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:var(--red);font-weight:600;">⚠ MUDDAT O\'TDI — '+m.txt+'</span><span style="font-size:11px;color:var(--muted);">'+z.zavodNom+' · $'+fmtD(z.summa)+'</span></div>';
+  });
   h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;margin-bottom:8px;">';
-  function cho(l,v,r){ return '<div style="background:var(--surf2);border-radius:8px;padding:7px 2px;"><div style="font-size:10px;color:var(--muted);">'+l+'</div><div style="font-size:14px;color:var(--'+r+');font-weight:500;font-family:Roboto,sans-serif;">'+v+'</div></div>'; }
-  h += cho('Naqd','$'+fmtD(o.naqd),'gold');
+  function cho(l,v,r,sub){ return '<div style="background:var(--surf2);border-radius:8px;padding:7px 2px;"><div style="font-size:10px;color:var(--muted);">'+l+'</div><div style="font-size:14px;color:var(--'+r+');font-weight:500;font-family:Roboto,sans-serif;">'+v+'</div>'+(sub||'')+'</div>'; }
+  var naqdSub = band>0 ? '<div style="font-size:10px;margin-top:2px;"><span style="color:var(--green);">erkin $'+fmtD(erkin)+'</span> · <span style="color:var(--blue);">band $'+fmtD(band)+'</span></div>' : '';
+  h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub);
   h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
   h += cho('999',fmtG(o.toza)+' g','blue');
   h += '</div>';
+  // ochiq zakazlar ro'yxati
+  if(ochiqZ.length){
+    h += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 5px;">Ochiq zakazlar</div>';
+    ochiqZ.forEach(function(z){
+      var m = kassaZakazMuddatTxt(z);
+      h += '<div style="background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:10px;padding:9px 11px;margin-bottom:6px;">';
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:500;color:var(--text);">'+z.zavodNom+(z.izoh?' · '+z.izoh:'')+'</span><span style="font-size:13px;color:var(--blue);font-weight:500;font-family:Roboto,sans-serif;">$'+fmtD(z.summa)+'</span></div>';
+      h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;"><span>kurs qulf: <b style="color:var(--text);">'+z.kurs+'</b> · muddat: <b style="color:'+(m.holat==='ok'?'var(--text)':'var(--red)')+';">'+m.txt+'</b></span><span>'+z.sana+' '+(z.soat||'')+'</span></div>';
+      h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
+      h += '<button onclick="kassaZakazBajarildi(\''+z.id+'\')" style="background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);border-radius:8px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">✓ Bajarildi</button>';
+      h += '<button onclick="kassaZakazYech(\''+z.id+'\')" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">↩ Yechish</button>';
+      h += '</div></div>';
+    });
+  }
   h += '<div style="display:flex;justify-content:space-between;font-size:11px;flex-wrap:wrap;gap:4px;">';
   h += '<span style="color:var(--muted);">Bugun: <span style="color:var(--green);">+$'+fmtD(o.bugunKirim)+'</span> / <span style="color:var(--red);">−$'+fmtD(o.bugunChiqim)+'</span></span>';
   h += '<span style="color:var(--muted);">'+(z ? 'So\'nggi Z: '+z.sana+' '+(z.soat||'')+' · $'+fmtD(z.naqd) : 'Hali Z qilinmagan — birinchi kun yopish nol nuqta bo\'ladi')+'</span>';
@@ -2546,7 +2664,9 @@ function renderKassaCard(){
     + cho('Naqd','$'+fmtD(o.naqd),'gold')
     + cho('Lom 583',fmtG(o.lomEkv)+' g','gold')
     + cho('999',fmtG(o.toza)+' g','blue')
-    + '</div></div>';
+    + '</div>'
+    + (kassaMuzlatilgan()>0 ? '<div style="font-size:10px;margin-top:6px;text-align:center;"><span style="color:var(--green);">erkin $'+fmtD(Math.round((o.naqd-kassaMuzlatilgan())*100)/100)+'</span> · <span style="color:var(--blue);">band (zakaz) $'+fmtD(kassaMuzlatilgan())+'</span></div>' : '')
+    + '</div>';
   var pc=document.getElementById('kassa-card-pc'); if(pc) pc.innerHTML=html;
   var mb=document.getElementById('kassa-card-mob'); if(mb) mb.innerHTML=html;
 }
