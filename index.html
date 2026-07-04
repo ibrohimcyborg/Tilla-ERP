@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
+<!-- v13: HAQIQIY KASSA 1-qadam — shakllantirish modali (nol nuqta) + uch cho'ntak qoldiq kartasi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -289,6 +290,7 @@ body.rol-zavod #main-klient { display: none !important; }
           <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
+      <div id="kassa-card-pc"></div>
       <div class="pc-btn-grid3">
         <button class="pc-zbtn kirim" onclick="goTo('s-kirim')">↓ Kirim</button>
         <button class="pc-zbtn chiqim" onclick="goTo('s-chiqim')">↑ Chiqim</button>
@@ -310,6 +312,7 @@ body.rol-zavod #main-klient { display: none !important; }
           <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:16px;color:var(--red);font-weight:500;" id="home-klientda-mob">0<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span></div></div>
         </div>
       </div>
+      <div id="kassa-card-mob"></div>
       <div class="big-btn-row">
         <div class="big-btn kirim" onclick="goTo('s-kirim')">
           <div class="big-btn-icon">↓</div>
@@ -850,6 +853,39 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <!-- MODALS -->
+<!-- ===== HAQIQIY KASSA (v13): shakllantirish modali — nol nuqta, bir marta ===== -->
+<div class="modal-overlay" id="modal-kassa-shakl" onclick="if(event.target===this)closeModal('modal-kassa-shakl')">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Kassani shakllantirish</span><button class="modal-close" onclick="closeModal('modal-kassa-shakl')">✕</button></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Bir marta kiritiladi — shu <b style="color:var(--gold);">nol nuqta</b> bo'ladi. Bugun: <span id="ks-sana" style="color:var(--text);"></span></div>
+
+    <div class="field"><label>1 · Kassadagi naqd pul $</label><input type="number" id="ks-naqd" placeholder="0" inputmode="decimal" oninput="kassaShaklUpd()"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <label style="font-size:12px;color:var(--muted);font-weight:500;">2 · Lom (probasi bilan)</label>
+      <button onclick="kassaShaklQator()" style="background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;">+ qator</button>
+    </div>
+    <div style="display:grid;grid-template-columns:80px 1fr 90px;gap:6px;font-size:11px;color:var(--muted);margin-bottom:4px;"><span>Proba</span><span>Gramm</span><span style="text-align:right;">Ekv 583</span></div>
+    <div id="ks-lom-rows"></div>
+
+    <div class="field" style="margin-top:12px;"><label style="color:var(--blue);">3 · 999 — alohida, o'girilmaydi (gramm)</label><input type="number" id="ks-999" placeholder="0" inputmode="decimal" oninput="kassaShaklUpd()"></div>
+
+    <div style="background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:12px;padding:10px 12px;margin-bottom:4px;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Nol nuqta — tekshirib oling</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span style="color:var(--muted);">Naqd</span><b id="ks-sum-naqd" style="color:var(--gold);font-family:'Roboto',sans-serif;">$0</b></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span style="color:var(--muted);">Lom jami → ekv 583</span><b id="ks-sum-lom" style="color:var(--gold);font-family:'Roboto',sans-serif;">0 g → 0 g</b></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0;"><span style="color:var(--muted);">999</span><b id="ks-sum-999" style="color:var(--blue);font-family:'Roboto',sans-serif;">0 g</b></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kassa-shakl')">Bekor</button>
+      <button class="btn gold" onclick="kassaShaklSaqla()">Boshlash — qulflash</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Shu daqiqadan keyin hammasi avtomatik yoziladi.<br>Bu modal boshqa chiqmaydi.</div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-zavod">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1502,6 +1538,10 @@ data.klientlar.forEach(function(k){
 if (!data.lomlar) data.lomlar = []; // {tip:'kirim'|'chiqim', manba:'klient'|'kocha'|'zavod'|'boshqa', klientIdx, zavodNom, boshqaNom, sana, proba, gramm, narx, sotuvNarx, summa, foyda, izoh, sana_ts}
 if (!data.lomNarxTarix) data.lomNarxTarix = []; // {id, sana, sana_ts, narx, zaxiraG}
 if (!data.lomProbalar) data.lomProbalar = []; // foydalanuvchi o'zi qo'shadigan probalar: ['585','750',...]
+// HAQIQIY KASSA (v13): append-only yozuvlar, qoldiq HAR DOIM yig'indidan hisoblanadi, saqlanmaydi
+// yozuv: {id, ts, sana, soat, tip:'kirim'|'chiqim', chontak:'naqd'|'lom'|'999', summa?, proba?, gramm?, ekv?, manba, izoh?, ref?}
+if (!data.kassa) data.kassa = { boshlandi: null, boshSana: '', yozuvlar: [] };
+if (!data.kassa.yozuvlar) data.kassa.yozuvlar = [];
 
 function save(logText) {
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
@@ -2346,6 +2386,107 @@ function zKursSaqla() {
   zKursRender();
 }
 
+/* ================== HAQIQIY KASSA (v13) — 1-qadam: shakllantirish + qoldiq ================== */
+function kassaEkv(proba, gramm){ return Math.round(parseNum(proba)*parseNum(gramm)/583*100)/100; }
+// Qoldiq HECH QAYERDA saqlanmaydi — har doim yozuvlar yig'indisidan (append-only printsip)
+function kassaQoldiq(){
+  var q={naqd:0, lomG:0, lomEkv:0, toza:0};
+  ((data.kassa&&data.kassa.yozuvlar)||[]).forEach(function(y){
+    var s = (y.tip==='chiqim') ? -1 : 1;
+    if(y.chontak==='naqd') q.naqd += s*parseNum(y.summa);
+    else if(y.chontak==='lom'){ q.lomG += s*parseNum(y.gramm); q.lomEkv += s*parseNum(y.ekv); }
+    else if(y.chontak==='999') q.toza += s*parseNum(y.gramm);
+  });
+  q.naqd=Math.round(q.naqd*100)/100; q.lomG=roundG(q.lomG); q.lomEkv=roundG(q.lomEkv); q.toza=roundG(q.toza);
+  return q;
+}
+function openKassaShakl(){
+  if(data.kassa && data.kassa.boshlandi){
+    alert('Kassa allaqachon shakllangan ('+(data.kassa.boshSana||'')+').\nNol nuqta qayta kiritilmaydi — tuzatish kerak bo\'lsa qo\'lda kirim/chiqim ishlatiladi (keyingi qadamda qo\'shiladi).');
+    return;
+  }
+  var el=document.getElementById('ks-sana'); if(el) el.textContent = today()+' · '+nowSoat();
+  document.getElementById('ks-lom-rows').innerHTML='';
+  kassaShaklQator();
+  document.getElementById('ks-naqd').value='';
+  document.getElementById('ks-999').value='';
+  kassaShaklUpd();
+  document.getElementById('modal-kassa-shakl').classList.add('open');
+}
+function kassaShaklQator(){
+  var inpSt='width:100%;padding:10px 10px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:\'Roboto\',sans-serif;background:var(--surf2);color:var(--text);box-sizing:border-box;-webkit-appearance:none;';
+  var d=document.createElement('div');
+  d.className='ks-lom-row';
+  d.style.cssText='display:grid;grid-template-columns:80px 1fr 90px;gap:6px;margin-bottom:6px;align-items:center;';
+  d.innerHTML='<input type="number" class="ks-proba" placeholder="583" inputmode="numeric" oninput="kassaShaklUpd()" style="'+inpSt+'">'
+    +'<input type="number" class="ks-gramm" placeholder="0.00" inputmode="decimal" oninput="kassaShaklUpd()" style="'+inpSt+'">'
+    +'<span class="ks-ekv" style="text-align:right;font-size:13px;color:var(--gold);font-family:\'Roboto\',sans-serif;">0.00 g</span>';
+  document.getElementById('ks-lom-rows').appendChild(d);
+}
+function kassaShaklUpd(){
+  var naqd=parseNum(document.getElementById('ks-naqd').value);
+  var toza=parseNum(document.getElementById('ks-999').value);
+  var jamiG=0, jamiEkv=0;
+  document.querySelectorAll('#ks-lom-rows .ks-lom-row').forEach(function(r){
+    var p=parseNum(r.querySelector('.ks-proba').value);
+    var g=parseNum(r.querySelector('.ks-gramm').value);
+    var e=(p>0&&g>0)?kassaEkv(p,g):0;
+    r.querySelector('.ks-ekv').textContent=fmtG(e)+' g';
+    jamiG+=g; jamiEkv+=e;
+  });
+  document.getElementById('ks-sum-naqd').textContent='$'+fmtD(naqd);
+  document.getElementById('ks-sum-lom').textContent=fmtG(jamiG)+' g → '+fmtG(jamiEkv)+' g';
+  document.getElementById('ks-sum-999').textContent=fmtG(toza)+' g';
+}
+function kassaShaklSaqla(){
+  if(data.kassa && data.kassa.boshlandi){ closeModal('modal-kassa-shakl'); return; }
+  var naqd=parseNum(document.getElementById('ks-naqd').value);
+  var toza=parseNum(document.getElementById('ks-999').value);
+  var lomRows=[], xato=false;
+  document.querySelectorAll('#ks-lom-rows .ks-lom-row').forEach(function(r){
+    var p=parseNum(r.querySelector('.ks-proba').value);
+    var g=parseNum(r.querySelector('.ks-gramm').value);
+    if(p>0 && g>0) lomRows.push({proba:p, gramm:roundG(g), ekv:kassaEkv(p,g)});
+    else if(p>0 || g>0) xato=true; // yarim to'ldirilgan qator
+  });
+  if(xato){ alert('Lom qatorida proba VA gramm ikkalasi kiritilishi kerak.'); return; }
+  if(naqd<0 || toza<0){ alert('Manfiy son kiritib bo\'lmaydi.'); return; }
+  var jamiEkv=0, jamiG=0; lomRows.forEach(function(l){ jamiEkv+=l.ekv; jamiG+=l.gramm; });
+  if(naqd<=0 && !lomRows.length && toza<=0){
+    if(!confirm('Hech narsa kiritilmadi — kassa to\'liq noldan boshlanadimi?')) return;
+  }
+  if(!confirm('NOL NUQTA QULFLANSINMI?\n\nNaqd: $'+fmtD(naqd)+'\nLom: '+fmtG(jamiG)+' g (ekv '+fmtG(roundG(jamiEkv))+' g)\n999: '+fmtG(toza)+' g\n\nBu modal boshqa ochilmaydi.')) return;
+  var ts=Date.now(), sana=today(), soat=nowSoat(), n=0;
+  function yoz(y){ y.id='kb'+ts+'-'+(n++); y.ts=ts; y.sana=sana; y.soat=soat; y.tip='kirim'; y.manba='boshlangich'; y.izoh='Nol nuqta'; data.kassa.yozuvlar.push(y); }
+  if(naqd>0) yoz({chontak:'naqd', summa:Math.round(naqd*100)/100});
+  lomRows.forEach(function(l){ yoz({chontak:'lom', proba:l.proba, gramm:l.gramm, ekv:l.ekv}); });
+  if(toza>0) yoz({chontak:'999', gramm:roundG(toza)});
+  data.kassa.boshlandi=ts;
+  data.kassa.boshSana=sana+' '+soat;
+  save('Kassa shakllantirildi (nol nuqta)');
+  closeModal('modal-kassa-shakl');
+  renderKassaCard();
+  alert('✓ Kassa shakllandi — nol nuqta qulflandi.');
+}
+function renderKassaCard(){
+  var html;
+  if(!data.kassa || !data.kassa.boshlandi){
+    html='<button onclick="openKassaShakl()" style="width:100%;background:var(--gold-bg);border:1.5px solid var(--gold);color:var(--gold);border-radius:12px;padding:11px;font-size:13px;font-weight:600;font-family:\'Outfit\',sans-serif;cursor:pointer;margin-bottom:10px;">₸ Kassani shakllantirish</button>';
+  } else {
+    var q=kassaQoldiq();
+    function cho(label,val,rang){ return '<div style="background:var(--surf2);border-radius:8px;padding:6px 2px;"><div style="font-size:10px;color:var(--muted);">'+label+'</div><div style="font-size:13px;color:var(--'+rang+');font-weight:500;font-family:\'Roboto\',sans-serif;">'+val+'</div></div>'; }
+    html='<div style="background:var(--surf);border:1px solid var(--gold-bd);border-top:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:10px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA</span><span style="font-size:10px;color:var(--muted);">nol nuqta: '+(data.kassa.boshSana||'')+'</span></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;text-align:center;">'
+      +cho('Naqd','$'+fmtD(q.naqd),'gold')
+      +cho('Lom 583',fmtG(q.lomEkv)+' g','gold')
+      +cho('999',fmtG(q.toza)+' g','blue')
+      +'</div></div>';
+  }
+  var pc=document.getElementById('kassa-card-pc'); if(pc) pc.innerHTML=html;
+  var mb=document.getElementById('kassa-card-mob'); if(mb) mb.innerHTML=html;
+}
+/* ================== /HAQIQIY KASSA ================== */
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function renderHome() {
   var bizda = 0;
@@ -2364,6 +2505,7 @@ function renderHome() {
   var mob=document.getElementById('home-total-mob'); if(mob) mob.innerHTML=fmtG(tot)+g;
   var bdm=document.getElementById('home-bizda-mob'); if(bdm) bdm.innerHTML=fmtG(bizda)+sg;
   var kdm=document.getElementById('home-klientda-mob'); if(kdm) kdm.innerHTML=fmtG(klientda)+sg;
+  renderKassaCard();
   var list = document.getElementById('home-zavodlar');
   var empty = document.getElementById('home-empty');
   // LOM tab ochiq bo'lsa zavodlar listini qayta yozma
