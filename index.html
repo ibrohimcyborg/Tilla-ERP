@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v17: CHEK yangi tartib — Jami (brutto) → Skidka → Jami to'landi N/K; pastdagi N/Skidka dublikat bloki olib tashlandi (N/K faqat aralash to'lovda chiqadi) -->
+<!-- v18: KASSA SNAPSHOT — har cloud saqlashda kassa_snapshot hujjati chiqariladi (qoldiq, erkin/band, zakazlar, Z, zavod ostatkalari; foyda YO'Q) — Zavod ERP shu hujjatni o'qiydi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -10434,7 +10434,7 @@ function cloudInit(){
     _cloudDb = firebase.firestore();
     firebase.auth().onAuthStateChanged(function(u){
       _cloudUser = u;
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); if(_cloudPending) cloudSaqlaNow(); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); }
       else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
@@ -10540,6 +10540,34 @@ function cloudSaqla(){
   if (_cloudTimer) clearTimeout(_cloudTimer);
   _cloudTimer = setTimeout(cloudSaqlaNow, 900);
 }
+// ---- KASSA SNAPSHOT: Zavod ERP o'qiydigan yengil hujjat (foyda YO'Q) ----
+function kassaSnapshotObj(vaqt){
+  var o = kassaOqim();
+  var band = kassaMuzlatilgan();
+  var ochiqZ = ((data.kassa&&data.kassa.zakazlar)||[]).filter(function(z){return z.holat==='ochiq';})
+    .map(function(z){ return {id:z.id, zavodNom:z.zavodNom, summa:z.summa, kurs:z.kurs, muddatTs:z.muddatTs, izoh:z.izoh||''}; });
+  var zx = kassaOxirgiZ();
+  var zavodQ = (data.zavodlar||[]).map(function(z){
+    var g=0; (z.turlar||[]).forEach(function(t){ g+=parseNum(t.ostatka); });
+    return {nom:z.nom, ostatka:roundG(g)};
+  });
+  return {
+    vaqt: vaqt, sana: today(), soat: nowSoat(),
+    naqd: o.naqd, lomEkv: o.lomEkv, toza: o.toza,
+    erkin: Math.round((o.naqd-band)*100)/100, band: band,
+    bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
+    zakazlar: ochiqZ,
+    z: zx ? {sana:zx.sana, soat:zx.soat||'', naqd:zx.naqd} : null,
+    zavodlar: zavodQ
+  };
+}
+function kassaSnapshotYubor(){
+  if (typeof firebase === 'undefined' || !_cloudUser || !_cloudDb) return;
+  try {
+    _cloudDb.collection(cloudKol()).doc('kassa_snapshot').set(kassaSnapshotObj(Date.now()))
+      .catch(function(e){ console.error('kassa snapshot:', e); });
+  } catch(e) { console.error('kassa snapshot:', e); }
+}
 function cloudSaqlaNow(){
   if (typeof firebase === 'undefined' || !_cloudUser || !_cloudDb) return;
   if (_cloudBusy) { _cloudPending = true; return; }
@@ -10562,6 +10590,7 @@ function cloudSaqlaNow(){
     batch.set(_cloudDb.collection(cloudKol()).doc('holat_b'+i), { j: b });
   });
   batch.set(_cloudDb.collection(cloudKol()).doc('holat'), { vaqt: vaqt, qurilma: qurilma, bolak: bolaklar.length, hajm: json.length });
+  batch.set(_cloudDb.collection(cloudKol()).doc('kassa_snapshot'), kassaSnapshotObj(vaqt));
   batch.commit().then(function(){
     _cloudBusy = false;
     cloudVaqtSet(vaqt);
