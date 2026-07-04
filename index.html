@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v14: HAQIQIY KASSA — Z-hisob modeli: jonli qoldiq (tushum−chiqim, lom583/999 lom modulidan), kun yopish + tafovut. Shakllantirish modali olib tashlandi -->
+<!-- v15: HAQIQIY KASSA — Z-hisobga DAVR SANASI qo'shildi: istalgan kunni retro yopish mumkin (sistema qiymatlari o'sha kungacha hisoblanadi), 2-3-4-kunlar ketma-ket shakllantiriladi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -858,7 +858,8 @@ body.rol-zavod #main-klient { display: none !important; }
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
     <div class="modal-header"><span style="font-weight:700;font-size:16px;">Kunni yopish — Z hisob</span><button class="modal-close" onclick="closeModal('modal-kassa-z')">✕</button></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Sistema hisobini haqiqiy sanash bilan solishtiring. <span id="kz-sana" style="color:var(--text);"></span></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Sistema hisobini haqiqiy sanash bilan solishtiring. <span id="kz-sana" style="color:var(--text);"></span></div>
+    <div class="field"><label>Qaysi kun yopilyapti (davr sanasi)</label><input type="date" id="kz-sana-inp" onchange="kassaZSanaUpd()" style="font-size:16px;"></div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;color:var(--muted);margin-bottom:4px;"><span></span><span style="text-align:center;">Sistema</span><span style="text-align:center;">Haqiqiy (sanang)</span></div>
 
@@ -2396,23 +2397,31 @@ function zKursSaqla() {
 function kassaEkv(proba, gramm){ return Math.round(parseNum(proba)*parseNum(gramm)/583*100)/100; }
 // Qoldiq HECH QAYERDA saqlanmaydi — mavjud yozuvlardan jonli yig'iladi:
 // + klient to'lovlari (naqt+karta) − zavod chiqimlari (naqtSumma) ± lom moduli pul oqimi ± Z tuzatishlar
-function kassaOqim(){
-  var t = today();
+function sanaKey(s){ // 'dd.mm.yyyy' -> 'yyyymmdd' (taqqoslash uchun)
+  if(!s) return '';
+  var p = String(s).split('.');
+  return p.length===3 ? p[2]+p[1]+p[0] : '';
+}
+function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu kun ham kiradi); bo'lmasa hammasi
+  var t = limitSana || today();
+  var lim = limitSana ? sanaKey(limitSana) : null;
+  function ichida(sana){ return !lim || (sanaKey(sana) && sanaKey(sana) <= lim); }
   var o = {naqd:0, lomEkv:0, toza:0, bugunKirim:0, bugunChiqim:0};
   // 1) Klient to'lovlari — tushum (offset _kdYopish emas)
   (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
-    if(op.tip!=='tolov' || op._kdYopish) return;
+    if(op.tip!=='tolov' || op._kdYopish || !ichida(op.sana)) return;
     var pul = (op.naqtPul!==undefined ? parseNum(op.naqtPul) : (op.kartaPul ? 0 : parseNum(op.summa||0))) + parseNum(op.kartaPul||0);
     if(pul){ o.naqd += pul; if(op.sana===t) o.bugunKirim += pul; }
   });});
   // 2) Zavod chiqimlari — naqd pul berilgani srazu ayriladi
   (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(tr){ (tr.tarix||[]).forEach(function(op){
-    if(op.tip!=='tolov') return;
+    if(op.tip!=='tolov' || !ichida(op.sana)) return;
     var s = parseNum(op.naqtSumma||0);
     if(s>0){ o.naqd -= s; if(op.sana===t) o.bugunChiqim += s; }
   });});});
   // 3) Lom moduli — cho'ntaklar (583 ekv / 999 alohida) va naqd ta'siri
   (data.lomlar||[]).forEach(function(r){
+    if(!ichida(r.sana)) return;
     var sgn = (r.tip==='chiqim') ? -1 : 1;
     var p = parseNum(r.proba), g = parseNum(r.gramm);
     if(p===999){ o.toza += sgn*g; } else if(p>0&&g>0){ o.lomEkv += sgn*kassaEkv(p,g); }
@@ -2424,6 +2433,7 @@ function kassaOqim(){
   });
   // 4) Z tafovut tuzatishlari (append-only)
   ((data.kassa&&data.kassa.tuzatishlar)||[]).forEach(function(tz){
+    if(!ichida(tz.sana)) return;
     if(tz.chontak==='naqd') o.naqd += parseNum(tz.delta);
     else if(tz.chontak==='lom') o.lomEkv += parseNum(tz.delta);
     else if(tz.chontak==='999') o.toza += parseNum(tz.delta);
@@ -2433,24 +2443,29 @@ function kassaOqim(){
   return o;
 }
 function kassaOxirgiZ(){ var zl=(data.kassa&&data.kassa.zlar)||[]; return zl.length ? zl[zl.length-1] : null; }
-function openKassaZ(){
-  var o = kassaOqim();
-  document.getElementById('kz-sana').textContent = 'Bugun: '+today()+' · '+nowSoat();
+function kassaZTanlSana(){ // date inputdan 'dd.mm.yyyy'
+  var v = document.getElementById('kz-sana-inp').value;
+  return v ? v.split('-').reverse().join('.') : today();
+}
+function kassaZSanaUpd(){ // sana o'zgarganda sistema qiymatlarini o'sha kungacha qayta hisoblash
+  var sana = kassaZTanlSana();
+  var o = kassaOqim(sana);
+  document.getElementById('kz-sana').textContent = 'Yopilayotgan kun: '+sana;
   document.getElementById('kz-sis-naqd').textContent = '$'+fmtD(o.naqd);
   document.getElementById('kz-sis-lom').textContent = fmtG(o.lomEkv);
   document.getElementById('kz-sis-999').textContent = fmtG(o.toza);
   document.getElementById('kz-naqd').value = o.naqd;
   document.getElementById('kz-lom').value = o.lomEkv;
   document.getElementById('kz-999').value = o.toza;
-  var z = kassaOxirgiZ();
-  if(z && z.sana===today()){
-    if(!confirm('Bugun allaqachon Z qilingan ('+(z.soat||'')+'). Yana yopilsinmi?')) return;
-  }
   kassaZUpd();
+}
+function openKassaZ(){
+  document.getElementById('kz-sana-inp').value = nowDate();
+  kassaZSanaUpd();
   document.getElementById('modal-kassa-z').classList.add('open');
 }
 function kassaZUpd(){
-  var o = kassaOqim();
+  var o = kassaOqim(kassaZTanlSana());
   var dn = Math.round((parseNum(document.getElementById('kz-naqd').value)-o.naqd)*100)/100;
   var dl = roundG(parseNum(document.getElementById('kz-lom').value)-o.lomEkv);
   var d9 = roundG(parseNum(document.getElementById('kz-999').value)-o.toza);
@@ -2470,16 +2485,23 @@ function kassaZUpd(){
   }
 }
 function kassaZSaqla(){
-  var o = kassaOqim();
+  var sana = kassaZTanlSana();
+  var o = kassaOqim(sana);
   var hn = parseNum(document.getElementById('kz-naqd').value);
   var hl = parseNum(document.getElementById('kz-lom').value);
   var h9 = parseNum(document.getElementById('kz-999').value);
   var dn = Math.round((hn-o.naqd)*100)/100;
   var dl = roundG(hl-o.lomEkv);
   var d9 = roundG(h9-o.toza);
-  var msg = 'KUN YOPILSINMI?\n\nNaqd: $'+fmtD(hn)+(dn?' (tafovut '+(dn>0?'+':'')+fmtD(dn)+')':'')+'\nLom 583: '+fmtG(hl)+' g'+(dl?' (tafovut '+(dl>0?'+':'')+fmtG(dl)+')':'')+'\n999: '+fmtG(h9)+' g'+(d9?' (tafovut '+(d9>0?'+':'')+fmtG(d9)+')':'');
+  // shu kunga Z bormi?
+  var bor = ((data.kassa&&data.kassa.zlar)||[]).some(function(z){ return z.sana===sana; });
+  if(bor && !confirm(sana+' uchun Z allaqachon bor. Yana yopilsinmi?')) return;
+  // tanlangan kundan KEYINGI sanaga Z bormi? (retro Z keyingi tafovutlarni chalkashtirishi mumkin)
+  var keyingi = ((data.kassa&&data.kassa.zlar)||[]).some(function(z){ return sanaKey(z.sana) > sanaKey(sana); });
+  if(keyingi && !confirm('DIQQAT: '+sana+' dan KEYINGI kunga Z allaqachon qilingan.\nEski kunni hozir yopish keyingi tafovutlarni chalkashtirishi mumkin.\nDavom etilsinmi?')) return;
+  var msg = sana+' KUNI YOPILSINMI?\n\nNaqd: $'+fmtD(hn)+(dn?' (tafovut '+(dn>0?'+':'')+fmtD(dn)+')':'')+'\nLom 583: '+fmtG(hl)+' g'+(dl?' (tafovut '+(dl>0?'+':'')+fmtG(dl)+')':'')+'\n999: '+fmtG(h9)+' g'+(d9?' (tafovut '+(d9>0?'+':'')+fmtG(d9)+')':'');
   if(!confirm(msg)) return;
-  var ts=Date.now(), sana=today(), soat=nowSoat();
+  var ts=Date.now(), soat=nowSoat();
   function tuzat(chontak, delta){
     if(!delta) return;
     data.kassa.tuzatishlar.push({ts:ts, sana:sana, soat:soat, chontak:chontak, delta:delta, izoh:'Z tafovut'});
