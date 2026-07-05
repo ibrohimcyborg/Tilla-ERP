@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v24: lenta kun ichida yangi tepada; zavod ERP snapshot'ida kirim manbalari anonim (Kirim/Lom kirim — kim to'lagani ko'rinmaydi) -->
+<!-- v25: zavod ERP snapshot'ida KIRIMLAR umuman yo'q — faqat qoldiq, snab amallari, chiqimlar va lom topshirishlar; kim nimadan pul kelgani Tilla'dan tashqariga chiqmaydi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -10921,13 +10921,12 @@ function kassaSnapshotObj(vaqt){
     erkin: Math.round((o.naqd-band)*100)/100, band: band,
     bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
     zakazlar: ochiqZ,
-    harakatlar: kassaHarakatlar().slice(-20).map(function(r){
-      var tav = r.tavsif;
-      // snabjenetsga kirim manbasi ko'rsatilmaydi (kim, qancha to'lagani — maxfiy)
-      if(r.manba==='avto') tav = 'Kirim (sotuv)';
-      else if(r.manba==='lom' && r.dN>=0 && (r.dL>0||r.dT>0)) tav = 'Lom kirim';
-      return {sana:r.sana, soat:r.soat, tavsif:tav, manba:r.manba, dN:r.dN, dL:r.dL, dT:r.dT};
-    }),
+    harakatlar: kassaHarakatlar().filter(function(r){
+      // snabjenetsga KIRIMLAR umuman yuborilmaydi — faqat chiqimlar va uning o'z amallari
+      if(r.manba==='snab' || r.manba==='chiqim' || r.manba==='qolda') return true;
+      if(r.manba==='lom' && (r.dL<0 || r.dT<0)) return true; // lom topshirish/sotish (chiqim)
+      return false;
+    }).slice(-20).map(function(r){ return {sana:r.sana, soat:r.soat, tavsif:r.tavsif, manba:r.manba, dN:r.dN, dL:r.dL, dT:r.dT}; }),
     z: zx ? {sana:zx.sana, soat:zx.soat||'', naqd:zx.naqd} : null,
     zavodlar: zavodQ
   };
