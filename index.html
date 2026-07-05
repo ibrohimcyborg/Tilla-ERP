@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v23: KASSA HARAKATLARI LENTASI — davr (kun/hafta/oy/yil) + filtr + yugurma qoldiq + kun ajratgichlar + davr xulosasi; QO'LDA kirim/chiqim (kategoriyali); snapshot'da oxirgi 20 harakat -->
+<!-- v24: lenta kun ichida yangi tepada; zavod ERP snapshot'ida kirim manbalari anonim (Kirim/Lom kirim — kim to'lagani ko'rinmaydi) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -2824,7 +2824,7 @@ function kassaLentaHTML(){
       rows.forEach(function(r){ if(r.dN>0)kKir+=r.dN; else kChiq+=-r.dN; });
       h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:6px 4px 3px;">';
       h += '<span style="font-weight:600;">'+sana+'</span><span><span style="color:var(--green);">+$'+fmtD(Math.round(kKir*100)/100)+'</span> / <span style="color:var(--red);">−$'+fmtD(Math.round(kChiq*100)/100)+'</span></span></div>';
-      rows.forEach(function(r){
+      rows.slice().reverse().forEach(function(r){
         var rangMap={avto:'var(--blue)',snab:'var(--red)',lom:'var(--blue)',qolda:'var(--muted)',chiqim:'var(--red)',Z:'var(--gold)'};
         var ozg='';
         if(r.dN) ozg += '<span style="color:'+(r.dN>0?'var(--green)':'var(--red)')+';font-weight:500;">'+(r.dN>0?'+':'−')+'$'+fmtD(Math.abs(r.dN))+'</span>';
@@ -10921,7 +10921,13 @@ function kassaSnapshotObj(vaqt){
     erkin: Math.round((o.naqd-band)*100)/100, band: band,
     bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
     zakazlar: ochiqZ,
-    harakatlar: kassaHarakatlar().slice(-20).map(function(r){ return {sana:r.sana, soat:r.soat, tavsif:r.tavsif, manba:r.manba, dN:r.dN, dL:r.dL, dT:r.dT}; }),
+    harakatlar: kassaHarakatlar().slice(-20).map(function(r){
+      var tav = r.tavsif;
+      // snabjenetsga kirim manbasi ko'rsatilmaydi (kim, qancha to'lagani — maxfiy)
+      if(r.manba==='avto') tav = 'Kirim (sotuv)';
+      else if(r.manba==='lom' && r.dN>=0 && (r.dL>0||r.dT>0)) tav = 'Lom kirim';
+      return {sana:r.sana, soat:r.soat, tavsif:tav, manba:r.manba, dN:r.dN, dL:r.dL, dT:r.dT};
+    }),
     z: zx ? {sana:zx.sana, soat:zx.soat||'', naqd:zx.naqd} : null,
     zavodlar: zavodQ
   };
