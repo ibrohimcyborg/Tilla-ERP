@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v30: KASSA HARAKATLARI yig'iladigan bo'ldi — sarlavha bosilganda ochiladi/yopiladi (standart yopiq) -->
+<!-- v32: kassa panel tugmalari 1x4 katta qator (torda 2x2) cho'ntaklar tagida; + Sotib olish tugmasi va sodda modali (lom moduliga kocha kirim, erkin pul tekshiruvi) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -61,6 +61,19 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;}
 .modal-close{background:var(--surf2);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:9px;font-size:15px;line-height:1;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
 .modal-close:active{background:var(--border);}
+/* chiroyli dropdown — sistema select o'rniga */
+.cdd{position:relative;display:inline-block;}
+.cdd-btn{display:flex;align-items:center;gap:6px;background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:11px;font-family:'Outfit',sans-serif;cursor:pointer;white-space:nowrap;}
+.cdd-btn:after{content:'▾';color:var(--muted);font-size:10px;}
+.cdd-menu{position:absolute;top:calc(100% + 4px);right:0;min-width:150px;background:var(--surf);border:1px solid var(--border);border-radius:11px;box-shadow:0 10px 28px rgba(0,0,0,.35);z-index:220;overflow:hidden;display:none;padding:4px;}
+.cdd.open .cdd-menu{display:block;}
+.cdd-item{padding:8px 12px;font-size:12px;color:var(--text);cursor:pointer;border-radius:8px;}
+.cdd-item:hover{background:var(--surf2);}
+.cdd-item.act{background:var(--gold);color:var(--on-gold);font-weight:600;}
+/* kassa katta tugmalar: 1x4, torda 2x2 */
+.kassa-btnlar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.kassa-btn{border-radius:12px;padding:13px 4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;text-align:center;}
+@media(max-width:560px){.kassa-btnlar{grid-template-columns:1fr 1fr;}}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:2;}
 .empty-icon{font-size:36px;opacity:.2;margin-bottom:8px;}
 .zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
@@ -371,7 +384,7 @@ body.rol-zavod #main-klient { display: none !important; }
         <input type="text" id="klient-search-val" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Klient qidirish..." oninput="renderKlientlar()" style="width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">
         <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:var(--muted);">🔍</span>
       </div>
-      <div style="margin-bottom:8px;"><select id="klient-sort-pc" onchange="klientSortSet(this.value)" style="width:100%;font-size:11px;padding:4px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surf2);color:var(--text);padding:7px 9px;"><option value="savdo">Savdo: kop</option><option value="gkop">Gramm: kop→kam</option><option value="gkam">Gramm: kam→kop</option><option value="az">Ism: A→Z</option><option value="za">Ism: Z→A</option></select></div>
+      <div style="margin-bottom:8px;" id="klient-sort-pc-cont"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:7px;">
         <button class="pc-kbtn berish" onclick="openKlientBerish()">
           <span class="pc-kbtn-ico" style="color:var(--red);">↑</span>
@@ -416,7 +429,7 @@ body.rol-zavod #main-klient { display: none !important; }
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:8px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Klientlar</div><select id="klient-sort" onchange="klientSortSet(this.value)" style="font-size:11px;padding:4px 7px;border-radius:7px;border:1px solid var(--border);background:var(--surf2);color:var(--text);"><option value="savdo">Savdo: kop</option><option value="gkop">Gramm: kop→kam</option><option value="gkam">Gramm: kam→kop</option><option value="az">Ism: A→Z</option><option value="za">Ism: Z→A</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Klientlar</div><span id="klient-sort-cont"></span></div>
         <button class="action-btn" onclick="openKlientModal()">+ Klient</button>
       </div>
     </div>
@@ -879,6 +892,26 @@ body.rol-zavod #main-klient { display: none !important; }
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-snab-tahrir')">Bekor</button>
       <button class="btn gold" onclick="snabTahrirSaqla()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HAQIQIY KASSA: sotib olish (lom/999) modali ===== -->
+<div class="modal-overlay" id="modal-kassa-olish" onclick="if(event.target===this)closeModal('modal-kassa-olish')">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Sotib olish — lom / 999</span><button class="modal-close" onclick="closeModal('modal-kassa-olish')">×</button></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="ko-erkin"></div>
+    <div class="field"><label>Proba</label><select id="ko-proba" onchange="koPreview()">
+      <option value="999">999</option><option value="583">583</option><option value="585">585</option><option value="750">750</option><option value="375">375</option>
+    </select></div>
+    <div class="field"><label>Gramm</label><input type="number" id="ko-gramm" inputmode="decimal" oninput="koPreview()" placeholder="0"></div>
+    <div class="field"><label>Narx $/g</label><input type="number" id="ko-narx" inputmode="decimal" oninput="koPreview()" placeholder="0"></div>
+    <div class="field"><label>Izoh (ixtiyoriy)</label><input type="text" id="ko-izoh" placeholder="Kimdan..." maxlength="60" autocomplete="off"></div>
+    <div id="ko-preview" style="background:var(--surf2);border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--muted);">Gramm va narx kiriting</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kassa-olish')">Bekor</button>
+      <button class="btn gold" onclick="kassaOlishSaqla()">Sotib olish</button>
     </div>
   </div>
 </div>
@@ -2929,6 +2962,73 @@ function snabTahrirSaqla(){
   if(typeof renderKassa==='function') renderKassa();
   renderKassaCard();
 }
+// ---- CHIROYLI DROPDOWN (sistema select o'rniga) ----
+function cddHTML(id, options, current, fnName){
+  var cur = options.find(function(o){return o.v===current;}) || options[0];
+  var h='<div class="cdd" id="cdd-'+id+'">';
+  h+='<button type="button" class="cdd-btn" onclick="event.stopPropagation();cddToggle(\''+id+'\')">'+cur.l+'</button>';
+  h+='<div class="cdd-menu">';
+  options.forEach(function(o){
+    h+='<div class="cdd-item'+(o.v===current?' act':'')+'" onclick="event.stopPropagation();cddPick(\''+id+'\',\''+o.v+'\',\''+fnName+'\')">'+o.l+'</div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+function cddToggle(id){
+  var el=document.getElementById('cdd-'+id); if(!el) return;
+  var och=el.classList.contains('open');
+  document.querySelectorAll('.cdd.open').forEach(function(x){x.classList.remove('open');});
+  if(!och) el.classList.add('open');
+}
+function cddPick(id, val, fnName){
+  document.querySelectorAll('.cdd.open').forEach(function(x){x.classList.remove('open');});
+  if(typeof window[fnName]==='function') window[fnName](val);
+}
+document.addEventListener('click', function(){ document.querySelectorAll('.cdd.open').forEach(function(x){x.classList.remove('open');}); });
+// ---- SOTIB OLISH (lom/999) — kassadan tez olish, lom moduliga kocha kirim ----
+function openKassaOlish(){
+  var o=kassaOqim(), band=kassaMuzlatilgan();
+  var erkin=Math.round((o.naqd-band)*100)/100;
+  document.getElementById('ko-erkin').innerHTML='Erkin pul: <b style="color:var(--green);">$'+fmtD(erkin)+'</b>';
+  document.getElementById('ko-gramm').value='';
+  document.getElementById('ko-narx').value='';
+  document.getElementById('ko-izoh').value='';
+  koPreview();
+  document.getElementById('modal-kassa-olish').classList.add('open');
+}
+function koPreview(){
+  var el=document.getElementById('ko-preview'); if(!el) return;
+  var g=parseNum(document.getElementById('ko-gramm').value);
+  var n=parseNum(document.getElementById('ko-narx').value);
+  var p=document.getElementById('ko-proba').value;
+  if(g<=0||n<=0){ el.innerHTML='<span style="color:var(--muted);">Gramm va narx kiriting</span>'; return; }
+  var s=Math.round(g*n*100)/100;
+  var o=kassaOqim(), band=kassaMuzlatilgan();
+  var erkin=Math.round((o.naqd-band)*100)/100;
+  var h='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">To\'lanadi</span><b style="color:var(--red);">−$'+fmtD(s)+'</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">'+(p==='999'?'999':'Lom')+' cho\'ntagi</span><b style="color:var(--blue);">+'+fmtG(g)+' g'+(p!=='999'?' (ekv '+fmtG(kassaEkv(p,g))+'g)':'')+'</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Erkin qoladi</span><b style="color:var(--green);">$'+fmtD(Math.round((erkin-s)*100)/100)+'</b></div>';
+  if(s>erkin+0.001) h+='<div style="color:var(--red);font-size:11px;margin-top:4px;">⚠ Erkin puldan oshdi!</div>';
+  el.innerHTML=h;
+}
+function kassaOlishSaqla(){
+  var g=parseNum(document.getElementById('ko-gramm').value);
+  var n=parseNum(document.getElementById('ko-narx').value);
+  var p=document.getElementById('ko-proba').value;
+  var iz=document.getElementById('ko-izoh').value.trim();
+  if(g<=0||n<=0){ alert('Gramm va narx kiriting!'); return; }
+  var s=Math.round(g*n*100)/100;
+  var o=kassaOqim(), band=kassaMuzlatilgan();
+  var erkin=Math.round((o.naqd-band)*100)/100;
+  if(s>erkin+0.001){ alert('Erkin puldan oshdi! Erkin: $'+fmtD(erkin)); return; }
+  if(!confirm('SOTIB OLINSINMI?\n\n'+p+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(s)+(iz?'\n'+iz:''))) return;
+  if(!data.lomlar) data.lomlar=[];
+  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:today(), sana_ts:Date.now(), soat:nowSoat(), izoh:iz});
+  save('Sotib olish (kassa) | '+p+' '+fmtG(g)+'g | $'+fmtD(s));
+  closeModal('modal-kassa-olish');
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
 // ---- QO'LDA KIRIM/CHIQIM ----
 var _kqTip = 'chiqim';
 function kqTip(t){
@@ -3059,11 +3159,11 @@ function kassaLentaHTML(){
     var act = _khDavr===d;
     h += '<button onclick="khDavrTanla(\''+d+'\')" style="border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;'+(act?'background:var(--gold);border:none;color:var(--on-gold);':'background:var(--surf2);border:1px solid var(--border);color:var(--muted);')+'">'+(d==='kun'?'Kun':d==='hafta'?'Hafta':d==='oy'?'Oy':'Yil')+'</button>';
   });
-  h += '<select onchange="khFiltrTanla(this.value)" style="border-radius:7px;padding:4px 6px;font-size:11px;background:var(--surf2);border:1px solid var(--border);color:var(--text);">';
-  [['hammasi','hammasi'],['avto','sotuvlar'],['snab','snabjenets'],['lom','lom'],['qolda','qo\'lda'],['chiqim','zavod to\'lov'],['Z','Z tafovut']].forEach(function(f){
-    h += '<option value="'+f[0]+'"'+(_khFiltr===f[0]?' selected':'')+'>'+f[1]+'</option>';
-  });
-  h += '</select></div></div>';
+  h += cddHTML('kh-filtr', [
+    {v:'hammasi',l:'hammasi'},{v:'avto',l:'sotuvlar'},{v:'snab',l:'snabjenets'},
+    {v:'lom',l:'lom'},{v:'qolda',l:'qo\'lda'},{v:'chiqim',l:'zavod to\'lov'},{v:'Z',l:'Z tafovut'}
+  ], _khFiltr, 'khFiltrTanla');
+  h += '</div></div>';
   h += '<div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 9px;background:var(--surf2);border-radius:8px;margin-bottom:6px;">';
   h += '<span style="color:var(--muted);">Davr boshi ('+start+' dan oldin)</span>';
   h += '<span style="color:var(--gold);font-family:Roboto,sans-serif;">$'+fmtD(kassaOqim(kunOldin(start)).naqd)+'</span></div>';
@@ -3184,13 +3284,7 @@ function kassaQoldiqPanelHTML(){
   var erkin = Math.round((o.naqd - band)*100)/100;
   var ochiqZ = ((data.kassa&&data.kassa.zakazlar)||[]).filter(function(z){return z.holat==='ochiq';});
   var h = '<div style="background:var(--surf);border:1px solid var(--gold-bd);border-top:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">';
-  h += '<span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA QOLDIQ — HAQIQIY</span>';
-  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
-  h += '<button onclick="openKassaQolda()" style="background:var(--surf2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">± Qo\'lda</button>';
-  h += '<button onclick="openKassaZakaz()" style="background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">+ Zakaz</button>';
-  h += '<button onclick="openKassaZ()" style="background:var(--gold);border:none;color:var(--on-gold);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">✓ Kunni yopish (Z)</button>';
-  h += '</div></div>';
+  h += '<div style="margin-bottom:8px;"><span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA QOLDIQ — HAQIQIY</span></div>';
   // muddat banneri: 1 soat qolgan yoki o'tgan ochiq zakazlar
   ochiqZ.forEach(function(z){
     var m = kassaZakazMuddatTxt(z);
@@ -3203,6 +3297,12 @@ function kassaQoldiqPanelHTML(){
   h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub);
   h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
   h += cho('999',fmtG(o.toza)+' g','blue');
+  h += '</div>';
+  h += '<div class="kassa-btnlar">';
+  h += '<button onclick="openKassaQolda()" class="kassa-btn" style="background:var(--surf2);border:1.5px solid var(--border);color:var(--text);">± Qo\'lda</button>';
+  h += '<button onclick="openKassaOlish()" class="kassa-btn" style="background:var(--green-bg);border:1.5px solid var(--green-bd);color:var(--green);">+ Sotib olish</button>';
+  h += '<button onclick="openKassaZakaz()" class="kassa-btn" style="background:var(--blue-bg);border:1.5px solid var(--blue-bd);color:var(--blue);">+ Zakaz</button>';
+  h += '<button onclick="openKassaZ()" class="kassa-btn" style="background:var(--gold);border:none;color:var(--on-gold);">✓ Kunni yopish</button>';
   h += '</div>';
   // ochiq zakazlar ro'yxati
   if(ochiqZ.length){
@@ -5522,8 +5622,16 @@ function syncKlientSearch(val) {
 }
 
 var _klSortMode='savdo';
-function klientSortSet(v){_klSortMode=v;var a=document.getElementById('klient-sort'),b=document.getElementById('klient-sort-pc');if(a)a.value=v;if(b)b.value=v;renderKlientlar();}
+var KL_SORT_OPTS=[{v:'savdo',l:'Savdo: ko\'p'},{v:'gkop',l:'Gramm: ko\'p→kam'},{v:'gkam',l:'Gramm: kam→ko\'p'},{v:'az',l:'Ism: A→Z'},{v:'za',l:'Ism: Z→A'}];
+function klientSortCddChiz(){
+  var a=document.getElementById('klient-sort-cont');
+  if(a) a.innerHTML=cddHTML('kl-sort', KL_SORT_OPTS, _klSortMode, 'klientSortSet');
+  var b=document.getElementById('klient-sort-pc-cont');
+  if(b) b.innerHTML=cddHTML('kl-sort-pc', KL_SORT_OPTS, _klSortMode, 'klientSortSet');
+}
+function klientSortSet(v){_klSortMode=v;klientSortCddChiz();renderKlientlar();}
 function renderKlientlar() {
+  klientSortCddChiz();
   var topList=document.getElementById('klient-top-list');
   var qizilList=document.getElementById('klient-qizil-list');
   if(!topList) return;
