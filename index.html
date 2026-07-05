@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v20: SNABJENETS AMALLARI — zavod ERPdan berish/olish importi (zavod_amallar hujjati, id dedupe), kassa cho'ntaklariga avtomatik ta'sir, Kassa tabda snab ro'yxati, snapshot'da kurs583+importedIds -->
+<!-- v21: TEST REJIMI — test/test7777 bilan kirilganda to'liq alohida sandbox baza (TEST- prefiks), rejim almashganda cloud sessiyasi uziladi, qizil TEST banner -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -1495,6 +1495,32 @@ body.rol-zavod #main-klient { display: none !important; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+// ═══════════ TEST REJIMI (sandbox) ═══════════
+// 'test' logini bilan kirilganda BARCHA localStorage kalitlar TEST- prefiks bilan
+// alohida yashaydi — haqiqiy bazaga bir bayt ham tegilmaydi. Cloud sessiyasi ham
+// rejim almashganda majburan uziladi (test@ hisobiga alohida kiriladi).
+var _rawLS = {
+  get: Storage.prototype.getItem.bind(localStorage),
+  set: Storage.prototype.setItem.bind(localStorage),
+  rem: Storage.prototype.removeItem.bind(localStorage)
+};
+var TEST_MODE = (function(){ try { return _rawLS.get('tilla-test-mode')==='1'; } catch(e){ return false; } })();
+if (TEST_MODE) {
+  (function(){
+    function tk(k){ return (typeof k==='string' && k!=='tilla-test-mode' && k!=='tilla-fb-signout') ? 'TEST-'+k : k; }
+    var _g=Storage.prototype.getItem, _s=Storage.prototype.setItem, _r=Storage.prototype.removeItem;
+    Storage.prototype.getItem = function(k){ return _g.call(this, tk(k)); };
+    Storage.prototype.setItem = function(k,v){ return _s.call(this, tk(k), v); };
+    Storage.prototype.removeItem = function(k){ return _r.call(this, tk(k)); };
+  })();
+  document.addEventListener('DOMContentLoaded', function(){
+    var b=document.createElement('div');
+    b.textContent='🧪 TEST REJIMI — alohida baza, haqiqiyga tegilmaydi';
+    b.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99999;background:#c84545;color:#fff;font-size:11px;font-weight:600;padding:3px 14px;border-radius:0 0 10px 10px;font-family:sans-serif;';
+    document.body.appendChild(b);
+  });
+}
+// ═══════════ /TEST REJIMI ═══════════
 var _printXatoVaqt = 0;
 function printerYoq(){ return localStorage.getItem('tilla-printer-yoq')==='1'; }
 function printXato(){
@@ -1532,6 +1558,21 @@ function doLogin(){
   var u=document.getElementById('login-user').value.trim();
   var p=document.getElementById('login-pass').value;
   var found=CREDS.find(function(c){return c.login===u&&c.parol===p;});
+  if(found){
+    // TEST rejimga kirish/chiqish — baza va cloud sessiyasi almashadi
+    if(found.login==='test' && !TEST_MODE){
+      _rawLS.set('tilla-test-mode','1');
+      _rawLS.set('TEST-tilla-auth','1'); _rawLS.set('TEST-tilla-rol',found.rol);
+      _rawLS.set('tilla-fb-signout','1');
+      location.reload(); return;
+    }
+    if(found.login!=='test' && TEST_MODE){
+      _rawLS.set('tilla-test-mode','0');
+      _rawLS.set('tilla-auth','1'); _rawLS.set('tilla-rol',found.rol);
+      _rawLS.set('tilla-fb-signout','1');
+      location.reload(); return;
+    }
+  }
   if(found){ setAuth(found.rol); document.getElementById('login-screen').style.display='none'; applyRol(); }
   else { document.getElementById('login-err').textContent='Login yoki parol xato!'; }
 }
@@ -10538,6 +10579,7 @@ function cloudInit(){
     _cloudDb = firebase.firestore();
     firebase.auth().onAuthStateChanged(function(u){
       _cloudUser = u;
+      if (_rawLS.get('tilla-fb-signout')==='1') { _rawLS.rem('tilla-fb-signout'); if(u){ firebase.auth().signOut(); return; } }
       if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); }
       else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} }
     });
