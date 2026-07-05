@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v21: TEST REJIMI — test/test7777 bilan kirilganda to'liq alohida sandbox baza (TEST- prefiks), rejim almashganda cloud sessiyasi uziladi, qizil TEST banner -->
+<!-- v22: TEST cloud qat'iy himoya — meros Firebase sessiyasi TEST rejimga o'tolmaydi (rejim ichida qo'lda kirilgan hisobgina ishlaydi) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -10579,7 +10579,13 @@ function cloudInit(){
     _cloudDb = firebase.firestore();
     firebase.auth().onAuthStateChanged(function(u){
       _cloudUser = u;
-      if (_rawLS.get('tilla-fb-signout')==='1') { _rawLS.rem('tilla-fb-signout'); if(u){ firebase.auth().signOut(); return; } }
+      if (_rawLS.get('tilla-fb-signout')==='1') { _rawLS.rem('tilla-fb-signout'); if(u){ localStorage.removeItem('tilla-cloud-tasdiq'); firebase.auth().signOut(); return; } }
+      // QAT'IY: sessiya shu rejimda qo'lda kirilgan bo'lishi shart — meros sessiya (indexedDB) uziladi.
+      // TEST rejimda tasdiq TEST- kalitida yashaydi, shuning uchun haqiqiy sessiya testga o'tolmaydi va aksincha.
+      if (u && localStorage.getItem('tilla-cloud-tasdiq')!=='1') {
+        if (!TEST_MODE) { localStorage.setItem('tilla-cloud-tasdiq','1'); } // haqiqiy rejimdagi mavjud sessiya — qonuniy
+        else { firebase.auth().signOut(); return; } // TEST rejimga meros sessiya kirolmaydi
+      }
       if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); }
       else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} }
     });
@@ -10609,6 +10615,7 @@ function cloudLogin(){
   if (!em || !pa) { xEl.textContent='Login va parolni kiriting'; xEl.style.display='block'; return; }
   var btn = document.getElementById('cl-kirish-btn'); btn.disabled = true; btn.textContent='...';
   firebase.auth().signInWithEmailAndPassword(em, pa).then(function(){
+    localStorage.setItem('tilla-cloud-tasdiq','1'); // shu rejimda qo'lda kirildi
     btn.disabled=false; btn.textContent='Kirish';
     closeModal('modal-cloud-login');
     cloudQurilma();
@@ -10621,6 +10628,7 @@ function cloudLogin(){
 }
 function cloudLogout(){
   if (!confirm('Cloud hisobdan chiqilsinmi? (Lokal malumot qoladi, sinxron toxtaydi)')) return;
+  localStorage.removeItem('tilla-cloud-tasdiq');
   firebase.auth().signOut();
   closeModal('modal-cloud-info');
 }
