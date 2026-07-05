@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v26: modal-header/modal-close CSS qo'shildi (yo'q ekan) — barcha modallarda yopish tugmasi to'g'ri joylashadi, ✕ o'rniga × -->
+<!-- v27: snab amallarini TAHRIRLASH (✎, asl qiymatlar saqlanadi) va O'CHIRISH (×, holat=bekor — pul/lom kassaga avtomatik qaytadi); snapshot'da bekorIds -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -856,6 +856,32 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <!-- MODALS -->
+<!-- ===== HAQIQIY KASSA: snab amalini tahrirlash modali ===== -->
+<div class="modal-overlay" id="modal-snab-tahrir" onclick="if(event.target===this)closeModal('modal-snab-tahrir')">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;" id="st-title">Snab amalini tahrirlash</span><button class="modal-close" onclick="closeModal('modal-snab-tahrir')">×</button></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;" id="st-info"></div>
+    <div id="st-berish-fields">
+      <div class="field"><label>Pul $</label><input type="number" id="st-pul" inputmode="decimal"></div>
+      <div class="field"><label>Lom 583 (gramm)</label><input type="number" id="st-lom" inputmode="decimal"></div>
+      <div class="field"><label>999 (gramm)</label><input type="number" id="st-toza" inputmode="decimal"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field"><label>Kurs 583</label><input type="number" id="st-k583" inputmode="decimal" oninput="stKurs(583)"></div>
+        <div class="field"><label>Kurs 999</label><input type="number" id="st-k999" inputmode="decimal" oninput="stKurs(999)"></div>
+      </div>
+    </div>
+    <div id="st-olish-fields" style="display:none;">
+      <div class="field"><label>Gramm</label><input type="number" id="st-gramm" inputmode="decimal"></div>
+      <div class="field"><label>Narx $/g</label><input type="number" id="st-narx" inputmode="decimal"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-snab-tahrir')">Bekor</button>
+      <button class="btn gold" onclick="snabTahrirSaqla()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== HAQIQIY KASSA: qo'lda kirim/chiqim modali ===== -->
 <div class="modal-overlay" id="modal-kassa-qolda" onclick="if(event.target===this)closeModal('modal-kassa-qolda')">
   <div class="modal" style="max-width:440px;">
@@ -2580,7 +2606,7 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
   });
   // 3.5) Snabjenets amallari (zavod ERPdan import qilingan)
   ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
-    if(!ichida(r.sana)) return;
+    if(!ichida(r.sana) || r.holat==='bekor') return;
     if(r.tip==='berish'){
       var p=parseNum(r.pul||0);
       if(p>0){ o.naqd -= p; if(r.sana===t) o.bugunChiqim += p; }
@@ -2683,6 +2709,71 @@ function kassaZSaqla(){
   renderKassaCard();
   alert('✓ Kun yopildi — Z muhrlandi.\nErtaga shu qoldiq boshlang\'ich bo\'ladi.');
 }
+// ---- SNAB AMALINI TAHRIRLASH / O'CHIRISH ----
+var _stId = null;
+function snabAmalTop(id){ return ((data.kassa&&data.kassa.snabAmallar)||[]).find(function(r){return r.id===id;}); }
+function snabAmalOchir(id){
+  var r = snabAmalTop(id); if(!r || r.holat==='bekor') return;
+  var tavsif = r.tip==='berish'
+    ? (r.zavodNom||'')+' · $'+fmtD(r.pul||0)+(parseNum(r.lomG)>0?' + '+fmtG(r.lomG)+'g lom':'')+(parseNum(r.tozaG)>0?' + '+fmtG(r.tozaG)+'g 999':'')
+    : r.proba+' · '+fmtG(r.gramm)+'g @ '+r.narx+' = $'+fmtD(r.summa);
+  if(!confirm('O\'CHIRILSINMI?\n\n'+tavsif+'\n\nPul/lom kassaga QAYTADI. Yozuv tarixda "bekor" bo\'lib qoladi.')) return;
+  r.holat='bekor'; r.bekorTs=Date.now();
+  save('Snab amal bekor | '+(r.zavodNom||r.proba||''));
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
+function openSnabTahrir(id){
+  var r = snabAmalTop(id); if(!r || r.holat==='bekor') return;
+  _stId = id;
+  document.getElementById('st-info').textContent = (r.tip==='berish'?(r.zavodNom||'')+' · berish':r.proba+' · sotib olish')+' · '+r.sana+' '+(r.soat||'');
+  var bf=document.getElementById('st-berish-fields'), of=document.getElementById('st-olish-fields');
+  if(r.tip==='berish'){
+    bf.style.display='block'; of.style.display='none';
+    document.getElementById('st-pul').value = parseNum(r.pul)||'';
+    document.getElementById('st-lom').value = parseNum(r.lomG)||'';
+    document.getElementById('st-toza').value = parseNum(r.tozaG)||'';
+    document.getElementById('st-k583').value = r.kurs583||'';
+    document.getElementById('st-k999').value = r.kurs999||'';
+  } else {
+    bf.style.display='none'; of.style.display='block';
+    document.getElementById('st-gramm').value = parseNum(r.gramm)||'';
+    document.getElementById('st-narx').value = parseNum(r.narx)||'';
+  }
+  document.getElementById('modal-snab-tahrir').classList.add('open');
+}
+function stKurs(qaysi){
+  var e5=document.getElementById('st-k583'), e9=document.getElementById('st-k999');
+  if(qaysi===583){ var v=parseNum(e5.value); e9.value = v>0?Math.round(v*1.7*100)/100:''; }
+  else { var v9=parseNum(e9.value); e5.value = v9>0?Math.round(v9/1.7*100)/100:''; }
+}
+function snabTahrirSaqla(){
+  var r = snabAmalTop(_stId); if(!r) return;
+  if(!r.asl) r.asl = JSON.parse(JSON.stringify({pul:r.pul,lomG:r.lomG,tozaG:r.tozaG,kurs583:r.kurs583,kurs999:r.kurs999,gramm:r.gramm,narx:r.narx,summa:r.summa})); // asl qiymatlar saqlanadi
+  if(r.tip==='berish'){
+    var p=parseNum(document.getElementById('st-pul').value);
+    var l=parseNum(document.getElementById('st-lom').value);
+    var t9=parseNum(document.getElementById('st-toza').value);
+    var k5=parseNum(document.getElementById('st-k583').value);
+    var k9=parseNum(document.getElementById('st-k999').value);
+    if(p<=0 && l<=0 && t9<=0){ alert('Hech narsa qolmadi — o\'chirish uchun × tugmasini ishlating.'); return; }
+    if(k5<=0){ alert('Kurs kiriting'); return; }
+    if(!confirm('SAQLANSINMI?\nPul $'+fmtD(p)+' · lom '+fmtG(l)+'g · 999 '+fmtG(t9)+'g · kurs '+k5+'/'+k9)) return;
+    r.pul=Math.round(p*100)/100; r.lomG=roundG(l); r.tozaG=roundG(t9); r.kurs583=k5; r.kurs999=k9;
+    r.qiymat=Math.round((p + l*k5 + t9*k9)*100)/100;
+  } else {
+    var g=parseNum(document.getElementById('st-gramm').value);
+    var n=parseNum(document.getElementById('st-narx').value);
+    if(g<=0||n<=0){ alert('Gramm va narx kiriting'); return; }
+    if(!confirm('SAQLANSINMI?\n'+r.proba+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(Math.round(g*n*100)/100))) return;
+    r.gramm=roundG(g); r.narx=n; r.summa=Math.round(g*n*100)/100;
+  }
+  r.tahrirTs=Date.now();
+  save('Snab amal tahrirlandi | '+(r.zavodNom||r.proba||''));
+  closeModal('modal-snab-tahrir');
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
 // ---- QO'LDA KIRIM/CHIQIM ----
 var _kqTip = 'chiqim';
 function kqTip(t){
@@ -2756,6 +2847,7 @@ function kassaHarakatlar(){
   });});});
   // snabjenets amallari
   ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
+    if(r.holat==='bekor') return;
     if(r.tip==='berish'){
       var q=[]; if(parseNum(r.pul)>0)q.push('pul −$'+fmtD(r.pul)); if(parseNum(r.lomG)>0)q.push('lom −'+fmtG(r.lomG)+'g'); if(parseNum(r.tozaG)>0)q.push('999 −'+fmtG(r.tozaG)+'g');
       qo(r.sana,r.soat,r.ts,(r.zavodNom||'Zavod')+' · berish — '+q.join(' · '),'snab',-parseNum(r.pul||0),-parseNum(r.lomG||0),-parseNum(r.tozaG||0),'→ zavodga · kurs '+r.kurs583+'/'+r.kurs999);
@@ -2967,7 +3059,7 @@ function kassaQoldiqPanelHTML(){
     });
   }
   // Snabjenets amallari (bugun, oxirgi 5 ta)
-  var snabBugun = ((data.kassa&&data.kassa.snabAmallar)||[]).filter(function(r){return r.sana===today();}).slice(-5);
+  var snabBugun = ((data.kassa&&data.kassa.snabAmallar)||[]).filter(function(r){return r.sana===today() && r.holat!=='bekor';}).slice(-5);
   if(snabBugun.length){
     h += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 5px;">Snabjenets amallari · bugun</div>';
     snabBugun.forEach(function(r){
@@ -2982,9 +3074,12 @@ function kassaQoldiqPanelHTML(){
         tavsif = r.proba+' sotib olish — '+fmtG(r.gramm)+'g @ '+r.narx+' · naqd <b style="color:var(--red);">−$'+fmtD(r.summa)+'</b>';
       }
       h += '<div style="background:var(--surf2);border-radius:8px;padding:6px 9px;margin-bottom:5px;display:flex;justify-content:space-between;gap:8px;align-items:center;">';
-      h += '<span style="font-size:11px;color:var(--text);">'+tavsif+' <span style="background:var(--red-bg);color:var(--red);font-size:10px;padding:1px 6px;border-radius:5px;">snab</span></span>';
-      h += '<span style="font-size:10px;color:var(--muted);white-space:nowrap;">'+(r.soat||'')+'</span>';
-      h += '</div>';
+      h += '<span style="font-size:11px;color:var(--text);">'+tavsif+' <span style="background:var(--red-bg);color:var(--red);font-size:10px;padding:1px 6px;border-radius:5px;">snab</span>'+(r.tahrirTs?' <span style="color:var(--muted);font-size:9px;">(tahrirlangan)</span>':'')+'</span>';
+      h += '<span style="display:flex;gap:5px;align-items:center;white-space:nowrap;">';
+      h += '<span style="font-size:10px;color:var(--muted);">'+(r.soat||'')+'</span>';
+      h += '<button onclick="openSnabTahrir(\''+r.id+'\')" style="background:var(--surf);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;font-family:inherit;">✎</button>';
+      h += '<button onclick="snabAmalOchir(\''+r.id+'\')" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;font-family:inherit;">×</button>';
+      h += '</span></div>';
     });
   }
   h += '<div style="display:flex;justify-content:space-between;font-size:11px;flex-wrap:wrap;gap:4px;">';
@@ -10920,6 +11015,7 @@ function kassaSnapshotObj(vaqt){
     vaqt: vaqt, sana: today(), soat: nowSoat(),
     kurs583: parseNum(localStorage.getItem('tilla-kurs-bugun')||0),
     importedIds: (data.kassa.zaImportIds||[]).slice(-100),
+    bekorIds: ((data.kassa.snabAmallar||[]).filter(function(r){return r.holat==='bekor';}).map(function(r){return r.id;})).slice(-100),
     naqd: o.naqd, lomEkv: o.lomEkv, toza: o.toza,
     erkin: Math.round((o.naqd-band)*100)/100, band: band,
     bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
