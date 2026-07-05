@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v25: zavod ERP snapshot'ida KIRIMLAR umuman yo'q — faqat qoldiq, snab amallari, chiqimlar va lom topshirishlar; kim nimadan pul kelgani Tilla'dan tashqariga chiqmaydi -->
+<!-- v26: modal-header/modal-close CSS qo'shildi (yo'q ekan) — barcha modallarda yopish tugmasi to'g'ri joylashadi, ✕ o'rniga × -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -58,6 +58,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
 .modal-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:16px;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;}
+.modal-close{background:var(--surf2);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:9px;font-size:15px;line-height:1;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
+.modal-close:active{background:var(--border);}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:2;}
 .empty-icon{font-size:36px;opacity:.2;margin-bottom:8px;}
 .zrow{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
@@ -691,7 +694,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-lom-qabul" onclick="if(event.target===this)closeLomQabul()">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Qabul</span><button class="modal-close" onclick="closeLomQabul()">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Qabul</span><button class="modal-close" onclick="closeLomQabul()">×</button></div>
     <div style="padding:16px;">
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <button id="lq-type-klient" onclick="lqSetType('klient')" style="flex:1;padding:10px;border-radius:10px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);font-size:13px;font-weight:700;cursor:pointer;">Klientdan</button>
@@ -739,7 +742,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-lom-chiqim" onclick="if(event.target===this)closeLomChiqim()">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Chiqim</span><button class="modal-close" onclick="closeLomChiqim()">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Chiqim</span><button class="modal-close" onclick="closeLomChiqim()">×</button></div>
     <div style="padding:16px;">
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <button id="lc-type-zavod" onclick="lcSetType('zavod')" style="flex:1;padding:10px;border-radius:10px;background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);font-size:13px;font-weight:700;cursor:pointer;">Zavodga</button>
@@ -797,7 +800,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-lom-narx" onclick="if(event.target===this)closeLomNarx()">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Narx Arxivi</span><button class="modal-close" onclick="closeLomNarx()">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Lom Narx Arxivi</span><button class="modal-close" onclick="closeLomNarx()">×</button></div>
     <div style="padding:16px;">
       <!-- Davr filterlari -->
       <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;">
@@ -840,7 +843,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-lom-proba" onclick="if(event.target===this)closeLomProbaModal()">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Proba qo'shish</span><button class="modal-close" onclick="closeLomProbaModal()">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Proba qo'shish</span><button class="modal-close" onclick="closeLomProbaModal()">×</button></div>
     <div style="padding:16px;">
       <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Proba raqami</label>
       <input type="number" id="lpm-inp" placeholder="Masalan: 585" autocomplete="off" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surf2);color:var(--text);font-size:18px;font-weight:600;margin-bottom:14px;">
@@ -857,7 +860,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-kassa-qolda" onclick="if(event.target===this)closeModal('modal-kassa-qolda')">
   <div class="modal" style="max-width:440px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Qo'lda kirim / chiqim</span><button class="modal-close" onclick="closeModal('modal-kassa-qolda')">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Qo'lda kirim / chiqim</span><button class="modal-close" onclick="closeModal('modal-kassa-qolda')">×</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
       <button id="kq-tip-kirim" onclick="kqTip('kirim')" style="border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;background:var(--green-bg);border:1.5px solid var(--green);color:var(--green);">+ Kirim</button>
       <button id="kq-tip-chiqim" onclick="kqTip('chiqim')" style="border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;background:var(--surf2);border:1.5px solid var(--border);color:var(--muted);">− Chiqim</button>
@@ -881,7 +884,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-kassa-zakaz" onclick="if(event.target===this)closeModal('modal-kassa-zakaz')">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Zakaz — pul muzlatish</span><button class="modal-close" onclick="closeModal('modal-kassa-zakaz')">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Zakaz — pul muzlatish</span><button class="modal-close" onclick="closeModal('modal-kassa-zakaz')">×</button></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Erkin pul: <b id="kzk-erkin" style="color:var(--green);">$0</b> · Kurs shu daqiqada qulflanadi</div>
     <div class="field"><label>Zavod</label><select id="kzk-zavod"></select></div>
     <div class="field"><label>Summa $</label><input type="number" id="kzk-summa" placeholder="0" inputmode="decimal"></div>
@@ -903,7 +906,7 @@ body.rol-zavod #main-klient { display: none !important; }
 <div class="modal-overlay" id="modal-kassa-z" onclick="if(event.target===this)closeModal('modal-kassa-z')">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Kunni yopish — Z hisob</span><button class="modal-close" onclick="closeModal('modal-kassa-z')">✕</button></div>
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Kunni yopish — Z hisob</span><button class="modal-close" onclick="closeModal('modal-kassa-z')">×</button></div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Sistema hisobini haqiqiy sanash bilan solishtiring. <span id="kz-sana" style="color:var(--text);"></span></div>
     <div class="field"><label>Qaysi kun yopilyapti (davr sanasi)</label><input type="date" id="kz-sana-inp" onchange="kassaZSanaUpd()" style="font-size:16px;"></div>
 
@@ -1885,7 +1888,7 @@ function renderKursGrafik() {
     if(isEd){
       html+='<div style="padding:10px 14px;background:var(--gold-bg);'+bc+'">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-size:11px;color:var(--muted);">'+item.sana+' · '+item.soat+' · tahrir</div>';
-      html+='<button onclick="kursTarixEditCancel()" style="width:26px;height:26px;border-radius:7px;background:var(--surf2);border:0.5px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;">✕</button></div>';
+      html+='<button onclick="kursTarixEditCancel()" style="width:26px;height:26px;border-radius:7px;background:var(--surf2);border:0.5px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;">×</button></div>';
       html+='<div style="display:flex;align-items:center;gap:8px;">';
       html+='<input id="kte-inp" type="number" value="'+item.kurs+'" style="flex:1;background:var(--surf);border:1.5px solid var(--gold);border-radius:8px;padding:8px 10px;color:var(--gold);font-size:15px;font-weight:600;min-width:0;">';
       html+='<button onclick="kursTarixEditSave(\''+item.sana+'\',\''+item.soat+'\')" style="padding:8px 14px;border-radius:8px;background:var(--gold);border:none;color:var(--on-gold);font-size:13px;font-weight:700;cursor:pointer;">✓</button>';
@@ -3309,7 +3312,7 @@ function renderZavod() {
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<div class="tacc-g">' + fmtG(turJami) + ' g</div>'
       + '<button onclick="event.stopPropagation();turNomTahrir('+ti+')" style="background:none;border:0.5px solid var(--border);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✎</button>'
-      + '<button onclick="event.stopPropagation();ochirTur('+ti+')" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">✕</button>'
+      + '<button onclick="event.stopPropagation();ochirTur('+ti+')" style="background:none;border:0.5px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;">×</button>'
       + '<div style="color:var(--muted);font-size:14px;">' + (isOpen?'⌄':'›') + '</div>'
       + '</div>'
       + '</div>'
@@ -3881,7 +3884,7 @@ function kimgaRender() {
     var isActive = sel === nom;
     html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;border:1.5px solid '+(isActive?'var(--gold)':'var(--border)')+';margin-bottom:6px;cursor:pointer;background:var(--surf2);" onclick="kimgaTanla('+i+')">';
     html += '<div style="flex:1;font-size:14px;font-weight:'+(isActive?'600':'400')+';color:var(--text);">'+nom+(isActive?' ✓':'')+'</div>';
-    html += '<button onclick="event.stopPropagation();kimgaOchir('+i+')" style="background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 6px;">✕</button>';
+    html += '<button onclick="event.stopPropagation();kimgaOchir('+i+')" style="background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 6px;">×</button>';
     html += '</div>';
   });
   cont.innerHTML = html;
@@ -10513,7 +10516,7 @@ function lnaRenderList() {
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
       html+='<div><div style="font-size:10px;color:var(--muted);">'+x.sana+' · tahrirlash</div>';
       html+='<div style="font-size:13px;color:var(--muted);text-decoration:line-through;">'+x.narx+' $/g</div></div>';
-      html+='<button onclick="lnaEditCancel()" style="width:28px;height:28px;border-radius:8px;background:var(--surf2);border:0.5px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;">✕</button>';
+      html+='<button onclick="lnaEditCancel()" style="width:28px;height:28px;border-radius:8px;background:var(--surf2);border:0.5px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer;">×</button>';
       html+='</div>';
       html+='<div style="display:flex;align-items:center;gap:8px;">';
       html+='<input id="lna-edit-inp" type="number" value="'+x.narx+'" style="flex:1;background:var(--surf2);border:1.5px solid var(--gold);border-radius:8px;padding:8px 10px;color:var(--gold);font-size:15px;font-weight:600;min-width:0;">';
