@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v27: snab amallarini TAHRIRLASH (✎, asl qiymatlar saqlanadi) va O'CHIRISH (×, holat=bekor — pul/lom kassaga avtomatik qaytadi); snapshot'da bekorIds -->
+<!-- v29: zapros UI Tilla'dan olib tashlandi (u zavod ERP'ga tegishli); import listener endi taqsim holatini (tPul/tLom/tToza) sinxronlaydi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -458,6 +458,7 @@ body.rol-zavod #main-klient { display: none !important; }
       <div><div class="big-stat-label">Klientda</div><div style="font-family:'Roboto',sans-serif;font-size:15px;color:var(--red);font-weight:500;" id="zavod-klientda">0<span style="font-size:11px;color:var(--muted);margin-left:2px;">g</span></div></div>
     </div>
   </div>
+
   <div class="nav-tabs">
     <div class="nav-tab active" id="ztab-turlar" onclick="zTab('turlar')">Turlar</div>
     <div class="nav-tab" id="ztab-hisobot" onclick="zTab('hisobot')">Hisobot</div>
@@ -2709,6 +2710,160 @@ function kassaZSaqla(){
   renderKassaCard();
   alert('✓ Kun yopildi — Z muhrlandi.\nErtaga shu qoldiq boshlang\'ich bo\'ladi.');
 }
+// ---- ZAPROS: zavodga berilgan, hali taqsimlanmagan avanslar ----
+// Har berish yozuvida taqsimlangan qism kuzatiladi: tPul/tLom/tToza. Qoldiq = pul−tPul ...
+function zaprosQoldiq(zavodNom){
+  var p=0,l=0,t9=0, recs=[];
+  ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
+    if(r.tip!=='berish' || r.holat==='bekor' || r.zavodNom!==zavodNom) return;
+    var rp=Math.max(0, parseNum(r.pul)-parseNum(r.tPul||0));
+    var rl=Math.max(0, parseNum(r.lomG)-parseNum(r.tLom||0));
+    var rt=Math.max(0, parseNum(r.tozaG)-parseNum(r.tToza||0));
+    if(rp>0.001||rl>0.001||rt>0.001) recs.push(r);
+    p+=rp; l+=rl; t9+=rt;
+  });
+  return {pul:Math.round(p*100)/100, lom:roundG(l), toza:roundG(t9), recs:recs};
+}
+// pulni FIFO iste'mol qilib grammga aylantirish (har yozuv O'Z kursida)
+function zaprosPulGramm(recs, pulX, mutate){
+  var qoldi=pulX, g=0;
+  recs.forEach(function(r){
+    if(qoldi<=0.001) return;
+    var bor=Math.max(0, parseNum(r.pul)-parseNum(r.tPul||0));
+    if(bor<=0.001) return;
+    var ol=Math.min(bor, qoldi);
+    var k=parseNum(r.kurs583)||1;
+    g += ol/k;
+    if(mutate) r.tPul=Math.round(((parseNum(r.tPul||0))+ol)*100)/100;
+    qoldi-=ol;
+  });
+  return roundG(g);
+}
+function zaprosChontakIstemol(recs, maydon, tMaydon, miqdor, mutate){
+  var qoldi=miqdor;
+  recs.forEach(function(r){
+    if(qoldi<=0.001) return;
+    var bor=Math.max(0, parseNum(r[maydon])-parseNum(r[tMaydon]||0));
+    if(bor<=0.001) return;
+    var ol=Math.min(bor, qoldi);
+    if(mutate) r[tMaydon]=roundG((parseNum(r[tMaydon]||0))+ol);
+    qoldi-=ol;
+  });
+}
+function zaprosPanelHTML(zavodNom, joy){
+  var zp = zaprosQoldiq(zavodNom);
+  if(zp.pul<=0.001 && zp.lom<=0.001 && zp.toza<=0.001) return '';
+  var qism=[];
+  if(zp.pul>0.001) qism.push('<b style="color:var(--gold);">$'+fmtD(zp.pul)+'</b>');
+  if(zp.lom>0.001) qism.push('<b style="color:var(--gold);">'+fmtG(zp.lom)+'g lom</b>');
+  if(zp.toza>0.001) qism.push('<b style="color:var(--blue);">'+fmtG(zp.toza)+'g 999</b>');
+  var h='<div style="background:var(--surf);border:1.5px dashed var(--gold);border-radius:12px;padding:10px 12px;margin:'+(joy==='kirim'?'0 0 12px':'10px 0')+';">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
+  h+='<span style="font-size:12px;color:var(--gold);font-weight:600;">⏳ Zaprosda: '+qism.join(' + ')+'</span>';
+  h+='<button onclick="openZaprosTaqsim(\''+zavodNom.replace(/'/g,"\\'")+'\')" style="background:var(--gold);border:none;color:var(--on-gold);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">Taqsimlash ▾</button>';
+  h+='</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">Qaysi molga kirishi hali kelishilmagan — taqsimlansa qarz yopiladi</div></div>';
+  return h;
+}
+var _ztZavodNom=null;
+function openZaprosTaqsim(zavodNom){
+  _ztZavodNom=zavodNom;
+  var z=(data.zavodlar||[]).find(function(x){return x.nom===zavodNom;});
+  var zp=zaprosQoldiq(zavodNom);
+  if(!z || (!zp.pul&&!zp.lom&&!zp.toza)){ alert('Zapros topilmadi'); return; }
+  var host=document.getElementById('zt-modal-host');
+  if(!host){ host=document.createElement('div'); host.id='zt-modal-host'; document.body.appendChild(host); }
+  var qism=[];
+  if(zp.pul>0.001) qism.push('<b style="color:var(--gold);">$'+fmtD(zp.pul)+'</b>');
+  if(zp.lom>0.001) qism.push('<b style="color:var(--gold);">'+fmtG(zp.lom)+'g lom</b>');
+  if(zp.toza>0.001) qism.push('<b style="color:var(--blue);">'+fmtG(zp.toza)+'g 999</b>');
+  var inp='width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);box-sizing:border-box;';
+  var h='<div class="modal-overlay open" onclick="if(event.target===this)ztYop()" style="z-index:250;">';
+  h+='<div class="modal" style="max-width:480px;">';
+  h+='<div class="modal-handle"></div>';
+  h+='<div class="modal-header"><span style="font-weight:700;font-size:16px;">Zaprosni taqsimlash — '+zavodNom+'</span><button class="modal-close" onclick="ztYop()">×</button></div>';
+  h+='<div style="background:var(--surf2);border:1.5px dashed var(--gold);border-radius:10px;padding:8px 11px;margin-bottom:10px;font-size:12px;">⏳ Zaprosda: '+qism.join(' + ')+'</div>';
+  h+='<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Qaysi turga qancha — birato\'la yopiladi</div>';
+  z.turlar.forEach(function(t,ti){
+    h+='<div style="background:var(--surf2);border-radius:10px;padding:9px 11px;margin-bottom:6px;">';
+    h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">';
+    h+='<span style="font-weight:600;">'+t.nom+' <span style="color:var(--red);font-size:11px;">qarz '+fmtG(t.ostatka)+'g</span></span>';
+    h+='<span style="color:var(--green);font-size:12px;font-weight:600;" id="zt-yop-'+ti+'"></span></div>';
+    h+='<div style="display:grid;grid-template-columns:'+((zp.pul>0.001?1:0)+(zp.lom>0.001?1:0)+(zp.toza>0.001?1:0)===1?'1fr':'repeat(auto-fit,minmax(90px,1fr))')+';gap:6px;">';
+    if(zp.pul>0.001) h+='<div><div style="font-size:10px;color:var(--muted);">Pul $</div><input type="number" id="zt-p-'+ti+'" inputmode="decimal" oninput="ztHisob()" style="'+inp+'"></div>';
+    if(zp.lom>0.001) h+='<div><div style="font-size:10px;color:var(--muted);">Lom 583 (g)</div><input type="number" id="zt-l-'+ti+'" inputmode="decimal" oninput="ztHisob()" style="'+inp+'"></div>';
+    if(zp.toza>0.001) h+='<div><div style="font-size:10px;color:var(--blue);">999 (g)</div><input type="number" id="zt-t-'+ti+'" inputmode="decimal" oninput="ztHisob()" style="'+inp+'"></div>';
+    h+='</div></div>';
+  });
+  h+='<div id="zt-xulosa" style="background:var(--surf2);border-radius:10px;padding:9px 12px;margin:4px 0 12px;font-size:12px;color:var(--muted);">Miqdor kiriting</div>';
+  h+='<div class="btn-row"><button class="btn" onclick="ztYop()">Bekor</button><button class="btn gold" onclick="zaprosTaqsimSaqla()">Birato\'la yopish</button></div>';
+  h+='</div></div>';
+  host.innerHTML=h;
+  ztHisob();
+}
+function ztYop(){ var m=document.getElementById('zt-modal-host'); if(m) m.innerHTML=''; }
+function ztOqi(){
+  var z=(data.zavodlar||[]).find(function(x){return x.nom===_ztZavodNom;});
+  var zp=zaprosQoldiq(_ztZavodNom);
+  var rows=[];
+  z.turlar.forEach(function(t,ti){
+    var p=parseNum((document.getElementById('zt-p-'+ti)||{}).value);
+    var l=parseNum((document.getElementById('zt-l-'+ti)||{}).value);
+    var t9=parseNum((document.getElementById('zt-t-'+ti)||{}).value);
+    rows.push({ti:ti,t:t,p:p,l:l,t9:t9});
+  });
+  return {z:z, zp:zp, rows:rows,
+    jamiP:rows.reduce(function(a,r){return a+r.p;},0),
+    jamiL:rows.reduce(function(a,r){return a+r.l;},0),
+    jamiT:rows.reduce(function(a,r){return a+r.t9;},0)};
+}
+function ztHisob(){
+  var o=ztOqi(); if(!o.z) return;
+  var jamiG=0;
+  o.rows.forEach(function(r){
+    var g = (r.p>0?zaprosPulGramm(o.zp.recs, Math.min(r.p, o.zp.pul), false):0) + r.l + r.t9*1.7;
+    g=roundG(g);
+    var el=document.getElementById('zt-yop-'+r.ti);
+    if(el) el.textContent = g>0 ? 'yopiladi: '+fmtG(g)+' g' : '';
+    jamiG+=g;
+  });
+  var xato=[];
+  if(o.jamiP > o.zp.pul+0.01) xato.push('pul oshdi ($'+fmtD(o.zp.pul)+' bor)');
+  if(o.jamiL > o.zp.lom+0.01) xato.push('lom oshdi ('+fmtG(o.zp.lom)+'g bor)');
+  if(o.jamiT > o.zp.toza+0.01) xato.push('999 oshdi ('+fmtG(o.zp.toza)+'g bor)');
+  var x=document.getElementById('zt-xulosa'); if(!x) return;
+  var h='<div style="display:flex;justify-content:space-between;"><span>Taqsimlandi</span><b>$'+fmtD(o.jamiP)+' / $'+fmtD(o.zp.pul)+' · lom '+fmtG(o.jamiL)+'/'+fmtG(o.zp.lom)+'g · 999 '+fmtG(o.jamiT)+'/'+fmtG(o.zp.toza)+'g</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;"><span>Jami yopiladi</span><b style="color:var(--green);">'+fmtG(roundG(jamiG))+' g</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;"><span>Zaprosda qoladi</span><b style="color:var(--gold);">$'+fmtD(Math.max(0,Math.round((o.zp.pul-o.jamiP)*100)/100))+' + '+fmtG(Math.max(0,roundG(o.zp.lom-o.jamiL)))+'g lom + '+fmtG(Math.max(0,roundG(o.zp.toza-o.jamiT)))+'g 999</b></div>';
+  if(xato.length) h+='<div style="color:var(--red);margin-top:4px;">⚠ '+xato.join(' · ')+'</div>';
+  x.innerHTML=h;
+}
+function zaprosTaqsimSaqla(){
+  var o=ztOqi(); if(!o.z) return;
+  if(o.jamiP<=0.001 && o.jamiL<=0.001 && o.jamiT<=0.001){ alert('Hech narsa kiritilmagan'); return; }
+  if(o.jamiP > o.zp.pul+0.01){ alert('Pul zaprosdan oshdi!'); return; }
+  if(o.jamiL > o.zp.lom+0.01){ alert('Lom zaprosdan oshdi!'); return; }
+  if(o.jamiT > o.zp.toza+0.01){ alert('999 zaprosdan oshdi!'); return; }
+  var tafsil=o.rows.filter(function(r){return r.p>0||r.l>0||r.t9>0;}).map(function(r){
+    var q=[]; if(r.p>0)q.push('$'+fmtD(r.p)); if(r.l>0)q.push(fmtG(r.l)+'g lom'); if(r.t9>0)q.push(fmtG(r.t9)+'g 999');
+    return r.t.nom+': '+q.join('+');
+  });
+  if(!confirm('BIRATO\'LA YOPILSINMI?\n\n'+tafsil.join('\n'))) return;
+  var sana=today(), soat=nowSoat();
+  o.rows.forEach(function(r){
+    if(r.p<=0.001 && r.l<=0.001 && r.t9<=0.001) return;
+    var gP = r.p>0 ? zaprosPulGramm(o.zp.recs, r.p, true) : 0; // FIFO, mutate
+    if(r.l>0) zaprosChontakIstemol(o.zp.recs, 'lomG', 'tLom', r.l, true);
+    if(r.t9>0) zaprosChontakIstemol(o.zp.recs, 'tozaG', 'tToza', r.t9, true);
+    var totalG = roundG(gP + r.l + r.t9*1.7);
+    r.t.ostatka = Math.max(0, Math.round((r.t.ostatka - totalG)*100)/100);
+    r.t.tarix.push({tip:'tolov', sana:sana, soat:soat, kimga:'Zapros (snab avans)', naqtSumma:0, naqtGramm:0, naqtKurs:0, lomGramm:0, lomKurs:0, lomPul:0, lomGEq:0, jami:totalG, zapros:true, zPul:Math.round(r.p*100)/100, zLom:roundG(r.l), zToza:roundG(r.t9)});
+  });
+  save('Zapros taqsim | '+_ztZavodNom);
+  ztYop();
+  if(document.getElementById('s-zavod').classList.contains('active')) renderZavod();
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
 // ---- SNAB AMALINI TAHRIRLASH / O'CHIRISH ----
 var _stId = null;
 function snabAmalTop(id){ return ((data.kassa&&data.kassa.snabAmallar)||[]).find(function(r){return r.id===id;}); }
@@ -3212,6 +3367,7 @@ function renderHisobot() {
           } else if (op.tip === 'vozvrat') {
             out += '<div style="font-size:12px;color:var(--blue);">−' + fmtG(op.gramm) + ' g</div>';
           } else {
+            if (op.zapros) { var zq=[]; if(op.zPul>0)zq.push('$'+fmtD(op.zPul)); if(op.zLom>0)zq.push(fmtG(op.zLom)+'g lom'); if(op.zToza>0)zq.push(fmtG(op.zToza)+'g 999'); out += '<div style="font-size:12px;color:var(--gold);">⏳ zapros (snab avans): ' + zq.join(' + ') + ' = <b>' + fmtG(op.jami) + 'g</b></div>'; }
             if (op.naqtSumma>0&&op.naqtKurs>0) out += '<div style="font-size:12px;color:var(--muted);">naqt: ' + fmtD(op.naqtSumma) + '$ / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(op.naqtGramm) + 'g</b></div>';
             if (op.lomGramm>0&&op.lomKurs>0) out += '<div style="font-size:12px;color:var(--muted);">lom: ' + fmtG(op.lomGramm) + 'g × ' + op.lomKurs + '$/g = ' + fmtD(op.lomPul) + '$' + (op.naqtKurs>0?' / ' + op.naqtKurs + '$/g = <b style="color:var(--text);">' + fmtG(Math.round(op.lomPul/op.naqtKurs*100)/100) + 'g</b>':'') + '</div>';
             out += '<div style="font-size:12px;color:var(--red);margin-top:3px;font-weight:600;">jami: −' + fmtG(op.jami) + ' g</div>';
@@ -11041,7 +11197,14 @@ function zavodAmallarListen(){
     var yangi = 0;
     arr.forEach(function(r){
       if(!r || !r.id) return;
-      if(data.kassa.zaImportIds.indexOf(r.id) >= 0) return;
+      if(data.kassa.zaImportIds.indexOf(r.id) >= 0){
+        // mavjud yozuvning taqsim holatini sinxronlaymiz (zavod ERP zapros yopganda)
+        var m = data.kassa.snabAmallar.find(function(x){return x.id===r.id;});
+        if(m && (m.tPul!==r.tPul || m.tLom!==r.tLom || m.tToza!==r.tToza)){
+          m.tPul=r.tPul; m.tLom=r.tLom; m.tToza=r.tToza; yangi++;
+        }
+        return;
+      }
       data.kassa.snabAmallar.push(r);
       data.kassa.zaImportIds.push(r.id);
       yangi++;
