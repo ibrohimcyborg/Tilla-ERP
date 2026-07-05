@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v29: zapros UI Tilla'dan olib tashlandi (u zavod ERP'ga tegishli); import listener endi taqsim holatini (tPul/tLom/tToza) sinxronlaydi -->
+<!-- v30: KASSA HARAKATLARI yig'iladigan bo'ldi — sarlavha bosilganda ochiladi/yopiladi (standart yopiq) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -3028,7 +3028,8 @@ function kassaHarakatlar(){
   });
   return L;
 }
-var _khDavr='kun', _khFiltr='hammasi';
+var _khDavr='kun', _khFiltr='hammasi', _khOchiq=false;
+function khToggle(){ _khOchiq=!_khOchiq; if(typeof renderKassa==='function') renderKassa(); }
 function khDavrTanla(d){ _khDavr=d; if(typeof renderKassa==='function') renderKassa(); }
 function khFiltrTanla(f){ _khFiltr=f; if(typeof renderKassa==='function') renderKassa(); }
 function kassaLentaHTML(){
@@ -3047,8 +3048,12 @@ function kassaLentaHTML(){
   });
   var korinadigan = davrIchi.filter(function(r){ return _khFiltr==='hammasi' || r.manba===_khFiltr; });
   var h = '<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+  h += '<div onclick="khToggle()" style="display:flex;justify-content:space-between;align-items:center;gap:6px;cursor:pointer;'+(_khOchiq?'margin-bottom:8px;':'')+'">';
   h += '<span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA HARAKATLARI</span>';
+  h += '<span style="font-size:13px;color:var(--muted);">'+(_khOchiq?'⌄':'›')+'</span>';
+  h += '</div>';
+  if(!_khOchiq){ h += '</div>'; return h; }
+  h += '<div style="display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
   h += '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">';
   ['kun','hafta','oy','yil'].forEach(function(d){
     var act = _khDavr===d;
