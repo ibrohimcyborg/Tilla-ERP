@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v19: LOM ≠ NAQT tuzatildi — (1) to'lovda lom hissasi naqtPul dan ayriladi, (2) SOTUVDA lom endi haqiqatan saqlanadi (k.tarix + data.lomlar, avval yozilmasdi), (3) eski yozuvlar bir martalik migratsiya bilan to'g'rilanadi, (4) kassa detalida Lom qatori -->
+<!-- v20: SNABJENETS AMALLARI — zavod ERPdan berish/olish importi (zavod_amallar hujjati, id dedupe), kassa cho'ntaklariga avtomatik ta'sir, Kassa tabda snab ro'yxati, snapshot'da kurs583+importedIds -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -1622,6 +1622,9 @@ if (!data.kassa || !data.kassa.zlar) data.kassa = { zlar: [], tuzatishlar: [], z
 if (!data.kassa.tuzatishlar) data.kassa.tuzatishlar = [];
 // zakazlar: [{id, ts, sana, soat, zavodNom, summa, kurs (qulflangan), muddatTs, holat:'ochiq'|'bajarildi'|'bekor', izoh, yopTs?}]
 if (!data.kassa.zakazlar) data.kassa.zakazlar = [];
+// snabjenets amallari (zavod ERPdan import): [{id, ts, sana, soat, tip:'berish'|'olish', zavodNom?, pul, lomG, tozaG, kurs583, kurs999, proba?, gramm?, narx?, summa?, qiymat}]
+if (!data.kassa.snabAmallar) data.kassa.snabAmallar = [];
+if (!data.kassa.zaImportIds) data.kassa.zaImportIds = [];
 
 function save(logText) {
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
@@ -2504,6 +2507,21 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
     // zavodga topshirishdan boshqa chiqim (sotish) = pul kirdi
     if(r.tip==='chiqim' && r.manba!=='zavod' && s>0){ o.naqd += s; if(r.sana===t) o.bugunKirim += s; }
   });
+  // 3.5) Snabjenets amallari (zavod ERPdan import qilingan)
+  ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
+    if(!ichida(r.sana)) return;
+    if(r.tip==='berish'){
+      var p=parseNum(r.pul||0);
+      if(p>0){ o.naqd -= p; if(r.sana===t) o.bugunChiqim += p; }
+      if(parseNum(r.lomG)>0) o.lomEkv -= parseNum(r.lomG);
+      if(parseNum(r.tozaG)>0) o.toza -= parseNum(r.tozaG);
+    } else if(r.tip==='olish'){
+      var s2=parseNum(r.summa||0);
+      if(s2>0){ o.naqd -= s2; if(r.sana===t) o.bugunChiqim += s2; }
+      var pg=parseNum(r.gramm||0);
+      if(pg>0){ if(parseNum(r.proba)===999) o.toza += pg; else o.lomEkv += kassaEkv(r.proba, pg); }
+    }
+  });
   // 4) Z tafovut tuzatishlari (append-only)
   ((data.kassa&&data.kassa.tuzatishlar)||[]).forEach(function(tz){
     if(!ichida(tz.sana)) return;
@@ -2694,6 +2712,27 @@ function kassaQoldiqPanelHTML(){
       h += '<button onclick="kassaZakazBajarildi(\''+z.id+'\')" style="background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);border-radius:8px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">✓ Bajarildi</button>';
       h += '<button onclick="kassaZakazYech(\''+z.id+'\')" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;">↩ Yechish</button>';
       h += '</div></div>';
+    });
+  }
+  // Snabjenets amallari (bugun, oxirgi 5 ta)
+  var snabBugun = ((data.kassa&&data.kassa.snabAmallar)||[]).filter(function(r){return r.sana===today();}).slice(-5);
+  if(snabBugun.length){
+    h += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 5px;">Snabjenets amallari · bugun</div>';
+    snabBugun.forEach(function(r){
+      var tavsif;
+      if(r.tip==='berish'){
+        var q=[];
+        if(parseNum(r.pul)>0) q.push('pul <b style="color:var(--red);">−$'+fmtD(r.pul)+'</b>');
+        if(parseNum(r.lomG)>0) q.push('lom <b style="color:var(--red);">−'+fmtG(r.lomG)+'g</b>');
+        if(parseNum(r.tozaG)>0) q.push('999 <b style="color:var(--red);">−'+fmtG(r.tozaG)+'g</b>');
+        tavsif = (r.zavodNom||'')+' · berish — '+q.join(' · ')+' · kurs '+r.kurs583+'/'+r.kurs999;
+      } else {
+        tavsif = r.proba+' sotib olish — '+fmtG(r.gramm)+'g @ '+r.narx+' · naqd <b style="color:var(--red);">−$'+fmtD(r.summa)+'</b>';
+      }
+      h += '<div style="background:var(--surf2);border-radius:8px;padding:6px 9px;margin-bottom:5px;display:flex;justify-content:space-between;gap:8px;align-items:center;">';
+      h += '<span style="font-size:11px;color:var(--text);">'+tavsif+' <span style="background:var(--red-bg);color:var(--red);font-size:10px;padding:1px 6px;border-radius:5px;">snab</span></span>';
+      h += '<span style="font-size:10px;color:var(--muted);white-space:nowrap;">'+(r.soat||'')+'</span>';
+      h += '</div>';
     });
   }
   h += '<div style="display:flex;justify-content:space-between;font-size:11px;flex-wrap:wrap;gap:4px;">';
@@ -10498,7 +10537,7 @@ function cloudInit(){
     _cloudDb = firebase.firestore();
     firebase.auth().onAuthStateChanged(function(u){
       _cloudUser = u;
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); }
       else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
@@ -10617,6 +10656,8 @@ function kassaSnapshotObj(vaqt){
   });
   return {
     vaqt: vaqt, sana: today(), soat: nowSoat(),
+    kurs583: parseNum(localStorage.getItem('tilla-kurs-bugun')||0),
+    importedIds: (data.kassa.zaImportIds||[]).slice(-100),
     naqd: o.naqd, lomEkv: o.lomEkv, toza: o.toza,
     erkin: Math.round((o.naqd-band)*100)/100, band: band,
     bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
@@ -10624,6 +10665,31 @@ function kassaSnapshotObj(vaqt){
     z: zx ? {sana:zx.sana, soat:zx.soat||'', naqd:zx.naqd} : null,
     zavodlar: zavodQ
   };
+}
+// ---- ZAVOD AMALLAR IMPORT: snabjenets yozgan berish/olish amallarini qabul qilish ----
+var _zaUnsub = null;
+function zavodAmallarListen(){
+  if (typeof firebase === 'undefined' || !_cloudUser || !_cloudDb) return;
+  if (_zaUnsub) _zaUnsub();
+  _zaUnsub = _cloudDb.collection(cloudKol()).doc('zavod_amallar').onSnapshot(function(doc){
+    if(!doc.exists) return;
+    var arr = (doc.data()||{}).amallar || [];
+    var yangi = 0;
+    arr.forEach(function(r){
+      if(!r || !r.id) return;
+      if(data.kassa.zaImportIds.indexOf(r.id) >= 0) return;
+      data.kassa.snabAmallar.push(r);
+      data.kassa.zaImportIds.push(r.id);
+      yangi++;
+    });
+    if(yangi > 0){
+      if(data.kassa.zaImportIds.length > 500) data.kassa.zaImportIds = data.kassa.zaImportIds.slice(-500);
+      save('Snabjenets amali import: '+yangi+' ta');
+      if(typeof renderKassa==='function') renderKassa();
+      if(typeof renderKassaCard==='function') renderKassaCard();
+      if(typeof renderHome==='function' && document.getElementById('s-home').classList.contains('active')) renderHome();
+    }
+  }, function(err){ console.error('zavodAmallarListen:', err); });
 }
 function kassaSnapshotYubor(){
   if (typeof firebase === 'undefined' || !_cloudUser || !_cloudDb) return;
