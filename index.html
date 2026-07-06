@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v35: JORIY FOYDA moduli 1-bosqich — uch oqim (savdo marja / kurs farqi / lom foyda), davr tanlash, ochiq pozitsiya (foizli baho, +-1$ sezgirlik); yangi yozuvlarga kunlikKurs/lomKunlik muhri -->
+<!-- v36: ochiq pozitsiya tuzatildi — butun ostatka emas, faqat SOTILGAN−TO'LANGAN gramm (sotilmagan mol foizli narxda kurs riskida emas) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -3199,14 +3199,37 @@ function kassaFoyda(){
     if(!r.lomKunlik || !r.narx) return;
     lomF += (r.lomKunlik - r.narx) * parseNum(r.gramm);
   });
-  // OCHIQ POZITSIYA — zavod tur ostatkalari, joriy narxda (narx = kurs×(1+%), foizlar tilla-foiz-{zi})
+  // OCHIQ POZITSIYA — faqat SOTILGAN lekin zavodga TO'LANMAGAN gramm.
+  // Sotilmagan mol kurs riskida emas: narxlar foizda, kurs oshsa sotuv narxi ham birga oshadi.
+  // Risk faqat sotilgan grammda: tushum $ da qotgan, zavod qarzi esa kurs bilan suzadi.
   var kurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
   var ochiqG=0, yopQiy=0, sezgir=0;
+  // 1) sotilgan gramm (zavod|tur kesimida): klient tolovlari ekvivalenti − klient vozvratlari
+  var sotilganMap={};
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(op.tip==='tolov' && op.zavod && op.tur && op.ekvivalent){
+        var key=op.zavod+'|'+op.tur;
+        sotilganMap[key]=(sotilganMap[key]||0)+parseNum(op.ekvivalent);
+      } else if(op.tip==='vozvrat' && op.zavod && op.tur && op.gramm){
+        var key2=op.zavod+'|'+op.tur;
+        sotilganMap[key2]=(sotilganMap[key2]||0)-parseNum(op.gramm);
+      }
+    });
+  });
   (data.zavodlar||[]).forEach(function(z, zi){
     var foizlar={};
     try{ foizlar=JSON.parse(localStorage.getItem('tilla-foiz-'+zi)||'{}'); }catch(e){}
     (z.turlar||[]).forEach(function(t, ti){
-      var g=parseNum(t.ostatka); if(g<=0.001) return;
+      var sotilgan=sotilganMap[z.nom+'|'+t.nom]||0;
+      if(sotilgan<=0.001) return;
+      // 2) shu turga zavodga to'langan gramm (mol/vozvrat emas — tolovlar jami)
+      var tolangan=0;
+      (t.tarix||[]).forEach(function(op){
+        if(op.tip!=='mol' && op.tip!=='vozvrat') tolangan+=parseNum(op.jami);
+      });
+      var g=Math.max(0, sotilgan - tolangan);
+      if(g<=0.001) return;
       var pct=foizlar[ti]!==undefined?parseFloat(foizlar[ti])||0:0;
       var narx=(kurs>0&&pct>0)?kurs*(1+pct/100):(kurs>0?kurs:0);
       ochiqG+=g;
@@ -3256,7 +3279,7 @@ function kassaFoydaPanelHTML(){
   h+='<span style="font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">⚖ Ochiq pozitsiya — kurs riski</span></div>';
   if(f.ochiqG>0.001){
     h+='<div style="font-size:12px;color:var(--muted);line-height:1.9;">';
-    h+='<div style="display:flex;justify-content:space-between;"><span>Ochiq zavod qarzi</span><b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(f.ochiqG)+' g</b></div>';
+    h+='<div style="display:flex;justify-content:space-between;"><span>Sotilgan, zavodga to\'lanmagan</span><b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(f.ochiqG)+' g</b></div>';
     if(f.kurs>0){
       h+='<div style="display:flex;justify-content:space-between;"><span>Yopish qiymati (bugungi narxlarda)</span><b style="color:var(--red);font-family:Roboto,sans-serif;">$'+fmtD(f.yopQiy)+'</b></div>';
       h+='<div style="display:flex;justify-content:space-between;"><span>Kurs +1$ o\'ssa</span><b style="color:var(--red);font-family:Roboto,sans-serif;">−$'+fmtD(f.sezgir)+'</b></div>';
@@ -3266,7 +3289,7 @@ function kassaFoydaPanelHTML(){
     }
     h+='</div>';
   } else {
-    h+='<div style="font-size:12px;color:var(--green);">Ochiq qarz yo\'q — kurs riski nol ✓</div>';
+    h+='<div style="font-size:12px;color:var(--green);">Sotilgan mol uchun zavodga to\'lanmagan qarz yo\'q — kurs riski nol ✓</div>';
   }
   h+='</div></div>';
   return h;
