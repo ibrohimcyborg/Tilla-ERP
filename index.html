@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v37: KURS JURNALI — bugungi kurs o'zgarganda ochiq pozitsiya avto qayta baholanadi (o'sha paytdagi holat muhrlanadi), 4-oqim sifatida foydaga kiradi, panel ostida o'zgarishlar izi -->
+<!-- v38: (1) narx sinxroni — kurs/lom/foizlar (foiz/a-foiz/manual/b-ust/kurs-tarix) data._narxSync orqali cloudga ergashadi, boshqa qurilmada 0 bo'lmaydi; (2) kurs jurnal IKKALA saqlash yo'liga ulandi (asosiy Saqlash tugmasi ham); (3) kurs saqlanganda foyda paneli avto yangilanadi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -1683,6 +1683,53 @@ try {
 }
 if (!data.klientlar) data.klientlar = [];
 if (!data.zavodlar) data.zavodlar = [];
+// ---- NARX SOZLAMALARI SINXRONI: kurs/foizlar localStorage'da yashaydi,
+// cloudga data._narxSync orqali ergashadi (boshqa qurilmada 0 bo'lib qolmasin)
+var NARX_KALITLAR_UMUMIY = ['tilla-kurs-bugun','tilla-lom-bugun','tilla-lom-farq','tilla-kurs-tarix','tilla-b-ust'];
+var NARX_PREFIKSLAR = ['tilla-foiz-','tilla-manual-','tilla-a-foiz-','tilla-a-manual-'];
+function narxHolatYig(){
+  var k={};
+  NARX_KALITLAR_UMUMIY.forEach(function(key){
+    var v=localStorage.getItem(key); if(v!==null) k[key]=v;
+  });
+  (data.zavodlar||[]).forEach(function(z,zi){
+    NARX_PREFIKSLAR.forEach(function(pre){
+      var v=localStorage.getItem(pre+zi); if(v!==null) k[pre+zi]=v;
+    });
+  });
+  return {ts:Date.now(), k:k};
+}
+function narxHolatQollash(){
+  try{
+    if(!data._narxSync || !data._narxSync.k) return;
+    var qollangan = parseInt(localStorage.getItem('tilla-narx-sync-ts')||'0');
+    var lokalBor = !!localStorage.getItem('tilla-kurs-bugun');
+    if(lokalBor && data._narxSync.ts <= qollangan) return; // lokal yangiroq yoki teng
+    Object.keys(data._narxSync.k).forEach(function(key){
+      localStorage.setItem(key, data._narxSync.k[key]);
+    });
+    localStorage.setItem('tilla-narx-sync-ts', String(data._narxSync.ts));
+    console.log('Narx sozlamalari clouddan qollandi ('+Object.keys(data._narxSync.k).length+' kalit)');
+  }catch(e){ console.error('narx sync:', e); }
+}
+narxHolatQollash();
+// Kurs saqlanganda jurnal yozuvi — IKKALA saqlash yo'lidan ham chaqiriladi
+function kursJurnalYoz(eskiKurs, val, sana, soat){
+  try{
+    if(!(eskiKurs>0) || Math.abs(eskiKurs-val)<=0.001) return;
+    if(typeof kassaOchiqPoz!=='function' || typeof data==='undefined' || !data) return;
+    if(!data.kassa) return;
+    var _poz = kassaOchiqPoz();
+    if(!data.kassa.kursJurnal) data.kassa.kursJurnal=[];
+    data.kassa.kursJurnal.push({
+      ts:Date.now(), sana:sana, soat:soat,
+      eski:eskiKurs, yangi:val,
+      ochiqG:_poz.ochiqG,
+      tasir:Math.round((eskiKurs - val) * _poz.sezgir * 100)/100
+    });
+    if(data.kassa.kursJurnal.length>200) data.kassa.kursJurnal=data.kassa.kursJurnal.slice(-200);
+  }catch(e){ console.error('kurs jurnal:', e); }
+}
 // Yaroqsiz (0g yoki zavod/tur-siz) vozvrat yozuvini aniqlovchi yagona funksiya
 function isBadVozvrat(op) {
   return op && op.tip === 'vozvrat' && (
@@ -1766,6 +1813,10 @@ function save(logText) {
       if (k && k.tarix) k.tarix = k.tarix.filter(function(op){ return !isBadVozvrat(op); });
     });
   }
+  try{
+    data._narxSync = narxHolatYig();
+    localStorage.setItem('tilla-narx-sync-ts', String(data._narxSync.ts));
+  }catch(e){}
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   if(logText) snapSaqla(logText);
   if (typeof cloudSaqla === 'function') cloudSaqla();
@@ -2308,26 +2359,14 @@ function hkSaqla() {
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  // KURS JURNALI: o'zgarish paytidagi ochiq pozitsiya bo'yicha avto qayta baho
-  try{
-    var eskiKurs = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
-    if(eskiKurs>0 && Math.abs(eskiKurs-val)>0.001 && typeof kassaOchiqPoz==='function' && typeof data!=='undefined' && data && data.kassa){
-      var _poz = kassaOchiqPoz();
-      if(!data.kassa.kursJurnal) data.kassa.kursJurnal=[];
-      data.kassa.kursJurnal.push({
-        ts:Date.now(), sana:sana, soat:soat,
-        eski:eskiKurs, yangi:val,
-        ochiqG:_poz.ochiqG,
-        tasir:Math.round((eskiKurs - val) * _poz.sezgir * 100)/100
-      });
-      if(data.kassa.kursJurnal.length>200) data.kassa.kursJurnal=data.kassa.kursJurnal.slice(-200);
-      save('Kurs '+eskiKurs+'\u2192'+val+' | qayta baho');
-    }
-  }catch(e){ console.error('kurs jurnal:', e); }
+  kursJurnalYoz(parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'), val, sana, soat);
   tarix.push({kurs:val, sana:sana, soat:soat});
   if (tarix.length > 100) tarix = tarix.slice(-100);
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
   localStorage.setItem('tilla-kurs-bugun', val);
+  if(typeof save==='function') save('Kurs/narx saqlandi');
+  if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
+  if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
   // LOM narxini ham avtomatik hisoblash va saqlash
   var lomEl = document.getElementById('hk-lom-inp');
   var lom = lomEl ? parseFloat(lomEl.value)||0 : 0;
@@ -2610,11 +2649,16 @@ function zKursSaqla() {
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  kursJurnalYoz(parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'), val, sana, soat);
   tarix.push({kurs:val, lom:lom, sana:sana, soat:soat});
   if (tarix.length > 100) tarix = tarix.slice(-100);
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
   localStorage.setItem('tilla-kurs-bugun', val);
   if(lom>0) localStorage.setItem('tilla-lom-bugun', lom);
+  // narx holati cloudga ergashsin + foyda paneli jonli yangilansin
+  if(typeof save==='function') save('Kurs/narx saqlandi');
+  if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
+  if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
   zKursRender();
 }
 
