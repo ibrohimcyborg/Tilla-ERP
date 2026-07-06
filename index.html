@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v34: zakaz modalida jonli preview — muzlatiladi / erkin qoladi / shu kursda necha gramm yopilishi -->
+<!-- v35: JORIY FOYDA moduli 1-bosqich — uch oqim (savdo marja / kurs farqi / lom foyda), davr tanlash, ochiq pozitsiya (foizli baho, +-1$ sezgirlik); yangi yozuvlarga kunlikKurs/lomKunlik muhri -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -3040,7 +3040,7 @@ function kassaOlishSaqla(){
   if(s>erkin+0.001){ alert('Erkin puldan oshdi! Erkin: $'+fmtD(erkin)); return; }
   if(!confirm('SOTIB OLINSINMI?\n\n'+p+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(s)+(iz?'\n'+iz:''))) return;
   if(!data.lomlar) data.lomlar=[];
-  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:today(), sana_ts:Date.now(), soat:nowSoat(), izoh:iz});
+  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:today(), sana_ts:Date.now(), soat:nowSoat(), izoh:iz, lomKunlik:parseFloat(localStorage.getItem('tilla-lom-bugun')||'0')});
   save('Sotib olish (kassa) | '+p+' '+fmtG(g)+'g | $'+fmtD(s));
   closeModal('modal-kassa-olish');
   if(typeof renderKassa==='function') renderKassa();
@@ -3149,6 +3149,128 @@ var _khDavr='kun', _khFiltr='hammasi', _khOchiq=false;
 function khToggle(){ _khOchiq=!_khOchiq; if(typeof renderKassa==='function') renderKassa(); }
 function khDavrTanla(d){ _khDavr=d; if(typeof renderKassa==='function') renderKassa(); }
 function khFiltrTanla(f){ _khFiltr=f; if(typeof renderKassa==='function') renderKassa(); }
+// ---- JORIY FOYDA MODULI: uch oqim + ochiq pozitsiya ----
+var _fdDavr='kun';
+function fdDavrSet(v){ _fdDavr=v; if(typeof renderKassa==='function') renderKassa(); }
+function fdDavrBoshi(){
+  var n=new Date();
+  if(_fdDavr==='kun') return new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  if(_fdDavr==='hafta'){ var d=new Date(n.getFullYear(),n.getMonth(),n.getDate()); var kun=(d.getDay()+6)%7; return d.getTime()-kun*86400000; }
+  if(_fdDavr==='oy') return new Date(n.getFullYear(),n.getMonth(),1).getTime();
+  if(_fdDavr==='yil') return new Date(n.getFullYear(),0,1).getTime();
+  return 0;
+}
+function fdSanaTs(sana, soat){
+  if(!sana) return 0;
+  var p=sana.split('.'); if(p.length!==3) return 0;
+  return new Date(p[2]+'-'+p[1]+'-'+p[0]+'T'+(soat||'00:00')).getTime();
+}
+function kassaFoyda(){
+  var bosh=fdDavrBoshi();
+  // A) SAVDO MARJA — klient tolovlaridan (mavjud formula: summa − kirimNarx×ekvivalent)
+  var marja=0;
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(op.tip!=='tolov' || op._kdYopish) return;
+      var ts=fdSanaTs(op.sana, op.soat); if(ts<bosh) return;
+      if(op.kirimNarx && op.ekvivalent) marja += (op.summa - op.kirimNarx*op.ekvivalent);
+    });
+  });
+  // B) KURS FARQI — realized: snab berish (kunlikKurs muhri borlar) + bajarilgan zakazlar
+  var kursF=0, kursYoq=false;
+  ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
+    if(r.tip!=='berish' || r.holat==='bekor') return;
+    var ts=r.ts||fdSanaTs(r.sana,r.soat); if(ts<bosh) return;
+    if(!r.kunlikKurs || !r.kurs583){ kursYoq=true; return; }
+    var g=(parseNum(r.pul)/parseNum(r.kurs583)) + parseNum(r.lomG) + parseNum(r.tozaG)*1.7;
+    kursF += (r.kunlikKurs - r.kurs583) * g;
+  });
+  ((data.kassa&&data.kassa.zakazlar)||[]).forEach(function(z){
+    if(z.holat!=='bajarildi') return;
+    var ts=z.yopTs||z.ts||0; if(ts<bosh) return;
+    if(!z.kunlikKurs || !z.kurs) return;
+    kursF += (z.kunlikKurs - z.kurs) * (z.summa/z.kurs);
+  });
+  // C) LOM FOYDA — olishda qulflangan: (o'sha kungi lom kurs − olish narxi) × gramm
+  var lomF=0;
+  (data.lomlar||[]).forEach(function(r){
+    if(r.tip!=='kirim') return;
+    var ts=r.sana_ts||fdSanaTs(r.sana,r.soat); if(ts<bosh) return;
+    if(!r.lomKunlik || !r.narx) return;
+    lomF += (r.lomKunlik - r.narx) * parseNum(r.gramm);
+  });
+  // OCHIQ POZITSIYA — zavod tur ostatkalari, joriy narxda (narx = kurs×(1+%), foizlar tilla-foiz-{zi})
+  var kurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+  var ochiqG=0, yopQiy=0, sezgir=0;
+  (data.zavodlar||[]).forEach(function(z, zi){
+    var foizlar={};
+    try{ foizlar=JSON.parse(localStorage.getItem('tilla-foiz-'+zi)||'{}'); }catch(e){}
+    (z.turlar||[]).forEach(function(t, ti){
+      var g=parseNum(t.ostatka); if(g<=0.001) return;
+      var pct=foizlar[ti]!==undefined?parseFloat(foizlar[ti])||0:0;
+      var narx=(kurs>0&&pct>0)?kurs*(1+pct/100):(kurs>0?kurs:0);
+      ochiqG+=g;
+      yopQiy+=g*narx;
+      sezgir+=g*(pct>0?(1+pct/100):1);
+    });
+  });
+  return {
+    marja:Math.round(marja*100)/100,
+    kursF:Math.round(kursF*100)/100,
+    lomF:Math.round(lomF*100)/100,
+    jami:Math.round((marja+kursF+lomF)*100)/100,
+    ochiqG:roundG(ochiqG), yopQiy:Math.round(yopQiy*100)/100,
+    sezgir:Math.round(sezgir*100)/100, kurs:kurs, kursYoq:kursYoq
+  };
+}
+function kassaFoydaPanelHTML(){
+  var f=kassaFoyda();
+  var rang=function(v){ return v>0.005?'var(--green)':(v<-0.005?'var(--red)':'var(--muted)'); };
+  var ishora=function(v){ return (v>0.005?'+':'')+'$'+fmtD(Math.round(v*100)/100); };
+  var h='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+  h+='<span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">FOYDA — JORIY HOLAT</span>';
+  h+='<div style="display:flex;gap:4px;">';
+  [['kun','Kun'],['hafta','Hafta'],['oy','Oy'],['yil','Yil']].forEach(function(d){
+    var akt=_fdDavr===d[0];
+    h+='<button onclick="fdDavrSet(\''+d[0]+'\')" style="border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;border:1px solid '+(akt?'var(--gold)':'var(--border)')+';background:'+(akt?'var(--gold)':'var(--surf2)')+';color:'+(akt?'var(--on-gold)':'var(--muted)')+';">'+d[1]+'</button>';
+  });
+  h+='</div></div>';
+  // Bosh raqam
+  h+='<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;text-align:center;margin-bottom:8px;">';
+  h+='<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Qulflangan foyda ('+_fdDavr+')</div>';
+  h+='<div style="font-family:Roboto,sans-serif;font-size:26px;font-weight:500;color:'+rang(f.jami)+';">'+ishora(f.jami)+'</div>';
+  h+='</div>';
+  // Uch oqim
+  var oqim=function(nom,izoh,v){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border);">'
+      +'<div><span style="font-size:12px;font-weight:600;">'+nom+'</span><div style="font-size:10px;color:var(--muted);">'+izoh+'</div></div>'
+      +'<b style="font-family:Roboto,sans-serif;font-size:14px;color:'+rang(v)+';">'+ishora(v)+'</b></div>';
+  };
+  h+=oqim('1 · Savdo marja','sotuvda qulflangan', f.marja);
+  h+=oqim('2 · Kurs farqi','berish/zakaz: kunlik vs qulf kursi'+(f.kursYoq?' · eski yozuvlar hisobga kirmadi':''), f.kursF);
+  h+=oqim('3 · LOM foyda','olishda qulflangan chegirma', f.lomF);
+  // Ochiq pozitsiya
+  h+='<div style="background:var(--surf2);border:1.5px dashed var(--gold);border-radius:10px;padding:9px 12px;margin-top:8px;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+  h+='<span style="font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">⚖ Ochiq pozitsiya — kurs riski</span></div>';
+  if(f.ochiqG>0.001){
+    h+='<div style="font-size:12px;color:var(--muted);line-height:1.9;">';
+    h+='<div style="display:flex;justify-content:space-between;"><span>Ochiq zavod qarzi</span><b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(f.ochiqG)+' g</b></div>';
+    if(f.kurs>0){
+      h+='<div style="display:flex;justify-content:space-between;"><span>Yopish qiymati (bugungi narxlarda)</span><b style="color:var(--red);font-family:Roboto,sans-serif;">$'+fmtD(f.yopQiy)+'</b></div>';
+      h+='<div style="display:flex;justify-content:space-between;"><span>Kurs +1$ o\'ssa</span><b style="color:var(--red);font-family:Roboto,sans-serif;">−$'+fmtD(f.sezgir)+'</b></div>';
+      h+='<div style="display:flex;justify-content:space-between;"><span>Kurs −1$ tushsa</span><b style="color:var(--green);font-family:Roboto,sans-serif;">+$'+fmtD(f.sezgir)+'</b></div>';
+    } else {
+      h+='<div style="font-size:11px;">Bugungi kurs kiritilmagan — yopish qiymati hisoblanmadi</div>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div style="font-size:12px;color:var(--green);">Ochiq qarz yo\'q — kurs riski nol ✓</div>';
+  }
+  h+='</div></div>';
+  return h;
+}
 function kassaLentaHTML(){
   var start = davrBoshi(_khDavr);
   var startKey = sanaKey(start);
@@ -3278,7 +3400,7 @@ function kassaZakazSaqla(){
   var muddatTs = new Date(msana+'T'+msoat).getTime();
   if(muddatTs <= Date.now()){ if(!confirm('Muddat o\'tmishda — baribir saqlansinmi?')) return; }
   if(!confirm('MUZLATILSINMI?\n\n'+zavod+' · $'+fmtD(summa)+'\nKurs qulf: '+kurs+'\nMuddat: '+msana.split('-').reverse().join('.')+' '+msoat)) return;
-  data.kassa.zakazlar.push({id:'zk'+Date.now(), ts:Date.now(), sana:today(), soat:nowSoat(), zavodNom:zavod, summa:Math.round(summa*100)/100, kurs:kurs, muddatTs:muddatTs, holat:'ochiq', izoh:izoh});
+  data.kassa.zakazlar.push({id:'zk'+Date.now(), ts:Date.now(), sana:today(), soat:nowSoat(), zavodNom:zavod, summa:Math.round(summa*100)/100, kurs:kurs, kunlikKurs:parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'), muddatTs:muddatTs, holat:'ochiq', izoh:izoh});
   save('Zakaz | '+zavod+' | $'+fmtD(summa)+' @ '+kurs);
   closeModal('modal-kassa-zakaz');
   if(typeof renderKassa==='function') renderKassa();
@@ -4978,6 +5100,7 @@ function renderKassa() {
   html+='<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>';
   html+='</div>';
   html+=kassaQoldiqPanelHTML();
+  html+=kassaFoydaPanelHTML();
   html+=kassaLentaHTML();
   html+='<div style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',1fr);gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
@@ -7805,7 +7928,7 @@ function saqlashKlientTolov(){
       k.tarix.push({tip:'lom', sana:sana, soat:_soat_kt, gramm:_lg, narx:_lk, summa:_lp, proba:_lproba, izoh:_lnom, klientNom:k.nom});
       // data.lomlar ga kirim
       if(!data.lomlar) data.lomlar=[];
-      data.lomlar.push({id:Date.now()+'_'+_li, tip:'kirim', manba:'klient', proba:_lproba, gramm:_lg, narx:_lk, summa:_lp, klientIdx:ki, klientNom:k.nom, sana:sana, sana_ts:Date.now(), soat:_soat_kt, izoh:_lnom});
+      data.lomlar.push({id:Date.now()+'_'+_li, tip:'kirim', manba:'klient', proba:_lproba, gramm:_lg, narx:_lk, summa:_lp, klientIdx:ki, klientNom:k.nom, sana:sana, sana_ts:Date.now(), soat:_soat_kt, izoh:_lnom, lomKunlik:parseFloat(localStorage.getItem('tilla-lom-bugun')||'0')});
     }
   });
   // Offset kerakligidan ortiq ishlatilmasin — ortig'i "biz qarzdor" balansida qoladi
@@ -9476,7 +9599,7 @@ function saqlashKlientSotuv() {
     // LOM HAQIQIY SAQLASH (avval yo'q edi — sotuvdagi lom hech qayerga yozilmasdi!)
     k.tarix.push({tip:'lom', sana:sana, soat:_soatSv, gramm:lg, narx:lk, summa:lomPul, proba:lproba, izoh:lnom, klientNom:k.nom});
     if(!data.lomlar) data.lomlar=[];
-    data.lomlar.push({id:Date.now()+'_s'+i, tip:'kirim', manba:'klient', proba:lproba, gramm:lg, narx:lk, summa:lomPul, klientIdx:ki, klientNom:k.nom, sana:sana, sana_ts:Date.now(), soat:_soatSv, izoh:lnom});
+    data.lomlar.push({id:Date.now()+'_s'+i, tip:'kirim', manba:'klient', proba:lproba, gramm:lg, narx:lk, summa:lomPul, klientIdx:ki, klientNom:k.nom, sana:sana, sana_ts:Date.now(), soat:_soatSv, izoh:lnom, lomKunlik:parseFloat(localStorage.getItem('tilla-lom-bugun')||'0')});
   });
 
   // 2. Naqt to'lov (kst inputlar) summasi
@@ -11351,6 +11474,7 @@ function zavodAmallarListen(){
         }
         return;
       }
+      if(!r.kunlikKurs) r.kunlikKurs = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'); // foyda: kurs farqi bazasi
       data.kassa.snabAmallar.push(r);
       data.kassa.zaImportIds.push(r.id);
       yangi++;
