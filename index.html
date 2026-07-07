@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v40: FIFO MODEL — har sotuv o'z kirimNarx muhrini (kunlik kurs asosida) abadiy saqlaydi. Marja sotuvda qotadi (o'zgarmadi). Kurs farqi endi FAQAT zavodga TO'LANGANDA, eng eski ochiq sotuvdan FIFO tartibida qotadi (tarixiy, davr filtrlanadi). Hali to'lanmagan qism 'Suzuvchi' — kurs o'zgarganda DARHOL jonli qayta hisoblanadi, hech qachon qotmaydi (eski kurs-jurnal/qaytaBaho mexanizmi butunlay olib tashlandi). Zapros yopish yozuviga kirimNarxPay+zPulGramm muhri qo'shildi (pul qismi kurs-sezgir, lom/999 qismi oltin-uchun-oltin kurs-neytral). -->
+<!-- v41: suzuvchi hisobidagi kirimNarxHozir endi getZavodNarx bilan BIR XIL yaxlitlanadi (1 xonagacha) — kurs o'zgarmagan sotuvlarda soxta yaxlitlash-shovqini (masalan +$0.64) endi chiqmaydi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -3234,7 +3234,9 @@ function kassaFifoModel(bosh){
 
     (z.turlar||[]).forEach(function(t, ti){
       var pct = foizlar[ti]!==undefined?parseFloat(foizlar[ti])||0:0;
-      var kirimNarxHozir = (bugungiKurs>0) ? bugungiKurs*(1+pct/100) : 0;
+      // getZavodNarx bilan BIR XIL yaxlitlash (1 xonagacha) — aks holda kurs o'zgarmagan
+      // sotuvlarda ham "yaxlitlash shovqini" tufayli soxta suzuvchi chiqadi
+      var kirimNarxHozir = (bugungiKurs>0 && pct>0) ? Math.round(bugungiKurs*(1+pct/100)*10)/10 : (bugungiKurs>0?bugungiKurs:0);
 
       // 1) SOTUVLAR navbati — faqat HAQIQIY sotuv (kirimNarx>0), eskidan yangiga
       var savdo=[]; // {ekv(qolgan ochiq), kirimNarx, ts}
