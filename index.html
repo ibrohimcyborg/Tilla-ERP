@@ -2642,6 +2642,7 @@ function zKursSaqla() {
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof renderLom==='function'){ try{ renderLom(); }catch(e){} } // LOM tabidagi JAMI FOYDA ham yangilansin
   zKursRender();
 }
 
@@ -10928,7 +10929,7 @@ function renderLomInto(contId) {
   html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);">';
   html+='<div style="padding:12px;border-right:1px solid var(--border);"><div style="font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;">ZAXIRA</div><div style="font-size:20px;font-weight:800;">'+fmtG(jamiGAll)+'<span style="font-size:12px;color:var(--muted);font-weight:400;">g</span></div><div style="font-size:10px;color:var(--muted);margin-top:2px;">'+probaList.length+' ta proba</div></div>';
   html+='<div style="padding:12px;border-right:1px solid var(--border);"><div style="font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;">O\'RT. OLISH</div><div style="font-size:20px;font-weight:800;color:var(--gold);">'+(ortNarxAll>0?ortNarxAll:'\u2014')+'<span style="font-size:11px;color:var(--muted);font-weight:400;">$/g</span></div><div style="font-size:10px;color:var(--muted);margin-top:2px;">'+(lomKurs>0?'Bugun: '+lomKurs+'$/g':'Kurs kiritilmagan')+'</div></div>';
-  html+='<div style="padding:12px;"><div style="font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;">JAMI FOYDA</div><div style="font-size:20px;font-weight:800;color:'+(taxAll!=null?(taxAll>=0?'var(--green)':'var(--red)'):'var(--muted)')+'">'+(taxAll!=null?(taxAll>=0?'+':'')+fmtD(taxAll)+'$':'\u2014')+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">taxminiy</div></div>';
+  html+='<div style="padding:12px;"><div style="font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;">JAMI FOYDA</div><div style="font-size:20px;font-weight:800;color:'+(taxAll!=null?(taxAll>=0?'var(--green)':'var(--red)'):'var(--muted)')+'">'+(taxAll!=null?(taxAll>=0?'+':'')+fmtD(taxAll)+'$':'\u2014')+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">'+(lomNeytral>0?('neytral: '+lomNeytral+'$'):'taxminiy')+'</div></div>';
   html+='</div>';
   // === NARX DINAMIKASI GRAFIGI (davr bo'yicha) ===
   var narxTarixAll = (data.lomNarxTarix||[]).slice().sort(function(a,b){return (a.sana_ts||0)-(b.sana_ts||0);});
@@ -11778,4 +11779,4 @@ cloudInit();
 
 </script>
 </body>
-</html>
+</html><!-- v46: zKursSaqla() endi renderLom() ni ham chaqiradi — kurs saqlanganda LOM tabidagi JAMI FOYDA darhol yangilanadi (avval faqat kassa/foyda panellari yangilanardi, LOM tab keshlangan holda qolardi) -->
