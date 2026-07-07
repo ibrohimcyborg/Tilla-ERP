@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v41: suzuvchi hisobidagi kirimNarxHozir endi getZavodNarx bilan BIR XIL yaxlitlanadi (1 xonagacha) — kurs o'zgarmagan sotuvlarda soxta yaxlitlash-shovqini (masalan +$0.64) endi chiqmaydi -->
+<!-- v42: sotuvlar jadvaliga (kassa lentasi) jonli suzuvchi qo'shildi — har tur, har klient, har kun uchun asl (chizilgan) va hozirgi foyda + yo'nalish strelkasi (▲/▼). kassaSuzuvchiXaritasi() FIFO mantiqini takrorlab har op'ga natijani obyekt havolasi orqali bog'laydi. -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -5236,10 +5236,61 @@ function klientTab(tab) {
   if(tab==='kassa') renderKassa();
 }
 
+// Har bir HAQIQIY sotuv yozuviga (op) uning JORIY (kurs bilan jonli) suzuvchi qismini
+// obyekt havolasi orqali bog'laydi — kassaFifoModel bilan bir xil FIFO mantiq, faqat
+// natija umumiy yig'indi emas, har OP ning O'ZIGA (Map orqali) yoziladi.
+function kassaSuzuvchiXaritasi(){
+  var m = new Map();
+  var bugungiKurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+  (data.zavodlar||[]).forEach(function(z, zi){
+    var foizlar={};
+    try{ foizlar=JSON.parse(localStorage.getItem('tilla-foiz-'+zi)||'{}'); }catch(e){}
+    (z.turlar||[]).forEach(function(t, ti){
+      var pct = foizlar[ti]!==undefined?parseFloat(foizlar[ti])||0:0;
+      var kirimNarxHozir = (bugungiKurs>0&&pct>0)?Math.round(bugungiKurs*(1+pct/100)*10)/10:(bugungiKurs>0?bugungiKurs:0);
+      var savdo=[];
+      (data.klientlar||[]).forEach(function(k){
+        (k.tarix||[]).forEach(function(op){
+          if(op.tip==='tolov' && op.zavod===z.nom && op.tur===t.nom &&
+             parseNum(op.kirimNarx)>0 && parseNum(op.ekvivalent)>0 && !op._kdYopish && !op._kdVoz){
+            savdo.push({op:op, ekv:parseNum(op.ekvivalent), kirimNarx:parseNum(op.kirimNarx), ts:fdSanaTs(op.sana,op.soat)});
+          }
+        });
+      });
+      if(!savdo.length) return;
+      savdo.sort(function(a,b){ return a.ts-b.ts; });
+      var realSotilgan=0; savdo.forEach(function(s){ realSotilgan+=s.ekv; });
+      var sotilganHammasi=0, vozvratG=0, tolanganG=0;
+      (data.klientlar||[]).forEach(function(k){
+        (k.tarix||[]).forEach(function(op){
+          if(op.tip==='tolov' && op.zavod===z.nom && op.tur===t.nom && parseNum(op.ekvivalent)>0){
+            sotilganHammasi+=parseNum(op.ekvivalent);
+          } else if(op.tip==='vozvrat' && op.zavod===z.nom && op.tur===t.nom && parseNum(op.gramm)>0){
+            vozvratG+=parseNum(op.gramm);
+          }
+        });
+      });
+      (t.tarix||[]).forEach(function(op){
+        if(op.tip!=='mol' && op.tip!=='vozvrat') tolanganG+=parseNum(op.jami);
+      });
+      var ochiqBu = Math.max(0, sotilganHammasi - vozvratG - tolanganG);
+      var yopilganBu = Math.max(0, realSotilgan - Math.min(ochiqBu, realSotilgan));
+      var qoldiYopish=yopilganBu;
+      savdo.forEach(function(s){
+        var yop=Math.min(s.ekv, qoldiYopish);
+        var ochiqEkv = s.ekv - yop; qoldiYopish -= yop;
+        var suzuvchi = kirimNarxHozir>0 ? ochiqEkv*(s.kirimNarx - kirimNarxHozir) : 0;
+        m.set(s.op, {ochiqEkv:roundG(ochiqEkv), suzuvchi:Math.round(suzuvchi*100)/100});
+      });
+    });
+  });
+  return m;
+}
 function renderKassa() {
   var cont = document.getElementById('klient-kassa-list');
   if (!cont) return;
   var allOps = [];
+  var _szXarita = kassaSuzuvchiXaritasi();
   (data.klientlar||[]).forEach(function(k, ki){
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
@@ -5247,11 +5298,14 @@ function renderKassa() {
       var foyda = op.kirimNarx && op.kurs && op.ekvivalent
         ? Math.round((op.summa - op.kirimNarx * op.ekvivalent) * 100) / 100
         : 0;
+      var _sz = _szXarita.get(op);
+      var suzuvchi = _sz ? _sz.suzuvchi : 0;
       allOps.push({
         sana: op.sana, soat: op.soat||'', ki:ki, knom: k.nom, kat: k.kat||'A',
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0, kurs: op.kurs||0,
         summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda,
+        suzuvchi: suzuvchi, foydaHozir: Math.round((foyda+suzuvchi)*100)/100,
         naqtPul: op.naqtPul !== undefined ? op.naqtPul : (op.kartaPul ? 0 : (op.summa||0)),
         kartaPul: op.kartaPul||0, skidka: op.skidka||0,
         lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0
@@ -5262,7 +5316,7 @@ function renderKassa() {
   if(!allOps.length){ cont.innerHTML='<div class="empty">Hali tolov yoq</div>'; return; }
 
   var jamiSumma=0, jamiGramm=0, jamiFoyda=0, jamiSkidkaK=0;
-  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foyda; jamiSkidkaK+=o.skidka; });
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foydaHozir; jamiSkidkaK+=o.skidka; });
   jamiFoyda = Math.round(jamiFoyda*100)/100;
   jamiSkidkaK = Math.round(jamiSkidkaK*100)/100;
 
@@ -5271,13 +5325,14 @@ function renderKassa() {
   allOps.forEach(function(o, idx){
     var sk = o.ki+'|'+o.sana+'|'+(o.soat||'');
     if(!sessions[sk]){
-      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0, skidka:0};
+      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0, foydaAsl:0, skidka:0};
       sessionOrder.push(sk);
     }
     sessions[sk].ops.push(o);
     sessions[sk].summa+=o.summa;
     sessions[sk].gramm+=o.gramm;
-    sessions[sk].foyda+=o.foyda;
+    sessions[sk].foyda+=o.foydaHozir;
+    sessions[sk].foydaAsl+=o.foyda;
     sessions[sk].skidka+=o.skidka;
   });
 
@@ -5340,13 +5395,16 @@ function renderKassa() {
     var out=html;
     dayOrder.forEach(function(sana){
       var klientlar=byDay[sana];
-      var daySumma=0, dayFoyda=0;
-      Object.values(klientlar).forEach(function(kg){ daySumma+=kg.summa; dayFoyda+=kg.foyda; });
+      var daySumma=0, dayFoyda=0, dayFoydaAsl=0;
+      Object.values(klientlar).forEach(function(kg){ daySumma+=kg.summa; dayFoyda+=kg.foyda; dayFoydaAsl+=kg.foydaAsl; });
       dayFoyda=Math.round(dayFoyda*100)/100;
+      dayFoydaAsl=Math.round(dayFoydaAsl*100)/100;
+      var daySz = Math.abs(dayFoyda-dayFoydaAsl)>0.005;
+      var dayStrelka = daySz ? (dayFoyda>dayFoydaAsl?' <span style="color:var(--green);">▲</span>':' <span style="color:var(--red);">▼</span>') : '';
 
       out+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;display:flex;justify-content:space-between;">';
       out+='<span>'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span></span>';
-      out+='<span style="color:var(--green);font-size:11px;">+$'+fmtD(dayFoyda)+'</span>';
+      out+='<span style="font-size:11px;">'+(daySz?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">+$'+fmtD(dayFoydaAsl)+'</span> ':'')+'<span style="color:'+(dayFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:600;">'+(dayFoyda>0?'+':'')+'$'+fmtD(dayFoyda)+'</span>'+dayStrelka+'</span>';
       out+='</div>';
 
       Object.keys(klientlar).sort(function(a,b){ return (klientlar[b].soat||'').localeCompare(klientlar[a].soat||''); }).forEach(function(key){
@@ -5354,6 +5412,9 @@ function renderKassa() {
         var kSumma=Math.round(kg.summa*100)/100;
         var kGramm=Math.round(kg.gramm*100)/100;
         var kFoyda=Math.round(kg.foyda*100)/100;
+        var kFoydaAsl=Math.round(kg.foydaAsl*100)/100;
+        var kSz = Math.abs(kFoyda-kFoydaAsl)>0.005;
+        var kStrelka = kSz ? (kFoyda>kFoydaAsl?' <span style="color:var(--green);">▲</span>':' <span style="color:var(--red);">▼</span>') : '';
         var expKey=sana+'|'+key;
         var isOpen=expKassa[expKey];
         var ks=katStyles[kg.kat]||katStyles.A;
@@ -5372,7 +5433,7 @@ function renderKassa() {
         out+='<div style="display:flex;align-items:center;gap:8px;">';
         out+='<div style="text-align:right;">';
         out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
-        if(kFoyda>0) out+='<div style="font-size:11px;color:var(--green);">+$'+fmtD(kFoyda)+'</div>';
+        if(kFoyda>0.005||kFoyda<-0.005) out+='<div style="font-size:11px;">'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:9px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<span style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:500;">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</span>'+kStrelka+'</div>';
         out+='</div>';
         out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
         out+='</div></div>';
@@ -5384,7 +5445,12 @@ function renderKassa() {
           out+='<div>Tur</div><div>Gramm</div><div>Narx</div><div style="color:var(--green);">Foyda</div></div>';
           kg.ops.forEach(function(o){
             if(!o.zavod||!o.tur) return;
-            var turFoyda=o.foyda>0?'+$'+fmtD(o.foyda):'—';
+            var _szO=Math.abs(o.suzuvchi)>0.005;
+            var _rang = o.foydaHozir>0.005?'var(--green)':(o.foydaHozir<-0.005?'var(--red)':'var(--muted)');
+            var _strelka = _szO ? (o.suzuvchi>0?' <span style="color:var(--green);">▲</span>':' <span style="color:var(--red);">▼</span>') : '';
+            var turFoyda = (o.foydaHozir>0.005||o.foydaHozir<-0.005)
+              ? (_szO?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">'+(o.foyda>=0?'+':'')+fmtD(o.foyda)+'</span> ':'')+'<b style="color:'+_rang+';">'+(o.foydaHozir>0?'+':'')+'$'+fmtD(o.foydaHozir)+'</b>'+_strelka
+              : '—';
             out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:start;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
             out+='<div style="color:var(--text);">'+o.zavod+' · '+o.tur+'</div>';
             out+='<div style="color:var(--muted);">'+fmtG(o.gramm)+'g</div>';
@@ -5392,7 +5458,7 @@ function renderKassa() {
             if(o.kirimNarx) out+='<div style="font-size:10px;color:var(--muted);">kirim: '+fmtD(o.kirimNarx)+'</div>';
             if(o.skidka>0.001) out+='<div style="font-size:10px;color:var(--red);">sk: −'+fmtD(Math.round(o.skidka*100)/100)+'</div>';
             out+='</div>';
-            out+='<div style="color:var(--green);text-align:right;">'+turFoyda+'</div>';
+            out+='<div style="text-align:right;">'+turFoyda+'</div>';
             out+='</div>';
           });
           out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
@@ -5412,9 +5478,9 @@ function renderKassa() {
             if(kLom>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Lom'+(kLomG>0?' '+fmtG(kLomG)+'g × '+kLomKurs:'')+'</span><span style="color:var(--gold);">$'+fmtD(kLom)+'</span></div>';
             out+='</div>';
           }
-          if(kFoyda>0){
+          if(kFoyda>0.005||kFoyda<-0.005){
             out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;">';
-            out+='<span style="color:var(--muted);">Jami foyda</span><span style="color:var(--green);font-weight:500;">+$'+fmtD(kFoyda)+'</span></div>';
+            out+='<span style="color:var(--muted);">Jami foyda</span><span>'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<b style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</b>'+kStrelka+'</span></div>';
           }
           out+='</div>';
         }
