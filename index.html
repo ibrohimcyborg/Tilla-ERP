@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v38: (1) narx sinxroni — kurs/lom/foizlar (foiz/a-foiz/manual/b-ust/kurs-tarix) data._narxSync orqali cloudga ergashadi, boshqa qurilmada 0 bo'lmaydi; (2) kurs jurnal IKKALA saqlash yo'liga ulandi (asosiy Saqlash tugmasi ham); (3) kurs saqlanganda foyda paneli avto yangilanadi -->
+<!-- v40: FIFO MODEL — har sotuv o'z kirimNarx muhrini (kunlik kurs asosida) abadiy saqlaydi. Marja sotuvda qotadi (o'zgarmadi). Kurs farqi endi FAQAT zavodga TO'LANGANDA, eng eski ochiq sotuvdan FIFO tartibida qotadi (tarixiy, davr filtrlanadi). Hali to'lanmagan qism 'Suzuvchi' — kurs o'zgarganda DARHOL jonli qayta hisoblanadi, hech qachon qotmaydi (eski kurs-jurnal/qaytaBaho mexanizmi butunlay olib tashlandi). Zapros yopish yozuviga kirimNarxPay+zPulGramm muhri qo'shildi (pul qismi kurs-sezgir, lom/999 qismi oltin-uchun-oltin kurs-neytral). -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -1713,23 +1713,8 @@ function narxHolatQollash(){
   }catch(e){ console.error('narx sync:', e); }
 }
 narxHolatQollash();
-// Kurs saqlanganda jurnal yozuvi — IKKALA saqlash yo'lidan ham chaqiriladi
-function kursJurnalYoz(eskiKurs, val, sana, soat){
-  try{
-    if(!(eskiKurs>0) || Math.abs(eskiKurs-val)<=0.001) return;
-    if(typeof kassaOchiqPoz!=='function' || typeof data==='undefined' || !data) return;
-    if(!data.kassa) return;
-    var _poz = kassaOchiqPoz();
-    if(!data.kassa.kursJurnal) data.kassa.kursJurnal=[];
-    data.kassa.kursJurnal.push({
-      ts:Date.now(), sana:sana, soat:soat,
-      eski:eskiKurs, yangi:val,
-      ochiqG:_poz.ochiqG,
-      tasir:Math.round((eskiKurs - val) * _poz.sezgir * 100)/100
-    });
-    if(data.kassa.kursJurnal.length>200) data.kassa.kursJurnal=data.kassa.kursJurnal.slice(-200);
-  }catch(e){ console.error('kurs jurnal:', e); }
-}
+// (kurs jurnal olib tashlandi — endi hech narsa "saqlash paytida" qotmaydi,
+// suzuvchi har doim JONLI FIFO formuladan hisoblanadi, faqat zavodga TO'LOVDA qotadi)
 // Yaroqsiz (0g yoki zavod/tur-siz) vozvrat yozuvini aniqlovchi yagona funksiya
 function isBadVozvrat(op) {
   return op && op.tip === 'vozvrat' && (
@@ -2359,7 +2344,6 @@ function hkSaqla() {
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  kursJurnalYoz(parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'), val, sana, soat);
   tarix.push({kurs:val, sana:sana, soat:soat});
   if (tarix.length > 100) tarix = tarix.slice(-100);
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
@@ -2649,7 +2633,6 @@ function zKursSaqla() {
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  kursJurnalYoz(parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'), val, sana, soat);
   tarix.push({kurs:val, lom:lom, sana:sana, soat:soat});
   if (tarix.length > 100) tarix = tarix.slice(-100);
   localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
@@ -2934,6 +2917,7 @@ function ztHisob(){
 }
 function zaprosTaqsimSaqla(){
   var o=ztOqi(); if(!o.z) return;
+  var _ztZavodNomZavod = o.z;
   if(o.jamiP<=0.001 && o.jamiL<=0.001 && o.jamiT<=0.001){ alert('Hech narsa kiritilmagan'); return; }
   if(o.jamiP > o.zp.pul+0.01){ alert('Pul zaprosdan oshdi!'); return; }
   if(o.jamiL > o.zp.lom+0.01){ alert('Lom zaprosdan oshdi!'); return; }
@@ -2951,7 +2935,14 @@ function zaprosTaqsimSaqla(){
     if(r.t9>0) zaprosChontakIstemol(o.zp.recs, 'tozaG', 'tToza', r.t9, true);
     var totalG = roundG(gP + r.l + r.t9*1.7);
     r.t.ostatka = Math.max(0, Math.round((r.t.ostatka - totalG)*100)/100);
-    r.t.tarix.push({tip:'tolov', sana:sana, soat:soat, kimga:'Zapros (snab avans)', naqtSumma:0, naqtGramm:0, naqtKurs:0, lomGramm:0, lomKurs:0, lomPul:0, lomGEq:0, jami:totalG, zapros:true, zPul:Math.round(r.p*100)/100, zLom:roundG(r.l), zToza:roundG(r.t9)});
+    // Foyda modeli uchun: pul qismining o'rtacha raw kursi (kurs-sezgir), tur foiziga o'tkazib muhrlanadi.
+    // Lom/999 qismi OLTIN-UCHUN-OLTIN — kurs-neytral (bu yerda muhrlanmaydi).
+    var _znI = data.zavodlar.indexOf(_ztZavodNomZavod||{});
+    var _foizPay={}; try{ _foizPay=JSON.parse(localStorage.getItem('tilla-foiz-'+_znI)||'{}'); }catch(e){}
+    var _pctPay = _foizPay[r.ti]!==undefined?parseFloat(_foizPay[r.ti])||0:0;
+    var _kursEqRaw = (r.p>0 && gP>0) ? r.p/gP : 0;
+    var _kirimNarxPay = _kursEqRaw>0 ? Math.round(_kursEqRaw*(1+_pctPay/100)*100)/100 : 0;
+    r.t.tarix.push({tip:'tolov', sana:sana, soat:soat, kimga:'Zapros (snab avans)', naqtSumma:0, naqtGramm:0, naqtKurs:0, lomGramm:0, lomKurs:0, lomPul:0, lomGEq:0, jami:totalG, zapros:true, zPul:Math.round(r.p*100)/100, zLom:roundG(r.l), zToza:roundG(r.t9), zPulGramm:gP, kirimNarxPay:_kirimNarxPay});
   });
   save('Zapros taqsim | '+_ztZavodNom);
   ztYop();
@@ -3210,7 +3201,8 @@ function khToggle(){ _khOchiq=!_khOchiq; if(typeof renderKassa==='function') ren
 function khDavrTanla(d){ _khDavr=d; if(typeof renderKassa==='function') renderKassa(); }
 function khFiltrTanla(f){ _khFiltr=f; if(typeof renderKassa==='function') renderKassa(); }
 // ---- JORIY FOYDA MODULI: uch oqim + ochiq pozitsiya ----
-var _fdDavr='kun';
+var _fdDavr='kun', _fdOchiq=false;
+function fdToggle(){ _fdOchiq=!_fdOchiq; if(typeof renderKassa==='function') renderKassa(); }
 function fdDavrSet(v){ _fdDavr=v; if(typeof renderKassa==='function') renderKassa(); }
 function fdDavrBoshi(){
   var n=new Date();
@@ -3224,6 +3216,127 @@ function fdSanaTs(sana, soat){
   if(!sana) return 0;
   var p=sana.split('.'); if(p.length!==3) return 0;
   return new Date(p[2]+'-'+p[1]+'-'+p[0]+'T'+(soat||'00:00')).getTime();
+}
+// ==== FIFO MODEL: har sotuv o'z kunlik-kurs-asosidagi kirim narxini (kirimNarx) abadiy saqlaydi.
+// Marja sotuv zahoti qotadi (Section A, o'zgarmaydi). Qolgan "kurs farqi" esa TO'LANMAGUNCHA
+// suzadi (jonli, kurs bilan birga o'ynaydi) va faqat ZAVODGA TO'LANGANDA, o'sha to'lovning
+// o'z kursiga qarab, ESKI SOTUVDAN BOSHLAB (FIFO) qotadi. Bu funksiya ikkalasini ham beradi:
+// natija.qotganKursF — tarixiy to'lovlarda ABADIY qotgan kurs farqi (davrsiz, tarixiy fakt)
+// natija.suzuvchi — HOZIRGI ochiq qismning jonli qayta bahosi (kurs o'zgarsa darhol o'zgaradi)
+function kassaFifoModel(bosh){
+  bosh = bosh||0;
+  var qotganKursF=0, suzuvchi=0, ochiqG=0, sezgir=0;
+  var bugungiKurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+
+  (data.zavodlar||[]).forEach(function(z, zi){
+    var foizlar={};
+    try{ foizlar=JSON.parse(localStorage.getItem('tilla-foiz-'+zi)||'{}'); }catch(e){}
+
+    (z.turlar||[]).forEach(function(t, ti){
+      var pct = foizlar[ti]!==undefined?parseFloat(foizlar[ti])||0:0;
+      var kirimNarxHozir = (bugungiKurs>0) ? bugungiKurs*(1+pct/100) : 0;
+
+      // 1) SOTUVLAR navbati — faqat HAQIQIY sotuv (kirimNarx>0), eskidan yangiga
+      var savdo=[]; // {ekv(qolgan ochiq), kirimNarx, ts}
+      (data.klientlar||[]).forEach(function(k){
+        (k.tarix||[]).forEach(function(op){
+          if(op.tip==='tolov' && op.zavod===z.nom && op.tur===t.nom &&
+             parseNum(op.kirimNarx)>0 && parseNum(op.ekvivalent)>0 && !op._kdYopish && !op._kdVoz){
+            savdo.push({ekv:parseNum(op.ekvivalent), kirimNarx:parseNum(op.kirimNarx), ts:fdSanaTs(op.sana,op.soat)});
+          }
+        });
+      });
+      if(!savdo.length) return;
+      savdo.sort(function(a,b){ return a.ts-b.ts; });
+      var realSotilgan=0; savdo.forEach(function(s){ realSotilgan+=s.ekv; });
+
+      // 2) OCHIQ gramm — kassaOchiqPoz bilan bir xil, tekshirilgan formula (sold(hammasi)−vozvrat−tolangan)
+      var sotilganHammasi=0, vozvratG=0, tolanganG=0;
+      (data.klientlar||[]).forEach(function(k){
+        (k.tarix||[]).forEach(function(op){
+          if(op.tip==='tolov' && op.zavod===z.nom && op.tur===t.nom && parseNum(op.ekvivalent)>0){
+            sotilganHammasi+=parseNum(op.ekvivalent);
+          } else if(op.tip==='vozvrat' && op.zavod===z.nom && op.tur===t.nom && parseNum(op.gramm)>0){
+            vozvratG+=parseNum(op.gramm);
+          }
+        });
+      });
+      (t.tarix||[]).forEach(function(op){
+        if(op.tip!=='mol' && op.tip!=='vozvrat') tolanganG+=parseNum(op.jami);
+      });
+      var ochiqBu = Math.max(0, sotilganHammasi - vozvratG - tolanganG);
+      // real-sotuv FIFO navbatidan yopilgan (closed) miqdor — ESKIDAN boshlab tugatiladi
+      var yopilganBu = Math.max(0, realSotilgan - Math.min(ochiqBu, realSotilgan));
+
+      // 3) FIFO: eski sotuvlardan boshlab "yopilganBu" ni yopamiz — qolgani OCHIQ (suzuvchi)
+      var qoldiYopish=yopilganBu;
+      savdo.forEach(function(s){
+        var yop=Math.min(s.ekv, qoldiYopish);
+        s.ekv -= yop; qoldiYopish -= yop; // s.ekv endi shu sotuvning OCHIQ qismi
+      });
+
+      // 4) Suzuvchi — qolgan ochiq ekv, HAR sotuvning o'z kirimNarx muhridan
+      savdo.forEach(function(s){
+        if(s.ekv<=0.001) return;
+        ochiqG+=s.ekv;
+        if(kirimNarxHozir>0) suzuvchi += s.ekv*(s.kirimNarx - kirimNarxHozir);
+        sezgir += s.ekv*(pct>0?(1+pct/100):1);
+      });
+
+      // 5) Qotgan kurs farqi — tarixiy TO'LOVLAR, o'z kursiga qarab, eski sotuvdan FIFO yopib chiqiladi.
+      // Har to'lov ikki qismga bo'linadi: kurs-sezgir ($da baholangan) va kurs-neytral (oltin-uchun-oltin).
+      var boliklar=[]; // {gramm, kirimPay(null=neytral), ts}
+      (t.tarix||[]).forEach(function(op){
+        if(op.tip==='mol' || op.tip==='vozvrat') return;
+        var g=parseNum(op.jami); if(g<=0.001) return;
+        var ts=fdSanaTs(op.sana,op.soat);
+        if(op.zapros){
+          var gP=parseNum(op.zPulGramm), kP=parseNum(op.kirimNarxPay);
+          var neytralG = Math.max(0, g-gP);
+          if(gP>0.001) boliklar.push({gramm:gP, kirimPay:(kP>0?kP:null), ts:ts});
+          if(neytralG>0.001) boliklar.push({gramm:neytralG, kirimPay:null, ts:ts});
+        } else {
+          var kNaqt=parseNum(op.naqtKurs), gNaqt=parseNum(op.naqtGramm);
+          var kLom=parseNum(op.lomKurs), gLom=parseNum(op.lomGramm);
+          var toza=gNaqt+gLom;
+          var kirimPay = toza>0.001 ? ((kNaqt*gNaqt)+(kLom*gLom))/toza : 0;
+          boliklar.push({gramm:g, kirimPay:(kirimPay>0?kirimPay:null), ts:ts});
+        }
+      });
+      boliklar.sort(function(a,b){ return a.ts-b.ts; });
+
+      // ikkinchi FIFO nusxa (savdo navbati) — bu safar "qotgan kurs farqi"ni hisoblash uchun
+      var savdo2=[];
+      (data.klientlar||[]).forEach(function(k){
+        (k.tarix||[]).forEach(function(op){
+          if(op.tip==='tolov' && op.zavod===z.nom && op.tur===t.nom &&
+             parseNum(op.kirimNarx)>0 && parseNum(op.ekvivalent)>0 && !op._kdYopish && !op._kdVoz){
+            savdo2.push({ekv:parseNum(op.ekvivalent), kirimNarx:parseNum(op.kirimNarx), ts:fdSanaTs(op.sana,op.soat)});
+          }
+        });
+      });
+      savdo2.sort(function(a,b){ return a.ts-b.ts; });
+      var si=0;
+      boliklar.forEach(function(pay){
+        var qoldi=pay.gramm;
+        while(qoldi>0.001 && si<savdo2.length){
+          if(savdo2[si].ekv<=0.001){ si++; continue; }
+          var yop=Math.min(savdo2[si].ekv, qoldi);
+          if(pay.kirimPay!==null && pay.ts>=bosh){
+            qotganKursF += yop*(savdo2[si].kirimNarx - pay.kirimPay);
+          }
+          savdo2[si].ekv -= yop; qoldi -= yop;
+        }
+      });
+    });
+  });
+  return {
+    qotganKursF: Math.round(qotganKursF*100)/100,
+    suzuvchi: Math.round(suzuvchi*100)/100,
+    ochiqG: roundG(ochiqG),
+    sezgir: Math.round(sezgir*100)/100,
+    kurs: bugungiKurs
+  };
 }
 // Faqat SOTILGAN lekin zavodga TO'LANMAGAN gramm — kurs riskida faqat shu.
 // Sotilmagan mol foizli narxda neytral: kurs oshsa sotuv narxi ham birga oshadi.
@@ -3265,7 +3378,7 @@ function kassaOchiqPoz(){
 }
 function kassaFoyda(){
   var bosh=fdDavrBoshi();
-  // A) SAVDO MARJA — klient tolovlaridan (mavjud formula: summa − kirimNarx×ekvivalent)
+  // A) SAVDO MARJA — klient tolovlaridan (mavjud formula: summa − kirimNarx×ekvivalent). Sotuv zahoti qotadi.
   var marja=0;
   (data.klientlar||[]).forEach(function(k){
     (k.tarix||[]).forEach(function(op){
@@ -3274,21 +3387,9 @@ function kassaFoyda(){
       if(op.kirimNarx && op.ekvivalent) marja += (op.summa - op.kirimNarx*op.ekvivalent);
     });
   });
-  // B) KURS FARQI — realized: snab berish (kunlikKurs muhri borlar) + bajarilgan zakazlar
-  var kursF=0, kursYoq=false;
-  ((data.kassa&&data.kassa.snabAmallar)||[]).forEach(function(r){
-    if(r.tip!=='berish' || r.holat==='bekor') return;
-    var ts=r.ts||fdSanaTs(r.sana,r.soat); if(ts<bosh) return;
-    if(!r.kunlikKurs || !r.kurs583){ kursYoq=true; return; }
-    var g=(parseNum(r.pul)/parseNum(r.kurs583)) + parseNum(r.lomG) + parseNum(r.tozaG)*1.7;
-    kursF += (r.kunlikKurs - r.kurs583) * g;
-  });
-  ((data.kassa&&data.kassa.zakazlar)||[]).forEach(function(z){
-    if(z.holat!=='bajarildi') return;
-    var ts=z.yopTs||z.ts||0; if(ts<bosh) return;
-    if(!z.kunlikKurs || !z.kurs) return;
-    kursF += (z.kunlikKurs - z.kurs) * (z.summa/z.kurs);
-  });
+  // B) va D) — FIFO MODEL: qotgan kurs farqi (davr bo'yicha, ZAVODGA TO'LANGANDA qotadi)
+  // va suzuvchi (JORIY, hali to'lanmagan ochiq qism — kurs o'zgarsa DARHOL o'zgaradi, hech qachon "qotmaydi")
+  var fifo=kassaFifoModel(bosh);
   // C) LOM FOYDA — olishda qulflangan: (o'sha kungi lom kurs − olish narxi) × gramm
   var lomF=0;
   (data.lomlar||[]).forEach(function(r){
@@ -3297,23 +3398,16 @@ function kassaFoyda(){
     if(!r.lomKunlik || !r.narx) return;
     lomF += (r.lomKunlik - r.narx) * parseNum(r.gramm);
   });
-  // OCHIQ POZITSIYA — alohida funksiyada (kurs jurnalida ham ishlatiladi)
+  // Yopish qiymati (naqd $ ma'nosida — informatsion, kassaOchiqPoz'dan)
   var poz=kassaOchiqPoz();
-  var kurs=poz.kurs, ochiqG=poz.ochiqG, yopQiy=poz.yopQiy, sezgir=poz.sezgir;
-  // D) KURS QAYTA BAHO — jurnal yozuvlaridan (davr ichidagilar)
-  var qaytaBaho=0;
-  ((data.kassa&&data.kassa.kursJurnal)||[]).forEach(function(r){
-    if((r.ts||0)<bosh) return;
-    qaytaBaho+=parseNum(r.tasir);
-  });
   return {
     marja:Math.round(marja*100)/100,
-    kursF:Math.round(kursF*100)/100,
+    kursF:fifo.qotganKursF,           // QOTGAN — faqat to'lovda muhrlangan, davr filtrlangan
     lomF:Math.round(lomF*100)/100,
-    qaytaBaho:Math.round(qaytaBaho*100)/100,
-    jami:Math.round((marja+kursF+lomF+qaytaBaho)*100)/100,
-    ochiqG:roundG(ochiqG), yopQiy:Math.round(yopQiy*100)/100,
-    sezgir:Math.round(sezgir*100)/100, kurs:kurs, kursYoq:kursYoq
+    suzuvchi:fifo.suzuvchi,            // JORIY — hali to'lanmagan, kurs bilan jonli o'ynaydi
+    jami:Math.round((marja+fifo.qotganKursF+lomF+fifo.suzuvchi)*100)/100,
+    ochiqG:fifo.ochiqG, yopQiy:Math.round(poz.yopQiy*100)/100,
+    sezgir:fifo.sezgir, kurs:fifo.kurs
   };
 }
 function kassaFoydaPanelHTML(){
@@ -3321,14 +3415,20 @@ function kassaFoydaPanelHTML(){
   var rang=function(v){ return v>0.005?'var(--green)':(v<-0.005?'var(--red)':'var(--muted)'); };
   var ishora=function(v){ return (v>0.005?'+':'')+'$'+fmtD(Math.round(v*100)/100); };
   var h='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+  h+='<div onclick="fdToggle()" style="display:flex;justify-content:space-between;align-items:center;gap:6px;cursor:pointer;'+(_fdOchiq?'margin-bottom:8px;':'')+'">';
   h+='<span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">FOYDA — JORIY HOLAT</span>';
-  h+='<div style="display:flex;gap:4px;">';
+  var _fQisqa=kassaFoyda();
+  h+='<span style="display:flex;align-items:center;gap:8px;">';
+  if(!_fdOchiq) h+='<b style="font-family:Roboto,sans-serif;font-size:13px;color:'+(_fQisqa.jami>0.005?'var(--green)':(_fQisqa.jami<-0.005?'var(--red)':'var(--muted)'))+';">'+(_fQisqa.jami>0.005?'+':'')+'$'+fmtD(_fQisqa.jami)+'</b>';
+  h+='<span style="font-size:13px;color:var(--muted);">'+(_fdOchiq?'⌄':'›')+'</span></span>';
+  h+='</div>';
+  if(!_fdOchiq){ h+='</div>'; return h; }
+  h+='<div style="display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-bottom:8px;">';
   [['kun','Kun'],['hafta','Hafta'],['oy','Oy'],['yil','Yil']].forEach(function(d){
     var akt=_fdDavr===d[0];
-    h+='<button onclick="fdDavrSet(\''+d[0]+'\')" style="border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;border:1px solid '+(akt?'var(--gold)':'var(--border)')+';background:'+(akt?'var(--gold)':'var(--surf2)')+';color:'+(akt?'var(--on-gold)':'var(--muted)')+';">'+d[1]+'</button>';
+    h+='<button onclick="event.stopPropagation();fdDavrSet(\''+d[0]+'\')" style="border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;border:1px solid '+(akt?'var(--gold)':'var(--border)')+';background:'+(akt?'var(--gold)':'var(--surf2)')+';color:'+(akt?'var(--on-gold)':'var(--muted)')+';">'+d[1]+'</button>';
   });
-  h+='</div></div>';
+  h+='</div>';
   // Bosh raqam
   h+='<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;text-align:center;margin-bottom:8px;">';
   h+='<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Qulflangan foyda ('+_fdDavr+')</div>';
@@ -3340,10 +3440,10 @@ function kassaFoydaPanelHTML(){
       +'<div><span style="font-size:12px;font-weight:600;">'+nom+'</span><div style="font-size:10px;color:var(--muted);">'+izoh+'</div></div>'
       +'<b style="font-family:Roboto,sans-serif;font-size:14px;color:'+rang(v)+';">'+ishora(v)+'</b></div>';
   };
-  h+=oqim('1 · Savdo marja','sotuvda qulflangan', f.marja);
-  h+=oqim('2 · Kurs farqi','berish/zakaz: kunlik vs qulf kursi'+(f.kursYoq?' · eski yozuvlar hisobga kirmadi':''), f.kursF);
+  h+=oqim('1 · Savdo marja','sotuvda darhol qulflangan', f.marja);
+  h+=oqim('2 · Kurs farqi (qotgan)','zavodga TO\'LANGANDA muhrlangan (eskidan-FIFO)', f.kursF);
   h+=oqim('3 · LOM foyda','olishda qulflangan chegirma', f.lomF);
-  h+=oqim('4 · Kurs qayta baho','kurs o\'zgarganda ochiq pozitsiya avto qayta baholanadi', f.qaytaBaho);
+  h+=oqim('4 · Suzuvchi (joriy)','hali to\'lanmagan — kurs bilan JONLI o\'ynaydi, hech qachon qotmaydi', f.suzuvchi);
   // Ochiq pozitsiya
   h+='<div style="background:var(--surf2);border:1.5px dashed var(--gold);border-radius:10px;padding:9px 12px;margin-top:8px;">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
@@ -3363,19 +3463,6 @@ function kassaFoydaPanelHTML(){
     h+='<div style="font-size:12px;color:var(--green);">Sotilgan mol uchun zavodga to\'lanmagan qarz yo\'q — kurs riski nol ✓</div>';
   }
   h+='</div>';
-  // KURS JURNALI — oxirgi o'zgarishlar izi
-  var jur=((data.kassa&&data.kassa.kursJurnal)||[]).slice(-6).reverse();
-  if(jur.length){
-    h+='<div style="margin-top:8px;">';
-    h+='<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Kurs jurnali — avto qayta baho izi</div>';
-    jur.forEach(function(r){
-      var rj=r.tasir>0.005?'var(--green)':(r.tasir<-0.005?'var(--red)':'var(--muted)');
-      h+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 2px;border-bottom:1px solid var(--border);color:var(--muted);">';
-      h+='<span>'+r.sana+' '+(r.soat||'')+' · <b style="color:var(--text);">'+r.eski+' → '+r.yangi+'</b> · ochiq '+fmtG(r.ochiqG)+'g</span>';
-      h+='<b style="font-family:Roboto,sans-serif;color:'+rj+';">'+(r.tasir>0?'+':'')+'$'+fmtD(Math.abs(r.tasir)>=0.005?r.tasir:0)+'</b></div>';
-    });
-    h+='</div>';
-  }
   h+='</div>';
   return h;
 }
