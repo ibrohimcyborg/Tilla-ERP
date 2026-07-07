@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v42: sotuvlar jadvaliga (kassa lentasi) jonli suzuvchi qo'shildi — har tur, har klient, har kun uchun asl (chizilgan) va hozirgi foyda + yo'nalish strelkasi (▲/▼). kassaSuzuvchiXaritasi() FIFO mantiqini takrorlab har op'ga natijani obyekt havolasi orqali bog'laydi. -->
+<!-- v43: 'Ochiq Pozitsiya - Kurs riski' karta olib tashlandi (Suzuvchi oqimi allaqachon shu ma'lumotni beradi, dublikat edi) -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -3446,25 +3446,6 @@ function kassaFoydaPanelHTML(){
   h+=oqim('2 · Kurs farqi (qotgan)','zavodga TO\'LANGANDA muhrlangan (eskidan-FIFO)', f.kursF);
   h+=oqim('3 · LOM foyda','olishda qulflangan chegirma', f.lomF);
   h+=oqim('4 · Suzuvchi (joriy)','hali to\'lanmagan — kurs bilan JONLI o\'ynaydi, hech qachon qotmaydi', f.suzuvchi);
-  // Ochiq pozitsiya
-  h+='<div style="background:var(--surf2);border:1.5px dashed var(--gold);border-radius:10px;padding:9px 12px;margin-top:8px;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
-  h+='<span style="font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">⚖ Ochiq pozitsiya — kurs riski</span></div>';
-  if(f.ochiqG>0.001){
-    h+='<div style="font-size:12px;color:var(--muted);line-height:1.9;">';
-    h+='<div style="display:flex;justify-content:space-between;"><span>Sotilgan, zavodga to\'lanmagan</span><b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(f.ochiqG)+' g</b></div>';
-    if(f.kurs>0){
-      h+='<div style="display:flex;justify-content:space-between;"><span>Yopish qiymati (bugungi narxlarda)</span><b style="color:var(--red);font-family:Roboto,sans-serif;">$'+fmtD(f.yopQiy)+'</b></div>';
-      h+='<div style="display:flex;justify-content:space-between;"><span>Kurs +1$ o\'ssa</span><b style="color:var(--red);font-family:Roboto,sans-serif;">−$'+fmtD(f.sezgir)+'</b></div>';
-      h+='<div style="display:flex;justify-content:space-between;"><span>Kurs −1$ tushsa</span><b style="color:var(--green);font-family:Roboto,sans-serif;">+$'+fmtD(f.sezgir)+'</b></div>';
-    } else {
-      h+='<div style="font-size:11px;">Bugungi kurs kiritilmagan — yopish qiymati hisoblanmadi</div>';
-    }
-    h+='</div>';
-  } else {
-    h+='<div style="font-size:12px;color:var(--green);">Sotilgan mol uchun zavodga to\'lanmagan qarz yo\'q — kurs riski nol ✓</div>';
-  }
-  h+='</div>';
   h+='</div>';
   return h;
 }
