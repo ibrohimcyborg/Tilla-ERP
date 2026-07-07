@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
-<!-- v43: 'Ochiq Pozitsiya - Kurs riski' karta olib tashlandi (Suzuvchi oqimi allaqachon shu ma'lumotni beradi, dublikat edi) -->
+<!-- v44: KRITIK TUZATISH — cloudKol() endi TEST_MODE bo'lsa har doim 'TEST_' prefiksli ALOHIDA kolleksiyaga yozadi/o'qiydi, Firebase auth qaysi hisobda ekanidan qat'i nazar. Avval TEST rejimda ham (agar haqiqiy hisob bilan ulanib qolinsa) haqiqiy kolleksiyaga yozib yuborish xavfi bor edi -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
@@ -11525,7 +11525,7 @@ var _cloudDb = null, _cloudUser = null, _cloudUnsub = null;
 var _cloudPending = false, _cloudBusy = false, _cloudRemoteNewer = false;
 var _cloudTimer = null;
 
-function cloudKol(){ return 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza
+function cloudKol(){ return (TEST_MODE?'TEST_':'') + 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza; TEST rejimda HAR DOIM alohida (TEST_) kolleksiya — haqiqiy ma'lumotga aralashmasin
 function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'))||'0'); }
 function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'), String(v)); }
 function cloudQurilma(){
