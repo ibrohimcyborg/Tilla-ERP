@@ -3976,6 +3976,10 @@ function renderZavod() {
     });
     var turKlientda = Object.values(turKlientlar).reduce(function(a,b){return a+(b>0?b:0);},0);
     turKlientda = Math.round(turKlientda*100)/100;
+    // Bizning qarzimiz — klientlarda MUSBAT (bizga qaytgan/ortiqcha to'langan) balanslar yig'indisi.
+    // turKlientlar[nom] manfiy bo'lsa — biz o'sha klientga qarzdormiz (fizik yoki pul-asosli).
+    var turBizningQarzimiz = Object.values(turKlientlar).reduce(function(a,b){return a+(b<0?-b:0);},0);
+    turBizningQarzimiz = Math.round(turBizningQarzimiz*100)/100;
     var turBizda = t.ostatka;
     var turJami = Math.round((turBizda+turKlientda)*100)/100;
 
@@ -4013,10 +4017,11 @@ function renderZavod() {
       + '</div>'
       + '</div>'
       + '<div class="tacc-body">'
-      + '<div class="stat2" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:10px;">'
+      + '<div class="stat2" style="grid-template-columns:repeat(' + (turBizningQarzimiz>0.001?4:3) + ',minmax(0,1fr));margin-bottom:10px;">'
       + '<div class="stat2-item"><div class="stat2-label">BIZDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--green);">'+fmtG(turBizda)+'g</div></div>'
       + '<div class="stat2-item"><div class="stat2-label">KLIENTDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--red);">'+fmtG(turKlientda)+'g</div></div>'
       + '<div class="stat2-item"><div class="stat2-label">JAMI</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--gold);">'+fmtG(turJami)+'g</div></div>'
+      + (turBizningQarzimiz>0.001 ? '<div class="stat2-item" style="background:var(--gold-bg);border-color:var(--gold-bd);"><div class="stat2-label" style="color:var(--gold);">BIZNING QARZIMIZ</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--gold);">'+fmtG(turBizningQarzimiz)+'g</div></div>' : '')
       + '</div>'
       + (klientRows ? '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Klientlarda</div>' + klientRows + '<div style="height:1px;background:var(--border);margin:10px 0;"></div>' : '')
       + (rows || '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px;">Tarix yoq</div>')
@@ -11803,4 +11808,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v56: Topbardagi 'v-FIX27' yozuvi olib tashlandi ('TILLA HISOB' yolg'iz qoldi). Backup fayl ichidagi versiya metama'lumoti (foydalanuvchiga ko'rinmaydi) tegilmadi. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. -->
