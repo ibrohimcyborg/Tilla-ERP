@@ -585,7 +585,7 @@ body.rol-zavod #main-klient { display: none !important; }
     </div>
 
     <div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
-      <input type="text" inputmode="decimal" id="sk-scan" placeholder="Gramm skan qiling…" autocomplete="off" autocorrect="off" onkeydown="if(event.key==='Enter'){event.preventDefault();skScanAdd();}" style="flex:1;padding:11px 12px;border-radius:8px;border:1px solid var(--gold-bd);font-size:15px;background:var(--surf2);color:var(--text);">
+      <input type="text" inputmode="decimal" id="sk-scan" placeholder="Gramm skan qiling…" autocomplete="off" autocorrect="off" onkeydown="skScanKeydown(event)" style="flex:1;padding:11px 12px;border-radius:8px;border:1px solid var(--gold-bd);font-size:15px;background:var(--surf2);color:var(--text);">
       <button onclick="skScanAdd()" aria-label="Qoshish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:20px;cursor:pointer;">+</button>
       <button onclick="skDelLast()" aria-label="Oxirgini ochirish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:20px;cursor:pointer;">−</button>
     </div>
@@ -3772,7 +3772,7 @@ function renderHisobot() {
     if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', zavod:item.zavod, sana:op.sana, turlar:[]}; groupOrder.push(key); }
     groups[key].turlar.push(item);
   });
-  groupOrder.sort(function(a,b){ return groups[b].sana.localeCompare(groups[a].sana); });
+  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
   var expanded = {};
   function render() {
     var out = '';
@@ -4273,7 +4273,7 @@ function renderZavodHisobot() {
     if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', sana:op.sana, turlar:[]}; groupOrder.push(key); }
     groups[key].turlar.push(item);
   });
-  groupOrder.sort(function(a,b){ return groups[b].sana.localeCompare(groups[a].sana); });
+  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
   var zExp = {};
   function renderZH() {
     var out = '';
@@ -4428,20 +4428,38 @@ function skParseGram(v){
   if (v == null) return 0;
   var s = String(v).trim();
   if (!s) return 0;
-  s = s.replace(/[^\d]+/g, '.');     // raqamsiz belgilar -> nuqta
+  // Oldindagi + yoki - belgisini ALOHIDA saqlab qolamiz — aks holda pastdagi
+  // "raqamsiz belgilar -> nuqta" qoidasi ularni ham nuqtaga aylantirib, ishorani yo'qotardi.
+  var manfiy = false;
+  if (s.charAt(0)==='+' ) s = s.slice(1);
+  else if (s.charAt(0)==='-'){ manfiy = true; s = s.slice(1); }
+  s = s.replace(/[^\d]+/g, '.');     // qolgan raqamsiz belgilar (vergul, probel) -> nuqta
   s = s.replace(/\.+$/g, '');        // oxiridagi nuqtalar
   if (s.charAt(0) === '.') s = '0' + s;
   var p = s.split('.');
   if (p.length > 2) s = p[0] + '.' + p.slice(1).join('');
   var n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
+  if (isNaN(n)) return 0;
+  return manfiy ? -n : n;
 }
 
+// Skaner/tarozi/numpad qiymatni "Enter" o'rniga "+" yoki "-" belgisi bilan yakunlashi mumkin.
+// Agar maydon BO'SH bo'lsa — belgi odatdagidek yozilaveradi (qo'lda manfiy son kiritish uchun,
+// masalan "-5"). Agar maydonda ALLAQACHON raqam bo'lsa — bu "yakunlovchi" signal deb qabul qilinadi:
+// "+" -> qo'shish (skScanAdd), "-" -> oxirgisini o'chirish (skDelLast).
+function skScanKeydown(event){
+  if(event.key==='Enter'){ event.preventDefault(); skScanAdd(); return; }
+  var el = event.target;
+  if((event.key==='+' || event.key==='-') && el.value && el.value.trim().length>0){
+    event.preventDefault();
+    if(event.key==='+') skScanAdd(); else skDelLast();
+  }
+}
 function skScanAdd(){
   var el = document.getElementById('sk-scan');
   var g = skParseGram(el.value);
-  if (!g || g <= 0){ el.value = ''; el.focus(); return; }
-  skArr().push(roundG(g));
+  if (!g){ el.value = ''; el.focus(); return; } // faqat 0/bosh qiymat rad etiladi
+  skArr().push(roundG(g)); // manfiy qiymat ham qo'shiladi — tuzatish (ayirish) yozuvi sifatida
   el.value = ''; el.focus();
   skRender();
 }
@@ -5712,7 +5730,7 @@ function kassaPDFYukor(dan, gacha) {
       jamiGramm += op.ekvivalent||0;
     });
   });
-  allOps.sort(function(a,b){return a.sana.localeCompare(b.sana);});
+  allOps.sort(function(a,b){return fdSanaTs(a.sana)-fdSanaTs(b.sana);});
   var label = (dan&&gacha) ? (dan.split('-').reverse().join('.')+' - '+gacha.split('-').reverse().join('.')) : 'Hammasi';
   var payload = {
     tip: 'kassa', ops: allOps, dan: dan, gacha: gacha, label: label,
@@ -10531,7 +10549,7 @@ function klientPDFYukor(dan, gacha){
       return true;
     });
   }
-  ops.sort(function(a,b){ var r=a.sana.localeCompare(b.sana); return r||a.soat.localeCompare(b.soat); });
+  ops.sort(function(a,b){ return fdSanaTs(a.sana,a.soat)-fdSanaTs(b.sana,b.soat); });
 
   var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});
   var payload={
@@ -11779,4 +11797,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v46: zKursSaqla() endi renderLom() ni ham chaqiradi — kurs saqlanganda LOM tabidagi JAMI FOYDA darhol yangilanadi (avval faqat kassa/foyda panellari yangilanardi, LOM tab keshlangan holda qolardi) -->
+</html><!-- v49: KRITIK TUZATISH — 4 joyda sana bo'yicha saralash 'DD.MM.YYYY' satrini to'g'ridan-to'g'ri solishtirar edi (localeCompare) — bu KUN raqami OY raqamidan oldin solishtirilgani uchun, masalan '05.06.2026' (5-iyun) satr sifatida '04.07.2026' (4-iyul) dan KATTA chiqib, kechroq sana tepaga chiqib qolardi. Endi hammasi fdSanaTs() (haqiqiy timestamp) bilan solishtiriladi: renderHisobot, renderZavodHisobot, PDF hisobot allOps, va klient qarz-tarkib ops. -->
