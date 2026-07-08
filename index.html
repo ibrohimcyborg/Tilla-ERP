@@ -423,16 +423,16 @@ body.rol-zavod #main-klient { display: none !important; }
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
         <button class="btn" onclick="openKlientBerish()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--red-bg);border-color:var(--red-bd);">
-          <span style="font-size:18px;color:var(--red);">↑</span><span style="color:var(--red);">Berish</span>
+          <span style="color:var(--red);display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13m-5-5l5 5 5-5"/></svg></span><span style="color:var(--red);">Berish</span>
         </button>
         <button class="btn" onclick="openKlientVozvrat()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--blue-bg);border-color:var(--blue-bd);">
-          <span style="font-size:18px;color:var(--blue);">↩</span><span style="color:var(--blue);">Vozvrat</span>
+          <span style="color:var(--blue);display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></svg></span><span style="color:var(--blue);">Vozvrat</span>
         </button>
         <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--green-bg);border-color:var(--green-bd);">
-          <span style="font-size:18px;color:var(--green);">$</span><span style="color:var(--green);">Tolov</span>
+          <span style="color:var(--green);display:flex;"><svg width="18" height="18" viewBox="0 0 24 24"><text x="12" y="17" text-anchor="middle" font-size="17" font-weight="600" fill="currentColor" font-family="Arial,sans-serif">$</text></svg></span><span style="color:var(--green);">Tolov</span>
         </button>
         <button class="btn" onclick="openKlientSotuv()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--gold-bg);border-color:var(--gold-bd);">
-          <span style="font-size:18px;color:var(--gold);">+</span><span style="color:var(--gold);">Sotuv</span>
+          <span style="color:var(--gold);display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span style="color:var(--gold);">Sotuv</span>
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -11803,4 +11803,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v54: Mobil Berish/Vozvrat/To'lov tugmalariga ham PC bilan bir xil rangli fon qo'shildi (avval faqat Sotuv rangli fonga ega edi, qolgan uchtasi rangsiz edi) — endi barcha to'rttasi PC'dagidek to'liq rangli. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. -->
