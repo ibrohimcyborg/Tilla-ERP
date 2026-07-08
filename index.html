@@ -88,6 +88,12 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .tacc.open .tacc-body{display:block;}
 .stat2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .stat2-item{background:var(--surf);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);min-width:0;overflow:hidden;}
+@media(max-width:560px){
+  .kassa-stat-row{grid-template-columns:repeat(6,minmax(0,1fr))!important;}
+  .kassa-stat-row .stat2-item:nth-child(-n+3){grid-column:span 2;}
+  .kassa-stat-row .stat2-item:nth-child(n+4){grid-column:span 3;}
+  .kassa-stat-row .stat2-item:nth-child(4):last-child{grid-column:span 6;}
+}
 .stat2-label{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;}
 .trow{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .trow:last-child{border-bottom:none;}
@@ -5354,7 +5360,7 @@ function renderKassa() {
   html+=kassaQoldiqPanelHTML();
   html+=kassaFoydaPanelHTML();
   html+=kassaLentaHTML();
-  html+='<div style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',minmax(0,1fr));gap:8px;margin-bottom:10px;">';
+  html+='<div class="kassa-stat-row" style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',minmax(0,1fr));gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
@@ -11797,4 +11803,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v50: KRITIK CSS TUZATISH — 4 joyda grid-template-columns:repeat(N,1fr) ishlatilgan edi. CSS Grid'da 1fr sukut bo'yicha minmax(auto,1fr) ma'nosini bildiradi — agar bitta katak ichidagi matn (masalan FOYDA'dagi katta summa) boshqalaridan uzunroq bo'lsa, o'sha katak KENGROQ chizilib qolardi (aynan skrinshotdagi holat). Endi barchasi minmax(0,1fr) — hammasi HAQIQIY teng kenglikda, uzun matn qirqiladi/kichrayadi, o'zi kengaymaydi. .stat2-item'ga ham min-width:0 + overflow:hidden qo'shildi. -->
+</html><!-- v51: mobilda (<=560px) Kassa stat qatori 2 qatorga bo'linadi — tepada 3 ta (Jami Kassa/Gramm/To'lovlar, har biri 2/6 ustun), pastda 2 ta (Skidka/Foyda, har biri 3/6 ustun, kengroq); agar Skidka bo'lmasa Foyda yolg'iz to'liq kenglikda (6/6). PC'da o'zgarish yo'q (5 ta bir qatorda qoladi). -->
