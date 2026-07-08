@@ -394,19 +394,19 @@ body.rol-zavod #main-klient { display: none !important; }
       <div style="margin-bottom:8px;" id="klient-sort-pc-cont"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:7px;">
         <button class="pc-kbtn berish" onclick="openKlientBerish()">
-          <span class="pc-kbtn-ico" style="color:var(--red);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13m-5-5l5 5 5-5"/></svg></span>
+          <span class="pc-kbtn-ico" style="color:var(--red);">↑</span>
           <span class="pc-kbtn-lbl" style="color:var(--red);">Berish</span>
         </button>
         <button class="pc-kbtn vozvrat" onclick="openKlientVozvrat()">
-          <span class="pc-kbtn-ico" style="color:var(--blue);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></svg></span>
+          <span class="pc-kbtn-ico" style="color:var(--blue);">↩</span>
           <span class="pc-kbtn-lbl" style="color:var(--blue);">Vozvrat</span>
         </button>
         <button class="pc-kbtn tolov" onclick="openKlientTolov()">
-          <span class="pc-kbtn-ico" style="color:var(--green);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><text x="12" y="16.3" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Arial,sans-serif">$</text></svg></span>
+          <span class="pc-kbtn-ico" style="color:var(--green);">$</span>
           <span class="pc-kbtn-lbl" style="color:var(--green);">To'lov</span>
         </button>
         <button class="pc-kbtn sotuv" onclick="openKlientSotuv()">
-          <span class="pc-kbtn-ico" style="color:var(--gold);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="pc-kbtn-ico" style="color:var(--gold);">+</span>
           <span class="pc-kbtn-lbl" style="color:var(--gold);">Sotuv</span>
         </button>
       </div>
@@ -423,16 +423,16 @@ body.rol-zavod #main-klient { display: none !important; }
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
         <button class="btn" onclick="openKlientBerish()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="color:var(--green);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13m-5-5l5 5 5-5"/></svg></span>Berish
+          <span style="font-size:18px;color:var(--red);">↑</span>Berish
         </button>
         <button class="btn" onclick="openKlientVozvrat()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="color:var(--gold);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></svg></span>Vozvrat
+          <span style="font-size:18px;color:var(--blue);">↩</span>Vozvrat
         </button>
         <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="color:var(--blue);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><text x="12" y="16.3" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Arial,sans-serif">$</text></svg></span>Tolov
+          <span style="font-size:18px;color:var(--green);">$</span>Tolov
         </button>
         <button class="btn" onclick="openKlientSotuv()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--gold-bg);border-color:var(--gold-bd);">
-          <span style="color:var(--gold);display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span style="color:var(--gold);">Sotuv</span>
+          <span style="font-size:18px;color:var(--gold);">+</span><span style="color:var(--gold);">Sotuv</span>
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -11803,4 +11803,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v52: Klient amal tugmalari (Berish/Vozvrat/To'lov/Sotuv, PC va mobil) — matn belgilari (↑↩$+) toza SVG ikonlarga almashtirildi: Berish/Vozvrat/Sotuv yupqa chiziqli, To'lov to'ldirilgan doira+oq $ (tanlangan dizayn). -->
+</html><!-- v53: v52 bekor qilindi — ikonlar yana oddiy matn belgilariga (↑↩$+) qaytarildi. Mobil versiyaning ranglari endi PC bilan BIR XIL: Berish=qizil, Vozvrat=ko'k, To'lov=yashil, Sotuv=oltin (avval mobilda boshqa-boshqa rangda edi: yashil/oltin/ko'k, PC bilan mos kelmasdi). -->
