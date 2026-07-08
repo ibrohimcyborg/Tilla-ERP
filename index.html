@@ -72,7 +72,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .cdd-item:hover{background:var(--surf2);}
 .cdd-item.act{background:var(--gold);color:var(--on-gold);font-weight:600;}
 /* kassa katta tugmalar: 1x4, torda 2x2 */
-.kassa-btnlar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.kassa-btnlar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:8px;}
 .kassa-btn{border-radius:12px;padding:13px 4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;text-align:center;}
 @media(max-width:560px){.kassa-btnlar{grid-template-columns:1fr 1fr;}}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:2;}
@@ -87,7 +87,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .tacc-body{display:none;border-top:1px solid var(--border);background:var(--surf2);padding:12px 14px;}
 .tacc.open .tacc-body{display:block;}
 .stat2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.stat2-item{background:var(--surf);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);}
+.stat2-item{background:var(--surf);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border);min-width:0;overflow:hidden;}
 .stat2-label{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;}
 .trow{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .trow:last-child{border-bottom:none;}
@@ -4119,7 +4119,7 @@ function renderZavodKassa() {
 
   // Umumiy stat
   var zkCols = jamiSkidka>0.001 ? 5 : 4;
-  var html = '<div style="display:grid;grid-template-columns:repeat('+zkCols+',1fr);gap:8px;margin-bottom:12px;">';
+  var html = '<div style="display:grid;grid-template-columns:repeat('+zkCols+',minmax(0,1fr));gap:8px;margin-bottom:12px;">';
   html += '<div class="stat2-item"><div class="stat2-label">KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(Math.round(jamiSumma*100)/100)+'</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html += '<div class="stat2-item"><div class="stat2-label">SOTUVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+allOps.length+' ta</div></div>';
@@ -4181,7 +4181,7 @@ function renderZavodKassa() {
       dayHtml += '<div class="hrow" style="margin-bottom:8px;cursor:pointer;border-left:3px solid var(--gold-bd);" onclick="zKassaToggle(\''+sana+'\')">';
       // Tur mini cards
       var turKeys=Object.keys(byTurDay);
-      dayHtml += '<div style="display:grid;grid-template-columns:repeat('+Math.min(turKeys.length,3)+',1fr);gap:8px;">';
+      dayHtml += '<div style="display:grid;grid-template-columns:repeat('+Math.min(turKeys.length,3)+',minmax(0,1fr));gap:8px;">';
       turKeys.forEach(function(tur){
         var td=byTurDay[tur];
         var tdF=Math.round(td.foyda*100)/100;
@@ -5354,7 +5354,7 @@ function renderKassa() {
   html+=kassaQoldiqPanelHTML();
   html+=kassaFoydaPanelHTML();
   html+=kassaLentaHTML();
-  html+='<div style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',1fr);gap:8px;margin-bottom:10px;">';
+  html+='<div style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',minmax(0,1fr));gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
@@ -11797,4 +11797,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v49: KRITIK TUZATISH — 4 joyda sana bo'yicha saralash 'DD.MM.YYYY' satrini to'g'ridan-to'g'ri solishtirar edi (localeCompare) — bu KUN raqami OY raqamidan oldin solishtirilgani uchun, masalan '05.06.2026' (5-iyun) satr sifatida '04.07.2026' (4-iyul) dan KATTA chiqib, kechroq sana tepaga chiqib qolardi. Endi hammasi fdSanaTs() (haqiqiy timestamp) bilan solishtiriladi: renderHisobot, renderZavodHisobot, PDF hisobot allOps, va klient qarz-tarkib ops. -->
+</html><!-- v50: KRITIK CSS TUZATISH — 4 joyda grid-template-columns:repeat(N,1fr) ishlatilgan edi. CSS Grid'da 1fr sukut bo'yicha minmax(auto,1fr) ma'nosini bildiradi — agar bitta katak ichidagi matn (masalan FOYDA'dagi katta summa) boshqalaridan uzunroq bo'lsa, o'sha katak KENGROQ chizilib qolardi (aynan skrinshotdagi holat). Endi barchasi minmax(0,1fr) — hammasi HAQIQIY teng kenglikda, uzun matn qirqiladi/kichrayadi, o'zi kengaymaydi. .stat2-item'ga ham min-width:0 + overflow:hidden qo'shildi. -->
