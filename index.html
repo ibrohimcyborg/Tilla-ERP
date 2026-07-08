@@ -422,14 +422,14 @@ body.rol-zavod #main-klient { display: none !important; }
         <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--muted);">🔍</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
-        <button class="btn" onclick="openKlientBerish()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="font-size:18px;color:var(--red);">↑</span>Berish
+        <button class="btn" onclick="openKlientBerish()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--red-bg);border-color:var(--red-bd);">
+          <span style="font-size:18px;color:var(--red);">↑</span><span style="color:var(--red);">Berish</span>
         </button>
-        <button class="btn" onclick="openKlientVozvrat()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="font-size:18px;color:var(--blue);">↩</span>Vozvrat
+        <button class="btn" onclick="openKlientVozvrat()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--blue-bg);border-color:var(--blue-bd);">
+          <span style="font-size:18px;color:var(--blue);">↩</span><span style="color:var(--blue);">Vozvrat</span>
         </button>
-        <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;">
-          <span style="font-size:18px;color:var(--green);">$</span>Tolov
+        <button class="btn" onclick="openKlientTolov()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--green-bg);border-color:var(--green-bd);">
+          <span style="font-size:18px;color:var(--green);">$</span><span style="color:var(--green);">Tolov</span>
         </button>
         <button class="btn" onclick="openKlientSotuv()" style="flex-direction:column;gap:4px;padding:12px 6px;font-size:12px;background:var(--gold-bg);border-color:var(--gold-bd);">
           <span style="font-size:18px;color:var(--gold);">+</span><span style="color:var(--gold);">Sotuv</span>
@@ -11803,4 +11803,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v53: v52 bekor qilindi — ikonlar yana oddiy matn belgilariga (↑↩$+) qaytarildi. Mobil versiyaning ranglari endi PC bilan BIR XIL: Berish=qizil, Vozvrat=ko'k, To'lov=yashil, Sotuv=oltin (avval mobilda boshqa-boshqa rangda edi: yashil/oltin/ko'k, PC bilan mos kelmasdi). -->
+</html><!-- v54: Mobil Berish/Vozvrat/To'lov tugmalariga ham PC bilan bir xil rangli fon qo'shildi (avval faqat Sotuv rangli fonga ega edi, qolgan uchtasi rangsiz edi) — endi barcha to'rttasi PC'dagidek to'liq rangli. -->
