@@ -925,11 +925,26 @@ body.rol-zavod #main-klient { display: none !important; }
     <div class="modal-handle"></div>
     <div class="modal-header"><span style="font-weight:700;font-size:16px;">Sotib olish — lom / 999</span><button class="modal-close" onclick="closeModal('modal-kassa-olish')">×</button></div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="ko-erkin"></div>
+    <div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Davr</span>
+        <span style="display:flex;gap:6px;">
+          <button type="button" onclick="koDavr(1)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;">Hozir</button>
+          <button type="button" onclick="koDavr(0)" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">Kecha</button>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:8px;">
+        <input type="date" id="ko-sana" onchange="koDavrUpd()" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);box-sizing:border-box;">
+        <input type="time" id="ko-soat" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);box-sizing:border-box;">
+      </div>
+      <div id="ko-davr-ogoh" style="display:none;margin-top:8px;background:var(--yellow-bg);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--yellow);"></div>
+    </div>
     <div class="field"><label>Proba</label><select id="ko-proba" onchange="koPreview()">
       <option value="999">999</option><option value="583">583</option><option value="585">585</option><option value="750">750</option><option value="375">375</option>
     </select></div>
     <div class="field"><label>Gramm</label><input type="number" id="ko-gramm" inputmode="decimal" oninput="koPreview()" placeholder="0"></div>
     <div class="field"><label>Narx $/g</label><input type="number" id="ko-narx" inputmode="decimal" oninput="koPreview()" placeholder="0"></div>
+    <div class="field"><label>Lom kunlik — davr kuni ($/g)</label><input type="number" id="ko-lomk" inputmode="decimal" placeholder="0"></div>
     <div class="field"><label>Izoh (ixtiyoriy)</label><input type="text" id="ko-izoh" placeholder="Kimdan..." maxlength="60" autocomplete="off"></div>
     <div id="ko-preview" style="background:var(--surf2);border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--muted);">Gramm va narx kiriting</div>
     <div class="btn-row">
@@ -3084,8 +3099,48 @@ function openKassaOlish(){
   document.getElementById('ko-gramm').value='';
   document.getElementById('ko-narx').value='';
   document.getElementById('ko-izoh').value='';
-  koPreview();
+  koDavr(1); // sana=bugun, soat=hozir, lom kunlik=bugungi
   document.getElementById('modal-kassa-olish').classList.add('open');
+}
+// ---- SOTIB OLISH: davr (sana+soat) — kechasi olib ertasiga kiritish uchun ----
+function koTanlSana(){ // 'dd.mm.yyyy'
+  var v=(document.getElementById('ko-sana')||{}).value;
+  return v ? v.split('-').reverse().join('.') : today();
+}
+function koDavr(hozir){
+  var sEl=document.getElementById('ko-sana'), tEl=document.getElementById('ko-soat');
+  if(!sEl||!tEl) return;
+  var d=new Date();
+  if(!hozir) d.setDate(d.getDate()-1); // Kecha
+  sEl.value = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  if(hozir) tEl.value = nowSoat(); // Kecha bosilsa soat qo'lda tanlanadi (o'zgarmaydi)
+  koDavrUpd();
+}
+function koDavrUpd(){
+  var sana=koTanlSana();
+  // 1) Lom kunlik — davr kunining kursidan (tilla-kurs-tarix), topilmasa bugungi
+  var lomK=0;
+  try{
+    var tarix=JSON.parse(localStorage.getItem('tilla-kurs-tarix')||'[]');
+    for(var i=tarix.length-1;i>=0;i--){ if(tarix[i].sana===sana && parseNum(tarix[i].lom)>0){ lomK=parseNum(tarix[i].lom); break; } }
+  }catch(e){}
+  if(!lomK && sana===today()) lomK=parseFloat(localStorage.getItem('tilla-lom-bugun')||'0');
+  var lkEl=document.getElementById('ko-lomk');
+  if(lkEl) lkEl.value = lomK>0 ? lomK : '';
+  // 2) Ogohlantirish: tanlangan kunga Z allaqachon qilinganmi / orqa sanami
+  var og=document.getElementById('ko-davr-ogoh');
+  if(og){
+    var zBor=((data.kassa&&data.kassa.zlar)||[]).some(function(z){ return z.sana===sana; });
+    var orqaga = sana!==today();
+    if(zBor){
+      og.style.display='block';
+      og.innerHTML='Diqqat: '+sana+' kuniga Z allaqachon qilingan — bu yozuv o\u2019sha kun qoldig\u2019ini o\u2019zgartiradi.'+(lomK<=0?' Lom kunlik topilmadi — qo\u2019lda kiriting.':'');
+    } else if(orqaga){
+      og.style.display='block';
+      og.innerHTML='Orqa sana: '+sana+'. Yozuv o\u2019sha kunga tushadi.'+(lomK<=0?' Lom kunlik topilmadi — qo\u2019lda kiriting.':'');
+    } else og.style.display='none';
+  }
+  koPreview();
 }
 function koPreview(){
   var el=document.getElementById('ko-preview'); if(!el) return;
@@ -3096,8 +3151,15 @@ function koPreview(){
   var s=Math.round(g*n*100)/100;
   var o=kassaOqim(), band=kassaMuzlatilgan();
   var erkin=Math.round((o.naqd-band)*100)/100;
-  var h='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">To\'lanadi</span><b style="color:var(--red);">−$'+fmtD(s)+'</b></div>';
-  h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">'+(p==='999'?'999':'Lom')+' cho\'ntagi</span><b style="color:var(--blue);">+'+fmtG(g)+' g'+(p!=='999'?' (ekv '+fmtG(kassaEkv(p,g))+'g)':'')+'</b></div>';
+  // KASSA TA'SIRI — cho'ntak o'tishlari: hozirgi → yangi
+  var h='<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Kassa ta\'siri</div>';
+  h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Naqd</span><span>$'+fmtD(o.naqd)+' → <b>$'+fmtD(Math.round((o.naqd-s)*100)/100)+'</b> <span style="color:var(--red);">−$'+fmtD(s)+'</span></span></div>';
+  if(p==='999'){
+    h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">999</span><span>'+fmtG(o.toza)+'g → <b>'+fmtG(roundG(o.toza+g))+'g</b> <span style="color:var(--blue);">+'+fmtG(g)+'g</span></span></div>';
+  } else {
+    var ekv=kassaEkv(p,g);
+    h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Lom 583 (ekv)</span><span>'+fmtG(o.lomEkv)+'g → <b>'+fmtG(roundG(o.lomEkv+ekv))+'g</b> <span style="color:var(--blue);">+'+fmtG(ekv)+'g</span></span></div>';
+  }
   h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Erkin qoladi</span><b style="color:var(--green);">$'+fmtD(Math.round((erkin-s)*100)/100)+'</b></div>';
   if(s>erkin+0.001) h+='<div style="color:var(--red);font-size:11px;margin-top:4px;">⚠ Erkin puldan oshdi!</div>';
   el.innerHTML=h;
@@ -3108,14 +3170,20 @@ function kassaOlishSaqla(){
   var p=document.getElementById('ko-proba').value;
   var iz=document.getElementById('ko-izoh').value.trim();
   if(g<=0||n<=0){ alert('Gramm va narx kiriting!'); return; }
+  // DAVR: tanlangan sana+soat (kechasi olib ertasiga kiritish uchun)
+  var sana=koTanlSana();
+  var soat=(document.getElementById('ko-soat')||{}).value || nowSoat();
+  var ts=fdSanaTs(sana, soat); if(!ts||isNaN(ts)) ts=Date.now();
+  var lomK=parseNum((document.getElementById('ko-lomk')||{}).value);
+  if(!lomK) lomK=parseFloat(localStorage.getItem('tilla-lom-bugun')||'0');
   var s=Math.round(g*n*100)/100;
   var o=kassaOqim(), band=kassaMuzlatilgan();
   var erkin=Math.round((o.naqd-band)*100)/100;
   if(s>erkin+0.001){ alert('Erkin puldan oshdi! Erkin: $'+fmtD(erkin)); return; }
-  if(!confirm('SOTIB OLINSINMI?\n\n'+p+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(s)+(iz?'\n'+iz:''))) return;
+  if(!confirm('SOTIB OLINSINMI?\n\n'+p+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(s)+'\nDavr: '+sana+' '+soat+(sana!==today()?' (ORQA SANA)':'')+(iz?'\n'+iz:''))) return;
   if(!data.lomlar) data.lomlar=[];
-  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:today(), sana_ts:Date.now(), soat:nowSoat(), izoh:iz, lomKunlik:parseFloat(localStorage.getItem('tilla-lom-bugun')||'0')});
-  save('Sotib olish (kassa) | '+p+' '+fmtG(g)+'g | $'+fmtD(s));
+  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:sana, sana_ts:ts, soat:soat, izoh:iz, lomKunlik:lomK});
+  save('Sotib olish (kassa) | '+p+' '+fmtG(g)+'g | $'+fmtD(s)+' | '+sana);
   closeModal('modal-kassa-olish');
   if(typeof renderKassa==='function') renderKassa();
   renderKassaCard();
@@ -3633,6 +3701,32 @@ function kassaZakazMuddatTxt(z){
   return {txt:txt, holat:'ok'};
 }
 // Kassa tabdagi qoldiq paneli (renderKassa ichida chaqiriladi)
+// ---- YOPILMAGAN KUN ESLATMASI ----
+var _zEslatmaYopiq=false; // × bosilsa shu sessiyada ko'rinmaydi
+function kassaYopilmaganKun(){
+  // Oxirgi Z dan keyingi eng eski Z siz kun ('dd.mm.yyyy'), faqat KECHAGACHA (bugun emas).
+  // Hali umuman Z qilinmagan bo'lsa eslatma yo'q (birinchi Z — nol nuqta, o'zi qiladi).
+  var zlar=(data.kassa&&data.kassa.zlar)||[];
+  if(!zlar.length) return null;
+  var oxirgi='';
+  zlar.forEach(function(z){ if(sanaKey(z.sana)>sanaKey(oxirgi||'01.01.1970')) oxirgi=z.sana; });
+  if(!oxirgi) return null;
+  var p=oxirgi.split('.');
+  var d=new Date(+p[2], +p[1]-1, +p[0]);
+  var bugunK=sanaKey(today());
+  for(var i=0;i<14;i++){ // ko'pi bilan 14 kun tekshiriladi
+    d.setDate(d.getDate()+1);
+    var s=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+    if(sanaKey(s)>=bugunK) return null; // bugungacha yetdik — hammasi yopiq
+    if(!zlar.some(function(z){ return z.sana===s; })) return s;
+  }
+  return null;
+}
+function zEslatmaOch(sana){
+  openKassaZ();
+  var inp=document.getElementById('kz-sana-inp');
+  if(inp && sana){ inp.value=sana.split('.').reverse().join('-'); kassaZSanaUpd(); }
+}
 function kassaQoldiqPanelHTML(){
   var o = kassaOqim();
   var z = kassaOxirgiZ();
@@ -3641,6 +3735,14 @@ function kassaQoldiqPanelHTML(){
   var ochiqZ = ((data.kassa&&data.kassa.zakazlar)||[]).filter(function(z){return z.holat==='ochiq';});
   var h = '<div style="background:var(--surf);border:1px solid var(--gold-bd);border-top:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
   h += '<div style="margin-bottom:8px;"><span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA QOLDIQ — HAQIQIY</span></div>';
+  // YOPILMAGAN KUN ESLATMASI: oxirgi Z dan keyingi eng eski yopilmagan kun (kechagacha)
+  var yopilmagan = kassaYopilmaganKun();
+  if(yopilmagan && !_zEslatmaYopiq){
+    h += '<div style="background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;">'
+      + '<span style="font-size:12px;color:var(--yellow);flex:1;"><b>'+yopilmagan+' kuni yopilmagan.</b> Qoldiqni sanab Z-hisob qiling.</span>'
+      + '<button onclick="zEslatmaOch(\''+yopilmagan+'\')" style="white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--gold-bd);background:var(--surf);color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;">Kunni yopish</button>'
+      + '<span onclick="_zEslatmaYopiq=true;renderKassa();" style="cursor:pointer;color:var(--yellow);font-size:15px;padding:0 2px;">×</span></div>';
+  }
   // muddat banneri: 1 soat qolgan yoki o'tgan ochiq zakazlar
   ochiqZ.forEach(function(z){
     var m = kassaZakazMuddatTxt(z);
@@ -11906,4 +12008,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. --><!-- v60: (1) SOTIB OLISH modaliga DAVR qo'shildi — sana+soat maydonlari, Hozir/Kecha tez tugmalar; kechasi olib ertasiga kiritish uchun. Yozuvga tanlangan sana/soat/sana_ts yoziladi; lomKunlik endi DAVR kunining lom kursidan (tilla-kurs-tarix dan topiladi, topilmasa qo'lda — LOM foyda to'g'ri kun kursi bilan qulflanadi); tanlangan kunga Z bo'lsa yoki orqa sana bo'lsa sariq ogohlantirish; confirm da ORQA SANA belgisi. (2) koPreview endi KASSA TA'SIRI ko'rsatadi: Naqd hozirgi→yangi (−summa), 999 yoki Lom583(ekv) cho'ntagi hozirgi→yangi (+gramm), erkin qoladi. (3) YOPILMAGAN KUN ESLATMASI — kassa qoldiq panelida: oxirgi Z dan keyingi eng eski yopilmagan kun (bugungacha) sariq banner, 'Kunni yopish' tugmasi Z modalini o'sha sana bilan ochadi, × shu sessiyada yashiradi; hali umuman Z qilinmagan bo'lsa chiqmaydi. Z YOPISH AVTOMAT EMAS — qo'lda sanash bilan qoladi. -->
