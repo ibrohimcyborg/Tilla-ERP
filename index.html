@@ -4815,6 +4815,20 @@ document.querySelectorAll('.modal-overlay').forEach(function(el){
     if(t) tryClose(e, t.clientX, t.clientY);
   });
 });
+// SKANER DETEKTORI: QR/shtrix skaner belgilarni <35ms oraliqda "teradi" va Enter bilan
+// yakunlaydi. Odam bunchalik tez tera olmaydi. Oxirgi Enter oldidan kamida 3 ta belgi
+// mashina tezligida kelgan bo'lsa — bu skaner, klient modallarida saqlash bosilmaydi.
+var _sknSon=0, _sknOxirTs=0;
+document.addEventListener('keydown', function(e){
+  if(e.key && e.key.length===1){
+    var t=Date.now();
+    _sknSon = (t-_sknOxirTs)<35 ? _sknSon+1 : 1;
+    _sknOxirTs=t;
+  }
+}, true); // capture — hamma inputni qamraydi
+function _skanerTez(){
+  return _sknSon>=3 && (Date.now()-_sknOxirTs)<120;
+}
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape'){
     if(document.getElementById('modal-kop-edit').classList.contains('open')) closeModal('modal-kop-edit');
@@ -4830,6 +4844,15 @@ document.addEventListener('keydown', function(e){
     else if(document.getElementById('s-klient-detail').classList.contains('active')) { goTo('s-home'); mainTab('klient'); }
   }
   if(e.key==='Enter'){
+    // SKANER HIMOYASI: skan maydonidan kelgan Enter saqlashni bosmasin (stopPropagation zaxirasi)
+    if(e.target && e.target.id && String(e.target.id).indexOf('kbskan-inp-')===0) return;
+    // Skaner belgilarni juda tez yozib oxirida Enter yuboradi — klient modallarida
+    // bunday "mashina-Enter" saqlash/chek bosmasin, qiymat maydonda qoladi
+    if(_skanerTez() && (
+      document.getElementById('modal-kberish').classList.contains('open') ||
+      document.getElementById('modal-kvozvrat').classList.contains('open') ||
+      document.getElementById('modal-ktolov').classList.contains('open') ||
+      document.getElementById('modal-ksotuv').classList.contains('open'))) return;
     if(document.getElementById('modal-zavod').classList.contains('open')) saqlashZavod();
     else if(document.getElementById('modal-tur').classList.contains('open')) saqlashTur();
     else if(document.getElementById('modal-klient').classList.contains('open')) saqlashKlient();
@@ -6913,7 +6936,7 @@ function renderBerishTurlar(zavodlar){
       out+='<div id="kbskan-'+zi+'_'+ti+'" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin:-4px 0 10px;">';
       out+='<div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:8px;">Skan · '+t.nom+'</div>';
       out+='<div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">';
-      out+='<input type="text" inputmode="decimal" autocomplete="off" id="kbskan-inp-'+zi+'_'+ti+'" placeholder="Gramm — yozib +/- bosing" onkeydown="if(event.key===\'+\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',1);}else if(event.key===\'-\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',-1);}else if(event.key===\'Enter\'){event.preventDefault();kbSkanAdd('+zi+','+ti+',1);}" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--gold-bd);font-size:14px;background:var(--surf);color:var(--text);">';
+      out+='<input type="text" inputmode="decimal" autocomplete="off" id="kbskan-inp-'+zi+'_'+ti+'" placeholder="Gramm — yozib +/- bosing" onkeydown="if(event.key===\'+\'){event.preventDefault();event.stopPropagation();kbSkanAdd('+zi+','+ti+',1);}else if(event.key===\'-\'){event.preventDefault();event.stopPropagation();kbSkanAdd('+zi+','+ti+',-1);}else if(event.key===\'Enter\'){event.preventDefault();event.stopPropagation();kbSkanAdd('+zi+','+ti+',1);}" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--gold-bd);font-size:14px;background:var(--surf);color:var(--text);">';
       out+='<button type="button" onclick="kbSkanAdd('+zi+','+ti+',1)" style="width:36px;height:36px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;flex-shrink:0;">+</button>';
       out+='<button type="button" onclick="kbSkanAdd('+zi+','+ti+',-1)" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--red);color:var(--red);background:transparent;font-size:18px;cursor:pointer;flex-shrink:0;">−</button>';
       out+='</div>';
@@ -11883,4 +11906,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. -->
