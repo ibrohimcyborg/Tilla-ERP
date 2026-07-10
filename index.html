@@ -659,6 +659,22 @@ body.rol-zavod #main-klient { display: none !important; }
     <input type="hidden" id="c-kimga" value="">
     <div class="field"><label>Sana</label><input type="date" id="c-sana" style="font-size:16px;"></div>
   </div>
+  <div class="card" id="c-kurs-card" style="display:none;">
+    <div class="card-title">Kurs — bitta kiritiladi, tur kirimlari avto</div>
+    <div style="display:flex;gap:8px;align-items:flex-end;">
+      <div style="flex:1;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">583 NARXI ($/g)</div>
+        <input type="number" id="c-kurs-583" inputmode="decimal" placeholder="78" oninput="cKursSync(583)" style="width:100%;padding:9px 10px;border-radius:10px;border:1.5px solid var(--border);font-size:16px;font-family:'Roboto',sans-serif;background:var(--surf2);color:var(--text);box-sizing:border-box;text-align:center;">
+      </div>
+      <div style="font-size:11px;color:var(--muted);padding-bottom:12px;white-space:nowrap;">× 1.7 ⇄</div>
+      <div style="flex:1;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">999 NARXI ($/g)</div>
+        <input type="number" id="c-kurs-999" inputmode="decimal" placeholder="132.6" oninput="cKursSync(999)" style="width:100%;padding:9px 10px;border-radius:10px;border:1.5px solid var(--border);font-size:16px;font-family:'Roboto',sans-serif;background:var(--surf2);color:var(--text);box-sizing:border-box;text-align:center;">
+      </div>
+      <button onclick="cKursKunlik()" style="padding:9px 12px;border-radius:10px;border:1.5px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Kunlik kurs</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;">Arzon 999 topshirsangiz — 999 narxini yozing (masalan 131.5), tizim ÷1.7 qilib har turning kirimini foizidan o'zi chiqaradi. Tur maydonini keyin qo'lda o'zgartirish mumkin.</div>
+  </div>
   <div class="card" id="c-turlar-card" style="display:none;">
     <div class="card-title">Turlar — tolov kiriting</div>
     <div id="c-turlar-inputs"></div>
@@ -4640,13 +4656,17 @@ function initChiqim() {
   data.zavodlar.forEach(function(z,i){ sel.innerHTML += '<option value="'+i+'">'+z.nom+'</option>'; });
   document.getElementById('c-turlar-card').style.display = 'none';
   document.getElementById('c-kimga-card').style.display = 'none';
+  var _kc=document.getElementById('c-kurs-card');
+  if(_kc){ _kc.style.display='none'; var _e5=document.getElementById('c-kurs-583'), _e9=document.getElementById('c-kurs-999'); if(_e5) _e5.value=''; if(_e9) _e9.value=''; }
   document.getElementById('c-kimga').value = ''; document.getElementById('c-kimga-yangi') && (document.getElementById('c-kimga-yangi').value = '');
 }
 function cZavodChange() {
   var zi = parseInt(document.getElementById('c-zavod').value);
   var card = document.getElementById('c-turlar-card');
   var kcard = document.getElementById('c-kimga-card');
-  if (isNaN(zi)||!data.zavodlar[zi]||!data.zavodlar[zi].turlar.length) { card.style.display='none'; kcard.style.display='none'; return; }
+  var kursCard = document.getElementById('c-kurs-card');
+  if (isNaN(zi)||!data.zavodlar[zi]||!data.zavodlar[zi].turlar.length) { card.style.display='none'; kcard.style.display='none'; if(kursCard) kursCard.style.display='none'; return; }
+  if (kursCard) { kursCard.style.display='block'; var e5=document.getElementById('c-kurs-583'), e9=document.getElementById('c-kurs-999'); if(e5) e5.value=''; if(e9) e9.value=''; }
   var znom = data.zavodlar[zi].nom;
   kimgaZavodSet(znom);
   kcard.style.display = 'block'; card.style.display = 'block'; kimgaRender();
@@ -4664,6 +4684,48 @@ function cZavodChange() {
   });
   document.getElementById('c-turlar-inputs').innerHTML = out;
 }
+// === CHIQIM: bitta kurs → barcha tur kirimlari avto (foizidan) ===
+// 583⇄999 doim ×1.7 / ÷1.7. Yaxlitlash getZavodNarx bilan BIR XIL (0.1 gacha) —
+// aks holda FIFO'da yaxlitlash shovqini tufayli soxta kurs farqi chiqadi.
+function cKursSync(manba) {
+  var e5=document.getElementById('c-kurs-583'), e9=document.getElementById('c-kurs-999');
+  if(!e5||!e9) return;
+  if(manba===999){
+    var v9=parseNum(e9.value)||0;
+    e5.value = v9>0 ? Math.round(v9/1.7*10)/10 : '';
+  } else {
+    var v5=parseNum(e5.value)||0;
+    e9.value = v5>0 ? Math.round(v5*1.7*10)/10 : '';
+  }
+  cKursApply();
+}
+function cKursKunlik() {
+  var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+  if(!kurs){ alert('Kunlik kurs kiritilmagan! Avval "Bugungi kurs" ekranida kursni saqlang.'); return; }
+  var e5=document.getElementById('c-kurs-583'), e9=document.getElementById('c-kurs-999');
+  if(e5) e5.value = kurs;
+  if(e9) e9.value = Math.round(kurs*1.7*10)/10;
+  cKursApply();
+}
+function cKursApply() {
+  var zi = parseInt(document.getElementById('c-zavod').value);
+  if (isNaN(zi)||!data.zavodlar[zi]) return;
+  var kurs = parseNum((document.getElementById('c-kurs-583')||{}).value)||0;
+  var foizlar={};
+  try{ foizlar=JSON.parse(localStorage.getItem('tilla-foiz-'+zi)||'{}'); }catch(e){}
+  data.zavodlar[zi].turlar.forEach(function(t,ti){
+    var el=document.getElementById('cn-k-'+ti);
+    if(!el) return;
+    var pct = foizlar[ti]!==undefined ? parseFloat(foizlar[ti])||0 : 0;
+    if(kurs>0 && pct>0){
+      el.value = Math.round(kurs*(1+pct/100)*10)/10; // getZavodNarx bilan bir xil formula
+      cCalc(ti);
+    } else if(kurs<=0 && pct>0){
+      el.value=''; cCalc(ti);
+    }
+    // foizsiz turlar: tegilmaydi — kurs qo'lda kiritiladi
+  });
+}
 function cCalc(ti) {
   var nS=parseNum(document.getElementById('cn-n-'+ti).value)||0;
   var nK=parseNum(document.getElementById('cn-k-'+ti).value)||0;
@@ -4673,6 +4735,19 @@ function cCalc(ti) {
   var lines=[];
   if (nS>0&&nK>0) lines.push('naqt: '+fmtD(nS)+'$ / '+nK+'$/g = <b style="color:var(--green);">'+fmtG(roundG(nS/nK))+'g</b>');
   if (lG>0&&lK>0) { var lPul=lG*lK; lines.push('lom: '+fmtG(lG)+'g x '+lK+'$/g = '+fmtD(lPul)+'$'+(nK>0?' / '+nK+'$/g = <b style="color:var(--green);">'+fmtG(roundG(lPul/nK))+'g</b>':'')); }
+  // Bugungi narx bilan taqqoslash — arzon/qimmat topshirilayotgani darhol ko'rinadi
+  if (nK>0) {
+    var zi = parseInt(document.getElementById('c-zavod').value);
+    if (!isNaN(zi)) {
+      var bugun = parseFloat(getZavodNarx(zi, ti))||0;
+      if (bugun>0) {
+        var farq = Math.round((bugun-nK)*10)/10;
+        if (farq>0.04) lines.push('bugungi narx '+bugun+' → <b style="color:var(--green);">'+farq.toFixed(1)+'$/g arzon</b> (foyda oshadi)');
+        else if (farq<-0.04) lines.push('bugungi narx '+bugun+' → <b style="color:var(--red);">'+Math.abs(farq).toFixed(1)+'$/g qimmat</b> (foyda kamayadi)');
+        else lines.push('bugungi narx bilan teng ('+bugun+')');
+      }
+    }
+  }
   if (lines.length) { res.innerHTML=lines.join('<br>'); res.style.display='block'; } else res.style.display='none';
 }
 function chiqimSaqlash() {
@@ -11808,4 +11883,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. -->
