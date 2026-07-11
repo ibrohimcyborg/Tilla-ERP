@@ -3113,7 +3113,7 @@ function koProbaChange(){
   var nl=document.getElementById('ko-narx-lbl');
   if(nl) nl.textContent = p9?'999 narxi ($/g)':'Narx $/g';
   var kl=document.getElementById('ko-lomk-lbl');
-  if(kl) kl.textContent = p9?'999 kunlik — davr kuni ($/g, kurs×1.7)':'Lom kunlik — davr kuni ($/g)';
+  if(kl) kl.textContent = p9?'999 kunlik — davr kuni ($/g, kurs×1.7)':'Asl lom baho — davr kuni ($/g, kurs−1.5)';
   koDavrUpd();
 }
 // 999 narx juftligi: 583/kurs ⇄ 999 doim ×1.7 / ÷1.7 (0.1 gacha yaxlitlash)
@@ -3143,19 +3143,21 @@ function koDavr(hozir){
 function koDavrUpd(){
   var sana=koTanlSana();
   var p9 = (document.getElementById('ko-proba')||{}).value==='999';
-  // 1) Kunlik asos — davr kunidan: 999 uchun kurs×1.7, lom uchun lom kursi
+  // 1) Kunlik asos — davr kunidan: 999 uchun kurs×1.7 (TAXMINIY uchun),
+  //    lom uchun ASL LOM BAHO = kurs−1.5 (olish narxi odatda kurs−2, o'zida +0.5 bor).
+  //    E'tibor: tilla-lom-bugun (kurs−2, klient narxi) ISHLATILMAYDI — u asos emas!
   var kk=0;
   try{
     var tarix=JSON.parse(localStorage.getItem('tilla-kurs-tarix')||'[]');
     for(var i=tarix.length-1;i>=0;i--){
       if(tarix[i].sana!==sana) continue;
-      if(p9){ if(parseNum(tarix[i].kurs)>0){ kk=Math.round(parseNum(tarix[i].kurs)*1.7*10)/10; break; } }
-      else { if(parseNum(tarix[i].lom)>0){ kk=parseNum(tarix[i].lom); break; } }
+      var tk=parseNum(tarix[i].kurs);
+      if(tk>0){ kk = p9 ? Math.round(tk*1.7*10)/10 : Math.round((tk-1.5)*10)/10; break; }
     }
   }catch(e){}
   if(!kk && sana===today()){
-    if(p9){ var kb=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0'); if(kb>0) kk=Math.round(kb*1.7*10)/10; }
-    else kk=parseFloat(localStorage.getItem('tilla-lom-bugun')||'0');
+    var kb=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+    if(kb>0) kk = p9 ? Math.round(kb*1.7*10)/10 : Math.round((kb-1.5)*10)/10;
   }
   var lkEl=document.getElementById('ko-lomk');
   if(lkEl) lkEl.value = kk>0 ? kk : '';
@@ -3193,16 +3195,25 @@ function koPreview(){
     var ekv=kassaEkv(p,g);
     h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Lom 583 (ekv)</span><span>'+fmtG(o.lomEkv)+'g → <b>'+fmtG(roundG(o.lomEkv+ekv))+'g</b></span></div>';
   }
-  // QULFLANGAN FOYDA — (kunlik − narx) × gramm, olishda qotadi
+  // 999: TAXMINIY (haqiqiy foyda CHIQIMDA tur foizi orqali qotadi, FIFO sotuv muhrlari bilan)
+  // LOM: QULFLANGAN — olishda qotadi (asos: kurs−1.5, gramm operatsiyasi, kurs riski yo'q)
   if(kunlik>0){
     var f=Math.round((kunlik-n)*g*100)/100;
     var rang=f>0.004?'var(--green)':(f<-0.004?'var(--red)':'var(--muted)');
-    h+='<div style="display:flex;justify-content:space-between;padding:5px 0 2px;margin-top:3px;border-top:1px solid var(--border);"><span style="font-weight:600;">QULFLANGAN FOYDA</span><b style="color:'+rang+';font-size:14px;">'+(f>0.004?'+':'')+'$'+fmtD(f)+'</b></div>';
-    if(f>0.004) h+='<div style="font-size:11px;color:var(--muted);">Arzon: ('+kunlik+' − '+n+') × '+fmtG(g)+'g — olishda qotadi, keyin kurs o\'zgarsa ham o\'zgarmaydi'+(p==='999'?'. Samarali kurs: '+(Math.round(n/1.7*10)/10):'')+'</div>';
-    else if(f<-0.004) h+='<div style="font-size:11px;color:var(--red);">Kunlikdan QIMMAT — minus qotadi!</div>';
-    else h+='<div style="font-size:11px;color:var(--muted);">Kunlik narxda — spread yo\'q</div>';
+    var sarl = p==='999' ? 'TAXMINIY — chiqimda qotadi' : 'QULFLANGAN FOYDA';
+    h+='<div style="display:flex;justify-content:space-between;padding:5px 0 2px;margin-top:3px;border-top:1px solid var(--border);"><span style="font-weight:600;">'+sarl+'</span><b style="color:'+rang+';font-size:14px;">'+(f>0.004?'+':'')+'$'+fmtD(f)+'</b></div>';
+    if(p==='999'){
+      var ek=Math.round(n/1.7*10)/10;
+      if(f>0.004) h+='<div style="font-size:11px;color:var(--muted);">Samarali kurs: '+ek+' — haqiqiy foyda zavodga topshirilganda tur foizi orqali qotadi (chiqimda shu kursni yozing)</div>';
+      else if(f<-0.004) h+='<div style="font-size:11px;color:var(--muted);">Samarali kurs: '+ek+' — kunlikdan qimmat, lekin baribir pul bilan topshirishdan yaxshi bo\'lishi mumkin; yakuniy natija chiqimda</div>';
+      else h+='<div style="font-size:11px;color:var(--muted);">Kunlik narxda — yakuniy natija chiqimda aniqlashadi</div>';
+    } else {
+      if(f>0.004) h+='<div style="font-size:11px;color:var(--muted);">Asl bahodan ('+kunlik+') arzon — olishda qotadi, keyin kurs o\'zgarsa ham o\'zgarmaydi</div>';
+      else if(f<-0.004) h+='<div style="font-size:11px;color:var(--red);">Asl bahodan ('+kunlik+' = kurs−1.5) QIMMAT — minus qotadi!</div>';
+      else h+='<div style="font-size:11px;color:var(--muted);">Asl bahoda — foyda yo\'q</div>';
+    }
   } else {
-    h+='<div style="font-size:11px;color:var(--yellow);margin-top:3px;">Kunlik narx kiritilmagan — qulflangan foyda hisoblanmaydi</div>';
+    h+='<div style="font-size:11px;color:var(--yellow);margin-top:3px;">Kunlik narx kiritilmagan — foyda hisoblanmaydi</div>';
   }
   h+='<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--muted);">Erkin qoladi</span><b style="color:var(--green);">$'+fmtD(Math.round((erkin-s)*100)/100)+'</b></div>';
   if(s>erkin+0.001) h+='<div style="color:var(--red);font-size:11px;margin-top:4px;">⚠ Erkin puldan oshdi!</div>';
@@ -3219,21 +3230,31 @@ function kassaOlishSaqla(){
   var soat=(document.getElementById('ko-soat')||{}).value || nowSoat();
   var ts=fdSanaTs(sana, soat); if(!ts||isNaN(ts)) ts=Date.now();
   var lomK=parseNum((document.getElementById('ko-lomk')||{}).value);
-  if(!lomK) lomK=parseFloat(localStorage.getItem('tilla-lom-bugun')||'0');
+  // Zaxira asos (maydon bo'sh bo'lsa): lom uchun ASL BAHO = bugungi kurs−1.5.
+  // tilla-lom-bugun (kurs−2, klient narxi) asos sifatida ISHLATILMAYDI.
+  if(!lomK && p!=='999'){
+    var _kb=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+    if(_kb>0) lomK=Math.round((_kb-1.5)*10)/10;
+  }
   var s=Math.round(g*n*100)/100;
   var o=kassaOqim(), band=kassaMuzlatilgan();
   var erkin=Math.round((o.naqd-band)*100)/100;
   if(s>erkin+0.001){ alert('Erkin puldan oshdi! Erkin: $'+fmtD(erkin)); return; }
-  // Tasdiqlash — kassa ta'siri va qulflangan foyda bilan
+  // Tasdiqlash — kassa ta'siri va foyda bilan
   var chontak = p==='999' ? fmtG(g)+'g 999' : fmtG(g)+'g lom (ekv '+fmtG(kassaEkv(p,g))+'g)';
   var fTxt='';
   if(lomK>0){
     var f=Math.round((lomK-n)*g*100)/100;
-    fTxt='\nQulflangan foyda: '+(f>0?'+':'')+'$'+fmtD(f)+(f>0.004?' (arzon)':(f<-0.004?' (QIMMAT!)':' (kunlik narxda)'));
+    fTxt = p==='999'
+      ? '\nTaxminiy: '+(f>0?'+':'')+'$'+fmtD(f)+' — haqiqiy foyda CHIQIMDA qotadi (samarali kurs: '+(Math.round(n/1.7*10)/10)+')'
+      : '\nQulflangan foyda: '+(f>0?'+':'')+'$'+fmtD(f)+(f>0.004?' (arzon)':(f<-0.004?' (QIMMAT!)':' (asl bahoda)'));
   }
   if(!confirm('SOTIB OLINSINMI?\n\n'+p+' · '+fmtG(g)+'g @ '+n+' = $'+fmtD(s)+'\nDavr: '+sana+' '+soat+(sana!==today()?' (ORQA SANA)':'')+'\nKassa: naqd −$'+fmtD(s)+' → +'+chontak+fTxt+(iz?'\n'+iz:''))) return;
   if(!data.lomlar) data.lomlar=[];
-  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:sana, sana_ts:ts, soat:soat, izoh:iz, lomKunlik:lomK});
+  // MUHIM (ikki marta hisoblamaslik): 999 da lomKunlik=0 yoziladi — olishda foyda QOTMAYDI,
+  // u zavod chiqimida tur foizi orqali FIFO bilan qotadi (chiqimda samarali kurs yoziladi).
+  // Lom (583/585/750/375) esa olishda qotadi: lomF/lomNeytral = (lomKunlik − narx) × gramm.
+  data.lomlar.push({id:Date.now()+'_ko', tip:'kirim', manba:'kocha', proba:p, gramm:g, narx:n, summa:s, boshqaNom:iz, sana:sana, sana_ts:ts, soat:soat, izoh:iz, lomKunlik:(p==='999'?0:lomK)});
   save('Sotib olish (kassa) | '+p+' '+fmtG(g)+'g | $'+fmtD(s)+' | '+sana);
   closeModal('modal-kassa-olish');
   if(typeof renderKassa==='function') renderKassa();
@@ -12068,4 +12089,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. --><!-- v60: (1) SOTIB OLISH modaliga DAVR qo'shildi — sana+soat maydonlari, Hozir/Kecha tez tugmalar; kechasi olib ertasiga kiritish uchun. Yozuvga tanlangan sana/soat/sana_ts yoziladi; lomKunlik endi DAVR kunining lom kursidan (tilla-kurs-tarix dan topiladi, topilmasa qo'lda — LOM foyda to'g'ri kun kursi bilan qulflanadi); tanlangan kunga Z bo'lsa yoki orqa sana bo'lsa sariq ogohlantirish; confirm da ORQA SANA belgisi. (2) koPreview endi KASSA TA'SIRI ko'rsatadi: Naqd hozirgi→yangi (−summa), 999 yoki Lom583(ekv) cho'ntagi hozirgi→yangi (+gramm), erkin qoladi. (3) YOPILMAGAN KUN ESLATMASI — kassa qoldiq panelida: oxirgi Z dan keyingi eng eski yopilmagan kun (bugungacha) sariq banner, 'Kunni yopish' tugmasi Z modalini o'sha sana bilan ochadi, × shu sessiyada yashiradi; hali umuman Z qilinmagan bo'lsa chiqmaydi. Z YOPISH AVTOMAT EMAS — qo'lda sanash bilan qoladi. --><!-- v61: XATO TUZATILDI — 'lomNeytral is not defined' (renderLomInto, LOM tab JAMI FOYDA kartasi). Asl faylda ham bor edi: o'zgaruvchi ishlatilgan lekin e'lon qilinmagan (eski tahrir qoldig'i), LOM tab ochilganda yoki to'lov saqlangach renderLomAnywhere orqali yiqilardi. Endi lomNeytral = olishda QULFLANGAN kurs-neytral foyda: sum((lomKunlik − narx) × gramm) barcha kirimlar bo'yicha, kassaFoyda() LOM oqimi bilan bir xil formula; lomKunlik yozilmagan eski yozuvlar hisobga kirmaydi. Kartada 'neytral: X$' — qulflangan, 'taxminiy' — faqat baholash. --><!-- v62: SOTIB OLISH modali to'liq yangilandi (mockuplar bo'yicha): (1) Proba 999 tanlansa narx JUFTLIK bo'ladi — '583/kurs' va '999 narxi' maydonlari ×1.7/÷1.7 avto sinxron (0.1 yaxlitlash), boshqa probalarda oddiy bitta narx. (2) Kunlik asos maydoni DAVR KUNIdan avto: 999 uchun kurs×1.7 (tilla-kurs-tarix .kurs), lom uchun lom kursi (.lom); topilmasa qo'lda. (3) Preview endi: 'Pul → oltinga' NEYTRAL (qizil minus olib tashlandi — bu zarar emas, ayirboshlash), cho'ntak o'tishi, QULFLANGAN FOYDA=(kunlik−narx)×g yashil/qizil + izoh (999 da samarali kurs=narx÷1.7), erkin qoladi. (4) Tasdiqlash oynasida: Kassa qatori (naqd −$ → +g) va Qulflangan foyda (arzon/QIMMAT belgisi). (5) A-QOIDA: 999/lom spread OLISHDA qotadi (LOM oqimi, 100% kompaniya, lomNeytral/lomF shu yozuvdan hisoblanadi) — shu arzon 999 keyin zavodga topshirilganda Chiqimda KUNLIK kurs yoziladi, aks holda foyda ikki marta hisoblanadi. Sotib olish sotuvlar FIFO navbatiga TEGMAYDI — sotuvlar faqat zavod chiqimida yopiladi. -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. --><!-- v60: (1) SOTIB OLISH modaliga DAVR qo'shildi — sana+soat maydonlari, Hozir/Kecha tez tugmalar; kechasi olib ertasiga kiritish uchun. Yozuvga tanlangan sana/soat/sana_ts yoziladi; lomKunlik endi DAVR kunining lom kursidan (tilla-kurs-tarix dan topiladi, topilmasa qo'lda — LOM foyda to'g'ri kun kursi bilan qulflanadi); tanlangan kunga Z bo'lsa yoki orqa sana bo'lsa sariq ogohlantirish; confirm da ORQA SANA belgisi. (2) koPreview endi KASSA TA'SIRI ko'rsatadi: Naqd hozirgi→yangi (−summa), 999 yoki Lom583(ekv) cho'ntagi hozirgi→yangi (+gramm), erkin qoladi. (3) YOPILMAGAN KUN ESLATMASI — kassa qoldiq panelida: oxirgi Z dan keyingi eng eski yopilmagan kun (bugungacha) sariq banner, 'Kunni yopish' tugmasi Z modalini o'sha sana bilan ochadi, × shu sessiyada yashiradi; hali umuman Z qilinmagan bo'lsa chiqmaydi. Z YOPISH AVTOMAT EMAS — qo'lda sanash bilan qoladi. --><!-- v61: XATO TUZATILDI — 'lomNeytral is not defined' (renderLomInto, LOM tab JAMI FOYDA kartasi). Asl faylda ham bor edi: o'zgaruvchi ishlatilgan lekin e'lon qilinmagan (eski tahrir qoldig'i), LOM tab ochilganda yoki to'lov saqlangach renderLomAnywhere orqali yiqilardi. Endi lomNeytral = olishda QULFLANGAN kurs-neytral foyda: sum((lomKunlik − narx) × gramm) barcha kirimlar bo'yicha, kassaFoyda() LOM oqimi bilan bir xil formula; lomKunlik yozilmagan eski yozuvlar hisobga kirmaydi. Kartada 'neytral: X$' — qulflangan, 'taxminiy' — faqat baholash. --><!-- v62: SOTIB OLISH modali to'liq yangilandi (mockuplar bo'yicha): (1) Proba 999 tanlansa narx JUFTLIK bo'ladi — '583/kurs' va '999 narxi' maydonlari ×1.7/÷1.7 avto sinxron (0.1 yaxlitlash), boshqa probalarda oddiy bitta narx. (2) Kunlik asos maydoni DAVR KUNIdan avto: 999 uchun kurs×1.7 (tilla-kurs-tarix .kurs), lom uchun lom kursi (.lom); topilmasa qo'lda. (3) Preview endi: 'Pul → oltinga' NEYTRAL (qizil minus olib tashlandi — bu zarar emas, ayirboshlash), cho'ntak o'tishi, QULFLANGAN FOYDA=(kunlik−narx)×g yashil/qizil + izoh (999 da samarali kurs=narx÷1.7), erkin qoladi. (4) Tasdiqlash oynasida: Kassa qatori (naqd −$ → +g) va Qulflangan foyda (arzon/QIMMAT belgisi). (5) A-QOIDA: 999/lom spread OLISHDA qotadi (LOM oqimi, 100% kompaniya, lomNeytral/lomF shu yozuvdan hisoblanadi) — shu arzon 999 keyin zavodga topshirilganda Chiqimda KUNLIK kurs yoziladi, aks holda foyda ikki marta hisoblanadi. Sotib olish sotuvlar FIFO navbatiga TEGMAYDI — sotuvlar faqat zavod chiqimida yopiladi. --><!-- v63: FOYDA MODELI TUZATILDI (Ibrohim 3 nuqtasi): (1) 999 SOTIB OLISHDA FOYDA QOTMAYDI — yozuvga lomKunlik=0 yoziladi, lomF/lomNeytral ga kirmaydi; preview/confirm 'TAXMINIY — chiqimda qotadi' + samarali kurs (narx÷1.7). Haqiqiy foyda zavod CHIQIMIDA tur foizi orqali FIFO bilan qotadi (chiqim kurs kartasiga samarali kursni yozish kerak) — asos har doim SOVDA muhri, bugungi zavod narxi emas; kurs oshganda arzon 999 zararni kamaytiradi, mutlaq foyda faqat 999 sovda kursidan arzon bo'lsa. Ikki marta hisoblash yo'q. (2) LOM ASOSI = ASL BAHO = davr kunining KURSI−1.5 (tilla-kurs-tarix .kurs dan; zaxira: tilla-kurs-bugun−1.5). tilla-lom-bugun (kurs−2, klient olish narxi) asos sifatida ISHLATILMAYDI — standart 76 da olishning o'zida +0.5/g bor. Yorliq: 'Asl lom baho (kurs−1.5)'. (3) Lom foydasi olishda qotishicha qoladi (gramm operatsiyasi). -->
