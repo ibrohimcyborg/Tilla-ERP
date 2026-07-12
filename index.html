@@ -4897,6 +4897,9 @@ function skRender(){
 // ===== OSTATKA MODALI: Tekshirish (haftalik) + Shakllantirish (1-martalik) =====
 // donaOst — zavod-tur dona sanog'i (grammga parallel). Qiymat boyicha EMAS, SON boyicha:
 // bir xil grammli buyumlar har biri alohida dona (skan har bosishda +1).
+// donaOst — zavod-tur dona sanog'i (grammga parallel). Qiymat boyicha EMAS, SON boyicha:
+// bir xil grammli buyumlar har biri alohida dona.
+function turDona(t){ return Math.round(parseNum(t.donaOst)||0); }
 var _ostMode = null; // 'shakl' | 'tekshir'
 var _ostCtx = 'zavod'; // 'zavod' | 'klient'
 function openOstatkaZavod(){ _ostCtx='zavod'; goTo('s-ostatka'); }
