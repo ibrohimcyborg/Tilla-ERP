@@ -8011,6 +8011,7 @@ function saqlashKlientBerish(){
   // DONA REGISTRI TEKSHIRUVI — skan bilan berilayotgan ogirliklar shu tur registrida bormi?
   // (Sof hisoblash: HECH QANDAY confirm() chaqirilmaydi shu yerda.)
   var _mismatch=[];
+  console.log('[DIAGNOSTIKA] Berish tekshiruvi boshlandi');
   document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
     var g=parseNum(el.value); if(g<=0) return;
     var zi=parseInt(el.dataset.zi),ti=parseInt(el.dataset.ti);
@@ -8018,11 +8019,16 @@ function saqlashKlientBerish(){
     if(!t) return;
     var _st;
     try{ _st=_kbSkanState[kbSkanKey(zi,ti)]; }catch(e){}
+    console.log('[DIAGNOSTIKA] maydon:', el.id, '| gramm:', g, '| zi/ti:', zi, ti, '| tur:', z&&z.nom, t&&t.nom, '| _st:', JSON.stringify(_st), '| t.donalar:', JSON.stringify(t.donalar), '| t.donaOst:', t.donaOst);
     if(_st && _st.pass1 && _st.pass1.length){
       var yoq=donaMosEmaslarniTop(t, _st.pass1);
+      console.log('[DIAGNOSTIKA] mos kelmagan royxat:', JSON.stringify(yoq));
       if(yoq.length) _mismatch.push({zNom:z.nom, tNom:t.nom, yoq:yoq, reg:turDonalar(t)});
+    } else {
+      console.log('[DIAGNOSTIKA] _st yoki pass1 yoq/bosh — skan holati topilmadi!');
     }
   });
+  console.log('[DIAGNOSTIKA] jami mos kelmasliklar:', _mismatch.length);
   function davomEt(){
   var any=false;
   document.querySelectorAll('[id^="kbg-"]').forEach(function(el){
