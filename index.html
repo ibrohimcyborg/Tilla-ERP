@@ -1210,22 +1210,56 @@ body.rol-zavod #main-klient { display: none !important; }
 </div>
 
 <div class="modal-overlay" id="modal-ostatka" onclick="if(event.target===this)closeModal('modal-ostatka')">
-  <div class="modal" style="max-width:520px;max-height:86vh;overflow-y:auto;">
+  <div class="modal" style="max-width:460px;max-height:86vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div class="modal-title">⊟ Ostatka</div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button id="ost-tab-t" onclick="ostRejim('tekshir')" style="flex:1;padding:9px;border-radius:9px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;">Tekshirish</button>
-      <button id="ost-tab-s" onclick="ostRejim('shakl')" style="flex:1;padding:9px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;">Shakllantirish (1-martalik)</button>
+
+    <div id="ost-choice">
+      <button onclick="ostChoice('shakl')" style="width:100%;text-align:left;margin-bottom:8px;padding:14px;border-radius:12px;border:2px solid var(--gold);background:var(--gold-bg);cursor:pointer;">
+        <div style="font-size:14px;font-weight:700;color:var(--gold);">Ostatka shakllantirish</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">1-martalik — skan bilan boshlang'ich dona+gramm</div>
+      </button>
+      <button onclick="ostChoice('tekshir')" style="width:100%;text-align:left;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);">Ostatka tekshirish</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Haftalik — skan bilan sanab, tizim bilan solishtirish</div>
+      </button>
     </div>
-    <div id="ost-izoh" style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;"></div>
-    <div id="ost-rows"></div>
-    <div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:13px;font-weight:600;" id="ost-jami-lbl">Jami farq</span>
-      <span id="ost-jami" style="font-size:14px;font-weight:700;">—</span>
-    </div>
-    <div class="btn-row" style="margin-top:10px;">
-      <button class="btn" onclick="closeModal('modal-ostatka')">Bekor</button>
-      <button class="btn ok" onclick="ostSaqla()">✓ Saqlash</button>
+
+    <div id="ost-form" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Zavod</div>
+      <select id="ost-zavod" onchange="ostZavodChange()" style="width:100%;margin-bottom:8px;"></select>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Tur</div>
+      <select id="ost-tur" onchange="ostTurChange()" style="width:100%;margin-bottom:8px;"></select>
+
+      <div id="ost-ogoh" style="display:none;font-size:11px;color:var(--yellow);background:var(--yellow-bg);border-radius:8px;padding:7px 10px;margin-bottom:8px;"></div>
+      <div id="ost-sistema" style="display:none;font-size:12px;background:var(--blue-bg);color:var(--blue);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;justify-content:space-between;"></div>
+
+      <div style="background:var(--surf2);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">SKAN — har buyum +1 dona</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <input type="text" inputmode="decimal" autocomplete="off" id="ost-f-inp" placeholder="Barcode skan qiling..." onkeydown="if(event.key==='Enter'||event.key==='+'){event.preventDefault();event.stopPropagation();ostFAdd();}else if(event.key==='-'){event.preventDefault();event.stopPropagation();ostFDel();}" style="flex:1;">
+          <button type="button" onclick="ostFAdd()" style="width:38px;background:var(--gold);color:var(--on-gold);border:none;border-radius:9px;font-size:16px;cursor:pointer;">+</button>
+          <button type="button" onclick="ostFDel()" style="width:38px;border-radius:9px;border:1px solid var(--border);background:var(--surf);color:var(--red);font-size:16px;cursor:pointer;">−</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:var(--surf);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);">Dona</div>
+            <div id="ost-f-d" style="font-size:18px;font-weight:700;">0</div>
+          </div>
+          <div style="background:var(--surf);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);">Skan jami</div>
+            <div id="ost-f-g" style="font-size:18px;font-weight:700;">0.00 g</div>
+          </div>
+        </div>
+        <div id="ost-f-l" style="font-size:11px;color:var(--muted);margin-top:6px;">Hali skan yo'q</div>
+      </div>
+
+      <div id="ost-farq" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;font-size:12px;text-align:center;"></div>
+
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn" onclick="ostBack()">← Ortga</button>
+        <button class="btn ok" id="ost-save-btn" onclick="ostFormSaqla()">✓ Saqlash</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4828,163 +4862,123 @@ function skRender(){
 // ===== OSTATKA MODALI: Tekshirish (haftalik) + Shakllantirish (1-martalik) =====
 // donaOst — zavod-tur dona sanog'i (grammga parallel). Qiymat boyicha EMAS, SON boyicha:
 // bir xil grammli buyumlar har biri alohida dona (skan har bosishda +1).
-var _ostRejim = 'tekshir';
-function turDona(t){ return Math.round(parseNum(t.donaOst)||0); }
+var _ostMode = null; // 'shakl' | 'tekshir'
+var _ostF = []; // joriy zavod-tur uchun skan sessiyasi (gramm massivi)
 function openOstatkaModal(){
-  _ostRejim = 'tekshir';
-  ostRejim('tekshir');
+  _ostMode = null;
+  document.getElementById('ost-choice').style.display='block';
+  document.getElementById('ost-form').style.display='none';
   document.getElementById('modal-ostatka').classList.add('open');
 }
-function ostRejim(r){
-  _ostRejim = r;
-  var bt=document.getElementById('ost-tab-t'), bs=document.getElementById('ost-tab-s');
-  var akt='padding:9px;border-radius:9px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;flex:1;';
-  var pas='padding:9px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;flex:1;';
-  if(bt) bt.style.cssText = r==='tekshir'?akt:pas;
-  if(bs) bs.style.cssText = r==='shakl'?akt:pas;
-  var iz=document.getElementById('ost-izoh');
-  if(iz) iz.innerHTML = r==='tekshir'
-    ? 'Har turga qo\'lda sanalgan DONA va tarozidagi GRAMM ni kiriting — tizim hisobi bilan solishtiriladi. Saqlashda farqlar tasdiqlash bilan TUZATILADI (rasmiy hisob haqiqiy sanoqqa tenglashadi).'
-    : 'BOSHLANG\'ICH ostatka: nollashdan keyin har turga qo\'lingizdagi haqiqiy DONA va GRAMM ni kiriting — kirim yozuvi sifatida saqlanadi. Bo\'sh qoldirilgan turlar tegilmaydi.';
-  var lbl=document.getElementById('ost-jami-lbl');
-  if(lbl) lbl.textContent = r==='tekshir'?'Jami farq':'Jami kiritilmoqda';
-  ostRowsChiz();
+function ostChoice(mode){
+  _ostMode = mode;
+  document.getElementById('ost-choice').style.display='none';
+  document.getElementById('ost-form').style.display='block';
+  var zSel=document.getElementById('ost-zavod');
+  zSel.innerHTML = (data.zavodlar||[]).map(function(z,zi){ return '<option value="'+zi+'">'+z.nom+'</option>'; }).join('');
+  document.getElementById('ost-save-btn').textContent = mode==='shakl' ? '✓ Shakllantirish' : '✓ Tekshiruvni saqlash';
+  ostZavodChange();
 }
-function ostRowsChiz(){
-  var cont=document.getElementById('ost-rows'); if(!cont) return;
-  _ostSkan={}; // rejim almashganda skan holati tozalanadi
-  var h='';
-  (data.zavodlar||[]).forEach(function(z,zi){
-    (z.turlar||[]).forEach(function(t,ti){
-      var sd=turDona(t), sg=roundG(t.ostatka||0);
-      var key=zi+'_'+ti;
-      h+='<div style="border-bottom:1px solid var(--border);padding:9px 0;">';
-      h+='<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">'+z.nom+' · '+t.nom+'</div>';
-      h+='<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">'+(_ostRejim==='tekshir'?('Tizim: '+sd+' dona · '+fmtG(sg)+' g'):'Hozir: '+sd+' dona · '+fmtG(sg)+' g')+'</div>';
-      h+='<div style="display:grid;grid-template-columns:1fr 1fr 34px 80px;gap:6px;align-items:center;">';
-      h+='<input type="number" inputmode="numeric" id="ost-d-'+key+'" placeholder="dona" oninput="ostUpd()" style="padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);box-sizing:border-box;text-align:center;">';
-      h+='<input type="number" inputmode="decimal" id="ost-g-'+key+'" placeholder="gramm" oninput="ostUpd()" style="padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);box-sizing:border-box;text-align:center;">';
-      h+='<button type="button" id="ost-sb-'+key+'" onclick="ostSkanToggle(\''+key+'\')" style="width:34px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:15px;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:block;margin:auto;"><rect x="2.5" y="4.5" width="19" height="15" rx="5"/><line x1="7" y1="9" x2="7" y2="15"/><line x1="10.3" y1="9" x2="10.3" y2="10.3"/><line x1="10.3" y1="12.6" x2="10.3" y2="15"/><line x1="13.6" y1="9" x2="13.6" y2="12.4"/><line x1="13.6" y1="14.9" x2="13.6" y2="15"/><line x1="17" y1="9" x2="17" y2="15"/></svg></button>';
-      h+='<span id="ost-r-'+key+'" style="font-size:11px;font-weight:600;text-align:center;color:var(--muted);"></span>';
-      h+='</div>';
-      // SKAN PANELI — barcode bilan dona-dona: har skan +1 dona, gramm yig'iladi
-      h+='<div id="ost-sp-'+key+'" style="display:none;margin-top:6px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:8px;">';
-      h+='<div style="display:flex;gap:6px;">';
-      h+='<input type="text" inputmode="decimal" autocomplete="off" id="ost-si-'+key+'" placeholder="Barcode skan qiling..." onkeydown="if(event.key===\'Enter\'||event.key===\'+\'){event.preventDefault();event.stopPropagation();ostSkanAdd(\''+key+'\');}else if(event.key===\'-\'){event.preventDefault();event.stopPropagation();ostSkanDelLast(\''+key+'\');}" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--gold-bd);font-size:14px;background:var(--surf);color:var(--text);box-sizing:border-box;">';
-      h+='<button type="button" onclick="ostSkanDelLast(\''+key+'\')" style="width:34px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--red);font-size:15px;cursor:pointer;">−</button>';
-      h+='</div>';
-      h+='<div id="ost-sl-'+key+'" style="font-size:11px;color:var(--muted);margin-top:5px;">Hali skan yo\'q</div>';
-      h+='</div>';
-      h+='</div>';
-    });
-  });
-  cont.innerHTML = h || '<div style="text-align:center;color:var(--muted);font-size:13px;padding:14px;">Zavod/tur yo\'q</div>';
-  ostUpd();
+function ostBack(){
+  _ostF=[];
+  document.getElementById('ost-choice').style.display='block';
+  document.getElementById('ost-form').style.display='none';
 }
-// ===== OSTATKA SKAN: har skan = 1 dona (bir xil grammlar ham alohida), print YO'Q =====
-var _ostSkan = {};
-function ostSkanToggle(key){
-  var p=document.getElementById('ost-sp-'+key), b=document.getElementById('ost-sb-'+key);
-  if(!p) return;
-  var ochiq = p.style.display!=='none';
-  p.style.display = ochiq?'none':'block';
-  if(b){ b.style.background = ochiq?'var(--surf2)':'var(--gold)'; b.style.color = ochiq?'var(--muted)':'var(--on-gold)'; }
-  if(!ochiq){
-    if(!_ostSkan[key]) _ostSkan[key]={arr:[]};
-    var i=document.getElementById('ost-si-'+key);
-    if(i && !(typeof _touchQurilma!=='undefined' && _touchQurilma)) i.focus();
+function ostZavodChange(){
+  var zi=parseInt(document.getElementById('ost-zavod').value);
+  var z=data.zavodlar[zi];
+  var tSel=document.getElementById('ost-tur');
+  tSel.innerHTML = z ? z.turlar.map(function(t,ti){ return '<option value="'+ti+'">'+t.nom+'</option>'; }).join('') : '';
+  ostTurChange();
+}
+function ostCurTur(){
+  var zi=parseInt(document.getElementById('ost-zavod').value);
+  var ti=parseInt(document.getElementById('ost-tur').value);
+  var z=data.zavodlar[zi]; if(!z) return null;
+  var t=z.turlar[ti]; if(!t) return null;
+  return {z:z, t:t, zi:zi, ti:ti};
+}
+function ostTurChange(){
+  _ostF=[];
+  ostFRender();
+  var c=ostCurTur();
+  var ogoh=document.getElementById('ost-ogoh'), sis=document.getElementById('ost-sistema'), farq=document.getElementById('ost-farq');
+  farq.style.display='none';
+  if(!c){ ogoh.style.display='none'; sis.style.display='none'; return; }
+  if(_ostMode==='shakl'){
+    sis.style.display='none';
+    var bor = (c.t.tarix||[]).some(function(op){ return op.inventar==='boshlangich'; });
+    if(bor){ ogoh.style.display='block'; ogoh.textContent="⚠ Bu tur allaqachon shakllantirilgan. Davom etsangiz USTIGA qo'shiladi."; }
+    else ogoh.style.display='none';
+  } else {
+    ogoh.style.display='none';
+    sis.style.display='flex';
+    sis.innerHTML = '<span>Tizim hisobi</span><b>'+turDona(c.t)+' dona · '+fmtG(c.t.ostatka||0)+' g</b>';
   }
 }
-function ostSkanAdd(key){
-  var i=document.getElementById('ost-si-'+key); if(!i) return;
+function ostFAdd(){
+  var i=document.getElementById('ost-f-inp');
   var v=skParseGram(i.value);
   i.value=''; i.focus();
   if(!v || v<=0) return;
-  if(!_ostSkan[key]) _ostSkan[key]={arr:[]};
-  _ostSkan[key].arr.push(roundG(v));
-  ostSkanApply(key);
+  _ostF.push(roundG(v));
+  ostFRender();
 }
-function ostSkanDelLast(key){
-  var st=_ostSkan[key];
-  if(st && st.arr.length){ st.arr.pop(); ostSkanApply(key); }
-  var i=document.getElementById('ost-si-'+key); if(i) i.focus();
+function ostFDel(){
+  if(_ostF.length){ _ostF.pop(); ostFRender(); }
+  var i=document.getElementById('ost-f-inp'); if(i) i.focus();
 }
-function ostSkanApply(key){
-  var st=_ostSkan[key]||{arr:[]};
-  var jg=0; st.arr.forEach(function(g){ jg+=g; }); jg=roundG(jg);
-  var d=document.getElementById('ost-d-'+key), g=document.getElementById('ost-g-'+key), l=document.getElementById('ost-sl-'+key);
-  if(d) d.value = st.arr.length||'';
-  if(g) g.value = st.arr.length?jg:'';
-  if(l) l.innerHTML = st.arr.length
-    ? '<b style="color:var(--text);">'+st.arr.length+' dona · '+fmtG(jg)+' g</b> · oxirgisi: '+fmtG(st.arr[st.arr.length-1])+'g ("−" o\'chiradi)'
-    : 'Hali skan yo\'q';
-  ostUpd();
+function ostFRender(){
+  var jg=0; _ostF.forEach(function(g){ jg+=g; }); jg=roundG(jg);
+  document.getElementById('ost-f-d').textContent = _ostF.length;
+  document.getElementById('ost-f-g').textContent = jg.toFixed(2)+' g';
+  document.getElementById('ost-f-l').innerHTML = _ostF.length
+    ? ('oxirgisi: '+fmtG(_ostF[_ostF.length-1])+'g')
+    : "Hali skan yo'q";
+  var farq=document.getElementById('ost-farq');
+  if(_ostMode==='tekshir'){
+    var c=ostCurTur();
+    if(c && _ostF.length){
+      var fd=_ostF.length-turDona(c.t), fg=roundG(jg-(c.t.ostatka||0));
+      farq.style.display='block';
+      if(fd===0 && Math.abs(fg)<0.005){ farq.style.background='var(--green-bg)'; farq.style.color='var(--green)'; farq.textContent='✓ Mos — farq yo\'q'; }
+      else if(fd<0){ farq.style.background='var(--red-bg)'; farq.style.color='var(--red)'; farq.textContent=Math.abs(fd)+" dona yetishmayapti ("+fmtG(fg)+"g)"; }
+      else { farq.style.background='var(--yellow-bg)'; farq.style.color='var(--yellow)'; farq.textContent='+'+fd+' dona ortiqcha ('+(fg>0?'+':'')+fmtG(fg)+'g)'; }
+    } else farq.style.display='none';
+  }
 }
-function ostUpd(){
-  var jd=0, jg=0, bor=false;
-  (data.zavodlar||[]).forEach(function(z,zi){
-    (z.turlar||[]).forEach(function(t,ti){
-      var dEl=document.getElementById('ost-d-'+zi+'_'+ti), gEl=document.getElementById('ost-g-'+zi+'_'+ti), rEl=document.getElementById('ost-r-'+zi+'_'+ti);
-      if(!dEl||!gEl||!rEl) return;
-      var toldi = dEl.value!=='' || gEl.value!=='';
-      if(!toldi){ rEl.textContent=''; return; }
-      bor=true;
-      var hd=Math.round(parseNum(dEl.value)), hg=roundG(parseNum(gEl.value));
-      if(_ostRejim==='shakl'){
-        jd+=hd; jg+=hg;
-        rEl.textContent='+'+hd+' d · +'+fmtG(hg)+'g';
-        rEl.style.color='var(--green)';
-      } else {
-        var fd=hd-turDona(t), fg=roundG(hg-(t.ostatka||0));
-        jd+=fd; jg+=fg;
-        if(fd===0 && Math.abs(fg)<0.005){ rEl.textContent='mos ✓'; rEl.style.color='var(--green)'; }
-        else { rEl.textContent=(fd!==0?((fd>0?'+':'')+fd+'d '):'')+(Math.abs(fg)>=0.005?((fg>0?'+':'')+fmtG(fg)+'g'):''); rEl.style.color=(fd<0||fg<0)?'var(--red)':'var(--yellow)'; }
-      }
-    });
-  });
-  var j=document.getElementById('ost-jami');
-  if(!j) return;
-  if(!bor){ j.textContent='—'; j.style.color='var(--muted)'; return; }
-  if(_ostRejim==='shakl'){ j.textContent=jd+' dona · '+fmtG(jg)+' g'; j.style.color='var(--text)'; }
-  else if(jd===0 && Math.abs(jg)<0.005){ j.textContent='mos ✓'; j.style.color='var(--green)'; }
-  else { j.textContent=(jd>0?'+':'')+jd+' dona · '+(jg>0?'+':'')+fmtG(jg)+' g'; j.style.color=(jd<0||jg<0)?'var(--red)':'var(--yellow)'; }
-}
-function ostSaqla(){
+function ostFormSaqla(){
+  var c=ostCurTur();
+  if(!c){ alert('Zavod/tur tanlang!'); return; }
+  if(!_ostF.length){ alert('Kamida 1 ta dona skan qiling!'); return; }
+  var jg=0; _ostF.forEach(function(g){ jg+=g; }); jg=roundG(jg);
+  var dona=_ostF.length;
   var sana=today();
   var _n=new Date();
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
-  var ishlar=[];
-  (data.zavodlar||[]).forEach(function(z,zi){
-    (z.turlar||[]).forEach(function(t,ti){
-      var dEl=document.getElementById('ost-d-'+zi+'_'+ti), gEl=document.getElementById('ost-g-'+zi+'_'+ti);
-      if(!dEl||!gEl) return;
-      if(dEl.value==='' && gEl.value==='') return; // bo'sh — tegilmaydi
-      var hd=Math.round(parseNum(dEl.value)), hg=roundG(parseNum(gEl.value));
-      if(_ostRejim==='shakl'){
-        if(hd<=0 && hg<=0) return;
-        ishlar.push({t:t, znom:z.nom, gFarq:hg, dFarq:hd, matn:z.nom+'·'+t.nom+': +'+hd+'d, +'+fmtG(hg)+'g'});
-      } else {
-        var fd=hd-turDona(t), fg=roundG(hg-(t.ostatka||0));
-        if(fd===0 && Math.abs(fg)<0.005) return; // mos — yozuv shart emas
-        ishlar.push({t:t, znom:z.nom, gFarq:fg, dFarq:fd, matn:z.nom+'·'+t.nom+': '+(fd>0?'+':'')+fd+'d, '+(fg>0?'+':'')+fmtG(fg)+'g'});
-      }
-    });
-  });
-  if(!ishlar.length){ alert(_ostRejim==='shakl'?'Hech narsa kiritilmadi!':'Farq yo\'q yoki hech narsa kiritilmadi — saqlash shart emas.'); return; }
-  var sarl=_ostRejim==='shakl'?'BOSHLANG\'ICH OSTATKA KIRITILSINMI?':'TEKSHIRUV: farqlar TUZATILSINMI? (hisob haqiqiy sanoqqa tenglashadi)';
-  if(!confirm(sarl+'\n\n'+ishlar.map(function(x){return x.matn;}).join('\n'))) return;
-  ishlar.forEach(function(x){
-    if(!x.t.tarix) x.t.tarix=[];
-    x.t.tarix.push({ tip:'mol', sana:sana, soat:soat, gramm:x.gFarq, dona:x.dFarq,
-      izoh:(_ostRejim==='shakl'?'Boshlang\'ich ostatka':'Ostatka tekshiruv tuzatish'),
-      inventar:(_ostRejim==='shakl'?'boshlangich':'tekshiruv') });
-    x.t.ostatka = roundG((x.t.ostatka||0) + x.gFarq);
-    x.t.donaOst = turDona(x.t) + x.dFarq;
-  });
-  save((_ostRejim==='shakl'?'Boshlang\'ich ostatka':'Ostatka tekshiruv')+' | '+ishlar.length+' tur');
-  closeModal('modal-ostatka');
+  var gFarq, dFarq, sarl, izoh, inventar;
+  if(_ostMode==='shakl'){
+    gFarq=jg; dFarq=dona;
+    sarl="BOSHLANG'ICH OSTATKA KIRITILSINMI?";
+    izoh="Boshlang'ich ostatka"; inventar='boshlangich';
+  } else {
+    dFarq=dona-turDona(c.t); gFarq=roundG(jg-(c.t.ostatka||0));
+    if(dFarq===0 && Math.abs(gFarq)<0.005){ alert("Farq yo'q — saqlash shart emas."); return; }
+    sarl='TEKSHIRUV: farq TUZATILSINMI? (hisob haqiqiy sanoqqa tenglashadi)';
+    izoh='Ostatka tekshiruv tuzatish'; inventar='tekshiruv';
+  }
+  var matn=c.z.nom+' · '+c.t.nom+': '+(_ostMode==='shakl'?('+'+dFarq+'d, +'+fmtG(gFarq)+'g'):((dFarq>0?'+':'')+dFarq+'d, '+(gFarq>0?'+':'')+fmtG(gFarq)+'g'));
+  if(!confirm(sarl+'\n\n'+matn)) return;
+  if(!c.t.tarix) c.t.tarix=[];
+  c.t.tarix.push({ tip:'mol', sana:sana, soat:soat, gramm:gFarq, dona:dFarq, izoh:izoh, inventar:inventar });
+  c.t.ostatka = roundG((c.t.ostatka||0) + gFarq);
+  c.t.donaOst = turDona(c.t) + dFarq;
+  save((_ostMode==='shakl'?"Boshlang'ich ostatka":'Ostatka tekshiruv')+' | '+c.z.nom+'·'+c.t.nom);
   renderHome();
-  alert('✓ Saqlandi: '+ishlar.length+' tur '+(_ostRejim==='shakl'?'shakllantirildi':'tuzatildi'));
+  _ostF=[];
+  ostFRender();
+  ostTurChange(); // ogoh/sistema yangilanadi (endi shakllantirilgan deb belgilanadi)
+  alert('✓ Saqlandi: '+matn+'\n\nBoshqa turni tanlang yoki "Ortga" bosing.');
 }
 
 // ===== SKAN KIRIM HISOBOTI (Excel/PDF): qaysi kuni nechta dona, qancha gramm keldi =====
@@ -12598,4 +12592,4 @@ cloudInit();
 
 </script>
 </body>
-</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. --><!-- v60: (1) SOTIB OLISH modaliga DAVR qo'shildi — sana+soat maydonlari, Hozir/Kecha tez tugmalar; kechasi olib ertasiga kiritish uchun. Yozuvga tanlangan sana/soat/sana_ts yoziladi; lomKunlik endi DAVR kunining lom kursidan (tilla-kurs-tarix dan topiladi, topilmasa qo'lda — LOM foyda to'g'ri kun kursi bilan qulflanadi); tanlangan kunga Z bo'lsa yoki orqa sana bo'lsa sariq ogohlantirish; confirm da ORQA SANA belgisi. (2) koPreview endi KASSA TA'SIRI ko'rsatadi: Naqd hozirgi→yangi (−summa), 999 yoki Lom583(ekv) cho'ntagi hozirgi→yangi (+gramm), erkin qoladi. (3) YOPILMAGAN KUN ESLATMASI — kassa qoldiq panelida: oxirgi Z dan keyingi eng eski yopilmagan kun (bugungacha) sariq banner, 'Kunni yopish' tugmasi Z modalini o'sha sana bilan ochadi, × shu sessiyada yashiradi; hali umuman Z qilinmagan bo'lsa chiqmaydi. Z YOPISH AVTOMAT EMAS — qo'lda sanash bilan qoladi. --><!-- v61: XATO TUZATILDI — 'lomNeytral is not defined' (renderLomInto, LOM tab JAMI FOYDA kartasi). Asl faylda ham bor edi: o'zgaruvchi ishlatilgan lekin e'lon qilinmagan (eski tahrir qoldig'i), LOM tab ochilganda yoki to'lov saqlangach renderLomAnywhere orqali yiqilardi. Endi lomNeytral = olishda QULFLANGAN kurs-neytral foyda: sum((lomKunlik − narx) × gramm) barcha kirimlar bo'yicha, kassaFoyda() LOM oqimi bilan bir xil formula; lomKunlik yozilmagan eski yozuvlar hisobga kirmaydi. Kartada 'neytral: X$' — qulflangan, 'taxminiy' — faqat baholash. --><!-- v62: SOTIB OLISH modali to'liq yangilandi (mockuplar bo'yicha): (1) Proba 999 tanlansa narx JUFTLIK bo'ladi — '583/kurs' va '999 narxi' maydonlari ×1.7/÷1.7 avto sinxron (0.1 yaxlitlash), boshqa probalarda oddiy bitta narx. (2) Kunlik asos maydoni DAVR KUNIdan avto: 999 uchun kurs×1.7 (tilla-kurs-tarix .kurs), lom uchun lom kursi (.lom); topilmasa qo'lda. (3) Preview endi: 'Pul → oltinga' NEYTRAL (qizil minus olib tashlandi — bu zarar emas, ayirboshlash), cho'ntak o'tishi, QULFLANGAN FOYDA=(kunlik−narx)×g yashil/qizil + izoh (999 da samarali kurs=narx÷1.7), erkin qoladi. (4) Tasdiqlash oynasida: Kassa qatori (naqd −$ → +g) va Qulflangan foyda (arzon/QIMMAT belgisi). (5) A-QOIDA: 999/lom spread OLISHDA qotadi (LOM oqimi, 100% kompaniya, lomNeytral/lomF shu yozuvdan hisoblanadi) — shu arzon 999 keyin zavodga topshirilganda Chiqimda KUNLIK kurs yoziladi, aks holda foyda ikki marta hisoblanadi. Sotib olish sotuvlar FIFO navbatiga TEGMAYDI — sotuvlar faqat zavod chiqimida yopiladi. --><!-- v63: FOYDA MODELI TUZATILDI (Ibrohim 3 nuqtasi): (1) 999 SOTIB OLISHDA FOYDA QOTMAYDI — yozuvga lomKunlik=0 yoziladi, lomF/lomNeytral ga kirmaydi; preview/confirm 'TAXMINIY — chiqimda qotadi' + samarali kurs (narx÷1.7). Haqiqiy foyda zavod CHIQIMIDA tur foizi orqali FIFO bilan qotadi (chiqim kurs kartasiga samarali kursni yozish kerak) — asos har doim SOVDA muhri, bugungi zavod narxi emas; kurs oshganda arzon 999 zararni kamaytiradi, mutlaq foyda faqat 999 sovda kursidan arzon bo'lsa. Ikki marta hisoblash yo'q. (2) LOM ASOSI = ASL BAHO = davr kunining KURSI−1.5 (tilla-kurs-tarix .kurs dan; zaxira: tilla-kurs-bugun−1.5). tilla-lom-bugun (kurs−2, klient olish narxi) asos sifatida ISHLATILMAYDI — standart 76 da olishning o'zida +0.5/g bor. Yorliq: 'Asl lom baho (kurs−1.5)'. (3) Lom foydasi olishda qotishicha qoladi (gramm operatsiyasi). --><!-- v64: XATO TUZATILDI — Klientlar > Hisobot tabida ✏ tahrir modalidagi '🗑 Ochir' tugmasi HECH QACHON ishlamasdi: klientGunTahrir kun-guruh rejimida _kopOi=-1 qo'yadi, kopEditOchir esa tarix[-1]=undefined olib indamay chiqib ketardi (confirm ham chiqmasdi). Endi kopEditOchir ikkala rejimni biladi: bitta-op (_kopOi>=0) va kun-guruh (kop-oi-list dan). Guruhda: kunning barcha operatsiyalari katta indeksdan boshlab (splice siljitmasligi uchun) o'chiriladi, har berish/vozvrat uchun zavod ostatkasi qaytariladi, o'chirilgan tolovlarning lom yozuvlari (klient tarixida ham, data.lomlar da ham) tozalanadi, confirm 'N ta operatsiya o'chirilsinmi?' deb so'raydi. Saqlash (kopEditSaqla) tekshirildi — u avvaldan to'g'ri ishlagan (gramm/kurs/summa/sana o'zgartirish, ostatka korreksiyasi, tahrir-log). --><!-- v65: SOZLAMALARGA 'GRAMMLARNI NOLLASH (yangi davr)' qo'shildi — parol blokidan keyin, sariq tugma. NOLLANADI: barcha zavod-tur ostatkalari va tarixi, klient tarixi (balanslar avtomatik 0), data.lomlar (lom ombori + sotib olishlar), data.kassa (Z-hisoblar, tuzatishlar, zakazlar — ochiq zakazlar ham, oldindan sariq ogohlantirish bilan). QOLADI: zavodlar+sheriklar, turlar (nomlari, tilla-foiz/manual/a-b narx sozlamalari), klientlar (nom, kategoriya), kurs tarixi, mavzu/parol/printer. Himoya: parol (mavjud) + 'NOL' so'zini yozish (tugma shunda ochiladi) + nollashdan OLDIN avto backupExport (muvaffaqiyatsiz bo'lsa confirm so'raydi). KESH QOLDIG'I QOLMAYDI: barcha qoldiqlar (kassa cho'ntaklari, suzuvchi, FIFO, LOM, hisobotlar) yozuvlardan jonli hisoblanadi — yozuvlar bo'shagach o'z-o'zidan 0; nollashdan keyin barcha renderlar chaqiriladi va save() cloud bilan sinxronlaydi (TEST rejimi o'z izolyatsiyasida). --><!-- v66: Sozlamalar (reset-parol) va Vaqt mashinasi (snap-parol) ichki parol maydonlarida Chrome parol menejeri popup'i chiqib 'parolni saqlash' taklif qilardi (bular sayt logini emas, ilova ichki paroli). Yechim: autocomplete='new-password' + noyob name + data-lpignore + readonly-onfocus trigi — brauzer endi saqlangan loginlar ro'yxatini ochmaydi va saqlashni taklif qilmaydi. Firebase login modali (login-pass, cl-parol) ATAYIN tegilmadi — u haqiqiy login, u yerda eslab qolish foydali. --><!-- v66: MOBIL KLAVIATURA XATOSI TUZATILDI — Berish/Vozvrat/To'lov/Sotuv modallarida klient qidiruv maydoni bosilganda klaviatura chiqmasdi. Sabab: modal ochilganda setTimeout(.focus(),200) dasturiy fokus berardi; iOS Safari foydalanuvchi imo-ishorasisiz fokusda klaviaturani OCHMAYDI, maydon esa 'band' bo'lib qoladi — keyin bosilganda yangi focus hodisasi bo'lmay klaviatura umuman chiqmaydi (pastdagi ^v✓ panel ko'rinib turadi, klaviatura yo'q). Yechim: _touchQurilma aniqlash (ontouchstart/maxTouchPoints) + fokusDesktop() yordamchisi — sensorli qurilmalarda avto-fokus O'CHIRILDI (birinchi fokus foydalanuvchi bosishidan → klaviatura ochiladi), desktopda avto-fokus qulayligi saqlanadi. 5 joy almashtirildi: kb-q, kv-q, kt-q, ks-q ochilishlari va _klientResetSel(prefix). --><!-- v67: Chrome avtoto'ldirishi klient qidiruv maydoniga saqlangan loginni ('tilla') yozib qo'yib, ro'yxat filtrланиб 'topilmadi' bo'lib qolardi — klientlar o'chgandek ko'rinardi (aslida joyida). Yechim: maydon type='search' + noyob name + yuklanishda 600ms dan keyin qiymat bo'lsa avto-tozalash va renderKlientlar. --><!-- v68: KURS TAKROR SAQLASH TUZATILDI — hkSaqla har 'Saqlash' bosilishida tarixga yangi yozuv qo'shardi, kurs o'zgarmagan bo'lsa ham (kurs tarixi bir xil qiymatlar bilan to'lib ketardi). Endi: oxirgi yozuv SHU KUNDA va AYNAN SHU KURS bo'lsa (farq<0.001) — tarixga yozilmaydi; kurs o'zgargan bo'lsa (kun ichida ham) yangi yozuv qo'shiladi. tilla-kurs-bugun, lom, narxlar va renderlar avvalgidek yangilanadi. --><!-- v69: DAVR KETMA-KETLIGI TUZATILDI — kurs tarixi sanalarni MATN sifatida solishtirardi ('29.06.2026'>'11.07.2026' chiqardi), roykhat/grafik/PDF/oxirgi-yozuv tartibsiz edi. Yangi yagona manba: kursTarixTs (fdSanaTs orqali haqiqiy timestamp), kursTarixSort, kursTarixOl (oqish+saralash). 8 nuqta shu manbaga otkazildi: hkSaqla (dedupe xronologik oxirgi bilan, saqlashda sort), renderKursGrafik (roykhat+grafik chizigi), renderHomeKurs (bugungi kurs paneli), kursTarixEditSave/Delete (tahrirdan keyin sort, tilla-kurs-bugun xronologik oxirgidan), hkPDFDavr (PDF xronologik), koDavrUpd (davr kunining ENG SONGGI kursi). Endi hamma joyda tartib sana+soatdan kelib chiqadi. --><!-- v70: CLOUD ZIDDIYAT DIALOGI 3 ANIQ TUGMAGA ALMASHTIRILDI — eski oqim (confirm 'Yuklab olinsinmi?' -> yoq desa keyingi saqlashda yana confirm 'ustidan yozilsinmi?') chalkash edi, 'eski malumotni saqlash' uchun ikki bosqich kerak bolardi. Yangi modal-cloud-tanlov: (1) '☁ Shu boyicha ozgarsin' — cloudYuklab(meta), boshqa qurilma holatini oladi; (2) 'Bu qurilmaniki saqlansin' — _cloudRemoteNewer=false qoyib cloudSaqlaNow() birdan chaqiradi (eski ikkinchi confirm shart bolmay qoladi), bu qurilma holati DARHOL cloudga yoziladi; (3) 'Keyinroq hal qilaman' — hech narsa ozgarmaydi, _cloudRemoteNewer=true (avvalgi Отмена bilan bir xil xulq). cloudListen dagi eski confirm() shoxobchasi cloudTanlovOch(m) bilan almashtirildi. cloudSaqlaNow dagi eski himoya-confirm oddiy avtosaqlash paytida (foydalanuvchi 'keyinroq' tanlagandan keyin) hali ishlaydi — xavfsizlik zaxirasi sifatida qoldirildi. --><!-- v71: DONA OSTATKA TIZIMI. (1) Har zavod-turga donaOst sanogi (grammga parallel): skan kirimda +dona, klientga berishda skan paneli ishlatilgan bolsa −dona (op.dona ham yoziladi; qolda gramm yozilsa dona nomalum — donaOst tegilmaydi, haftalik tekshiruv moslaydi). SON boyicha sanaladi, qiymat boyicha EMAS — bir xil grammli buyumlar har biri alohida dona. (2) BIZDA kartasida dona soni korinadi (>0 bolsa). (3) OSTATKA modali (zavod tarafda Skan kirim oldida, klient tarafda PDF/+Klient qatorida, mobil versiyalarda ham): Tekshirish rejimi — har turga qolda sanalgan dona+gramm kiritiladi, tizim bilan farq jonli koriladi, saqlashda confirm bilan TUZATILADI (tip:mol, inventar:'tekshiruv', ± farq; ostatka va donaOst haqiqiy sanoqqa tenglashadi, tarixda log qoladi); Shakllantirish (1-martalik) rejimi — nollashdan keyin boshlangich dona+gramm kirim yozuvi (inventar:'boshlangich') sifatida kiritiladi, bosh qoldirilgan turlar tegilmaydi. (4) SKAN KIRIM HISOBOTI — Skan kirim ekranida Excel (CSV, \ufeff BOM, ; ajratgich, vergulli kasr) va PDF (print oynasi) tugmalari: sana/zavod/tur/dona/gramm + JAMI, yangi tepada; inventar yozuvlari hisobotga KIRMAYDI. --><!-- v72: OSTATKA MODALIGA SKAN qoshildi — har tur qatorida ⚖ tugma skan panelini ochadi: barcode har skanida +1 dona, gramm yigiladi (skParseGram — 2,59=2.59), dona/gramm maydonlari avto toladi (qolda tahrir ham mumkin), '−' oxirgisini ochiradi. Bir xil grammli buyumlar ALOHIDA dona bolib sanaladi (sinovda 3x3.55g = 3 dona). Enter/+/− stopPropagation bilan — skaner Enter'i saqlashga oqib ketmaydi. Print YOQ — faqat skan. Ikkala rejimda (Shakllantirish ham Tekshirish ham) ishlaydi; rejim almashganda skan holati tozalanadi. Sensorli qurilmada avto-fokus yoq (v66 qoidasi). --><!-- v72.1: ⚖ ikoni ikkala skan-toggle tugmasida (ost-sb va kbskan-btn) barcode SVG ikoni bilan almashtirildi (yumaloq ramka + har xil uzunlikdagi vertikal chiziqlar, currentColor — tugma holatiga qarab rang oladi). --><!-- v73: UNIVERSAL SKAN (uniSkan) — 4 yangi nuqtaga skan qoshildi, Berish (v71) bilan jami 5 nuqtada zanjir yopildi: (1) VOZVRAT modali tur qatorlari — skan bilan qaytsa zavodga +dona +gramm (op.dona, donaOst+=); (2) TOLOV > Vozvrat(ixtiyoriy) qatorlari — xuddi shunday; (3) SOTUV > Sotilgan gramm qatorlari — skan bilan sotilsa zavoddan -dona -gramm (berish yonalishi, donaOst-=, 0 dan pastga tushmaydi); (4) SOTUV > Vozvrat(ixtiyoriy) — +dona +gramm. Yagona naqsh: gramm maydoni yonida barcode SVG tugma -> sariq panel -> har skan +1 dona, gramm maydonga avto tushib maydonning oz oninput hisobi chaqiriladi, '-' oxirgisini ochiradi, Enter/+/- stopPropagation (v59). Skan ishlatilmasa: gramm avvalgidek, dona yozilmaydi (haftalik tekshiruv moslaydi). Har modal renderida uniSkanReset(prefix) — eski holat oqib otmaydi. Bir xil grammlar ALOHIDA dona (sinov: 2x3.55+2.10 = 3 dona). -->
+</html><!-- v55: Mobil 4 tugma ikonlari (Berish/Vozvrat/To'lov/Sotuv) izchil SVGga almashtirildi — Vozvrat=refresh uslubi, To'lov=toza matn $, hech biri emoji sifatida renderlanmaydi. Rangli fon (v54) saqlanib qoldi. --><!-- v57: Zavod-tur detali paneliga 4-chi blok qo'shildi — 'BIZNING QARZIMIZ' (klient ro'yxatidagi barcha musbat/yashil balanslar yig'indisi, ya'ni bizga qaytgan fizik ortiqcha + pul-asosli ortiqcha to'lov). Faqat shu qiymat 0 dan katta bo'lsa ko'rinadi (3 ustundan 4 ustunga o'tadi). BIZDA/KLIENTDA/JAMI hisobi o'zgarmadi — bu faqat qo'shimcha ko'rsatkich. --><!-- v58: Chiqim ekraniga "Kurs" kartasi qo'shildi — bitta kurs kiritiladi (583 yoki 999, ikkalasi ×1.7/÷1.7 avto sinxron), "Kunlik kurs" tugmasi tilla-kurs-bugun dan to'ldiradi, har foizli turning KURS maydoni getZavodNarx formulasi (kurs×(1+pct/100), 0.1 yaxlitlash) bilan avto to'ladi — 999 arbitraji uchun: 999 narxi 131.5 yozilsa → 583=77.4 → Butterfly 7% kirim 82.8. Foizsiz turlar tegilmaydi (qo'lda). cCalc natijasiga "bugungi narx bilan farq" qatori qo'shildi (arzon=yashil/qimmat=qizil). chiqimSaqlash, FIFO, kassaFifoModel mantiqiga TEGILMADI. --><!-- v59: SKANER XATOSI TUZATILDI — klient modallarida (Berish/Vozvrat/To'lov/Sotuv) QR/shtrix skan qilinganda skaner yakunlovchi Enter yuborishi global Enter-saqlash tinglovchisiga (4818) oqib borib, modal darhol saqlanib chek printerga ketardi. Ikki qavat himoya: (1) kbskan-inp maydonida Enter/+/- endi stopPropagation bilan to'xtatiladi — ves ro'yxatga qo'shiladi, modal ochiq qoladi; (2) skaner-detektor: Enter oldidan 3+ belgi <35ms oraliqda kelgan bo'lsa (odam bunday tera olmaydi) — 4 klient modalida Enter-saqlash bosilmaydi, qiymat maydonda qoladi. Odam Enter bosishi (oddiy tezlikda) avvalgidek tez-saqlash qiladi. Boshqa hech narsa o'zgarmadi. --><!-- v60: (1) SOTIB OLISH modaliga DAVR qo'shildi — sana+soat maydonlari, Hozir/Kecha tez tugmalar; kechasi olib ertasiga kiritish uchun. Yozuvga tanlangan sana/soat/sana_ts yoziladi; lomKunlik endi DAVR kunining lom kursidan (tilla-kurs-tarix dan topiladi, topilmasa qo'lda — LOM foyda to'g'ri kun kursi bilan qulflanadi); tanlangan kunga Z bo'lsa yoki orqa sana bo'lsa sariq ogohlantirish; confirm da ORQA SANA belgisi. (2) koPreview endi KASSA TA'SIRI ko'rsatadi: Naqd hozirgi→yangi (−summa), 999 yoki Lom583(ekv) cho'ntagi hozirgi→yangi (+gramm), erkin qoladi. (3) YOPILMAGAN KUN ESLATMASI — kassa qoldiq panelida: oxirgi Z dan keyingi eng eski yopilmagan kun (bugungacha) sariq banner, 'Kunni yopish' tugmasi Z modalini o'sha sana bilan ochadi, × shu sessiyada yashiradi; hali umuman Z qilinmagan bo'lsa chiqmaydi. Z YOPISH AVTOMAT EMAS — qo'lda sanash bilan qoladi. --><!-- v61: XATO TUZATILDI — 'lomNeytral is not defined' (renderLomInto, LOM tab JAMI FOYDA kartasi). Asl faylda ham bor edi: o'zgaruvchi ishlatilgan lekin e'lon qilinmagan (eski tahrir qoldig'i), LOM tab ochilganda yoki to'lov saqlangach renderLomAnywhere orqali yiqilardi. Endi lomNeytral = olishda QULFLANGAN kurs-neytral foyda: sum((lomKunlik − narx) × gramm) barcha kirimlar bo'yicha, kassaFoyda() LOM oqimi bilan bir xil formula; lomKunlik yozilmagan eski yozuvlar hisobga kirmaydi. Kartada 'neytral: X$' — qulflangan, 'taxminiy' — faqat baholash. --><!-- v62: SOTIB OLISH modali to'liq yangilandi (mockuplar bo'yicha): (1) Proba 999 tanlansa narx JUFTLIK bo'ladi — '583/kurs' va '999 narxi' maydonlari ×1.7/÷1.7 avto sinxron (0.1 yaxlitlash), boshqa probalarda oddiy bitta narx. (2) Kunlik asos maydoni DAVR KUNIdan avto: 999 uchun kurs×1.7 (tilla-kurs-tarix .kurs), lom uchun lom kursi (.lom); topilmasa qo'lda. (3) Preview endi: 'Pul → oltinga' NEYTRAL (qizil minus olib tashlandi — bu zarar emas, ayirboshlash), cho'ntak o'tishi, QULFLANGAN FOYDA=(kunlik−narx)×g yashil/qizil + izoh (999 da samarali kurs=narx÷1.7), erkin qoladi. (4) Tasdiqlash oynasida: Kassa qatori (naqd −$ → +g) va Qulflangan foyda (arzon/QIMMAT belgisi). (5) A-QOIDA: 999/lom spread OLISHDA qotadi (LOM oqimi, 100% kompaniya, lomNeytral/lomF shu yozuvdan hisoblanadi) — shu arzon 999 keyin zavodga topshirilganda Chiqimda KUNLIK kurs yoziladi, aks holda foyda ikki marta hisoblanadi. Sotib olish sotuvlar FIFO navbatiga TEGMAYDI — sotuvlar faqat zavod chiqimida yopiladi. --><!-- v63: FOYDA MODELI TUZATILDI (Ibrohim 3 nuqtasi): (1) 999 SOTIB OLISHDA FOYDA QOTMAYDI — yozuvga lomKunlik=0 yoziladi, lomF/lomNeytral ga kirmaydi; preview/confirm 'TAXMINIY — chiqimda qotadi' + samarali kurs (narx÷1.7). Haqiqiy foyda zavod CHIQIMIDA tur foizi orqali FIFO bilan qotadi (chiqim kurs kartasiga samarali kursni yozish kerak) — asos har doim SOVDA muhri, bugungi zavod narxi emas; kurs oshganda arzon 999 zararni kamaytiradi, mutlaq foyda faqat 999 sovda kursidan arzon bo'lsa. Ikki marta hisoblash yo'q. (2) LOM ASOSI = ASL BAHO = davr kunining KURSI−1.5 (tilla-kurs-tarix .kurs dan; zaxira: tilla-kurs-bugun−1.5). tilla-lom-bugun (kurs−2, klient olish narxi) asos sifatida ISHLATILMAYDI — standart 76 da olishning o'zida +0.5/g bor. Yorliq: 'Asl lom baho (kurs−1.5)'. (3) Lom foydasi olishda qotishicha qoladi (gramm operatsiyasi). --><!-- v64: XATO TUZATILDI — Klientlar > Hisobot tabida ✏ tahrir modalidagi '🗑 Ochir' tugmasi HECH QACHON ishlamasdi: klientGunTahrir kun-guruh rejimida _kopOi=-1 qo'yadi, kopEditOchir esa tarix[-1]=undefined olib indamay chiqib ketardi (confirm ham chiqmasdi). Endi kopEditOchir ikkala rejimni biladi: bitta-op (_kopOi>=0) va kun-guruh (kop-oi-list dan). Guruhda: kunning barcha operatsiyalari katta indeksdan boshlab (splice siljitmasligi uchun) o'chiriladi, har berish/vozvrat uchun zavod ostatkasi qaytariladi, o'chirilgan tolovlarning lom yozuvlari (klient tarixida ham, data.lomlar da ham) tozalanadi, confirm 'N ta operatsiya o'chirilsinmi?' deb so'raydi. Saqlash (kopEditSaqla) tekshirildi — u avvaldan to'g'ri ishlagan (gramm/kurs/summa/sana o'zgartirish, ostatka korreksiyasi, tahrir-log). --><!-- v65: SOZLAMALARGA 'GRAMMLARNI NOLLASH (yangi davr)' qo'shildi — parol blokidan keyin, sariq tugma. NOLLANADI: barcha zavod-tur ostatkalari va tarixi, klient tarixi (balanslar avtomatik 0), data.lomlar (lom ombori + sotib olishlar), data.kassa (Z-hisoblar, tuzatishlar, zakazlar — ochiq zakazlar ham, oldindan sariq ogohlantirish bilan). QOLADI: zavodlar+sheriklar, turlar (nomlari, tilla-foiz/manual/a-b narx sozlamalari), klientlar (nom, kategoriya), kurs tarixi, mavzu/parol/printer. Himoya: parol (mavjud) + 'NOL' so'zini yozish (tugma shunda ochiladi) + nollashdan OLDIN avto backupExport (muvaffaqiyatsiz bo'lsa confirm so'raydi). KESH QOLDIG'I QOLMAYDI: barcha qoldiqlar (kassa cho'ntaklari, suzuvchi, FIFO, LOM, hisobotlar) yozuvlardan jonli hisoblanadi — yozuvlar bo'shagach o'z-o'zidan 0; nollashdan keyin barcha renderlar chaqiriladi va save() cloud bilan sinxronlaydi (TEST rejimi o'z izolyatsiyasida). --><!-- v66: Sozlamalar (reset-parol) va Vaqt mashinasi (snap-parol) ichki parol maydonlarida Chrome parol menejeri popup'i chiqib 'parolni saqlash' taklif qilardi (bular sayt logini emas, ilova ichki paroli). Yechim: autocomplete='new-password' + noyob name + data-lpignore + readonly-onfocus trigi — brauzer endi saqlangan loginlar ro'yxatini ochmaydi va saqlashni taklif qilmaydi. Firebase login modali (login-pass, cl-parol) ATAYIN tegilmadi — u haqiqiy login, u yerda eslab qolish foydali. --><!-- v66: MOBIL KLAVIATURA XATOSI TUZATILDI — Berish/Vozvrat/To'lov/Sotuv modallarida klient qidiruv maydoni bosilganda klaviatura chiqmasdi. Sabab: modal ochilganda setTimeout(.focus(),200) dasturiy fokus berardi; iOS Safari foydalanuvchi imo-ishorasisiz fokusda klaviaturani OCHMAYDI, maydon esa 'band' bo'lib qoladi — keyin bosilganda yangi focus hodisasi bo'lmay klaviatura umuman chiqmaydi (pastdagi ^v✓ panel ko'rinib turadi, klaviatura yo'q). Yechim: _touchQurilma aniqlash (ontouchstart/maxTouchPoints) + fokusDesktop() yordamchisi — sensorli qurilmalarda avto-fokus O'CHIRILDI (birinchi fokus foydalanuvchi bosishidan → klaviatura ochiladi), desktopda avto-fokus qulayligi saqlanadi. 5 joy almashtirildi: kb-q, kv-q, kt-q, ks-q ochilishlari va _klientResetSel(prefix). --><!-- v67: Chrome avtoto'ldirishi klient qidiruv maydoniga saqlangan loginni ('tilla') yozib qo'yib, ro'yxat filtrланиб 'topilmadi' bo'lib qolardi — klientlar o'chgandek ko'rinardi (aslida joyida). Yechim: maydon type='search' + noyob name + yuklanishda 600ms dan keyin qiymat bo'lsa avto-tozalash va renderKlientlar. --><!-- v68: KURS TAKROR SAQLASH TUZATILDI — hkSaqla har 'Saqlash' bosilishida tarixga yangi yozuv qo'shardi, kurs o'zgarmagan bo'lsa ham (kurs tarixi bir xil qiymatlar bilan to'lib ketardi). Endi: oxirgi yozuv SHU KUNDA va AYNAN SHU KURS bo'lsa (farq<0.001) — tarixga yozilmaydi; kurs o'zgargan bo'lsa (kun ichida ham) yangi yozuv qo'shiladi. tilla-kurs-bugun, lom, narxlar va renderlar avvalgidek yangilanadi. --><!-- v69: DAVR KETMA-KETLIGI TUZATILDI — kurs tarixi sanalarni MATN sifatida solishtirardi ('29.06.2026'>'11.07.2026' chiqardi), roykhat/grafik/PDF/oxirgi-yozuv tartibsiz edi. Yangi yagona manba: kursTarixTs (fdSanaTs orqali haqiqiy timestamp), kursTarixSort, kursTarixOl (oqish+saralash). 8 nuqta shu manbaga otkazildi: hkSaqla (dedupe xronologik oxirgi bilan, saqlashda sort), renderKursGrafik (roykhat+grafik chizigi), renderHomeKurs (bugungi kurs paneli), kursTarixEditSave/Delete (tahrirdan keyin sort, tilla-kurs-bugun xronologik oxirgidan), hkPDFDavr (PDF xronologik), koDavrUpd (davr kunining ENG SONGGI kursi). Endi hamma joyda tartib sana+soatdan kelib chiqadi. --><!-- v70: CLOUD ZIDDIYAT DIALOGI 3 ANIQ TUGMAGA ALMASHTIRILDI — eski oqim (confirm 'Yuklab olinsinmi?' -> yoq desa keyingi saqlashda yana confirm 'ustidan yozilsinmi?') chalkash edi, 'eski malumotni saqlash' uchun ikki bosqich kerak bolardi. Yangi modal-cloud-tanlov: (1) '☁ Shu boyicha ozgarsin' — cloudYuklab(meta), boshqa qurilma holatini oladi; (2) 'Bu qurilmaniki saqlansin' — _cloudRemoteNewer=false qoyib cloudSaqlaNow() birdan chaqiradi (eski ikkinchi confirm shart bolmay qoladi), bu qurilma holati DARHOL cloudga yoziladi; (3) 'Keyinroq hal qilaman' — hech narsa ozgarmaydi, _cloudRemoteNewer=true (avvalgi Отмена bilan bir xil xulq). cloudListen dagi eski confirm() shoxobchasi cloudTanlovOch(m) bilan almashtirildi. cloudSaqlaNow dagi eski himoya-confirm oddiy avtosaqlash paytida (foydalanuvchi 'keyinroq' tanlagandan keyin) hali ishlaydi — xavfsizlik zaxirasi sifatida qoldirildi. --><!-- v71: DONA OSTATKA TIZIMI. (1) Har zavod-turga donaOst sanogi (grammga parallel): skan kirimda +dona, klientga berishda skan paneli ishlatilgan bolsa −dona (op.dona ham yoziladi; qolda gramm yozilsa dona nomalum — donaOst tegilmaydi, haftalik tekshiruv moslaydi). SON boyicha sanaladi, qiymat boyicha EMAS — bir xil grammli buyumlar har biri alohida dona. (2) BIZDA kartasida dona soni korinadi (>0 bolsa). (3) OSTATKA modali (zavod tarafda Skan kirim oldida, klient tarafda PDF/+Klient qatorida, mobil versiyalarda ham): Tekshirish rejimi — har turga qolda sanalgan dona+gramm kiritiladi, tizim bilan farq jonli koriladi, saqlashda confirm bilan TUZATILADI (tip:mol, inventar:'tekshiruv', ± farq; ostatka va donaOst haqiqiy sanoqqa tenglashadi, tarixda log qoladi); Shakllantirish (1-martalik) rejimi — nollashdan keyin boshlangich dona+gramm kirim yozuvi (inventar:'boshlangich') sifatida kiritiladi, bosh qoldirilgan turlar tegilmaydi. (4) SKAN KIRIM HISOBOTI — Skan kirim ekranida Excel (CSV, \ufeff BOM, ; ajratgich, vergulli kasr) va PDF (print oynasi) tugmalari: sana/zavod/tur/dona/gramm + JAMI, yangi tepada; inventar yozuvlari hisobotga KIRMAYDI. --><!-- v72: OSTATKA MODALIGA SKAN qoshildi — har tur qatorida ⚖ tugma skan panelini ochadi: barcode har skanida +1 dona, gramm yigiladi (skParseGram — 2,59=2.59), dona/gramm maydonlari avto toladi (qolda tahrir ham mumkin), '−' oxirgisini ochiradi. Bir xil grammli buyumlar ALOHIDA dona bolib sanaladi (sinovda 3x3.55g = 3 dona). Enter/+/− stopPropagation bilan — skaner Enter'i saqlashga oqib ketmaydi. Print YOQ — faqat skan. Ikkala rejimda (Shakllantirish ham Tekshirish ham) ishlaydi; rejim almashganda skan holati tozalanadi. Sensorli qurilmada avto-fokus yoq (v66 qoidasi). --><!-- v72.1: ⚖ ikoni ikkala skan-toggle tugmasida (ost-sb va kbskan-btn) barcode SVG ikoni bilan almashtirildi (yumaloq ramka + har xil uzunlikdagi vertikal chiziqlar, currentColor — tugma holatiga qarab rang oladi). --><!-- v73: UNIVERSAL SKAN (uniSkan) — 4 yangi nuqtaga skan qoshildi, Berish (v71) bilan jami 5 nuqtada zanjir yopildi: (1) VOZVRAT modali tur qatorlari — skan bilan qaytsa zavodga +dona +gramm (op.dona, donaOst+=); (2) TOLOV > Vozvrat(ixtiyoriy) qatorlari — xuddi shunday; (3) SOTUV > Sotilgan gramm qatorlari — skan bilan sotilsa zavoddan -dona -gramm (berish yonalishi, donaOst-=, 0 dan pastga tushmaydi); (4) SOTUV > Vozvrat(ixtiyoriy) — +dona +gramm. Yagona naqsh: gramm maydoni yonida barcode SVG tugma -> sariq panel -> har skan +1 dona, gramm maydonga avto tushib maydonning oz oninput hisobi chaqiriladi, '-' oxirgisini ochiradi, Enter/+/- stopPropagation (v59). Skan ishlatilmasa: gramm avvalgidek, dona yozilmaydi (haftalik tekshiruv moslaydi). Har modal renderida uniSkanReset(prefix) — eski holat oqib otmaydi. Bir xil grammlar ALOHIDA dona (sinov: 2x3.55+2.10 = 3 dona). --><!-- v74: OSTATKA MODALI TOLIQ QAYTA QURILDI — eski hamma-turlar-bir-royhat korinishi olib tashlandi, ozi kelishilgan zavod->tur->skan oqimiga otkazildi. openOstatkaModal endi tanlov ekranini (ost-choice) ochadi: 'Ostatka shakllantirish' / 'Ostatka tekshirish'. Tanlangach ost-form: Zavod select -> Tur select -> (Shakllantirishda) tur allaqachon boshlangich yozuviga ega bolsa sariq ogohlantirish, (Tekshirishda) kok panelda tizim hisobi (dona+gramm) -> bitta umumiy SKAN maydoni (Skan kirimdagi uslub: barcode input + Dona/Skan jami stat-kartalari, +/- tugmalari, Enter/+/- stopPropagation) -> Tekshirishda skan qilgan sari farq jonli korinadi (mos/yetishmayapti/ortiqcha) -> Saqlash: bitta tur uchun tip:mol yozuvi (inventar:boshlangich yoki tekshiruv), ostatka+donaOst yangilanadi, so'ng skan tozalanib xuddi shu ekranda BOSHQA TURGA otish mumkin ('Ortga' bosib yangi zavod/tur tanlash yoki tepadagi tur select'ni almashtirish — ostTurChange avtomatik skan holatini tozalab ogoh/sistema panelini yangilaydi). Eski funksiyalar (ostRejim/ostRowsChiz/ostUpd/ostSaqla/_ostSkan/ostSkanToggle/Add/DelLast/Apply) OLIB TASHLANDI, ornini ostChoice/ostZavodChange/ostTurChange/ostCurTur/ostFAdd/ostFDel/ostFRender/ostFormSaqla egalladi. -->
