@@ -7047,7 +7047,8 @@ function renderKassa() {
   if(!allOps.length){ cont.innerHTML='<div class="empty">Hali tolov yoq</div>'; return; }
 
   var jamiSumma=0, jamiGramm=0, jamiFoyda=0, jamiSkidkaK=0;
-  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=o.foydaHozir; jamiSkidkaK+=o.skidka; });
+  var _hamidF = (typeof getRol==='function' && getRol()==='hamid'); // Abdulhamid: qotgan foyda (o.foyda), suzuvchi emas
+  allOps.forEach(function(o){ jamiSumma+=o.summa; jamiGramm+=o.gramm; jamiFoyda+=(_hamidF?o.foyda:o.foydaHozir); jamiSkidkaK+=o.skidka; });
   jamiFoyda = Math.round(jamiFoyda*100)/100;
   jamiSkidkaK = Math.round(jamiSkidkaK*100)/100;
 
@@ -7062,7 +7063,7 @@ function renderKassa() {
     sessions[sk].ops.push(o);
     sessions[sk].summa+=o.summa;
     sessions[sk].gramm+=o.gramm;
-    sessions[sk].foyda+=o.foydaHozir;
+    sessions[sk].foyda+=(_hamidF?o.foyda:o.foydaHozir);
     sessions[sk].foydaAsl+=o.foyda;
     sessions[sk].skidka+=o.skidka;
   });
@@ -7179,11 +7180,12 @@ function renderKassa() {
           out+='<div>Tur</div><div>Gramm</div><div>Narx</div><div style="color:var(--green);">Foyda</div></div>';
           kg.ops.forEach(function(o){
             if(!o.zavod||!o.tur) return;
-            var _szO=Math.abs(o.suzuvchi)>0.005;
-            var _rang = o.foydaHozir>0.005?'var(--green)':(o.foydaHozir<-0.005?'var(--red)':'var(--muted)');
+            var _szO=!_hamidF && Math.abs(o.suzuvchi)>0.005; // hamidda suzuvchi belgisi ko'rsatilmaydi
+            var _opF = _hamidF ? o.foyda : o.foydaHozir;      // hamidda qotgan foyda
+            var _rang = _opF>0.005?'var(--green)':(_opF<-0.005?'var(--red)':'var(--muted)');
             var _strelka = _szO ? (o.suzuvchi>0?' <span style="color:var(--green);">▲</span>':' <span style="color:var(--red);">▼</span>') : '';
-            var turFoyda = (o.foydaHozir>0.005||o.foydaHozir<-0.005)
-              ? (_szO?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">'+(o.foyda>=0?'+':'')+fmtD(o.foyda)+'</span> ':'')+'<b style="color:'+_rang+';">'+(o.foydaHozir>0?'+':'')+'$'+fmtD(o.foydaHozir)+'</b>'+_strelka
+            var turFoyda = (_opF>0.005||_opF<-0.005)
+              ? (_szO?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">'+(o.foyda>=0?'+':'')+fmtD(o.foyda)+'</span> ':'')+'<b style="color:'+_rang+';">'+(_opF>0?'+':'')+'$'+fmtD(_opF)+'</b>'+_strelka
               : '—';
             out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:start;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
             out+='<div style="color:var(--text);">'+o.zavod+' · '+o.tur+'</div>';
@@ -13803,3 +13805,4 @@ cloudInit();
 <!-- v104: OSTATKA "ZAVODGA QAYTDI" BUG TUZATILDI (Ibrohim: to'langan/berilgan tillani zavodga qaytarvordi). ILDIZ (Claude xatosi, v98/v99): klientga BERISH/SOTUV faqat KLIENT tarixiga yoziladi (k.tarix.push) va t.ostatka to'g'ridan kamayadi — ZAVOD tarixiga yozuv TUSHMAYDI. Lekin v98/v99 ostatkani FAQAT zavod tarixidan qayta hisoblardi (ostatkaHisobla) -> berilgan tillani ko'rmasdan ostatkani balandroq hisoblardi = go'yo berilgan tilla zavodga qaytdi. Va bu HAR sinxron/ulanishda AVTOMAT takrorlanardi (amalListen + syncFullFill v99.1) -> qayta-qayta buzardi. TUZATISH (3 qism): (1) ostatkaHisobla(t, zNom) endi KLIENT berish/sotuv/vozvratni HAM hisobga oladi — barcha klientlar tarixidan shu zNom+t.nom ga tegishlisi: berish -g/-dona (boshlangich bundan mustasno — zavoddan chiqmagan), vozvrat +g/+dona. (2) AVTOMAT qayta-hisoblash O'CHIRILDI ikki joyda (amalListen changed-block va syncFullFill 3-qadam) — running-total (har amal to'g'ri kamaytiradigan) TO'G'RI edi, endi buzilmaydi; masofadan kelgan tarix qatori amalRecAdd bilan qo'shiladi. (3) v98 tugma (Sozlamalar > Ostatkani qayta tiklash) endi ostatkaHisobla(t, z.nom) chaqiradi (2 joy: preview+apply) — bir marta bosib buzilgan ostatkalarni TO'G'RI (klient bilan) tiklaydi. Sinov: Diamond 100 kirim - 60 berish = 40g/2dona (qaytmaydi); ESKI klientsiz 100g (60 qaytardi); vozvrat +20 -> 60g/3dona; boshlangich berish ta'sir qilmaydi; boshqa zavod aralashmaydi — 7/7. FOYDALANISH: deploy -> Ctrl+Shift+R -> Sozlamalar > "Ostatkani qayta tiklash" BIR MARTA bosib buzilgan ostatkalarni to'g'rilash (avval backup avtomat olinadi). -->
 <!-- v105: ABDULHAMID ROLI SODDALASHTIRILDI (rol-hamid). Login o'zgarmadi (abdulhamid_7777 / Scoplon2003) — faqat CREDS da rol 'admin'->'hamid'. applyRol endi 'hamid' rolida body.rol-hamid klassini qo'yadi (rol-zavod/rol-hamid ikkalasi ham tozalanadi, keyin mos biri qo'yiladi). CSS bilan yashiriladi (ma'lumot O'ZGARMAYDI, faqat ko'rinish): ZAVOD tarafda — Kassa (#kassa-card-pc, #kassa-card-mob, zavod-detali #ztab-kassa + #zavod-kassa-cont), LOM (#ztab-home-lom + #main-lom), Sherik (#ztab-sherik + #zavod-sherik-cont), Ostatka (ikki tugmaga .hamid-x klass); KLIENT tarafda — Kassa tab (#kt-kassa + #klient-kassa-list) yashirin, bu Kassa qoldiq + Joriy foyda + Kassa harakatlarini birga yopadi (uchovi shu tabda). Qolgani ishlaydi: berish/vozvrat/to'lov/sotuv, klient qarzi/tarix, skan kirim, kirim/chiqim/vozvrat, chek/PDF, kurs, hisobot. Admin (tilla) rolida hammasi avvalgidek ko'rinadi — CSS faqat rol-hamid da ta'sir qiladi. -->
 <!-- v106: ABDULHAMID KASSA KO'RINISHI TO'G'RILANDI (Ibrohim rasm: Abdulhamidga savdo/foyda hisoboti — JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA + grafik + sotuvlar ro'yxati — KO'RINSIN, faqat Kassa qoldiq/Joriy foyda/Kassa harakatlari yashirin). v105 da butun klient Kassa tab (#kt-kassa + #klient-kassa-list) yashirilgan edi — bu XATO edi, chunki rasmda ko'rsatilgan hisobot ham shu tabda. TUZATISH: (1) CSS dan #kt-kassa + #klient-kassa-list olib tashlandi — Kassa tab endi Abdulhamidga KO'RINADI. (2) renderKassa ichida rol tekshiruvi: _hamidRol=(getRol()==='hamid') bo'lsa faqat uch panel (kassaQoldiqPanelHTML=Kassa qoldiq, kassaFoydaPanelHTML=Joriy foyda, kassaLentaHTML=Kassa harakatlari) O'TKAZIB YUBORILADI; ularning ostidagi summary-row (JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA), grafik (Kun/Hafta/Oy/Yil + Sotuv/Foyda), va sotuvlar ro'yxati HAMMAGA (Abdulhamidga ham) ko'rinadi. Admin (tilla) da hammasi avvalgidek. Zavod tarafdagi yashirishlar (Kassa/LOM/Sherik/Ostatka — v105) o'zgarmadi. -->
+<!-- v107: ABDULHAMID FOYDANI QOTGAN (muhrlangan) KO'RSATADI, SUZUVCHI EMAS (Ibrohim: foydani suzuvchi qilish kerakmas, o'sha kuni sotilganda foydasini qotirib qo'yib ko'rsatish kerak). Har sotuv op'ida ikki qiymat bor: o.foyda = SOTUV LAHZASIDA qotgan (muhrlangan) foyda, o.foydaHozir = suzuvchi (kurs o'zgarishi bilan yangilanadigan). Admin (tilla) avvalgidek SUZUVCHI (foydaHozir) ko'radi + suzuvchi belgilari (chizib tashlangan qotgan + ▲/▼ strelka). Abdulhamid (rol-hamid): _hamidF=true bo'lsa hamma joyda o.foyda (QOTGAN) ishlatiladi — jami FOYDA, sessiya foydasi (list + grafik), va per-op ko'rsatish; per-op da _szO=!_hamidF bilan suzuvchi belgilari (chizib tashlash + strelka) UMUMAN ko'rsatilmaydi — faqat toza qotgan raqam. Grafik Foyda liniyasi ham sessiya foydasidan kelgani uchun avtomat qotganga o'tadi. foydaAsl (session) o'zgarmadi. Sinov: op(foyda=20,suzuvchi=5,foydaHozir=25) -> admin 25$ + strelka, Abdulhamid 20$ toza, suzuvchi belgisi yo'q — 4/4. -->
