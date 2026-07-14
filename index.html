@@ -256,6 +256,21 @@ input[type=number]{-moz-appearance:textfield;}
 /* Zavod roli — klient panelini yashir */
 body.rol-zavod #main-klient { display: none !important; }
 
+/* Abdulhamid roli (rol-hamid) — soddalashtirilgan ko'rinish */
+/* Zavod tarafda: Kassa, LOM, Sherik, Ostatka yashirin */
+body.rol-hamid #kassa-card-pc,
+body.rol-hamid #kassa-card-mob,
+body.rol-hamid #ztab-kassa,
+body.rol-hamid #zavod-kassa-cont,
+body.rol-hamid #ztab-home-lom,
+body.rol-hamid #main-lom,
+body.rol-hamid #ztab-sherik,
+body.rol-hamid #zavod-sherik-cont,
+body.rol-hamid .hamid-x { display: none !important; }
+/* Klient tarafda: Kassa (qoldiq + joriy foyda + harakatlar) yashirin */
+body.rol-hamid #kt-kassa,
+body.rol-hamid #klient-kassa-list { display: none !important; }
+
 /* Mobil da PC headerlarni yashir */
 @media (max-width: 1023px) {
   .pc-zavod-hdr, .pc-klient-hdr { display: none !important; }
@@ -323,7 +338,7 @@ body.rol-zavod #main-klient { display: none !important; }
         <button class="pc-zbtn pdf" onclick="openPDFModal(null)">⎙ PDF</button>
         <button class="pc-zbtn add" onclick="openZavodModal()">+ Zavod</button>
       </div>
-      <button class="pc-zbtn" style="width:100%;margin-top:8px;border-color:var(--blue-bd);color:var(--blue);" onclick="openOstatkaZavod()">⊟ Ostatka</button>
+      <button class="pc-zbtn hamid-x" style="width:100%;margin-top:8px;border-color:var(--blue-bd);color:var(--blue);" onclick="openOstatkaZavod()">⊟ Ostatka</button>
       <button class="pc-zbtn kirim" style="width:100%;margin-top:8px;" onclick="goTo('s-skan')">⊹ Skan kirim — barcode bilan dona-dona</button>
     </div>
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
@@ -365,7 +380,7 @@ body.rol-zavod #main-klient { display: none !important; }
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <button class="action-btn" onclick="openZavodModal()">+ Zavod</button>
-        <button class="action-btn" onclick="openOstatkaZavod()" style="border-color:var(--blue-bd);color:var(--blue);">⊟ Ostatka</button>
+        <button class="action-btn hamid-x" onclick="openOstatkaZavod()" style="border-color:var(--blue-bd);color:var(--blue);">⊟ Ostatka</button>
         <button class="action-btn" onclick="openPDFModal(null)" style="border-color:var(--purple-bd);color:var(--purple);">⎙ PDF</button>
       </div>
     </div>
@@ -1846,7 +1861,7 @@ window.onerror = function(msg, src, line){
 var CREDS = [
   {login:'tilla', parol:'tilla9999', rol:'admin'},
   {login:'zavod', parol:'zavod9999', rol:'zavod'},
-  {login:'abdulhamid_7777', parol:'Scoplon2003', rol:'admin'},
+  {login:'abdulhamid_7777', parol:'Scoplon2003', rol:'hamid'},
   {login:'test', parol:'test7777', rol:'admin'} // TEST hisobi — sinov uchun
 ];
 function setAuth(rol){ localStorage.setItem('tilla-auth','1'); localStorage.setItem('tilla-rol',rol); document.cookie='tilla-auth=1;max-age=31536000;path=/'; }
@@ -1854,10 +1869,11 @@ function getAuth(){ return localStorage.getItem('tilla-auth') || document.cookie
 function getRol(){ return localStorage.getItem('tilla-rol')||'admin'; }
 function applyRol(){
   var rol=getRol();
+  document.body.classList.remove('rol-zavod','rol-hamid');
   if(rol==='zavod'){
     document.body.classList.add('rol-zavod');
-  } else {
-    document.body.classList.remove('rol-zavod');
+  } else if(rol==='hamid'){
+    document.body.classList.add('rol-hamid');
   }
 }
 function doLogin(){
@@ -13783,3 +13799,4 @@ cloudInit();
 <!-- v102: SOTUV DONA TEKSHIRUVI 2 BUG TUZATILDI (Ibrohim: ko'p zavodda grammda yo'q deb xato ogohlantiradi + ogohlantirish orqa fonda, saqlashni qabul qilmaydi, Esc dan keyin chek chiqaradi). BUG 1 (manba mos emas): sotuv mismatch donaMosEmaslarniTop(t.donalar) — ESKI registrdan tekshirardi, berish esa donaBazaMosEmas — dona bazadan. Foydalanuvchi dona bazani to'ldiradi, eski t.donalar ba'zi zavodlarda bo'sh/eskirgan (sinxron/ko'chirishdan keyin) -> o'sha zavodlar sotuvda 'yo'q' deb xato ogohlantirardi (1 zavod OK, ko'p zavodda ba'zilari xato). TUZATISH: sotuv mismatch endi donaBazaMosEmas(z.nom,t.nom,arr) — BERISH bilan bir xil manba (har zavod O'Z dona bazasidan), reg ham donaBazaOmbor dan; sotuv saqlashda donaBazaOlish(z.nom,t.nom,arr) qo'shildi — sotilgan dona bazadan ham 'berilgan' bo'ladi (avval faqat donaRegOlish/t.donalar). BUG 2 (ogohlantirish orqa fonda): modal-ozconfirm z-index 200 edi (boshqa modallar bilan bir xil) -> sotuv modali DOM'da keyinroq bo'lgani uchun ustiga chiqib ozConfirmni yopib qo'yardi (ko'rinmaydi, Esc chalkashligi). TUZATISH: modal-ozconfirm z-index 600 — endi hamma modal ustida, ko'rinadi; foydalanuvchi Bekor/Davom ni to'g'ri bosadi (chek faqat ozConfirmJavob(true) da _sotuvDavomEt orqali chiqadi). Sinov: har zavod o'z bazasidan (Simay 3.13 bor, Diamond 2.10 bor - oldin xato yo'q derdi, Butterfly 4.12 bor), Diamond 9.99 yo'q, Simay 2.10 yo'q (u Diamondniki) - 5/5. -->
 <!-- v103: BERISH CHEKI TUZATILDI (Ibrohim: Berildi -60.94 qatorining chek tugmasini bossam ostatkasini korsatvotti). SABAB: klientChekBasit faqat TOLOV/VOZVRAT cheki uchun yozilgan edi — ops_grouped faqat tolov_g/vozvrat_g ni to'ldiradi, body loop faqat shularni chop etadi. isBerish=true bo'lganda (Berildi qatori, bVal=hasBerish?1:0 to'g'ri kelardi) berish oplari uchun tolov_g/vozvrat_g=0 -> body BO'SH qolardi, chek faqat 'Ostatka' + 'QARZ TARKIBI' ko'rsatardi (foydalanuvchi 'ostatka' deb ko'rgan shu). TUZATISH: klientChekBasit boshiga isBerish bloki qo'shildi — o'sha kun BERILGAN mollar zavod-tur bo'yicha guruhlanib 'Klientga berildi' ro'yxati + 'JAMI berildi' chop etiladi (asl berish modal cheki formatida), so'ng mavjud Ostatka/Qarz tarkibi qoladi (ular berish chekida ham foydali). Tolov/vozvrat cheki O'ZGARMADI (isBerish=false bo'lsa blok o'tkazib yuboriladi). Sinov (rasmdagi -60.94 misoli, 6 zavod-tur): har biri to'g'ri qatorda, JAMI berildi -60.94g — mos. -->
 <!-- v104: OSTATKA "ZAVODGA QAYTDI" BUG TUZATILDI (Ibrohim: to'langan/berilgan tillani zavodga qaytarvordi). ILDIZ (Claude xatosi, v98/v99): klientga BERISH/SOTUV faqat KLIENT tarixiga yoziladi (k.tarix.push) va t.ostatka to'g'ridan kamayadi — ZAVOD tarixiga yozuv TUSHMAYDI. Lekin v98/v99 ostatkani FAQAT zavod tarixidan qayta hisoblardi (ostatkaHisobla) -> berilgan tillani ko'rmasdan ostatkani balandroq hisoblardi = go'yo berilgan tilla zavodga qaytdi. Va bu HAR sinxron/ulanishda AVTOMAT takrorlanardi (amalListen + syncFullFill v99.1) -> qayta-qayta buzardi. TUZATISH (3 qism): (1) ostatkaHisobla(t, zNom) endi KLIENT berish/sotuv/vozvratni HAM hisobga oladi — barcha klientlar tarixidan shu zNom+t.nom ga tegishlisi: berish -g/-dona (boshlangich bundan mustasno — zavoddan chiqmagan), vozvrat +g/+dona. (2) AVTOMAT qayta-hisoblash O'CHIRILDI ikki joyda (amalListen changed-block va syncFullFill 3-qadam) — running-total (har amal to'g'ri kamaytiradigan) TO'G'RI edi, endi buzilmaydi; masofadan kelgan tarix qatori amalRecAdd bilan qo'shiladi. (3) v98 tugma (Sozlamalar > Ostatkani qayta tiklash) endi ostatkaHisobla(t, z.nom) chaqiradi (2 joy: preview+apply) — bir marta bosib buzilgan ostatkalarni TO'G'RI (klient bilan) tiklaydi. Sinov: Diamond 100 kirim - 60 berish = 40g/2dona (qaytmaydi); ESKI klientsiz 100g (60 qaytardi); vozvrat +20 -> 60g/3dona; boshlangich berish ta'sir qilmaydi; boshqa zavod aralashmaydi — 7/7. FOYDALANISH: deploy -> Ctrl+Shift+R -> Sozlamalar > "Ostatkani qayta tiklash" BIR MARTA bosib buzilgan ostatkalarni to'g'rilash (avval backup avtomat olinadi). -->
+<!-- v105: ABDULHAMID ROLI SODDALASHTIRILDI (rol-hamid). Login o'zgarmadi (abdulhamid_7777 / Scoplon2003) — faqat CREDS da rol 'admin'->'hamid'. applyRol endi 'hamid' rolida body.rol-hamid klassini qo'yadi (rol-zavod/rol-hamid ikkalasi ham tozalanadi, keyin mos biri qo'yiladi). CSS bilan yashiriladi (ma'lumot O'ZGARMAYDI, faqat ko'rinish): ZAVOD tarafda — Kassa (#kassa-card-pc, #kassa-card-mob, zavod-detali #ztab-kassa + #zavod-kassa-cont), LOM (#ztab-home-lom + #main-lom), Sherik (#ztab-sherik + #zavod-sherik-cont), Ostatka (ikki tugmaga .hamid-x klass); KLIENT tarafda — Kassa tab (#kt-kassa + #klient-kassa-list) yashirin, bu Kassa qoldiq + Joriy foyda + Kassa harakatlarini birga yopadi (uchovi shu tabda). Qolgani ishlaydi: berish/vozvrat/to'lov/sotuv, klient qarzi/tarix, skan kirim, kirim/chiqim/vozvrat, chek/PDF, kurs, hisobot. Admin (tilla) rolida hammasi avvalgidek ko'rinadi — CSS faqat rol-hamid da ta'sir qiladi. -->
