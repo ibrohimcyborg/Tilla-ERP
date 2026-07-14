@@ -267,9 +267,8 @@ body.rol-hamid #main-lom,
 body.rol-hamid #ztab-sherik,
 body.rol-hamid #zavod-sherik-cont,
 body.rol-hamid .hamid-x { display: none !important; }
-/* Klient tarafda: Kassa (qoldiq + joriy foyda + harakatlar) yashirin */
-body.rol-hamid #kt-kassa,
-body.rol-hamid #klient-kassa-list { display: none !important; }
+/* Klient Kassa tab (savdo/foyda hisoboti + grafik) — Abdulhamidga KO'RINADI;
+   ichidagi Kassa qoldiq / Joriy foyda / Kassa harakatlari renderKassa da yashiriladi */
 
 /* Mobil da PC headerlarni yashir */
 @media (max-width: 1023px) {
@@ -7083,9 +7082,12 @@ function renderKassa() {
   html+='<div></div>';
   html+='<button onclick="kassaPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button>';
   html+='</div>';
-  html+=kassaQoldiqPanelHTML();
-  html+=kassaFoydaPanelHTML();
-  html+=kassaLentaHTML();
+  var _hamidRol = (typeof getRol==='function' && getRol()==='hamid');
+  if(!_hamidRol){ // Abdulhamid rolida: Kassa qoldiq / Joriy foyda / Kassa harakatlari yashirin
+    html+=kassaQoldiqPanelHTML();
+    html+=kassaFoydaPanelHTML();
+    html+=kassaLentaHTML();
+  }
   html+='<div class="kassa-stat-row" style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',minmax(0,1fr));gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
@@ -13800,3 +13802,4 @@ cloudInit();
 <!-- v103: BERISH CHEKI TUZATILDI (Ibrohim: Berildi -60.94 qatorining chek tugmasini bossam ostatkasini korsatvotti). SABAB: klientChekBasit faqat TOLOV/VOZVRAT cheki uchun yozilgan edi — ops_grouped faqat tolov_g/vozvrat_g ni to'ldiradi, body loop faqat shularni chop etadi. isBerish=true bo'lganda (Berildi qatori, bVal=hasBerish?1:0 to'g'ri kelardi) berish oplari uchun tolov_g/vozvrat_g=0 -> body BO'SH qolardi, chek faqat 'Ostatka' + 'QARZ TARKIBI' ko'rsatardi (foydalanuvchi 'ostatka' deb ko'rgan shu). TUZATISH: klientChekBasit boshiga isBerish bloki qo'shildi — o'sha kun BERILGAN mollar zavod-tur bo'yicha guruhlanib 'Klientga berildi' ro'yxati + 'JAMI berildi' chop etiladi (asl berish modal cheki formatida), so'ng mavjud Ostatka/Qarz tarkibi qoladi (ular berish chekida ham foydali). Tolov/vozvrat cheki O'ZGARMADI (isBerish=false bo'lsa blok o'tkazib yuboriladi). Sinov (rasmdagi -60.94 misoli, 6 zavod-tur): har biri to'g'ri qatorda, JAMI berildi -60.94g — mos. -->
 <!-- v104: OSTATKA "ZAVODGA QAYTDI" BUG TUZATILDI (Ibrohim: to'langan/berilgan tillani zavodga qaytarvordi). ILDIZ (Claude xatosi, v98/v99): klientga BERISH/SOTUV faqat KLIENT tarixiga yoziladi (k.tarix.push) va t.ostatka to'g'ridan kamayadi — ZAVOD tarixiga yozuv TUSHMAYDI. Lekin v98/v99 ostatkani FAQAT zavod tarixidan qayta hisoblardi (ostatkaHisobla) -> berilgan tillani ko'rmasdan ostatkani balandroq hisoblardi = go'yo berilgan tilla zavodga qaytdi. Va bu HAR sinxron/ulanishda AVTOMAT takrorlanardi (amalListen + syncFullFill v99.1) -> qayta-qayta buzardi. TUZATISH (3 qism): (1) ostatkaHisobla(t, zNom) endi KLIENT berish/sotuv/vozvratni HAM hisobga oladi — barcha klientlar tarixidan shu zNom+t.nom ga tegishlisi: berish -g/-dona (boshlangich bundan mustasno — zavoddan chiqmagan), vozvrat +g/+dona. (2) AVTOMAT qayta-hisoblash O'CHIRILDI ikki joyda (amalListen changed-block va syncFullFill 3-qadam) — running-total (har amal to'g'ri kamaytiradigan) TO'G'RI edi, endi buzilmaydi; masofadan kelgan tarix qatori amalRecAdd bilan qo'shiladi. (3) v98 tugma (Sozlamalar > Ostatkani qayta tiklash) endi ostatkaHisobla(t, z.nom) chaqiradi (2 joy: preview+apply) — bir marta bosib buzilgan ostatkalarni TO'G'RI (klient bilan) tiklaydi. Sinov: Diamond 100 kirim - 60 berish = 40g/2dona (qaytmaydi); ESKI klientsiz 100g (60 qaytardi); vozvrat +20 -> 60g/3dona; boshlangich berish ta'sir qilmaydi; boshqa zavod aralashmaydi — 7/7. FOYDALANISH: deploy -> Ctrl+Shift+R -> Sozlamalar > "Ostatkani qayta tiklash" BIR MARTA bosib buzilgan ostatkalarni to'g'rilash (avval backup avtomat olinadi). -->
 <!-- v105: ABDULHAMID ROLI SODDALASHTIRILDI (rol-hamid). Login o'zgarmadi (abdulhamid_7777 / Scoplon2003) — faqat CREDS da rol 'admin'->'hamid'. applyRol endi 'hamid' rolida body.rol-hamid klassini qo'yadi (rol-zavod/rol-hamid ikkalasi ham tozalanadi, keyin mos biri qo'yiladi). CSS bilan yashiriladi (ma'lumot O'ZGARMAYDI, faqat ko'rinish): ZAVOD tarafda — Kassa (#kassa-card-pc, #kassa-card-mob, zavod-detali #ztab-kassa + #zavod-kassa-cont), LOM (#ztab-home-lom + #main-lom), Sherik (#ztab-sherik + #zavod-sherik-cont), Ostatka (ikki tugmaga .hamid-x klass); KLIENT tarafda — Kassa tab (#kt-kassa + #klient-kassa-list) yashirin, bu Kassa qoldiq + Joriy foyda + Kassa harakatlarini birga yopadi (uchovi shu tabda). Qolgani ishlaydi: berish/vozvrat/to'lov/sotuv, klient qarzi/tarix, skan kirim, kirim/chiqim/vozvrat, chek/PDF, kurs, hisobot. Admin (tilla) rolida hammasi avvalgidek ko'rinadi — CSS faqat rol-hamid da ta'sir qiladi. -->
+<!-- v106: ABDULHAMID KASSA KO'RINISHI TO'G'RILANDI (Ibrohim rasm: Abdulhamidga savdo/foyda hisoboti — JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA + grafik + sotuvlar ro'yxati — KO'RINSIN, faqat Kassa qoldiq/Joriy foyda/Kassa harakatlari yashirin). v105 da butun klient Kassa tab (#kt-kassa + #klient-kassa-list) yashirilgan edi — bu XATO edi, chunki rasmda ko'rsatilgan hisobot ham shu tabda. TUZATISH: (1) CSS dan #kt-kassa + #klient-kassa-list olib tashlandi — Kassa tab endi Abdulhamidga KO'RINADI. (2) renderKassa ichida rol tekshiruvi: _hamidRol=(getRol()==='hamid') bo'lsa faqat uch panel (kassaQoldiqPanelHTML=Kassa qoldiq, kassaFoydaPanelHTML=Joriy foyda, kassaLentaHTML=Kassa harakatlari) O'TKAZIB YUBORILADI; ularning ostidagi summary-row (JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA), grafik (Kun/Hafta/Oy/Yil + Sotuv/Foyda), va sotuvlar ro'yxati HAMMAGA (Abdulhamidga ham) ko'rinadi. Admin (tilla) da hammasi avvalgidek. Zavod tarafdagi yashirishlar (Kassa/LOM/Sherik/Ostatka — v105) o'zgarmadi. -->
