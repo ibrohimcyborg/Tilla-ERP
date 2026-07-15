@@ -6969,8 +6969,73 @@ function klientTab(tab) {
 // Har bir HAQIQIY sotuv yozuviga (op) uning JORIY (kurs bilan jonli) suzuvchi qismini
 // obyekt havolasi orqali bog'laydi — kassaFifoModel bilan bir xil FIFO mantiq, faqat
 // natija umumiy yig'indi emas, har OP ning O'ZIGA (Map orqali) yoziladi.
+// ---- 999 QOPLASH (v108) ----
+// Arzon 999 olinganda ALOHIDA foyda YOZILMAYDI. Uning puli FIFO bilan (ENG ESKI naqd
+// sovdadan) sovdalarga taqsimlanadi; o'sha sovdalarning kirim kursi = olish narxi ÷ 1.7
+// bo'lib QOTADI -> suzuvchi foyda o'zi ko'tariladi. Lom bilan to'langan sovdalar — aloqasi yo'q.
+// Sovda ichida skidka kabi gramm nisbatida sochiladi. Qat'iy narxli turlar chetda (suzuvchi xaritasida).
+function kassa999Qoplash(){
+  var m = new Map();
+  var xar = ((data.lomlar)||[]).filter(function(r){
+    return r && r.tip==='kirim' && String(r.proba)==='999' && parseNum(r.summa)>0 && parseNum(r.narx)>0;
+  }).map(function(r){
+    var ts = r.sana_ts || fdSanaTs(r.sana, r.soat) || 0;
+    return { ts:ts, pul:parseNum(r.summa), narx:parseNum(r.narx), kurs:parseNum(r.narx)/1.7 };
+  }).sort(function(a,b){ return a.ts-b.ts; });
+  if(!xar.length) return m;
+
+  // sovda sessiyalari (ki|sana|soat) — faqat NAQD qismi havzaga kiradi
+  var sess={}, order=[];
+  (data.klientlar||[]).forEach(function(k, ki){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
+      var ekv = parseNum(op.ekvivalent); if(!(ekv>0)) return;
+      var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : (op.kartaPul ? 0 : op.summa));
+      if(!(nq>0)) return; // lom/karta bilan to'langan — 999 ga pul bermagan
+      var key = ki+'|'+op.sana+'|'+(op.soat||'');
+      if(!sess[key]){ sess[key]={ts:fdSanaTs(op.sana, op.soat)||0, ops:[], naqd:0, qoldi:0}; order.push(key); }
+      sess[key].ops.push({op:op, ekv:ekv, nq:nq});
+      sess[key].naqd += nq;
+    });
+  });
+  if(!order.length) return m;
+  order.forEach(function(key){ sess[key].qoldi = sess[key].naqd; });
+  order.sort(function(a,b){ return sess[a].ts - sess[b].ts; }); // ENG ESKIDAN
+
+  var acc = new Map();
+  xar.forEach(function(x){
+    var qoldi = x.pul;
+    for(var i=0; i<order.length && qoldi>0.001; i++){
+      var s = sess[order[i]];
+      if(s.qoldi<=0.001) continue;
+      var ol = Math.min(s.qoldi, qoldi);
+      s.qoldi -= ol; qoldi -= ol;
+      var ulush = s.naqd>0 ? ol/s.naqd : 0;
+      if(ulush<=0) continue;
+      s.ops.forEach(function(it){
+        var qopEkv = it.ekv*ulush; // skidka kabi — gramm nisbatida
+        var a = acc.get(it.op) || {ekv:it.ekv, ekvQop:0, summaQop:0, pulQop:0};
+        a.ekvQop += qopEkv;
+        a.summaQop += qopEkv * x.kurs;
+        a.pulQop += it.nq * ulush;
+        acc.set(it.op, a);
+      });
+    }
+  });
+  acc.forEach(function(a, op){
+    if(!(a.ekvQop>0.0001) || !(a.ekv>0)) return;
+    m.set(op, {
+      ulush: Math.min(1, a.ekvQop/a.ekv),
+      qopKurs: a.summaQop/a.ekvQop,
+      qopPul: Math.round(a.pulQop*100)/100
+    });
+  });
+  return m;
+}
+
 function kassaSuzuvchiXaritasi(){
   var m = new Map();
+  var _qop = kassa999Qoplash();
   var bugungiKurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
   (data.zavodlar||[]).forEach(function(z, zi){
     var foizlar={};
@@ -7007,11 +7072,24 @@ function kassaSuzuvchiXaritasi(){
       var ochiqBu = Math.max(0, sotilganHammasi - vozvratG - tolanganG);
       var yopilganBu = Math.max(0, realSotilgan - Math.min(ochiqBu, realSotilgan));
       var qoldiYopish=yopilganBu;
+      var _qatiy = (_znMan2!=='' && parseFloat(_znMan2)>0); // QAT'IY narx — 999 ta'sir qilmaydi
       savdo.forEach(function(s){
         var yop=Math.min(s.ekv, qoldiYopish);
         var ochiqEkv = s.ekv - yop; qoldiYopish -= yop;
-        var suzuvchi = kirimNarxHozir>0 ? ochiqEkv*(s.kirimNarx - kirimNarxHozir) : 0;
-        m.set(s.op, {ochiqEkv:roundG(ochiqEkv), suzuvchi:Math.round(suzuvchi*100)/100});
+        // 999 QOPLASH: qoplangan qismning kirim kursi olish narxi ÷ 1.7 da QOTADI
+        var _q = _qatiy ? null : _qop.get(s.op);
+        var _kh = kirimNarxHozir, _ust = 0, _kQop = 0;
+        if(_q && kirimNarxHozir>0){
+          _kQop = pct>0 ? Math.round(_q.qopKurs*(1+pct/100)*10)/10 : Math.round(_q.qopKurs*10)/10;
+          _kh = _q.ulush*_kQop + (1-_q.ulush)*kirimNarxHozir;
+          _ust = ochiqEkv * _q.ulush * (kirimNarxHozir - _kQop); // 999 dan kelgan qism
+        }
+        var suzuvchi = _kh>0 ? ochiqEkv*(s.kirimNarx - _kh) : 0;
+        m.set(s.op, {
+          ochiqEkv:roundG(ochiqEkv), suzuvchi:Math.round(suzuvchi*100)/100,
+          qopUlush:(_q?_q.ulush:0), qopKurs:(_q?_q.qopKurs:0), qopPul:(_q?_q.qopPul:0),
+          qopUst:Math.round(_ust*100)/100, kirimKun:kirimNarxHozir, kirimQop:_kQop
+        });
       });
     });
   });
@@ -7039,7 +7117,10 @@ function renderKassa() {
         suzuvchi: suzuvchi, foydaHozir: Math.round((foyda+suzuvchi)*100)/100,
         naqtPul: op.naqtPul !== undefined ? op.naqtPul : (op.kartaPul ? 0 : (op.summa||0)),
         kartaPul: op.kartaPul||0, skidka: op.skidka||0,
-        lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0
+        lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0,
+        qopUlush: _sz?(_sz.qopUlush||0):0, qopKurs: _sz?(_sz.qopKurs||0):0,
+        qopPul: _sz?(_sz.qopPul||0):0, qopUst: _sz?(_sz.qopUst||0):0,
+        kirimKun: _sz?(_sz.kirimKun||0):0, kirimQop: _sz?(_sz.kirimQop||0):0
       });
     });
   });
@@ -7217,6 +7298,26 @@ function renderKassa() {
           if(kFoyda>0.005||kFoyda<-0.005){
             out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;">';
             out+='<span style="color:var(--muted);">Jami foyda</span><span>'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<b style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</b>'+kStrelka+'</span></div>';
+          }
+          // 999 QOPLASH TUSHUNTIRISHI — nega ko'tarilgani (v108)
+          var _qPul=0, _qUst=0, _qEkv=0, _qKursSum=0, _qKun=0;
+          kg.ops.forEach(function(o){
+            if(!(o.qopUlush>0)) return;
+            _qPul+=o.qopPul||0; _qUst+=o.qopUst||0;
+            var _e=(o.gramm||0)*o.qopUlush; _qEkv+=_e; _qKursSum+=_e*(o.qopKurs||0);
+            if(o.kirimKun>_qKun) _qKun=o.kirimKun;
+          });
+          if(_qPul>0.5 && _qEkv>0.0001){
+            var _qKurs=_qKursSum/_qEkv;
+            var _kunKurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0');
+            var _fq=Math.round((_kunKurs-_qKurs)*100)/100;
+            var _ulPct=kGramm>0?Math.round(_qEkv/kGramm*1000)/10:0;
+            out+='<div style="margin-top:7px;padding:7px 9px;border-radius:8px;background:var(--blue-bg);border:0.5px solid var(--blue-bd);font-size:11px;color:var(--blue);line-height:1.7;">';
+            out+='💡 Bu sovdaning <b>$'+fmtD(_qPul)+'</b> puliga <b>999</b> olindi. Samarali kurs: <b>'+fmtD(Math.round(_qKurs*100)/100)+'</b>';
+            if(_kunKurs>0) out+=' — bugungi <b>'+fmtD(_kunKurs)+'</b> dan <b>'+fmtD(Math.abs(_fq))+'$</b> '+(_fq>0?'arzon':'qimmat');
+            out+='. Sovdaning <b>'+_ulPct+'%</b> qismi shunda';
+            if(_qUst>0.005||_qUst<-0.005) out+=' → foyda <b>'+(_qUst>0?'+':'')+'$'+fmtD(_qUst)+'</b> '+(_qUst>0?'ko\'tarildi':'kamaydi');
+            out+='.</div>';
           }
           out+='</div>';
         }
@@ -13806,3 +13907,4 @@ cloudInit();
 <!-- v105: ABDULHAMID ROLI SODDALASHTIRILDI (rol-hamid). Login o'zgarmadi (abdulhamid_7777 / Scoplon2003) — faqat CREDS da rol 'admin'->'hamid'. applyRol endi 'hamid' rolida body.rol-hamid klassini qo'yadi (rol-zavod/rol-hamid ikkalasi ham tozalanadi, keyin mos biri qo'yiladi). CSS bilan yashiriladi (ma'lumot O'ZGARMAYDI, faqat ko'rinish): ZAVOD tarafda — Kassa (#kassa-card-pc, #kassa-card-mob, zavod-detali #ztab-kassa + #zavod-kassa-cont), LOM (#ztab-home-lom + #main-lom), Sherik (#ztab-sherik + #zavod-sherik-cont), Ostatka (ikki tugmaga .hamid-x klass); KLIENT tarafda — Kassa tab (#kt-kassa + #klient-kassa-list) yashirin, bu Kassa qoldiq + Joriy foyda + Kassa harakatlarini birga yopadi (uchovi shu tabda). Qolgani ishlaydi: berish/vozvrat/to'lov/sotuv, klient qarzi/tarix, skan kirim, kirim/chiqim/vozvrat, chek/PDF, kurs, hisobot. Admin (tilla) rolida hammasi avvalgidek ko'rinadi — CSS faqat rol-hamid da ta'sir qiladi. -->
 <!-- v106: ABDULHAMID KASSA KO'RINISHI TO'G'RILANDI (Ibrohim rasm: Abdulhamidga savdo/foyda hisoboti — JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA + grafik + sotuvlar ro'yxati — KO'RINSIN, faqat Kassa qoldiq/Joriy foyda/Kassa harakatlari yashirin). v105 da butun klient Kassa tab (#kt-kassa + #klient-kassa-list) yashirilgan edi — bu XATO edi, chunki rasmda ko'rsatilgan hisobot ham shu tabda. TUZATISH: (1) CSS dan #kt-kassa + #klient-kassa-list olib tashlandi — Kassa tab endi Abdulhamidga KO'RINADI. (2) renderKassa ichida rol tekshiruvi: _hamidRol=(getRol()==='hamid') bo'lsa faqat uch panel (kassaQoldiqPanelHTML=Kassa qoldiq, kassaFoydaPanelHTML=Joriy foyda, kassaLentaHTML=Kassa harakatlari) O'TKAZIB YUBORILADI; ularning ostidagi summary-row (JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA), grafik (Kun/Hafta/Oy/Yil + Sotuv/Foyda), va sotuvlar ro'yxati HAMMAGA (Abdulhamidga ham) ko'rinadi. Admin (tilla) da hammasi avvalgidek. Zavod tarafdagi yashirishlar (Kassa/LOM/Sherik/Ostatka — v105) o'zgarmadi. -->
 <!-- v107: ABDULHAMID FOYDANI QOTGAN (muhrlangan) KO'RSATADI, SUZUVCHI EMAS (Ibrohim: foydani suzuvchi qilish kerakmas, o'sha kuni sotilganda foydasini qotirib qo'yib ko'rsatish kerak). Har sotuv op'ida ikki qiymat bor: o.foyda = SOTUV LAHZASIDA qotgan (muhrlangan) foyda, o.foydaHozir = suzuvchi (kurs o'zgarishi bilan yangilanadigan). Admin (tilla) avvalgidek SUZUVCHI (foydaHozir) ko'radi + suzuvchi belgilari (chizib tashlangan qotgan + ▲/▼ strelka). Abdulhamid (rol-hamid): _hamidF=true bo'lsa hamma joyda o.foyda (QOTGAN) ishlatiladi — jami FOYDA, sessiya foydasi (list + grafik), va per-op ko'rsatish; per-op da _szO=!_hamidF bilan suzuvchi belgilari (chizib tashlash + strelka) UMUMAN ko'rsatilmaydi — faqat toza qotgan raqam. Grafik Foyda liniyasi ham sessiya foydasidan kelgani uchun avtomat qotganga o'tadi. foydaAsl (session) o'zgarmadi. Sinov: op(foyda=20,suzuvchi=5,foydaHozir=25) -> admin 25$ + strelka, Abdulhamid 20$ toza, suzuvchi belgisi yo'q — 4/4. -->
+<!-- v108: 999 QOPLASH — ARZON OLISH KURSNI PASAYTIRADI, ALOHIDA FOYDA YOZILMAYDI (Ibrohim modeli, ko'p mockup muhokamasidan keyin tasdiqlangan). MANTIQ: arzon 999 olinganda hech qanday alohida "999 foydasi" qatori YOZILMAYDI (u soxta/ikki marta sanash bo'lardi). Buning o'rniga: xarid puli FIFO bilan ENG ESKI naqd sovdadan boshlab sovdalarga taqsimlanadi; o'sha sovdalarning kirim kursi = olish narxi ÷ 1.7 bo'lib QOTADI -> suzuvchi foyda O'ZI ko'tariladi. Olingan GRAMM ahamiyatsiz (u zavodga chiqim bo'lib ketadi). QO'SHILDI: (1) kassa999Qoplash() — data.lomlar dan proba==='999' && tip==='kirim' xaridlarni ts bo'yicha oladi; tolov op'larni sessiya (ki|sana|soat) bo'yicha guruhlaydi, faqat NAQD qismi (op.naqtPul>0) havzaga kiradi (lom/karta bilan to'langan sovdalar — ALOQASI YO'Q); sessiyalar ENG ESKIDAN saraladi; har xarid puli FIFO bilan yuriladi (to'liq/qisman); sessiya ichida SKIDKA KABI gramm nisbatida sochiladi (har op ekv×ulush); bir op bir necha xariddan tegsa — o'lchovli o'rtacha kurs. Qaytaradi: op -> {ulush, qopKurs, qopPul}. (2) kassaSuzuvchiXaritasi ga ulandi: _qatiy=(getZavodNarx manual>0) bo'lsa 999 TA'SIR QILMAYDI (Simay chetda); aks holda kQop=qopKurs×(1+pct/100), _kh=ulush×kQop+(1-ulush)×kirimNarxHozir (qoplangan qism QOTADI, qolgani SUZADI), suzuvchi=ochiqEkv×(kirimNarx−_kh); xaritaga qopUlush/qopKurs/qopPul/qopUst/kirimKun/kirimQop qo'shildi. (3) renderKassa allOps ga shu maydonlar. (4) Sovda kengaytirilganda TEGIGA tushuntirish bloki: "Bu sovdaning $X puliga 999 olindi. Samarali kurs K — bugungi B dan F$ arzon. Sovdaning U% qismi shunda -> foyda +Y ko'tarildi." O'ZGARMADI: chiqim, zavod, qarz, dona baza, sotuv saqlash — hech biriga tegilmadi; hisob faqat KO'RSATISHDA (suzuvchi), saqlangan kirimNarx muhrlangan holicha. Sinov (Node): 13500$ -> Guli 10:49 to'liq, Rano to'liq, Shoazim LOM tegmadi, Oybek to'liq, kurs 125/1.7=73.53; Simay QAT'IY ortmadi, Butterfly foizli +93.86 ortdi; 11000$ -> Oybek QISMAN 61.7% (1231/1995); 3000$ -> Guli sessiyasi 52.9% ikkala turga ham sochildi, Rano tegmadi — 13/13. -->
