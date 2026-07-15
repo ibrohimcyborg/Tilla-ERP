@@ -7033,6 +7033,34 @@ function kassa999Qoplash(){
   return m;
 }
 
+// ---- VOZVRAT ZARARI (v109) ----
+// Klientdan vozvrat = ZARAR. Foyda hisoblagandek, lekin MINUS:
+// zarar = gramm × (bugungi chiqim narxi − bugungi kirim narxi) = gramm × bugungi margin.
+// A/B: getKatNarx; C (narx qo'lda): shu klientning o'sha zavod-turdagi OXIRGI sotuv narxi.
+function kassaVozvratMargin(ki, zavodNom, turNom){
+  var zi=-1, ti=-1;
+  (data.zavodlar||[]).forEach(function(z, _zi){
+    if(z.nom!==zavodNom) return;
+    (z.turlar||[]).forEach(function(t, _ti){ if(t.nom===turNom){ zi=_zi; ti=_ti; } });
+  });
+  if(zi<0||ti<0) return null;
+  var kirim = parseNum(getZavodNarx(zi, ti));
+  if(!(kirim>0)) return null;
+  var narx = parseNum(getKatNarx(zi, ti, ki));
+  if(!(narx>0)){
+    var k=(data.klientlar||[])[ki], oxTs=-1, oxN=0;
+    ((k&&k.tarix)||[]).forEach(function(o){
+      if(o.tip==='tolov' && o.zavod===zavodNom && o.tur===turNom && parseNum(o.kurs)>0){
+        var ts=fdSanaTs(o.sana, o.soat)||0;
+        if(ts>=oxTs){ oxTs=ts; oxN=parseNum(o.kurs); }
+      }
+    });
+    narx = oxN;
+  }
+  if(!(narx>0)) return null;
+  return { narx:narx, kirim:kirim, margin:Math.round((narx-kirim)*100)/100 };
+}
+
 function kassaSuzuvchiXaritasi(){
   var m = new Map();
   var _qop = kassa999Qoplash();
@@ -7125,6 +7153,32 @@ function renderKassa() {
     });
   });
 
+  // VOZVRAT = ZARAR (v109) — bugungi margin bilan minus. Eski vozvratlar ham hisoblanadi.
+  (data.klientlar||[]).forEach(function(k, ki){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || op.tip!=='vozvrat') return;
+      if(op._kdVoz || op.lomOrtiqcha) return;
+      var g = parseNum(op.gramm); if(!(g>0)) return;
+      if(!op.zavod || !op.tur) return;
+      var mg = kassaVozvratMargin(ki, op.zavod, op.tur);
+      if(!mg) return;                       // narx/kirim aniqlanmasa — hisoblamaymiz
+      var zarar = Math.round(-g*mg.margin*100)/100;
+      if(Math.abs(zarar)<0.005) return;
+      allOps.push({
+        sana: op.sana, soat: op.soat||'', ki:ki, knom: k.nom, kat: k.kat||'A',
+        zavod: op.zavod||'', tur: op.tur||'',
+        gramm: 0,                            // JAMI GRAMM ga tegmaydi
+        vzGramm: g,                          // ko'rsatish uchun
+        kurs: mg.narx, summa: 0,             // JAMI KASSA ga tegmaydi (pul emas)
+        kirimNarx: mg.kirim, foyda: zarar, suzuvchi: 0, foydaHozir: zarar,
+        naqtPul: 0, kartaPul: 0, skidka: 0,
+        lomGramm: 0, lomPul: 0, lomKurs: 0,
+        qopUlush:0, qopKurs:0, qopPul:0, qopUst:0, kirimKun:0, kirimQop:0,
+        vz: true, vzMargin: mg.margin
+      });
+    });
+  });
+
   if(!allOps.length){ cont.innerHTML='<div class="empty">Hali tolov yoq</div>'; return; }
 
   var jamiSumma=0, jamiGramm=0, jamiFoyda=0, jamiSkidkaK=0;
@@ -7136,12 +7190,13 @@ function renderKassa() {
   // bir vaqtda saqlangan turlarni bitta sessiyaga yig'amiz (ki + sana + soat)
   var sessions={}, sessionOrder=[];
   allOps.forEach(function(o, idx){
-    var sk = o.ki+'|'+o.sana+'|'+(o.soat||'');
+    var sk = o.ki+'|'+o.sana+'|'+(o.soat||'')+(o.vz?'|V':'');
     if(!sessions[sk]){
-      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0, foydaAsl:0, skidka:0};
+      sessions[sk]={ki:o.ki, knom:o.knom, kat:o.kat, sana:o.sana, soat:o.soat||'', ops:[], summa:0, gramm:0, foyda:0, foydaAsl:0, skidka:0, vz:!!o.vz, vzGramm:0};
       sessionOrder.push(sk);
     }
     sessions[sk].ops.push(o);
+    sessions[sk].vzGramm+=(o.vzGramm||0);
     sessions[sk].summa+=o.summa;
     sessions[sk].gramm+=o.gramm;
     sessions[sk].foyda+=(_hamidF?o.foyda:o.foydaHozir);
@@ -7170,12 +7225,14 @@ function renderKassa() {
     html+=kassaFoydaPanelHTML();
     html+=kassaLentaHTML();
   }
+  var _sotuvSoni = sessionOrder.filter(function(sk){ return !sessions[sk].vz; }).length;
+  var _fRang = jamiFoyda>=0 ? 'green' : 'red';
   html+='<div class="kassa-stat-row" style="display:grid;grid-template-columns:repeat('+(jamiSkidkaK>0.001?5:4)+',minmax(0,1fr));gap:8px;margin-bottom:10px;">';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI KASSA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">$'+fmtD(jamiSumma)+'</div></div>';
   html+='<div class="stat2-item"><div class="stat2-label">JAMI GRAMM</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--text);">'+fmtG(jamiGramm)+'g</div></div>';
-  html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+sessionOrder.length+' ta</div></div>';
+  html+='<div class="stat2-item"><div class="stat2-label">TO\'LOVLAR</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--gold);">'+_sotuvSoni+' ta</div></div>';
   if(jamiSkidkaK>0.001) html+='<div class="stat2-item" style="background:var(--red-bg);border:0.5px solid var(--red-bd);"><div class="stat2-label" style="color:var(--red);">SKIDKA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--red);">−$'+fmtD(jamiSkidkaK)+'</div></div>';
-  html+='<div class="stat2-item" style="background:var(--green-bg);border:0.5px solid var(--green-bd);"><div class="stat2-label" style="color:var(--green);">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--green);">+'+'$'+fmtD(jamiFoyda)+'</div></div>';
+  html+='<div class="stat2-item" style="background:var(--'+_fRang+'-bg);border:0.5px solid var(--'+_fRang+'-bd);"><div class="stat2-label" style="color:var(--'+_fRang+');">FOYDA</div><div style="font-family:Roboto,sans-serif;font-size:15px;font-weight:500;color:var(--'+_fRang+');">'+(jamiFoyda>=0?'+':'−')+'$'+fmtD(Math.abs(jamiFoyda))+'</div></div>';
   html+='</div>';
 
   // Grafik bloki
@@ -7201,8 +7258,8 @@ function renderKassa() {
   html+='</div>';
   // Yopiq holda mini statistika
   html+='<div id="kassa-mini-stat" style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">';
-  html+='<span>'+dayOrder.length+' kun · '+sessionOrder.length+' ta sotuv</span>';
-  html+='<span style="color:var(--green);">umumiy foyda: +$'+fmtD(jamiFoyda)+'</span>';
+  html+='<span>'+dayOrder.length+' kun · '+_sotuvSoni+' ta sotuv</span>';
+  html+='<span style="color:var(--'+_fRang+');">umumiy foyda: '+(jamiFoyda>=0?'+':'−')+'$'+fmtD(Math.abs(jamiFoyda))+'</span>';
   html+='</div>';
   html+='</div>';
 
@@ -7241,20 +7298,40 @@ function renderKassa() {
         out+='<div style="display:flex;align-items:center;gap:6px;">';
         out+='<span style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</span>';
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
+        if(kg.vz) out+='<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--red-bg);color:var(--red);border:0.5px solid var(--red-bd);">VOZVRAT</span>';
         out+='</div>';
         var soat = kg.ops[0] && kg.ops[0].soat ? kg.ops[0].soat : '';
         var kgSk = Math.round((kg.skidka||0)*100)/100;
-        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kGramm)+'g'+(kgSk>0.001?' · <span style="color:var(--red);">skidka −$'+fmtD(kgSk)+'</span>':'')+'</div>';
+        out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kg.vz?(kg.vzGramm||0):kGramm)+'g'+(kg.vz?' · qaytdi':'')+(kgSk>0.001?' · <span style="color:var(--red);">skidka −$'+fmtD(kgSk)+'</span>':'')+'</div>';
         out+='</div>';
         out+='<div style="display:flex;align-items:center;gap:8px;">';
         out+='<div style="text-align:right;">';
-        out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
+        if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma)+'</div>';
         if(kFoyda>0.005||kFoyda<-0.005) out+='<div style="font-size:11px;">'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:9px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<span style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:500;">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</span>'+kStrelka+'</div>';
         out+='</div>';
-        out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
+        if(!kg.vz) out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
         out+='</div></div>';
 
-        if(isOpen){
+        if(isOpen && kg.vz){
+          // VOZVRAT tafsiloti (v109) — bugungi margin bilan zarar
+          out+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+          out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
+          out+='<div>Tur</div><div>Gramm</div><div>Margin</div><div style="color:var(--red);">Zarar</div></div>';
+          kg.ops.forEach(function(o){
+            out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:start;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;">';
+            out+='<div style="color:var(--text);">'+o.zavod+' · '+o.tur+'</div>';
+            out+='<div style="color:var(--muted);">'+fmtG(o.vzGramm||0)+'g</div>';
+            out+='<div style="text-align:right;"><div style="color:var(--gold);">'+fmtD(o.vzMargin||0)+'$</div>';
+            out+='<div style="font-size:10px;color:var(--muted);">'+fmtD(o.kurs)+' − '+fmtD(o.kirimNarx)+'</div></div>';
+            out+='<div style="text-align:right;color:var(--red);font-weight:500;">−$'+fmtD(Math.abs(o.foyda))+'</div>';
+            out+='</div>';
+          });
+          out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
+          out+='<span style="color:var(--muted);">Jami zarar</span><b style="color:var(--red);">−$'+fmtD(Math.abs(kFoyda))+'</b></div>';
+          out+='<div style="margin-top:7px;padding:7px 9px;border-radius:8px;background:var(--red-bg);border:0.5px solid var(--red-bd);font-size:11px;color:var(--red);line-height:1.7;">';
+          out+='💡 Mol qaytdi — marja yo\'qoldi. Zarar = gramm × bugungi margin (chiqim narxi − kirim narxi). Foyda hisoblagandek, lekin minus.</div>';
+          out+='</div>';
+        } else if(isOpen){
           out+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
           // tur bo'yicha
           out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
@@ -13908,3 +13985,4 @@ cloudInit();
 <!-- v106: ABDULHAMID KASSA KO'RINISHI TO'G'RILANDI (Ibrohim rasm: Abdulhamidga savdo/foyda hisoboti — JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA + grafik + sotuvlar ro'yxati — KO'RINSIN, faqat Kassa qoldiq/Joriy foyda/Kassa harakatlari yashirin). v105 da butun klient Kassa tab (#kt-kassa + #klient-kassa-list) yashirilgan edi — bu XATO edi, chunki rasmda ko'rsatilgan hisobot ham shu tabda. TUZATISH: (1) CSS dan #kt-kassa + #klient-kassa-list olib tashlandi — Kassa tab endi Abdulhamidga KO'RINADI. (2) renderKassa ichida rol tekshiruvi: _hamidRol=(getRol()==='hamid') bo'lsa faqat uch panel (kassaQoldiqPanelHTML=Kassa qoldiq, kassaFoydaPanelHTML=Joriy foyda, kassaLentaHTML=Kassa harakatlari) O'TKAZIB YUBORILADI; ularning ostidagi summary-row (JAMI KASSA/GRAMM/TO'LOVLAR/SKIDKA/FOYDA), grafik (Kun/Hafta/Oy/Yil + Sotuv/Foyda), va sotuvlar ro'yxati HAMMAGA (Abdulhamidga ham) ko'rinadi. Admin (tilla) da hammasi avvalgidek. Zavod tarafdagi yashirishlar (Kassa/LOM/Sherik/Ostatka — v105) o'zgarmadi. -->
 <!-- v107: ABDULHAMID FOYDANI QOTGAN (muhrlangan) KO'RSATADI, SUZUVCHI EMAS (Ibrohim: foydani suzuvchi qilish kerakmas, o'sha kuni sotilganda foydasini qotirib qo'yib ko'rsatish kerak). Har sotuv op'ida ikki qiymat bor: o.foyda = SOTUV LAHZASIDA qotgan (muhrlangan) foyda, o.foydaHozir = suzuvchi (kurs o'zgarishi bilan yangilanadigan). Admin (tilla) avvalgidek SUZUVCHI (foydaHozir) ko'radi + suzuvchi belgilari (chizib tashlangan qotgan + ▲/▼ strelka). Abdulhamid (rol-hamid): _hamidF=true bo'lsa hamma joyda o.foyda (QOTGAN) ishlatiladi — jami FOYDA, sessiya foydasi (list + grafik), va per-op ko'rsatish; per-op da _szO=!_hamidF bilan suzuvchi belgilari (chizib tashlash + strelka) UMUMAN ko'rsatilmaydi — faqat toza qotgan raqam. Grafik Foyda liniyasi ham sessiya foydasidan kelgani uchun avtomat qotganga o'tadi. foydaAsl (session) o'zgarmadi. Sinov: op(foyda=20,suzuvchi=5,foydaHozir=25) -> admin 25$ + strelka, Abdulhamid 20$ toza, suzuvchi belgisi yo'q — 4/4. -->
 <!-- v108: 999 QOPLASH — ARZON OLISH KURSNI PASAYTIRADI, ALOHIDA FOYDA YOZILMAYDI (Ibrohim modeli, ko'p mockup muhokamasidan keyin tasdiqlangan). MANTIQ: arzon 999 olinganda hech qanday alohida "999 foydasi" qatori YOZILMAYDI (u soxta/ikki marta sanash bo'lardi). Buning o'rniga: xarid puli FIFO bilan ENG ESKI naqd sovdadan boshlab sovdalarga taqsimlanadi; o'sha sovdalarning kirim kursi = olish narxi ÷ 1.7 bo'lib QOTADI -> suzuvchi foyda O'ZI ko'tariladi. Olingan GRAMM ahamiyatsiz (u zavodga chiqim bo'lib ketadi). QO'SHILDI: (1) kassa999Qoplash() — data.lomlar dan proba==='999' && tip==='kirim' xaridlarni ts bo'yicha oladi; tolov op'larni sessiya (ki|sana|soat) bo'yicha guruhlaydi, faqat NAQD qismi (op.naqtPul>0) havzaga kiradi (lom/karta bilan to'langan sovdalar — ALOQASI YO'Q); sessiyalar ENG ESKIDAN saraladi; har xarid puli FIFO bilan yuriladi (to'liq/qisman); sessiya ichida SKIDKA KABI gramm nisbatida sochiladi (har op ekv×ulush); bir op bir necha xariddan tegsa — o'lchovli o'rtacha kurs. Qaytaradi: op -> {ulush, qopKurs, qopPul}. (2) kassaSuzuvchiXaritasi ga ulandi: _qatiy=(getZavodNarx manual>0) bo'lsa 999 TA'SIR QILMAYDI (Simay chetda); aks holda kQop=qopKurs×(1+pct/100), _kh=ulush×kQop+(1-ulush)×kirimNarxHozir (qoplangan qism QOTADI, qolgani SUZADI), suzuvchi=ochiqEkv×(kirimNarx−_kh); xaritaga qopUlush/qopKurs/qopPul/qopUst/kirimKun/kirimQop qo'shildi. (3) renderKassa allOps ga shu maydonlar. (4) Sovda kengaytirilganda TEGIGA tushuntirish bloki: "Bu sovdaning $X puliga 999 olindi. Samarali kurs K — bugungi B dan F$ arzon. Sovdaning U% qismi shunda -> foyda +Y ko'tarildi." O'ZGARMADI: chiqim, zavod, qarz, dona baza, sotuv saqlash — hech biriga tegilmadi; hisob faqat KO'RSATISHDA (suzuvchi), saqlangan kirimNarx muhrlangan holicha. Sinov (Node): 13500$ -> Guli 10:49 to'liq, Rano to'liq, Shoazim LOM tegmadi, Oybek to'liq, kurs 125/1.7=73.53; Simay QAT'IY ortmadi, Butterfly foizli +93.86 ortdi; 11000$ -> Oybek QISMAN 61.7% (1231/1995); 3000$ -> Guli sessiyasi 52.9% ikkala turga ham sochildi, Rano tegmadi — 13/13. -->
+<!-- v109: KLIENT VOZVRATI = ZARAR (Ibrohim: vozvrat bu zarar, huddi foyda hisoblagandek zarar hisoblidi, kunlik kursdagi kirim bilan chiqimdagi farqdek hisoblab MINUS qilish kerak; oldingi vozvratlar ham minus bo'lib ko'rinsin). AVVAL: renderKassa faqat tip==='tolov' oplarni olardi -> vozvrat kassa foydasiga UMUMAN kirmasdi (mol qaytsa ham foyda o'shaligicha turardi — xato). QO'SHILDI: (1) kassaVozvratMargin(ki, zavodNom, turNom) — bugungi margin: kirim=getZavodNarx(zi,ti) (manual/qat'iy bo'lsa u, aks holda kurs×(1+foiz)), chiqim narxi=getKatNarx(zi,ti,ki) (A/B uchun a-manual yoki kurs×(1+a-foiz)); C kategoriyada getKatNarx BO'SH qaytargani uchun (C narxi qo'lda) — shu klientning o'sha zavod-turdagi ENG OXIRGI sotuv narxi (op.kurs) olinadi; narx yoki kirim aniqlanmasa null (hisoblanmaydi, xato raqam chiqmaydi). margin = narx − kirim. (2) renderKassa allOps ga vozvrat oplar qo'shildi: zarar = −gramm × margin, foyda=foydaHozir=zarar (suzuvchi 0). _kdVoz va lomOrtiqcha oplar chetda. MUHIM TANLOV: vozvrat gramm:0 va summa:0 bilan qo'shiladi — ya'ni JAMI KASSA va JAMI GRAMM ga TEGMAYDI (pul emas), faqat FOYDA ga minus tushadi; haqiqiy gramm vzGramm da ko'rsatish uchun saqlanadi. (3) Sessiya kaliti ki|sana|soat|V — vozvrat sotuv bilan qo'shilib ketmaydi, alohida qator. (4) Ko'rinish: qizil "VOZVRAT" belgisi, summa o'rniga faqat zarar, chek tugmasi yo'q, ochilganda tur bo'yicha jadval (Tur | Gramm | Margin | Zarar) + "chiqim − kirim" ko'rsatiladi + tushuntirish. (5) TO'LOVLAR/"ta sotuv" sanog'idan vozvrat chiqarildi (_sotuvSoni); FOYDA stat endi manfiy bo'lsa QIZIL (avval doim yashil va '+' hardcode edi). ESKI VOZVRATLAR avtomat hisoblanadi (margin bugungi kursdan olinadi, yozuvda narx saqlanmagan). Sinov (Node): A klient Butterfly-S narx 87.3 − kirim 85.8 = margin 1.5 -> 10g vozvrat −$15; Simay QAT'IY 85−84=1 (qo'lda margin); C klient narx=oxirgi sotuv 88.5 -> margin 2.7; notanish zavod/kurs yo'q -> hisoblanmaydi; foizli zavodda margin kurs bilan deyarli o'zgarmaydi (narx ham kirim ham birga pasayadi) — 11/11. -->
