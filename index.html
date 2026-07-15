@@ -72,7 +72,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .cdd-item:hover{background:var(--surf2);}
 .cdd-item.act{background:var(--gold);color:var(--on-gold);font-weight:600;}
 /* kassa katta tugmalar: 1x4, torda 2x2 */
-.kassa-btnlar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:8px;}
+.kassa-btnlar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:8px;}
 .kassa-btn{border-radius:12px;padding:13px 4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;text-align:center;}
 @media(max-width:560px){.kassa-btnlar{grid-template-columns:1fr 1fr;}}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;line-height:2;}
@@ -1012,7 +1012,29 @@ body.rol-hamid .hamid-x { display: none !important; }
   </div>
 </div>
 
-<!-- ===== HAQIQIY KASSA: zakaz (pul muzlatish) modali ===== -->
+<!-- ===== HAQIQIY KASSA: CHIQIM modali (v113) ===== -->
+<div class="modal-overlay" id="modal-kassa-chiqim">
+  <div class="modal-box">
+    <div class="modal-header"><span style="font-weight:700;font-size:16px;color:var(--red);">− Chiqim</span><button class="modal-close" onclick="closeModal('modal-kassa-chiqim')">×</button></div>
+    <div class="field"><label>Sana</label><input type="date" id="kc-sana" onchange="kcHisob()" style="font-size:16px;"></div>
+    <div id="kc-orqa" style="display:none;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:9px;padding:7px 10px;font-size:11.5px;color:var(--red);font-weight:600;margin-bottom:10px;"></div>
+    <div class="field"><label>Kurs ($/g) — qaysi kursdan berdingiz</label>
+      <input type="number" id="kc-kurs" inputmode="decimal" oninput="_kcKursTegildi=true;kcHisob()" style="font-size:16px;">
+      <div id="kc-kurs-info" style="font-size:10.5px;color:var(--muted);margin-top:3px;font-family:'Roboto',sans-serif;"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin:10px 0 7px;">Kassadan nima chiqadi</div>
+    <div class="field"><label id="kc-naqd-lbl">💵 Naqt pul $</label><input type="number" id="kc-naqd" placeholder="0" inputmode="decimal" oninput="kcHisob()"></div>
+    <div class="field"><label id="kc-lom-lbl">♻️ Lom 583 (g)</label><input type="number" id="kc-lom" placeholder="0" inputmode="decimal" oninput="kcHisob()"></div>
+    <div class="field"><label id="kc-toza-lbl">✨ 999 (g)</label><input type="number" id="kc-toza" placeholder="0" inputmode="decimal" oninput="kcHisob()"></div>
+    <div class="field"><label>Izoh (ixtiyoriy)</label><input type="text" id="kc-izoh" placeholder="Kimga / nima uchun..." maxlength="80" autocomplete="off"></div>
+    <div id="kc-natija"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal('modal-kassa-chiqim')">Bekor</button>
+      <button class="btn" id="kc-saqla" onclick="kassaChiqimSaqla()" style="background:var(--red);border-color:var(--red);color:#fff;">Saqlash</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-kassa-zakaz" onclick="if(event.target===this)closeModal('modal-kassa-zakaz')">
   <div class="modal" style="max-width:480px;">
     <div class="modal-handle"></div>
@@ -3502,6 +3524,89 @@ function kqTip(t){
     ki.style.background='var(--surf2)'; ki.style.borderColor='var(--border)'; ki.style.color='var(--muted)';
   }
 }
+// ---- KASSA CHIQIM (v113) ----
+// Kassa qoldiqdagi 5-tugma. Naqt/lom/999 chiqadi, sana tanlanadi (o'sha kungi qoldiq
+// ko'rsatiladi), kurs o'sha kun tarixidan avto qo'yiladi (o'zgartirsa bo'ladi).
+var _kcKursTegildi=false;
+function kcSana(){ var el=document.getElementById('kc-sana'); return (el&&el.value)?el.value.split('-').reverse().join('.'):today(); }
+function openKassaChiqim(){
+  _kcKursTegildi=false;
+  var s=document.getElementById('kc-sana'); if(s) s.value=nowDate();
+  ['kc-naqd','kc-lom','kc-toza','kc-izoh'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  var k=document.getElementById('kc-kurs'); if(k) k.value=kursSanada(today(),'23:59')||'';
+  document.getElementById('modal-kassa-chiqim').classList.add('open');
+  kcHisob();
+}
+function kcHisob(){
+  var sana=kcSana();
+  if(!_kcKursTegildi){ var ke=document.getElementById('kc-kurs'); if(ke) ke.value=kursSanada(sana,'23:59')||''; }
+  var kunKurs=kursSanada(sana,'23:59');
+  var kurs=parseNum((document.getElementById('kc-kurs')||{}).value);
+  var n=parseNum((document.getElementById('kc-naqd')||{}).value);
+  var l=parseNum((document.getElementById('kc-lom')||{}).value);
+  var t9=parseNum((document.getElementById('kc-toza')||{}).value);
+  var o=kassaOqim(sana);
+  var og=document.getElementById('kc-orqa');
+  if(og){
+    if(sana!==today()){ og.style.display='block'; og.innerHTML='⚠ ORQA SANA — '+sana+'. Chiqim shu kunga yoziladi.'; }
+    else { og.style.display='none'; }
+  }
+  var ki=document.getElementById('kc-kurs-info');
+  if(ki) ki.innerHTML = kunKurs>0 ? (sana+' kunlik kursi: <b>'+fmtD(kunKurs)+'</b> — avto, o\'zgartirsa bo\'ladi') : 'Bu kunga kurs topilmadi';
+  var nl=document.getElementById('kc-naqd-lbl'); if(nl) nl.innerHTML='💵 Naqt pul $ &nbsp;<span style="color:var(--muted);font-weight:400;">bor: $'+fmtD(o.naqd)+'</span>';
+  var ll=document.getElementById('kc-lom-lbl'); if(ll) ll.innerHTML='♻️ Lom 583 (g) &nbsp;<span style="color:var(--muted);font-weight:400;">bor: '+fmtG(o.lomEkv)+'g</span>';
+  var tl=document.getElementById('kc-toza-lbl'); if(tl) tl.innerHTML='✨ 999 (g) &nbsp;<span style="color:var(--muted);font-weight:400;">bor: '+fmtG(o.toza)+'g</span>';
+  var qN=Math.round((o.naqd-n)*100)/100, qL=roundG(o.lomEkv-l), qT=roundG(o.toza-t9);
+  var yetmadi = qN<-0.001||qL<-0.001||qT<-0.001;
+  var bor = n>0||l>0||t9>0;
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;margin:4px 0 8px;">';
+  function po(lb,v,d,r){ return '<div style="background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:7px 2px;"><div style="font-size:9.5px;color:var(--muted);">'+lb+'</div><div style="font-size:14px;font-weight:600;font-family:Roboto,sans-serif;color:var(--'+r+');">'+v+'</div><div style="font-size:10px;color:var(--red);font-family:Roboto,sans-serif;">'+(d||'')+'</div></div>'; }
+  h+=po('Naqd qoladi','$'+fmtD(qN),(n>0?'−$'+fmtD(n):''),qN<0?'red':'gold');
+  h+=po('Lom qoladi',fmtG(qL)+'g',(l>0?'−'+fmtG(l)+'g':''),qL<0?'red':'gold');
+  h+=po('999 qoladi',fmtG(qT)+'g',(t9>0?'−'+fmtG(t9)+'g':''),qT<0?'red':'blue');
+  h+='</div>';
+  if(yetmadi) h+='<div style="background:var(--red-bg);border:1px solid var(--red-bd);border-radius:9px;padding:8px 10px;font-size:11.5px;color:var(--red);font-weight:600;margin-bottom:8px;">⚠ '+sana+' kunida kassada yetarli emas</div>';
+  else if(bor && kurs>0 && kunKurs>0){
+    var farq=Math.round((kunKurs-kurs)*100)/100;
+    var arzon=farq>0.005, qimmat=farq<-0.005;
+    var rang=arzon?'green':(qimmat?'red':'muted');
+    h+='<div style="background:var(--'+(arzon?'green':(qimmat?'red':'surf2'))+'-bg);border:1.5px solid var(--'+(arzon?'green-bd':(qimmat?'red-bd':'border'))+');border-radius:10px;padding:9px 11px;margin-bottom:8px;font-family:Roboto,sans-serif;">'
+      +'<div style="font-size:10.5px;font-weight:700;color:var(--'+rang+');text-transform:uppercase;">'+(arzon?'✓ Kunlik kursdan arzon':(qimmat?'⚠ Kunlik kursdan qimmat':'Kunlik kurs bilan bir xil'))+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:3px;">Kunlik <b>'+fmtD(kunKurs)+'</b> · berdingiz <b>'+fmtD(kurs)+'</b>'+(Math.abs(farq)>0.005?' → farq <b>'+fmtD(Math.abs(farq))+' $/g</b>':'')+'</div></div>';
+  }
+  var nt=document.getElementById('kc-natija'); if(nt) nt.innerHTML=h;
+  var sb=document.getElementById('kc-saqla'); if(sb) sb.style.opacity=(!bor||yetmadi)?'0.45':'1';
+}
+function kassaChiqimSaqla(){
+  var sana=kcSana();
+  var kurs=parseNum((document.getElementById('kc-kurs')||{}).value);
+  var n=parseNum((document.getElementById('kc-naqd')||{}).value);
+  var l=parseNum((document.getElementById('kc-lom')||{}).value);
+  var t9=parseNum((document.getElementById('kc-toza')||{}).value);
+  var iz=((document.getElementById('kc-izoh')||{}).value||'').trim();
+  if(n<=0 && l<=0 && t9<=0){ alert('Naqt, lom yoki 999 kiriting!'); return; }
+  var o=kassaOqim(sana);
+  if(n>o.naqd+0.001){ alert(sana+' kunida naqd yetarli emas! Bor: $'+fmtD(o.naqd)); return; }
+  if(l>o.lomEkv+0.001){ alert(sana+' kunida lom yetarli emas! Bor: '+fmtG(o.lomEkv)+'g'); return; }
+  if(t9>o.toza+0.001){ alert(sana+' kunida 999 yetarli emas! Bor: '+fmtG(o.toza)+'g'); return; }
+  var taf=[];
+  if(n>0) taf.push('naqd −$'+fmtD(n));
+  if(l>0) taf.push('lom −'+fmtG(l)+'g');
+  if(t9>0) taf.push('999 −'+fmtG(t9)+'g');
+  if(!confirm('CHIQIM saqlansinmi?\n\n'+sana+(sana!==today()?' (ORQA SANA)':'')+'\n'+taf.join('\n')+(kurs>0?'\nKurs: '+fmtD(kurs):'')+(iz?'\n'+iz:''))) return;
+  var ts=Date.now(), soat=nowSoat();
+  if(!data.kassa.qolda) data.kassa.qolda=[];
+  if(!data.lomlar) data.lomlar=[];
+  if(n>0) data.kassa.qolda.push({id:'kc'+ts, ts:ts, sana:sana, soat:soat, tip:'chiqim', summa:Math.round(n*100)/100, kategoriya:'Chiqim', izoh:iz, kcKurs:kurs});
+  // lom/999 — summa:0 (bu sotish emas, chiqim) -> kassaOqim da pul KIRMAYDI
+  if(l>0)  data.lomlar.push({id:ts+'_kc5', tip:'chiqim', manba:'chiqim', proba:'583', gramm:l,  narx:0, summa:0, sana:sana, sana_ts:ts, soat:soat, izoh:('Chiqim'+(iz?' · '+iz:'')), kcKurs:kurs});
+  if(t9>0) data.lomlar.push({id:ts+'_kc9', tip:'chiqim', manba:'chiqim', proba:'999', gramm:t9, narx:0, summa:0, sana:sana, sana_ts:ts, soat:soat, izoh:('Chiqim'+(iz?' · '+iz:'')), kcKurs:kurs});
+  save('Chiqim (kassa) | '+taf.join(' + ')+' | '+sana);
+  closeModal('modal-kassa-chiqim');
+  if(typeof renderKassa==='function') renderKassa();
+  renderKassaCard();
+}
+
 function openKassaQolda(){
   document.getElementById('kq-summa').value='';
   document.getElementById('kq-izoh').value='';
@@ -4136,6 +4241,7 @@ function kassaQoldiqPanelHTML(){
   h += '<button onclick="openKassaQolda()" class="kassa-btn" style="background:var(--surf2);border:1.5px solid var(--border);color:var(--text);">± Qo\'lda</button>';
   h += '<button onclick="openKassaOlish()" class="kassa-btn" style="background:var(--green-bg);border:1.5px solid var(--green-bd);color:var(--green);">+ Sotib olish</button>';
   h += '<button onclick="openKassaZakaz()" class="kassa-btn" style="background:var(--blue-bg);border:1.5px solid var(--blue-bd);color:var(--blue);">+ Zakaz</button>';
+  h += '<button onclick="openKassaChiqim()" class="kassa-btn" style="background:var(--red-bg);border:1.5px solid var(--red);color:var(--red);">− Chiqim</button>';
   h += '<button onclick="openKassaZ()" class="kassa-btn" style="background:var(--gold);border:none;color:var(--on-gold);">✓ Kunni yopish</button>';
   h += '</div>';
   // ochiq zakazlar ro'yxati
@@ -7459,6 +7565,15 @@ function renderKassa() {
         out+='<div style="display:flex;align-items:center;gap:6px;">';
         out+='<span style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</span>';
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
+        // v113: TO'LOV BELGILARI — NAQT / LOM / KARTA (sotuvda nima bilan to'langani)
+        if(!kg.vz){
+          var _tN=0,_tK=0,_tL=0;
+          kg.ops.forEach(function(o){ _tN+=(o.naqtPul||0); _tK+=(o.kartaPul||0); _tL+=(o.lomPul||0); });
+          function _tb(l,bg,c,bd){ return '<span style="font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;background:'+bg+';color:'+c+';border:0.5px solid '+bd+';">'+l+'</span>'; }
+          if(_tN>0.005) out+=_tb('NAQT','var(--green-bg)','var(--green)','var(--green-bd)');
+          if(_tL>0.005) out+=_tb('LOM','var(--yellow-bg)','var(--gold)','var(--gold-bd)');
+          if(_tK>0.005) out+=_tb('KARTA','var(--blue-bg)','var(--blue)','var(--blue-bd)');
+        }
         if(kg.vz) out+='<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--red-bg);color:var(--red);border:0.5px solid var(--red-bd);">VOZVRAT</span>';
         out+='</div>';
         var soat = kg.ops[0] && kg.ops[0].soat ? kg.ops[0].soat : '';
@@ -14153,3 +14268,4 @@ cloudInit();
 <!-- v110: KASSA CHIQIMIDA LOM HAM (Ibrohim: chiqimda ham pul ham lom chiqib ketishi mumkin, shunda qolimizdagi pul va lom kamayadi). AVVAL: "± Qo'lda" chiqim faqat summa ($) ni olardi (data.kassa.qolda) — lom chiqarish YO'Q edi. QO'SHILDI: (1) modal-kassa-qolda ga lom bloki (#kq-lom-blok): proba select (583/999/750/585/375) + gramm (#kq-lomg) — CHIQIMDA ko'rinadi, KIRIMDA yashirin (kqTip da lb.style.display). (2) kassaQoldaSaqla qayta yozildi: pul VA/YOKI lom (bittasi bo'lsa yetarli); chiqimda yetarlilik tekshiruvi — naqd erkin puldan (kassaOqim−kassaMuzlatilgan) oshmasin, 999 o.toza dan, boshqa proba kassaEkv bilan o.lomEkv dan oshmasin; tasdiqlash matnida ikkala ta'sir ko'rsatiladi (naqd −$X, lom −Yg + 583 ekvivalenti). (3) Yozuv: pul -> data.kassa.qolda (avvalgidek), lom -> data.lomlar.push({tip:'chiqim', manba:'chiqim', proba, gramm, narx:0, summa:0}). MUHIM: summa:0 — chunki kassaOqim da `if(r.tip==='chiqim' && r.manba!=='zavod' && s>0){ o.naqd += s; }` (lom SOTISH pul kiritadi); bu esa sotish emas, CHIQIM — shuning uchun summa 0 bilan pul kirmaydi, faqat cho'ntak kamayadi. Lom sotish (manba!=='chiqim', summa>0) avvalgidek ishlaydi. (4) kassaHarakatlar lentasi: manba==='chiqim' uchun yangi yozuv "Qo'lda chiqim (lom) · proba · Xg → lom chiqdi" (avval "Lom sotildi → pul keldi" deb NOTO'G'RI ko'rinardi). ZAVOD/QARZ/FOYDA ga tegilmadi — chiqim sodda, siz aytganingizdek. Sinov (Node, kassaOqim mantiqi): boshlangich naqd $41372.9/lom 172.94/999 126 -> chiqim $3000+20g lom -> naqd $38372.9, lom 152.94, 999 126 (tegilmadi), lom chiqimi pul KIRITMADI; 999 10g chiqim -> 999 116, naqd o'zgarmadi; 750·10g -> ekv 12.86g to'g'ri ayrildi; lom SOTISH (manba!=chiqim, summa>0) hali ham +$350 kiritadi — 11/11. -->
 <!-- v111: VOZVRAT ZARARI TO'G'RILANDI — FAQAT OSTATKADAN ORTIQ QISMGA (Ibrohim: agar klient ostatkasini vozvrat qilsa zarar YOZILMAYDI — 10g qarzi bor 5g vozvrat qilsa hisoblanmaydi; 10g ostatkasi bor lekin 12g berib bizni 2g ga qarz qilsa — o'sha kungi kunlik kursdan hisoblab 2g ga zarar). MANTIQ: foyda TO'LOVda yoziladi (mol berilganda emas) -> klient to'lamagan molni qaytarsa foyda ham yozilmagan -> zarar YO'Q, faqat qarzi kamayadi. Ostatkadan ortiq qaytarsa — ortig'ini sotuv narxida qaytarib olgandek -> ZARAR. v109 XATO edi: HAMMA vozvratga zarar yozardi. JAVOBLAR: (1a) ostatka SHU zavod-tur bo'yicha; (2) margin VOZVRAT QILINGAN KUNDAGI kurs va klient KATEGORIYASI bo'yicha (foyda kabi, faqat minus); (3a) ostatka vozvrat PAYTIDAGI (tarix o'sha nuqtagacha); (4) ortiqcha 2g biz qarz bo'ladi — keyin klient mol olganda o'sha 2g qarzdan yechiladi va faqat to'langan grammdan foyda chiqadi (mavjud model, ikki marta sanash yo'q). QO'SHILDI: (1) kursSanada(sana,soat) — tilla-kurs-tarix ({sana,soat,kurs}) dan o'sha sana/soatga eng yaqin OLDINGI kursni topadi; topilmasa tilla-kurs-bugun. (2) narxlarKursda(zi,ti,kat,kurs) — berilgan kurs bo'yicha kirim (manual/qat'iy bo'lsa u — kursdan MUSTAQIL, aks holda kurs×(1+foiz)) va chiqim narxi (A/B: a-manual yoki kurs×(1+a-foiz), B ga tilla-b-ust qo'shiladi; C: 0 -> chaqiruvchi oxirgi sotuv narxini oladi). (3) klientOstatkaOldin(k,vop) — klientQarzSplit QOIDASI bilan bir xil: shu zavod|tur uchun berish +gramm, vozvrat −gramm, tolov −ekvivalent (_kdYopish chetda), FAQAT shu vozvratgacha (massiv tartibida, o===vop da to'xtaydi). (4) kassaVozvratMargin(ki, op) qayta yozildi — endi op oladi (zavod/tur/sana/soat/gramm), o'sha kungi kursni ishlatadi, C uchun vozvratgacha bo'lgan oxirgi sotuv narxini oladi, va {ortiq, ostOldin, kurs, margin} qaytaradi. (5) renderKassa: ortiq<=0 bo'lsa op UMUMAN qo'shilmaydi (zarar yo'q); zarar = −ortiq×margin. (6) Ko'rinish: sarlavhada "Xg qaytdi · ortiqcha Yg", jadval ustunlari Tur|Ortiqcha|Margin|Zarar, har qatorda "qaytdi Xg · ostatka Yg" va "kurs K" ko'rsatiladi, tushuntirish yangilandi. Sinov (Node): 10g ostatka+5g vozvrat -> ortiqcha 0, zarar YO'Q; 10g+12g -> ortiqcha 2g, 12.07 kursi 74.5 olindi (bugungi 75.3 EMAS), margin 1.5 -> zarar −$3.00; Diamond 10g qarzi bor Butterfly 5g qaytsa -> 5g ortiqcha (boshqa zavod qarzi hisobga olinmaydi, 1a); berish 10 − tolov 8 = ostatka 2, 5g qaytsa 3g ortiqcha; C kategoriya vozvratgacha oxirgi sotuv narxi 88.5; qat'iy narx margin 85−84=1 kursdan mustaqil — 8/8. -->
 <!-- v112: CHIQIM ORQA SANA KO'RINADIGAN + "ZAVODGA TO'LANMAGAN" KO'RSATKICHI (Ibrohim: kecha zavodga pul berdim (75.3 dan), lekin chiqim yozilmagan -> sotuvlar ochiq qolib bugun kurs oshgani uchun kechagi foydalar ▼ pasayib ketdi; rasmda kun jami ~$1,690.24 -> $1,484.82). ILDIZ: Sana maydoni MAVJUD edi, lekin "Kimga va sana" kartasining ICHIDA, ism ro'yxatining ostida ko'milib qolgan — foydalanuvchi topa olmagan. Hech narsa to'smasdi. QILINDI: (1) Sana maydoni YUQORIGA ko'chirildi — endi birinchi kartada ("Zavod va sana"), zavod tanlashning ostida, doim ko'rinadi (avval kartani ochish uchun zavod tanlash kerak edi). "Kimga" kartasi endi faqat ism. (2) cSanaChange() — sana bugungidan boshqa bo'lsa #c-sana-ogoh da qizil "⚠ ORQA SANA — dd.mm.yyyy (bugun emas)" + nima bo'lishi tushuntiriladi; initChiqim da ham chaqiriladi. (3) saqlashChiqim: orqa sana bo'lsa confirm — "o'sha kundagi sotuvlar yopiladi, kassadan pul o'sha kunda chiqadi, Z bilan yopilgan bo'lsa tafovutni tekshiring". MUHIM: confirm YOZUVLARDAN OLDIN qo'yildi (validatsiya tugagach, t.tarix.push loopidan oldin) — bekor qilinsa hech narsa o'zgarmaydi (agar keyin qo'yilsa, oplar allaqachon qo'shilgan bo'lib in-memory data buzilardi). (4) kassaZavodgaTolanmagan() — ochiq pozitsiya: har zavod-tur uchun sotilgan(tolov ekvivalent) − vozvrat − zavodga to'langan(t.tarix jami, mol/vozvrat chetda); kassaSuzuvchiXaritasi bilan AYNAN bir xil qoida. (5) Kassa qoldiq panelida yangi ko'rsatkich: "⏳ Zavodga to'lanmagan — foyda suzib turibdi · Xg" — bosilsa zavod-tur bo'yicha ro'yxat ochiladi (_tlmOch) + tushuntirish; jami 0 bo'lsa panel umuman chiqmaydi. Shunda to'lov yozilmay qolgani DARHOL ko'rinadi. Sinov (Node): 100g S + 40g Oddiy sotilgan, to'lovsiz -> 140g ochiq, eng kattasi birinchi; S ga 100g to'lov -> jami 40g, S ro'yxatdan chiqdi; 15g vozvrat -> 25g; hammasi to'langach 0 -> panel chiqmaydi; 'mol' kirim to'lov deb hisoblanmaydi -> 7/7. -->
+<!-- v113: KASSA CHIQIM MODALI (5-tugma) + TO'LOV BELGILARI (Ibrohim mockup bo'yicha, 1ma-1 tasdiqlangan). (1) TO'LOV BELGILARI: har sovda oldida kategoriya (A/B/C) yonida NAQT (yashil) / LOM (oltin) / KARTA (ko'k) belgilari — sessiya oplaridagi naqtPul/lomPul/kartaPul yig'indisidan; aralash bo'lsa bir nechtasi chiqadi (masalan NAQT+KARTA). Vozvrat qatorlarida ko'rsatilmaydi. (2) KASSA QOLDIQ PANELI 5 TUGMA: .kassa-btnlar grid repeat(4)->repeat(5); yangi "− Chiqim" qizil tugma (var(--red-bg)/var(--red)) "✓ Kunni yopish" dan OLDIN. Mobil (max-width:560px) da 2 ustunli grid o'zgarmadi. (3) YANGI MODAL #modal-kassa-chiqim: Sana (orqa sana bo'lsa qizil "⚠ ORQA SANA" ogohlantirishi); Kurs ($/g) — kursSanada(sana) dan AVTO qo'yiladi (sana o'zgarsa yangilanadi), lekin foydalanuvchi tegsa (_kcKursTegildi) avto to'xtaydi; Naqt pul $ / Lom 583 g / 999 g — har birining yorlig'ida "bor: X" (kassaOqim(sana) dan — O'SHA KUNGI qoldiq); Izoh. (4) kcHisob() jonli: "qoladi" uch cho'ntak (manfiy bo'lsa qizil), yetmasa ogohlantirish, va kurs taqqoslash bloki — kunlik kursdan ARZON bo'lsa yashil, QIMMAT bo'lsa qizil, farq $/g bilan. (5) kassaChiqimSaqla(): yetarlilik tekshiruvi O'SHA KUNGI qoldiqqa qarab (naqd/lom/999 alohida), tasdiqlash (orqa sana ko'rsatiladi), so'ng yozadi — naqt -> data.kassa.qolda {tip:'chiqim', kategoriya:'Chiqim', kcKurs}; lom/999 -> data.lomlar {tip:'chiqim', manba:'chiqim', summa:0, kcKurs}. summa:0 MUHIM — kassaOqim da `chiqim && manba!=='zavod' && summa>0` pul KIRITADI (lom sotish); bu esa chiqim, shuning uchun summa 0 bilan faqat cho'ntak kamayadi. kcKurs kelajakda foyda hisobi uchun saqlanadi. ESLATMA: foyda modeli (pul navbati — sovda naqdi eng eskidan, amal kursiga qarab foyda o'zgarishi) HALI QO'SHILMADI — u v108 (999 qoplash) bilan ikki marta sanashga olib keladi, almashtirish kerak; Ibrohimga aytildi. Sinov (Node): kursSanada 13.07->75.3 / 12.07->74.5 / 14.07->76.5; 13.07 ga chiqim (naqd 5000 + lom 20g + 999 10g) -> 13.07 holati naqd $45000 / lom 152.94 / 999 116, lom-999 chiqimi pul KIRITMADI; 12.07 holati (chiqimdan oldin) o'zgarmadi — naqd $50000 / lom 172.94; kurs farqi 75.3-74.0=1.30 ARZON; to'lov belgilari NAQT+KARTA / NAQT+LOM / LOM / KARTA / NAQT — 15/15. -->
