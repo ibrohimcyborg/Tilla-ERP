@@ -7663,6 +7663,11 @@ function renderKassa() {
           if(_tL>0.005) out+=_tb('LOM','var(--yellow-bg)','var(--gold)','var(--gold-bd)');
           if(_tK>0.005) out+=_tb('KARTA','var(--blue-bg)','var(--blue)','var(--blue-bd)');
           if((kg.offSumma||0)>0.005) out+=_tb('OFFSET','var(--purple-bg)','var(--purple)','var(--purple-bd)');
+          // v117: QULFLANISH belgisi — pul navbatidan qancha tegkani
+          var _ul=0, _qp=0;
+          kg.ops.forEach(function(o){ if(o.qopUlush>_ul) _ul=o.qopUlush; _qp+=(o.qopPul||0); });
+          if(_ul>=0.9995) out+=_tb('TO\'LDI','var(--green)','#fff','var(--green)');
+          else if(_ul>0.0005) out+=_tb('QISMAN','var(--gold)','#fff','var(--gold)');
         }
         if(kg.vz) out+='<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--red-bg);color:var(--red);border:0.5px solid var(--red-bd);">VOZVRAT</span>';
         out+='</div>';
@@ -7673,8 +7678,18 @@ function renderKassa() {
         out+='</div>';
         out+='<div style="display:flex;align-items:center;gap:8px;">';
         out+='<div style="text-align:right;">';
-        if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(Math.round((kg.naqtJami||0)*100)/100)+'</div>';
-        if((kg.offSumma||0)>0.005) out+='<div style="font-size:10px;color:var(--purple);font-family:Roboto,sans-serif;">($'+fmtD(kSumma)+' o\'zi offset)</div>';
+        if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</div>';
+        // v118: tagida naqt · lom · karta
+        if(!kg.vz){
+          var _hN=0,_hK=0,_hL=0,_hLg=0;
+          kg.ops.forEach(function(o){ _hN+=(o.naqtPul||0); _hK+=(o.kartaPul||0); _hL+=(o.lomPul||0); _hLg+=(o.lomGramm||0); });
+          var _hp=[];
+          if(_hN>0.005) _hp.push('<span style="color:var(--green);">naqt $'+fmtD(_hN)+'</span>');
+          if(_hL>0.005) _hp.push('<span style="color:var(--gold);">lom '+(_hLg>0.005?fmtG(_hLg)+'g · ':'')+'$'+fmtD(_hL)+'</span>');
+          if(_hK>0.005) _hp.push('<span style="color:var(--blue);">karta $'+fmtD(_hK)+'</span>');
+          if(_hp.length>1) out+='<div style="font-size:10px;font-family:Roboto,sans-serif;">'+_hp.join(' · ')+'</div>';
+        }
+        if((kg.offSumma||0)>0.005) out+='<div style="font-size:10px;color:var(--purple);font-family:Roboto,sans-serif;">($'+fmtD(kSumma>0.005?kSumma:(kg.offSumma||0))+' o\'zi offset)</div>';
         if(kFoyda>0.005||kFoyda<-0.005) out+='<div style="font-size:11px;">'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:9px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<span style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:500;">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</span>'+kStrelka+'</div>';
         out+='</div>';
         if(!kg.vz) out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
@@ -7702,6 +7717,20 @@ function renderKassa() {
           out+='💡 Zarar faqat <b>ostatkadan ORTIQ</b> qismga. Ostatka ichida qaytgani — qarzdan yechiladi, zarar yo\'q. Ortiqchasini sotuv narxida qaytarib olgandek: ortiqcha × o\'sha kungi margin.</div>';
           out+='</div>';
         } else if(isOpen){
+          // v117: LOADING BAR — pul navbatidan qancha qulflangani
+          var _ulB=0, _qpB=0;
+          kg.ops.forEach(function(o){ if(o.qopUlush>_ulB) _ulB=o.qopUlush; _qpB+=(o.qopPul||0); });
+          if(_ulB>0.0005 || (kg.naqtJami||0)>0.005){
+            var _pc=Math.min(100,_ulB*100);
+            var _full=_pc>=99.95;
+            out+='<div style="height:26px;border-radius:8px;background:var(--surf2);overflow:hidden;position:relative;margin-top:8px;">';
+            out+='<div style="height:100%;background:var(--'+(_full?'green':'gold')+');width:'+_pc+'%;"></div>';
+            out+='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;font-family:Roboto,sans-serif;color:var(--text);text-shadow:0 0 3px rgba(255,255,255,.75);">';
+            out+=(_pc<0.05 ? 'qulflanmagan — foyda suzadi'
+                 : (_full ? '$'+fmtD(_qpB)+' — to\'liq qotdi'
+                          : '$'+fmtD(_qpB)+' / $'+fmtD(kg.naqtJami||0)+' · '+fmtD(_pc)+'% qotdi'));
+            out+='</div></div>';
+          }
           out+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
           // tur bo'yicha
           out+='<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:6px;font-size:10px;color:var(--muted);padding:3px 0;border-bottom:0.5px solid var(--border);margin-bottom:4px;">';
@@ -7737,7 +7766,7 @@ function renderKassa() {
             out+='</div>';
           });
           out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
-          out+='<span style="color:var(--muted);">Jami to\'landi'+((kg.offSumma||0)>0.005?' (naqt)':'')+'</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(Math.round((kg.naqtJami||0)*100)/100)+'</span></div>';
+          out+='<span style="color:var(--muted);">Jami to\'landi</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</span></div>';
           if((kg.offSumma||0)>0.005) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 0;"><span style="color:var(--purple);">↔ Offset bilan yopildi</span><span style="color:var(--purple);font-family:Roboto,sans-serif;">$'+fmtD(kSumma)+'</span></div>';
           // Naqt / Karta / Lom breakdown
           var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0;
@@ -14380,3 +14409,5 @@ cloudInit();
 <!-- v114: CLOUD LOGIN POYGASI (RACE) TUZATILDI (Ibrohim: cloudda shunaqa oshibka borki refresh qilsam chiqib ketvotti). SABAB: cloudLogin() da tasdiq signIn'ning .then() ICHIDA yozilardi: firebase.auth().signInWithEmailAndPassword(...).then(function(){ localStorage.setItem('tilla-cloud-tasdiq','1'); ... }). Lekin onAuthStateChanged auth holati o'zgarishi bilan DARHOL ishlaydi — .then() dan OLDIN. cloudInit dagi qat'iy qoida: TEST rejimda `if (u && localStorage.getItem('tilla-cloud-tasdiq')!=='1') { ... else { firebase.auth().signOut(); return; } }` — ya'ni tasdiq hali yozilmagani uchun signOut() ishlab, foydalanuvchini CHIQARIB yuborardi. (TEST rejimda localStorage o'ralgan: Storage.prototype patch bilan 'tilla-cloud-tasdiq' aslida 'TEST-tilla-cloud-tasdiq' bo'lib o'qiladi/yoziladi — shuning uchun haqiqiy rejimdagi tasdiq TEST ga o'tmaydi, muammo faqat TEST da ko'rinadi.) TUZATISH: tasdiq endi signInWithEmailAndPassword dan OLDIN yoziladi (onAuthStateChanged qachon ishlasa ham tayyor turadi); .catch() da esa localStorage.removeItem('tilla-cloud-tasdiq') — login muvaffaqiyatsiz bo'lsa tasdiq qolib ketmasin (aks holda keyingi meros sessiya TEST ga qonuniy deb kirib qolardi). onAuthStateChanged, cloudLogout, tilla-fb-signout (TEST<->haqiqiy almashish) mantiqiga TEGILMADI. ESLATMA: agar refresh'da chiqib ketish DAVOM etsa — sabab boshqa (masalan brauzer IndexedDB ni bloklashi yoki Firebase persistence), konsol xatosi kerak. -->
 <!-- v115: OFFSET = ZARAR (vozvrat kabi) + JAMI TO'LANDI = NAQT (Ibrohim: 185$ Naqt qilib ko'rsatib (425$ o'zi offset) deb ko'rsatsin; zarar offset vozvratga o'xshab, faqat biz C kategoriya qilib offsetda arzon olib qolamiz — zarari kamroq; offset zarar beradi DOIM, faqat kamroq chunki biz kam olamiz). AVVAL: _kdYopish (offset) oplar renderKassa da UMUMAN o'tkazib yuborilardi -> offset ko'rinmasdi va zarar bermasdi; sarlavhada/Jami to'landi da op.summa (425$) ko'rsatilardi — lekin naqd faqat 185$ kelgan. QO'SHILDI: (1) allOps ga OFFSET oplar qo'shildi (off:true): zi/ti topiladi, kirim=getZavodNarx(zi,ti) (BUGUNGI), narx=op.kurs (offset narxi — arzon, C kat), zarar = −ekvivalent×(narx−kirim); gramm:0 va summa:0 (JAMI GRAMM/KASSA ga tegmaydi), offGramm/offSumma ko'rsatish uchun. Vozvrat formulasi bilan bir xil, faqat narx sifatida offset narxi ishlatiladi -> arzon olsak zarar KAM (80 da −$4.5, 84.3 da −$17.4). "Ostatkadan ortiq" qoidasi YO'Q — offset doim zarar beradi (Ibrohim: "offset zarar beradi doim"). (2) Sessiyaga offSumma va naqtJami (naqtPul+kartaPul+lomPul) yig'iladi. (3) Sarlavhada endi $naqtJami ($185) ko'rsatiladi, ostida binafsha "($425.00 o'zi offset)"; OFFSET belgisi (binafsha) qo'shildi NAQT/LOM/KARTA yoniga. (4) Tur jadvalida binafsha "↔ Offset · zavod·tur · Xg · narx$ (kirim: Y)" qatori va qizil zarar. (5) "Jami to'landi (naqt)" = naqtJami; ostida "↔ Offset bilan yopildi $425". Sinov (Node, Ibrohim misoli): Simay 5g@85 (qat'iy kirim 84) -> +$5.00; 3D offset 3g@80 (bugungi kirim 78.5, margin 1.5) -> −$4.50; sarlavha $185.00 ($425.00 o'zi offset); sof foyda +$0.50; arzon olsak zarar kam (84.3->17.4, 80->4.5, 79->1.5) — 10/10. ANIQLANDI (kod yozilmadi): (a) v113 "− Chiqim" modali data.kassa.qolda + data.lomlar ga yozadi, ZAVOD tarixiga (t.tarix) YOZMAYDI -> sotuvni QULFLAMAYDI; qulflash faqat t.tarix dagi tolov op (jami gramm) orqali bo'ladi (kassaSuzuvchiXaritasi: tolanganG+=op.jami). Ya'ni pul-navbat foyda modeli hali qurilmagan. (b) kurs o'zgarganda faqat OCHIQ (ochiqEkv>0) sotuvlar suzadi; agar to'langan sotuv ham o'zgarayotgan bo'lsa — demak u aslida to'liq yopilmagan (tolanganG yetmagan). -->
 <!-- v116: PUL NAVBATI — v108 (999 qoplash) YAGONA MODELGA AYLANTIRILDI (Ibrohim: kassadan zavodga faqat PUL chiqarvorilik bo'ldi, nechi grammga qaysi turga to'langani Zavod ERPda hal qilinadi; sistema eng eski sovdadan pulni ajratvoladi, shunga kirgan klientlar kassasi QOTADI va 73.5 dan sovda qilgan qilib foydani ko'paytiradi; 126×3=$378 ni ALOHIDA YOZMASLIK — xato bo'lib qoladi; qolgan 34250$ Butterflyga chiqim, kurs yozamiz; kurs ko'tarilsa qotmagan foyda kamayadi, tushsa ko'payadi). O'ZGARISH: kassa999Qoplash -> kassaPulNavbati. Endi navbatga UCH XIL amal kiradi (kassaPulAmallar, ts bo'yicha saralangan): (1) 999 xaridi — data.lomlar kirim/999, kurs = narx÷1.7; (2) Kassa chiqimi (v113 modal) — data.kassa.qolda tip:'chiqim', kurs = kcKurs; (3) Zavodga chiqim — z.turlar[].tarix tip:'tolov', naqtSumma/naqtKurs; naqtKurs TUR narxi bo'lgani uchun asosiy kursga qaytariladi: naqtKurs ÷ (1+foiz) (_turFoiz). Navbat: sovda sessiyalari (ki|sana|soat), faqat NAQD qismi (naqtPul>0 — lom/karta kirmaydi), ENG ESKIDAN. Har amal pulni ketma-ket oladi (to'liq/qisman); sessiya ichida SKIDKA KABI gramm nisbatida sochiladi (ekv×ulush); bir op bir necha amaldan tegsa — o'lchovli o'rtacha kurs. kassaSuzuvchiXaritasi O'ZGARMADI (v108 dagi blend ishlaydi): qat'iy narxli turlar chetda (_qatiy), qoplangan qism kQop=qopKurs×(1+pct) da QOTADI, qolgani kunlik kursda SUZADI. ALOHIDA foyda qatori YO'Q — foyda kirim kursi o'zgarishi orqali o'zi chiqadi (ikki marta sanash yo'q). CHIQIM MODALI moslandi: kurs endi IKKI BOG'LANGAN BLOK — [999 narxi] = [583 kursi]; biriga yozsangiz ikkinchisi avto (kcKursSync: ÷1.7 va ×1.7); sana bo'yicha avto qo'yiladi (kcKursQoy, kursSanada dan), foydalanuvchi tegsa avto to'xtaydi; natija blokida "1:1 — foyda o'zgarmaydi" / "✓ Kurs tushdi — foyda ko'proq" / "⚠ Kurs ko'tarildi — foyda kamroq" + summa (pul × (kunlik÷kurs − 1)) ko'rsatiladi. Sinov (Node, Ibrohim misoli — $50,000 sovda, kunlik 128=75.294): 999 $15,750@125 (=73.529) -> Guli/Rano/Guli/Oybek to'liq, Abdulaziz 13:13 QISMAN 7.7% ($1,133), foyda = 15750×(75.294÷73.529−1) = $378.00 — AYNAN 126×3; zavodga $34,250 @ tur narx 80.6 -> asosiy 75.33 ≈ kunlik -> 1:1, foyda $0; @75.6 -> −$138.58 (kamayadi); @75.0 -> +$134.31 (ko'payadi); 128÷1.7=75.29, 75.294×1.7=128 — 11/11. -->
+<!-- v117: SOVDALARDA QULFLANISH KO'RINISHI (Ibrohim: sovdalar qulflansa oppoq bo'p turibdi, to'liq/qisman yo'q; mockupdagidek bo'lsin) + OFFSET SUMMASI TUZATILDI. (1) OFFSET XATO: sof offset sessiyalarida (Shahnoza Opa 22, Zuhra Opa 13 — 0.00g, $0) "($0 o'zi offset)" chiqardi, chunki kSumma allOps dagi o.summa yig'indisi, offset oplarda esa summa:0. TUZATISH: kSumma>0 bo'lsa u, aks holda kg.offSumma ko'rsatiladi -> endi "($27.26 o'zi offset)" kabi to'g'ri chiqadi. (2) QULFLANISH BELGISI: sessiya sarlavhasida NAQT/LOM/KARTA/OFFSET yoniga TO'LDI (yashil, ulush>=99.95%) yoki QISMAN (oltin, 0<ulush<99.95%) qo'shildi — ulush pul navbatidan (op.qopUlush, sessiya ichida bir xil). (3) LOADING BAR: sessiya ochilganda progress-bar — width=ulush%, to'liq bo'lsa yashil ("$X — to'liq qotdi"), qisman bo'lsa oltin ("$X / $Y · Z% qotdi"), tegmagan bo'lsa "qulflanmagan — foyda suzadi". Tur jadvalida kirim eski->yangi (strike + yashil) va foyda ▲ v108 dan beri bor. Mockup (qisman-loading-foyda.html) ko'rinishiga moslandi. -->
+<!-- v118: SARLAVHADA JAMI + TAGIDA NAQT·LOM·KARTA (Ibrohim: naqtni pulini ko'rsatsin, lomini tegiga yozib; jami summa yo'q chalkashiladi). v115 da sarlavha naqtJami ga o'zgartirilgan edi -> jami yo'qolib chalkashlik chiqdi. TUZATISH: sarlavhada yana JAMI (kSumma, ya'ni sovda summasi; sof offset sessiyalarida naqtJami) katta ko'rsatiladi; ostiga KICHKINA qator qo'shildi: "naqt $X · lom Yg · $Z · karta $W" (faqat 2+ to'lov turi bo'lsa chiqadi, rangli: naqt yashil, lom oltin, karta ko'k). "Jami to'landi" qatori ham yana JAMI ga qaytarildi (v115 da naqt qilingan edi) — ichkarida Naqt/Karta/Lom tafsilotlari allaqachon bor. Offset qatori ("↔ Offset bilan yopildi") o'zgarmadi. -->
