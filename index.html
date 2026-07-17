@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v136';
+var APP_VER = 'v136.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -4625,8 +4625,6 @@ function kassaQoldiqPanelHTML(){
     else if(m.holat==='otdi') h += '<div style="background:var(--red-bg);border:1px solid var(--red-bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:var(--red);font-weight:600;">⚠ MUDDAT O\'TDI — '+m.txt+'</span><span style="font-size:11px;color:var(--muted);">'+z.zavodNom+' · $'+fmtD(z.summa)+'</span></div>';
   });
   // v136: 3x2 — TEPADA pul (Naqd · Karta · Perech, bosiladi -> hisobot), TAGIDA oltin (Lom 583 · 999)
-  var _kartaBor = Math.abs(o.karta||0) > 0.005;
-  var _perechBor = Math.abs(o.perech||0) > 0.005;
   function cho(l,v,r,sub,tip,bd){
     return '<div'+(tip?' onclick="openTolovHisobot(\''+tip+'\')"':'')+' style="background:var(--surf2);border-radius:8px;padding:7px 2px;text-align:center;'
       +(bd?'border:1px solid var(--'+bd+'-bd);':'')+(tip?'cursor:pointer;':'')+'">'
@@ -4634,11 +4632,12 @@ function kassaQoldiqPanelHTML(){
       +'<div style="font-size:14px;color:var(--'+r+');font-weight:500;font-family:Roboto,sans-serif;">'+v+'</div>'+(sub||'')+'</div>';
   }
   var naqdSub = band>0 ? '<div style="font-size:10px;margin-top:2px;"><span style="color:var(--green);">erkin $'+fmtD(erkin)+'</span> · <span style="color:var(--blue);">band $'+fmtD(band)+'</span></div>' : '';
-  var _pulN = 1 + (_kartaBor?1:0) + (_perechBor?1:0);
-  h += '<div style="display:grid;grid-template-columns:repeat('+_pulN+',1fr);gap:5px;margin-bottom:5px;">';
+  // v136.1: TEPA QATOR DOIM 3 TA (Naqd · Karta · Perech) — qiymati 0 bo'lsa ham turadi,
+  // hisoboti bosilsin va panel joyidan siljimasin. Tagida DOIM 2 ta (Lom 583 · 999).
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:5px;">';
   h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub,'naqt','green');
-  if(_kartaBor)  h += cho('Karta','$'+fmtD(o.karta),'blue','','karta','blue');
-  if(_perechBor) h += cho('Perech','$'+fmtD(o.perech),'teal','<div style="font-size:9px;color:var(--muted);margin-top:2px;">oqim</div>','perech','teal');
+  h += cho('Karta','$'+fmtD(o.karta),'blue','','karta','blue');
+  h += cho('Perech','$'+fmtD(o.perech),'teal','<div style="font-size:9px;color:var(--muted);margin-top:2px;">oqim</div>','perech','teal');
   h += '</div>';
   h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;">';
   h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
@@ -15114,3 +15113,4 @@ cloudInit();
 (5) CHEK: P qatori K dan keyin, har biri alohida; yorliq "JAMI SUMMA  N  K  P". Uch joyda (kt preview, ks preview, ks chop/PDF). Sdacha hisobiga perech qo'shildi. Kassa PDF (kassaPDFYukor) ga naqt/karta/perech/lom ustunlari va jami_naqt/jami_karta/jami_perech/jami_lom.
 (6) UCHTA ESKI XATO TUZATILDI (perech shu joylarga qo'shilgani uchun majburiy edi): (a) saqlashKlientTolov da kartaPul:0 QAT'IY yozilardi -> To'lov modalidagi karta puli naqtPul ga singib ketardi, kassa "Naqd" ni ko'p ko'rsatardi VA u pul navbatiga kirib foydani noto'g'ri qulflardi. (b) sotuv saqlashda karta FAQAT lom bo'lganda yozilardi (_lomPulJamiSave>0 ? ... : 0) -> lomsiz sof karta sotuvi butunlay NAQT bo'lardi; endi maydon har doim o'qiladi (_aralash). (c) kassaHarakatlar (lenta) da pul=naqtPul+kartaPul -> lenta yugurma qoldig'i kassaOqim.naqd bilan mos kelmasdi (v120 dan beri karta alohida); endi lentaga faqat naqt tushadi, perech umuman kirmaydi (kassa harakati emas). Yo'l-yo'lakay: ks chek PREVIEW ida N/K faqat IKKALASI bo'lsa chiqardi (v134 buni kt da tuzatib, ks preview da o'tkazib yuborgan) — endi har biri alohida.
 SINOV (Node, 29/29): navbatsiz ham perech ulush 0.7826 · qopKurs 71.8447; sof karta ulush 1 (TO'LDI); sof naqt xaritada yo'q (suzadi); foyda — sof karta +18.56 QOTDI, sof naqt −7.96 SUZDI, aralash naqt500+perech1800 -> +29.44 (asl 42.70 dan qisman); 999 xaridi $500@70 kelganda Butterfly ulush 1, qopKurs 71.44 (o'lchovli), Rano tegmadi; cho'ntaklar naqd 1500 / karta 1000 / perech 1800 — qo'shilib ketmadi; eski yozuv (naqtPul yo'q) naqdga tushdi va navbatga kirdi — buzilmadi; avto-to'ldirish perech1800->naqt500, naqt500+perech1000->karta800, uchalasi tegilsa avto yo'q, sdacha 200, manfiy chiqmaydi; ✓ katakcha almashinuvi. APP_VER v135 -> v136. ESLATMA: perech cho'ntagi CHIQIMSIZ — faqat o'sadi (yig'ma oqim), tagida "oqim" yozuvi bor. -->
+<!-- v136.1: KASSA PANELI 3x2 BO'LMADI — TUZATILDI (Ibrohim rasm: tepada bitta Naqd butun kenglikda, Karta va Perech umuman yo'q). SABAB (Claude xatosi): v136 da panelga v120 ning DINAMIK sharti (_kartaBor) ko'chirib olingan va perechga ham qo'llangan edi — `_pulN = 1 + (_kartaBor?1:0) + (_perechBor?1:0)`, ya'ni qiymat 0 bo'lsa cho'ntak UMUMAN chizilmasdi. Ibrohimning haqiqiy ma'lumotida karta $0 (v136 gacha To'lov modalidagi karta naqtga singib ketardi, Sotuvda esa faqat lom bilan yozilardi) va perech $0 (hali birinchi yozuv kiritilmagan) -> tepa grid repeat(1,1fr) bo'lib bitta Naqd qolgan. Ibrohim so'ragani DINAMIK emas, QAT'IY 3x2 edi. TUZATISH: _kartaBor/_perechBor/_pulN olib tashlandi; tepa qator DOIM grid-template-columns:1fr 1fr 1fr (Naqd · Karta · Perech — $0.00 bo'lsa ham turadi, hisoboti bosilaveradi va panel joyidan siljimaydi), tag qatori DOIM 1fr 1fr (Lom 583 · 999). Boshqa hech narsaga tegilmadi (kassaOqim, hisobot, foyda qulfi, chek — hammasi v136 dagidek). Sinov (Node, panel HTML rasmdagi haqiqiy holat bilan chizildi: naqd $214,986.85 / karta 0 / perech 0): tepa grid 3 ustun, tag grid 2 ustun, jami 2 grid, beshala katak ham chizildi, Karta $0.00 ko'rindi, Naqd/Karta/Perech uchtasida ham openTolovHisobot onclick bor, Lom583/999 bosilmaydi — 11/11; v136 ning eski 29 sinovi ham qayta o'tkazildi (29/29). APP_VER v136 -> v136.1. -->
