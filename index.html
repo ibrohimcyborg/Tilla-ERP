@@ -1916,7 +1916,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v133';
+var APP_VER = 'v135';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -7909,6 +7909,27 @@ function renderKassa() {
   jamiFoyda = Math.round(jamiFoyda*100)/100;
   jamiSkidkaK = Math.round(jamiSkidkaK*100)/100;
 
+  // v135: OFFSET oplarni SOVDA sessiyasiga qo'shamiz.
+  // Sabab: offset yozuvida (klientTolovSaqla, _kdYopish) soat YO'Q — shuning uchun kaliti
+  // (ki|sana|soat) sotuvnikidan farq qilib, alohida qator bo'lib chiqardi.
+  // Yechim: soati bo'sh offset opga o'sha kundagi sotuv sessiyasining soatini beramiz.
+  (function(){
+    var kunSoat={};   // ki|sana -> eng katta sotuv sessiyasining soati
+    var kunSum={};
+    allOps.forEach(function(o){
+      if(o.off || o.vz || !o.soat) return;
+      var k=o.ki+'|'+o.sana;
+      var s=(kunSum[k+'|'+o.soat]||0)+(o.summa||0);
+      kunSum[k+'|'+o.soat]=s;
+      if(!kunSoat[k] || s>(kunSum[k+'|'+kunSoat[k]]||0)) kunSoat[k]=o.soat;
+    });
+    allOps.forEach(function(o){
+      if(!o.off || o.soat) return;
+      var s=kunSoat[o.ki+'|'+o.sana];
+      if(s) o.soat=s;
+    });
+  })();
+
   // bir vaqtda saqlangan turlarni bitta sessiyaga yig'amiz (ki + sana + soat)
   var sessions={}, sessionOrder=[];
   allOps.forEach(function(o, idx){
@@ -8058,9 +8079,10 @@ function renderKassa() {
           if(_hN>0.005) _hp.push('<span style="color:var(--green);">naqt $'+fmtD(_hN)+'</span>');
           if(_hL>0.005) _hp.push('<span style="color:var(--gold);">lom '+(_hLg>0.005?fmtG(_hLg)+'g · ':'')+'$'+fmtD(_hL)+'</span>');
           if(_hK>0.005) _hp.push('<span style="color:var(--blue);">karta $'+fmtD(_hK)+'</span>');
+          if((kg.offSumma||0)>0.005) _hp.push('<span style="color:var(--purple);">offset $'+fmtD(kg.offSumma)+'</span>');
           if(_hp.length>1) out+='<div style="font-size:10px;font-family:Roboto,sans-serif;">'+_hp.join(' · ')+'</div>';
         }
-        if((kg.offSumma||0)>0.005) out+='<div style="font-size:10px;color:var(--purple);font-family:Roboto,sans-serif;">($'+fmtD(kSumma>0.005?kSumma:(kg.offSumma||0))+' o\'zi offset)</div>';
+
         if(kFoyda>0.005||kFoyda<-0.005) out+='<div style="font-size:11px;">'+(kSz?'<span style="text-decoration:line-through;color:var(--muted);font-size:9px;">+'+fmtD(kFoydaAsl)+'</span> ':'')+'<span style="color:'+(kFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:500;">'+(kFoyda>0?'+':'')+'$'+fmtD(kFoyda)+'</span>'+kStrelka+'</div>';
         out+='</div>';
         if(!kg.vz) out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
@@ -8146,8 +8168,7 @@ function renderKassa() {
             out+='</div>';
           });
           out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
-          out+='<span style="color:var(--muted);">Jami to\'landi</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</span></div>';
-          if((kg.offSumma||0)>0.005) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 0;"><span style="color:var(--purple);">↔ Offset bilan yopildi</span><span style="color:var(--purple);font-family:Roboto,sans-serif;">$'+fmtD(kSumma)+'</span></div>';
+          out+='<span style="color:var(--muted);">Jami summa</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</span></div>';
           // Naqt / Karta / Lom breakdown
           var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0;
           kg.ops.forEach(function(o){
@@ -8156,11 +8177,16 @@ function renderKassa() {
             if(o.lomGramm||o.lomPul){kLom+=o.lomPul||0;kLomG+=o.lomGramm||0;kLomKurs=o.lomKurs||kLomKurs||0;}
           });
           kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;
-          if(kNaqt>0||kKarta>0||kLom>0){
+          if(kNaqt>0||kKarta>0||kLom>0||(kg.offSumma||0)>0.005){
             out+='<div style="background:var(--surf2);border-radius:7px;padding:4px 8px;margin-top:2px;">';
             if(kNaqt>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>$'+fmtD(kNaqt)+'</span></div>';
             if(kKarta>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Karta</span><span>$'+fmtD(kKarta)+'</span></div>';
             if(kLom>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Lom'+(kLomG>0?' '+fmtG(kLomG)+'g × '+kLomKurs:'')+'</span><span style="color:var(--gold);">$'+fmtD(kLom)+'</span></div>';
+            // v135: OFFSET — pul emas, klient molidan yopilgan qism
+            if((kg.offSumma||0)>0.005){
+              var _oG=0; kg.ops.forEach(function(o){ if(o.off) _oG+=(o.offGramm||0); });
+              out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--purple);">↔ Offset'+(_oG>0.005?' '+fmtG(_oG)+'g':'')+'</span><span style="color:var(--purple);">$'+fmtD(kg.offSumma)+'</span></div>';
+            }
             out+='</div>';
           }
           if(kFoyda>0.005||kFoyda<-0.005){
@@ -10853,9 +10879,9 @@ function kTolovChekUpd() {
     var _ktNbM=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
     var _ktKbM=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
     var _ktMk=(_ktNbM>0?'  N':'')+(_ktKbM>0?'  K':'');
-    lines2.push(rjust('Jami to\'landi'+_ktMk, fmtD(Math.max(0,Math.round((jamiPul-manSkKt2)*100)/100))+'#'));
+    lines2.push(rjust('Jami summa'+_ktMk, fmtD(Math.max(0,Math.round((jamiPul-manSkKt2)*100)/100))+'#'));
   }
-  lines2.push(rjust('', '('+fmtG(Math.round(jamiG*100)/100)+')'));
+  lines2.push(rjust('Jami gramm', fmtG(Math.round(jamiG*100)/100)));
   // LOM bloki
   var ktLomSatirlar=[];var ktLomJami=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
@@ -10871,7 +10897,9 @@ function kTolovChekUpd() {
   // N / K — lom bo'lsa ham bo'lmasa ham
   var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
   var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
-  if(ktNb>0&&ktKb>0){ lines2.push(rjust('N',fmtD(ktNb)+'#')); lines2.push(rjust('K',fmtD(ktKb)+'#')); }
+  // v134: N/K har biri ALOHIDA chiqadi (avval faqat IKKALASI bo'lsa chiqardi -> naqt ko'rinmasdi)
+  if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
+  if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
   // Sdacha / bizda / tur
   var ktTanlovChek=window._ktSdachaTanlov||null;
   var ktLomOrtiqchaChek=Math.max(0,Math.round((ktLomJami-jamiPul+manSkKt2)*100)/100);
@@ -12961,9 +12989,9 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
       var _tNbM=parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
       var _tKbM=parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
       var _tMk=(_tNbM>0?'  N':'')+(_tKbM>0?'  K':'');
-      t += rjust("Jami to'landi"+_tMk, fmtD(Math.max(0, naqtTolovPul2 - skidka))+'#')+'\n';
+      t += rjust("Jami summa"+_tMk, fmtD(Math.max(0, naqtTolovPul2 - skidka))+'#')+'\n';
     }
-    t += rjust('', '('+fmtG(naqtJamiG2)+')')+'\n';
+    t += rjust('Jami gramm', fmtG(naqtJamiG2))+'\n';
     t += LINE;
   }
 
@@ -12989,12 +13017,14 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     (_lomOrtiqcha2 > 0.01 ? _lomOrtiqcha2 :
     (_berdiJami2 > _kerakliNaqt2 ? Math.round((_berdiJami2 - _kerakliNaqt2)*100)/100 : 0));
   var _tanlov2 = chekTanlov || window._ksSotuvOrtiqchaTanlov || null;
-  if (lomlar.length || (_naqtBerdi2 > 0 && _kartaBerdi2 > 0) || (_ortiqcha2 > 0.01 && _tanlov2)) {
+  if (lomlar.length || _naqtBerdi2 > 0 || _kartaBerdi2 > 0 || (_ortiqcha2 > 0.01 && _tanlov2)) {
     t += LINE;
     lomlar.forEach(function(l){
       t += rjust('L', l.gramm+' x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
     });
-    if(_naqtBerdi2>0&&_kartaBerdi2>0){ t += rjust('N', fmtD(_naqtBerdi2)+'#')+'\n'; t += rjust('K', fmtD(_kartaBerdi2)+'#')+'\n'; }
+    // v134: N/K ALOHIDA (avval faqat ikkalasi bo'lsa chiqardi)
+    if(_naqtBerdi2>0) t += rjust('N', fmtD(_naqtBerdi2)+'#')+'\n';
+    if(_kartaBerdi2>0) t += rjust('K', fmtD(_kartaBerdi2)+'#')+'\n';
     if (_ortiqcha2 > 0.01) {
       if (_tanlov2 && _tanlov2.tip === 'tur') {
         var _ortG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
@@ -14853,3 +14883,5 @@ cloudInit();
 <!-- v131: TEST BANNERI O'NG PASTGA (Ibrohim rasm: mobil versiyada test banner tepadagi knopkalarni yopib qo'yvotti). Avval: position:fixed; top:0; left:50%; katta matn "🧪 TEST REJIMI — alohida baza, haqiqiyga tegilmaydi" — telefonda ikki qatorga bo'linib, tepadagi tugmalar qatorini (cloud, kurs, mavzu, tarix, sozlamalar, chiqish) TO'SIB qo'yardi. Endi: bottom:6px; right:48px (versiya yorlig'ining chap yonida), qisqa "🧪 TEST" matni, kichik (9px), shaffof (opacity .8), bosilsa yashiriladi; to'liq matn title da (hover/uzoq bosishda ko'rinadi). Versiya yorlig'i (v131) bottom:6px; right:6px — ikkalasi yonma-yon o'ng pastda, hech narsani to'smaydi. APP_VER v130 -> v131. -->
 <!-- v132: CLOUD'DAN MAJBURAN YUKLAB OLISH tugmasi (Ibrohim: "Hammani cloud bilan to'ldirish" ni PC dan bossam iPhoneda o'zgarmayapti; lomlar/kassalar o'tdi lekin zavod va klient ostatkalari shakllanmayapti). ILDIZ (Claude qarorlari): (1) v93 da blob YUKLAB OLISH o'chirilgan edi — "blob faqat YANGI/BO'SH qurilmani birinchi to'ldirish uchun"; ma'lumoti bor qurilma cloud blobini HECH QACHON olmaydi. (2) Oplog (_amallar) faqat TARIXNI tashiydi. (3) data.kassa OBYEKT bo'lgani uchun v97 da oploqdan CHIQARILGAN — Z-hisoblar, tuzatishlar, zakazlar faqat blob orqali o'tadi. (4) Zavod ostatkasi — saqlangan running-total, oplogda yo'q; v104 da avtomat qayta-hisoblash ham o'chirilgan (u ostatkani buzardi). NATIJA: syncFullFill ("to'ldirish") faqat tarix+dona yuboradi -> boshqa qurilmada kassa va ostatka O'ZGARMAYDI. QO'SHILDI: Cloud holati oynasida IKKI tugma — "⬆ Bu qurilmanikini cloudga yuborish" (eski cloudToldir/syncFullFill: tarix+dona, qo'shadi, o'chirmaydi) va yangi "⬇ Cloud'dan yuklab olish (ustidan yozadi)" -> cloudMajburanOl(): tasdiq so'raydi (yo'qoladigan narsani aniq aytadi), AVTOMAT backupExport oladi, amal-init/synced flaglarini tozalaydi (yuklangach tarix qayta pushlanmasin), doc('holat') meta sini o'qib cloudYuklab(meta) chaqiradi — kassa, ostatka, klientlar, hammasi TO'LIQ yuklanadi. Ostidagi izohda ikkala tugma farqi tushuntirilgan. FOYDALANISH: to'g'ri qurilmada ⬆, boshqasida ⬇. APP_VER v131 -> v132. -->
 <!-- v133: KASSA SOVDALARIDA SUMMA USTUNI TEKISLANDI (Ibrohim rasm: kassadagi pullarni o'ng tarafga o'tqiz, o'rtada tartibsiz bo'p qolgan). SABAB: o'ng blok [summa+foyda][🖨] flex bo'lib, summa matni kengligi har xil ($500 / $2,929.92) -> chop tugmasi har qatorda BOSHQA joyda turardi, summalar ham tekis emas edi. TUZATISH: (1) summa/foyda ustuniga min-width:112px + white-space:nowrap — hamma summa bir xil kenglikda, o'ng chetga tekis; chop tugmalari bir ustunda. (2) o'ng blokka flex-shrink:0 va margin-left:auto — uzun klient ismi uni surib yubormaydi. (3) chap blokka min-width:0; flex:1 va belgilar qatoriga flex-wrap:wrap — uzun ism + ko'p belgi (NAQT/LOM/KARTA/OFFSET/TO'LDI) bo'lsa ikkinchi qatorga tushadi, o'ng ustunni bosmaydi. APP_VER v132 -> v133. -->
+<!-- v134: CHEKDAGI 3 XATO TUZATILDI (Ibrohim chek rasmi). (1) "Jami to'landi" -> "JAMI SUMMA" (2,299.13) — u to'langan pul emas, sovdaning jami summasi; naqt/lom/karta ostida alohida ko'rsatiladi. (2) Gramm avval yorliqsiz qavs ichida "(27.13)" chiqardi — endi "JAMI GRAMM 27.13" deb yozuv bilan. (3) ENG JIDDIY: N (naqt berildi) qatori faqat `ktNb>0 && ktKb>0` (naqt VA karta ikkalasi ham bo'lsa) chiqardi — faqat naqt berilsa (odatdagi holat!) N UMUMAN KO'RINMASDI, klient qancha naqt berganini bilib bo'lmasdi (rasmda: L 10.7×72.7=777.89 bor, N esa bo'sh). Endi har biri ALOHIDA: `if(ktNb>0) N`, `if(ktKb>0) K`. Uch tuzatish ham IKKI chekda — To'lov (kt-) va Sotuv (ks-); sotuv chekida qamrov sharti ham to'g'rilandi (`(_naqtBerdi2>0 && _kartaBerdi2>0)` -> `_naqtBerdi2>0 || _kartaBerdi2>0`), aks holda faqat naqtli sotuvda butun blok tushib qolardi. APP_VER v133 -> v134. -->
+<!-- v135: OFFSET SOVDA ICHIGA KIRDI (Ibrohim rasm: offsetga alohida ko'rsatma; kassaga Naqt+offset deb, 2-rasmga o'xshab offset summasini ko'rsatishi kerak; offset bo'lgan summani foyda emas ZARAR qilib ko'rsatish kerak; qolgan bergan naqt pulini alohida ko'rsatish kerak — shunda kassa to'g'ri chiqadi). ILDIZ: offset yozuvida (klientTolovSaqla, _kdYopish:true) SOAT maydoni YO'Q, sotuvda esa bor -> sessiya kaliti (ki|sana|soat) farq qilib, offset ALOHIDA QATOR bo'lib chiqardi ("Hafiza Opa OFFSET · 0.00g · $0 · ($329.16 o'zi offset)"), sotuvda esa "Jami to'landi $782.16" deb turib naqt faqat $453 edi — $329.16 hech qayerda ko'rinmasdi. TUZATISH: (1) allOps yig'ilgach, soati BO'SH offset oplarga o'sha kundagi (ki|sana) eng katta sotuv sessiyasining soati beriladi -> offset sotuv bilan BITTA sessiyaga tushadi. (2) Sarlavha ostidagi qatorga offset qo'shildi: "naqt $453.00 · offset $329.16" (binafsha) — 2-rasmdagi "naqt · lom" kabi. (3) Eski "($X o'zi offset)" qatori olib tashlandi. (4) "Jami to'landi" -> "JAMI SUMMA"; ostidagi Naqt/Karta/Lom tafsilotiga "↔ Offset Xg · $Y" qatori qo'shildi (binafsha). (5) Tur jadvalida offset qatori binafsha va ZARAR (v115 dan) — foyda endi 2.10+16.00−2.73 = +$15.37 (avval offset zarari sanalmay +$18.10 chiqardi). KASSAGA faqat naqt tushadi (offset pul emas — v121 dan). APP_VER v134 -> v135. -->
