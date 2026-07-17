@@ -1905,6 +1905,26 @@ if (TEST_MODE) {
   });
 }
 // ═══════════ /TEST REJIMI ═══════════
+
+// ═══════════ VERSIYA BANNERI (v130) ═══════════
+// Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
+// HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
+var APP_VER = 'v130';
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var v=document.createElement('div');
+    v.id='app-ver';
+    v.textContent=APP_VER;
+    v.style.cssText='position:fixed;top:'+(TEST_MODE?'20px':'0')+';right:6px;z-index:99998;'
+      +'background:rgba(184,137,43,.92);color:#fff;font-size:10px;font-weight:700;'
+      +'padding:2px 8px;border-radius:0 0 8px 8px;font-family:sans-serif;letter-spacing:.03em;'
+      +'cursor:pointer;user-select:none;';
+    v.title='Versiya — bosilsa yashiriladi';
+    v.onclick=function(){ v.style.display='none'; };
+    document.body.appendChild(v);
+  }catch(e){}
+});
+// ═══════════ /VERSIYA BANNERI ═══════════
 var _printXatoVaqt = 0;
 function printerYoq(){ return localStorage.getItem('tilla-printer-yoq')==='1'; }
 function printXato(){
@@ -14796,3 +14816,4 @@ cloudInit();
 <!-- v128: QULFLANISH CHIZIQCHASI SOVDA QATORIGA KO'CHDI, A VARIANT (Ibrohim: chiqimlarda emas, kassaning o'zida to'lib ko'rsatmaydimi; yashil bo'b, chiqimlarda kerak emas — klient kassasida loading bo'lishi kerak; A variantdek qil). (1) KASSA SOVDALAR RO'YXATI: har sovda qatorining OSTIDA 4px ingichka chiziqcha — pul navbatidan qancha qulflangani (op.qopUlush): to'liq (>=99.5%) YASHIL, qisman OLTIN (foiz kengligida), qulflanmagan bo'sh (kulrang). Qator kengligiga to'liq cho'zilgan (margin -11px), qator ichida joy egallamaydi. Vozvrat qatorlarida yo'q. Sarlavhadagi TO'LDI/QISMAN belgilari (v117) o'z joyida qoladi — belgi + chiziqcha birga. (2) CHIQIMLAR bo'limidagi KATTA loading bar OLIB TASHLANDI (Ibrohim: u yerda kerak emas) — o'rniga sodda sarlavha: "Yopilgan sovdalar · N ta · $X". Chiqim ichidagi ✓/◐ ro'yxati va qisman sovdaning tur-tafsiloti (v126) O'ZGARMADI. -->
 <!-- v129: SOTIB OLISH — GRAMM ⇄ SUMMA ⇄ NARX BOG'LANDI (Ibrohim: grammga summayam qo'shish kerak, shunda gramm avtomat chiqadi yoki gramm yozsa summa). AVVAL: modalda faqat Gramm va Narx bor edi, Summa yo'q — "$15,750 ga 999 oldim" desa grammni qo'lda hisoblash kerak edi. QO'SHILDI: (1) #ko-summa maydoni — Gramm bilan yonma-yon (2 ustunli grid), tepasida "Ikkitasini yozing — uchinchisi avto". (2) koTeg(k) — _koOxirgi massivi oxirgi ikkita tegilgan maydonni eslaydi; koHisob() uchinchisini hisoblaydi: summa=gramm×narx / gramm=summa÷narx / narx=summa÷gramm. (3) AVTO MAYDON tanlash mantiqi: agar BITTA maydon bo'sh bo'lsa — o'shani hisoblaydi (foydalanuvchi ikkitasini yozdi); IKKITASI bo'sh bo'lsa — hech narsa qilmaydi (hali yetarli emas); HAMMASI to'la bo'lsa — oxirgi ikkitadan tashqarisini qayta hisoblaydi (masalan narx o'zgarsa summa yangilanadi, gramm saqlanadi). Bu muhim: avvalgi sodda mantiq bo'sh maydon bo'lsa to'la maydonni O'CHIRIB yuborardi. (4) Avto maydon KO'RINISHI: uzuq ramka + kulrang matn + "· avto" yorlig'i; qo'lda yozilganlar oltin ramka + qalin. (5) 999 ⇄ 583 sinxroni (koNarxSync) saqlandi; koHisob narxni o'zi hisoblaganda 583 ni koPreview CHAQIRMASDAN yangilaydi (aks holda koNarxSync->koPreview->koHisob CHEKSIZ SIKL bo'lardi) + _koIch qo'rig'i. Sinov (Node): 126g+125$/g -> summa $15,750; $15,750+125 -> gramm 126; 126g+$15,750 -> narx 125; hammasi to'la bo'lib narx 125->130 -> summa $16,380 (gramm saqlandi); summa 15,750->16,380 -> narx 130 (gramm saqlandi); ikkitasi bo'sh -> hech narsa hisoblanmaydi — 8/8. -->
 <!-- v130: (1) CHIQIMDAN SOVDALAR RO'YXATI OLIB TASHLANDI (Ibrohim: chiqimdan chiqarvor kassalarni). kassaChiqimYopdiHTML(o) chaqiruvi kassaChiqimPanelHTML dan olindi — endi CHIQIMLAR bo'limi faqat: kategoriya + izoh, sana/soat, kurs (kunlik bilan), miqdorlar, foyda ta'siri, 🗑. Yopilgan sovdalar ro'yxati va qisman tur-tafsiloti endi ko'rsatilmaydi (funksiyalar kodda qoldi, chaqirilmaydi). Qulflanish endi FAQAT sovdaning o'zida ko'rinadi (v128 chiziqcha + TO'LDI/QISMAN belgisi) — Ibrohim aynan shuni so'ragan. (2) SOVDA CHIZIQCHASI OVERFLOW TUZATILDI: v128 da chiziqchaga margin:8px -11px -1px (manfiy, qator kengligiga cho'zish uchun) qo'yilgan edi — bu gorizontal toshishga (o'ng tomonda kesilgan elementlar, keraksiz scroll) olib kelardi. Endi margin:8px 0 2px + border-radius:2px — qator ichida, toshmaydi. Fayldagi qolgan manfiy marginlar faqat tik (yuqori/past) — zararsiz. -->
+<!-- v130.1: VERSIYA BANNERI (Ibrohim: keyingi o'zgarishda vNNN qilib tepada dashboardda yozib ket, adashmasligim uchun). QO'SHILDI: APP_VER o'zgaruvchisi (hozir 'v130') + DOMContentLoaded da o'ng YUQORI burchakka kichkina oltin yorliq (position:fixed, z-index 99998). TEST rejimida TEST bannerining ostiga tushadi (top:20px), toza rejimda tepada (top:0). Bosilsa yashiriladi. QOIDA: HAR YANGI VERSIYADA APP_VER raqami YANGILANSIN — shunda qurilmada qaysi versiya turgani bir qarashda ko'rinadi (deploy qilindimi, Ctrl+Shift+R yordam berdimi — darhol bilinadi). -->
