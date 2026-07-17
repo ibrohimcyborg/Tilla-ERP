@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v137';
+var APP_VER = 'v137.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -13257,7 +13257,8 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
       }
       var _tNbM=parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
       var _tKbM=parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-      var _tMk=(_tNbM>0?'  N':'')+(_tKbM>0?'  K':'');
+      var _tPbM=parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0; // v137.1: qolib ketgandi
+      var _tMk=(_tNbM>0?'  N':'')+(_tKbM>0?'  K':'')+(_tPbM>0?'  P':'');
       t += rjust("Jami summa"+_tMk, fmtD(Math.max(0, naqtTolovPul2 - skidka))+'#')+'\n';
     }
     t += rjust('Jami gramm', fmtG(naqtJamiG2))+'\n';
@@ -15173,3 +15174,7 @@ SINOV (Node, 29/29): navbatsiz ham perech ulush 0.7826 · qopKurs 71.8447; sof k
 (5) v136 XATOSI TUZATILDI (meniki): sdachaTaqsimSaqla da `sdacha = ktNb + ktKb − ktKn` — PERECH unutilgandi, perech bilan ortiqcha to'lansa sdacha yo'qolardi. Endi ktNb+ktKb+ktPb.
 SINOV (Node, 23/23 + v136 ning 40 tasi qayta): lom ortiqchasi+Sdacha -> qolda chiqim $199.97 'Lom sdacha'/'Butterfly', klient tarixiga hech narsa yozilmadi; naqt ortiqchasi+Sdacha -> qolda yozuvi YO'Q; perech bilan sdacha $500 (perechsiz $300 bo'lardi) -> qarzsiz turga klientda op 6.63g, qarzli turga tolov op _bizQarzYopildi ekv 6.63g; panel — qarzi bor tur birinchi, qarzsiz ikkinchi, Sdacha oxirida, nishonlar joyida, "Bizda qolsin" yo'q, panel display:block; tarixi yo'q klient -> faqat Sdacha + tushuntirish. APP_VER v136.1 -> v137.
 QOLGAN (tegilmadi, Ibrohimga aytildi): (a) kTolovCalc dagi ktSdacha = ktLomOrtiqcha + totalGramOrtiqcha + pulOrtiqcha, sdachaTaqsimSaqla esa totalGramOrtiqcha ni KO'RMAYDI — gramm ortiqchasi ko'rsatiladi-yu saqlanmaydi (eski nomuvofiqlik). (b) sdachaTaqsimSaqla 'tur' holatida ekvivalent min(gramm,turQarz) ga qisiladi lekin summa to'liq yoziladi — qisilgan qism yo'qoladi. (c) qolda yozuvlari zavod ERP snabjenets payloadiga ham kiradi (manba==='qolda') — lom sdachasi u yerda ham chiqim bo'lib ko'rinadi. -->
+<!-- v137.1: PERECH QOLIB KETGAN 3-JOY TOPILDI (Ibrohim so'radi: "perechda nima xato qildin" -> audit qildim va yana bittasi chiqdi). ks CHOP/PDF chekining "Jami summa" yorlig'ida (_tMk) perech yo'q edi: `_tMk=(_tNbM>0?'  N':'')+(_tKbM>0?'  K':'')` -> perech bilan to'langanda chekning pastida "P  1,800.00#" qatori chiqardi (u v136 da to'g'ri qo'shilgan), lekin TEPADAGI yorliq "Jami summa  N" bo'lib qolardi — P ko'rinmasdi. Endi _tPbM qo'shildi.
+ILDIZ: v136 da men aniq o'zgaruvchi nomlarini grepladim (_kartaBerdiSave, ktBerdiK2, _kbPrev, _ksKbM, _ktKbM, _kartaBerdi2) — `kt-karta-berildi` / `ks-karta-berildi` MAYDONINI o'qiydigan HAMMA joyni emas. Shuning uchun boshqa nomdagilar (sdachaTaqsimSaqla dagi ktKb -> v137 da tuzatildi; bu yerdagi _tKbM -> v137.1) ko'rinmay qoldi.
+AUDIT (endi to'liq, ikki yo'nalishda): (1) `getElementById('k[ts]-karta-berildi')` o'qiladigan 14 joy — hammasida perech yonida bor (12405 yolg'on trevoga: nbKEl e'loni, perech reseti 6 qator pastda). (2) "Jami summa" yorlig'i quriladigan 3 joy (kt preview 11118, ks preview 12754, ks chop 13261) — uchalasi ham N+K+P. (3) op.kartaPul o'qiydigan joylar: 2115/3049/4169 eski-yozuv zaxira shoxobchasi `naqtPul!==undefined ? naqtPul : (kartaPul?0:summa)` — v136+ yozuvlarida naqtPul DOIM aniqlangan, shuning uchun bu shoxobcha perechli yozuvda umuman ishlamaydi (xato emas, tegilmadi); 11356/11432/13082 offset/_kdYopish/sdacha oplari `naqtPul:0, kartaPul:0` yozadi, perechPul yo'q — `parseNum(op.perechPul||0)` hamma joyda 0 beradi, funksional farq yo'q (tegilmadi).
+SINOV: mavjud 63 sinov qayta o'tkazildi (v136: 40, v137: 23) — hammasi o'tdi. APP_VER v137 -> v137.1. -->
