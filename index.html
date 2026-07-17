@@ -5894,7 +5894,7 @@ function donaBazaCloudYoz(rec){
   try{
     var payload={ sana:rec.sana||'', zavod:rec.zavod||'', tur:rec.tur||'', gramm:rec.gramm, holat:rec.holat||'ombor', qurilma:(localStorage.getItem('tilla-qurilma')||''), vaqt:Date.now() };
     if(rec.chiqimSana) payload.chiqimSana=rec.chiqimSana;
-    ref.doc(rec.id).set(payload).catch(cloudXato); // offline bo'lsa Firestore navbatga oladi; ruxsat yo'q bo'lsa jim
+    ref.doc(rec.id).set(payload).catch(cloudXato), cloudYozuvSana(1); // offline bo'lsa Firestore navbatga oladi; ruxsat yo'q bo'lsa jim
   }catch(e){}
 }
 function donaBazaCloudListen(){
@@ -5970,7 +5970,7 @@ function amalSyncPush(){
   amalWalk(function(r,loc){
     if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
     if(set[r._id]) return;
-    try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:qurilma, vaqt:Date.now() }).catch(cloudXato); set[r._id]=Date.now(); pushed=true; }catch(e){}
+    try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:qurilma, vaqt:Date.now() }).catch(cloudXato), cloudYozuvSana(1); set[r._id]=Date.now(); pushed=true; }catch(e){}
   });
   if(pushed) _amalSetSaqla();
   // OSTATKA increment O'CHIRILDI (v99): ostatka endi har qurilmada TARIXDAN hisoblanadi
@@ -6012,12 +6012,12 @@ function amalRecRemoveById(id){
 function amalMovePush(op, newLoc){
   var ref=amalRef(); if(!ref || !op || !op._id) return;
   var set=_amalSetOl(), now=Date.now();
-  try{ ref.doc(op._id).set({ loc:newLoc, rec:JSON.stringify(op), qurilma:localStorage.getItem('tilla-qurilma')||'', vaqt:now, moved:true }).catch(cloudXato); set[op._id]=now; _amalSetSaqla(); }catch(e){}
+  try{ ref.doc(op._id).set({ loc:newLoc, rec:JSON.stringify(op), qurilma:localStorage.getItem('tilla-qurilma')||'', vaqt:now, moved:true }).catch(cloudXato), cloudYozuvSana(1); set[op._id]=now; _amalSetSaqla(); }catch(e){}
 }
 function amalDeletePush(op){
   var ref=amalRef(); if(!ref || !op || !op._id) return;
   var set=_amalSetOl(), now=Date.now();
-  try{ ref.doc(op._id).set({ deleted:true, vaqt:now, qurilma:localStorage.getItem('tilla-qurilma')||'' }, {merge:true}).catch(cloudXato); set[op._id]=now; _amalSetSaqla(); }catch(e){}
+  try{ ref.doc(op._id).set({ deleted:true, vaqt:now, qurilma:localStorage.getItem('tilla-qurilma')||'' }, {merge:true}).catch(cloudXato), cloudYozuvSana(1); set[op._id]=now; _amalSetSaqla(); }catch(e){}
 }
 function amalListen(){
   var ref=amalRef(); if(!ref || _amalUnsub) return;
@@ -6071,7 +6071,7 @@ function _hisobListen_eski(){
         var kO=_turKey(z.nom,t.nom); seed[kO]=roundG(t.ostatka||0); seed[kO+'||d']=Math.round(t.donaOst||0);
         snap[kO]=seed[kO]; snap[kO+'||d']=seed[kO+'||d'];
       }); });
-      try{ hRef.set(seed,{merge:true}).catch(cloudXato); _hisobSnapSaqla(snap); }catch(e){}
+      try{ hRef.set(seed,{merge:true}).catch(cloudXato), cloudYozuvSana(1); _hisobSnapSaqla(snap); }catch(e){}
       return;
     }
     var vals=doc.data()||{}, snap=_hisobSnapOl(), changed=false;
@@ -6110,7 +6110,7 @@ function syncFullFill(){
       amalWalk(function(r,loc){
         if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
         var v = set[r._id] || Date.now();
-        try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:q, vaqt:v }).catch(cloudXato); }catch(e){}
+        try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:q, vaqt:v }).catch(cloudXato), cloudYozuvSana(1); }catch(e){}
         if(set[r._id]===undefined) set[r._id]=v;
         natija.tarix++;
       });
@@ -14128,6 +14128,30 @@ var _cloudTimer = null;
 // Kvota tugagach har urinish baribir rad etiladi — konsolni spam qiladi va bekorga
 // trafik ketadi. Bir marta ushlansa _kvotaTugadi=true, shu sessiyada yozish to'xtaydi.
 var _kvotaTugadi = false;
+// v124: KUNLIK YOZUV CHEKLOVI — kod xatosi bo'lsa ham hisob oshib ketmasin.
+// Har cloud yozuvi sanaladi; kunlik chegara oshsa yozish TO'XTAYDI (lokal ishlayveradi).
+// 25000 yozuv/kun ≈ $0.045 — normal ishda 2000-5000 dan oshmaydi.
+var YOZUV_LIMIT = 25000;
+function _yozuvSanoq(){
+  var k='tilla-cloud-yozuv', b=today();
+  var o={}; try{ o=JSON.parse(localStorage.getItem(k)||'{}'); }catch(e){}
+  if(o.sana!==b) o={sana:b, n:0};
+  return {k:k, o:o};
+}
+function cloudYozuvSana(n){
+  n=n||1;
+  var s=_yozuvSanoq();
+  s.o.n=(s.o.n||0)+n;
+  try{ localStorage.setItem(s.k, JSON.stringify(s.o)); }catch(e){}
+  if(s.o.n>YOZUV_LIMIT && !_kvotaTugadi){
+    _kvotaTugadi=true;
+    try{ cloudStatus('red','yozuv limiti'); }catch(_){}
+    console.warn('KUNLIK YOZUV CHEGARASI ('+YOZUV_LIMIT+') oshdi — cloudga yozish to\'xtatildi (hisob oshmasin). Ilova lokal ishlayveradi. Ertaga o\'zi tiklanadi.');
+  }
+  return s.o.n;
+}
+function cloudYozuvBugun(){ return _yozuvSanoq().o.n||0; }
+
 function cloudXato(e){
   try{
     var c = e && (e.code || e.message || '');
@@ -14140,7 +14164,7 @@ function cloudXato(e){
     }
   }catch(_){}
 }
-function cloudYozaOladi(){ return !_kvotaTugadi; }
+function cloudYozaOladi(){ if(_kvotaTugadi) return false; if(cloudYozuvBugun()>YOZUV_LIMIT){ _kvotaTugadi=true; return false; } return true; }
 
 function cloudKol(){ return (TEST_MODE?'TEST_':'') + 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza; TEST rejimda HAR DOIM alohida (TEST_) kolleksiya — haqiqiy ma'lumotga aralashmasin
 function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'))||'0'); }
@@ -14467,3 +14491,4 @@ cloudInit();
 <!-- v121: JAMI KASSA VA KUN JAMIDAN LOM PULI AYRILDI (Ibrohim: klient kassasida lomni pulini qo'shib ko'rsatvotti, qo'shmasin). AVVAL: jamiSumma va kun jami op.summa (sovda TO'LIQ summasi) dan yig'ilardi -> lom bilan to'langan qism ham "kassa" deb sanalardi. Lekin LOM — TILLA, pul emas: u lom cho'ntagiga tushadi, naqd kassaga emas (kassaOqim ham shunday ishlaydi). Misol: Durdona Opa 999 — jami $377.55 = naqt $255.87 + lom 1.66g ($121.68); kassaga faqat $255.87 tushgan. TUZATISH: (1) jamiSumma (JAMI KASSA stati) endi Math.max(0, o.summa − o.lomPul) dan yig'iladi. (2) Sessiyaga kassaSumma maydoni qo'shildi (lomsiz), summa esa avvalgidek to'liq qoladi. (3) Kun jami (daySumma) endi kg.kassaSumma dan yig'iladi. O'ZGARMADI: "Jami to'landi" qatori va sarlavhadagi summa — ular sovdaning TO'LIQ summasi ($377.55), ostida "naqt $255.87 · lom 1.66g · $121.68" tafsiloti (v118). Ya'ni sovda jami joyida, faqat KASSA statistikasi to'g'ri. Karta kassaga kiradi (u pul). Sinov (Node): 3 sovda — jami $1,576.46, kassaga $486.49 (naqt), lom $1,089.97 qo'shilmadi; lomsiz sovda o'zgarmadi — 4/4. -->
 <!-- v122: FIRESTORE KVOTASI TUGADI — AVTOMAT syncFullFill O'CHIRILDI (Ibrohim konsolida: FirebaseError [code=resource-exhausted]: Quota exceeded + "Using maximum backoff delay"). SABAB (Claude xatosi, v99.1): auth ulanganda 3.5s dan keyin syncFullFill() AVTOMAT chaqirilardi — u BUTUN dona bazani va BUTUN tarixni (synced-setga qaramay, MAJBURAN) cloudga push qiladi. Ya'ni HAR refresh / HAR qayta ulanish = minglab yozuv. Firestore bepul tarif: kuniga 20,000 yozuv / 50,000 o'qish. Bugungi ko'p sinov-refreshlar bilan kvota tugadi. TUZATISH: 14160-qatordagi avtomat setTimeout(syncFullFill, 3500) OLIB TASHLANDI. syncFullFill funksiyasi va cloudToldir (Cloud holati > "🔄 Hammani cloud bilan to'ldirish") QOLDI — endi u faqat QO'LDA, kerak bo'lganda ishlaydi. Oddiy sinxron (amalSyncPush — faqat YANGI yozuvlar, donaBazaCloudYoz — faqat yangi dona) avvalgidek ishlaydi va kam yozadi. NATIJA: refresh endi kvota yemaydi. TIKLANISH: Firestore kvotasi har kuni Tinch okeani vaqti bilan yarim tunda (Toshkentda ~12:00-13:00) tiklanadi — shu paytgacha cloud yozmaydi, ILOVA LOKAL ISHLAYVERADI (localStorage), ma'lumot yo'qolmaydi. -->
 <!-- v123: KVOTA TUGAGANDA CLOUDGA YOZISH TO'XTATILADI (Ibrohim: v122 dan keyin ham xato o'zgarmadi — tabiiy, chunki kunlik kvota ALLAQACHON tugagan; har urinish rad etiladi va konsolni spam qiladi, stackda kassaSnabshotYubor .set() ko'rinardi). QO'SHILDI: (1) _kvotaTugadi bayrog'i + cloudXato(e) tutgichi — xatoda 'resource-exhausted' yoki 'Quota exceeded' bo'lsa bir marta bayroq qo'yiladi, cloud holati QIZIL 'kvota tugadi' bo'ladi va konsolga BITTA tushuntirish yoziladi (spam o'rniga). (2) cloudYozaOladi() — 5 ta yozuvchi funksiya boshiga qo'riq: kassaSnapshotYubor, cloudSaqlaNow, amalSyncPush, donaBazaCloudYoz, syncFullFill — kvota tugagach ular JIM chiqadi, bekorga urinmaydi. (3) Barcha jim .catch(function(){}) lar .catch(cloudXato) ga almashtirildi (7 joy) — endi ruxsat xatosi avvalgidek jim, lekin KVOTA xatosi aniqlanadi va yozish to'xtaydi. MUHIM: bu kvotani QAYTARMAYDI — u Tinch okeani yarim tunida (Toshkentda ~12:00-13:00) o'zi tiklanadi. Bu faqat: konsol tinchiydi, bekorga trafik ketmaydi, foydalanuvchi holatni ko'radi (qizil 'kvota tugadi'). ILOVA LOKAL TO'LIQ ISHLAYVERADI — localStorage ga yoziladi, ma'lumot yo'qolmaydi; kvota tiklangach sahifa yangilansa cloud o'zi davom etadi. -->
+<!-- v124: KUNLIK YOZUV CHEKLOVI — BLAZE DA HISOB OSHIB KETMASIN (Ibrohim: Blazega o'taman, lekin sening xatoying bilan 100$ lab ketib qolsachi?). ADOLATLI SAVOL — v99.1 avtomat syncFullFill mening xatoym edi va kunlik kvotani tugatdi. QATTIQ HIMOYA: (1) YOZUV_LIMIT=25000/kun; cloudYozuvSana(n) har cloud .set() da sanaydi (localStorage 'tilla-cloud-yozuv' = {sana, n} — kun almashsa AVTOMAT 0 dan boshlanadi); chegara oshsa _kvotaTugadi=true -> cloudYozaOladi() false qaytaradi -> 5 ta yozuvchi funksiya (kassaSnapshotYubor, cloudSaqlaNow, amalSyncPush, donaBazaCloudYoz, syncFullFill) JIM to'xtaydi, cloud holati qizil 'yozuv limiti', konsolga bitta ogohlantirish. Ilova LOKAL to'liq ishlayveradi. (2) 6 ta .set() ga sanoq ulandi. NARX HISOBI (halol): Firestore Blaze — yozuv $0.18/100k, o'qish $0.06/100k. Chegara oshgan eng yomon holat: 25,001 yozuv/kun = $0.045/kun = $1.35/oy. $100 ga yetish uchun ~55 MILLION yozuv kerak — brauzerdan jismonan mumkin emas (tarmoq + Firestore rate-limit). Ya'ni $100 xavfi YO'Q; eng yomon holat ham bir necha dollar. Blaze da bepul kvota (50k o'qish/20k yozuv kunlik) saqlanadi — faqat undan oshgani pullik. TAVSIYA: Firebase Console > Budget & alerts > $10 ogohlantirish ham qo'yilsin (zaxira). Sinov (Node): 24,999 da yozadi, 25,001 da TO'XTAYDI, bayroq qo'yiladi, ertangi kunda sanoq 0 dan, kunlik eng yomon $0.045 / oylik $1.35 — 7/7. -->
