@@ -1916,7 +1916,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v132';
+var APP_VER = 'v133';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -8019,9 +8019,9 @@ function renderKassa() {
         var ks=katStyles[kg.kat]||katStyles.A;
 
         out+='<div class="hrow" style="margin-bottom:6px;cursor:pointer;" onclick="kassaToggle(\''+expKey+'\')">';
-        out+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-        out+='<div>';
-        out+='<div style="display:flex;align-items:center;gap:6px;">';
+        out+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">';
+        out+='<div style="min-width:0;flex:1;">';
+        out+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
         out+='<span style="font-size:14px;font-weight:600;color:var(--text);">'+kg.knom+'</span>';
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
         // v113: TO'LOV BELGILARI — NAQT / LOM / KARTA (sotuvda nima bilan to'langani)
@@ -8046,9 +8046,10 @@ function renderKassa() {
         var _vzOrt = 0; if(kg.vz) kg.ops.forEach(function(o){ _vzOrt+=(o.vzOrtiq||0); });
         out+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+(soat?soat+' · ':'')+fmtG(kg.vz?(kg.vzGramm||0):kGramm)+'g'+(kg.vz?' qaytdi · <span style="color:var(--red);">ortiqcha '+fmtG(_vzOrt)+'g</span>':'')+(kgSk>0.001?' · <span style="color:var(--red);">skidka −$'+fmtD(kgSk)+'</span>':'')+'</div>';
         out+='</div>';
-        out+='<div style="display:flex;align-items:center;gap:8px;">';
-        out+='<div style="text-align:right;">';
-        if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</div>';
+        // v133: o'ng blok — summa ustuni qat'iy kenglikda (chop tugmasi tekis tursin)
+        out+='<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto;">';
+        out+='<div style="text-align:right;min-width:112px;">';
+        if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);white-space:nowrap;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</div>';
         // v118: tagida naqt · lom · karta
         if(!kg.vz){
           var _hN=0,_hK=0,_hL=0,_hLg=0;
@@ -14851,3 +14852,4 @@ cloudInit();
 <!-- v130.2: VERSIYA YORLIG'I O'NG PASTGA KO'CHIRILDI (Ibrohim rasm: log out tugmasining ustiga yozib qo'yibsan). Avval top:0/20px; right:6px edi — u yerda tepadagi tugmalar (cloud, kurs, mavzu, tarix, sozlamalar, chiqish) turadi va yorliq ularni to'sardi. Endi bottom:6px; right:6px — o'ng pastki burchak, hech narsani to'smaydi; shaffofroq (opacity .75, fon .55) va kichikroq (9px) — ko'zga tashlanmaydi, lekin kerak bo'lsa o'qiladi. Bosilsa yashiriladi (avvalgidek). -->
 <!-- v131: TEST BANNERI O'NG PASTGA (Ibrohim rasm: mobil versiyada test banner tepadagi knopkalarni yopib qo'yvotti). Avval: position:fixed; top:0; left:50%; katta matn "🧪 TEST REJIMI — alohida baza, haqiqiyga tegilmaydi" — telefonda ikki qatorga bo'linib, tepadagi tugmalar qatorini (cloud, kurs, mavzu, tarix, sozlamalar, chiqish) TO'SIB qo'yardi. Endi: bottom:6px; right:48px (versiya yorlig'ining chap yonida), qisqa "🧪 TEST" matni, kichik (9px), shaffof (opacity .8), bosilsa yashiriladi; to'liq matn title da (hover/uzoq bosishda ko'rinadi). Versiya yorlig'i (v131) bottom:6px; right:6px — ikkalasi yonma-yon o'ng pastda, hech narsani to'smaydi. APP_VER v130 -> v131. -->
 <!-- v132: CLOUD'DAN MAJBURAN YUKLAB OLISH tugmasi (Ibrohim: "Hammani cloud bilan to'ldirish" ni PC dan bossam iPhoneda o'zgarmayapti; lomlar/kassalar o'tdi lekin zavod va klient ostatkalari shakllanmayapti). ILDIZ (Claude qarorlari): (1) v93 da blob YUKLAB OLISH o'chirilgan edi — "blob faqat YANGI/BO'SH qurilmani birinchi to'ldirish uchun"; ma'lumoti bor qurilma cloud blobini HECH QACHON olmaydi. (2) Oplog (_amallar) faqat TARIXNI tashiydi. (3) data.kassa OBYEKT bo'lgani uchun v97 da oploqdan CHIQARILGAN — Z-hisoblar, tuzatishlar, zakazlar faqat blob orqali o'tadi. (4) Zavod ostatkasi — saqlangan running-total, oplogda yo'q; v104 da avtomat qayta-hisoblash ham o'chirilgan (u ostatkani buzardi). NATIJA: syncFullFill ("to'ldirish") faqat tarix+dona yuboradi -> boshqa qurilmada kassa va ostatka O'ZGARMAYDI. QO'SHILDI: Cloud holati oynasida IKKI tugma — "⬆ Bu qurilmanikini cloudga yuborish" (eski cloudToldir/syncFullFill: tarix+dona, qo'shadi, o'chirmaydi) va yangi "⬇ Cloud'dan yuklab olish (ustidan yozadi)" -> cloudMajburanOl(): tasdiq so'raydi (yo'qoladigan narsani aniq aytadi), AVTOMAT backupExport oladi, amal-init/synced flaglarini tozalaydi (yuklangach tarix qayta pushlanmasin), doc('holat') meta sini o'qib cloudYuklab(meta) chaqiradi — kassa, ostatka, klientlar, hammasi TO'LIQ yuklanadi. Ostidagi izohda ikkala tugma farqi tushuntirilgan. FOYDALANISH: to'g'ri qurilmada ⬆, boshqasida ⬇. APP_VER v131 -> v132. -->
+<!-- v133: KASSA SOVDALARIDA SUMMA USTUNI TEKISLANDI (Ibrohim rasm: kassadagi pullarni o'ng tarafga o'tqiz, o'rtada tartibsiz bo'p qolgan). SABAB: o'ng blok [summa+foyda][🖨] flex bo'lib, summa matni kengligi har xil ($500 / $2,929.92) -> chop tugmasi har qatorda BOSHQA joyda turardi, summalar ham tekis emas edi. TUZATISH: (1) summa/foyda ustuniga min-width:112px + white-space:nowrap — hamma summa bir xil kenglikda, o'ng chetga tekis; chop tugmalari bir ustunda. (2) o'ng blokka flex-shrink:0 va margin-left:auto — uzun klient ismi uni surib yubormaydi. (3) chap blokka min-width:0; flex:1 va belgilar qatoriga flex-wrap:wrap — uzun ism + ko'p belgi (NAQT/LOM/KARTA/OFFSET/TO'LDI) bo'lsa ikkinchi qatorga tushadi, o'ng ustunni bosmaydi. APP_VER v132 -> v133. -->
