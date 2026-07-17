@@ -9,8 +9,8 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
-:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--green-bg:#0f1f10;--green-bd:#1e4a2a;--red-bg:#1f0f0f;--red-bd:#3a1e1e;--blue:#5ab4e8;--blue-bg:#0f1a1f;--blue-bd:#1e3a4a;--purple:#c084c0;--purple-bd:#4a2a4a;--yellow:#e8b84c;--yellow-bg:#2a1f0a;--gold-bg:#241c0a;--gold-bd:#3a2a0a;--on-gold:#1a1200;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
-[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#c84545;--green:#2e8f56;--green-bg:#c8edcf;--green-bd:#6cbd82;--red-bg:#f5caca;--red-bd:#d97878;--blue:#2e7cb0;--blue-bg:#c8dff0;--blue-bd:#6aafd6;--purple:#8a4f9e;--purple-bd:#c09aca;--yellow:#9a7416;--yellow-bg:#f5e4b0;--gold-bg:#f0d99a;--gold-bd:#c8a030;--on-gold:#fff8e6;}
+:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--green-bg:#0f1f10;--green-bd:#1e4a2a;--red-bg:#1f0f0f;--red-bd:#3a1e1e;--blue:#5ab4e8;--blue-bg:#0f1a1f;--blue-bd:#1e3a4a;--purple:#c084c0;--purple-bd:#4a2a4a;--yellow:#e8b84c;--yellow-bg:#2a1f0a;--gold-bg:#241c0a;--gold-bd:#3a2a0a;--on-gold:#1a1200;--teal:#3fc7bd;--teal-bg:#08201f;--teal-bd:#1c4a47;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
+[data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#c84545;--green:#2e8f56;--green-bg:#c8edcf;--green-bd:#6cbd82;--red-bg:#f5caca;--red-bd:#d97878;--blue:#2e7cb0;--blue-bg:#c8dff0;--blue-bd:#6aafd6;--purple:#8a4f9e;--purple-bd:#c09aca;--yellow:#9a7416;--yellow-bg:#f5e4b0;--gold-bg:#f0d99a;--gold-bd:#c8a030;--on-gold:#fff8e6;--teal:#1a7a72;--teal-bg:#c8ebe8;--teal-bd:#6abfb8;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;}
 .topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;padding-top:var(--safe-top);height:calc(54px + var(--safe-top));display:flex;align-items:flex-end;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -1632,6 +1632,16 @@ body.rol-hamid .hamid-x { display: none !important; }
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
         </div>
+        <!-- Perech (v136) -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--teal);width:44px;flex-shrink:0;">Perech</span>
+          <div onclick="ktToggleTolov('perech')" id="kt-cb-perech" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--teal-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--teal-bd);background:var(--teal-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <input type="number" id="kt-perech-berildi" placeholder="0" oninput="var kn=document.getElementById('kt-kerakli-naqt');if(kn)kn.dataset.lastChanged='perech';this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--teal);text-align:right;outline:none;">
+            <span style="font-size:12px;color:var(--teal);">$</span>
+          </div>
+        </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:13px;">
           <span style="color:var(--muted);">Sdacha</span>
           <span id="kt-sdacha-val" style="font-weight:500;color:var(--muted);">yo'q</span>
@@ -1667,6 +1677,22 @@ body.rol-hamid .hamid-x { display: none !important; }
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-ktolov')">Bekor</button>
       <button class="btn gold" onclick="saqlashKlientTolov()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- v136: TO'LOV HISOBOTI MODALI — bitta modal, uch kirish (naqt / karta / perech) -->
+<div class="modal-overlay" id="modal-tolov-hisobot">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="th-title">To'lov hisoboti</div>
+    <div style="display:flex;gap:4px;margin-bottom:8px;" id="th-tiplar"></div>
+    <div style="display:flex;gap:4px;margin-bottom:10px;" id="th-davrlar"></div>
+    <div id="th-body" style="max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>
+    <div id="th-jami" style="display:flex;justify-content:space-between;align-items:center;padding:9px 4px 0;border-top:1px solid var(--border);margin-top:6px;"></div>
+    <button id="th-pdf" onclick="tolovHisobotPDF()" style="width:100%;margin-top:9px;padding:10px;border-radius:9px;border:1.5px solid var(--purple-bd);background:var(--purple-bg);color:var(--purple);font-size:13px;font-weight:700;cursor:pointer;">📄 PDF — hisobot</button>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn" onclick="closeModal('modal-tolov-hisobot')">Yopish</button>
     </div>
   </div>
 </div>
@@ -1820,6 +1846,16 @@ body.rol-hamid .hamid-x { display: none !important; }
             <span style="font-size:12px;color:var(--blue);">$</span>
           </div>
         </div>
+        <!-- Perech (v136) -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:12px;color:var(--teal);width:44px;flex-shrink:0;">Perech</span>
+          <div onclick="ksSotuvToggleTolov('perech')" id="ks-cb-perech" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--teal-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--teal-bd);background:var(--teal-bg);border-radius:8px;padding:0 10px;height:34px;">
+            <input type="number" id="ks-perech-berildi" placeholder="0" oninput="var kn=document.getElementById('ks-kerakli-naqt');if(kn)kn.dataset.lastChanged='perech';this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
+              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--teal);text-align:right;outline:none;">
+            <span style="font-size:12px;color:var(--teal);">$</span>
+          </div>
+        </div>
       </div>
 
       <!-- Hisob -->
@@ -1916,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v135';
+var APP_VER = 'v136';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -3005,7 +3041,7 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
   var t = limitSana || today();
   var lim = limitSana ? sanaKey(limitSana) : null;
   function ichida(sana){ return !lim || (sanaKey(sana) && sanaKey(sana) <= lim); }
-  var o = {naqd:0, karta:0, lomEkv:0, toza:0, bugunKirim:0, bugunChiqim:0};
+  var o = {naqd:0, karta:0, perech:0, lomEkv:0, toza:0, bugunKirim:0, bugunChiqim:0};
   // 1) Klient to'lovlari — tushum (offset _kdYopish emas)
   (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
     if(op.tip!=='tolov' || op._kdYopish || !ichida(op.sana)) return;
@@ -3013,6 +3049,10 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
     var pul = (op.naqtPul!==undefined ? parseNum(op.naqtPul) : (op.kartaPul ? 0 : parseNum(op.summa||0)));
     if(pul){ o.naqd += pul; if(op.sana===t) o.bugunKirim += pul; }
     if(_kp){ o.karta += _kp; if(op.sana===t) o.bugunKirim += _kp; } // v120: KARTA alohida cho'ntak
+    // v136: PERECH — bankdan to'g'ri zavodga ketadi. Kassada turmaydi, chiqimi ham yo'q;
+    // bu YIG'MA OQIM (hisobot uchun), naqd bilan qo'shilmaydi.
+    var _pp = parseNum(op.perechPul||0);
+    if(_pp){ o.perech += _pp; }
   });});
   // 2) Zavod chiqimlari — naqd pul berilgani srazu ayriladi
   (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(tr){ (tr.tarix||[]).forEach(function(op){
@@ -3061,7 +3101,7 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
     else if(tz.chontak==='lom') o.lomEkv += parseNum(tz.delta);
     else if(tz.chontak==='999') o.toza += parseNum(tz.delta);
   });
-  o.naqd=Math.round(o.naqd*100)/100; o.karta=Math.round(o.karta*100)/100; o.lomEkv=roundG(o.lomEkv); o.toza=roundG(o.toza);
+  o.naqd=Math.round(o.naqd*100)/100; o.karta=Math.round(o.karta*100)/100; o.perech=Math.round(o.perech*100)/100; o.lomEkv=roundG(o.lomEkv); o.toza=roundG(o.toza);
   o.bugunKirim=Math.round(o.bugunKirim*100)/100; o.bugunChiqim=Math.round(o.bugunChiqim*100)/100;
   return o;
 }
@@ -3807,8 +3847,10 @@ function kassaHarakatlar(){
   // klient naqd/karta to'lovlari
   (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
     if(op.tip!=='tolov'||op._kdYopish) return;
-    var pul=(op.naqtPul!==undefined?parseNum(op.naqtPul):(op.kartaPul?0:parseNum(op.summa||0)))+parseNum(op.kartaPul||0);
-    if(pul>0.001) qo(op.sana,op.soat,op.ts,(k.nom||'Klient')+' · sotuv/to\'lov','avto',pul,0,0,'← klientdan naqd'+(parseNum(op.kartaPul)>0?'+karta':''));
+    // v136 XATO TUZATILDI: avval karta ham dN (naqd) ga qo'shilardi -> lenta yugurma qoldig'i
+    // kassaOqim.naqd bilan mos kelmasdi (v120 dan beri karta alohida cho'ntak). Endi faqat NAQT.
+    var pul=parseNum(op.naqtPul!==undefined?op.naqtPul:((op.kartaPul||op.perechPul)?0:parseNum(op.summa||0)));
+    if(pul>0.001) qo(op.sana,op.soat,op.ts,(k.nom||'Klient')+' · sotuv/to\'lov','avto',pul,0,0,'← klientdan naqd');
   });});
   // lom moduli — barcha lom harakatlari
   (data.lomlar||[]).forEach(function(r){
@@ -4582,13 +4624,23 @@ function kassaQoldiqPanelHTML(){
     if(m.holat==='1soat') h += '<div style="background:var(--red-bg);border:1px solid var(--red);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:var(--red);font-weight:600;">⏱ 1 SOATDAN KAM QOLDI — '+m.txt+'</span><span style="font-size:11px;color:var(--muted);">'+z.zavodNom+' · $'+fmtD(z.summa)+'</span></div>';
     else if(m.holat==='otdi') h += '<div style="background:var(--red-bg);border:1px solid var(--red-bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;color:var(--red);font-weight:600;">⚠ MUDDAT O\'TDI — '+m.txt+'</span><span style="font-size:11px;color:var(--muted);">'+z.zavodNom+' · $'+fmtD(z.summa)+'</span></div>';
   });
-  // v120: KARTA alohida cho'ntak -> 4 ta (karta bo'lmasa 3 ta)
+  // v136: 3x2 — TEPADA pul (Naqd · Karta · Perech, bosiladi -> hisobot), TAGIDA oltin (Lom 583 · 999)
   var _kartaBor = Math.abs(o.karta||0) > 0.005;
-  h += '<div style="display:grid;grid-template-columns:'+(_kartaBor?'1fr 1fr 1fr 1fr':'1fr 1fr 1fr')+';gap:5px;text-align:center;margin-bottom:8px;">';
-  function cho(l,v,r,sub){ return '<div style="background:var(--surf2);border-radius:8px;padding:7px 2px;"><div style="font-size:10px;color:var(--muted);">'+l+'</div><div style="font-size:14px;color:var(--'+r+');font-weight:500;font-family:Roboto,sans-serif;">'+v+'</div>'+(sub||'')+'</div>'; }
+  var _perechBor = Math.abs(o.perech||0) > 0.005;
+  function cho(l,v,r,sub,tip,bd){
+    return '<div'+(tip?' onclick="openTolovHisobot(\''+tip+'\')"':'')+' style="background:var(--surf2);border-radius:8px;padding:7px 2px;text-align:center;'
+      +(bd?'border:1px solid var(--'+bd+'-bd);':'')+(tip?'cursor:pointer;':'')+'">'
+      +'<div style="font-size:10px;color:var(--muted);">'+l+(tip?' \u203a':'')+'</div>'
+      +'<div style="font-size:14px;color:var(--'+r+');font-weight:500;font-family:Roboto,sans-serif;">'+v+'</div>'+(sub||'')+'</div>';
+  }
   var naqdSub = band>0 ? '<div style="font-size:10px;margin-top:2px;"><span style="color:var(--green);">erkin $'+fmtD(erkin)+'</span> · <span style="color:var(--blue);">band $'+fmtD(band)+'</span></div>' : '';
-  h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub);
-  if(_kartaBor) h += cho('Karta','$'+fmtD(o.karta),'blue');
+  var _pulN = 1 + (_kartaBor?1:0) + (_perechBor?1:0);
+  h += '<div style="display:grid;grid-template-columns:repeat('+_pulN+',1fr);gap:5px;margin-bottom:5px;">';
+  h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub,'naqt','green');
+  if(_kartaBor)  h += cho('Karta','$'+fmtD(o.karta),'blue','','karta','blue');
+  if(_perechBor) h += cho('Perech','$'+fmtD(o.perech),'teal','<div style="font-size:9px;color:var(--muted);margin-top:2px;">oqim</div>','perech','teal');
+  h += '</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;">';
   h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
   h += cho('999',fmtG(o.toza)+' g','blue');
   h += '</div>';
@@ -7608,7 +7660,7 @@ function kassaPulAmallar(){
 function kassaPulNavbati(){
   var m = new Map();
   var A = kassaPulAmallar();
-  if(!A.length) return m;
+  var acc = new Map();
 
   // sovda sessiyalari (ki|sana|soat) — faqat NAQD qismi navbatga kiradi
   var sess={}, order=[];
@@ -7616,39 +7668,59 @@ function kassaPulNavbati(){
     (k.tarix||[]).forEach(function(op){
       if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
       var ekv = parseNum(op.ekvivalent); if(!(ekv>0)) return;
-      var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : (op.kartaPul ? 0 : op.summa));
-      if(!(nq>0)) return; // lom/karta bilan to'langan — navbatga kirmaydi
+
+      // v136: KARTA + PERECH — navbatga KIRMAYDI, sotuv kunidagi kursda DARHOL qotadi.
+      // Perech bankdan to'g'ri zavodga ketadi; karta ham navbat pulini ishlatmaydi (Ibrohim).
+      var _qlf = parseNum(op.kartaPul||0) + parseNum(op.perechPul||0);
+      var _sm  = parseNum(op.summa||0);
+      var _shr = 1; // naqd hissasining gramm ulushi (aralashda aniq nisbat)
+      if(_qlf>0.001 && _sm>0.001){
+        _shr = Math.max(0, Math.min(1, 1 - _qlf/_sm));
+        var _kk = kursSanada(op.sana, op.soat);
+        if(_kk>0){
+          var _e = ekv * Math.min(1, _qlf/_sm);
+          var a0 = acc.get(op) || {ekv:ekv, ekvQop:0, summaQop:0, pulQop:0};
+          a0.ekvQop  += _e;
+          a0.summaQop += _e * _kk;
+          a0.pulQop  += _qlf;
+          acc.set(op, a0);
+        }
+      }
+
+      var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : ((op.kartaPul||op.perechPul) ? 0 : op.summa));
+      if(!(nq>0)) return; // lom/karta/perech bilan to'langan — navbatga kirmaydi
       var key = ki+'|'+op.sana+'|'+(op.soat||'');
       if(!sess[key]){ sess[key]={ts:fdSanaTs(op.sana, op.soat)||0, ops:[], naqd:0, qoldi:0}; order.push(key); }
-      sess[key].ops.push({op:op, ekv:ekv, nq:nq});
+      sess[key].ops.push({op:op, ekv:ekv, nq:nq, shr:_shr});
       sess[key].naqd += nq;
     });
   });
-  if(!order.length) return m;
-  order.forEach(function(key){ sess[key].qoldi = sess[key].naqd; });
-  order.sort(function(a,b){ return sess[a].ts - sess[b].ts; }); // ENG ESKIDAN
 
-  var acc = new Map();
-  A.forEach(function(x){
-    if(!(x.kurs>0)) return;
-    var qoldi = x.pul;
-    for(var i=0; i<order.length && qoldi>0.001; i++){
-      var s = sess[order[i]];
-      if(s.qoldi<=0.001) continue;
-      var ol = Math.min(s.qoldi, qoldi);
-      s.qoldi -= ol; qoldi -= ol;
-      var ulush = s.naqd>0 ? ol/s.naqd : 0;
-      if(ulush<=0) continue;
-      s.ops.forEach(function(it){
-        var qopEkv = it.ekv*ulush; // SKIDKA KABI — gramm nisbatida
-        var a = acc.get(it.op) || {ekv:it.ekv, ekvQop:0, summaQop:0, pulQop:0};
-        a.ekvQop += qopEkv;
-        a.summaQop += qopEkv * x.kurs;
-        a.pulQop += it.nq * ulush;
-        acc.set(it.op, a);
-      });
-    }
-  });
+  if(order.length && A.length){
+    order.forEach(function(key){ sess[key].qoldi = sess[key].naqd; });
+    order.sort(function(a,b){ return sess[a].ts - sess[b].ts; }); // ENG ESKIDAN
+    A.forEach(function(x){
+      if(!(x.kurs>0)) return;
+      var qoldi = x.pul;
+      for(var i=0; i<order.length && qoldi>0.001; i++){
+        var s = sess[order[i]];
+        if(s.qoldi<=0.001) continue;
+        var ol = Math.min(s.qoldi, qoldi);
+        s.qoldi -= ol; qoldi -= ol;
+        var ulush = s.naqd>0 ? ol/s.naqd : 0;
+        if(ulush<=0) continue;
+        s.ops.forEach(function(it){
+          var qopEkv = it.ekv*ulush*it.shr; // SKIDKA KABI — gramm nisbatida (shr: naqd hissasi)
+          var a = acc.get(it.op) || {ekv:it.ekv, ekvQop:0, summaQop:0, pulQop:0};
+          a.ekvQop += qopEkv;
+          a.summaQop += qopEkv * x.kurs;
+          a.pulQop += it.nq * ulush;
+          acc.set(it.op, a);
+        });
+      }
+    });
+  }
+  if(!acc.size) return m;
   acc.forEach(function(a, op){
     if(!(a.ekvQop>0.0001) || !(a.ekv>0)) return;
     m.set(op, {
@@ -7834,7 +7906,7 @@ function renderKassa() {
         summa: op.summa||0, kirimNarx: op.kirimNarx||0, foyda: foyda,
         suzuvchi: suzuvchi, foydaHozir: Math.round((foyda+suzuvchi)*100)/100,
         naqtPul: op.naqtPul !== undefined ? op.naqtPul : (op.kartaPul ? 0 : (op.summa||0)),
-        kartaPul: op.kartaPul||0, skidka: op.skidka||0,
+        kartaPul: op.kartaPul||0, perechPul: op.perechPul||0, skidka: op.skidka||0,
         lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0,
         qopUlush: _sz?(_sz.qopUlush||0):0, qopKurs: _sz?(_sz.qopKurs||0):0,
         qopPul: _sz?(_sz.qopPul||0):0, qopUst: _sz?(_sz.qopUst||0):0,
@@ -7863,7 +7935,7 @@ function renderKassa() {
         vzOrtiq: mg.ortiq, vzOst: mg.ostOldin, vzKurs: mg.kurs,
         kurs: mg.narx, summa: 0,             // JAMI KASSA ga tegmaydi (pul emas)
         kirimNarx: mg.kirim, foyda: zarar, suzuvchi: 0, foydaHozir: zarar,
-        naqtPul: 0, kartaPul: 0, skidka: 0,
+        naqtPul: 0, kartaPul: 0, perechPul: 0, skidka: 0,
         lomGramm: 0, lomPul: 0, lomKurs: 0,
         qopUlush:0, qopKurs:0, qopPul:0, qopUst:0, kirimKun:0, kirimQop:0,
         vz: true, vzMargin: mg.margin
@@ -7893,7 +7965,7 @@ function renderKassa() {
         gramm:0, offGramm:ekv, offSumma:parseNum(op.summa)||0,
         kurs:narx, summa:0, kirimNarx:kirim,
         foyda:zarar, suzuvchi:0, foydaHozir:zarar,
-        naqtPul:0, kartaPul:0, skidka:0, lomGramm:0, lomPul:0, lomKurs:0,
+        naqtPul:0, kartaPul:0, perechPul:0, skidka:0, lomGramm:0, lomPul:0, lomKurs:0,
         qopUlush:0, qopKurs:0, qopPul:0, qopUst:0, kirimKun:0, kirimQop:0,
         off:true, offMargin:Math.round((narx-kirim)*100)/100
       });
@@ -7941,7 +8013,7 @@ function renderKassa() {
     sessions[sk].ops.push(o);
     sessions[sk].vzGramm+=(o.vzGramm||0);
     sessions[sk].offSumma+=(o.offSumma||0);
-    sessions[sk].naqtJami+=(o.naqtPul||0)+(o.kartaPul||0)+(o.lomPul||0);
+    sessions[sk].naqtJami+=(o.naqtPul||0)+(o.kartaPul||0)+(o.lomPul||0)+(o.perechPul||0);
     sessions[sk].summa+=o.summa;
     sessions[sk].kassaSumma+=Math.max(0,(o.summa||0)-(o.lomPul||0)); // v121: kassaga tushgan pul (lomsiz)
     sessions[sk].gramm+=o.gramm;
@@ -8047,12 +8119,13 @@ function renderKassa() {
         out+='<span style="font-size:10px;padding:1px 7px;border-radius:20px;background:'+ks.bg+';color:'+ks.c+';border:0.5px solid '+ks.bd+';">'+ks.lbl+'</span>';
         // v113: TO'LOV BELGILARI — NAQT / LOM / KARTA (sotuvda nima bilan to'langani)
         if(!kg.vz){
-          var _tN=0,_tK=0,_tL=0;
-          kg.ops.forEach(function(o){ _tN+=(o.naqtPul||0); _tK+=(o.kartaPul||0); _tL+=(o.lomPul||0); });
+          var _tN=0,_tK=0,_tL=0,_tP=0;
+          kg.ops.forEach(function(o){ _tN+=(o.naqtPul||0); _tK+=(o.kartaPul||0); _tL+=(o.lomPul||0); _tP+=(o.perechPul||0); });
           function _tb(l,bg,c,bd){ return '<span style="font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;background:'+bg+';color:'+c+';border:0.5px solid '+bd+';">'+l+'</span>'; }
           if(_tN>0.005) out+=_tb('NAQT','var(--green-bg)','var(--green)','var(--green-bd)');
           if(_tL>0.005) out+=_tb('LOM','var(--yellow-bg)','var(--gold)','var(--gold-bd)');
           if(_tK>0.005) out+=_tb('KARTA','var(--blue-bg)','var(--blue)','var(--blue-bd)');
+          if(_tP>0.005) out+=_tb('PERECH','var(--teal-bg)','var(--teal)','var(--teal-bd)'); // v136
           if((kg.offSumma||0)>0.005) out+=_tb('OFFSET','var(--purple-bg)','var(--purple)','var(--purple-bd)');
           // v117: QULFLANISH belgisi — pul navbatidan qancha tegkani
           var _ul=0, _qp=0;
@@ -8073,12 +8146,13 @@ function renderKassa() {
         if(!kg.vz) out+='<div style="font-size:13px;font-weight:500;color:var(--gold);white-space:nowrap;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</div>';
         // v118: tagida naqt · lom · karta
         if(!kg.vz){
-          var _hN=0,_hK=0,_hL=0,_hLg=0;
-          kg.ops.forEach(function(o){ _hN+=(o.naqtPul||0); _hK+=(o.kartaPul||0); _hL+=(o.lomPul||0); _hLg+=(o.lomGramm||0); });
+          var _hN=0,_hK=0,_hL=0,_hLg=0,_hP=0;
+          kg.ops.forEach(function(o){ _hN+=(o.naqtPul||0); _hK+=(o.kartaPul||0); _hL+=(o.lomPul||0); _hLg+=(o.lomGramm||0); _hP+=(o.perechPul||0); });
           var _hp=[];
           if(_hN>0.005) _hp.push('<span style="color:var(--green);">naqt $'+fmtD(_hN)+'</span>');
           if(_hL>0.005) _hp.push('<span style="color:var(--gold);">lom '+(_hLg>0.005?fmtG(_hLg)+'g · ':'')+'$'+fmtD(_hL)+'</span>');
           if(_hK>0.005) _hp.push('<span style="color:var(--blue);">karta $'+fmtD(_hK)+'</span>');
+          if(_hP>0.005) _hp.push('<span style="color:var(--teal);">perech $'+fmtD(_hP)+'</span>'); // v136
           if((kg.offSumma||0)>0.005) _hp.push('<span style="color:var(--purple);">offset $'+fmtD(kg.offSumma)+'</span>');
           if(_hp.length>1) out+='<div style="font-size:10px;font-family:Roboto,sans-serif;">'+_hp.join(' · ')+'</div>';
         }
@@ -8170,17 +8244,19 @@ function renderKassa() {
           out+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:4px;">';
           out+='<span style="color:var(--muted);">Jami summa</span><span style="color:var(--gold);font-weight:500;">$'+fmtD(kSumma>0.005?kSumma:(kg.naqtJami||0))+'</span></div>';
           // Naqt / Karta / Lom breakdown
-          var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0;
+          var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0,kPerech=0;
           kg.ops.forEach(function(o){
             kNaqt+=o.naqtPul||0;
             kKarta+=o.kartaPul||0;
+            kPerech+=o.perechPul||0;
             if(o.lomGramm||o.lomPul){kLom+=o.lomPul||0;kLomG+=o.lomGramm||0;kLomKurs=o.lomKurs||kLomKurs||0;}
           });
-          kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;
-          if(kNaqt>0||kKarta>0||kLom>0||(kg.offSumma||0)>0.005){
+          kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;kPerech=Math.round(kPerech*100)/100;
+          if(kNaqt>0||kKarta>0||kLom>0||kPerech>0||(kg.offSumma||0)>0.005){
             out+='<div style="background:var(--surf2);border-radius:7px;padding:4px 8px;margin-top:2px;">';
             if(kNaqt>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>$'+fmtD(kNaqt)+'</span></div>';
             if(kKarta>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Karta</span><span>$'+fmtD(kKarta)+'</span></div>';
+            if(kPerech>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--teal);">Perech</span><span style="color:var(--teal);">$'+fmtD(kPerech)+'</span></div>'; // v136
             if(kLom>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Lom'+(kLomG>0?' '+fmtG(kLomG)+'g × '+kLomKurs:'')+'</span><span style="color:var(--gold);">$'+fmtD(kLom)+'</span></div>';
             // v135: OFFSET — pul emas, klient molidan yopilgan qism
             if((kg.offSumma||0)>0.005){
@@ -8430,6 +8506,122 @@ function kassaGrafikChiz() {
   }
 }
 
+// ─── v136: TO'LOV HISOBOTI (naqt / karta / perech) ────────────────────────
+// Bitta modal, uch kirish. Manba — klient tarixidagi tolov oplari.
+// Gramm = ekvivalent × (shu maydon ÷ summa) — aralash sovdada faqat o'sha ulushi (ikki marta sanalmaydi).
+var TH_META = {
+  naqt:   {nom:'Naqt',   may:'naqtPul',   col:'green'},
+  karta:  {nom:'Karta',  may:'kartaPul',  col:'blue'},
+  perech: {nom:'Perech', may:'perechPul', col:'teal'}
+};
+var _thTip='naqt', _thDavr='oy';
+
+function openTolovHisobot(tip){
+  _thTip = TH_META[tip] ? tip : 'naqt';
+  document.getElementById('modal-tolov-hisobot').classList.add('open');
+  renderTolovHisobot();
+}
+function thTipSet(t){ _thTip=t; renderTolovHisobot(); }
+function thDavrSet(d){ _thDavr=d; renderTolovHisobot(); }
+
+function tolovHisobotData(){
+  var M = TH_META[_thTip], may = M.may;
+  var start = _thDavr==='hammasi' ? null : sanaKey(davrBoshi(_thDavr==='bugun'?'kun':_thDavr));
+  var _qop = (typeof kassaPulNavbati==='function') ? kassaPulNavbati() : new Map();
+  var rows=[], jami=0;
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
+      var pul = parseNum(op[may]||0);
+      // eski yozuvlar: naqtPul umuman yo'q bo'lsa summa naqt deb qaraladi (kassaOqim bilan bir xil)
+      if(may==='naqtPul' && op.naqtPul===undefined && !op.kartaPul && !op.perechPul) pul = parseNum(op.summa||0);
+      if(!(pul>0.005)) return;
+      var sk = sanaKey(op.sana);
+      if(start && (!sk || sk < start)) return;
+      var sm = parseNum(op.summa||0);
+      var ekv = parseNum(op.ekvivalent||0);
+      var g = (sm>0.001 && ekv>0) ? roundG(ekv*Math.min(1, pul/sm)) : 0;
+      var q = _qop.get(op);
+      rows.push({sana:op.sana, soat:op.soat||'', ts:fdSanaTs(op.sana,op.soat)||0,
+        klient:k.nom||'Klient', zavod:op.zavod||'', tur:op.tur||'',
+        gramm:g, summa:Math.round(pul*100)/100, ulush:(q?q.ulush:0)});
+      jami += pul;
+    });
+  });
+  rows.sort(function(a,b){ return b.ts-a.ts; }); // YANGIDAN eskiga
+  return {rows:rows, jami:Math.round(jami*100)/100, nom:M.nom, col:M.col};
+}
+
+function renderTolovHisobot(){
+  var d = tolovHisobotData(), c = 'var(--'+d.col+')';
+  var ttl=document.getElementById('th-title');
+  ttl.textContent = d.nom+' hisoboti'; ttl.style.color = c;
+
+  var tp='';
+  ['naqt','karta','perech'].forEach(function(t){
+    var on=(t===_thTip), m=TH_META[t];
+    tp += '<button onclick="thTipSet(\''+t+'\')" style="flex:1;padding:6px 0;border-radius:8px;font-size:12px;cursor:pointer;font-weight:'+(on?'600':'400')+';'
+       +(on?'background:var(--'+m.col+'-bg);color:var(--'+m.col+');border:1px solid var(--'+m.col+'-bd);'
+           :'background:var(--surf2);color:var(--muted);border:1px solid var(--border);')+'">'+m.nom+'</button>';
+  });
+  document.getElementById('th-tiplar').innerHTML = tp;
+
+  var dv='';
+  [['kun','Bugun'],['hafta','Hafta'],['oy','Oy'],['hammasi','Hammasi']].forEach(function(r){
+    var on=(r[0]===_thDavr||(r[0]==='kun'&&_thDavr==='bugun'));
+    dv += '<button onclick="thDavrSet(\''+r[0]+'\')" style="flex:1;padding:5px 0;border-radius:7px;font-size:11px;cursor:pointer;font-weight:'+(on?'600':'400')+';'
+       +(on?'background:var(--'+d.col+'-bg);color:'+c+';border:1px solid var(--'+d.col+'-bd);'
+           :'background:var(--surf2);color:var(--muted);border:1px solid var(--border);')+'">'+r[1]+'</button>';
+  });
+  document.getElementById('th-davrlar').innerHTML = dv;
+
+  var h='';
+  if(!d.rows.length){
+    h = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:22px 0;">Bu davrda yozuv yo\'q</div>';
+  } else {
+    h += '<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:0 4px 4px;border-bottom:1px solid var(--border);">'
+      + '<span>Sana</span><span>Klient · zavod</span><span style="text-align:right;">Gramm</span><span style="text-align:right;">Summa</span></div>';
+    d.rows.forEach(function(r){
+      var qh='';
+      if(_thTip!=='karta' || r.ulush>0.0005){
+        if(r.ulush>=0.9995) qh='<span style="font-size:8px;font-weight:700;padding:0 5px;border-radius:20px;background:var(--green);color:#fff;">TO\'LDI</span>';
+        else if(r.ulush>0.0005) qh='<span style="font-size:8px;font-weight:700;padding:0 5px;border-radius:20px;background:var(--gold);color:#fff;">'+Math.round(r.ulush*100)+'%</span>';
+        else qh='<span style="font-size:9px;color:var(--muted);">suzadi</span>';
+      }
+      h += '<div style="display:grid;grid-template-columns:auto 1fr auto auto;gap:6px;align-items:center;font-size:11px;padding:6px 4px;border-bottom:0.5px solid var(--border);">'
+        + '<span style="color:var(--muted);font-family:Roboto,sans-serif;white-space:nowrap;">'+(r.sana||'').slice(0,5)+(r.soat?' '+r.soat:'')+'</span>'
+        + '<span style="min-width:0;"><span style="color:var(--text);">'+r.klient+'</span>'
+        +   (r.zavod?'<span style="color:var(--muted);font-size:10px;"> · '+r.zavod+(r.tur?' · '+r.tur:'')+'</span>':'')
+        +   (qh?' '+qh:'')+'</span>'
+        + '<span style="text-align:right;font-family:Roboto,sans-serif;color:var(--muted);">'+fmtG(r.gramm)+'</span>'
+        + '<span style="text-align:right;font-family:Roboto,sans-serif;color:'+c+';font-weight:500;white-space:nowrap;">$'+fmtD(r.summa)+'</span></div>';
+    });
+  }
+  document.getElementById('th-body').innerHTML = h;
+  document.getElementById('th-jami').innerHTML =
+      '<span style="font-size:12px;color:var(--muted);">Jami · '+d.rows.length+' ta</span>'
+    + '<span style="font-size:16px;font-weight:600;font-family:Roboto,sans-serif;color:'+c+';">$'+fmtD(d.jami)+'</span>';
+}
+
+function tolovHisobotPDF(){
+  var d = tolovHisobotData();
+  if(!d.rows.length){ alert('Bu davrda yozuv yo\'q'); return; }
+  var payload = {
+    tip:'tolov_hisobot', tolov_turi:_thTip, tolov_nomi:d.nom,
+    label:{kun:'Bugun',bugun:'Bugun',hafta:'Bu hafta',oy:'Bu oy',hammasi:'Hammasi'}[_thDavr]||'',
+    ops: d.rows.map(function(r){
+      return {sana:r.sana, soat:r.soat, klient:r.klient, zavod:r.zavod, tur:r.tur,
+              gramm:r.gramm, summa:r.summa, qulf:Math.round(r.ulush*100)};
+    }),
+    jami_summa: d.jami,
+    jami_gramm: Math.round(d.rows.reduce(function(a,r){return a+r.gramm;},0)*100)/100
+  };
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
+    .then(function(b){var u=URL.createObjectURL(b);window.open(u,'_blank');setTimeout(function(){URL.revokeObjectURL(u);},10000);})
+    .catch(function(e){alert('PDF xato: '+e.message);});
+}
+
 function kassaPDF() {
   _pdfTip = 'kassa';
   _pdfZavodIdx = null;
@@ -8443,7 +8635,7 @@ function kassaPDF() {
 function kassaPDFYukor(dan, gacha) {
   dan = dan || null; gacha = gacha || null;
   var allOps = [];
-  var jamiSumma = 0, jamiGramm = 0;
+  var jamiSumma = 0, jamiGramm = 0, jamiNaqt = 0, jamiKarta = 0, jamiPerech = 0, jamiLom = 0;
   (data.klientlar||[]).forEach(function(k){
     k.tarix.forEach(function(op){
       if(op.tip !== 'tolov') return;
@@ -8452,11 +8644,19 @@ function kassaPDFYukor(dan, gacha) {
         if(dan && sanaD < dan) return;
         if(gacha && sanaD > gacha) return;
       }
+      // v136: to'lov turlari alohida ustun (avval faqat jami summa bor edi)
+      var _pN = op.naqtPul!==undefined ? parseNum(op.naqtPul) : ((op.kartaPul||op.perechPul) ? 0 : parseNum(op.summa||0));
       allOps.push({
         sana: op.sana, klient: k.nom,
         zavod: op.zavod||'', tur: op.tur||'',
-        gramm: op.ekvivalent||0, kurs: op.kurs||0, summa: op.summa||0
+        gramm: op.ekvivalent||0, kurs: op.kurs||0, summa: op.summa||0,
+        naqt: Math.round(_pN*100)/100,
+        karta: Math.round(parseNum(op.kartaPul||0)*100)/100,
+        perech: Math.round(parseNum(op.perechPul||0)*100)/100,
+        lom: Math.round(parseNum(op.lomPul||0)*100)/100
       });
+      jamiNaqt += _pN; jamiKarta += parseNum(op.kartaPul||0);
+      jamiPerech += parseNum(op.perechPul||0); jamiLom += parseNum(op.lomPul||0);
       jamiSumma += op.summa||0;
       jamiGramm += op.ekvivalent||0;
     });
@@ -8466,7 +8666,11 @@ function kassaPDFYukor(dan, gacha) {
   var payload = {
     tip: 'kassa', ops: allOps, dan: dan, gacha: gacha, label: label,
     jami_summa: Math.round(jamiSumma*100)/100,
-    jami_gramm: Math.round(jamiGramm*100)/100
+    jami_gramm: Math.round(jamiGramm*100)/100,
+    jami_naqt: Math.round(jamiNaqt*100)/100,
+    jami_karta: Math.round(jamiKarta*100)/100,
+    jami_perech: Math.round(jamiPerech*100)/100,
+    jami_lom: Math.round(jamiLom*100)/100
   };
   fetch('/api/pdf.py', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
     .then(function(r){if(!r.ok) throw new Error('Server xatosi');return r.blob();})
@@ -10059,9 +10263,11 @@ function openKlientTolov(){
   var ktLomBtn=document.getElementById('kt-lom-btn'); if(ktLomBtn) ktLomBtn.style.display='none';
   var ktNbBlok=document.getElementById('kt-naqt-berildi-blok'); if(ktNbBlok) ktNbBlok.style.display='none';
   var ktNbEl=document.getElementById('kt-naqt-berildi'); if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
-  var ktKbEl=document.getElementById('kt-karta-berildi'); if(ktKbEl){ktKbEl.value='';ktKbEl.readOnly=false;ktKbEl.style.pointerEvents='auto';}
+  var ktKbEl=document.getElementById('kt-karta-berildi'); if(ktKbEl){ktKbEl.value='';ktKbEl.dataset.userEdited='';ktKbEl.readOnly=false;ktKbEl.style.pointerEvents='auto';}
+  var ktPbEl=document.getElementById('kt-perech-berildi'); if(ktPbEl){ktPbEl.value='';ktPbEl.dataset.userEdited='';ktPbEl.readOnly=false;ktPbEl.style.pointerEvents='auto';}
   var ktCbN0=document.getElementById('kt-cb-naqt'); if(ktCbN0){ktCbN0.textContent='';ktCbN0.style.background='transparent';}
   var ktCbK0=document.getElementById('kt-cb-karta'); if(ktCbK0){ktCbK0.textContent='';ktCbK0.style.background='transparent';}
+  var ktCbP0=document.getElementById('kt-cb-perech'); if(ktCbP0){ktCbP0.textContent='';ktCbP0.style.background='transparent';}
   var ktKnReset=document.getElementById('kt-kerakli-naqt'); if(ktKnReset){ktKnReset.dataset.lastChanged='';}
   var ktTaqsim=document.getElementById('kt-sdacha-taqsim'); if(ktTaqsim) ktTaqsim.style.display='none';
   window._ktLomIdx=0;
@@ -10692,24 +10898,14 @@ function kTolovCalc(){
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
     if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
+    ['karta','perech'].forEach(function(_x){ var _e=document.getElementById('kt-'+_x+'-berildi'); if(_e){_e.value='';_e.dataset.userEdited='';} });
     var ktTq=document.getElementById('kt-sdacha-taqsim'); if(ktTq) ktTq.style.display='none';
   }
 
-  var ktInpK=document.getElementById('kt-karta-berildi');
-  var ktNaqtEdited = ktNbEl && ktNbEl.dataset.userEdited;
-  var ktKartaEdited = ktInpK && ktInpK.dataset.userEdited;
-  var ktBerdiN=parseNum((ktNbEl||{}).value)||0;
-  var ktBerdiK=parseNum((ktInpK||{}).value)||0;
-  var ktLastChanged=(document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.lastChanged||'';
-  // lastChanged bo'yicha avtomat-ayirish: bittasiga yozilsa, ikkinchisi = kerakli - shu
-  if(ktLastChanged==='naqt' && ktInpK){
-    ktBerdiK=Math.max(0,Math.round((ktKerakli-ktBerdiN)*100)/100);
-    ktInpK.value=ktBerdiK||'';
-  } else if(ktLastChanged==='karta' && ktNbEl){
-    ktBerdiN=Math.max(0,Math.round((ktKerakli-ktBerdiK)*100)/100);
-    ktNbEl.value=ktBerdiN||'';
-  }
-  var ktBerdi=Math.round((ktBerdiN+ktBerdiK)*100)/100;
+  // v136: uchta maydon (naqt/karta/perech) — tegilmaganidan birinchisi qoldiqni oladi
+  var _ktA=_tolovAvto('kt', ktKerakli);
+  var ktBerdiN=_ktA.naqt, ktBerdiK=_ktA.karta, ktBerdiP=_ktA.perech;
+  var ktBerdi=_ktA.jami;
   var ktSdacha=Math.round((ktLomOrtiqcha+totalGramOrtiqcha+Math.max(0,ktBerdi-ktKerakli))*100)/100;
   var ktSdEl=document.getElementById('kt-sdacha-val');
   if(ktSdEl){
@@ -10878,7 +11074,8 @@ function kTolovChekUpd() {
     }
     var _ktNbM=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
     var _ktKbM=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
-    var _ktMk=(_ktNbM>0?'  N':'')+(_ktKbM>0?'  K':'');
+    var _ktPbM=parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
+    var _ktMk=(_ktNbM>0?'  N':'')+(_ktKbM>0?'  K':'')+(_ktPbM>0?'  P':'');
     lines2.push(rjust('Jami summa'+_ktMk, fmtD(Math.max(0,Math.round((jamiPul-manSkKt2)*100)/100))+'#'));
   }
   lines2.push(rjust('Jami gramm', fmtG(Math.round(jamiG*100)/100)));
@@ -10897,15 +11094,17 @@ function kTolovChekUpd() {
   // N / K — lom bo'lsa ham bo'lmasa ham
   var ktNb=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
   var ktKb=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  var ktPb=parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
   // v134: N/K har biri ALOHIDA chiqadi (avval faqat IKKALASI bo'lsa chiqardi -> naqt ko'rinmasdi)
   if(ktNb>0) lines2.push(rjust('N',fmtD(ktNb)+'#'));
   if(ktKb>0) lines2.push(rjust('K',fmtD(ktKb)+'#'));
+  if(ktPb>0) lines2.push(rjust('P',fmtD(ktPb)+'#'));
   // Sdacha / bizda / tur
   var ktTanlovChek=window._ktSdachaTanlov||null;
   var ktLomOrtiqchaChek=Math.max(0,Math.round((ktLomJami-jamiPul+manSkKt2)*100)/100);
   var ktKerakliChek=Math.max(0,Math.round((jamiPul-ktLomJami-manSkKt2)*100)/100);
   var ktSdachaChek=ktLomOrtiqchaChek>0.01?ktLomOrtiqchaChek:
-    (ktNb+ktKb>ktKerakliChek?Math.round((ktNb+ktKb-ktKerakliChek)*100)/100:0);
+    (ktNb+ktKb+ktPb>ktKerakliChek?Math.round((ktNb+ktKb+ktPb-ktKerakliChek)*100)/100:0);
   if(ktSdachaChek>0.01&&ktTanlovChek){
     if(ktTanlovChek.tip==='tur'&&ktTanlovChek.narx>0){
       var ortGChek=roundG(ktSdachaChek/ktTanlovChek.narx);
@@ -11062,6 +11261,9 @@ function saqlashKlientTolov(){
     }
     _idxOffKt++;
   });
+  // v136: klient qancha karta / perech berdi (butun sovda bo'yicha; qatorlarga ulush bilan sochiladi)
+  var _ktKartaJamiSave=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+  var _ktPerechJamiSave=parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
   var _ktLomPulJamiSave=0,_ktLomGrammJamiSave=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
     var _li=el.id.split('-')[2];
@@ -11121,8 +11323,15 @@ function saqlashKlientTolov(){
         var _ktLomDeduct=Math.round(_ktLomPulJamiSave*_ktOffFrac*100)/100;
         var _ktLomGsh=_ktLomGrammJamiSave>0?roundG(_ktLomGrammJamiSave*_ktOffFrac):0;
         var _ktLomKursAvg=_ktLomGrammJamiSave>0?Math.round(_ktLomPulJamiSave/_ktLomGrammJamiSave*100)/100:0;
-        var _ktOpNaqt=Math.max(0,Math.round((sNet-_ktOffDeduct-_ktLomDeduct)*100)/100);
-        k.tarix.push({tip:'tolov',sana:sana,soat:_soat_kt,zavod:b.zavod,tur:b.tur,summa:sNet,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN,skidka:sSk,naqtPul:_ktOpNaqt,kartaPul:0,lomPul:_ktLomDeduct,lomGramm:_ktLomGsh,lomKurs:_ktLomKursAvg});
+        // v136 XATO TUZATILDI: avval kartaPul:0 yozilardi -> karta puli naqtPul ga singib ketardi.
+        // Endi karta/perech o'z maydoniga yoziladi, naqt esa qoldiq (ortiq bo'lsa 0 dan pastga tushmaydi).
+        var _ktKartaOp=Math.round(_ktKartaJamiSave*_ktOffFrac*100)/100;
+        var _ktPerechOp=Math.round(_ktPerechJamiSave*_ktOffFrac*100)/100;
+        var _ktQoldiq=Math.max(0,Math.round((sNet-_ktOffDeduct-_ktLomDeduct)*100)/100);
+        _ktKartaOp=Math.min(_ktKartaOp,_ktQoldiq);
+        _ktPerechOp=Math.min(_ktPerechOp,Math.round((_ktQoldiq-_ktKartaOp)*100)/100);
+        var _ktOpNaqt=Math.max(0,Math.round((_ktQoldiq-_ktKartaOp-_ktPerechOp)*100)/100);
+        k.tarix.push({tip:'tolov',sana:sana,soat:_soat_kt,zavod:b.zavod,tur:b.tur,summa:sNet,kurs:kurs,ekvivalent:eq,kirimNarx:kirimN,skidka:sSk,naqtPul:_ktOpNaqt,kartaPul:_ktKartaOp,perechPul:_ktPerechOp,lomPul:_ktLomDeduct,lomGramm:_ktLomGsh,lomKurs:_ktLomKursAvg});
       }
       any=true;
     }
@@ -11140,6 +11349,7 @@ function saqlashKlientTolov(){
   if(ktTanlov && ktTanlov.tip!=='sdacha'){
     var ktBerdiN2=parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
     var ktBerdiK2=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
+    var ktBerdiP2=parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
     var ktKerakli2=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.val||0)||0;
     var manSkKt2=parseNum((document.getElementById('kt-skidka')||{}).value)||0;
     var jamiSummaKt2=0;
@@ -11157,7 +11367,7 @@ function saqlashKlientTolov(){
       ktLomPulJami2+=Math.round(lg*lk*100)/100;
     });
     var ktLomOrtiqcha2=Math.max(0,Math.round((ktLomPulJami2-jamiSummaKt2+manSkKt2)*100)/100);
-    ktSdachaSum2=ktLomOrtiqcha2>0.01?ktLomOrtiqcha2:Math.max(0,Math.round((ktBerdiN2+ktBerdiK2-ktKerakli2)*100)/100);
+    ktSdachaSum2=ktLomOrtiqcha2>0.01?ktLomOrtiqcha2:Math.max(0,Math.round((ktBerdiN2+ktBerdiK2+ktBerdiP2-ktKerakli2)*100)/100);
   }
   if(ktTanlov && ktTanlov.tip==='bizda' && ktTanlov.narx>0 && ktSdachaSum2>0.01){
     var bizdaG=roundG(ktSdachaSum2/ktTanlov.narx);
@@ -11274,6 +11484,8 @@ function openKlientSotuv() {
   var nbKEl0 = document.getElementById('ks-karta-berildi'); if(nbKEl0){ nbKEl0.value=''; nbKEl0.dataset.userEdited=''; nbKEl0.readOnly=false; nbKEl0.style.pointerEvents='auto'; }
   var cbN0=document.getElementById('ks-cb-naqt'); if(cbN0){cbN0.textContent='';cbN0.style.background='transparent';}
   var cbK0=document.getElementById('ks-cb-karta'); if(cbK0){cbK0.textContent='';cbK0.style.background='transparent';}
+  var nbPEl1 = document.getElementById('ks-perech-berildi'); if(nbPEl1){ nbPEl1.value=''; nbPEl1.dataset.userEdited=''; nbPEl1.readOnly=false; nbPEl1.style.pointerEvents='auto'; }
+  var cbP0=document.getElementById('ks-cb-perech'); if(cbP0){cbP0.textContent='';cbP0.style.background='transparent';}
   var knReset=document.getElementById('ks-kerakli-naqt'); if(knReset){knReset.dataset.lastChanged='';}
   var nbBl = document.getElementById('ks-naqt-berildi-blok'); if(nbBl) nbBl.style.display='none';
   document.getElementById('ks-voz-cont').innerHTML = '';
@@ -12159,23 +12371,15 @@ function kSotuvCalc() {
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
-    if (nbKEl) { nbKEl.value = ''; }
+    if (nbKEl) { nbKEl.value = ''; nbKEl.dataset.userEdited = ''; }
+    var nbPEl0 = document.getElementById('ks-perech-berildi');
+    if (nbPEl0) { nbPEl0.value = ''; nbPEl0.dataset.userEdited = ''; }
   }
 
-  var naqtVal = parseNum((nbEl||{}).value) || 0;
-  var kartaVal = parseNum((nbKEl||{}).value) || 0;
-  var nbEdited = nbEl && nbEl.dataset.userEdited;
-  var nbKEdited = nbKEl && nbKEl.dataset.userEdited;
-  var lastChanged = (document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.lastChanged||'';
-  // lastChanged bo'yicha avtomat-ayirish: bittasiga yozilsa, ikkinchisi = kerakli - shu
-  if(lastChanged==='naqt' && nbKEl){
-    kartaVal = Math.max(0, Math.round((kerakliNaqt-naqtVal)*100)/100);
-    nbKEl.value = kartaVal || '';
-  } else if(lastChanged==='karta' && nbEl){
-    naqtVal = Math.max(0, Math.round((kerakliNaqt-kartaVal)*100)/100);
-    nbEl.value = naqtVal || '';
-  }
-  var naqtBerildi = Math.round((naqtVal + kartaVal) * 100) / 100;
+  // v136: uchta maydon (naqt/karta/perech) — tegilmaganidan birinchisi qoldiqni oladi
+  var _ksA = _tolovAvto('ks', kerakliNaqt);
+  var naqtVal = _ksA.naqt, kartaVal = _ksA.karta, perechVal = _ksA.perech;
+  var naqtBerildi = _ksA.jami;
   var ortiqcha = lomOrtiqchaPul > 0.01
     ? lomOrtiqchaPul
     : gramOrtiqchaPul > 0.01
@@ -12319,56 +12523,54 @@ function kSotuvCalc() {
   kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, vozJami, finQarz, jamiOldiPul, sdacha, ortiqcha, taqsimTanlov);
 }
 
-function ksSotuvToggleTolov(tip) {
-  var cbN=document.getElementById('ks-cb-naqt');
-  var cbK=document.getElementById('ks-cb-karta');
-  var inpN=document.getElementById('ks-naqt-berildi');
-  var inpK=document.getElementById('ks-karta-berildi');
-  var kerakli=parseFloat((document.getElementById('ks-kerakli-naqt')||{}).dataset&&document.getElementById('ks-kerakli-naqt').dataset.val||0)||0;
-  if(tip==='naqt'){
-    var on=cbN.textContent!=='✓';
-    cbN.style.background=on?'var(--green)':'transparent';
-    cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
-    cbN.textContent=on?'✓':'';
-    if(inpN){inpN.readOnly=false;inpN.style.pointerEvents='auto';}
-    if(on){if(inpN&&!parseNum(inpN.value))inpN.value=kerakli;if(inpK)inpK.value='';}
-    else{if(inpN)inpN.value='';}
-  } else {
-    var on=cbK.textContent!=='✓';
-    cbK.style.background=on?'var(--blue)':'transparent';
-    cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
-    cbK.textContent=on?'✓':'';
-    if(inpK){inpK.readOnly=false;inpK.style.pointerEvents='auto';}
-    if(on){if(inpK&&!parseNum(inpK.value))inpK.value=kerakli;if(inpN)inpN.value='';}
-    else{if(inpK)inpK.value='';}
-  }
-  kSotuvCalc();
+// v136: TO'LOV TURLARI — naqt / karta / perech (uchalasi bir xil qoida)
+var TOLOV_TURLARI = [
+  {t:'naqt',   id:'naqt',   col:'green'},
+  {t:'karta',  id:'karta',  col:'blue'},
+  {t:'perech', id:'perech', col:'teal'}
+];
+// Umumiy toggle: ✓ bosilgani = "hammasi shu bilan" -> kerakli summa, qolgan ikkitasi tozalanadi
+function _tolovToggle(pre, tip, roOn, cb) {
+  var kerakli=parseFloat((document.getElementById(pre+'-kerakli-naqt')||{}).dataset&&document.getElementById(pre+'-kerakli-naqt').dataset.val||0)||0;
+  var cbEl=document.getElementById(pre+'-cb-'+tip);
+  if(!cbEl) return;
+  var on=cbEl.textContent!=='✓';
+  TOLOV_TURLARI.forEach(function(r){
+    var c=document.getElementById(pre+'-cb-'+r.id), i=document.getElementById(pre+'-'+r.id+'-berildi');
+    if(c){ c.textContent=''; c.style.background='transparent'; c.style.borderColor='var(--'+r.col+'-bd)'; }
+    if(i){ i.readOnly=false; i.style.pointerEvents='auto'; }
+    if(r.t!==tip && i){ i.value=''; i.dataset.userEdited=''; }
+  });
+  var inp=document.getElementById(pre+'-'+tip+'-berildi');
+  var col=(TOLOV_TURLARI.filter(function(r){return r.t===tip;})[0]||{col:'green'}).col;
+  if(on){
+    cbEl.textContent='✓'; cbEl.style.background='var(--'+col+')'; cbEl.style.borderColor='var(--'+col+'-bd)';
+    if(inp){ inp.value=kerakli; inp.dataset.userEdited='1'; if(roOn){ inp.readOnly=true; inp.style.pointerEvents='none'; } }
+  } else if(inp){ inp.value=''; inp.dataset.userEdited=''; }
+  var kn=document.getElementById(pre+'-kerakli-naqt'); if(kn) kn.dataset.lastChanged=tip;
+  cb();
 }
+function ksSotuvToggleTolov(tip) { _tolovToggle('ks', tip, false, kSotuvCalc); }
+function ktToggleTolov(tip)      { _tolovToggle('kt', tip, true,  kTolovCalc); }
 
-function ktToggleTolov(tip) {
-  var cbN=document.getElementById('kt-cb-naqt');
-  var cbK=document.getElementById('kt-cb-karta');
-  var inpN=document.getElementById('kt-naqt-berildi');
-  var inpK=document.getElementById('kt-karta-berildi');
-  var kerakli=parseFloat((document.getElementById('kt-kerakli-naqt')||{}).dataset&&document.getElementById('kt-kerakli-naqt').dataset.val||0)||0;
-  if(tip==='naqt'){
-    var on=cbN.textContent!=='✓';
-    cbN.style.background=on?'var(--green)':'transparent';
-    cbN.style.borderColor=on?'var(--green-bd)':'var(--border)';
-    cbN.textContent=on?'✓':'';
-    if(inpN){inpN.readOnly=on;inpN.style.pointerEvents=on?'none':'auto';}
-    if(on){if(inpN)inpN.value=kerakli;if(inpK)inpK.value='';}
-    else{if(inpN)inpN.value='';}
-  } else {
-    var on=cbK.textContent!=='✓';
-    cbK.style.background=on?'var(--blue)':'transparent';
-    cbK.style.borderColor=on?'var(--blue-bd)':'var(--border)';
-    cbK.textContent=on?'✓':'';
-    if(inpK){inpK.readOnly=on;inpK.style.pointerEvents=on?'none':'auto';}
-    if(on){if(inpK)inpK.value=kerakli;if(inpN)inpN.value='';}
-    else{if(inpK)inpK.value='';}
+// v136: AVTO-TO'LDIRISH — qo'lda tegilgani QOTADI, tegilmaganlaridan BIRINCHISI
+// (naqt -> karta -> perech) qoldiqni oladi. Uchalasi tegilsa avto yo'q (sdacha/kam chiqadi).
+// Qaytaradi: {naqt, karta, perech, jami}
+function _tolovAvto(pre, kerakli) {
+  var qiy={}, avto=null;
+  TOLOV_TURLARI.forEach(function(r){
+    var i=document.getElementById(pre+'-'+r.id+'-berildi');
+    qiy[r.t]=parseNum((i||{}).value)||0;
+    if(!avto && i && !i.dataset.userEdited) avto=r.t;
+  });
+  if(avto){
+    var s=0; TOLOV_TURLARI.forEach(function(r){ if(r.t!==avto) s+=qiy[r.t]; });
+    qiy[avto]=Math.max(0, Math.round((kerakli-s)*100)/100);
+    var ia=document.getElementById(pre+'-'+avto+'-berildi');
+    if(ia) ia.value=qiy[avto]||'';
   }
-  kTolovCalc();
+  qiy.jami=Math.round((qiy.naqt+qiy.karta+qiy.perech)*100)/100;
+  return qiy;
 }
 
 function ksSotuvNaqtBerildiUpd() { kSotuvNaqtBerildiUpd(); }
@@ -12498,14 +12700,19 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       }
       var _ksNbM=parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
       var _ksKbM=parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-      var _ksMk=(_ksNbM>0?'  N':'')+(_ksKbM>0?'  K':'');
+      var _ksPbM=parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+      var _ksMk=(_ksNbM>0?'  N':'')+(_ksKbM>0?'  K':'')+(_ksPbM>0?'  P':'');
       lines2.push(rjust("Jami to'landi"+_ksMk, fmtD(Math.max(0, naqtJami - skidkaPul))+'#'));
     }
     lines2.push(rjust('', '('+fmtG(naqtJamiG)+')'));
     // N / K qatorlari
     var _nbPrev0 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev0 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-    if(_nbPrev0>0&&_kbPrev0>0){ lines2.push(rjust('N', fmtD(_nbPrev0)+'#')); lines2.push(rjust('K', fmtD(_kbPrev0)+'#')); }
+    var _pbPrev0 = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+    // v136: har biri ALOHIDA (v134 buni kt chekida tuzatgan, ks preview da o'tkazib yuborilgan edi)
+    if(_nbPrev0>0) lines2.push(rjust('N', fmtD(_nbPrev0)+'#'));
+    if(_kbPrev0>0) lines2.push(rjust('K', fmtD(_kbPrev0)+'#'));
+    if(_pbPrev0>0) lines2.push(rjust('P', fmtD(_pbPrev0)+'#'));
     // Ortiqcha / sdacha / bizda qolsin
     if(ortiqcha > 0.01){
       if(taqsimTanlov && taqsimTanlov.tip==='tur'){
@@ -12546,7 +12753,10 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
     // N K qatorlari
     var _nbPrev = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
     var _kbPrev = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-    if(_nbPrev>0&&_kbPrev>0){ lines2.push(rjust('N', fmtD(_nbPrev)+'#')); lines2.push(rjust('K', fmtD(_kbPrev)+'#')); }
+    var _pbPrev = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+    if(_nbPrev>0) lines2.push(rjust('N', fmtD(_nbPrev)+'#'));
+    if(_kbPrev>0) lines2.push(rjust('K', fmtD(_kbPrev)+'#'));
+    if(_pbPrev>0) lines2.push(rjust('P', fmtD(_pbPrev)+'#'));
     // Ortiqcha / sdacha
     if (ortiqcha > 0.01) {
       if (taqsimTanlov && taqsimTanlov.tip === 'tur') {
@@ -12789,9 +12999,14 @@ function saqlashKlientSotuv() {
     _naqtTolovPulSave+=s;
   }); });
 
-  // 3. Klient naqt va karta qancha berdi
-  var _naqtBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0) : _naqtTolovPulSave;
-  var _kartaBerdiSave = _lomPulJamiSave > 0 ? (parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0) : 0;
+  // 3. Klient naqt / karta / perech qancha berdi
+  // v136 XATO TUZATILDI: avval karta FAQAT lom bo'lganda yozilardi (_lomPulJamiSave>0 ? ... : 0)
+  // -> lomsiz sof karta sotuvi butunlay NAQT bo'lib yozilardi. Endi maydonlar har doim o'qiladi.
+  var _kartaBerdiSave = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
+  var _perechBerdiSave = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+  var _naqtBerdiSave = (_lomPulJamiSave > 0 || _kartaBerdiSave > 0 || _perechBerdiSave > 0)
+    ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0)
+    : _naqtTolovPulSave;
 
   // Offset kerakligidan ortiq ishlatilmasin — ortig'i "biz qarzdor"da qoladi, sdachaga chiqmaydi
   var _needBeforeOffsetSv = Math.max(0, Math.round((_jamiSummaRegular - _lomPulJamiSave - _skidka)*100)/100);
@@ -12828,12 +13043,16 @@ function saqlashKlientSotuv() {
         var _naqtFrac = _jamiSummaRaw > 0 ? s / _jamiSummaRaw : 1;
         var _offFrac = _jamiSummaRegular > 0 ? s / _jamiSummaRegular : 0;
         var _offDeduct = _lomPulJamiSave > 0 ? 0 : Math.round(_offsetPulSave * _offFrac * 100)/100;
-        var _opNaqt = _lomPulJamiSave > 0 ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : Math.max(0, Math.round((sNet - _offDeduct)*100)/100);
-        var _opKarta = _lomPulJamiSave > 0 ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
+        // v136: aralash to'lov (lom yoki karta yoki perech) bo'lsa har bir maydon gramm nisbatida sochiladi;
+        // sof naqt sotuvda avvalgidek qator summasi naqt bo'ladi.
+        var _aralash = (_lomPulJamiSave > 0 || _kartaBerdiSave > 0 || _perechBerdiSave > 0);
+        var _opKarta = _aralash ? Math.round(_kartaBerdiSave * _naqtFrac * 100)/100 : 0;
+        var _opPerech = _aralash ? Math.round(_perechBerdiSave * _naqtFrac * 100)/100 : 0;
+        var _opNaqt = _aralash ? Math.round(_naqtBerdiSave * _naqtFrac * 100)/100 : Math.max(0, Math.round((sNet - _offDeduct)*100)/100);
         var _opLomPul = _lomPulJamiSave > 0 ? Math.round(_lomPulJamiSave * _naqtFrac * 100)/100 : 0;
         var _opLomG = _lomGrammJamiSave > 0 ? roundG(_lomGrammJamiSave * _naqtFrac) : 0;
         var _opLomKurs = _lomGrammJamiSave > 0 ? Math.round(_lomPulJamiSave/_lomGrammJamiSave*100)/100 : 0;
-        k.tarix.push({tip:'tolov', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta, lomPul:_opLomPul, lomGramm:_opLomG, lomKurs:_opLomKurs});
+        k.tarix.push({tip:'tolov', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, summa:sNet, kurs:n, ekvivalent:g, kirimNarx:kirimN2, skidka:sSk, naqtPul:_opNaqt, kartaPul:_opKarta, perechPul:_opPerech, lomPul:_opLomPul, lomGramm:_opLomG, lomKurs:_opLomKurs});
         naqtJami += sNet;
       }
     });
@@ -12877,7 +13096,7 @@ function saqlashKlientSotuv() {
   _offsetPulSave=Math.round(_offsetPulSave*100)/100;
   var _lomOrtiqchaSave = Math.max(0, Math.round((_lomPulJamiSave - _jamiSotuvPulReal + _skidka2)*100)/100);
   var _kerakliNaqt = Math.max(0, Math.round((_jamiSotuvPulReal - _lomPulJamiSave - _skidka2 - _offsetPulUsedSv)*100)/100);
-  var _naqtBerildi = Math.round((_naqtBerdiSave + _kartaBerdiSave)*100)/100;
+  var _naqtBerildi = Math.round((_naqtBerdiSave + _kartaBerdiSave + _perechBerdiSave)*100)/100;
   var _ortiqcha = _lomOrtiqchaSave > 0.01
     ? _lomOrtiqchaSave
     : (_naqtBerildi > _kerakliNaqt ? Math.round((_naqtBerildi - _kerakliNaqt)*100)/100 : 0);
@@ -13012,12 +13231,13 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   var _lomOrtiqcha2 = Math.max(0, Math.round((lomPulJami2 - naqtTolovPul2 + skidka + offsetJami2)*100)/100);
   var _naqtBerdi2 = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
   var _kartaBerdi2 = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
-  var _berdiJami2 = Math.round((_naqtBerdi2+_kartaBerdi2)*100)/100;
+  var _perechBerdi2 = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+  var _berdiJami2 = Math.round((_naqtBerdi2+_kartaBerdi2+_perechBerdi2)*100)/100;
   var _ortiqcha2 = chekOrtiqcha > 0.01 ? chekOrtiqcha :
     (_lomOrtiqcha2 > 0.01 ? _lomOrtiqcha2 :
     (_berdiJami2 > _kerakliNaqt2 ? Math.round((_berdiJami2 - _kerakliNaqt2)*100)/100 : 0));
   var _tanlov2 = chekTanlov || window._ksSotuvOrtiqchaTanlov || null;
-  if (lomlar.length || _naqtBerdi2 > 0 || _kartaBerdi2 > 0 || (_ortiqcha2 > 0.01 && _tanlov2)) {
+  if (lomlar.length || _naqtBerdi2 > 0 || _kartaBerdi2 > 0 || _perechBerdi2 > 0 || (_ortiqcha2 > 0.01 && _tanlov2)) {
     t += LINE;
     lomlar.forEach(function(l){
       t += rjust('L', l.gramm+' x '+l.kurs+' = '+fmtD(l.pul)+'#')+'\n';
@@ -13025,6 +13245,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
     // v134: N/K ALOHIDA (avval faqat ikkalasi bo'lsa chiqardi)
     if(_naqtBerdi2>0) t += rjust('N', fmtD(_naqtBerdi2)+'#')+'\n';
     if(_kartaBerdi2>0) t += rjust('K', fmtD(_kartaBerdi2)+'#')+'\n';
+    if(_perechBerdi2>0) t += rjust('P', fmtD(_perechBerdi2)+'#')+'\n';
     if (_ortiqcha2 > 0.01) {
       if (_tanlov2 && _tanlov2.tip === 'tur') {
         var _ortG2 = _tanlov2.narx > 0 ? roundG(_ortiqcha2 / _tanlov2.narx) : 0;
@@ -14885,3 +15106,11 @@ cloudInit();
 <!-- v133: KASSA SOVDALARIDA SUMMA USTUNI TEKISLANDI (Ibrohim rasm: kassadagi pullarni o'ng tarafga o'tqiz, o'rtada tartibsiz bo'p qolgan). SABAB: o'ng blok [summa+foyda][🖨] flex bo'lib, summa matni kengligi har xil ($500 / $2,929.92) -> chop tugmasi har qatorda BOSHQA joyda turardi, summalar ham tekis emas edi. TUZATISH: (1) summa/foyda ustuniga min-width:112px + white-space:nowrap — hamma summa bir xil kenglikda, o'ng chetga tekis; chop tugmalari bir ustunda. (2) o'ng blokka flex-shrink:0 va margin-left:auto — uzun klient ismi uni surib yubormaydi. (3) chap blokka min-width:0; flex:1 va belgilar qatoriga flex-wrap:wrap — uzun ism + ko'p belgi (NAQT/LOM/KARTA/OFFSET/TO'LDI) bo'lsa ikkinchi qatorga tushadi, o'ng ustunni bosmaydi. APP_VER v132 -> v133. -->
 <!-- v134: CHEKDAGI 3 XATO TUZATILDI (Ibrohim chek rasmi). (1) "Jami to'landi" -> "JAMI SUMMA" (2,299.13) — u to'langan pul emas, sovdaning jami summasi; naqt/lom/karta ostida alohida ko'rsatiladi. (2) Gramm avval yorliqsiz qavs ichida "(27.13)" chiqardi — endi "JAMI GRAMM 27.13" deb yozuv bilan. (3) ENG JIDDIY: N (naqt berildi) qatori faqat `ktNb>0 && ktKb>0` (naqt VA karta ikkalasi ham bo'lsa) chiqardi — faqat naqt berilsa (odatdagi holat!) N UMUMAN KO'RINMASDI, klient qancha naqt berganini bilib bo'lmasdi (rasmda: L 10.7×72.7=777.89 bor, N esa bo'sh). Endi har biri ALOHIDA: `if(ktNb>0) N`, `if(ktKb>0) K`. Uch tuzatish ham IKKI chekda — To'lov (kt-) va Sotuv (ks-); sotuv chekida qamrov sharti ham to'g'rilandi (`(_naqtBerdi2>0 && _kartaBerdi2>0)` -> `_naqtBerdi2>0 || _kartaBerdi2>0`), aks holda faqat naqtli sotuvda butun blok tushib qolardi. APP_VER v133 -> v134. -->
 <!-- v135: OFFSET SOVDA ICHIGA KIRDI (Ibrohim rasm: offsetga alohida ko'rsatma; kassaga Naqt+offset deb, 2-rasmga o'xshab offset summasini ko'rsatishi kerak; offset bo'lgan summani foyda emas ZARAR qilib ko'rsatish kerak; qolgan bergan naqt pulini alohida ko'rsatish kerak — shunda kassa to'g'ri chiqadi). ILDIZ: offset yozuvida (klientTolovSaqla, _kdYopish:true) SOAT maydoni YO'Q, sotuvda esa bor -> sessiya kaliti (ki|sana|soat) farq qilib, offset ALOHIDA QATOR bo'lib chiqardi ("Hafiza Opa OFFSET · 0.00g · $0 · ($329.16 o'zi offset)"), sotuvda esa "Jami to'landi $782.16" deb turib naqt faqat $453 edi — $329.16 hech qayerda ko'rinmasdi. TUZATISH: (1) allOps yig'ilgach, soati BO'SH offset oplarga o'sha kundagi (ki|sana) eng katta sotuv sessiyasining soati beriladi -> offset sotuv bilan BITTA sessiyaga tushadi. (2) Sarlavha ostidagi qatorga offset qo'shildi: "naqt $453.00 · offset $329.16" (binafsha) — 2-rasmdagi "naqt · lom" kabi. (3) Eski "($X o'zi offset)" qatori olib tashlandi. (4) "Jami to'landi" -> "JAMI SUMMA"; ostidagi Naqt/Karta/Lom tafsilotiga "↔ Offset Xg · $Y" qatori qo'shildi (binafsha). (5) Tur jadvalida offset qatori binafsha va ZARAR (v115 dan) — foyda endi 2.10+16.00−2.73 = +$15.37 (avval offset zarari sanalmay +$18.10 chiqardi). KASSAGA faqat naqt tushadi (offset pul emas — v121 dan). APP_VER v134 -> v135. -->
+<!-- v136: PERECHISLENIYA (Ibrohim mockup v3 bo'yicha, 1ma-1 tasdiqlangan). Perech = bankdan TO'G'RIDAN zavodga ketadi, biz klientga mol beramiz. Naqt/karta kabi to'lov turi, lekin kassada TURMAYDI va chiqimi YO'Q. Yangi maydon op.perechPul (naqtPul/kartaPul/lomPul yonida); eski yozuvlarda yo'q -> ||0, migratsiya kerak emas. Feruza rang: yangi CSS tokenlar (–teal / –teal–bg / –teal–bd) ikkala mavzuga.
+(1) MODAL (kt- va ks- ikkalasida): Karta ostiga Perech qatori (katakcha + input). ktToggleTolov/ksSotuvToggleTolov o'rniga umumiy _tolovToggle(pre,tip,roOn,cb) + TOLOV_TURLARI ro'yxati — ✓ katakcha = "hammasi shu bilan" (kerakli summa, qolgan ikkitasi tozalanadi). AVTO-TO'LDIRISH qayta yozildi: eski lastChanged (ikki maydon bir-birini to'ldiradi) 3 maydonda ishlamasdi -> yangi _tolovAvto(pre,kerakli): qo'lda tegilgani (userEdited) QOTADI, tegilmaganlaridan BIRINCHISI (naqt->karta->perech) qoldiqni oladi; uchalasi tegilsa avto yo'q, sdacha/kam chiqadi.
+(2) FOYDA QOTADI (Ibrohim: perech qotadi zavodga ketadi; kartayam navbatga kirmidi qotadi). kassaPulNavbati() ga qo'shildi: karta+perech navbatga KIRMAYDI, sotuv kunidagi kursda (kursSanada) DARHOL qotadi — ulush=(kartaPul+perechPul)÷summa, qopKurs=o'sha kungi asosiy kurs. kassaSuzuvchiXaritasi blendi O'ZGARMADI (_kh=ulush×_kQop+(1−ulush)×kirimNarxHozir) — perech/karta va 999/chiqim navbati bir xaritada o'lchovli o'rtacha bo'lib qo'shiladi; ALOHIDA foyda qatori yozilmaydi (v108/v116 falsafasi). Aralash sovdada naqd hissasi endi aniq nisbatda (it.shr=1−qulf÷summa) — avval naqd to'liq yeyilsa BUTUN gramm qotib ketardi. `if(!A.length) return m` olib tashlandi — amal bo'lmasa ham karta/perech qotadi.
+(3) KASSA PANELI 3x2 (Ibrohim: 1x5 bo'p ketadi, 3x2 qil): TEPADA pul (Naqd · Karta · Perech — dinamik, bor bo'lsa chiqadi), TAGIDA oltin (Lom 583 · 999). Uchala pul cho'ntagi BOSILADI (› belgisi) -> hisobot. Naqd ostidagi erkin/band o'zgarmadi. kassaOqim ga o.perech qo'shildi — naqd bilan QO'SHILMAYDI, bu yig'ma OQIM (chiqimi yo'q).
+(4) TO'LOV HISOBOTI — yangi #modal-tolov-hisobot, bitta modal uch kirish: openTolovHisobot('naqt'|'karta'|'perech'). Davr (Bugun/Hafta/Oy/Hammasi), qator: sana+soat · klient · zavod·tur · gramm · summa + QULF belgisi (TO'LDI / N% / suzadi — kassaPulNavbati ulushidan). Gramm = ekvivalent×(shu maydon÷summa) — aralash sovda ikki hisobotda ham chiqadi, ikki marta SANALMAYDI. PDF: tip 'tolov_hisobot'.
+(5) CHEK: P qatori K dan keyin, har biri alohida; yorliq "JAMI SUMMA  N  K  P". Uch joyda (kt preview, ks preview, ks chop/PDF). Sdacha hisobiga perech qo'shildi. Kassa PDF (kassaPDFYukor) ga naqt/karta/perech/lom ustunlari va jami_naqt/jami_karta/jami_perech/jami_lom.
+(6) UCHTA ESKI XATO TUZATILDI (perech shu joylarga qo'shilgani uchun majburiy edi): (a) saqlashKlientTolov da kartaPul:0 QAT'IY yozilardi -> To'lov modalidagi karta puli naqtPul ga singib ketardi, kassa "Naqd" ni ko'p ko'rsatardi VA u pul navbatiga kirib foydani noto'g'ri qulflardi. (b) sotuv saqlashda karta FAQAT lom bo'lganda yozilardi (_lomPulJamiSave>0 ? ... : 0) -> lomsiz sof karta sotuvi butunlay NAQT bo'lardi; endi maydon har doim o'qiladi (_aralash). (c) kassaHarakatlar (lenta) da pul=naqtPul+kartaPul -> lenta yugurma qoldig'i kassaOqim.naqd bilan mos kelmasdi (v120 dan beri karta alohida); endi lentaga faqat naqt tushadi, perech umuman kirmaydi (kassa harakati emas). Yo'l-yo'lakay: ks chek PREVIEW ida N/K faqat IKKALASI bo'lsa chiqardi (v134 buni kt da tuzatib, ks preview da o'tkazib yuborgan) — endi har biri alohida.
+SINOV (Node, 29/29): navbatsiz ham perech ulush 0.7826 · qopKurs 71.8447; sof karta ulush 1 (TO'LDI); sof naqt xaritada yo'q (suzadi); foyda — sof karta +18.56 QOTDI, sof naqt −7.96 SUZDI, aralash naqt500+perech1800 -> +29.44 (asl 42.70 dan qisman); 999 xaridi $500@70 kelganda Butterfly ulush 1, qopKurs 71.44 (o'lchovli), Rano tegmadi; cho'ntaklar naqd 1500 / karta 1000 / perech 1800 — qo'shilib ketmadi; eski yozuv (naqtPul yo'q) naqdga tushdi va navbatga kirdi — buzilmadi; avto-to'ldirish perech1800->naqt500, naqt500+perech1000->karta800, uchalasi tegilsa avto yo'q, sdacha 200, manfiy chiqmaydi; ✓ katakcha almashinuvi. APP_VER v135 -> v136. ESLATMA: perech cho'ntagi CHIQIMSIZ — faqat o'sadi (yig'ma oqim), tagida "oqim" yozuvi bor. -->
