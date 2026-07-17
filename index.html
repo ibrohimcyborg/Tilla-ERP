@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v136.1';
+var APP_VER = 'v137';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -10596,13 +10596,16 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
   if (!selected) return;
 
   var sdacha = 0;
+  var _manba = 'pul'; // v137: ortiqcha qayerdan — 'lom' bo'lsa Sdacha kassadan chiqim
   if (modal === 'ks') {
     sdacha = window._ksSotuvOrtiqchaVal || 0;
+    _manba = window._ksSotuvOrtiqchaManba || 'pul';
   } else {
     var ktNb = parseNum((document.getElementById('kt-naqt-berildi') || {}).value) || 0;
     var ktKb = parseNum((document.getElementById('kt-karta-berildi') || {}).value) || 0;
+    var ktPb = parseNum((document.getElementById('kt-perech-berildi') || {}).value) || 0; // v137: perech unutilgandi
     var ktKn = parseFloat(((document.getElementById('kt-kerakli-naqt') || {}).dataset || {}).val || 0) || 0;
-    sdacha = Math.max(0, Math.round((ktNb + ktKb - ktKn) * 100) / 100);
+    sdacha = Math.max(0, Math.round((ktNb + ktKb + ktPb - ktKn) * 100) / 100);
     var ktLomPul = 0;
     document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el) {
       var i = el.id.split('-')[2];
@@ -10619,11 +10622,30 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
     });
     var manSk = parseNum((document.getElementById('kt-skidka') || {}).value) || 0;
     var lomOrtiqcha = Math.max(0, Math.round((ktLomPul - ktJamiS + manSk) * 100) / 100);
-    if (lomOrtiqcha > 0.01) sdacha = lomOrtiqcha;
+    if (lomOrtiqcha > 0.01) { sdacha = lomOrtiqcha; _manba = 'lom'; }
   }
 
   if (sdacha <= 0.01) return;
-  if (selected === 'sdacha') return;
+
+  // v137: "Sdacha — naqt qaytardim" (Ibrohim: "kassadan ketgan pul chiqimga o'tadi...
+  // lomimiz grami oshadi, kassada naqt pul kamayadi, i hisobotda ko'rinadi").
+  // LOM ortiqchasi: oltin $X lik bo'lib kirdi, cho'ntakdan naqt chiqdi -> kassaga CHIQIM kerak
+  //   (ko'chadan lom olish bilan bir xil: manba 'kocha' -> naqd -summa).
+  // NAQT/KARTA ortiqchasi: klient 2500 berdi, 200 qaytardim -> kassaga sof 2300 tushadi,
+  //   qo'shimcha yozuv KERAK EMAS (avvalgi xulq to'g'ri edi).
+  if (selected === 'sdacha') {
+    if (_manba === 'lom') {
+      if (!data.kassa) data.kassa = {};
+      if (!Array.isArray(data.kassa.qolda)) data.kassa.qolda = [];
+      var _sts = Date.now();
+      data.kassa.qolda.push({
+        id: 'ksd' + _sts, ts: _sts, sana: sana, soat: soat,
+        tip: 'chiqim', summa: Math.round(sdacha * 100) / 100,
+        kategoriya: 'Lom sdacha', izoh: (k && k.nom) ? k.nom : ''
+      });
+    }
+    return;
+  }
 
   var parts = selected.split('||');
   if (parts.length < 2) return;
@@ -10697,19 +10719,30 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   }
 
   var out = '';
-  out += '<div style="font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">QOLGAN ' + fmtD(sdacha) + '$ \u2014 QAYSI TURGA?</div>';
-  out += '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Turning narxiga bo\u02bclinadi \u2192 gramm qarziga qo\u02bcshiladi</div>';
-
-  out += radioRow('sdacha', 'Sdacha \u2014 naqt qaytarish', '', fmtD(sdacha) + '$', curSelected === 'sdacha');
-
-  Object.values(allTurlarMap).forEach(function(b) {
+  // v137: TARTIB — klient olgan turlar tepada (qarzi borlar birinchi), Sdacha OXIRIDA.
+  // "Bizda qolsin" varianti YO'Q (Ibrohim: "bizda qolsinmas, turga o'tishi kere").
+  var _rows = Object.values(allTurlarMap).filter(function(b){ return getKatNarx(b.zi, b.ti, ki) > 0; });
+  _rows.sort(function(a,b){
+    var qa = (a.qarz||0) > 0.001 ? 0 : 1, qb = (b.qarz||0) > 0.001 ? 0 : 1;
+    if(qa !== qb) return qa - qb;                       // qarzi borlar tepaga
+    return (b.qarz||0) - (a.qarz||0);                   // kattaroq qarz oldinroq
+  });
+  _rows.forEach(function(b) {
     var katNarx = getKatNarx(b.zi, b.ti, ki) || 0;
-    if (!katNarx) return;
     var key = b.zavod + '||' + b.tur;
     var grammG = Math.round(sdacha / katNarx * 100) / 100;
-    var sub = fmtD(sdacha) + '$ \u00f7 ' + fmtD(katNarx) + '$/g = ' + fmtG(grammG) + 'g \u2192 biz klientga qarzdor (+)';
-    out += radioRow(key, b.zavod + ' \u00b7 ' + b.tur, sub, '', curSelected === key);
+    var qarzBor = (b.qarz||0) > 0.001;
+    var nishon = qarzBor
+      ? '<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;margin-left:5px;background:var(--gold);color:#fff;">QARZI BOR</span>'
+      : '<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;margin-left:5px;background:var(--green-bg);color:var(--green);border:0.5px solid var(--green-bd);">QARZI YO\'Q</span>';
+    var sub = qarzBor
+      ? fmtD(sdacha) + '$ \u00f7 ' + fmtD(katNarx) + '$/g = ' + fmtG(grammG) + 'g \u2192 qarzidan yechiladi (' + fmtG(b.qarz) + 'g \u2192 ' + fmtG(Math.max(0, Math.round((b.qarz - grammG)*100)/100)) + 'g)'
+      : fmtD(sdacha) + '$ \u00f7 ' + fmtD(katNarx) + '$/g = ' + fmtG(grammG) + 'g \u2192 biz klientga qarzdor (+)';
+    out += radioRow(key, b.zavod + ' \u00b7 ' + b.tur + nishon, sub, '', curSelected === key);
   });
+  out += radioRow('sdacha', 'Sdacha \u2014 naqt qaytardim',
+    'Klientga naqt berdim \u2014 kassadan chiqim bo\'ladi', fmtD(sdacha) + '$', curSelected === 'sdacha');
+  if(!_rows.length) out += '<div style="font-size:10.5px;color:var(--muted);padding:2px 4px;">Bu klient hali hech qanday tur olmagan \u2014 faqat naqt qaytarish mumkin.</div>';
 
   document.getElementById(optsId).innerHTML = out;
 }
@@ -10925,11 +10958,10 @@ function kTolovCalc(){
 
   // Sdacha taqsim bloki
   // Sdacha taqsimlash bloki
+  // v137: ro'yxat FAQAT klient olgan zavod-turlardan (Ibrohim: "klient olgan zavod turlariga").
+  // Avval butun katalogdan (data.zavodlar) qurilardi -> klient ko'rmagan turlar ham chiqardi.
+  // Sotuv modali (ksSdachaMap) allaqachon shunday ishlaydi — endi ikkalasi bir xil.
   var ktTaqsimAllMap = {};
-  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
-    var key=z.nom+'||'+t.nom;
-    ktTaqsimAllMap[key]={zavod:z.nom,tur:t.nom,qarz:0,zi:zi,ti:ti};
-  }); });
   var ki_kt2=parseInt(document.getElementById('kt-klient').value);
   var k_kt2=!isNaN(ki_kt2)&&ki_kt2>=0?data.klientlar[ki_kt2]:null;
   if(k_kt2){
@@ -10941,7 +10973,7 @@ function kTolovCalc(){
         data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
           if(z.nom===op.zavod&&t.nom===op.tur){zi2=zi;ti2=ti;}
         }); });
-        ktTaqsimAllMap[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:zi2,ti:ti2};
+        if(zi2>=0&&ti2>=0) ktTaqsimAllMap[key]={zavod:op.zavod,tur:op.tur,qarz:0,zi:zi2,ti:ti2};
       }
     });
   }
@@ -10982,9 +11014,18 @@ function kTolovCalc(){
     window._ktSdachaTanlov = null;
     window['_sdachaRadio_kt'] = null;
   }
-  // Sdacha blokini yashir
+  // v137: SDACHA PANELI ENDI OCHILADI. Avval har renderda shartsiz yashirilardi
+  // (sdachaTaqsimRender yozilgan-u, hech qayerdan CHAQIRILMASDI) -> tanlash ko'rinmasdi,
+  // jim avto-tanlov o'zi birinchi qarzli turga tashlardi. Endi avto-tanlov OLDINDAN
+  // belgilangan bo'lib ko'rinadi va o'zgartirsa bo'ladi.
   var ktTaqsimEl = document.getElementById('kt-sdacha-taqsim');
-  if (ktTaqsimEl) ktTaqsimEl.style.display = 'none';
+  if (ktSdacha > 0.01) {
+    sdachaTaqsimRender('kt', ktSdacha, ktTaqsimAllMap, ki_kt2);
+    var _ktSum = document.getElementById('kt-sdacha-sum');
+    if (_ktSum) _ktSum.textContent = fmtD(ktSdacha);
+  } else if (ktTaqsimEl) {
+    ktTaqsimEl.style.display = 'none';
+  }
 
   kTolovChekUpd();
 }
@@ -12384,6 +12425,8 @@ function kSotuvCalc() {
     : gramOrtiqchaPul > 0.01
       ? gramOrtiqchaPul
       : (naqtBerildi > kerakliNaqt + 0.001 ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100 : 0);
+  // v137: ortiqcha QAYERDAN kelgani — "Sdacha" tanlansa kassaga chiqim yozilishini shu hal qiladi
+  window._ksSotuvOrtiqchaManba = lomOrtiqchaPul > 0.01 ? 'lom' : (gramOrtiqchaPul > 0.01 ? 'gramm' : 'pul');
 
   // 8. Naqt to'lov grammini hisoblash — haqiqiy sotilgan gramm (kst-g inputidan)
   var naqtTolovG = 0;
@@ -12508,12 +12551,20 @@ function kSotuvCalc() {
       if(payG>0) qarz=Math.max(0,Math.round((qarz-payG)*100)/100);
       b.qarz=Math.round(qarz*100)/100;
     });
-  // Sdacha blokini yashir — avtomatik tur tanlandi
-  var tqEl2=document.getElementById('ks-taqsim'); if(tqEl2) tqEl2.style.display='none';
+  // v137: SDACHA PANELI ENDI OCHILADI (kt bilan bir xil). Qaytim bloki ham
+  // ortiqcha bo'lganda ko'rinadi — avval har renderda yashirilib qiymati tozalanardi.
+  var tqEl2=document.getElementById('ks-taqsim');
   var qEl = document.getElementById('ks-qaytim');
   var qValEl = document.getElementById('ks-qaytim-val');
-  if(qEl) qEl.style.display='none';
-  if(qValEl) qValEl.value='';
+  if (ortiqcha > 0.01) {
+    sdachaTaqsimRender('ks', ortiqcha, ksSdachaMap, _ksSotuvKi);
+    if(qEl) qEl.style.display='block';
+    if(qValEl && document.activeElement !== qValEl) qValEl.value = ortiqcha;
+  } else {
+    if(tqEl2) tqEl2.style.display='none';
+    if(qEl) qEl.style.display='none';
+    if(qValEl) qValEl.value='';
+  }
 
   window._ksSotuvOrtiqchaVal = ortiqcha;
   window._ksSotuvOrtiqchaG = ortiqchaG;
@@ -15114,3 +15165,11 @@ cloudInit();
 (6) UCHTA ESKI XATO TUZATILDI (perech shu joylarga qo'shilgani uchun majburiy edi): (a) saqlashKlientTolov da kartaPul:0 QAT'IY yozilardi -> To'lov modalidagi karta puli naqtPul ga singib ketardi, kassa "Naqd" ni ko'p ko'rsatardi VA u pul navbatiga kirib foydani noto'g'ri qulflardi. (b) sotuv saqlashda karta FAQAT lom bo'lganda yozilardi (_lomPulJamiSave>0 ? ... : 0) -> lomsiz sof karta sotuvi butunlay NAQT bo'lardi; endi maydon har doim o'qiladi (_aralash). (c) kassaHarakatlar (lenta) da pul=naqtPul+kartaPul -> lenta yugurma qoldig'i kassaOqim.naqd bilan mos kelmasdi (v120 dan beri karta alohida); endi lentaga faqat naqt tushadi, perech umuman kirmaydi (kassa harakati emas). Yo'l-yo'lakay: ks chek PREVIEW ida N/K faqat IKKALASI bo'lsa chiqardi (v134 buni kt da tuzatib, ks preview da o'tkazib yuborgan) — endi har biri alohida.
 SINOV (Node, 29/29): navbatsiz ham perech ulush 0.7826 · qopKurs 71.8447; sof karta ulush 1 (TO'LDI); sof naqt xaritada yo'q (suzadi); foyda — sof karta +18.56 QOTDI, sof naqt −7.96 SUZDI, aralash naqt500+perech1800 -> +29.44 (asl 42.70 dan qisman); 999 xaridi $500@70 kelganda Butterfly ulush 1, qopKurs 71.44 (o'lchovli), Rano tegmadi; cho'ntaklar naqd 1500 / karta 1000 / perech 1800 — qo'shilib ketmadi; eski yozuv (naqtPul yo'q) naqdga tushdi va navbatga kirdi — buzilmadi; avto-to'ldirish perech1800->naqt500, naqt500+perech1000->karta800, uchalasi tegilsa avto yo'q, sdacha 200, manfiy chiqmaydi; ✓ katakcha almashinuvi. APP_VER v135 -> v136. ESLATMA: perech cho'ntagi CHIQIMSIZ — faqat o'sadi (yig'ma oqim), tagida "oqim" yozuvi bor. -->
 <!-- v136.1: KASSA PANELI 3x2 BO'LMADI — TUZATILDI (Ibrohim rasm: tepada bitta Naqd butun kenglikda, Karta va Perech umuman yo'q). SABAB (Claude xatosi): v136 da panelga v120 ning DINAMIK sharti (_kartaBor) ko'chirib olingan va perechga ham qo'llangan edi — `_pulN = 1 + (_kartaBor?1:0) + (_perechBor?1:0)`, ya'ni qiymat 0 bo'lsa cho'ntak UMUMAN chizilmasdi. Ibrohimning haqiqiy ma'lumotida karta $0 (v136 gacha To'lov modalidagi karta naqtga singib ketardi, Sotuvda esa faqat lom bilan yozilardi) va perech $0 (hali birinchi yozuv kiritilmagan) -> tepa grid repeat(1,1fr) bo'lib bitta Naqd qolgan. Ibrohim so'ragani DINAMIK emas, QAT'IY 3x2 edi. TUZATISH: _kartaBor/_perechBor/_pulN olib tashlandi; tepa qator DOIM grid-template-columns:1fr 1fr 1fr (Naqd · Karta · Perech — $0.00 bo'lsa ham turadi, hisoboti bosilaveradi va panel joyidan siljimaydi), tag qatori DOIM 1fr 1fr (Lom 583 · 999). Boshqa hech narsaga tegilmadi (kassaOqim, hisobot, foyda qulfi, chek — hammasi v136 dagidek). Sinov (Node, panel HTML rasmdagi haqiqiy holat bilan chizildi: naqd $214,986.85 / karta 0 / perech 0): tepa grid 3 ustun, tag grid 2 ustun, jami 2 grid, beshala katak ham chizildi, Karta $0.00 ko'rindi, Naqd/Karta/Perech uchtasida ham openTolovHisobot onclick bor, Lom583/999 bosilmaydi — 11/11; v136 ning eski 29 sinovi ham qayta o'tkazildi (29/29). APP_VER v136 -> v136.1. -->
+<!-- v137: SDACHA BO'LIMI TIRILTIRILDI (Ibrohim: "sdacha bo'limi ishlamayapti sotuv va to'lov modalida"). TASHXIS — bu v136 regressiyasi EMAS, v135 dan beri o'lik edi: sdachaTaqsimRender() 48 qator to'liq yozilgan, lekin HECH QAYERDAN CHAQIRILMASDI (eski faylda ham chaqiruv 0 ta); ikkala modal har renderda panelni SHARTSIZ yashirardi (kt: `if(ktTaqsimEl) ktTaqsimEl.style.display='none'`, ks: `tqEl2.style.display='none'` + ks-qaytim yashirilib qiymati tozalanardi); sdachaInpUpd/sdachaJamiUpd/sdachaPrich bo'sh {} stublar. O'rniga JIM avto-tanlov ishlardi — kod o'zi _ktSdachaTanlov ni birinchi qarzli turga qo'yib, saqlashda sdachani o'sha turga grammga aylantirardi, foydalanuvchiga ko'rsatmasdan. Sdacha RAQAMI to'g'ri hisoblanardi (Node bilan 6 stsenariy sinaldi: naqt 2500 -> 200; karta 3000 -> 700; naqt+karta+perech 2800 -> 500) — faqat TANLASH ko'rinmasdi.
+(1) PANEL OCHILADI: kt da `sdachaTaqsimRender('kt', ktSdacha, ktTaqsimAllMap, ki_kt2)` + kt-sdacha-sum to'ldiriladi (sdacha>0.01 bo'lsa; aks holda yashiriladi); ks da `sdachaTaqsimRender('ks', ortiqcha, ksSdachaMap, _ksSotuvKi)` + ks-qaytim bloki ochiladi va qiymati ortiqcha bilan to'ladi (fokusda bo'lmasa — yozayotganda ustidan yozilmasin). Hozirgi avto-tanlov OLDINDAN BELGILANGAN bo'lib ko'rinadi — hech narsa bosilmasa natija v136 dagidek, lekin endi ko'rinadi va o'zgartirsa bo'ladi.
+(2) RO'YXAT FAQAT KLIENT OLGAN TURLARDAN (Ibrohim: "bizda qolsinmas turga o'tishi kere, umumiy o'tmidi, qaysidur turga o'tqizvoramiz — klient olgan zavod turlariga, bizani qarz qib qoyadi"). kt da ktTaqsimAllMap AVVAL BUTUN KATALOGDAN qurilardi (data.zavodlar.forEach -> hamma tur) — klient ko'rmagan turlar ham chiqardi; endi faqat k.tarix dagi zavod-turlar (ks dagi ksSdachaMap allaqachon shunday edi — endi ikkalasi bir xil). Katalogda topilmagan tur (zi/ti<0) ro'yxatga kirmaydi.
+(3) TARTIB VA BELGILAR: qarzi bor turlar TEPADA (kattaroq qarz oldinroq), keyin qarzi yo'qlar, Sdacha ENG OXIRIDA (avval sdacha birinchi edi). Har turda nishon: "QARZI BOR" (oltin) yoki "QARZI YO'Q" (yashil). Qarzli turda izoh "200.00$ ÷ 75.40$/g = 2.65g -> qarzidan yechiladi (30.50g -> 27.85g)", qarzsizda "-> biz klientga qarzdor (+)". "Bizda qolsin" varianti QURILMADI (Ibrohim rad etdi) — kodda qolgan 'bizda' shoxobchalari (kTolovSdachaTanlovSet, chek) allaqachon o'lik, tegilmadi. Klient hech qanday tur olmagan bo'lsa faqat Sdacha + tushuntirish matni (Ibrohim: "klient hech nima olmasdan lom sotsa, bizda allaqachon chiqim bor, o'shanga kirib chiqim qilib lomni ob qolamiz — bu muammomas").
+(4) LOM SDACHASI ENDI KASSADAN CHIQIM (Ibrohim: "kassadan ketgan pul chiqimga o'tadi, unga masalan lom olganda bo'ladi — ortiqcha sdachi bo'lib lomimiz grami oshadi, kassada naqt pul kamayadi i hisobotda ko'rinadi"). MUAMMO: lom qarzdan katta bo'lsa (qarz $2,300, lom $2,500) saqlashda lomPul yig'indisi 2500, summa yig'indisi 2300, _ktQoldiq 0 ga qisiladi — lomning to'liq $2,500 i lom cho'ntagiga tushadi, klient qarzi esa $2,300 ga kamayadi, ortgan $200 uchun cho'ntakdan NAQT chiqadi lekin kassa bilmasdi (naqdni $200 ga ko'p ko'rsatardi). Klient lomi manba:'klient' bilan yoziladi -> naqdga tegmaydi (to'g'ri, u qarz to'lovi); ko'chadan olingan lom manba:'kocha' -> naqd −summa. Ortgan qism aynan "ko'chadan lom oldim" bilan bir xil. YECHIM: "Sdacha" tanlanганда va ortiqcha LOMDAN kelgan bo'lsa data.kassa.qolda ga {tip:'chiqim', summa, kategoriya:'Lom sdacha', izoh:klient nomi} yoziladi — mavjud mexanizm, yangi narsa ixtiro qilinmadi: kassaOqim 3.7 -> naqd −summa; kassaHarakatlar -> lentada qator; chiqim filtrida "qo'lda" bandi bor -> hisobotda ko'rinadi. NAQT/KARTA ortiqchasida yozuv YO'Q (avvalgi xulq to'g'ri edi: klient 2500 berdi, 200 qaytdi, kassaga sof 2300 tushadi). Manbani aniqlash: kt da lomOrtiqcha>0.01 -> _manba='lom'; ks da yangi window._ksSotuvOrtiqchaManba ('lom'/'gramm'/'pul') kSotuvCalc da qo'yiladi.
+(5) v136 XATOSI TUZATILDI (meniki): sdachaTaqsimSaqla da `sdacha = ktNb + ktKb − ktKn` — PERECH unutilgandi, perech bilan ortiqcha to'lansa sdacha yo'qolardi. Endi ktNb+ktKb+ktPb.
+SINOV (Node, 23/23 + v136 ning 40 tasi qayta): lom ortiqchasi+Sdacha -> qolda chiqim $199.97 'Lom sdacha'/'Butterfly', klient tarixiga hech narsa yozilmadi; naqt ortiqchasi+Sdacha -> qolda yozuvi YO'Q; perech bilan sdacha $500 (perechsiz $300 bo'lardi) -> qarzsiz turga klientda op 6.63g, qarzli turga tolov op _bizQarzYopildi ekv 6.63g; panel — qarzi bor tur birinchi, qarzsiz ikkinchi, Sdacha oxirida, nishonlar joyida, "Bizda qolsin" yo'q, panel display:block; tarixi yo'q klient -> faqat Sdacha + tushuntirish. APP_VER v136.1 -> v137.
+QOLGAN (tegilmadi, Ibrohimga aytildi): (a) kTolovCalc dagi ktSdacha = ktLomOrtiqcha + totalGramOrtiqcha + pulOrtiqcha, sdachaTaqsimSaqla esa totalGramOrtiqcha ni KO'RMAYDI — gramm ortiqchasi ko'rsatiladi-yu saqlanmaydi (eski nomuvofiqlik). (b) sdachaTaqsimSaqla 'tur' holatida ekvivalent min(gramm,turQarz) ga qisiladi lekin summa to'liq yoziladi — qisilgan qism yo'qoladi. (c) qolda yozuvlari zavod ERP snabjenets payloadiga ham kiradi (manba==='qolda') — lom sdachasi u yerda ham chiqim bo'lib ko'rinadi. -->
