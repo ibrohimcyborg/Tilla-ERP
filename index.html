@@ -4031,6 +4031,68 @@ function kassaFoydaPanelHTML(){
   h+='</div>';
   return h;
 }
+// ---- AMAL TAQSIMOTI (v126) ----
+// Har amal (999/chiqim/zavod) QAYSI sovdalarni yopganini qaytaradi — chiqim tafsiloti uchun.
+function kassaAmalYopgan(){
+  var A = kassaPulAmallar();
+  if(!A.length) return [];
+  var sess={}, order=[];
+  (data.klientlar||[]).forEach(function(k, ki){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
+      var ekv=parseNum(op.ekvivalent); if(!(ekv>0)) return;
+      var nq=parseNum(op.naqtPul!==undefined?op.naqtPul:(op.kartaPul?0:op.summa)); if(!(nq>0)) return;
+      var key=ki+'|'+op.sana+'|'+(op.soat||'');
+      if(!sess[key]){ sess[key]={ts:fdSanaTs(op.sana,op.soat)||0, knom:k.nom, sana:op.sana, soat:op.soat||'', ops:[], naqd:0, qoldi:0}; order.push(key); }
+      sess[key].ops.push({op:op, ekv:ekv, nq:nq});
+      sess[key].naqd+=nq;
+    });
+  });
+  if(!order.length) return [];
+  order.forEach(function(k){ sess[k].qoldi=sess[k].naqd; });
+  order.sort(function(a,b){ return sess[a].ts-sess[b].ts; });
+  var res=A.map(function(x){ return {amal:x, sovdalar:[]}; });
+  A.forEach(function(x, xi){
+    if(!(x.kurs>0)) return;
+    var qoldi=x.pul;
+    for(var i=0;i<order.length && qoldi>0.001;i++){
+      var s=sess[order[i]];
+      if(s.qoldi<=0.001) continue;
+      var ol=Math.min(s.qoldi, qoldi);
+      s.qoldi-=ol; qoldi-=ol;
+      if(ol<=0.001) continue;
+      res[xi].sovdalar.push({knom:s.knom, sana:s.sana, soat:s.soat, sm:s.naqd, ol:Math.round(ol*100)/100,
+        ulush:s.naqd>0?ol/s.naqd:0, ops:s.ops.slice(), key:order[i]});
+    }
+  });
+  return res;
+}
+// Qisman sovdaning tur-taqsimoti (chiqim kursi bilan)
+function kassaSovdaTurlar(sv, opKurs){
+  var kun=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0')||0;
+  var jg=sv.ops.reduce(function(a,o){ return a+o.ekv; },0);
+  var r=[], sumF=0;
+  sv.ops.forEach(function(o){
+    var op=o.op, zi=-1, ti=-1;
+    (data.zavodlar||[]).forEach(function(z,_zi){
+      if(z.nom!==op.zavod) return;
+      (z.turlar||[]).forEach(function(t,_ti){ if(t.nom===op.tur){ zi=_zi; ti=_ti; } });
+    });
+    if(zi<0||ti<0) return;
+    var man=''; try{ var M=JSON.parse(localStorage.getItem('tilla-manual-'+zi)||'{}'); man=M[ti]||''; }catch(e){}
+    var qat = man!=='' && parseNum(man)>0;
+    var pct = _turFoiz(zi,ti);
+    var kKun = qat ? parseNum(man) : (kun>0&&pct>0 ? Math.round(kun*(1+pct/100)*10)/10 : 0);
+    var kOp  = qat ? parseNum(man) : (opKurs>0&&pct>0 ? Math.round(opKurs*(1+pct/100)*10)/10 : 0);
+    var gQ = o.ekv*sv.ulush;
+    var fy = (!qat && kKun>0 && kOp>0) ? gQ*(kKun-kOp) : 0;
+    sumF += fy;
+    r.push({nom:(op.zavod||'')+' · '+(op.tur||''), g:o.ekv, gQ:gQ, pul:jg>0?sv.ol*(o.ekv/jg):0,
+            kKun:kKun, kOp:kOp, qat:qat, pct:pct, fy:Math.round(fy*100)/100});
+  });
+  return {turlar:r, foyda:Math.round(sumF*100)/100};
+}
+
 // ---- CHIQIMLAR HISOBOTI (v125) ----
 // Kassadan chiqqan hamma narsa: naqt (data.kassa.qolda tip chiqim) + lom/999 (data.lomlar manba chiqim).
 // Bitta chiqim uch qatorga bo'linishi mumkin (naqt+lom+999) — ts bo'yicha birlashtiriladi.
@@ -4112,6 +4174,66 @@ function kassaChiqimPDF(){
    +'</table></body></html>');
   w.document.close(); setTimeout(function(){ try{ w.print(); }catch(e){} }, 400);
 }
+var _chSov = {};   // qaysi chiqimning qaysi qisman sovdasi ochiq
+function kassaChiqimSovToggle(ts, i){ var k=ts+'|'+i; _chSov[k]=!_chSov[k]; renderKassa(); }
+function kassaChiqimYopdiHTML(o){
+  if(!(o.kurs>0)) return '<div style="font-size:10.5px;color:var(--muted);padding:0 0 7px 12px;">Sovda yopmadi — oddiy rasxod</div>';
+  var Y = kassaAmalYopgan().filter(function(x){ return x.amal.tur==='chiqim' && Math.abs(x.amal.ts-o.ts)<2000; })[0];
+  if(!Y || !Y.sovdalar.length) return '<div style="font-size:10.5px;color:var(--muted);padding:0 0 7px 12px;">Sovda yopmadi</div>';
+  var yop=Y.sovdalar.reduce(function(a,s){ return a+s.ol; },0);
+  var pct=o.naqt>0?Math.min(100,yop/o.naqt*100):0;
+  var full=pct>=99.5;
+  var h='<div style="padding:0 9px 9px;">';
+  h+='<div style="height:30px;border-radius:8px;background:var(--surf2);overflow:hidden;position:relative;margin-bottom:7px;">';
+  h+='<div style="height:100%;background:var(--'+(full?'green':'gold')+');width:'+pct+'%;"></div>';
+  h+='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:Roboto,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);">'
+    +(full?'hammasi sovdaga ketdi':Math.round(pct)+'% sovdaga ketdi')+'</div></div>';
+  Y.sovdalar.forEach(function(s,i){
+    var p = s.ulush>=0.995;
+    var ochiq = !!_chSov[o.ts+'|'+i];
+    h+='<div style="border-radius:8px;background:var(--'+(p?'green':'yellow')+'-bg);margin-bottom:4px;overflow:hidden;">';
+    h+='<div '+(p?'':'onclick="kassaChiqimSovToggle('+o.ts+','+i+')" style="cursor:pointer;"')+'>';
+    h+='<div style="display:flex;align-items:center;gap:7px;padding:8px 9px;font-size:12.5px;">';
+    h+='<span style="width:16px;text-align:center;">'+(p?'✓':'◐')+'</span>';
+    h+='<span><b>'+s.knom+'</b>'+(p?'':' <span style="color:var(--muted);font-size:10.5px;">qisman</span>')+'</span>';
+    h+='<span style="margin-left:auto;font-family:Roboto,sans-serif;font-weight:700;color:var(--'+(p?'green':'gold')+');">$'+fmtD(s.ol)+'</span>';
+    if(!p) h+='<span style="color:var(--gold);font-size:10px;margin-left:4px;">'+(ochiq?'▲':'▼')+'</span>';
+    h+='</div></div>';
+    if(!p && ochiq){
+      var qol=s.sm-s.ol, pY=s.ulush*100;
+      var T=kassaSovdaTurlar(s, o.kurs);
+      h+='<div style="padding:0 9px 9px;">';
+      h+='<div style="height:26px;border-radius:7px;overflow:hidden;display:flex;border:1px solid rgba(0,0,0,.08);margin-bottom:7px;font-size:10px;font-weight:700;font-family:Roboto,sans-serif;">';
+      h+='<div style="background:var(--gold);color:#fff;width:'+pY+'%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;">$'+fmtD(s.ol)+' yopildi</div>';
+      h+='<div style="background:#cfc9bd;color:#5c574e;width:'+(100-pY)+'%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;">$'+fmtD(qol)+' qoldi</div></div>';
+      function rw(a,b){ return '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;font-family:Roboto,sans-serif;"><span style="color:var(--muted);font-family:-apple-system,sans-serif;">'+a+'</span><b>'+b+'</b></div>'; }
+      h+=rw('Sovda jami','$'+fmtD(s.sm));
+      h+=rw('Bu chiqim yopdi','<span style="color:var(--gold);">$'+fmtD(s.ol)+' ('+Math.round(pY)+'%)</span>');
+      h+=rw('Qoldi — hali suzadi','<span style="color:var(--muted);">$'+fmtD(qol)+'</span>');
+      if(T.turlar.length){
+        h+='<div style="display:grid;grid-template-columns:1fr 58px 62px 58px;gap:4px;font-size:8px;color:var(--muted);text-transform:uppercase;font-weight:700;padding:7px 0 4px;border-bottom:1px solid rgba(0,0,0,.08);">';
+        h+='<div>Tur</div><div style="text-align:right;">Puli</div><div style="text-align:right;">Kirim</div><div style="text-align:right;">Foyda</div></div>';
+        T.turlar.forEach(function(t){
+          h+='<div style="display:grid;grid-template-columns:1fr 58px 62px 58px;gap:4px;font-size:11px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.05);font-family:Roboto,sans-serif;align-items:start;'+(t.qat?'background:rgba(255,255,255,.5);border-radius:5px;padding-left:4px;padding-right:4px;':'')+'">';
+          h+='<div style="font-family:-apple-system,sans-serif;font-size:11.5px;">'+t.nom+(t.qat?' <span style="font-size:7px;font-weight:700;padding:1px 4px;border-radius:20px;background:var(--gold);color:#fff;">QAT\'IY</span>':'')
+            +'<div style="font-size:9px;color:var(--muted);">'+fmtG(t.g)+'g · '+fmtG(t.gQ)+'g qotdi</div></div>';
+          h+='<div style="text-align:right;color:var(--gold);font-weight:600;">$'+fmtD(t.pul)+'</div>';
+          h+='<div style="text-align:right;">'+(t.qat?'<span style="color:var(--gold);">'+fmtD(t.kKun)+'</span><div style="font-size:9px;color:var(--muted);">o\'zgarmas</div>'
+             :'<span style="text-decoration:line-through;color:var(--muted);font-size:9.5px;">'+fmtD(t.kKun)+'</span> <b style="color:var(--green);">'+fmtD(t.kOp)+'</b><div style="font-size:9px;color:var(--muted);">'+fmtD(t.pct)+'%</div>')+'</div>';
+          h+='<div style="text-align:right;font-weight:600;color:var(--'+(t.fy>0.005?'green':'muted')+');">'+(t.fy>0.005?'+$'+fmtD(t.fy):'$0.00')+'</div>';
+          h+='</div>';
+        });
+        h+='<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:6px 0 2px;font-weight:700;font-family:Roboto,sans-serif;border-top:1px solid rgba(0,0,0,.08);margin-top:3px;">';
+        h+='<span style="color:var(--muted);font-family:-apple-system,sans-serif;font-weight:400;">Shu sovdadan foyda</span>';
+        h+='<span style="color:var(--'+(T.foyda>0.005?'green':'muted')+');">'+(T.foyda>0.005?'+$'+fmtD(T.foyda):'$0.00')+'</span></div>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+
 function kassaChiqimPanelHTML(){
   var L=kassaChiqimlar();
   var jN=0,jL=0,jT=0,jF=0;
@@ -4139,6 +4261,7 @@ function kassaChiqimPanelHTML(){
       +(f?'<div style="font-size:10px;margin-top:1px;">'+f+'</div>':'')+'</div>';
     h+='<button onclick="event.stopPropagation();kassaChiqimOchir('+o.ts+')" style="width:26px;height:26px;border-radius:7px;border:1px solid var(--red-bd);background:var(--red-bg);color:var(--red);font-size:12px;cursor:pointer;flex-shrink:0;">🗑</button>';
     h+='</div>';
+    h+=kassaChiqimYopdiHTML(o);
   });
   h+='<div style="display:flex;justify-content:space-between;padding:9px 11px;border-radius:9px;background:#20201d;color:#fff;font-family:Roboto,sans-serif;font-weight:700;font-size:13px;margin-top:6px;">';
   h+='<span>Foydaga ta\'siri</span><span style="color:'+(jF>=0?'var(--green)':'var(--red)')+';">'+(Math.abs(jF)<0.005?'$0.00':(jF>0?'+':'−')+'$'+fmtD(Math.abs(jF)))+'</span></div>';
@@ -14609,3 +14732,4 @@ cloudInit();
 <!-- v123: KVOTA TUGAGANDA CLOUDGA YOZISH TO'XTATILADI (Ibrohim: v122 dan keyin ham xato o'zgarmadi — tabiiy, chunki kunlik kvota ALLAQACHON tugagan; har urinish rad etiladi va konsolni spam qiladi, stackda kassaSnabshotYubor .set() ko'rinardi). QO'SHILDI: (1) _kvotaTugadi bayrog'i + cloudXato(e) tutgichi — xatoda 'resource-exhausted' yoki 'Quota exceeded' bo'lsa bir marta bayroq qo'yiladi, cloud holati QIZIL 'kvota tugadi' bo'ladi va konsolga BITTA tushuntirish yoziladi (spam o'rniga). (2) cloudYozaOladi() — 5 ta yozuvchi funksiya boshiga qo'riq: kassaSnapshotYubor, cloudSaqlaNow, amalSyncPush, donaBazaCloudYoz, syncFullFill — kvota tugagach ular JIM chiqadi, bekorga urinmaydi. (3) Barcha jim .catch(function(){}) lar .catch(cloudXato) ga almashtirildi (7 joy) — endi ruxsat xatosi avvalgidek jim, lekin KVOTA xatosi aniqlanadi va yozish to'xtaydi. MUHIM: bu kvotani QAYTARMAYDI — u Tinch okeani yarim tunida (Toshkentda ~12:00-13:00) o'zi tiklanadi. Bu faqat: konsol tinchiydi, bekorga trafik ketmaydi, foydalanuvchi holatni ko'radi (qizil 'kvota tugadi'). ILOVA LOKAL TO'LIQ ISHLAYVERADI — localStorage ga yoziladi, ma'lumot yo'qolmaydi; kvota tiklangach sahifa yangilansa cloud o'zi davom etadi. -->
 <!-- v124: KUNLIK YOZUV CHEKLOVI — BLAZE DA HISOB OSHIB KETMASIN (Ibrohim: Blazega o'taman, lekin sening xatoying bilan 100$ lab ketib qolsachi?). ADOLATLI SAVOL — v99.1 avtomat syncFullFill mening xatoym edi va kunlik kvotani tugatdi. QATTIQ HIMOYA: (1) YOZUV_LIMIT=25000/kun; cloudYozuvSana(n) har cloud .set() da sanaydi (localStorage 'tilla-cloud-yozuv' = {sana, n} — kun almashsa AVTOMAT 0 dan boshlanadi); chegara oshsa _kvotaTugadi=true -> cloudYozaOladi() false qaytaradi -> 5 ta yozuvchi funksiya (kassaSnapshotYubor, cloudSaqlaNow, amalSyncPush, donaBazaCloudYoz, syncFullFill) JIM to'xtaydi, cloud holati qizil 'yozuv limiti', konsolga bitta ogohlantirish. Ilova LOKAL to'liq ishlayveradi. (2) 6 ta .set() ga sanoq ulandi. NARX HISOBI (halol): Firestore Blaze — yozuv $0.18/100k, o'qish $0.06/100k. Chegara oshgan eng yomon holat: 25,001 yozuv/kun = $0.045/kun = $1.35/oy. $100 ga yetish uchun ~55 MILLION yozuv kerak — brauzerdan jismonan mumkin emas (tarmoq + Firestore rate-limit). Ya'ni $100 xavfi YO'Q; eng yomon holat ham bir necha dollar. Blaze da bepul kvota (50k o'qish/20k yozuv kunlik) saqlanadi — faqat undan oshgani pullik. TAVSIYA: Firebase Console > Budget & alerts > $10 ogohlantirish ham qo'yilsin (zaxira). Sinov (Node): 24,999 da yozadi, 25,001 da TO'XTAYDI, bayroq qo'yiladi, ertangi kunda sanoq 0 dan, kunlik eng yomon $0.045 / oylik $1.35 — 7/7. -->
 <!-- v125: CHIQIMLAR HISOBOTI (Ibrohim: menga chiqimlar qatta nima bo'ganini ko'radigan hisobot kerak, kassadagi chiqimlarni alohida hisoboti). QO'SHILDI — Kassa ekranida yangi ochiladigan bo'lim "CHIQIMLAR" (FOYDA — JORIY HOLAT va KASSA HARAKATLARI orasida). (1) kassaChiqimlar() — kassadan chiqqan hammasini yig'adi: naqt (data.kassa.qolda tip:'chiqim') + lom/999 (data.lomlar manba:'chiqim'); bitta chiqim uch qatorga bo'lingan bo'lsa (naqt+lom+999) ts bo'yicha BIRLASHTIRILADI; har biriga kursSanada(sana) dan kunlik kurs olinib foyda ta'siri hisoblanadi: naqt × (kunlik ÷ chiqim kursi − 1); yangi tepada. (2) kassaChiqimPanelHTML() — sarlavhada jami naqt (qizil, bosilsa ochiladi/yopiladi, _chOch); ochilganda uch stat (Naqt/Lom/999 jami), har chiqim qatori: kategoriya + izoh, sana·soat, kurs (kunlik bilan), miqdorlar (−$X −Yg lom −Zg 999), foyda ta'siri (yashil/qizil), va 🗑 tugma; pastda qora "Foydaga ta'siri" jami; eng pastda "📄 PDF — chiqimlar hisoboti". (3) kassaChiqimOchir(ts) — tasdiq so'rab bitta chiqimning HAMMA qatorlarini (naqt + lom + 999) o'chiradi, kassaga qaytadi, save+render. (4) kassaChiqimPDF() — chop etish oynasi: Sana / Nima uchun / Naqt / Lom / 999 / Kurs / Foyda + JAMI qatori, oltin sarlavha, zebra qatorlar. FAQAT kassada yozilgan chiqimlar (zavod ERPdagi chiqimlar bu yerda yo'q — ular Zavod ekranida). Sinov (Node): 3 chiqim — zavodga to'lov $24,766.7 @74.06 (kunlik 75.3) -> foyda +$414.67; Obed $3000+20g lom (kurssiz) -> foyda $0, naqt va lom BIRLASHDI; 999 10g @74.5 (kunlik 74.5) -> 1:1 foyda $0; yangi tepada; jami naqt $27,766.7 — 8/8. -->
+<!-- v126: CHIQIM NIMA YOPGANINI KO'RSATADI (Ibrohim: yopilgan chiqimni loadingga o'xshab yopish ko'rinmayapti, yashil bo'b yopilishi kerak, nima yopganini ko'rsatish kerak; qismanni bossa to'liq ko'rsatsin — qaysi turni qancha pulidan ketgan, foydasi o'zgarganini ham). QO'SHILDI: (1) kassaAmalYopgan() — pul navbatini qayta yurib, HAR AMAL (999/chiqim/zavod) QAYSI sovdalarni yopganini qaytaradi: [{amal, sovdalar:[{knom, sana, soat, sm, ol, ulush, ops}]}]. (2) kassaSovdaTurlar(sv, opKurs) — qisman sovdaning TUR bo'yicha taqsimoti: har turga tushgan pul (gramm nisbatida — skidka kabi), qotgan gramm (ekv×ulush), kirim KUNLIK->CHIQIM kursida (qat'iy/manual bo'lsa O'ZGARMAYDI), va foyda o'zgarishi = gQ×(kKun−kOp); jami foyda ham. (3) kassaChiqimYopdiHTML(o) — CHIQIMLAR bo'limida har chiqim ostida: LOADING chiziqcha (yashil=hammasi sovdaga ketdi / oltin=X% ketdi), so'ng yopilgan sovdalar ro'yxati — "✓ Klient $X" (yashil, to'liq) yoki "◐ Klient qisman $X ▼" (oltin, BOSILADI). Qismanni bosilganda (kassaChiqimSovToggle, _chSov): ikki rangli chiziqcha ($X yopildi / $Y qoldi), uch qator (Sovda jami / Bu chiqim yopdi (%) / Qoldi — hali suzadi), va TUR JADVALI: Tur | Puli | Kirim (eski→yangi) | Foyda; har turda "Xg · Yg qotdi", qat'iy narxli turlarda "o'zgarmas" va foyda $0.00; pastda "Shu sovdadan foyda". Kurssiz chiqim (Obed va h.k.) -> "Sovda yopmadi — oddiy rasxod". Sinov (Node): chiqim $10,000 @74.06 (kunlik 75.294) -> Guli Opa $5,675 TO'LIQ, Azimjon $4,325/$12,450 QISMAN (34.7%); Azimjon turlari: Butterfly·Oddiy $1,786 kirim 80.6->79.2 foyda +$29.18 (20.84g qotdi), Butterfly·3D $1,191 kirim 82.8->81.5 +$18.06, Simay QAT'IY 84->84 $0.00; shu sovdadan +$47.24; turlar puli = sovda olingani — 8/8. -->
