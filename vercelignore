@@ -1,0 +1,4 @@
+# Vercel bu fayllarni CHOP ETMAYDI (repoda qoladi, internetda ko'rinmaydi)
+CHANGELOG.md
+*.md
+mockup*
