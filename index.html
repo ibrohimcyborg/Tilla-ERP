@@ -1951,7 +1951,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v138';
+var APP_VER = 'v139';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -10144,6 +10144,9 @@ function kVozvratUpdateChek() {
   rows.forEach(function(r) {
     t += rjust('  ' + r.zavod + ' - ' + r.tur, '+' + fmtG(r.g) + 'g') + '\n';
   });
+  t += LINE + '\n';
+  var kvJamiG = Math.round(rows.reduce(function(a,r){ return a + r.g; }, 0) * 100) / 100;
+  t += rjust('Jami gramm', '+' + fmtG(kvJamiG) + 'g') + '\n';
   t += LINE + '\n';
   t += center('RAHMAT!');
   body.textContent = t;
