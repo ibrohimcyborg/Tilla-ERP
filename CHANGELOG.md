@@ -3,6 +3,28 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v140: YAGONA CHEK QOLIPI + TO'LOV CHEKI QAYTA QURILDI
+
+Ibrohim rasm bilan: "qara chekki tartibsiz tushunarsizligini san tushuntir manga", keyin "huddi shu tartib 2ta modalda qilinsin". Mockup 5 marta aylanib tasdiqlandi.
+
+TASHXIS (rasmdagi sotuv chekidan): hisob TO'G'RI edi (2,574.64 = naqt 1,707.04 + lom 867.60; ostatka 87.84 = 38.04+39.59+10.21), muammo KO'RINISHDA: (1) `N` IKKI marta chiqardi — TOLOVLAR bloki ham, LOM bloki ham mustaqil N/K/P yozardi; (2) "Jami to'landi 2,574.64" — u to'langan emas, sovda summasi; (3) `(31.17)` YORLIQSIZ (`rjust('', '(...)')`); (4) Ostatka sarlavhasiz boshlanardi; (5) tur o'rtada osilgan (kodda 16 ta bo'sh joy qattiq yozilgan); (6) gramm birligi yo'q; (7) klient "31.17 qayerdan?" deb tushunmasdi — 41.17 bor edi, 10 qaytardi, 31.17 to'ladi, 0 qoldi (chekda bu zanjir ko'rinmasdi); (8) sotuv cheki klient nima OLGANINI umuman ko'rsatmaydi (`oldilar` uzatiladi-yu chekka chiqmaydi).
+2/3/4 — bir xil kasallik: to'lov chekida tuzatilgan, sotuv chekida qolib ketgan (v134 izohi "ikki chekda ham" degan, aslida bittasida).
+
+ILDIZ: chek UCH joyda mustaqil qurilardi — kTolovChekUpd (to'lov), kSotuvUpdateChek (sotuv preview), klientSotuvChekPrint (sotuv chop). Biri tuzatilsa boshqasi eskiligicha qolardi.
+
+YANGI YAGONA QOLIP (chekQur + chekTurBloki + chekRoyxat + chekG/chekR/chekC/chekPad): format BITTA joyda. Ma'lumot YIG'ISH har chaqiruvchida o'z joyida qoladi — preview sovdadan OLDINGI holatni bashorat qiladi, chop esa save() dan KEYINGI haqiqatni o'qiydi (kt: 11487 chekEl.textContent; ks: klientSotuvChekPrint alohida) — timing xavfiga tegilmadi, faqat KO'RINISH umumiy.
+
+TUZILISH (Ibrohim tasdiqlagan): SOTUV/TO'LOV bo'limi -> har zavod-tur uchun ZANJIR (Ostatka -> +Oldi -> -Vozvrat -> -To'lov -> Qoldi; har qator faqat qiymati bo'lsa) -> JAMI SUMMA / SKIDKA / JAMI GRAMM -> to'lov turlari FAQAT HARF (L lom · O offset · N naqt · K karta · P perech) -> JAMI TO'LANDI -> SDACHA -> QOLGAN OSTATKA + JAMI OSTATKA.
+
+IBROHIM QARORLARI (aynan): "bor edi"->"Ostatka" · "qolgan qarz"->"QOLGAN OSTATKA", "jami qarz"->"JAMI OSTATKA" · "qanday to'ladi" sarlavhasi KERAKMAS · "LOM NAQT so'zlari hammasi L N P bo'lib yozilsin" · "hamma g lani ob tasha, gramm kerakmas yozilishi" (pul '#', gramm belgisiz — ilovaning o'z konvensiyasi) · "biz qarzdor" bloki YO'Q, `+` bilan QOLGAN OSTATKA ichida · offset RAMKASIZ, lekin QAYSI zavod-turning `+` idan olingani ko'rsatilsin -> offset manbai ham o'z ZANJIRI bilan chiqadi (Ostatka +13.42 -> Offsetga ketdi -5.00 -> Qoldi +8.42) va to'lov blokida `O  Simay · Oddiy dan  400.00 #` · JAMI OSTATKA manfiylarni AYIRADI (87.84 − 8.42 = 79.42) · uzunlik ahamiyatsiz.
+
+TO'LOV CHEKI ULANDI (kTolovChekUpd 188 -> 118 qator): 6 qadam — qatorlarni yig'ish -> lom/skidka/offsetning ISHLATILGAN ulushi (offIsh = min(offJami, kerak); avvalgi rowFrac mantiqi saqlandi) -> tur bloklari (offsetda tolG MANFIY, balans nolga qarab siljiydi; ko'rsatishda abs) -> to'lov harflari -> sdacha -> QOLGAN OSTATKA (sovdadan keyingi bashorat). `N` endi BIR joyda — takror imkonsiz.
+
+SINOV (Node, soxta DOM, 19/19 + qolip 13/13): oddiy to'lov (41.17 -> vozvrat 10 -> to'lov 31.17 x 82.6 -> Qoldi 0.00, L+N, N bir marta, Butterfly yopilgani uchun QOLGAN OSTATKAda yo'q, Jilva 39.59 qoldi); offset (Simay +13.42 -> Offsetga ketdi -5.00 -> Qoldi +8.42, O qatori "Simay · Oddiy dan", ro'yxatda +8.42, BIZ QARZDOR bloki yo'q); ' g' birligi hech qayerda yo'q; 48 belgi buzilmadi. Eski 101 sinov qayta o'tkazildi. APP_VER v139 -> v140.
+
+QOLDI: SOTUV cheki (kSotuvUpdateChek + klientSotuvChekPrint) hali ESKI ko'rinishda — v141 da. Ular IKKITA builder, har xil paytdagi ma'lumot bilan; birdan qayta yozilsa biror shoxobcha (offset/skidka/sdacha/oldilar) e'tibordan qolib butun sotuv oqimi to'xtashi mumkin. kassaChek (kassadan qayta chop) ham eski qolipda — Ibrohim aytmagan, tegilmadi.
+
+---
 ## v139: VOZVRAT CHEKIGA "JAMI GRAMM" QO'SHILDI
 
 Ibrohim (rasm bilan): "vozvrat jami gramm yo'q, ko'rsat" — Elshod Aka cheki: Butterfly-Oddiy +1.17g, Butterfly-3D +38.04g, jami yo'q.
