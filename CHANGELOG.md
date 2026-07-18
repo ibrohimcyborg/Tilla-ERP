@@ -3,6 +3,17 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v140.2: SOTUV MODALI TO'LOV QISMI — MAYDON O'CHIRILGANDA JUFTI QOLIB KETARDI
+
+Ibrohim 3 rasm bilan: "gramm yozib o'chirsang pul qolib ketvotti (2-rasm), pulni 0 qilsang g 0.01 qolib ketvotti (3-rasm)".
+
+SABAB (eski xato, kSotuvTolovUpd 11969): sinxron FAQAT `> 0` da ishlardi — `if (changed==='s' && s>0 && n>0) g=s/n; else if (changed==='g' && g>0 && n>0) s=g*n;`. Maydon O'CHIRILSA yoki 0 YOZILSA shart yolg'on bo'lib, jufti ESKI qiymatida osilib qolardi: gramm o'chirildi -> pul 243.6 qoldi, hisob pul bo'yicha 3.00g deb davom etdi ("qoldi: 0.17g"); pul 0 qilindi -> gramm 0.01 qoldi (81.2 dan yaxlitlash qoldig'i), hisob "qoldi: 3.16g" ko'rsatdi.
+
+YECHIM: `changed==='s'` va `s<=0` -> gramm ham '' ; `changed==='g'` va `g<=0` -> pul ham ''. Narx yo'q holatda (n=0) gramm yozilsa jufti TEGILMAYDI (hisoblab bo'lmaydi — avvalgidek). Hisob/saqlash/chek tarafi allaqachon `s>0`/`g>0` bo'yicha ishlaydi — endi ikkalasi birga tozalangani uchun qator butunlay hisobdan chiqadi, qo'shimcha o'zgarish kerak emas.
+
+Sinov (Node, soxta DOM, 7/7): 2-rasm stsenariysi (257.4/3.17 -> g o'chirildi -> s ham ''); 3-rasm (s=0 -> g ham ''); oddiy oqim buzilmadi (3.17->257.40, 257.4->3.17, narx kiritilsa qayta hisob); n=0 da g yozilsa pul tegilmaydi; backspace ('') holati. Eski 112 sinov qayta o'tdi. APP_VER v140.1 -> v140.2.
+
+---
 ## v140.1: OLDINGI CHEK PREVIEW'DA QOLIB KETARDI
 
 Ibrohim: "muammo — oldingi qilingan chek preview'da qolib ketvotti, shuni tekshir". ESKI xato (v135 da ham bor edi), lekin ko'rinishdan jiddiyroq.
