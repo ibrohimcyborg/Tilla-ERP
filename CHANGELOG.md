@@ -3,6 +3,34 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v142: HAFTALIK OSTATKA — OSTATKA EKRANIDA YANGI BO'LIM
+
+Ibrohim: "har hafta qaysi zavoddan nima chiqib ketgani haqida hisobot — kimga nechi gramm, qancha vozvrat; qo'lda bloknotimiz bor, shuni solishtiramiz". Tartib to'liq: 5 mockup aylanishi (hafta-mockup -> hafta-hisobot -> hafta-final -> hafta-jadval, 2 marta qayta ishlangan; tuzatish tushunchasi minus-nima-mockup bilan tushuntirildi) -> Ibrohim qarorlari -> "bo'ldi huddi shunaqa qo'sh, Ostatkaga, haftalik ostatka qilib" -> kod.
+
+IBROHIM QARORLARI: (1) sotuvdan berilgani ham, Berish modalidan ham — HAMMASI kiradi ("sotilganam ostatkaga berilganam hammasi qo'limizdan chiqqani ko'rinishi kere"). (2) Har yozuv turi ALOHIDA USTUNDA: Berish ustuni · Vozvrat ustuni ("vozvrat alohida ustunda berish alohida ustunda"). (3) SOF USTUNI YO'Q ("sof keremas"). (4) Har turda jami qatori + zavodda obshiy + tepada umumiy obshiy ("har 1ta turri kegin obshiysiyam kere"). (5) Tuzatish (manfiy berish) qatori KERAK EMAS ("unaqa narsa bo'lmaydi") — manfiy uchrasa jimgina Berish ustuniga qo'shiladi. (6) Joy: OSTATKA EKRANI ("qo'sh ostatkaga haftalik ostatka qilib") — avval Hisobot tabi ko'rilgandi, oxirgi qaror Ostatka. (7) PDF + Excel ikkalasi.
+
+QO'SHILDI: (1) Ostatka ekrani (ost-choice) ga 4-tugma "📅 Haftalik ostatka". (2) Yangi panel #ost-hafta: hafta navigatsiyasi (‹ ›, dushanba–yakshanba, faqat orqaga — _hoOffset<=0), ikki obshiy stat (BERILGAN/VOZVRAT), zavod kartalari (bosilsa ochiladi — _hoOchiq), ochilganda 3 ustunli jadval: Tur—jami (oltin fon) -> klientlar -> Zavod—obshiy (surf2 fon); qiymat 0 bo'lsa "—". (3) haftaOstData(): klient tarixidan tip berish/vozvrat, hafta ts oralig'ida; inventar:'boshlangich' KIRMAYDI (shakllantirish — zavoddan chiqmagan); tolov oplari kirmaydi; zavod->tur->klient uch daraja, roundG. (4) haftaOstPDF: oltin-sarlavha uslubi (ostHisobotPDF naqshi), zavod qora qator / tur sariq / obshiy kulrang / OBSHIY qora. (5) haftaOstExcel: CSV (;) BOM bilan, kasr vergul, Zavod;Tur;Klient;Berish;Vozvrat + JAMI/OBSHIY qatorlari. (6) initOstatka da panel reset (ekranga qaytganda yopiq).
+
+Sinov (Node, 15/15): hafta chegarasi (18.07.2026 Sha -> Du 13.07..Ya 19.07; offset -1 -> 06.07..12.07); mockup stsenariysi — Butterfly obshiy 99.86/48.04, Oddiy jami 51.82/20.00, klient qatorlari; hafta tashqarisi KIRMADI; boshlang'ich KIRMADI; tolov KIRMADI; manfiy berish jimgina qo'shildi (41.17-10=31.17). Eski 132 sinov qayta o'tdi. APP_VER v141 -> v142.
+
+ESLATMA: Abdulhamid roli bu tugmani ko'radi (hamid-x klassi qo'yilmadi — Ibrohim so'ramadi). Kerak bo'lsa aytilsin.
+
+---
+## v141: QULF TAQSIMOTI — FIFO QOLDI, ENDI KO'RINADI
+
+Ibrohim rasm bilan: "kassadagi pullar qulflanmayapti, lekin chiqimlar foydani qulflashi kerak edi". Tartib: tashxis (qulf-tashxis.html, Node isboti) -> Ibrohim "fifo qolishi kere" (B variant) -> kod.
+
+TASHXIS (Node bilan isbotlangan): FIFO navbat pulni ENG ESKI sovdalardan boshlab sarflaydi — ochiq/yopiqligini TEKSHIRMASDAN. Ibrohim holatida $95,948 chiqim navbatga tushgan, lekin eski (zavodga allaqachon topshirilgan, foydasi yopiq) sovdalar uni to'liq yutib yuborgan — bugungi ochiq Shoazim ($58) va Guli ($2,853) ga yetmagan -> "qulflanmagan — foyda suzadi". Ekranda yopiq sovdalar ko'rinmagani uchun bu sarf umuman sezilmasdi. Ildiz: v136 da navbat sessiyalariga HAMMA naqtli sovda kiritilgan, ekran (kassaSuzuvchiXaritasi) esa faqat OCHIQ qismga suzuvchi hisoblaydi — ikki ro'yxat mos emas edi.
+
+IBROHIM QARORI: FIFO mantiq O'ZGARMAYDI (A variant — faqat ochiq sovdalarga yo'naltirish — rad etildi). B: ko'rsatish qo'shildi.
+
+QO'SHILDI: (1) kassaQulfTaqsimot() — kassaPulAmallar (jami navbat puli, kurs>0) va kassaSuzuvchiXaritasi (har op: qopPul + ochiqEkv) dan uch raqam: YOPIQQA (ochiqEkv=0 oplarga ketgan qulf), OCHIQQA (haqiqiy ta'sir), QOLDI (sarflanmadi — sovda yetmadi). Karta/perech quli navbat puli emasligi hisobga olingan (sarflangan = min(navbat, yopiq+ochiq)). (2) CHIQIMLAR panelida uch stat ostida yangi blok "QULF TAQSIMOTI (FIFO — eng eski sovdadan)": Yopiq sovdalarga ketdi $X (kulrang) / Ochiq sovdalarni qulfladi $Y (yashil) / Sarflanmadi $Z (oltin, faqat >0 bo'lsa) + izoh. Navbat bo'sh bo'lsa blok chiqmaydi.
+
+Sinov (Node, 6/6): eski $10,000 yopiq (zavodga 125g topshirilgan) + bugungi Guli $2,853 ochiq + chiqim $11,000 -> navbat $11,000, yopiqqa $10,000, ochiqqa $1,000, qoldi $0; FIFO TEGILMAGANI: Guli qisman 35.1% (1000/2853), eski sovdalar ulush 100% — mantiq aynan avvalgidek. Eski 126 sinov qayta o'tdi. APP_VER v140.3 -> v141.
+
+ESLATMA: sotuv chekini yangi qolipga o'tkazish (rejalashtirilgan v141) endi KEYINGI versiyada.
+
+---
 ## v140.3: SDACHA RADIOSI BOSILMASDI — AVTO-TANLOV USTIDAN YOZARDI
 
 Ibrohim rasm bilan: "bosib almashtirib bo'mayapti". Bu safar QAT'IY TARTIB bilan: avval mockup (radio-tashxis.html, jonli buzuq/tuzatilgan rejim namoyishi), Ibrohim "bo'ldi to'g'irla" degach index.
