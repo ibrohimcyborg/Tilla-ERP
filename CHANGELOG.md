@@ -3,6 +3,19 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v140.1: OLDINGI CHEK PREVIEW'DA QOLIB KETARDI
+
+Ibrohim: "muammo — oldingi qilingan chek preview'da qolib ketvotti, shuni tekshir". ESKI xato (v135 da ham bor edi), lekin ko'rinishdan jiddiyroq.
+
+IKKI QAVAT:
+(1) `openKlientTolov` chek preview'ga UMUMAN tegmasdi — boshqa uch modal (Berish/Vozvrat/Sotuv) hech bo'lmasa yashirardi, To'lov esa yashirmasdi ham. Natija: modalni ochsang OLDINGI klientning cheki ko'rinib turardi.
+(2) BUTUN faylda `chek-body`.textContent HECH QACHON tozalanmasdi (0 ta joy) — faqat preview yashirilardi. Chop etish esa `if (_ktChekOn && chekEl && chekEl.textContent.trim())` ni tekshiradi, ya'ni YASHIRIN body dagi ESKI matn ham printerga ketishi mumkin edi (masalan yangi sovda qator bermasa: `!bor` -> preview yashirinadi, body eski matn bilan qoladi).
+
+YECHIM: yangi `chekTozala(pre)` — preview'ni yashiradi VA body matnini o'chiradi. 8 joyga ulandi: 4 modal ochilishi (openKlientBerish/Vozvrat/Tolov/Sotuv) + early-return'lar (kTolovChekUpd `!bor`, kSotuvUpdateChek bo'sh sovda, ks ning 2 ta reset nuqtasi). Mavjud bo'lmagan elementda yiqilmaydi.
+
+Sinov (Node, 11/11): body'da eski matn turgan holatdan chekTozala -> preview 'none', body '', chop sharti false (eski chek endi chiqmaydi); to'rt prefiks (kt/ks/kb/kv) ham; noto'g'ri prefiksda yiqilmaydi; to'rt modalning hammasida chaqiruv bor. Eski 101 sinov qayta o'tdi. APP_VER v140 -> v140.1.
+
+---
 ## v140: YAGONA CHEK QOLIPI + TO'LOV CHEKI QAYTA QURILDI
 
 Ibrohim rasm bilan: "qara chekki tartibsiz tushunarsizligini san tushuntir manga", keyin "huddi shu tartib 2ta modalda qilinsin". Mockup 5 marta aylanib tasdiqlandi.
