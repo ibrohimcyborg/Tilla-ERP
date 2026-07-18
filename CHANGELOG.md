@@ -3,6 +3,17 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v140.3: SDACHA RADIOSI BOSILMASDI — AVTO-TANLOV USTIDAN YOZARDI
+
+Ibrohim rasm bilan: "bosib almashtirib bo'mayapti". Bu safar QAT'IY TARTIB bilan: avval mockup (radio-tashxis.html, jonli buzuq/tuzatilgan rejim namoyishi), Ibrohim "bo'ldi to'g'irla" degach index.
+
+SABAB (v137 da Claude kiritgan xato): sdachaRadioTanla tanlovni yozib kTolovCalc()/kSotuvCalc() ni chaqiradi; calc ichidagi avto-tanlov bloki SHARTSIZ ishlab foydalanuvchi bosgan `_sdachaRadio_kt/ks` ni birinchi qarzli turga QAYTA yozardi -> belgi eski joyiga sakrab qaytardi. Avto "jim xulq saqlanadi" uchun qo'yilgan edi, "faqat tanlov hali YO'Q bo'lsa" sharti unutilgan.
+
+YECHIM: kt da avto blok `if (!window['_sdachaRadio_kt'])` ichiga olindi (guard tashqi if ICHIDA — else semantikasi o'zgarmadi, sdacha yo'qolganda tozalash joyida). ks da shart `ortiqcha > 0.01 && !window['_sdachaRadio_ks']` bo'ldi VA else `else if (ortiqcha <= 0.01)` ga o'zgartirildi — aks holda "ortiqcha bor + tanlov bor" holati else ga tushib tanlovni O'CHIRIB yuborardi (yozish jarayonida topilgan nozik joy). Modal ochilishida ikkala radio null ga tozalanadi (10378 kt / openKlientSotuv ks — allaqachon bor edi) -> birinchi renderda avto ishlaydi, jim xulq saqlanadi.
+
+Sinov (Node, bloklarni fayldan ajratib, 7/7): kt — birinchi render avto Butterfly||Oddiy; Simay bosilgach USTIDAN YOZILMAYDI; sdacha yo'qolsa tozalanadi. ks — bir xil + tanlov obyekti else tuzatilgani uchun saqlanadi. Eski 119 sinov qayta o'tdi. APP_VER v140.2 -> v140.3.
+
+---
 ## v140.2: SOTUV MODALI TO'LOV QISMI — MAYDON O'CHIRILGANDA JUFTI QOLIB KETARDI
 
 Ibrohim 3 rasm bilan: "gramm yozib o'chirsang pul qolib ketvotti (2-rasm), pulni 0 qilsang g 0.01 qolib ketvotti (3-rasm)".
