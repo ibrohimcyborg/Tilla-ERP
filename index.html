@@ -1976,7 +1976,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v143';
+var APP_VER = 'v144';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5899,7 +5899,8 @@ function haftaOstSanaFmt(ts){
 // - sotuvdan yozilgan berish ham kiradi (Ibrohim: "sotilganam berilganam hammasi")
 function haftaOstData(){
   var dv = haftaOstDavr();
-  var Z = {}; // zavod -> {b,v, turlar: tur -> {b,v, kl: nom -> {b,v}}}
+  var Z = {}; // zavod -> {b,v, turlar...}  (eski struktura — PDF/Excel hali ishlatadi)
+  var D = {}; // v144: sana -> {sana, ts, b, v, qatorlar[]}
   (data.klientlar||[]).forEach(function(k){
     (k.tarix||[]).forEach(function(op){
       if(!op || !op.zavod || !op.tur) return;
@@ -5913,8 +5914,15 @@ function haftaOstData(){
       var c = t.kl[k.nom] || (t.kl[k.nom] = {b:0, v:0, ops:[]});
       if(op.tip==='berish'){ z.b+=g; t.b+=g; c.b+=g; }
       else { z.v+=g; t.v+=g; c.v+=g; }
-      // v143: har amal kun-kun saqlanadi (sana ko'rsatish uchun)
+      // v143: har amal kun-kun saqlanadi
       c.ops.push({ts:ts, sana:op.sana||'', tip:op.tip, sotuv:(op.manba==='sotuv'||op._sotuv===true), g:g});
+      // v144: SANA BO'YICHA guruh — kun -> shu kuni bergan/qaytargan klientlar
+      var dk = (op.sana||'').slice(0,10);
+      var dd = D[dk] || (D[dk] = {sana:dk, ts:ts, b:0, v:0, qatorlar:[]});
+      if(ts < dd.ts) dd.ts = ts;
+      if(op.tip==='berish') dd.b+=g; else dd.v+=g;
+      dd.qatorlar.push({knom:k.nom, zavod:op.zavod, tur:op.tur, tip:op.tip,
+                        sotuv:(op.manba==='sotuv'||op._sotuv===true), g:g, ts:ts});
     });
   });
   Object.keys(Z).forEach(function(zn){
@@ -5923,15 +5931,22 @@ function haftaOstData(){
       var t=z.turlar[tn]; t.b=roundG(t.b); t.v=roundG(t.v);
       Object.keys(t.kl).forEach(function(kn){
         t.kl[kn].b=roundG(t.kl[kn].b); t.kl[kn].v=roundG(t.kl[kn].v);
-        t.kl[kn].ops.sort(function(a,b){ return a.ts - b.ts; }); // eskisidan yangisiga
+        t.kl[kn].ops.sort(function(a,b){ return a.ts - b.ts; });
       });
     });
   });
-  return Z;
+  // v144: sana guruhlarini yaxlitlash + ichidagi qatorlarni tartiblash (zavod->tur->klient)
+  Object.keys(D).forEach(function(dk){
+    var dd=D[dk]; dd.b=roundG(dd.b); dd.v=roundG(dd.v);
+    dd.qatorlar.sort(function(a,b){
+      return (a.zavod+a.tur+a.knom).localeCompare(b.zavod+b.tur+b.knom);
+    });
+  });
+  return {Z:Z, D:D};
 }
 var _hoOchiq = {};
 function haftaOstOch(){
-  _hoOffset = 0; _hoOchiq = {};
+  _hoOffset = 0; _hoOchiq = {}; _hoBelgi = {};
   document.getElementById('ost-choice').style.display='none';
   document.getElementById('ost-hafta').style.display='block';
   haftaOstRender();
@@ -5940,84 +5955,68 @@ function haftaOstYop(){
   document.getElementById('ost-hafta').style.display='none';
   document.getElementById('ost-choice').style.display='block';
 }
-function haftaOstNav(d){ _hoOffset = Math.min(0, _hoOffset + d); haftaOstRender(); }
+function haftaOstNav(d){ _hoOffset = Math.min(0, _hoOffset + d); _hoBelgi = {}; _hoOchiq = {}; haftaOstRender(); }
 function haftaOstRender(){
   var dv = haftaOstDavr();
   document.getElementById('ho-davr').textContent =
     haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+(_hoOffset===0?' (bu hafta)':'');
-  var Z = haftaOstData();
-  var znlar = Object.keys(Z).sort();
+  var R = haftaOstData(), D = R.D;
+  var kunlar = Object.keys(D).sort(function(a,b){ return D[a].ts - D[b].ts; }); // eng eskidan
   var jb=0, jv=0;
-  znlar.forEach(function(zn){ jb+=Z[zn].b; jv+=Z[zn].v; });
+  kunlar.forEach(function(dk){ jb+=D[dk].b; jv+=D[dk].v; });
   document.getElementById('ho-jb').textContent = fmtG(roundG(jb))+' g';
   document.getElementById('ho-jv').textContent = fmtG(roundG(jv))+' g';
   var out='';
-  if(!znlar.length){
+  if(!kunlar.length){
     out='<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Bu haftada berish/vozvrat yo\u02bcq</div>';
   }
-  znlar.forEach(function(zn){
-    var z=Z[zn], ochiq=!!_hoOchiq[zn];
+  kunlar.forEach(function(dk){
+    var dd=D[dk], ochiq=!!_hoOchiq[dk];
+    var d5=(dd.sana||'').slice(0,5);
     out+='<div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;">';
-    out+='<div onclick="_hoOchiq[\''+zn.replace(/'/g,"\\'")+'\']=!_hoOchiq[\''+zn.replace(/'/g,"\\'")+'\'];haftaOstRender();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surf2);cursor:pointer;">'
-      +'<b style="font-size:12.5px;">'+zn+' '+(ochiq?'\u25be':'\u25b8')+'</b>'
-      +'<span style="font-family:Roboto,sans-serif;font-size:11.5px;"><span style="color:var(--red);">'+fmtG(z.b)+'</span> \u00b7 <span style="color:var(--green);">'+(z.v>0.001?fmtG(z.v):'\u2014')+'</span></span></div>';
+    out+='<div onclick="_hoOchiq[\''+dk+'\']=!_hoOchiq[\''+dk+'\'];haftaOstRender();" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--surf2);cursor:pointer;">'
+      +'<b style="font-family:Roboto,sans-serif;font-size:13px;color:var(--gold);">'+d5+' '+(ochiq?'\u25be':'\u25b8')+'</b>'
+      +'<span style="font-family:Roboto,sans-serif;font-size:11.5px;"><span style="color:var(--red);">'+fmtG(dd.b)+'</span> \u00b7 <span style="color:var(--green);">'+(dd.v>0.001?fmtG(dd.v):'\u2014')+'</span></span></div>';
     if(ochiq){
-      out+='<div style="display:grid;grid-template-columns:1fr 76px 76px;font-size:11px;align-items:center;">';
-      out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;background:var(--surf2);">Tur / Klient</div>'
+      out+='<div style="display:grid;grid-template-columns:26px 1fr 72px 72px;font-size:11.5px;align-items:center;">';
+      out+='<div style="padding:5px 4px;border-top:.5px solid var(--border);background:var(--surf2);"></div>'
+         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;background:var(--surf2);">Klient</div>'
          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Berish</div>'
          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Vozvrat</div>';
-      function row(nom, b, v, stil){
-        return '<div style="padding:5px 8px;border-top:.5px solid var(--border);'+(stil||'')+'">'+nom+'</div>'
-          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--red);'+(stil||'')+'">'+(b>0.001||b<-0.001?fmtG(b):'\u2014')+'</div>'
-          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--green);'+(stil||'')+'">'+(v>0.001?fmtG(v):'\u2014')+'</div>';
-      }
-      Object.keys(z.turlar).sort().forEach(function(tn){
-        var t=z.turlar[tn];
-        out+=row(tn+' \u2014 jami', t.b, t.v, 'font-weight:600;background:rgba(201,168,76,.06);');
-        Object.keys(t.kl).sort().forEach(function(kn){
-          var c=t.kl[kn];
-          out+=row('<span style="padding-left:10px;">'+kn+'</span>', c.b, c.v, '');
-          // v143: kun-kun qatorlar, eskisidan yangisiga
-          (c.ops||[]).forEach(function(o){
-            var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
-            var tur = o.tip==='vozvrat' ? 'vozvrat' : (o.sotuv ? 'sotuv' : 'berish');
-            var d = (o.sana||'').slice(0,5);
-            out+=row('<span style="padding-left:24px;font-size:10px;color:var(--muted);"><span style="font-family:Roboto,sans-serif;">'+d+'</span> '+kunNomi+' \u00b7 '+tur+'</span>',
-                     o.tip==='berish'?o.g:0, o.tip==='vozvrat'?o.g:0,
-                     'padding-top:2px;padding-bottom:2px;');
-          });
-        });
+      dd.qatorlar.forEach(function(q,qi){
+        var ck = dk+'|'+qi;
+        var belgili = !!_hoBelgi[ck];
+        var tur = q.tip==='vozvrat' ? 'vozvrat' : (q.sotuv ? 'sotuv' : 'berish');
+        out+='<div onclick="haftaOstBelgi(\''+ck+'\')" style="padding:5px 4px;border-top:.5px solid var(--border);text-align:center;cursor:pointer;font-size:14px;color:'+(belgili?'var(--green)':'var(--border)')+';">'+(belgili?'\u2713':'\u25a1')+'</div>';
+        out+='<div onclick="haftaOstBelgi(\''+ck+'\')" style="padding:5px 8px;border-top:.5px solid var(--border);cursor:pointer;'+(belgili?'opacity:.5;':'')+'">'+q.knom+' <small style="color:var(--muted);font-size:9.5px;">\u00b7 '+q.zavod+' '+q.tur+(tur!=='berish'?' \u00b7 '+tur:'')+'</small></div>';
+        out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--red);'+(belgili?'opacity:.5;':'')+'">'+(q.tip==='berish'?fmtG(q.g):'\u2014')+'</div>';
+        out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--green);'+(belgili?'opacity:.5;':'')+'">'+(q.tip==='vozvrat'?fmtG(q.g):'\u2014')+'</div>';
       });
-      out+=row(zn+' \u2014 obshiy', z.b, z.v, 'font-weight:600;background:var(--surf2);');
       out+='</div>';
     }
     out+='</div>';
   });
   document.getElementById('ho-list').innerHTML = out;
 }
+// v144: ptichka belgilash (bloknot bilan tekshirish uchun — sessiyada saqlanadi, bazaga yozilmaydi)
+var _hoBelgi = {};
+function haftaOstBelgi(ck){ _hoBelgi[ck] = !_hoBelgi[ck]; haftaOstRender(); }
 function haftaOstPDF(){
-  var dv=haftaOstDavr(), Z=haftaOstData();
-  var znlar=Object.keys(Z).sort();
-  if(!znlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
+  var dv=haftaOstDavr(), R=haftaOstData(), D=R.D;
+  var kunlar=Object.keys(D).sort(function(a,b){ return D[a].ts - D[b].ts; });
+  if(!kunlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
   var davr=haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1);
   var jb=0,jv=0,body='';
-  znlar.forEach(function(zn){
-    var z=Z[zn]; jb+=z.b; jv+=z.v;
-    body+='<tr class="zv"><td>'+zn+'</td><td></td><td></td></tr>';
-    Object.keys(z.turlar).sort().forEach(function(tn){
-      var t=z.turlar[tn];
-      body+='<tr class="tur"><td>'+tn+' \u2014 jami</td><td>'+fmtG(t.b)+'</td><td>'+(t.v>0.001?fmtG(t.v):'\u2014')+'</td></tr>';
-      Object.keys(t.kl).sort().forEach(function(kn){
-        var c=t.kl[kn];
-        body+='<tr><td style="padding-left:22px;">'+kn+'</td><td>'+(c.b>0.001||c.b<-0.001?fmtG(c.b):'\u2014')+'</td><td>'+(c.v>0.001?fmtG(c.v):'\u2014')+'</td></tr>';
-        (c.ops||[]).forEach(function(o){
-          var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
-          var tur=o.tip==='vozvrat'?'vozvrat':(o.sotuv?'sotuv':'berish');
-          body+='<tr><td style="padding-left:40px;color:#999;font-size:11px;">'+(o.sana||'').slice(0,5)+' '+kunNomi+' \u00b7 '+tur+'</td><td style="color:#999;">'+(o.tip==='berish'?fmtG(o.g):'\u2014')+'</td><td style="color:#999;">'+(o.tip==='vozvrat'?fmtG(o.g):'\u2014')+'</td></tr>';
-        });
-      });
+  kunlar.forEach(function(dk){
+    var dd=D[dk]; jb+=dd.b; jv+=dd.v;
+    body+='<tr class="kun"><td>'+(dd.sana||'').slice(0,5)+'</td><td>'+fmtG(dd.b)+'</td><td>'+(dd.v>0.001?fmtG(dd.v):'\u2014')+'</td><td></td></tr>';
+    dd.qatorlar.forEach(function(q){
+      var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'berish');
+      body+='<tr><td style="padding-left:22px;">'+q.knom+' <span style="color:#999;font-size:10px;">'+q.zavod+' '+q.tur+(tur!=='berish'?' \u00b7 '+tur:'')+'</span></td>'
+        +'<td>'+(q.tip==='berish'?fmtG(q.g):'\u2014')+'</td>'
+        +'<td>'+(q.tip==='vozvrat'?fmtG(q.g):'\u2014')+'</td>'
+        +'<td style="text-align:center;color:#bbb;">\u25a1</td></tr>';
     });
-    body+='<tr class="ob"><td>'+zn+' \u2014 obshiy</td><td>'+fmtG(z.b)+'</td><td>'+(z.v>0.001?fmtG(z.v):'\u2014')+'</td></tr>';
   });
   var w=window.open('','_blank');
   w.document.write('<html><head><title>Haftalik ostatka</title><style>'
@@ -6026,44 +6025,35 @@ function haftaOstPDF(){
     +'.sub{font-size:11px;color:#888;margin-bottom:14px;}'
     +'table{width:100%;border-collapse:collapse;}'
     +'td,th{border:1px solid #eee;padding:6px 10px;}'
-    +'td:nth-child(2),td:nth-child(3),th:nth-child(2),th:nth-child(3){text-align:right;width:90px;}'
+    +'td:nth-child(2),td:nth-child(3),th:nth-child(2),th:nth-child(3){text-align:right;width:80px;}'
+    +'td:nth-child(4),th:nth-child(4){text-align:center;width:34px;}'
     +'th{background:#b8860b;color:#fff;text-align:left;border-color:#a8790a;}'
-    +'.zv td{background:#3a3a3a;color:#fff;font-weight:700;border-color:#3a3a3a;}'
-    +'.tur td{background:#fdf6e3;font-weight:600;}'
-    +'.ob td{background:#eee;font-weight:700;}'
+    +'.kun td{background:#3a3a3a;color:#fff;font-weight:700;border-color:#3a3a3a;font-family:monospace;}'
     +'.jami td{background:#333;color:#fff;font-weight:700;border-color:#333;}'
     +'</style></head><body>'
-    +'<h2>Haftalik ostatka \u2014 berish/vozvrat</h2><div class="sub">'+davr+'</div>'
-    +'<table><tr><th>Zavod / Tur / Klient</th><th>Berish (g)</th><th>Vozvrat (g)</th></tr>'
+    +'<h2>Haftalik ostatka \u2014 sana bo\u02bbyicha</h2><div class="sub">'+davr+'</div>'
+    +'<table><tr><th>Sana / Klient</th><th>Berish</th><th>Vozvrat</th><th>\u2713</th></tr>'
     +body
-    +'<tr class="jami"><td>OBSHIY</td><td>'+fmtG(roundG(jb))+'</td><td>'+fmtG(roundG(jv))+'</td></tr>'
-    +'</table><script>window.print();<\\/script></body></html>');
+    +'<tr class="jami"><td>OBSHIY</td><td>'+fmtG(roundG(jb))+'</td><td>'+fmtG(roundG(jv))+'</td><td></td></tr>'
+    +'</table><script>window.print();<\/script></body></html>');
 }
 function haftaOstExcel(){
-  var dv=haftaOstDavr(), Z=haftaOstData();
-  var znlar=Object.keys(Z).sort();
-  if(!znlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
-  var csv='Haftalik ostatka;'+haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+'\n';
-  csv+='Zavod;Tur;Klient;Berish (g);Vozvrat (g)\n';
-  var jb=0,jv=0;
+  var dv=haftaOstDavr(), R=haftaOstData(), D=R.D;
+  var kunlar=Object.keys(D).sort(function(a,b){ return D[a].ts - D[b].ts; });
+  if(!kunlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
   var G=function(v){ return String(v).replace('.',','); };
-  znlar.forEach(function(zn){
-    var z=Z[zn]; jb+=z.b; jv+=z.v;
-    Object.keys(z.turlar).sort().forEach(function(tn){
-      var t=z.turlar[tn];
-      Object.keys(t.kl).sort().forEach(function(kn){
-        (t.kl[kn].ops||[]).forEach(function(o){
-          var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
-          var tur=o.tip==='vozvrat'?'vozvrat':(o.sotuv?'sotuv':'berish');
-          csv+=zn+';'+tn+';'+kn+' \u21b3 '+(o.sana||'').slice(0,5)+' '+kunNomi+' '+tur+';'+(o.tip==='berish'?G(o.g):'')+';'+(o.tip==='vozvrat'?G(o.g):'')+'\n';
-        });
-        csv+=zn+';'+tn+';'+kn+' (jami);'+G(t.kl[kn].b)+';'+G(t.kl[kn].v)+'\n';
-      });
-      csv+=zn+';'+tn+';JAMI;'+G(t.b)+';'+G(t.v)+'\n';
+  var csv='Haftalik ostatka;'+haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+'\n';
+  csv+='Sana;Klient;Zavod;Tur;Berish (g);Vozvrat (g);Tekshirildi\n';
+  var jb=0,jv=0;
+  kunlar.forEach(function(dk){
+    var dd=D[dk]; jb+=dd.b; jv+=dd.v;
+    csv+=(dd.sana||'').slice(0,5)+' JAMI;;;;'+G(dd.b)+';'+G(dd.v)+';\n';
+    dd.qatorlar.forEach(function(q){
+      var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'berish');
+      csv+=(dd.sana||'').slice(0,5)+';'+q.knom+';'+q.zavod+';'+q.tur+(tur!=='berish'?' ('+tur+')':'')+';'+(q.tip==='berish'?G(q.g):'')+';'+(q.tip==='vozvrat'?G(q.g):'')+';\n';
     });
-    csv+=zn+';OBSHIY;;'+G(z.b)+';'+G(z.v)+'\n';
   });
-  csv+='OBSHIY;;;'+G(roundG(jb))+';'+G(roundG(jv))+'\n';
+  csv+='OBSHIY;;;;'+G(roundG(jb))+';'+G(roundG(jv))+';\n';
   var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
   var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
