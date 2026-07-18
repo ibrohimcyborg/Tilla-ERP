@@ -1315,6 +1315,31 @@ body.rol-hamid .hamid-x { display: none !important; }
         <div style="font-size:14px;font-weight:700;color:var(--text);">📋 Hisobot / Tahrirlash</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Shakllantirilgan yozuvni boshqa zavodga ko'chirish yoki o'chirish</div>
       </button>
+      <button onclick="haftaOstOch()" style="width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);">📅 Haftalik ostatka</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Hafta ichida kimga necha gramm berilgani va vozvrati — bloknot bilan solishtirish</div>
+      </button>
+    </div>
+
+    <div class="card" id="ost-hafta" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);">📅 HAFTALIK OSTATKA</div>
+        <button onclick="haftaOstYop()" style="border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;">×</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:7px 10px;margin-bottom:9px;">
+        <span onclick="haftaOstNav(-1)" style="font-size:16px;color:var(--gold);cursor:pointer;padding:0 10px;">‹</span>
+        <span id="ho-davr" style="font-size:12px;font-weight:600;"></span>
+        <span onclick="haftaOstNav(1)" style="font-size:16px;color:var(--gold);cursor:pointer;padding:0 10px;">›</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;text-align:center;margin-bottom:9px;">
+        <div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:6px 2px;"><div style="font-size:9px;color:var(--muted);">BERILGAN — OBSHIY</div><div id="ho-jb" style="font-family:Roboto,sans-serif;font-size:14px;color:var(--red);">0</div></div>
+        <div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:6px 2px;"><div style="font-size:9px;color:var(--muted);">VOZVRAT — OBSHIY</div><div id="ho-jv" style="font-family:Roboto,sans-serif;font-size:14px;color:var(--green);">0</div></div>
+      </div>
+      <div id="ho-list"></div>
+      <div style="display:flex;gap:6px;margin-top:9px;">
+        <button onclick="haftaOstPDF()" class="btn" style="flex:1;font-size:12px;padding:9px 0;">📄 PDF</button>
+        <button onclick="haftaOstExcel()" class="btn" style="flex:1;font-size:12px;padding:9px 0;">📊 Excel</button>
+      </div>
     </div>
 
     <div class="card" id="ost-kl-search" style="display:none;">
@@ -1951,7 +1976,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v140.3';
+var APP_VER = 'v142';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -4353,6 +4378,27 @@ function kassaChiqimYopdiHTML(o){
   return h+'</div>';
 }
 
+// v141: QULF TAQSIMOTI (Ibrohim: "fifo qolishi kere" — B variant, FIFO mantig'i TEGILMAGAN).
+// Navbat pulini uch qismga ajratib KO'RSATADI: yopiq sovdalarga ketgani (ochiqEkv=0,
+// zavodga allaqachon topshirilgan — foydasi avvaldan qotgan), ochiq sovdalarni
+// qulflagani (haqiqiy ta'sir), va sarflanmagani (sovda yetmadi).
+function kassaQulfTaqsimot(){
+  var jamiNavbat=0;
+  kassaPulAmallar().forEach(function(x){ if(x.kurs>0) jamiNavbat+=x.pul; });
+  var xar = kassaSuzuvchiXaritasi();
+  var yopiqqa=0, ochiqqa=0;
+  xar.forEach(function(v){
+    var p = v.qopPul||0; if(!(p>0)) return;
+    if(v.ochiqEkv>0.001) ochiqqa+=p; else yopiqqa+=p;
+  });
+  // karta/perech qulfi ham xaritada bor, lekin u navbat puli emas (sovdaning o'zidan) —
+  // shuning uchun "qoldi" jamiNavbat dan faqat sarflanganini ayirish bilan chegaralanadi.
+  var sarflangan = Math.min(jamiNavbat, yopiqqa+ochiqqa);
+  var qoldi = Math.max(0, Math.round((jamiNavbat - sarflangan)*100)/100);
+  return {navbat:Math.round(jamiNavbat*100)/100, yopiqqa:Math.round(yopiqqa*100)/100,
+          ochiqqa:Math.round(ochiqqa*100)/100, qoldi:qoldi};
+}
+
 function kassaChiqimPanelHTML(){
   var L=kassaChiqimlar();
   var jN=0,jL=0,jT=0,jF=0;
@@ -4367,6 +4413,17 @@ function kassaChiqimPanelHTML(){
   function st(l,v){ return '<div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:6px 2px;"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;">'+l+'</div><div style="font-size:13px;font-weight:600;font-family:Roboto,sans-serif;color:var(--red);">'+v+'</div></div>'; }
   h+=st('Naqt','−$'+fmtD(jN))+st('Lom',jL>0.005?'−'+fmtG(jL)+'g':'—')+st('999',jT>0.005?'−'+fmtG(jT)+'g':'—');
   h+='</div>';
+  // v141: qulf qayoqqa ketgani — FIFO natijasi ko'rinadigan bo'ldi (mantiq TEGILMAGAN)
+  var _qt=kassaQulfTaqsimot();
+  if(_qt.navbat>0.005){
+    h+='<div style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:9px;font-size:10.5px;line-height:1.7;">';
+    h+='<div style="color:var(--gold);font-size:9.5px;letter-spacing:.06em;font-weight:600;margin-bottom:3px;">QULF TAQSIMOTI (FIFO \u2014 eng eski sovdadan)</div>';
+    h+='<div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Yopiq sovdalarga ketdi</span><b style="color:var(--muted);">$'+fmtD(_qt.yopiqqa)+'</b></div>';
+    h+='<div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Ochiq sovdalarni qulfladi</span><b style="color:var(--green);">$'+fmtD(_qt.ochiqqa)+'</b></div>';
+    if(_qt.qoldi>0.005) h+='<div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Sarflanmadi (sovda yetmadi)</span><b style="color:var(--gold);">$'+fmtD(_qt.qoldi)+'</b></div>';
+    h+='<div style="font-size:9px;color:var(--muted);margin-top:4px;">Yopiq = zavodga allaqachon topshirilgan sovdalar \u2014 foydasi avvaldan qotgan.</div>';
+    h+='</div>';
+  }
   L.forEach(function(o){
     var f = Math.abs(o.foyda)<0.005 ? '' : (o.foyda>0?'<span style="color:var(--green);">foyda +$'+fmtD(o.foyda)+'</span>':'<span style="color:var(--red);">foyda −$'+fmtD(Math.abs(o.foyda))+'</span>');
     var m=[];
@@ -5709,6 +5766,7 @@ function openOstatkaZavod(){ _ostCtx='zavod'; goTo('s-ostatka'); }
 function openOstatkaKlient(){ _ostCtx='klient'; goTo('s-ostatka'); }
 function initOstatka(){
   _ostMode = null;
+  var _hoEl = document.getElementById('ost-hafta'); if(_hoEl) _hoEl.style.display='none'; // v142: ekranga qaytganda haftalik panel yopiq
   var isKl = _ostCtx==='klient';
   document.getElementById('ost-choice').style.display = isKl?'none':'block';
   document.getElementById('ost-form').style.display='none';
@@ -5818,6 +5876,177 @@ function ostKlSaqla(){
 // ===== OSTATKA HISOBOTI (Excel/PDF): Zavod (shakllantirish+tekshiruv, "mos" ham) va Klient
 // ===== HISOBOT TAHRIRLASH / BOSHQA ZAVODGA KO'CHIRISH =====
 var _ostRecList=[], _ostRecCur=null;
+// ─── HAFTALIK OSTATKA (v142) ─────────────────────────────────────────────
+// Ibrohim: "har hafta qaysi zavoddan nima chiqib ketgani — kimga nechi gramm,
+// qancha vozvrat; bloknot bilan solishtiramiz". Jadval: Berish · Vozvrat (SOF YO'Q),
+// har turda jami, zavodda obshiy, tepada umumiy obshiy. Joy: Ostatka ekrani, 4-tugma.
+var _hoOffset = 0; // 0 = bu hafta, -1 = o'tgan hafta ...
+
+function haftaOstDavr(){
+  var n = new Date();
+  var d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  var kun = (d.getDay()+6)%7;                       // dushanba=0
+  var bosh = d.getTime() - kun*86400000 + _hoOffset*7*86400000;
+  return {bosh: bosh, oxir: bosh + 7*86400000 - 1};
+}
+function haftaOstSanaFmt(ts){
+  var d = new Date(ts);
+  return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+}
+// Ma'lumot: klient tarixidan berish/vozvrat, hafta ichida.
+// - inventar:'boshlangich' KIRMAYDI (shakllantirish — zavoddan chiqmagan)
+// - berish manfiy bo'lsa jimgina Berish ustuniga qo'shiladi (Ibrohim: "unaqa narsa bo'lmaydi")
+// - sotuvdan yozilgan berish ham kiradi (Ibrohim: "sotilganam berilganam hammasi")
+function haftaOstData(){
+  var dv = haftaOstDavr();
+  var Z = {}; // zavod -> {b,v, turlar: tur -> {b,v, kl: nom -> {b,v}}}
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || !op.zavod || !op.tur) return;
+      if(op.tip!=='berish' && op.tip!=='vozvrat') return;
+      if(op.inventar==='boshlangich') return;
+      var ts = fdSanaTs(op.sana, op.soat) || 0;
+      if(ts < dv.bosh || ts > dv.oxir) return;
+      var g = parseNum(op.gramm); if(!g) return;
+      var z = Z[op.zavod] || (Z[op.zavod] = {b:0, v:0, turlar:{}});
+      var t = z.turlar[op.tur] || (z.turlar[op.tur] = {b:0, v:0, kl:{}});
+      var c = t.kl[k.nom] || (t.kl[k.nom] = {b:0, v:0});
+      if(op.tip==='berish'){ z.b+=g; t.b+=g; c.b+=g; }
+      else { z.v+=g; t.v+=g; c.v+=g; }
+    });
+  });
+  Object.keys(Z).forEach(function(zn){
+    var z=Z[zn]; z.b=roundG(z.b); z.v=roundG(z.v);
+    Object.keys(z.turlar).forEach(function(tn){
+      var t=z.turlar[tn]; t.b=roundG(t.b); t.v=roundG(t.v);
+      Object.keys(t.kl).forEach(function(kn){ t.kl[kn].b=roundG(t.kl[kn].b); t.kl[kn].v=roundG(t.kl[kn].v); });
+    });
+  });
+  return Z;
+}
+var _hoOchiq = {};
+function haftaOstOch(){
+  _hoOffset = 0; _hoOchiq = {};
+  document.getElementById('ost-choice').style.display='none';
+  document.getElementById('ost-hafta').style.display='block';
+  haftaOstRender();
+}
+function haftaOstYop(){
+  document.getElementById('ost-hafta').style.display='none';
+  document.getElementById('ost-choice').style.display='block';
+}
+function haftaOstNav(d){ _hoOffset = Math.min(0, _hoOffset + d); haftaOstRender(); }
+function haftaOstRender(){
+  var dv = haftaOstDavr();
+  document.getElementById('ho-davr').textContent =
+    haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+(_hoOffset===0?' (bu hafta)':'');
+  var Z = haftaOstData();
+  var znlar = Object.keys(Z).sort();
+  var jb=0, jv=0;
+  znlar.forEach(function(zn){ jb+=Z[zn].b; jv+=Z[zn].v; });
+  document.getElementById('ho-jb').textContent = fmtG(roundG(jb))+' g';
+  document.getElementById('ho-jv').textContent = fmtG(roundG(jv))+' g';
+  var out='';
+  if(!znlar.length){
+    out='<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Bu haftada berish/vozvrat yo\u02bcq</div>';
+  }
+  znlar.forEach(function(zn){
+    var z=Z[zn], ochiq=!!_hoOchiq[zn];
+    out+='<div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;">';
+    out+='<div onclick="_hoOchiq[\''+zn.replace(/'/g,"\\'")+'\']=!_hoOchiq[\''+zn.replace(/'/g,"\\'")+'\'];haftaOstRender();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surf2);cursor:pointer;">'
+      +'<b style="font-size:12.5px;">'+zn+' '+(ochiq?'\u25be':'\u25b8')+'</b>'
+      +'<span style="font-family:Roboto,sans-serif;font-size:11.5px;"><span style="color:var(--red);">'+fmtG(z.b)+'</span> \u00b7 <span style="color:var(--green);">'+(z.v>0.001?fmtG(z.v):'\u2014')+'</span></span></div>';
+    if(ochiq){
+      out+='<div style="display:grid;grid-template-columns:1fr 76px 76px;font-size:11px;align-items:center;">';
+      out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;background:var(--surf2);">Tur / Klient</div>'
+         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Berish</div>'
+         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Vozvrat</div>';
+      function row(nom, b, v, stil){
+        return '<div style="padding:5px 8px;border-top:.5px solid var(--border);'+(stil||'')+'">'+nom+'</div>'
+          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--red);'+(stil||'')+'">'+(b>0.001||b<-0.001?fmtG(b):'\u2014')+'</div>'
+          +'<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--green);'+(stil||'')+'">'+(v>0.001?fmtG(v):'\u2014')+'</div>';
+      }
+      Object.keys(z.turlar).sort().forEach(function(tn){
+        var t=z.turlar[tn];
+        out+=row(tn+' \u2014 jami', t.b, t.v, 'font-weight:600;background:rgba(201,168,76,.06);');
+        Object.keys(t.kl).sort().forEach(function(kn){
+          out+=row('<span style="padding-left:10px;">'+kn+'</span>', t.kl[kn].b, t.kl[kn].v, '');
+        });
+      });
+      out+=row(zn+' \u2014 obshiy', z.b, z.v, 'font-weight:600;background:var(--surf2);');
+      out+='</div>';
+    }
+    out+='</div>';
+  });
+  document.getElementById('ho-list').innerHTML = out;
+}
+function haftaOstPDF(){
+  var dv=haftaOstDavr(), Z=haftaOstData();
+  var znlar=Object.keys(Z).sort();
+  if(!znlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
+  var davr=haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1);
+  var jb=0,jv=0,body='';
+  znlar.forEach(function(zn){
+    var z=Z[zn]; jb+=z.b; jv+=z.v;
+    body+='<tr class="zv"><td>'+zn+'</td><td></td><td></td></tr>';
+    Object.keys(z.turlar).sort().forEach(function(tn){
+      var t=z.turlar[tn];
+      body+='<tr class="tur"><td>'+tn+' \u2014 jami</td><td>'+fmtG(t.b)+'</td><td>'+(t.v>0.001?fmtG(t.v):'\u2014')+'</td></tr>';
+      Object.keys(t.kl).sort().forEach(function(kn){
+        var c=t.kl[kn];
+        body+='<tr><td style="padding-left:22px;">'+kn+'</td><td>'+(c.b>0.001||c.b<-0.001?fmtG(c.b):'\u2014')+'</td><td>'+(c.v>0.001?fmtG(c.v):'\u2014')+'</td></tr>';
+      });
+    });
+    body+='<tr class="ob"><td>'+zn+' \u2014 obshiy</td><td>'+fmtG(z.b)+'</td><td>'+(z.v>0.001?fmtG(z.v):'\u2014')+'</td></tr>';
+  });
+  var w=window.open('','_blank');
+  w.document.write('<html><head><title>Haftalik ostatka</title><style>'
+    +'body{font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#222;}'
+    +'h2{font-size:17px;margin:0 0 2px;color:#8a6d1a;}'
+    +'.sub{font-size:11px;color:#888;margin-bottom:14px;}'
+    +'table{width:100%;border-collapse:collapse;}'
+    +'td,th{border:1px solid #eee;padding:6px 10px;}'
+    +'td:nth-child(2),td:nth-child(3),th:nth-child(2),th:nth-child(3){text-align:right;width:90px;}'
+    +'th{background:#b8860b;color:#fff;text-align:left;border-color:#a8790a;}'
+    +'.zv td{background:#3a3a3a;color:#fff;font-weight:700;border-color:#3a3a3a;}'
+    +'.tur td{background:#fdf6e3;font-weight:600;}'
+    +'.ob td{background:#eee;font-weight:700;}'
+    +'.jami td{background:#333;color:#fff;font-weight:700;border-color:#333;}'
+    +'</style></head><body>'
+    +'<h2>Haftalik ostatka \u2014 berish/vozvrat</h2><div class="sub">'+davr+'</div>'
+    +'<table><tr><th>Zavod / Tur / Klient</th><th>Berish (g)</th><th>Vozvrat (g)</th></tr>'
+    +body
+    +'<tr class="jami"><td>OBSHIY</td><td>'+fmtG(roundG(jb))+'</td><td>'+fmtG(roundG(jv))+'</td></tr>'
+    +'</table><script>window.print();<\\/script></body></html>');
+}
+function haftaOstExcel(){
+  var dv=haftaOstDavr(), Z=haftaOstData();
+  var znlar=Object.keys(Z).sort();
+  if(!znlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
+  var csv='Haftalik ostatka;'+haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+'\n';
+  csv+='Zavod;Tur;Klient;Berish (g);Vozvrat (g)\n';
+  var jb=0,jv=0;
+  var G=function(v){ return String(v).replace('.',','); };
+  znlar.forEach(function(zn){
+    var z=Z[zn]; jb+=z.b; jv+=z.v;
+    Object.keys(z.turlar).sort().forEach(function(tn){
+      var t=z.turlar[tn];
+      Object.keys(t.kl).sort().forEach(function(kn){
+        csv+=zn+';'+tn+';'+kn+';'+G(t.kl[kn].b)+';'+G(t.kl[kn].v)+'\n';
+      });
+      csv+=zn+';'+tn+';JAMI;'+G(t.b)+';'+G(t.v)+'\n';
+    });
+    csv+=zn+';OBSHIY;;'+G(z.b)+';'+G(z.v)+'\n';
+  });
+  csv+='OBSHIY;;;'+G(roundG(jb))+';'+G(roundG(jv))+'\n';
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='haftalik-ostatka-'+haftaOstSanaFmt(dv.bosh).replace(/\./g,'-')+'.csv';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+}
+
 function ostHisobotOch(){
   _ostRecList=[];
   (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(t){
