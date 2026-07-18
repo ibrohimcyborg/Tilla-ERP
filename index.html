@@ -1951,7 +1951,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v140.2';
+var APP_VER = 'v140.3';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -11089,6 +11089,11 @@ function kTolovCalc(){
   });
   // Avtomatik tur tanlash — ortiqcha bo'lsa birinchi qarzli turga
   if (ktSdacha > 0.01) {
+    // v140.3: avto-tanlov FAQAT tanlov hali yo'q bo'lsa. Avval shartsiz edi —
+    // sdachaRadioTanla -> kTolovCalc -> shu blok foydalanuvchi bosgan radioni
+    // USTIDAN yozib, belgi eski joyiga sakrab qaytardi (Ibrohim rasm bilan topdi).
+    // Modal ochilishida _sdachaRadio_kt null (10378) -> birinchi renderda avto ishlaydi.
+    if (!window['_sdachaRadio_kt']) {
     var autoKtKey = null;
     // Avval kst da to'lov qilingan turni topish
     var bd_kt_auto = window._kTolovBD || {};
@@ -11115,6 +11120,7 @@ function kTolovCalc(){
         window['_sdachaRadio_kt'] = autoKtKey;
       }
     }
+    } // v140.3: !_sdachaRadio_kt sharti yopilishi
   } else {
     window._ktSdachaTanlov = null;
     window['_sdachaRadio_kt'] = null;
@@ -12488,7 +12494,9 @@ function kSotuvCalc() {
   }); });
 
   // 9. Ortiqcha — avtomatik shu turga set
-  if (ortiqcha > 0.01) {
+  // v140.3: FAQAT foydalanuvchi hali tanlamagan bo'lsa (kt bilan bir xil xato edi —
+  // radio bosilgach kSotuvCalc shu blokni ishlatib tanlovni ustidan yozardi).
+  if (ortiqcha > 0.01 && !window['_sdachaRadio_ks']) {
     // lomOrtiqcha bo'lsa — birinchi oldilar turga, gramOrtiqcha bo'lsa — o'sha turga
     var autoZi = gramOrtiqchaZi >= 0 ? gramOrtiqchaZi : (oldilar.length > 0 ? oldilar[0].zi : -1);
     var autoTi = gramOrtiqchaTi >= 0 ? gramOrtiqchaTi : (oldilar.length > 0 ? oldilar[0].ti : -1);
@@ -12501,7 +12509,9 @@ function kSotuvCalc() {
         window['_sdachaRadio_ks'] = autoZ.nom + '||' + autoT.nom;
       }
     }
-  } else {
+  } else if (ortiqcha <= 0.01) {
+    // v140.3: tozalash FAQAT ortiqcha yo'qolganda. Yangi shart tufayli
+    // "ortiqcha bor + tanlov bor" holati ham else ga tushib tanlovni o'chirib yubormasin.
     window._ksSotuvOrtiqchaTanlov = null;
     window['_sdachaRadio_ks'] = null;
   }
