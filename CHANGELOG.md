@@ -3,6 +3,19 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v144: HAFTALIK OSTATKA — SANA BO'YICHA + PTICHKA (TEKSHIRISH)
+
+Ibrohim rasm bilan: "klient bo'yicha emas, SANA bo'yicha — klient berganlari kere". Keyin: "faqat sana bo'sin, tagidan klientla ketma-ketligida, yoniga ptichka qo'yadigan qil tekshirish uchunam". Mockup (hafta-sana-boyicha, sodda — hafta kuni nomisiz) -> tasdiq -> kod.
+
+O'ZGARISH: v142/v143 da tuzilish zavod->tur->klient->kun edi. Endi SANA asosiy: kun -> o'sha kuni bergan/qaytargan klientlar (zavod·tur klient yonida kichik yozuv).
+
+QO'SHILDI: (1) haftaOstData endi {Z, D} qaytaradi — Z eski struktura (ichki, saqlanadi), D yangi: sana(kun) -> {sana, ts, b, v, qatorlar[{knom, zavod, tur, tip, sotuv, g, ts}]}; qatorlar zavod+tur+klient bo'yicha tartiblangan. (2) Render sana bo'yicha: har kun sarlavhasi (sana + kungi jami berish·vozvrat, Roboto shrift, oltin), bosilsa ochiladi; kunlar ENG ESKIDAN (ts sort). (3) PTICHKA ustuni: har qatorda checkbox (□/✓), bosilsa _hoBelgi da belgilanadi, belgilangan qator opacity:.5 bo'ladi — bloknot bilan solishtirganda "tekshirildi" belgisi. Sessiyada saqlanadi, bazaga YOZILMAYDI, hafta almashsa/panel qayta ochilsa tozalanadi. (4) PDF sana bo'yicha qayta yozildi: kun qatori qora, klient qatorlari, oxirida bo'sh ✓ ustuni (qo'lda belgilash uchun bosma). (5) Excel: Sana;Klient;Zavod;Tur;Berish;Vozvrat;Tekshirildi ustunlari, kun JAMI qatorlari bilan. (6) haftaOstNav hafta almashganda _hoBelgi+_hoOchiq tozalaydi.
+
+Sinov (Node, 26/26): D 3 kun, eng eskidan tartib (14->15->17), kun jami (14.07=79.21), kun ichida 2 qator, qatorda knom+zavod+tur, vozvrat kuni, OBSHIY 97.31/20.00. Eski 132 sinov (t14 .Z ga moslandi) qayta o'tdi. APP_VER v143 -> v144.
+
+ESLATMA: rasmdagi katta 3D jadval (klient bo'yicha) — Ibrohim "keyin qo'shamiz" dedi. Skan vozvrat modali (1x2 + chek, Abdulhamiddan yashirin) hali kutilmoqda. Bu ikkalasi ochiq.
+
+---
 ## v143: HAFTALIK OSTATKA — SANA (KUN-KUN) QO'SHILDI
 
 Ibrohim: "haftalik ostatkani qaysi sanada bo'lganini qo'shib ber ... sanasini ketma-ketligida, oldin eskisidan qilib". Mockup (hafta-sana-mockup, A=sana ustunda / B=kun-kun) -> B tanlandi (bloknot bilan aynan solishtirish).
