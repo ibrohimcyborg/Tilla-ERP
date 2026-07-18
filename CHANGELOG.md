@@ -3,6 +3,17 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v143: HAFTALIK OSTATKA — SANA (KUN-KUN) QO'SHILDI
+
+Ibrohim: "haftalik ostatkani qaysi sanada bo'lganini qo'shib ber ... sanasini ketma-ketligida, oldin eskisidan qilib". Mockup (hafta-sana-mockup, A=sana ustunda / B=kun-kun) -> B tanlandi (bloknot bilan aynan solishtirish).
+
+QO'SHILDI: haftaOstData har klientda endi `ops[]` massivi saqlaydi — har amal {ts, sana, tip, sotuv, g}, ts bo'yicha ESKISIDAN yangisiga sort. Render: klient qatoridan keyin kun-kun qatorlar (padding-left:24px, kichik) — "14.07 Se · berish 31.17" ko'rinishida (sana, hafta kuni Ya/Du/Se/Cho/Pa/Ju/Sha, turi berish/sotuv/vozvrat, o'sha kungi gramm). PDF ga ham (padding-left:40px, kulrang qatorlar), Excel ga ham (klient ↳ sana kun turi + "(jami)" qatori). Berish/vozvrat mos ustunga, ikkinchisi "—".
+
+Sinov (Node, 19/19): ops massivi 2 amal; ESKISIdan tartiblangan ([0]=14.07 berish, [1]=18.07 vozvrat); gramm saqlangan. Eski 147 sinov qayta o'tdi. APP_VER v142 -> v143.
+
+ESLATMA: rasmda ko'rsatilgan 3D jadval (klientlar bo'yicha katta ro'yxat) — Ibrohim "keyin qo'shamiz" dedi, tegilmadi. sotuv belgisi (o.sotuv) op.manba==='sotuv' yoki op._sotuv bilan aniqlanadi — agar sotuvdan yozilgan berishda bu bayroq bo'lmasa "berish" deb ko'rsatiladi (gramm/jami baribir to'g'ri).
+
+---
 ## v142: HAFTALIK OSTATKA — OSTATKA EKRANIDA YANGI BO'LIM
 
 Ibrohim: "har hafta qaysi zavoddan nima chiqib ketgani haqida hisobot — kimga nechi gramm, qancha vozvrat; qo'lda bloknotimiz bor, shuni solishtiramiz". Tartib to'liq: 5 mockup aylanishi (hafta-mockup -> hafta-hisobot -> hafta-final -> hafta-jadval, 2 marta qayta ishlangan; tuzatish tushunchasi minus-nima-mockup bilan tushuntirildi) -> Ibrohim qarorlari -> "bo'ldi huddi shunaqa qo'sh, Ostatkaga, haftalik ostatka qilib" -> kod.
