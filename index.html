@@ -1976,7 +1976,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v144';
+var APP_VER = 'v145';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5969,6 +5969,18 @@ function haftaOstRender(){
   var out='';
   if(!kunlar.length){
     out='<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Bu haftada berish/vozvrat yo\u02bcq</div>';
+    document.getElementById('ho-list').innerHTML = out; return;
+  }
+  // ptichka katagi (chap/o'ng); gramm bo'lmasa nuqta
+  function ckCell(ck, bor){
+    if(!bor) return '<div style="padding:5px 2px;border-top:.5px solid var(--border);text-align:center;color:var(--border);opacity:.35;">\u00b7</div>';
+    var on = !!_hoBelgi[ck];
+    return '<div onclick="haftaOstBelgi(\''+ck+'\')" style="padding:5px 2px;border-top:.5px solid var(--border);text-align:center;cursor:pointer;font-size:13px;color:'+(on?'var(--green)':'var(--border)')+';">'+(on?'\u2713':'\u25a1')+'</div>';
+  }
+  function gCell(g, tip, dim){
+    var col = tip==='berish' ? 'var(--red)' : 'var(--green)';
+    if(!(g>0.001 || g<-0.001)) return '<div style="padding:5px 6px;border-top:.5px solid var(--border);text-align:right;color:var(--muted);">\u2014</div>';
+    return '<div style="padding:5px 6px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:'+col+';'+(dim?'opacity:.45;':'')+'">'+fmtG(g)+'</div>';
   }
   kunlar.forEach(function(dk){
     var dd=D[dk], ochiq=!!_hoOchiq[dk];
@@ -5978,27 +5990,45 @@ function haftaOstRender(){
       +'<b style="font-family:Roboto,sans-serif;font-size:13px;color:var(--gold);">'+d5+' '+(ochiq?'\u25be':'\u25b8')+'</b>'
       +'<span style="font-family:Roboto,sans-serif;font-size:11.5px;"><span style="color:var(--red);">'+fmtG(dd.b)+'</span> \u00b7 <span style="color:var(--green);">'+(dd.v>0.001?fmtG(dd.v):'\u2014')+'</span></span></div>';
     if(ochiq){
-      out+='<div style="display:grid;grid-template-columns:26px 1fr 72px 72px;font-size:11.5px;align-items:center;">';
-      out+='<div style="padding:5px 4px;border-top:.5px solid var(--border);background:var(--surf2);"></div>'
-         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;background:var(--surf2);">Klient</div>'
-         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Berish</div>'
-         +'<div style="padding:5px 8px;border-top:.5px solid var(--border);font-size:9px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);font-family:Roboto,sans-serif;">Vozvrat</div>';
-      dd.qatorlar.forEach(function(q,qi){
-        var ck = dk+'|'+qi;
-        var belgili = !!_hoBelgi[ck];
-        var tur = q.tip==='vozvrat' ? 'vozvrat' : (q.sotuv ? 'sotuv' : 'berish');
-        out+='<div onclick="haftaOstBelgi(\''+ck+'\')" style="padding:5px 4px;border-top:.5px solid var(--border);text-align:center;cursor:pointer;font-size:14px;color:'+(belgili?'var(--green)':'var(--border)')+';">'+(belgili?'\u2713':'\u25a1')+'</div>';
-        out+='<div onclick="haftaOstBelgi(\''+ck+'\')" style="padding:5px 8px;border-top:.5px solid var(--border);cursor:pointer;'+(belgili?'opacity:.5;':'')+'">'+q.knom+' <small style="color:var(--muted);font-size:9.5px;">\u00b7 '+q.zavod+' '+q.tur+(tur!=='berish'?' \u00b7 '+tur:'')+'</small></div>';
-        out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--red);'+(belgili?'opacity:.5;':'')+'">'+(q.tip==='berish'?fmtG(q.g):'\u2014')+'</div>';
-        out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);text-align:right;font-family:Roboto,sans-serif;color:var(--green);'+(belgili?'opacity:.5;':'')+'">'+(q.tip==='vozvrat'?fmtG(q.g):'\u2014')+'</div>';
+      // qatorlarni ZAVOD bo'yicha guruhlash (qatorlar allaqachon zavod+tur+klient sort)
+      var zg = {}, zsr = [];
+      dd.qatorlar.forEach(function(q){
+        if(!zg[q.zavod]){ zg[q.zavod]={b:0,v:0,rows:[]}; zsr.push(q.zavod); }
+        var zz=zg[q.zavod]; zz.rows.push(q);
+        if(q.tip==='berish') zz.b+=q.g; else zz.v+=q.g;
       });
-      out+='</div>';
+      zsr.forEach(function(zn){
+        var zz=zg[zn], zk=dk+'|'+zn, zoch = _hoOchiq[zk]!==false; // zavod default OCHIQ
+        out+='<div onclick="_hoOchiq[\''+zk+'\']=(_hoOchiq[\''+zk+'\']===false);haftaOstRender();" style="display:flex;justify-content:space-between;padding:6px 11px;border-top:.5px solid var(--border);background:rgba(201,168,76,.06);font-size:11.5px;font-weight:600;cursor:pointer;">'
+          +'<span>'+zn+' '+(zoch?'\u25be':'\u25b8')+'</span>'
+          +'<span style="font-family:Roboto,sans-serif;"><span style="color:var(--red);">'+fmtG(roundG(zz.b))+'</span> \u00b7 <span style="color:var(--green);">'+(zz.v>0.001?fmtG(roundG(zz.v)):'\u2014')+'</span></span></div>';
+        if(zoch){
+          out+='<div style="display:grid;grid-template-columns:1fr 22px 58px 22px 58px;font-size:11.5px;align-items:center;">';
+          out+='<div style="padding:4px 8px;border-top:.5px solid var(--border);font-size:8.5px;color:var(--muted);text-transform:uppercase;background:var(--surf2);">Klient</div>'
+             +'<div style="padding:4px 2px;border-top:.5px solid var(--border);background:var(--surf2);"></div>'
+             +'<div style="padding:4px 6px;border-top:.5px solid var(--border);font-size:8.5px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);">Berish</div>'
+             +'<div style="padding:4px 2px;border-top:.5px solid var(--border);background:var(--surf2);"></div>'
+             +'<div style="padding:4px 6px;border-top:.5px solid var(--border);font-size:8.5px;color:var(--muted);text-transform:uppercase;text-align:right;background:var(--surf2);">Vozvrat</div>';
+          zz.rows.forEach(function(q,qi){
+            var isB = q.tip==='berish';
+            var ckB = dk+'|'+zn+'|'+qi+'|b';
+            var ckV = dk+'|'+zn+'|'+qi+'|v';
+            var tur = q.tip==='vozvrat' ? 'vozvrat' : (q.sotuv ? 'sotuv' : '');
+            out+='<div style="padding:5px 8px;border-top:.5px solid var(--border);">'+q.knom+' <small style="color:var(--muted);font-size:9.5px;">\u00b7 '+q.tur+(tur?' \u00b7 '+tur:'')+'</small></div>';
+            out+=ckCell(ckB, isB);
+            out+=gCell(isB?q.g:0, 'berish', _hoBelgi[ckB]);
+            out+=ckCell(ckV, !isB);
+            out+=gCell(!isB?q.g:0, 'vozvrat', _hoBelgi[ckV]);
+          });
+          out+='</div>';
+        }
+      });
     }
     out+='</div>';
   });
   document.getElementById('ho-list').innerHTML = out;
 }
-// v144: ptichka belgilash (bloknot bilan tekshirish uchun — sessiyada saqlanadi, bazaga yozilmaydi)
+// v145: ptichka har gramm oldida (berish/vozvrat alohida). Sessiyada, bazaga yozilmaydi.
 var _hoBelgi = {};
 function haftaOstBelgi(ck){ _hoBelgi[ck] = !_hoBelgi[ck]; haftaOstRender(); }
 function haftaOstPDF(){
@@ -6009,13 +6039,21 @@ function haftaOstPDF(){
   var jb=0,jv=0,body='';
   kunlar.forEach(function(dk){
     var dd=D[dk]; jb+=dd.b; jv+=dd.v;
-    body+='<tr class="kun"><td>'+(dd.sana||'').slice(0,5)+'</td><td>'+fmtG(dd.b)+'</td><td>'+(dd.v>0.001?fmtG(dd.v):'\u2014')+'</td><td></td></tr>';
-    dd.qatorlar.forEach(function(q){
-      var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'berish');
-      body+='<tr><td style="padding-left:22px;">'+q.knom+' <span style="color:#999;font-size:10px;">'+q.zavod+' '+q.tur+(tur!=='berish'?' \u00b7 '+tur:'')+'</span></td>'
-        +'<td>'+(q.tip==='berish'?fmtG(q.g):'\u2014')+'</td>'
-        +'<td>'+(q.tip==='vozvrat'?fmtG(q.g):'\u2014')+'</td>'
-        +'<td style="text-align:center;color:#bbb;">\u25a1</td></tr>';
+    body+='<tr class="kun"><td>'+(dd.sana||'').slice(0,5)+'</td><td></td><td>'+fmtG(dd.b)+'</td><td></td><td>'+(dd.v>0.001?fmtG(dd.v):'\u2014')+'</td></tr>';
+    var zg={}, zsr=[];
+    dd.qatorlar.forEach(function(q){ if(!zg[q.zavod]){zg[q.zavod]={b:0,v:0,rows:[]};zsr.push(q.zavod);} var zz=zg[q.zavod]; zz.rows.push(q); if(q.tip==='berish')zz.b+=q.g; else zz.v+=q.g; });
+    zsr.forEach(function(zn){
+      var zz=zg[zn];
+      body+='<tr class="zv"><td style="padding-left:20px;">'+zn+'</td><td></td><td>'+fmtG(roundG(zz.b))+'</td><td></td><td>'+(zz.v>0.001?fmtG(roundG(zz.v)):'\u2014')+'</td></tr>';
+      zz.rows.forEach(function(q){
+        var isB=q.tip==='berish';
+        var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'');
+        body+='<tr><td style="padding-left:36px;">'+q.knom+' <span style="color:#999;font-size:10px;">'+q.tur+(tur?' \u00b7 '+tur:'')+'</span></td>'
+          +'<td class="ck">'+(isB?'\u25a1':'')+'</td>'
+          +'<td>'+(isB?fmtG(q.g):'\u2014')+'</td>'
+          +'<td class="ck">'+(!isB?'\u25a1':'')+'</td>'
+          +'<td>'+(!isB?fmtG(q.g):'\u2014')+'</td></tr>';
+      });
     });
   });
   var w=window.open('','_blank');
@@ -6025,16 +6063,17 @@ function haftaOstPDF(){
     +'.sub{font-size:11px;color:#888;margin-bottom:14px;}'
     +'table{width:100%;border-collapse:collapse;}'
     +'td,th{border:1px solid #eee;padding:6px 10px;}'
-    +'td:nth-child(2),td:nth-child(3),th:nth-child(2),th:nth-child(3){text-align:right;width:80px;}'
-    +'td:nth-child(4),th:nth-child(4){text-align:center;width:34px;}'
+    +'td:nth-child(3),td:nth-child(5),th:nth-child(3),th:nth-child(5){text-align:right;width:70px;}'
+    +'td.ck,th:nth-child(2),th:nth-child(4){text-align:center;width:26px;color:#bbb;}'
     +'th{background:#b8860b;color:#fff;text-align:left;border-color:#a8790a;}'
     +'.kun td{background:#3a3a3a;color:#fff;font-weight:700;border-color:#3a3a3a;font-family:monospace;}'
+    +'.zv td{background:#fdf6e3;font-weight:600;}'
     +'.jami td{background:#333;color:#fff;font-weight:700;border-color:#333;}'
     +'</style></head><body>'
-    +'<h2>Haftalik ostatka \u2014 sana bo\u02bbyicha</h2><div class="sub">'+davr+'</div>'
-    +'<table><tr><th>Sana / Klient</th><th>Berish</th><th>Vozvrat</th><th>\u2713</th></tr>'
+    +'<h2>Haftalik ostatka \u2014 sana \u2192 zavod</h2><div class="sub">'+davr+'</div>'
+    +'<table><tr><th>Sana / Zavod / Klient</th><th>\u2713</th><th>Berish</th><th>\u2713</th><th>Vozvrat</th></tr>'
     +body
-    +'<tr class="jami"><td>OBSHIY</td><td>'+fmtG(roundG(jb))+'</td><td>'+fmtG(roundG(jv))+'</td><td></td></tr>'
+    +'<tr class="jami"><td>OBSHIY</td><td></td><td>'+fmtG(roundG(jb))+'</td><td></td><td>'+fmtG(roundG(jv))+'</td></tr>'
     +'</table><script>window.print();<\/script></body></html>');
 }
 function haftaOstExcel(){
@@ -6043,17 +6082,23 @@ function haftaOstExcel(){
   if(!kunlar.length){ alert('Bu haftada yozuv yo\u02bcq'); return; }
   var G=function(v){ return String(v).replace('.',','); };
   var csv='Haftalik ostatka;'+haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)+'\n';
-  csv+='Sana;Klient;Zavod;Tur;Berish (g);Vozvrat (g);Tekshirildi\n';
+  csv+='Sana;Zavod;Klient;Tur;Berish (g);Tekshir_B;Vozvrat (g);Tekshir_V\n';
   var jb=0,jv=0;
   kunlar.forEach(function(dk){
     var dd=D[dk]; jb+=dd.b; jv+=dd.v;
-    csv+=(dd.sana||'').slice(0,5)+' JAMI;;;;'+G(dd.b)+';'+G(dd.v)+';\n';
-    dd.qatorlar.forEach(function(q){
-      var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'berish');
-      csv+=(dd.sana||'').slice(0,5)+';'+q.knom+';'+q.zavod+';'+q.tur+(tur!=='berish'?' ('+tur+')':'')+';'+(q.tip==='berish'?G(q.g):'')+';'+(q.tip==='vozvrat'?G(q.g):'')+';\n';
+    var d5=(dd.sana||'').slice(0,5);
+    csv+=d5+' JAMI;;;;'+G(dd.b)+';;'+G(dd.v)+';\n';
+    var zg={}, zsr=[];
+    dd.qatorlar.forEach(function(q){ if(!zg[q.zavod]){zg[q.zavod]={rows:[]};zsr.push(q.zavod);} zg[q.zavod].rows.push(q); });
+    zsr.forEach(function(zn){
+      zg[zn].rows.forEach(function(q){
+        var isB=q.tip==='berish';
+        var tur=q.tip==='vozvrat'?'vozvrat':(q.sotuv?'sotuv':'berish');
+        csv+=d5+';'+zn+';'+q.knom+';'+q.tur+(tur!=='berish'?' ('+tur+')':'')+';'+(isB?G(q.g):'')+';;'+(!isB?G(q.g):'')+';\n';
+      });
     });
   });
-  csv+='OBSHIY;;;;'+G(roundG(jb))+';'+G(roundG(jv))+';\n';
+  csv+='OBSHIY;;;;'+G(roundG(jb))+';;'+G(roundG(jv))+';\n';
   var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
   var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
