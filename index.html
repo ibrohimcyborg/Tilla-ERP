@@ -1976,7 +1976,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v142';
+var APP_VER = 'v143';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5910,16 +5910,21 @@ function haftaOstData(){
       var g = parseNum(op.gramm); if(!g) return;
       var z = Z[op.zavod] || (Z[op.zavod] = {b:0, v:0, turlar:{}});
       var t = z.turlar[op.tur] || (z.turlar[op.tur] = {b:0, v:0, kl:{}});
-      var c = t.kl[k.nom] || (t.kl[k.nom] = {b:0, v:0});
+      var c = t.kl[k.nom] || (t.kl[k.nom] = {b:0, v:0, ops:[]});
       if(op.tip==='berish'){ z.b+=g; t.b+=g; c.b+=g; }
       else { z.v+=g; t.v+=g; c.v+=g; }
+      // v143: har amal kun-kun saqlanadi (sana ko'rsatish uchun)
+      c.ops.push({ts:ts, sana:op.sana||'', tip:op.tip, sotuv:(op.manba==='sotuv'||op._sotuv===true), g:g});
     });
   });
   Object.keys(Z).forEach(function(zn){
     var z=Z[zn]; z.b=roundG(z.b); z.v=roundG(z.v);
     Object.keys(z.turlar).forEach(function(tn){
       var t=z.turlar[tn]; t.b=roundG(t.b); t.v=roundG(t.v);
-      Object.keys(t.kl).forEach(function(kn){ t.kl[kn].b=roundG(t.kl[kn].b); t.kl[kn].v=roundG(t.kl[kn].v); });
+      Object.keys(t.kl).forEach(function(kn){
+        t.kl[kn].b=roundG(t.kl[kn].b); t.kl[kn].v=roundG(t.kl[kn].v);
+        t.kl[kn].ops.sort(function(a,b){ return a.ts - b.ts; }); // eskisidan yangisiga
+      });
     });
   });
   return Z;
@@ -5970,7 +5975,17 @@ function haftaOstRender(){
         var t=z.turlar[tn];
         out+=row(tn+' \u2014 jami', t.b, t.v, 'font-weight:600;background:rgba(201,168,76,.06);');
         Object.keys(t.kl).sort().forEach(function(kn){
-          out+=row('<span style="padding-left:10px;">'+kn+'</span>', t.kl[kn].b, t.kl[kn].v, '');
+          var c=t.kl[kn];
+          out+=row('<span style="padding-left:10px;">'+kn+'</span>', c.b, c.v, '');
+          // v143: kun-kun qatorlar, eskisidan yangisiga
+          (c.ops||[]).forEach(function(o){
+            var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
+            var tur = o.tip==='vozvrat' ? 'vozvrat' : (o.sotuv ? 'sotuv' : 'berish');
+            var d = (o.sana||'').slice(0,5);
+            out+=row('<span style="padding-left:24px;font-size:10px;color:var(--muted);"><span style="font-family:Roboto,sans-serif;">'+d+'</span> '+kunNomi+' \u00b7 '+tur+'</span>',
+                     o.tip==='berish'?o.g:0, o.tip==='vozvrat'?o.g:0,
+                     'padding-top:2px;padding-bottom:2px;');
+          });
         });
       });
       out+=row(zn+' \u2014 obshiy', z.b, z.v, 'font-weight:600;background:var(--surf2);');
@@ -5995,6 +6010,11 @@ function haftaOstPDF(){
       Object.keys(t.kl).sort().forEach(function(kn){
         var c=t.kl[kn];
         body+='<tr><td style="padding-left:22px;">'+kn+'</td><td>'+(c.b>0.001||c.b<-0.001?fmtG(c.b):'\u2014')+'</td><td>'+(c.v>0.001?fmtG(c.v):'\u2014')+'</td></tr>';
+        (c.ops||[]).forEach(function(o){
+          var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
+          var tur=o.tip==='vozvrat'?'vozvrat':(o.sotuv?'sotuv':'berish');
+          body+='<tr><td style="padding-left:40px;color:#999;font-size:11px;">'+(o.sana||'').slice(0,5)+' '+kunNomi+' \u00b7 '+tur+'</td><td style="color:#999;">'+(o.tip==='berish'?fmtG(o.g):'\u2014')+'</td><td style="color:#999;">'+(o.tip==='vozvrat'?fmtG(o.g):'\u2014')+'</td></tr>';
+        });
       });
     });
     body+='<tr class="ob"><td>'+zn+' \u2014 obshiy</td><td>'+fmtG(z.b)+'</td><td>'+(z.v>0.001?fmtG(z.v):'\u2014')+'</td></tr>';
@@ -6032,7 +6052,12 @@ function haftaOstExcel(){
     Object.keys(z.turlar).sort().forEach(function(tn){
       var t=z.turlar[tn];
       Object.keys(t.kl).sort().forEach(function(kn){
-        csv+=zn+';'+tn+';'+kn+';'+G(t.kl[kn].b)+';'+G(t.kl[kn].v)+'\n';
+        (t.kl[kn].ops||[]).forEach(function(o){
+          var kunNomi=['Ya','Du','Se','Cho','Pa','Ju','Sha'][new Date(o.ts).getDay()];
+          var tur=o.tip==='vozvrat'?'vozvrat':(o.sotuv?'sotuv':'berish');
+          csv+=zn+';'+tn+';'+kn+' \u21b3 '+(o.sana||'').slice(0,5)+' '+kunNomi+' '+tur+';'+(o.tip==='berish'?G(o.g):'')+';'+(o.tip==='vozvrat'?G(o.g):'')+'\n';
+        });
+        csv+=zn+';'+tn+';'+kn+' (jami);'+G(t.kl[kn].b)+';'+G(t.kl[kn].v)+'\n';
       });
       csv+=zn+';'+tn+';JAMI;'+G(t.b)+';'+G(t.v)+'\n';
     });
