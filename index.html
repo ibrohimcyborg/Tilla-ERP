@@ -1951,7 +1951,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v140';
+var APP_VER = 'v140.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -8401,6 +8401,13 @@ function chekQur(d){
   return o.join('\n');
 }
 
+// Chekni yashirish + MATNINI O'CHIRISH. Faqat yashirish yetarli emas: chop etish
+// `chek-body`.textContent ni o'qiydi, ya'ni yashirin qolgan ESKI matn printerga ketishi mumkin.
+function chekTozala(pre){
+  var pv = document.getElementById(pre+'-chek-preview'); if (pv) pv.style.display = 'none';
+  var bd = document.getElementById(pre+'-chek-body');    if (bd) bd.textContent = '';
+}
+
 function kassaChek(ki, sana) {
   var k = data.klientlar[ki];
   if (!k) return;
@@ -9812,7 +9819,7 @@ function openKlientBerish(){
   document.getElementById('kb-sana').value=nowDate();
   document.getElementById('kb-turlar-inputs').innerHTML='';
   document.getElementById('kb-turlar-card').style.display='none';
-  document.getElementById('kb-chek-preview').style.display='none';
+  chekTozala('kb');
   _kbSkanState = {};
   _kbChekOn=!printerYoq();
   _kbCnt=1;
@@ -10053,7 +10060,7 @@ function openKlientVozvrat(){
   document.getElementById('kv-sana').value=nowDate();
   document.getElementById('kv-turlar-cont').style.display='none';
   document.getElementById('kv-turlar-list').innerHTML='';
-  document.getElementById('kv-chek-preview').style.display='none';
+  chekTozala('kv');
   _kvChekOn=!printerYoq();
   _kvCnt=1;
   var kvCntEl0=document.getElementById('kv-cnt'); if(kvCntEl0) kvCntEl0.textContent='1';
@@ -10344,6 +10351,7 @@ function saqlashKlientVozvrat(){
 }
 
 function openKlientTolov(){
+  chekTozala('kt');   // avval bu YO'Q edi -> oldingi klientning cheki preview'da qolib ketardi
   document.getElementById('kt-klient').value='';
   document.getElementById('kt-q').value='';
   document.getElementById('kt-drop').style.display='none';
@@ -11156,7 +11164,7 @@ function kTolovChekUpd() {
     }
     idx++;
   });
-  if (!bor) { document.getElementById('kt-chek-preview').style.display='none'; return; }
+  if (!bor) { chekTozala('kt'); return; }
   document.getElementById('kt-chek-preview').style.display='block';
 
   // ── 2-QADAM: lom, skidka, offsetning ISHLATILGAN ulushi
@@ -11559,7 +11567,7 @@ function openKlientSotuv() {
   document.getElementById('ks-hisob').style.display = 'none';
   document.getElementById('ks-qaytim').style.display = 'none';
   document.getElementById('ks-taqsim').style.display = 'none';
-  document.getElementById('ks-chek-preview').style.display = 'none';
+  chekTozala('ks');
   document.getElementById('ks-naqt').value = '';
   document.getElementById('ks-kurs').value = '';
   document.getElementById('ks-naqt-res').textContent = '';
@@ -11670,7 +11678,7 @@ function ksResetKlient() {
   document.getElementById('ks-hisob').style.display = 'none';
   document.getElementById('ks-qaytim').style.display = 'none';
   document.getElementById('ks-taqsim').style.display = 'none';
-  document.getElementById('ks-chek-preview').style.display = 'none';
+  chekTozala('ks');
 }
 
 var _ksChekOn = true;
@@ -12697,7 +12705,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       if (s > 0) tolovBormi = true;
     });
   });
-  if (!oldilar.length && !tolovBormi && vozJami <= 0) { document.getElementById('ks-chek-preview').style.display = 'none'; return; }
+  if (!oldilar.length && !tolovBormi && vozJami <= 0) { chekTozala('ks'); return; }
   document.getElementById('ks-chek-preview').style.display = 'block';
   var ki = _ksSotuvKi;
   var kNom = ki >= 0 ? data.klientlar[ki].nom : '—';
