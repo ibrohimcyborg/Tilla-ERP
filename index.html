@@ -1976,7 +1976,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v146';
+var APP_VER = 'v147';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -6018,9 +6018,14 @@ function haftaOstRender(){
       z.tsr.sort();
       z.tsr.forEach(function(tn){
         var t=z.turlar[tn], tk='t|'+zn+'|'+tn, toch=!!_hoOchiq[tk];
-        out+='<div onclick="_hoOchiq[\''+tk+'\']=!_hoOchiq[\''+tk+'\'];haftaOstRender();" style="display:flex;justify-content:space-between;padding:7px 11px 7px 20px;border-top:.5px solid var(--border);background:rgba(201,168,76,.06);font-size:12px;font-weight:600;cursor:pointer;">'
+        var tbg = 't|'+zn+'|'+tn, tdone = !!_hoBelgi[tbg]; // v147: tur ptichkasi (mustaqil belgi)
+        out+='<div style="display:flex;align-items:center;padding:7px 8px 7px 20px;border-top:.5px solid var(--border);background:rgba(201,168,76,.06);font-size:12px;font-weight:600;">'
+          +'<div onclick="_hoOchiq[\''+tk+'\']=!_hoOchiq[\''+tk+'\'];haftaOstRender();" style="flex:1;display:flex;justify-content:space-between;align-items:center;cursor:pointer;'+(tdone?'opacity:.5;':'')+'">'
           +'<span>'+tn+' '+(toch?'\u25be':'\u25b8')+'</span>'
-          +'<span style="font-family:Roboto,sans-serif;"><span style="color:var(--red);">'+fmtG(roundG(t.b))+'</span> \u00b7 <span style="color:var(--green);">'+(t.v>0.001?fmtG(roundG(t.v)):'\u2014')+'</span></span></div>';
+          +'<span style="font-family:Roboto,sans-serif;margin-right:8px;"><span style="color:var(--red);">'+fmtG(roundG(t.b))+'</span> \u00b7 <span style="color:var(--green);">'+(t.v>0.001?fmtG(roundG(t.v)):'\u2014')+'</span></span></div>'
+          +'<div onclick="haftaOstBelgi(\''+tbg+'\')" style="width:26px;display:flex;justify-content:center;cursor:pointer;flex-shrink:0;">'
+          +'<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid '+(tdone?'var(--green)':'var(--muted)')+';background:'+(tdone?'var(--green)':'transparent')+';display:flex;align-items:center;justify-content:center;font-size:12px;color:'+(tdone?'#0a1a0f':'transparent')+';">\u2713</div></div>'
+          +'</div>';
         if(toch){
           t.ksr.sort(function(a,b){ return t.kunlar[a].ts - t.kunlar[b].ts; }); // eng eskidan
           t.ksr.forEach(function(dk){
@@ -6088,7 +6093,7 @@ function haftaOstPDF(){
     body+='<tr class="zv"><td>'+zn+'</td><td></td><td>'+fmtG(roundG(z.b))+'</td><td></td><td>'+(z.v>0.001?fmtG(roundG(z.v)):'\u2014')+'</td></tr>';
     z.tsr.forEach(function(tn){
       var t=z.turlar[tn];
-      body+='<tr class="tur"><td style="padding-left:20px;">'+tn+'</td><td></td><td>'+fmtG(roundG(t.b))+'</td><td></td><td>'+(t.v>0.001?fmtG(roundG(t.v)):'\u2014')+'</td></tr>';
+      body+='<tr class="tur"><td style="padding-left:20px;">'+tn+'</td><td class="ck">\u25a1</td><td>'+fmtG(roundG(t.b))+'</td><td></td><td>'+(t.v>0.001?fmtG(roundG(t.v)):'\u2014')+'</td></tr>';
       t.ksr.forEach(function(dk){
         var kk=t.kunlar[dk];
         body+='<tr class="kun"><td style="padding-left:34px;">'+(kk.sana||'').slice(0,5)+'</td><td></td><td>'+(kk.b>0.001?fmtG(roundG(kk.b)):'\u2014')+'</td><td></td><td>'+(kk.v>0.001?fmtG(roundG(kk.v)):'\u2014')+'</td></tr>';
