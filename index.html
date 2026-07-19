@@ -11,6 +11,7 @@
 :root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--border:#2a2a2a;--gold:#c9a84c;--gold2:#e8c96a;--text:#f0ede6;--muted:#666;--red:#e05a5a;--green:#5ab87a;--green-bg:#0f1f10;--green-bd:#1e4a2a;--red-bg:#1f0f0f;--red-bd:#3a1e1e;--blue:#5ab4e8;--blue-bg:#0f1a1f;--blue-bd:#1e3a4a;--purple:#c084c0;--purple-bd:#4a2a4a;--yellow:#e8b84c;--yellow-bg:#2a1f0a;--gold-bg:#241c0a;--gold-bd:#3a2a0a;--on-gold:#1a1200;--teal:#3fc7bd;--teal-bg:#08201f;--teal-bd:#1c4a47;--r:14px;--safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);}
 [data-theme="light"]{--bg:#f5f4f0;--surf:#ffffff;--surf2:#f0efe9;--border:#e0ddd4;--text:#1a1a1a;--muted:#999;--gold:#a07830;--gold2:#b89040;--red:#c84545;--green:#2e8f56;--green-bg:#c8edcf;--green-bd:#6cbd82;--red-bg:#f5caca;--red-bd:#d97878;--blue:#2e7cb0;--blue-bg:#c8dff0;--blue-bd:#6aafd6;--purple:#8a4f9e;--purple-bd:#c09aca;--yellow:#9a7416;--yellow-bg:#f5e4b0;--gold-bg:#f0d99a;--gold-bd:#c8a030;--on-gold:#fff8e6;--teal:#1a7a72;--teal-bg:#c8ebe8;--teal-bd:#6abfb8;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{background:var(--bg);}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;padding-bottom:calc(20px + var(--safe-bot));-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain;}
 .topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;padding-top:var(--safe-top);height:calc(54px + var(--safe-top));display:flex;align-items:flex-end;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .logo{font-family:'Roboto',sans-serif;font-size:14px;color:var(--gold);letter-spacing:.1em;font-weight:500;}
@@ -337,7 +338,10 @@ body.rol-hamid .hamid-x { display: none !important; }
         <button class="pc-zbtn add" onclick="openZavodModal()">+ Zavod</button>
       </div>
       <button class="pc-zbtn hamid-x" style="width:100%;margin-top:8px;border-color:var(--blue-bd);color:var(--blue);" onclick="openOstatkaZavod()">⊟ Ostatka</button>
-      <button class="pc-zbtn kirim" style="width:100%;margin-top:8px;" onclick="goTo('s-skan')">⊹ Skan kirim — barcode bilan dona-dona</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="pc-zbtn kirim" style="flex:1;" onclick="skRejimBoshla('kirim')">⊹ Skan kirim</button>
+        <button class="pc-zbtn chiqim hamid-x" style="flex:1;" onclick="skRejimBoshla('vozvrat')">⊹ Skan vozvrat</button>
+      </div>
     </div>
     <!-- Mobile header (faqat mobilda ko'rinadi) -->
     <div class="mobile-zavod-hdr" style="padding:16px;">
@@ -362,10 +366,17 @@ body.rol-hamid .hamid-x { display: none !important; }
           <div class="big-btn-sub">Tolov qilish</div>
         </div>
       </div>
-      <div class="big-btn kirim" style="margin-bottom:16px;" onclick="goTo('s-skan')">
-        <div class="big-btn-icon">⊹</div>
-        <div class="big-btn-label">Skan kirim</div>
-        <div class="big-btn-sub">Barcode bilan dona-dona</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <div class="big-btn kirim" style="flex:1;margin-bottom:0;" onclick="skRejimBoshla('kirim')">
+          <div class="big-btn-icon">⊹</div>
+          <div class="big-btn-label">Skan kirim</div>
+          <div class="big-btn-sub">Zavoddan mol keldi</div>
+        </div>
+        <div class="big-btn chiqim hamid-x" style="flex:1;margin-bottom:0;" onclick="skRejimBoshla('vozvrat')">
+          <div class="big-btn-icon">⊹</div>
+          <div class="big-btn-label">Skan vozvrat</div>
+          <div class="big-btn-sub">Zavodga qaytarish</div>
+        </div>
       </div>
       <div style="margin-bottom:12px;">
         <div class="big-btn" onclick="goTo('s-zvozvrat')" style="background:var(--blue-bg);border-color:var(--blue-bd);flex-direction:row;align-items:center;gap:12px;padding:14px 18px;">
@@ -584,7 +595,7 @@ body.rol-hamid .hamid-x { display: none !important; }
 <div class="screen" id="s-skan">
   <div class="back-row">
     <button class="back-btn" onclick="goTo('s-home')">←</button>
-    <div class="stitle">Skan kirim</div>
+    <div class="stitle" id="sk-title">Skan kirim</div>
     <div style="margin-left:auto;display:flex;gap:6px;">
       <button onclick="skHisobotExcel()" style="padding:7px 11px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:12px;font-weight:600;cursor:pointer;">Excel</button>
       <button onclick="skHisobotPDF()" style="padding:7px 11px;border-radius:8px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;">PDF</button>
@@ -602,7 +613,7 @@ body.rol-hamid .hamid-x { display: none !important; }
 
     <div style="display:flex;gap:8px;margin-bottom:14px;">
       <div style="flex:1;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">Zavod bergan ves (g)</div>
+        <div id="sk-ves-label" style="font-size:11px;color:var(--muted);margin-bottom:5px;">Zavod bergan ves (g)</div>
         <input type="text" inputmode="decimal" id="sk-ves" placeholder="150" autocomplete="off" oninput="skRender()" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:14px;background:var(--surf2);color:var(--text);">
       </div>
       <div style="display:flex;gap:5px;align-items:flex-end;">
@@ -632,7 +643,8 @@ body.rol-hamid .hamid-x { display: none !important; }
 
   <div class="btn-row">
     <button class="btn" onclick="goTo('s-home')">Bekor</button>
-    <button class="btn gold" onclick="skSaqlash()">✓ Kirim qilish</button>
+    <button class="btn" id="sk-chek-btn" onclick="skVozvratChek()" style="display:none;border-color:var(--gold-bd);color:var(--gold);">🖨 Chek</button>
+    <button class="btn gold" id="sk-saqla-btn" onclick="skSaqlash()">✓ Kirim qilish</button>
   </div>
 </div>
 
@@ -1976,7 +1988,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v147';
+var APP_VER = 'v148.2';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5498,10 +5510,19 @@ function kirimSignToggle(id){
 }
 
 // ===== SKAN KIRIM moduli =====
-var skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[] };
+var skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[], rejim:'kirim' };
+
+function skRejimBoshla(r){ _skRejim = (r==='vozvrat'?'vozvrat':'kirim'); goTo('s-skan'); }
+var _skRejim = 'kirim'; // s-skan ochilishidan oldin o'rnatiladi
 
 function initSkan(){
-  skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[] };
+  skState = { zi:-1, ti:-1, ves:0, mode:1, pass1:[], pass2:[], rejim:_skRejim };
+  var voz = skState.rejim==='vozvrat';
+  // sarlavha va tugma matnini rejimga moslash
+  var tEl = document.getElementById('sk-title'); if(tEl) tEl.textContent = voz ? 'Skan vozvrat' : 'Skan kirim';
+  var sEl = document.getElementById('sk-saqla-btn'); if(sEl){ sEl.textContent = voz ? '✓ Vozvrat qilish' : '✓ Kirim qilish'; sEl.className = voz ? 'btn red' : 'btn gold'; }
+  var chEl = document.getElementById('sk-chek-btn'); if(chEl) chEl.style.display = voz ? 'inline-block' : 'none';
+  var vesL = document.getElementById('sk-ves-label'); if(vesL) vesL.textContent = voz ? 'Qaytarilayotgan ves (g)' : 'Zavod bergan ves (g)';
   var zs = document.getElementById('sk-zavod');
   zs.innerHTML = '<option value="">— Zavod tanlang —</option>';
   data.zavodlar.forEach(function(z,i){ zs.innerHTML += '<option value="'+i+'">'+z.nom+'</option>'; });
@@ -7042,27 +7063,68 @@ function skHisobotPDF(){
 function skSaqlash(){
   if (skState.zi < 0 || skState.ti < 0){ alert('Zavod va tur tanlang!'); return; }
   if (!skState.pass1.length){ alert('Kamida 1 ta dona skan qiling!'); return; }
+  var voz = skState.rejim==='vozvrat';
   var z = data.zavodlar[skState.zi];
   var t = z.turlar[skState.ti];
   var total = skSum(skState.pass1);
+  if (voz && total > (t.ostatka||0) + 0.005){
+    if (!confirm('Diqqat: qaytarilayotgan '+fmtG(total)+' g, ammo ostatka faqat '+fmtG(roundG(t.ostatka||0))+' g.\nBaribir davom etilsinmi?')) return;
+  }
   if (skState.pass2.length){
     var r = skReconcile();
     if (r.kam.length || r.ortiq.length){
-      if (!confirm('Diqqat: 1-skan va 2-skan mos kelmadi (kam: '+r.kam.length+', ortiq: '+r.ortiq.length+').\n1-skan boyicha kirim qilinsinmi?')) return;
+      if (!confirm('Diqqat: 1-skan va 2-skan mos kelmadi (kam: '+r.kam.length+', ortiq: '+r.ortiq.length+').\nBaribir davom etilsinmi?')) return;
     }
   }
   if (skState.ves > 0 && Math.abs(skState.ves - total) >= 0.005){
-    if (!confirm('Skan jami '+fmtG(total)+' g, zavod bergani '+fmtG(skState.ves)+' g.\nFarq: '+fmtG(roundG(skState.ves - total))+' g. Davom etilsinmi?')) return;
+    if (!confirm('Skan jami '+fmtG(total)+' g, '+(voz?'qaytarilayotgan':'zavod bergani')+' '+fmtG(skState.ves)+' g.\nFarq: '+fmtG(roundG(skState.ves-total))+' g. Baribir davom etilsinmi?')) return;
   }
   var sana = today();
-  t.ostatka = roundG((t.ostatka||0) + total);
-  t.donaOst = turDona(t) + skState.pass1.length; // dona sanogi grammga parallel oshadi
-  donaRegQosh(t, skState.pass1); // aniq ogirliklar registrga qoshiladi
-  if (!t.tarix) t.tarix = [];
-  t.tarix.push({ tip:'mol', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
-  save('Skan kirim | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
-  alert('✓ Kirim qilindi: '+fmtG(total)+' g ('+skState.pass1.length+' dona)');
+  if (voz){
+    // ZAVODGA VOZVRAT — ostatka KAMAYADI, dona registrdan yechiladi
+    t.ostatka = roundG((t.ostatka||0) - total);
+    t.donaOst = Math.max(0, turDona(t) - skState.pass1.length);
+    donaRegOlish(t, skState.pass1); // aniq og'irliklar registrdan olinadi (topilmagani jimgina o'tadi)
+    if (!t.tarix) t.tarix = [];
+    t.tarix.push({ tip:'vozvrat', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
+    save('Skan vozvrat | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
+    alert('✓ Vozvrat qilindi: '+fmtG(total)+' g ('+skState.pass1.length+' dona)');
+  } else {
+    // KIRIM — ostatka OSHADI
+    t.ostatka = roundG((t.ostatka||0) + total);
+    t.donaOst = turDona(t) + skState.pass1.length;
+    donaRegQosh(t, skState.pass1);
+    if (!t.tarix) t.tarix = [];
+    t.tarix.push({ tip:'mol', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
+    save('Skan kirim | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
+    alert('✓ Kirim qilindi: '+fmtG(total)+' g ('+skState.pass1.length+' dona)');
+  }
   goTo('s-home');
+}
+
+// Skan vozvrat cheki — logo YO'Q, zavod nomi 2x (double), donalab emas: jami dona + jami gramm
+function skVozvratChek(){
+  if (skState.zi < 0 || skState.ti < 0){ alert('Zavod va tur tanlang!'); return; }
+  if (!skState.pass1.length){ alert('Kamida 1 ta dona skan qiling!'); return; }
+  var z = data.zavodlar[skState.zi];
+  var t = z.turlar[skState.ti];
+  var total = skSum(skState.pass1);
+  var dona = skState.pass1.length;
+  var W = 32;
+  var center = function(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; };
+  var rjust = function(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; };
+  var mark = function(s){ return '\x1D\x21\x11'+s+'\x1D\x21\x00'; }; // GS ! double, keyin normal
+  var lines = [];
+  lines.push(center('VOZVRAT SKAN'));
+  lines.push('\x1B\x61\x01' + mark(z.nom.toUpperCase()) + '\x1B\x61\x00'); // markazlangan double zavod nomi
+  lines.push(Array(W+1).join('='));
+  lines.push('');
+  lines.push(rjust(' JAMI DONA', String(dona)));
+  lines.push(rjust(' JAMI GRAMM', fmtG(roundG(total))));
+  lines.push('');
+  lines.push(Array(W+1).join('='));
+  var txt = lines.join('\n')+'\n\n';
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt,logo:false})}).catch(printXato);
 }
 
 var _kimgaZavod = ''; // hozirgi zavod nomi
