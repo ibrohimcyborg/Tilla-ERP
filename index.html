@@ -1331,6 +1331,19 @@ body.rol-hamid .hamid-x { display: none !important; }
         <div style="font-size:14px;font-weight:700;color:var(--text);">📅 Haftalik ostatka</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Hafta ichida kimga necha gramm berilgani va vozvrati — bloknot bilan solishtirish</div>
       </button>
+      <button onclick="donaBazaEkranOch()" class="hamid-x" style="width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);">🗄 Dona baza</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Sana bo'yicha kirgan donalar — grammlari, kimga ketgani</div>
+      </button>
+    </div>
+
+    <div class="card" id="ost-dona-baza" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+        <div id="odb-title" style="font-size:12px;font-weight:700;color:var(--gold);">🗄 DONA BAZA</div>
+        <button onclick="donaBazaEkranYop()" style="border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;">×</button>
+      </div>
+      <div id="odb-crumb" style="font-size:11px;color:var(--muted);margin-bottom:10px;display:none;"></div>
+      <div id="odb-body"></div>
     </div>
 
     <div class="card" id="ost-hafta" style="display:none;">
@@ -1988,7 +2001,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v148.2';
+var APP_VER = 'v149';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5788,6 +5801,7 @@ function openOstatkaKlient(){ _ostCtx='klient'; goTo('s-ostatka'); }
 function initOstatka(){
   _ostMode = null;
   var _hoEl = document.getElementById('ost-hafta'); if(_hoEl) _hoEl.style.display='none'; // v142: ekranga qaytganda haftalik panel yopiq
+  var _dbEl = document.getElementById('ost-dona-baza'); if(_dbEl) _dbEl.style.display='none'; // v149: dona baza panel yopiq
   var isKl = _ostCtx==='klient';
   document.getElementById('ost-choice').style.display = isKl?'none':'block';
   document.getElementById('ost-form').style.display='none';
@@ -5966,6 +5980,166 @@ function haftaOstData(){
   return {Z:Z, D:D};
 }
 var _hoOchiq = {};
+// ─── DONA BAZA EKRANI (v149) — sana -> zavod·tur -> 5xN gramm jadval ─────────
+// Ibrohim: dona bazaga kiraman -> sanalar -> zavod·turlar (nechta·gramm) -> gramm jadval.
+// Ketgani xira + birinchi so'z (ism), qolgani tiniq. Faqat ko'rish/o'chirish/tahrir.
+var _odbSana = null, _odbZT = null; // navigatsiya holati
+
+function donaBazaEkranOch(){
+  _odbSana = null; _odbZT = null;
+  document.getElementById('ost-choice').style.display='none';
+  document.getElementById('ost-dona-baza').style.display='block';
+  donaBazaEkranRender();
+}
+function donaBazaEkranYop(){
+  if(_odbZT){ _odbZT=null; donaBazaEkranRender(); return; }      // orqaga: jadval -> zavod·tur
+  if(_odbSana){ _odbSana=null; donaBazaEkranRender(); return; }  // orqaga: zavod·tur -> sanalar
+  document.getElementById('ost-dona-baza').style.display='none';
+  document.getElementById('ost-choice').style.display='block';
+}
+function _odbIsm(nom){ return (nom||'').trim().split(/\s+/)[0] || ''; } // faqat birinchi so'z
+
+function donaBazaEkranRender(){
+  var body = document.getElementById('odb-body');
+  var crumb = document.getElementById('odb-crumb');
+  var title = document.getElementById('odb-title');
+  var all = donaBazaOl();
+
+  // ── 3-daraja: 5xN gramm jadval ──
+  if(_odbSana && _odbZT){
+    title.textContent = '🗄 Dona baza';
+    crumb.style.display='block';
+    crumb.innerHTML = '<span style="cursor:pointer;color:var(--gold);" onclick="_odbZT=null;donaBazaEkranRender();">‹ '+_odbSana+'</span> · <b>'+_odbZT.z+' · '+_odbZT.t+'</b>';
+    var recs = all.filter(function(r){ return (r.sana||'').slice(0,10)===_odbSana && r.zavod===_odbZT.z && r.tur===_odbZT.t; });
+    var out = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">';
+    recs.forEach(function(r,i){
+      var ket = r.holat==='berilgan';
+      out += '<div onclick="donaBazaKatakOch(\''+r.id+'\')" style="aspect-ratio:2/1;border-radius:8px;border:1px solid var(--border);background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Roboto,sans-serif;position:relative;overflow:hidden;cursor:pointer;'+(ket?'opacity:.5;':'')+'">'
+        + '<span style="font-size:7.5px;color:var(--muted);line-height:1;">'+(i+1)+'</span>'
+        + '<span style="font-size:12.5px;font-weight:600;line-height:1.2;color:'+(ket?'var(--muted)':'var(--text)')+';">'+fmtG(r.gramm)+'</span>'
+        + (ket && r.klient ? '<span style="position:absolute;bottom:0;left:0;right:0;font-size:7px;background:var(--red-bg);color:var(--red);padding:1px 2px;text-align:center;border-top:.5px solid var(--red-bd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_odbIsm(r.klient)+'</span>' : '')
+        + '</div>';
+    });
+    out += '</div>';
+    // legenda + jami
+    var omb = recs.filter(function(r){return r.holat==='ombor';});
+    var ket = recs.filter(function(r){return r.holat==='berilgan';});
+    var ombG = omb.reduce(function(a,r){return a+r.gramm;},0);
+    out += '<div style="display:flex;justify-content:center;gap:16px;margin-top:11px;font-size:10px;color:var(--muted);">'
+      +'<span>Omborda: <b style="color:var(--green);font-family:Roboto,sans-serif;">'+omb.length+' · '+fmtG(roundG(ombG))+'g</b></span>'
+      +'<span>Ketgan: <b style="color:var(--red);font-family:Roboto,sans-serif;">'+ket.length+'</b></span></div>';
+    body.innerHTML = out;
+    return;
+  }
+
+  // ── 2-daraja: zavod·turlar ──
+  if(_odbSana){
+    title.textContent = '🗄 Dona baza';
+    crumb.style.display='block';
+    crumb.innerHTML = '<span style="cursor:pointer;color:var(--gold);" onclick="_odbSana=null;donaBazaEkranRender();">‹ Sanalar</span> · <b>'+_odbSana+'</b>';
+    var kunRecs = all.filter(function(r){ return (r.sana||'').slice(0,10)===_odbSana; });
+    var zt = {}, ztsr = [];
+    kunRecs.forEach(function(r){
+      var key = r.zavod+'|'+r.tur;
+      if(!zt[key]){ zt[key]={z:r.zavod,t:r.tur,n:0,g:0}; ztsr.push(key); }
+      zt[key].n++; zt[key].g += r.gramm;
+    });
+    ztsr.sort();
+    var out='';
+    ztsr.forEach(function(key){
+      var x=zt[key];
+      out += '<div onclick="_odbZT={z:\''+x.z.replace(/'/g,"")+'\',t:\''+x.t.replace(/'/g,"")+'\'};donaBazaEkranRender();" style="display:flex;justify-content:space-between;align-items:center;padding:10px 11px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;background:var(--surf2);">'
+        + '<span style="font-size:12.5px;font-weight:600;">'+x.z+' · '+x.t+'</span>'
+        + '<span style="font-family:Roboto,sans-serif;font-size:11.5px;color:var(--muted);"><b style="color:var(--green);">'+x.n+' ta</b> · '+fmtG(roundG(x.g))+' g ›</span></div>';
+    });
+    body.innerHTML = out || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Bu kunda dona yo\u02bcq</div>';
+    return;
+  }
+
+  // ── 1-daraja: sanalar ──
+  title.textContent = '🗄 Dona baza';
+  crumb.style.display='none';
+  var sanalar = {}, ssr = [];
+  all.forEach(function(r){
+    var d = (r.sana||'').slice(0,10); if(!d) return;
+    if(!sanalar[d]){ sanalar[d]={sana:d, zt:{}, n:0}; ssr.push(d); }
+    sanalar[d].n++; sanalar[d].zt[r.zavod+'|'+r.tur]=1;
+  });
+  // eng yangisidan (sana kun.oy.yil -> teskari solishtirish)
+  ssr.sort(function(a,b){ return _odbSanaTs(b) - _odbSanaTs(a); });
+  var out='';
+  ssr.forEach(function(d){
+    var x=sanalar[d];
+    out += '<div onclick="_odbSana=\''+d+'\';donaBazaEkranRender();" style="display:flex;justify-content:space-between;align-items:center;padding:11px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer;background:var(--surf2);">'
+      + '<div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:var(--gold);">'+d.slice(0,10)+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);">'+Object.keys(x.zt).length+' zavod·tur · '+x.n+' dona</div></div>'
+      + '<span style="color:var(--muted);">›</span></div>';
+  });
+  body.innerHTML = out || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Dona baza bo\u02bcsh</div>';
+}
+function _odbSanaTs(d){ // "17.07.2026" -> ts
+  var p=(d||'').slice(0,10).split('.'); if(p.length!==3) return 0;
+  return new Date(p[2]+'-'+p[1]+'-'+p[0]).getTime()||0;
+}
+
+// Katak bosilganda — to'liq ma'lumot + o'chirish/tahrirlash
+function donaBazaKatakOch(id){
+  var all=donaBazaOl();
+  var r=all.filter(function(x){return x.id===id;})[0];
+  if(!r) return;
+  var ket = r.holat==='berilgan';
+  var info = r.zavod+' · '+r.tur+'\n'+fmtG(r.gramm)+' g · '+(r.sana||'').slice(0,10)+'\n'
+    + (ket ? ('Holat: BERILGAN'+(r.klient?' — '+r.klient:'')+(r.chiqimSana?' ('+r.chiqimSana.slice(0,10)+')':'')) : 'Holat: OMBORDA');
+  var tanla = prompt(info+'\n\n─────────────\nTahrirlash: yangi grammni kiriting.\nO\u02bbchirish: "ochir" deb yozing.\nBekor: bo\u02bbsh qoldiring.', '');
+  if(tanla===null || tanla.trim()==='') return;
+  if(tanla.trim().toLowerCase()==='ochir' || tanla.trim().toLowerCase()==='o\u02bbchir'){
+    donaBazaKatakOchir(r);
+  } else {
+    var yangi = parseFloat(tanla.replace(',','.'));
+    if(isNaN(yangi) || yangi<=0){ alert('Noto\u02bbg\u02bbri gramm.'); return; }
+    donaBazaKatakTahrir(r, roundG(yangi));
+  }
+}
+
+function donaBazaKatakOchir(r){
+  if(!confirm('Bu donani o\u02bbchirasizmi?\n'+r.zavod+' · '+r.tur+' · '+fmtG(r.gramm)+'g'+(r.holat==='berilgan'?'\n(berilgan — faqat baza yozuvi o\u02bbchadi)':'\n(omborda — zavod ostatkasi ham kamayadi)'))) return;
+  // OMBORDAGI dona o'chsa: zavod ostatka + registr kamayadi. BERILGAN o'chsa: faqat baza.
+  if(r.holat==='ombor'){
+    var z=data.zavodlar.filter(function(x){return x.nom===r.zavod;})[0];
+    var t=z?z.turlar.filter(function(x){return x.nom===r.tur;})[0]:null;
+    if(t){
+      t.ostatka = roundG((t.ostatka||0) - r.gramm);
+      t.donaOst = Math.max(0, turDona(t) - 1);
+      donaRegOlish(t, [r.gramm]);
+    }
+  }
+  var all=donaBazaOl().filter(function(x){return x.id!==r.id;});
+  donaBazaSaqla(all);
+  donaBazaCloudOchir(r.id);
+  save('Dona baza o\u02bbchirish | '+r.zavod+'·'+r.tur+' '+fmtG(r.gramm)+'g');
+  donaBazaEkranRender();
+}
+
+function donaBazaKatakTahrir(r, yangiG){
+  var eskiG = r.gramm;
+  // OMBORDAGI: registr + ostatka farqga moslanadi. BERILGAN: faqat baza yozuvi.
+  if(r.holat==='ombor'){
+    var z=data.zavodlar.filter(function(x){return x.nom===r.zavod;})[0];
+    var t=z?z.turlar.filter(function(x){return x.nom===r.tur;})[0]:null;
+    if(t){
+      t.ostatka = roundG((t.ostatka||0) - eskiG + yangiG);
+      donaRegOlish(t, [eskiG]);
+      donaRegQosh(t, [yangiG]);
+    }
+  }
+  var all=donaBazaOl();
+  var rec=all.filter(function(x){return x.id===r.id;})[0];
+  if(rec){ rec.gramm=yangiG; donaBazaCloudYoz(rec); }
+  donaBazaSaqla(all);
+  save('Dona baza tahrir | '+r.zavod+'·'+r.tur+' '+fmtG(eskiG)+'->'+fmtG(yangiG)+'g');
+  donaBazaEkranRender();
+}
+
 function haftaOstOch(){
   _hoOffset = 0; _hoOchiq = {}; _hoBelgi = {};
   document.getElementById('ost-choice').style.display='none';
@@ -6623,8 +6797,14 @@ function donaBazaCloudYoz(rec){
   try{
     var payload={ sana:rec.sana||'', zavod:rec.zavod||'', tur:rec.tur||'', gramm:rec.gramm, holat:rec.holat||'ombor', qurilma:(localStorage.getItem('tilla-qurilma')||''), vaqt:Date.now() };
     if(rec.chiqimSana) payload.chiqimSana=rec.chiqimSana;
+    if(rec.klient) payload.klient=rec.klient; // v149: kimga ketgani
     ref.doc(rec.id).set(payload).catch(cloudXato), cloudYozuvSana(1); // offline bo'lsa Firestore navbatga oladi; ruxsat yo'q bo'lsa jim
   }catch(e){}
+}
+function donaBazaCloudOchir(id){ // v149: cloud'dan rekord o'chirish
+  if(!cloudYozaOladi()) return;
+  var ref=donaBazaCloudRef(); if(!ref || !id) return;
+  try{ ref.doc(id).delete().catch(cloudXato); }catch(e){}
 }
 function donaBazaCloudListen(){
   var ref=donaBazaCloudRef(); if(!ref || _donaBazaUnsub) return;
@@ -6637,9 +6817,10 @@ function donaBazaCloudListen(){
       if(!ex){
         var rec={ id:id, sana:d.sana||'', zavod:d.zavod||'', tur:d.tur||'', gramm:d.gramm, holat:d.holat||'ombor' };
         if(d.chiqimSana) rec.chiqimSana=d.chiqimSana;
+        if(d.klient) rec.klient=d.klient; // v149
         local.push(rec); byId[id]=rec; changed=true;
-      } else if(ex.holat!==(d.holat||'ombor') || ex.gramm!==d.gramm){
-        ex.holat=d.holat||'ombor'; ex.gramm=d.gramm; if(d.sana) ex.sana=d.sana; if(d.zavod) ex.zavod=d.zavod; if(d.tur) ex.tur=d.tur; if(d.chiqimSana) ex.chiqimSana=d.chiqimSana; changed=true;
+      } else if(ex.holat!==(d.holat||'ombor') || ex.gramm!==d.gramm || ex.klient!==d.klient){
+        ex.holat=d.holat||'ombor'; ex.gramm=d.gramm; if(d.sana) ex.sana=d.sana; if(d.zavod) ex.zavod=d.zavod; if(d.tur) ex.tur=d.tur; if(d.klient) ex.klient=d.klient; if(d.chiqimSana) ex.chiqimSana=d.chiqimSana; changed=true;
       }
     });
     if(changed){ donaBazaSaqla(local); if(typeof renderZavod==='function' && typeof curZ!=='undefined' && curZ>=0) renderZavod(); }
@@ -6912,7 +7093,7 @@ function donaBazaMosEmas(zavod, tur, arr){
   return yoq;
 }
 // Berish saqlangach: mos donalarni bazada 'berilgan' deb belgilaydi (baza kamayadi).
-function donaBazaOlish(zavod, tur, arr){
+function donaBazaOlish(zavod, tur, arr, klient){
   if(!arr || !arr.length) return;
   var all=donaBazaOl();
   arr.forEach(function(g){
@@ -6924,7 +7105,7 @@ function donaBazaOlish(zavod, tur, arr){
         if(d<=DONA_TOL && d<bestD){ bestD=d; bestI=i; }
       }
     }
-    if(bestI>=0){ all[bestI].holat='berilgan'; all[bestI].chiqimSana=today(); donaBazaCloudYoz(all[bestI]); }
+    if(bestI>=0){ all[bestI].holat='berilgan'; all[bestI].chiqimSana=today(); if(klient) all[bestI].klient=klient; donaBazaCloudYoz(all[bestI]); }
   });
   donaBazaSaqla(all);
 }
@@ -10429,7 +10610,7 @@ function saqlashKlientBerish(){
       // ALOHIDA BAZADAN ham olingan donalarni 'berilgan' deb belgilash (baza kamayadi)
       if (g>0){
         var _bArr=(_st && _st.pass1 && _st.pass1.length) ? _st.pass1 : [roundG(g)];
-        donaBazaOlish(z.nom, t.nom, _bArr);
+        donaBazaOlish(z.nom, t.nom, _bArr, k.nom);
       }
       any=true;
     }
@@ -13394,7 +13575,7 @@ function saqlashKlientSotuv() {
       if(_ds>0){ _bop.dona=_ds; t.donaOst=Math.max(0, turDona(t)-_ds); donaRegOlish(t, uniSkanArr('ksg-'+zi+'-'+ti)); }
       // Dona bazadan ham 'berilgan' deb belgilash (berish bilan bir xil)
       var _sbArr=uniSkanArr('ksg-'+zi+'-'+ti); if(!_sbArr.length) _sbArr=[roundG(g)];
-      donaBazaOlish(z.nom, t.nom, _sbArr);
+      donaBazaOlish(z.nom, t.nom, _sbArr, k.nom);
       k.tarix.push(_bop);
       t.ostatka = Math.max(0, Math.round((t.ostatka - g)*100)/100);
       oldilar.push({zavod:z.nom, tur:t.nom, gramm:g, narx:narx, pul:Math.round(g*narx*100)/100, zi:zi, ti:ti});
