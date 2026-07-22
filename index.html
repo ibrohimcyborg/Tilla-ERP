@@ -2002,7 +2002,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v154.3';
+var APP_VER = 'v154.4';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -14149,19 +14149,19 @@ function klientSotuvChekYangiGen(opts){
       var b=o.berildiMap[k]; if(b===undefined) b=0;
       if(b<=0.001) return;
       jamiB+=b;
-      t+=rjust(' '+k.split('||').join(' '), '-'+fmtG(b))+'\n';
+      t+=rjust(' '+k.split('||').join(' '), '-'+fmtG(b)+'g')+'\n';
     });
-    t+=DASH+rjust(' JAMI berildi','-'+fmtG(Math.round(jamiB*100)/100))+'\n'+LINE;
+    t+=DASH+rjust(' JAMI berildi','-'+fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
     // 2) TO'LOV (sotildi)
     t+="To'lov\n";
     var jamiS=0,jamiG=0;
     var yangiOst={};
     o.oldilar.forEach(function(r){
       var s=Math.round(r.gramm*r.narx*100)/100; jamiS+=s; jamiG+=r.gramm;
-      t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+' x '+r.narx, fmtD(s))+'\n';
+      t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+'g x '+r.narx, fmtD(s)+'#')+'\n';
       var b=o.berildiMap[r.zavod+'||'+r.tur]; if(b===undefined) b=r.gramm;
       var q=Math.round((b-r.gramm)*100)/100;
-      if(q>0.001){ t+=rjust('   qoldi '+fmtG(q),'')+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+q; }
+      if(q>0.001){ t+=rjust('   qoldi '+fmtG(q)+'g','')+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+q; }
     });
     jamiS=Math.round(jamiS*100)/100;
     // Sotilmagan (oldilarda yo'q, berildiMapda bor) -> to'liq qoldi (yangi ostatka)
@@ -14178,13 +14178,13 @@ function klientSotuvChekYangiGen(opts){
       // lom qatorlari L
       (o.lomlar||[]).forEach(function(l){
         var lp=l.pul||Math.round((l.gramm||0)*(l.kurs||0)*100)/100;
-        t+=rjust(' L  '+fmtG(l.gramm)+' x '+l.kurs, fmtD(lp))+'\n';
+        t+=rjust(' L  '+fmtG(l.gramm)+'g x '+l.kurs, fmtD(lp)+'#')+'\n';
       });
     }
     var naqd=Math.round((jamiS-lomPul)*100)/100;
-    t+=rjust(' N', fmtD(naqd))+'\n';
+    t+=rjust(' N', fmtD(naqd)+'#')+'\n';
     t+=LINE;
-    t+=rjust(' Umumiy Summa', fmtD(jamiS))+'\n';
+    t+=rjust(' Umumiy Summa', fmtD(jamiS)+'#')+'\n';
     t+=rjust(' Umumiy g', fmtG(jamiG)+'g')+'\n';
     // 4) OSTATKA (eski/yangi/jami)
     var zlar={};
@@ -14199,9 +14199,9 @@ function klientSotuvChekYangiGen(opts){
         var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0, j=Math.round((e+y)*100)/100;
         te+=e;ty+=y;tj+=j;
         var nom=k.split('||').join(' ');
-        t+=padL(' '+nom,18)+pad(fmtG(e),10)+pad(fmtG(y),10)+pad(fmtG(j),10)+'\n';
+        t+=padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n';
       });
-      t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100),10)+pad(fmtG(Math.round(ty*100)/100),10)+pad(fmtG(Math.round(tj*100)/100),10)+'\n';
+      t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
     }
     return t;
   }
