@@ -2002,7 +2002,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v154.2';
+var APP_VER = 'v154.3';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -14081,7 +14081,7 @@ function saqlashKlientSotuv() {
         // CHEK 2: o'zimizga (logosiz + ptichka)
         setTimeout(function(){
           fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_cheklar.chek2,logo:false})}).catch(printXato);
-        },1200);
+        },2500);
       })();
     }
   }
@@ -14208,8 +14208,9 @@ function klientSotuvChekYangiGen(opts){
 
   var body=tana();
   // CHEK 1 (klient, logo) + CHEK 2 (o'zimizga, logosiz, ptichka)
-  var chek1=body+LINE+center('Rahmat')+'\n';
-  var chek2=body+LINE+center('[ ] Tekshirildi')+'\n';
+  // oxirida feed (bo'sh qatorlar) - printer kesish chizig'i oxirgi matnni kesmasin
+  var chek1=body+LINE+center('Rahmat')+'\n\n\n\n';
+  var chek2=body+LINE+center('[ ] Tekshirildi')+'\n\n\n\n';
   return {chek1:chek1, chek2:chek2, body:body};
 }
 function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan, chekTanlov, chekOrtiqcha) {
