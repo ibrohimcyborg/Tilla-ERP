@@ -3,6 +3,90 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v153: Multi-qurilma o'chirish — tombstone known'dan qat'i nazar o'chiradi
+
+Ibrohim (root cause topdi): 3-4 qurilma bir hisobda; biri yozuv o'chirsa boshqalarda DARROV o'zgarmaydi -> o'chmagan qurilma qayta sync'da o'chirilganni QAYTARADI. v152 (klient o'chirishni cloud'ga push) yetarli emas edi — chuqurroq muammo amalListen da.
+
+SABAB: amalListen o'chirish sharti `if(known!==undefined && amalRecRemoveById(id))` — ya'ni "faqat AVVAL KO'RGAN (oplogda) bo'lsang o'chir". Lekin qurilma yozuvni oplogdan ko'rmay, to'liq cloud blob orqali olishi mumkin (known===undefined). Unda tombstone kelsa ham o'chirmasdi -> yozuv qolib, keyingi sync'da qaytardi.
+
+RISK TAHLILI (Ibrohimga ko'rsatildi): shart izohи "ostatka hisob-increment orqali keladi" degan — lekin hisobListen (increment) v99'da O'CHIRILGAN, ostatka endi tarixdan hisoblanadi. Ya'ni shart himoya qilayotgan narsa endi yo'q. amalRecRemoveById faqat tarix massividan o'chiradi (ostatka RAQAMIga tegmaydi), topilmasa false (xavfsiz), ikki marta o'chirish xavfsiz. Risk juda past.
+
+TUZATISH: `if(known!==undefined && amalRecRemoveById(id))` -> `if(amalRecRemoveById(id))`. Endi tombstone kelsa localda bor bo'lsa HAR DOIM o'chadi (ko'rgan-ko'rmaganidan qat'i nazar). set[id]=dv saqlanadi.
+
+Sinov (t20.js, Node, 8/8): known bor+bor->o'chadi; known YO'Q+bor->ENDI o'chadi (bug tuzatildi); known yo'q+yo'q->xavfsiz; ikki marta->xavfsiz; zavod tarixidan ham. Eski 251 sinov o'tdi. APP_VER v152 -> v153.
+
+NATIJA: v152+v153 birga to'liq hal qiladi — qaysi qurilma o'chirsa tombstone hammaga boradi, har biri o'z localidan o'chiradi, qaytmaydi. Avval TEST rejimida sinash tavsiya.
+
+---
+## v152: Klient tarix o'chirish — cloud'ga amalDeletePush (qaytib chiqmaydi)
+
+Ibrohim (taxmin bilan): klient hisobotidan yozuvni o'chiraman, lekin azgina keyin QAYTIB chiqadi. Umumiy hisobotdan o'chsa chiqmaydi (taxmin).
+
+SABAB TOPILDI: klientTarixOchir k.tarix.splice() bilan LOKALDA o'chiradi + save(), lekin cloud amal kolleksiyasidan o'chirmaydi. save->amalSyncPush faqat YANGI yozuvlarni qo'shadi (o'chirishni bilmaydi). Natijada amalListen (boshqa qurilma yoki qayta ulanish) o'sha _id ni ko'rib QAYTARADI. Mavjud amalDeletePush(op) funksiyasi bor (cloud'ga deleted:true tombstone yozadi, listener amalRecRemoveById bilan o'chiradi) — u zavod ostatka o'chirishida (6691) to'g'ri chaqirilgan, lekin klientTarixOchir da UNUTILGAN.
+
+TUZATISH: klientTarixOchir ichida, har o'chirilgan op uchun splice'dan keyin try{ amalDeletePush(op); }catch(e){} qo'shildi (6691 namunasi bilan bir xil). Endi o'chirish cloud'ga tombstone bo'lib boradi, listener boshqa qurilmalarda ham o'chiradi, qaytmaydi.
+
+Sinov (t19.js, Node, 5/5): berildi (19:48) 2 yozuv o'chirish -> local 1 qoldi (tolov), qolgan to'g'ri op, amalDeletePush op1+op2 (2 ta) chaqirildi. Eski 246 sinov o'tdi. APP_VER v151 -> v152.
+
+ESLATMA (kelajakda tekshirish kerak): klientTarixTahrir gramm o'zgartirsa _id saqlanadi lekin amalSyncPush set[_id] bor deb qayta yozmaydi -> cloud'da eski qiymat qolishi mumkin (tahrir sync bug, alohida). Sotuv modali "kerakli summa" + _qarzTarkib/klientQarzSplit farqi (ekran breakdown) + katta 3D jadval hali ochiq.
+
+---
+## v151: Klient chek — FAQAT bosgan operatsiya (ostatka/tarkib olib tashlandi)
+
+Ibrohim asl muammoni topdi (rasm bilan): berildi chekini bosdi, chek noto'g'ri Ostatka (404.85) + QARZ TARKIBI bilan chiqdi. Ekranda klient qarzi to'g'ri (412.27), lekin chekdagi Ostatka (joriyQarz = berish-vozvrat-tolov, soddalashtirilgan) klientda/manfiy berish/biz qarzni hisobga olmagani uchun noto'g'ri (404.85). Ibrohim: "berilganini print qsa bo'ldi, boshqa narsalarni chiqarmasin".
+
+QAROR (Ibrohim tanladi): chek FAQAT bosgan operatsiyani ko'rsatsin — qarz tarkibi + ostatka YO'Q.
+
+TUZATISH — klientChekBasit(ki,sana,soat,isBerish) to'liq qayta yozildi (127 -> 70 qator):
+- ops filtri endi SANA + SOAT + tip bo'yicha (avval faqat sana -> bir kunda bir necha operatsiya bo'lsa aralashardi). soat bo'sh bo'lsa butun kun (orqaga moslik).
+- isBerish -> "Klientga berildi" ro'yxati (guruh zavod||tur, kiritilish tartibida) + JAMI berildi.
+- tolov/vozvrat -> shu operatsiya qatorlari (tolov: gxkurs=summa#, jami to'landi; vozvrat: +g, jami vozvrat).
+- OLIB TASHLANDI: joriyQarz/Ostatka qatori, QARZ TARKIBI bo'limi, bd/bd_before/ops_grouped/qbd murakkab hisoblar (ular butun-klient hisobi edi va chekda noto'g'ri chiqardi). logo:true saqlandi, printXato.
+
+Sinov (t18.js, Node, 20/20): berildi cheki faqat o'sha berish (boshqa kun/tolov/vozvrat YO'Q, Ostatka YO'Q, QARZ TARKIBI YO'Q); tolov cheki faqat tolov; vozvrat cheki faqat vozvrat; soat filtri (soatsiz butun kun). Eski 226 sinov o'tdi. APP_VER v150 -> v151.
+
+ESLATMA: _qarzTarkib va klientQarzSplit farqi (klientda/manfiy berish) hali bor, lekin chekdan olingani uchun endi ta'sir qilmaydi. Ekran breakdown (10057) hali _qarzTarkib ishlatadi — agar u ham noto'g'ri ko'rsatsa alohida tuzatiladi. Sotuv modali "kerakli summa" muammosi (oldingi savol) hali ochiq. rasmdagi katta 3D jadval ochiq.
+
+---
+## v150: DONA BAZA — shakllantirish + tekshirish (skan bilan, 2 tanlov)
+
+Ibrohim: dona baza ekraniga ikki tugma — ostatka shakllantirish (skan bilan bazaga) + keyingi hafta tekshirish (qolganini skan). Muhim: ostatka olganda ustiga qo'r-ko'rona qo'shilmaydi — tekshirilib, IKKI TANLOV so'raladi.
+
+MOCKUP AYLANISHI: dona-baza-shakl-tekshir -> (Ibrohim: ostatka olganda shunchaki tekshiriladi) -> dona-baza-tekshir-tanlov (2 tanlov: ustiga qo'shish vs shakllantirish) -> ostatka-moslash (3-savol: ostatka moslashadimi -> A: oshadi). Yakuniy: A variant (ostatka har amalda moslanadi), ortiqcha sana bo'lsa o'sha kunga.
+
+QO'SHILDI (dona baza 1-daraja sanalar tepasiga 2 tugma):
+1. 📥 SHAKLLANTIRISH — zavod/tur select -> gramm skan (dbsk-inp, +/- Enter) -> 5xN grid -> "Bazaga qo'shish". donaBazaShaklSaqla: donaBazaQosh (ombor, bugungi sana) + ostatka +jami + donaOst +N + donaRegQosh (A variant).
+2. 🔍 TEKSHIRISH — zavod/tur -> qolganini skan -> "Solishtirish". donaBazaTekshirYakun: skan vs donaBazaOmbor -> mos (ikkovida) / yoq (bazada bor skanda yo'q) / ortiqcha (skanda bor bazada yo'q). Natija jadval + 2 TANLOV:
+   - ➕ USTIGA QO'SHISH (donaBazaTekshirSaqla 'qosh'): ortiqcha bazaga qo'shiladi (bugungi sana), yoqlar omborda QOLADI (tegilmaydi), ostatka +ortiqcha gramm, donaRegQosh. Ibrohim: "shakllantirdik qo'limizni, lekin 8 ta qopketgan bo'sa ustiga qo'shamiz".
+   - 🔄 SHAKLLANTIRISH ('shakl'): o'sha zavod-tur ombor rekordlari o'chadi (donaBazaCloudOchir har biriga), skan = yangi haqiqat. Ostatka = eski ombor gramm olib skan gramm qo'yiladi, registr almashadi. Boshqa tur tegilmaydi.
+
+Holat: _dbSk {rejim,zi,ti,skan[]}, _dbTekNatija. donaBazaSkanBoshla/Render/Add/Del/Bekor. donaBazaEkranYop skan ochiq bo'lsa avval uni yopadi.
+
+Sinov (t16.js, Node, 31/31): shakl (baza 3, ostatka 50->62.11, donaOst, registr); tekshir-qosh (mos 2/yoq 1/ortiqcha 1, baza 4, yoq qoldi, ostatka +5.60); tekshir-shakl (baza=skan, boshqa tur tegilmadi, ostatka 100-9.02+12.11=103.09). Eski 197+18 qayta o'tdi. APP_VER v149.1 -> v150.
+
+---
+## v150: DONA BAZA — ostatka olish (shakl) + tekshirish (2 tanlov) skan bilan
+
+Ibrohim: dona bazaga ostatka olish (skan bilan tekshirish) + keyingi hafta tekshirish (skan bilan qolganini solishtirish) qo'sh. Mockup aylanishi: dona-baza-shakl-tekshir -> dona-baza-tekshir-tanlov -> ostatka-moslash. QARORLAR: (1) "ostatka olganda ustiga qo'shilmaydi, shunchaki qo'limizdagi tekshiriladi". (2) tekshirishda 2 tanlov: ➕ ustiga qo'shish (baza saqlanadi, ortiqcha qo'shiladi, yo'qlar omborda qoladi) yoki 🔄 shu bo'yicha shakllantirish (baza tozalanib skan=yagona haqiqat). (3) ortiqcha qo'shilganda bugungi sanaga. (4) ostatka MOSLASHADI (A variant): qo'shilsa +ortiqcha, shakllantirsa =skan yig'indisi.
+
+DIQQAT — DUBLIKAT TOZALANDI: avvalgi sessiyada bu funksionallik ALLAQACHON yozilgan ekan (_dbSk, donaBazaSkanBoshla/Render/Add/Del, donaBazaTekshirYakun/NatijaModal/Saqla, _dbTekQator — modal UI bilan, to'liqroq). Claude buni ko'rmay ikkinchi to'plam (_odbSk, odbSkanBoshla...) qo'shib dublikat yaratdi. Xato tuzatildi: mening dublikat blok (11239 belgi) va keraksiz HTML (odb-tugma/odb-skan konteynerlari) o'chirildi, donaBazaEkranOch/Yop avvalgi _dbSk holatiga qaytarildi. Mavjud kod ishlatiladi.
+
+MAVJUD KOD (v150 da tasdiqlangan/test qilingan): donaBazaEkranRender 1-daraja (sanalar) da 2 tugma o'zi chizadi (📥 Ostatka olish=shakl, 🔍 Tekshirish=tekshir), odb-body ichiga. donaBazaSkanBoshla(rejim) -> _dbSk={rejim,zi,ti,skan[]}. donaBazaSkanRender: zavod/tur select + gramm input (Enter qo'shadi) + 5xN grid + yakun tugma, odb-body da. donaBazaSkanAdd/Del. donaBazaTekshirYakun: skanni ombor bilan solishtiradi -> {mos,yoq,ortiqcha} -> _dbTekNatija -> donaBazaTekshirNatijaModal (2 tanlov modal). donaBazaTekshirSaqla('qosh'|'shakl'): qosh -> donaBazaQosh(ortiqcha,bugun)+ostatka+=og+donaOst+donaRegQosh, yoqlar tegilmaydi; shakl -> eski ombor rekordlar o'chadi (donaBazaCloudOchir)+donaBazaQosh(skan)+ostatka=eskiOmbGolib+skanG+registr almashadi.
+
+Sinov (t17.js, Node, 11/11): solishtir (18 mos/2 ortiqcha/2 yoq); qosh (ostatka +11.15, donaOst 20->22, baza 22, ombor 22, registr); shakllantirish (baza=4 skan, ostatka=skan yig'indisi 18.02, donaOst 4). Eski 215 sinov o'tdi. APP_VER v149.1 -> v150.
+
+TUZATISH (v150 ichida): dublikat blokni o'chirganda _odbSanaTs helper (sanalarni yangi->eski sortlash) ham kesilib ketdi -> qayta qo'shildi (donaBazaEkranRender 6075 da ishlatiladi). Endi sintaksis + 226 sinov toza.
+
+ESLATMA: bu sessiyada dublikat yaratish xatosi — kelajakda yangi funksiya yozishdan oldin grep bilan tekshirish kerak (funksionallik allaqachon bormi). rasmdagi katta 3D jadval hali ochiq.
+
+---
+## v149.1: PC modeда KASSA paneli yashirildi (mobil qoladi)
+
+Ibrohim rasm bilan: PC modeда kassa panelini olib tashlash kerak. Faqat PC (mobilда qolsin).
+
+TUZATISH: @media (min-width:1024px) ga `#kassa-card-pc{display:none !important;}` qo'shildi. Desktop zavod panelidan KASSA mini karta (Naqd/Lom583/999) yo'qoladi. Mobil (kassa-card-mob) tegilmadi — o'sha joyда qoladi. Faqat CSS, mantiqqa tegilmadi. APP_VER v149 -> v149.1.
+
+---
 ## v149: DONA BAZA EKRANI — sana -> zavod·tur -> 5xN gramm jadval + kimga ketgani
 
 Ibrohim: dona bazani alohida ko'rish/boshqarish ekrani. Ko'p mockup aylanishi (dona-baza-ekran -> dona-ochir-tahrir -> dona-baza-asos -> hafta-snapshot -> zavod-ostatka-hafta -> zavod-tur-kirim -> dona-baza-sana -> uzun-ism). YAKUNIY QAROR: dona baza ekrani 3 bosqichli — SANA -> zavod·turlar (nechta·gramm) -> 5 ustunli gramm jadval. Ketgan dona xira + birinchi so'z (ism, B variant), ombordagi tiniq. Katakni bossa: to'liq ma'lumot + o'chirish/tahrirlash.
