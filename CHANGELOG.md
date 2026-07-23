@@ -3,6 +3,234 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v156: Cheklar to'liq qayta ishlandi (2 chek, yangi to'lov formati, ieroglif sababi)
+
+Ibrohim butun sistemadagi cheklarni nomerlab ko'rib chiqdi va har biriga alohida ko'rsatma berdi.
+Mockup tasdiqlangandan keyin yozildi.
+
+### 1, 2 — Berish va Vozvrat: ikkita chek
+
+Avval bitta chek chiqardi va `kb-chek-body` / `kv-chek-body` matnini o'qib printerga yuborardi.
+Endi sotuvdagidek ikkita: chek 1 klientga (logo, tagida `Rahmat`), chek 2 o'zimizga
+(LOGOSIZ, tagida 2x kattalikda `[  ] Tekshirildi`).
+
+Yangi umumiy yordamchilar (chekQur dan keyin qo'shildi):
+
+* `chekYakun(body, W)` -> `{chek1, chek2, ekran}`. Ptichka ESC/POS bilan kattalashtiriladi:
+  `ESC a 1` markazga, `GS ! 0x11` eni va bo'yi 2x, keyin normal holatga qaytariladi.
+* `chekIkkiChop(cheklar, cnt)` -> chek1 (logo) yuboriladi, 2500ms dan keyin chek2 (logosiz).
+  Nusxa bo'lsa har juftlik orasida 5000ms, aralashib ketmasin.
+
+Preview endi `chekYakun(...).ekran` ni ko'rsatadi, chop esa yakunsiz tanani globalga
+saqlangan holidan (`_kbChekBody`, `_kvChekBody`) qayta yig'adi. Ya'ni ekrandagi matn
+printerga ketmaydi, ikkalasi ham bitta manbadan chiqadi.
+
+Eski `RAHMAT!` (katta harf, undov bilan) hamma chekdan olib tashlandi, o'rniga `Rahmat`.
+
+### 3 — To'lov cheki: sotuv qolipiga o'tdi
+
+`chekQur` o'rniga yangi `kTolovChekGen(d)`. Ibrohimning ko'rsatmasi: 4-chek (sotuv)
+qolipini olib, `Berildi` blokini olib tashlash (to'lovda berish yo'q).
+
+Yangi tuzilish:
+
+* To'lov qatoridan keyin nuqtali chiziq, tagida `Qoldi` o'ng chetda (`g` qo'shimchasisiz)
+* Yakuniy blok: YORLIQSIZ yalang'och summa, `Skidka`, nuqtali chiziq,
+  `Umumiy Summa` (skidkadan keyingi qiymat), `Umumiy g`
+* Ostatka jadvali uch ustun: `Ostatka` / `to'landi` / `qoldi` (birinchi ustun nomi
+  `eski` emas, Ibrohim shunday dedi)
+* Chek 2 ham chiqadi
+
+Pul formati: generator O'Z `fmtD` sini yozdi (`minimumFractionDigits:2`). Global `fmtD`
+`.00` ni tashlab yuboradi va `1,508#` bo'lib chiqardi, sotuv cheki esa `1,508.00#` beradi.
+Global funksiyaga tegilmadi, 264 joyda ishlatiladi.
+
+`chekQur` (9137) endi hech qayerdan chaqirilmaydi. O'chirilmadi, ruxsat berilmagan.
+
+### 3b, 3c — Ortiqcha pulning ikki holati
+
+Ibrohim ajratdi:
+
+* Pul zavod turidan yopilsa -> `Qolgan summa -> Zavod Tur   +Ng`
+* Faqat naqd qaytarilsa -> `SDACHA   N#`
+
+Naqd holat avval `tolovlar` ro'yxatiga manfiy qator bo'lib qo'shilardi
+(`SDACHA qaytarildi`), ya'ni "Jami to'landi" ichida ko'rinardi. Endi alohida
+`_ktSdachaPul` maydoni orqali yakuniy blokda chiqadi.
+
+Uchinchi holat `tip:'bizda'` uchun `Qolgan summa` yozildi. BU MENING TAXMINIM,
+Ibrohim bu holatni aytmagan.
+
+### 4 — Sotuv chekiga skidka va ortiqcha qo'shildi
+
+Modalda `ks-skidka` va sdacha taqsimoti allaqachon bor edi, lekin chekka chiqmasdi.
+Endi `klientSotuvChekYangiGen` `skidka`, `ortiqcha`, `tanlov` ni ham qabul qiladi.
+
+`window._ksSotuvOrtiqcha` qo'shildi (`kSotuvCalc` ichida yoziladi) — preview va chop
+bir xil qiymatni ko'rsin uchun. Avval ortiqcha faqat saqlash paytidagi lokal
+o'zgaruvchida bor edi, preview uni ko'ra olmasdi.
+
+Qoldi qatori sotuvda ham nuqtali chiziq + `Qoldi` formatiga o'tdi.
+Ostatka birinchi ustuni `eski` -> `Ostatka`.
+Chek 2 ptichkasi kattalashtirildi.
+
+### 6 — Ostatka hisoboti
+
+Zavod alohida sarlavha qator bo'lib chiqardi, tur tagida turardi. Endi Ibrohim
+ko'rsatgandek zavod va tur KETMA KET bitta qatorda:
+
+```
+ Simay Butterfly                          30.00g
+ Simay 3D                                 12.00g
+ Rasul Oddiy (biz qarz)                   +5.00g
+```
+
+Gramm `g` bilan, klient qarzi belgisiz (avval `-` bilan edi), biz qarzdor bo'lsak
+`(biz qarz)` va `+`. Oxirida `JAMI` qatori qo'shildi, biz qarzdor qism MINUS bo'lib
+qo'shiladi: 30 + 12 - 5 = 37.00g.
+
+JAMI manfiy chiqsa `+` bilan yoziladi (qator konvensiyasiga mos). BU MENING QARORIM,
+Ibrohim bu holatni aytmagan.
+
+### 10 — Skan vozvrat 32 -> 48
+
+`W = 32` -> `W = 48`. Boshqa cheklar bilan bir xil kenglikda bosiladi.
+
+### XITOYCHA IEROGLIF: sabab topildi
+
+Ibrohim chekda xitoycha yozuv chiqishini aytgan edi. Ikki sabab:
+
+1. **To'lov chekida (index.html).** Tur nomi `r.zavod+' \u00b7 '+r.tur` shaklida
+   yig'ilardi. `\u00b7` bu O'RTA NUQTA belgisi, UTF-8 da IKKI bayt (`C2 B7`).
+   Termal printer buni bitta xitoy ierogilifi deb o'qiydi. Oddiy bo'sh joyga almashtirildi.
+2. **print_server.py da.** Alohida yozilgan (pastga qarang).
+
+Chop etiladigan hamma chek matni belgima belgi tekshirildi, boshqa non ASCII belgi yo'q.
+
+### print_server.py TUZATILDI
+
+Sabab 448-qatorda edi: `text.encode('utf-8', errors='replace')`. Printerga UTF-8
+baytlari yuborilardi, lekin termal printer UTF-8 tushunmaydi, bir baytli codepage
+kutadi. `Gʻayrat` dagi `ʻ` UTF-8 da `CA BB` ikki bayt, printer uni bitta ieroglif
+deb bosadi. Ustiga faylda codepage tanlash komandasi umuman yo'q edi.
+
+Uch o'zgarish:
+
+1. `CANCEL_KANJI = b"\x1c\x2e"` (FS .) qo'shildi, `ESC @` dan keyin yuboriladi.
+   Xitoy rejimini bekor qiladi.
+2. `CODEPAGE_437 = b"\x1b\x74\x00"` (ESC t 0) qo'shildi, bir baytli CP437 tanlaydi.
+3. `to_ascii(text)` funksiyasi yozildi. Chop etishdan oldin hamma non ASCII belgini
+   ASCII ga o'giradi: `ʻ ʼ ' '` -> `'`, `– —` -> `-`, `·` -> bo'sh joy, `─` -> `-`,
+   kirill harflar lotinga (`ў` -> `o'`, `қ` -> `q`, `ғ` -> `g'`, `ҳ` -> `h`).
+   Noma'lum belgi `?` bo'ladi, ieroglif emas. Kodlash `cp437`.
+
+`to_ascii` faqat 0x80 dan katta belgilarga tegadi, ESC/POS boshqaruv baytlari
+(`\x1b`, `\x1d`, `\x1c`) 0x80 dan kichik, ular buzilmaydi. Sinovda tekshirildi:
+2x ptichka baytlari o'zgarishsiz o'tdi.
+
+### SINOVLAR
+
+* `t23.js` — `kTolovChekGen` + `chekYakun`, kenglik va ptichka baytlari
+* `t24.js` — `klientSotuvChekYangiGen` skidka va Qolgan summa bilan
+* `t25.js` — Ostatka hisoboti formati va JAMI hisobi
+
+Uchalasi ham tasdiqlangan mockup natijasiga aynan mos chiqdi.
+
+### TEGILMAGANI
+
+* `klientSotuvChekPrint` (14223) hali o'lik kod, o'chirilmadi
+* 5a klient dublikat cheki (berish) tegilmadi
+* 5b (to'lov dublikatiga skidka) hali yozilmadi
+* 7, 8, 9 cheklar to'g'ri deb tasdiqlangan, tegilmadi
+
+## v155: Sotuv modali eski to'lov qiymatini saqlab qolishi tuzatildi
+
+Ibrohim: sotuv modali bundan oldingi klient nimaga to'lov qilgan bo'lsa o'shani saqlab qolyapti (boshqa klientga o'tganda oldingi to'lov inputlari qolib ketardi).
+
+SABAB: kSotuvRenderTolov "Mavjud inputlar qiymatlarini saqlab qo'yamiz" (savedS/savedG/savedUst) — DOM dagi eski qiymatlarni o'qib, render'dan keyin qaytaradi (bir klient ichida foydali). LEKIN modal ochilganda / boshqa klient tanlanganda ks-zavod-list va ks-tolov-list tozalanmasdi -> eski klientning kst-s/kst-n/ksg qiymatlari DOM da qolib, savedS/savedG orqali yangi klientga ko'chardi.
+
+TUZATISH (2 joy):
+- openKlientSotuv: ks-zavod-list + ks-tolov-list innerHTML='' (modal ochilganda).
+- ksSotuvPickK: render oldidan ks-zavod-list + ks-tolov-list innerHTML='' (klient tanlanganda).
+Endi har klient uchun toza inputlar.
+
+Ostatka (Ibrohim tekshirdi): hamma tur (tegilgan+tegilmagan eski qarz) allaqachon to'g'ri ko'rinadi (eskiOstMap=_klientTurQarzMap butun qarz, snapshot berish push dan OLDIN). Rasm 2 dagi Diamond eski 55.95+yangi 52.23 to'g'ri (Diamond berilgan lekin sotilmagan).
+
+Sinov: eski 267 o'tdi. APP_VER v154.4 -> v155.
+
+---
+## v154.4: Chekka g + # qaytarildi
+
+Ibrohim fikrini o'zgartirdi: chekka g (gramm) va # (summa) qaytsin. g -> hamma gramm joyga, # -> summa qatorlariga.
+
+klientSotuvChekYangiGen:
+- g qo'shildi: Berildi (-10.00g), JAMI berildi, sotildi gramm (10.00g x narx), qoldi (5.00g), L gramm (3.00g x kurs), Ostatka jadval har katak (0.00g/5.00g/10.00g), JAMI qatori. Umumiy g allaqachon g'li edi.
+- # qo'shildi: sotildi summa (836.00#), L summa, N, Umumiy Summa.
+Sinov t21/t22 g/# bilan yangilandi. Eski 267 o'tdi. APP_VER v154.3 -> v154.4.
+
+---
+## v154.3: 2 chek kesish tuzatildi (Rahmat/Tekshirildi o'rtasidan kesmasin)
+
+Ibrohim: printer 2 chekni "Rahmat" va "Tekshirildi" o'rtasidan kesib qo'yyapti. Sabab: chek1/chek2 juda tez (1200ms) ketma-ket yuborilardi -> printer chek1'ni to'liq chiqarib kesib ulgurmasdan chek2 kelardi, o'rtadan noto'g'ri kesardi. Yana chek oxirida feed (bo'sh joy) yetarli emasdi -> kesish chizig'i oxirgi qatorni kesardi.
+
+TUZATISH:
+- chek1/chek2 oxiriga feed qo'shildi: LINE+center(...)+'\n\n\n\n' (avval bitta \n edi). Kesish chizig'i oxirgi matndan pastroqda bo'ladi.
+- chek1 -> chek2 kechikishi 1200ms -> 2500ms. Printer chek1'ni to'liq chiqarib kesib ulguradi, keyin chek2 keladi.
+- body (ekran preview) feed'siz qoladi (faqat print chek1/chek2 da feed).
+
+Sinov: qisman to'lov (t22, 13/13) + eski 267 o'tdi. APP_VER v154.2 -> v154.3. Vercel deploy kerak.
+
+---
+## v154.2: Sotuv chek — qisman to'lov (sotildi != berildi) + ekran preview ham yangi format
+
+Ibrohim TEST rejimida sinadi (rasm): berildi to'g'ri, LEKIN chek qisman to'lovni ko'rsatmadi. Oddiy 836 to'liq, 3D faqat 5g (431.5), S umuman to'lov yo'q -> lekin chekda hammasi 10g to'liq sotilgan kabi chiqdi, qoldi/ostatka yo'q. Ayni paytda ekran preview (kSotuvUpdateChek, eski TOLOVLAR format) va print (yangi format) IKKI XIL edi.
+
+SABAB: chek funksiyasiga oldilar.gramm (=BERILDI, ksg input, 10) sotildi deb uzatilgan edi. Haqiqiy sotildi = kst-s (to'langan summa) / kst-n (narx) [3D: 431.5/86.3=5, S: 0].
+
+TUZATISH:
+- Print chaqiruvi (saqlashKlientSotuv): _sotOldilar yasaldi — gramm = HAQIQIY sotildi (kst-s/kst-n), to'lov 0 bo'lsa chekda ko'rinmaydi. berildiMap = oldilar.gramm (berildi). oldilar:_sotOldilar uzatiladi (chek gramm=sotildi, berildiMap=berildi -> qoldi to'g'ri).
+- Ekran preview (kSotuvUpdateChek oxiri): eski TOLOVLAR/RAHMAT bloki o'rniga klientSotuvChekYangiGen chaqiriladi (print bilan BIR XIL mantiq: sotildi=kst-s/kst-n, berildi=oldilar.gramm, lom=ks-lg/ks-lk, eski ostatka=_klientTurQarzMap). ks-chek-body ga _cPrev.body yoziladi. Xato bo'lsa eski lines2 fallback.
+
+Natija (Ibrohim misoli): berildi 10/10/10, sotildi 10/5/0, To'lov Oddiy 836 + 3D 431.5 (qoldi 5), S umuman yo'q, Ostatka 3D 5 + S 10 = 15. Ekran va print endi BIR XIL.
+
+DIQQAT: str_replace paytida saqlashKlientSotuv funksiya deklaratsiyasi tasodifan o'chib ketdi -> qayta tiklandi (sintaksis tekshiruvda topildi).
+
+Sinov: chek logika (berildi!=sotildi -> qoldi). Eski 267 sinov o'tdi. APP_VER v154.1 -> v154.2.
+
+ESLATMA: # allaqachon v154.1 da olib tashlangan edi, lekin Ibrohim ko'rgan chek eski deploy (# bor). Yangi versiyani Vercel'ga deploy qilish kerak. Berildi=sotildi endi AJRATILDI (kst-s/kst-n orqali qisman).
+
+---
+## v154.1: Sotuv chekidan # belgisi olib tashlandi
+
+Ibrohim: chekdan # ni hammasidan ol. klientSotuvChekYangiGen ichida 4 joyda # bor edi (To'lov summa, L, N, Umumiy Summa) -> hammasi olib tashlandi, faqat raqam qoladi. Faqat vizual (mantiq tegmagan). Node sinov o'tdi. APP_VER v154 -> v154.1.
+
+---
+## v154: Sotuv cheki YANGI FORMAT (2 chek: klient logo + o'zimizga ptichka)
+
+Ibrohim eski murakkab sotuv chekini (offset, biz qarzdor, lom bloki, kerakli/ortiqcha) qadam-baqadam qayta dizayn qildi (ko'p mockup aylanishi). Yangi sodda format tasdiqlandi.
+
+YANGI CHEK (48 belgi, klientSotuvChekYangiGen):
+- Sarlavha: klient nom + sana (HISOB/Klientga berildi yozuvi YO'Q)
+- BERILDI: har zavod-tur -gramm (g harfsiz), JAMI berildi. Hamma tur (sotilgan+sotilmagan).
+- TO'LOV: sotilgan har zavod ' Nom  gramm x narx   summa #'. Qisman bo'lsa tegida '  qoldi Ng'.
+- JAMI TO'LANDI: L (lom: gramm x kurs, probasiz) + N (naqd). Lom yo'q bo'lsa L qatori yo'q.
+- Umumiy Summa + Umumiy g.
+- OSTATKA jadval: eski | yangi | jami ustunlar (zavod bo'yicha), + JAMI qatori. Ostatka yo'q bo'lsa jadval yo'q.
+- 2 CHEK bir bosishda: chek1 = klient (logo:true, "Rahmat"), chek2 = o'zimizga (logo:false, "[ ] Tekshirildi" ptichka). setTimeout 1200ms bilan ketma-ket.
+
+INTEGRATSIYA (saqlashKlientSotuv):
+- _klientTurQarzMap(k) helper qo'shildi — tur bo'yicha klient qarzi (berish-vozvrat-tolov-klientda).
+- saqlashKlientSotuv boshida (oldilar dan oldin) _eskiQarzMap snapshot (sotuvdan OLDINGI ostatka).
+- Chek chaqiruvida berildiMap (oldilar.gramm) + eskiOstMap (_eskiQarzMap musbat) uzatiladi.
+- Eski klientSotuvChekPrint chaqiruvi olib tashlandi (funksiya ta'rifi qoldi, zararsiz).
+
+ESLATMA (hozircha): berildi = sotildi (oldilar.gramm) — modalda alohida "sotildi" (qisman yopish) inputi hali YO'Q. Qisman yopish (berildi 100 / sotildi 80 / qoldi 20) keyingi qadam — modal input qo'shilganda ishlaydi. Chek logikasi qismanni ALLAQACHON qo'llab-quvvatlaydi (berildiMap != sotildi bo'lsa qoldi chiqadi).
+
+Sinov (t21.js, Node, 8/8): _klientTurQarzMap (Diamond 15.50), chek1 berildi/sotildi/L/Umumiy/Rahmat, chek2 Tekshirildi, ostatka eski. Chek logika sinovi (25 test t_chek). Eski 259 sinov o'tdi. APP_VER v153 -> v154.
+
+KEYINGI: modalga "sotildi" gramm input (qisman yopish) + eski klientSotuvChekPrint tozalash. TEST rejimida 2 chek chiqishini print_server bilan sinash.
+
+---
 ## v153: Multi-qurilma o'chirish — tombstone known'dan qat'i nazar o'chiradi
 
 Ibrohim (root cause topdi): 3-4 qurilma bir hisobda; biri yozuv o'chirsa boshqalarda DARROV o'zgarmaydi -> o'chmagan qurilma qayta sync'da o'chirilganni QAYTARADI. v152 (klient o'chirishni cloud'ga push) yetarli emas edi — chuqurroq muammo amalListen da.
