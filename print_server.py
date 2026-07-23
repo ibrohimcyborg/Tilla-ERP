@@ -348,6 +348,11 @@ ALIGN_LEFT      = b"\x1b\x61\x00"   # ESC a 0 — chapga
 LINE_FEED       = b"\x0a"           # \n
 PAPER_FEED      = b"\x0a\x0a\x0a"  # 3 qator tashlash (kesiш oldidan)
 FULL_CUT        = b"\x1d\x56\x00"  # GS V 0 — to'liq kesish
+# XITOY REJIMINI O'CHIRISH va bir baytli codepage tanlash.
+# Xitoyda yasalgan printerlar (Xprinter) xitoy rejimi YOQIQ holda yonadi.
+# Shu rejimda 0x80 dan katta har qanday bayt juftligi ieroglif bo'lib bosiladi.
+CANCEL_KANJI    = b"\x1c\x2e"          # FS .   — xitoy/kanji rejimini bekor qiladi
+CODEPAGE_437    = b"\x1b\x74\x00"     # ESC t 0 — CP437 (bir baytli)
 PARTIAL_CUT     = b"\x1d\x56\x01"  # GS V 1 — qisman kesish
 
 # ============================================================
@@ -358,6 +363,41 @@ PARTIAL_CUT     = b"\x1d\x56\x01"  # GS V 1 — qisman kesish
 # Biz 1x1 ishlatamiz — logo rasmi allaqachon to'g'ri o'lchamda
 # Lekin tepadan joy kamaytirish uchun avvalgi bo'sh qatorlarni olib tashlaymiz
 # ============================================================
+
+# Printer bir baytli codepage bilan ishlaydi. UTF-8 da ikki baytli belgilar
+# (o'zbekcha ʻ, tirnoqlar, tire, kirill) ieroglifga aylanadi. Shuning uchun
+# chop etishdan OLDIN hammasini ASCII ga o'giramiz.
+ASCII_MAP = {
+    '\u02bb': "'", '\u02bc': "'", '\u2018': "'", '\u2019': "'",
+    '\u201c': '"', '\u201d': '"', '\u0060': "'", '\u00b4': "'",
+    '\u2013': '-', '\u2014': '-', '\u2212': '-', '\u00b7': ' ',
+    '\u2500': '-', '\u2501': '-', '\u00a0': ' ',
+    '\u2192': '->', '\u2713': 'v', '\u00d7': 'x', '\u2116': 'No',
+}
+CYR = {
+    '\u0430':'a','\u0431':'b','\u0432':'v','\u0433':'g','\u0434':'d','\u0435':'e','\u0451':'e',
+    '\u0436':'j','\u0437':'z','\u0438':'i','\u0439':'y','\u043a':'k','\u043b':'l','\u043c':'m',
+    '\u043d':'n','\u043e':'o','\u043f':'p','\u0440':'r','\u0441':'s','\u0442':'t','\u0443':'u',
+    '\u0444':'f','\u0445':'x','\u0446':'ts','\u0447':'ch','\u0448':'sh','\u0449':'sh','\u044a':'',
+    '\u044b':'i','\u044c':'','\u044d':'e','\u044e':'yu','\u044f':'ya',
+    '\u045e':"o'",'\u049b':'q','\u0493':"g'",'\u04b3':'h',
+}
+for _k, _v in list(CYR.items()):
+    ASCII_MAP[_k] = _v
+    ASCII_MAP[_k.upper()] = _v.upper()
+
+
+def to_ascii(text):
+    """Chek matnini printer tushunadigan ASCII ga o'giradi.
+    ESC/POS boshqaruv baytlari (\x1b, \x1d, \x1c) 0x80 dan kichik, tegilmaydi."""
+    out = []
+    for ch in text:
+        if ord(ch) < 128:
+            out.append(ch)
+        else:
+            out.append(ASCII_MAP.get(ch, '?'))
+    return ''.join(out)
+
 
 def get_logo_bytes():
     """Logo ESC/POS baytlarini qaytaradi"""
@@ -425,7 +465,9 @@ class handler(BaseHTTPRequestHandler):
             hJob = win32print.StartDocPrinter(hPrinter, 1, ('chek', None, 'RAW'))
             win32print.StartPagePrinter(hPrinter)
 
-            data = ESC_INIT  # printer reset
+            data = ESC_INIT              # printer reset
+            data += CANCEL_KANJI         # xitoy rejimini o'chirish
+            data += CODEPAGE_437         # bir baytli codepage
 
             if with_logo:
                 logo = get_logo_bytes()
@@ -445,7 +487,7 @@ class handler(BaseHTTPRequestHandler):
                     text = text.lstrip('\n')
 
             # Matn (chek tanasi)
-            data += text.encode('utf-8', errors='replace')
+            data += to_ascii(text).encode('cp437', errors='replace')
             # Oxirida qog'oz tashlash va kesish
             data += PAPER_FEED
             data += PARTIAL_CUT
