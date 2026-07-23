@@ -2002,7 +2002,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v155';
+var APP_VER = 'v156';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -7487,7 +7487,7 @@ function skVozvratChek(){
   var t = z.turlar[skState.ti];
   var total = skSum(skState.pass1);
   var dona = skState.pass1.length;
-  var W = 32;
+  var W = 48;
   var center = function(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; };
   var rjust = function(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; };
   var mark = function(s){ return '\x1D\x21\x11'+s+'\x1D\x21\x00'; }; // GS ! double, keyin normal
@@ -9182,6 +9182,105 @@ function chekQur(d){
   return o.join('\n');
 }
 
+// ══════════════════════════════════════════════════════════════
+// CHEK YAKUNI — chek 1: klient (logo, "Rahmat")
+//               chek 2: o'zimizga (LOGOSIZ, 2x katta ptichka)
+// body = chekning yakunsiz tanasi, oxirgi ajratgich chizig'igacha.
+// ══════════════════════════════════════════════════════════════
+function chekYakun(body, W) {
+  W = W || 48;
+  var LINE = Array(W+1).join('-');
+  var ctr = function(s){ var p=Math.max(0,Math.floor((W-s.length)/2)); return Array(p+1).join(' ')+s; };
+  // ESC a 1 = markazga, GS ! 0x11 = eni+bo'yi 2x, keyin normal holatga qaytariladi
+  var ptichka = '\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00';
+  return {
+    chek1: body + LINE + '\n' + ctr('Rahmat') + '\n\n\n\n',
+    chek2: body + LINE + '\n' + ptichka + '\n\n\n\n',
+    ekran: body + LINE + '\n' + ctr('Rahmat')
+  };
+}
+
+// Ikki chekni ketma-ket chop etadi: chek1 (logo) -> 2500ms -> chek2 (logosiz).
+// Nusxa bo'lsa har juftlik orasida 5000ms, aralashib ketmasin.
+function chekIkkiChop(cheklar, cnt) {
+  cnt = cnt || 1;
+  for (var i = 0; i < cnt; i++) {
+    (function(idx){
+      setTimeout(function(){
+        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:cheklar.chek1,logo:true})}).catch(printXato);
+        setTimeout(function(){
+          fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({text:cheklar.chek2,logo:false})}).catch(printXato);
+        }, 2500);
+      }, idx*5000);
+    })(i);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// TO'LOV CHEKI — sotuv cheki qolipida, BERILDI bloksiz.
+// d: chekQur qabul qiladigan obyekt (turlar, tolovlar, ostatkalar ...)
+// ══════════════════════════════════════════════════════════════
+function kTolovChekGen(d){
+  var W=48;
+  var ctr=function(s){var p=Math.max(0,Math.floor((W-s.length)/2));return Array(p+1).join(' ')+s;};
+  var rj=function(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;};
+  var pL=function(s,n){s=String(s);while(s.length<n)s+=' ';return s;};
+  var pR=function(s,n){s=String(s);while(s.length<n)s=' '+s;return s;};
+  // Sotuv cheki bilan bir xil bo'lsin: pul DOIM 2 xonali. Global fmtD .00 ni tashlab yuboradi.
+  var fmtG=function(v){return Number(v).toFixed(2);};
+  var fmtD=function(v){return Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var EQ=Array(W+1).join('=')+'\n', DASH=Array(W+1).join('-')+'\n', DOTS=' '+Array(W).join('.')+'\n';
+  var t=ctr(d.nom)+'\n'+ctr(d.sana)+'\n'+EQ;
+
+  t+="To'lov\n";
+  (d.turlar||[]).forEach(function(x){
+    t+=rj(' '+x.nom+'  '+fmtG(x.tolG||0)+'g x '+x.tolN, fmtD(x.tolS||0)+'#')+'\n';
+    var q=Math.round(((x.ostatka||0)-(x.tolG||0)-(x.voz||0))*100)/100;
+    t+=DOTS+rj('   Qoldi', fmtG(q))+'\n';
+  });
+
+  t+=EQ+"Jami to'landi\n";
+  (d.tolovlar||[]).forEach(function(x){
+    t+=rj(' '+(x.harf||'')+(x.matn?'  '+x.matn:''), fmtD(x.summa||0)+'#')+'\n';
+  });
+
+  var sk=Math.round((d.skidka||0)*100)/100;
+  var gross=Math.round((d.jamiSumma||0)*100)/100;
+  t+=EQ+rj(' ', fmtD(gross)+'#')+'\n';
+  if(sk>0.001) t+=rj(' Skidka','-'+fmtD(sk)+'#')+'\n';
+  t+=DOTS+rj(' Umumiy Summa', fmtD(Math.round((gross-sk)*100)/100)+'#')+'\n';
+  t+=rj(' Umumiy g', fmtG(d.jamiGramm||0)+'g')+'\n';
+  if(d.sdacha) t+=DOTS+rj(' Qolgan summa -> '+d.sdacha.qayerga,'+'+fmtG(d.sdacha.g)+'g')+'\n';
+  else if(d.sdachaPul>0.01) t+=DOTS+rj(' SDACHA', fmtD(d.sdachaPul)+'#')+'\n';
+
+  var keys=[], seen={}, mp={};
+  (d.turlar||[]).forEach(function(x){
+    if(seen[x.nom]) return; seen[x.nom]=1; keys.push(x.nom);
+    mp[x.nom]={eski:x.ostatka||0, tol:Math.round((-(x.tolG||0)-(x.voz||0))*100)/100, qoldi:null};
+  });
+  (d.ostatkalar||[]).forEach(function(b){
+    var n=b.zavod+' '+b.tur;
+    if(!seen[n]){ seen[n]=1; keys.push(n); mp[n]={eski:b.g, tol:0, qoldi:b.g}; }
+    else mp[n].qoldi=b.g;
+  });
+  if(keys.length){
+    t+=EQ+'Ostatka\n';
+    t+=pL('',18)+pR('Ostatka',10)+pR("to'landi",10)+pR('qoldi',10)+'\n';
+    var te=0,tt=0,tq=0;
+    keys.forEach(function(n){
+      var m=mp[n];
+      var q=(m.qoldi===null)?Math.round((m.eski+m.tol)*100)/100:m.qoldi;
+      te+=m.eski; tt+=m.tol; tq+=q;
+      t+=pL(' '+n,18)+pR(fmtG(m.eski)+'g',10)+pR(fmtG(m.tol)+'g',10)+pR(fmtG(q)+'g',10)+'\n';
+    });
+    t+=DASH+pL(' JAMI',18)+pR(fmtG(Math.round(te*100)/100)+'g',10)
+      +pR(fmtG(Math.round(tt*100)/100)+'g',10)+pR(fmtG(Math.round(tq*100)/100)+'g',10)+'\n';
+  }
+  return t;
+}
+
 // Chekni yashirish + MATNINI O'CHIRISH. Faqat yashirish yetarli emas: chop etish
 // `chek-body`.textContent ni o'qiydi, ya'ni yashirin qolgan ESKI matn printerga ketishi mumkin.
 function chekTozala(pre){
@@ -10477,11 +10576,11 @@ function kBerishUpdateChek() {
     t += LINE + '\n';
     t += rjust('JAMI', jVal) + '\n';
   }
-  t += LINE + '\n';
-  t += center('RAHMAT!');
-  body.textContent = t;
+  _kbChekBody = t;                                  // yakunsiz tana - 2 chek uchun
+  body.textContent = chekYakun(t).ekran;
   prev.style.display = 'block';
 }
+var _kbChekBody = '';
 var _kbSkanState = {};
 function kbSkanKey(zi,ti){ return zi+'_'+ti; }
 function kbSkanToggle(zi,ti){
@@ -10814,14 +10913,8 @@ function saqlashKlientBerish(){
   if(!any){alert('Gramm kiriting!');return;}
   save('Klient berish: '+k.nom);
   var kbChekEl = document.getElementById('kb-chek-body');
-  if (_kbChekOn && kbChekEl && kbChekEl.textContent.trim()) {
-    var _kbText = kbChekEl.textContent+'\n\n';
-    for (var _kbI = 0; _kbI < _kbCnt; _kbI++) {
-      (function(idx){ setTimeout(function(){
-        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:_kbText,logo:true})}).catch(printXato);
-      }, idx*1500); })(_kbI);
-    }
+  if (_kbChekOn && kbChekEl && kbChekEl.textContent.trim() && _kbChekBody) {
+    chekIkkiChop(chekYakun(_kbChekBody), _kbCnt);
   }
   closeModal('modal-kberish');renderKlientlar();renderHome();if(typeof renderZavod==='function'&&curZ>=0) renderZavod();
   } // davomEt oxiri
@@ -11030,11 +11123,11 @@ function kVozvratUpdateChek() {
   t += LINE + '\n';
   var kvJamiG = Math.round(rows.reduce(function(a,r){ return a + r.g; }, 0) * 100) / 100;
   t += rjust('Jami gramm', '+' + fmtG(kvJamiG) + 'g') + '\n';
-  t += LINE + '\n';
-  t += center('RAHMAT!');
-  body.textContent = t;
+  _kvChekBody = t;                                  // yakunsiz tana - 2 chek uchun
+  body.textContent = chekYakun(t).ekran;
   prev.style.display = 'block';
 }
+var _kvChekBody = '';
 function kvUpdate(el) {
   kVozvratUpdateChek();
   var qarz = parseFloat(el.dataset.qarz) || 0;
@@ -11118,14 +11211,8 @@ function saqlashKlientVozvrat(){
   });
   save('Klient vozvrat: '+k.nom);
   var kvChekEl = document.getElementById('kv-chek-body');
-  if (_kvChekOn && kvChekEl && kvChekEl.textContent.trim()) {
-    var _kvText = kvChekEl.textContent+'\n\n';
-    for (var _kvI = 0; _kvI < _kvCnt; _kvI++) {
-      (function(idx){ setTimeout(function(){
-        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:_kvText,logo:true})}).catch(printXato);
-      }, idx*1500); })(_kvI);
-    }
+  if (_kvChekOn && kvChekEl && kvChekEl.textContent.trim() && _kvChekBody) {
+    chekIkkiChop(chekYakun(_kvChekBody), _kvCnt);
   }
   closeModal('modal-kvozvrat');renderKlientlar();renderHome();
   if(typeof renderKassa==='function') renderKassa();
@@ -11976,7 +12063,7 @@ function kTolovChekUpd() {
       tolS = Math.round(offIsh*frac*100)/100;
       tolG = r.n > 0 ? -roundG(tolS/r.n) : 0;      // MANFIY: balans nolga qarab siljiydi
     }
-    turlar.push({nom:r.zavod+' \u00b7 '+r.tur, off:r.off, ostatka:r.qarz, oldi:0, voz:r.v,
+    turlar.push({nom:r.zavod+' '+r.tur, off:r.off, ostatka:r.qarz, oldi:0, voz:r.v,
                  tolG:tolG, tolN:r.n, tolS:tolS});
   });
 
@@ -11998,12 +12085,12 @@ function kTolovChekUpd() {
   var jamiTolandi = 0; tolovlar.forEach(function(x){ jamiTolandi += x.summa; });
 
   // ── 5-QADAM: SDACHA (ortiqcha qayerga ketdi)
-  var sd = null, tanlov = window._ktSdachaTanlov || null;
+  var sd = null, tanlov = window._ktSdachaTanlov || null, _ktSdachaPul = 0;
   var lomOrt = Math.max(0, Math.round((lomJami - jamiPul + skidka + offIsh)*100)/100);
   var sdSum = lomOrt > 0.01 ? lomOrt : Math.max(0, Math.round((nb+kb+pb - kerak + offIsh)*100)/100);
   if (sdSum > 0.01 && tanlov) {
     if (tanlov.tip === 'tur' && tanlov.narx > 0) sd = {qayerga: tanlov.zavod+' \u00b7 '+tanlov.tur, g: roundG(sdSum/tanlov.narx)};
-    else if (tanlov.tip === 'sdacha') tolovlar.push({harf:'', matn:'SDACHA qaytarildi', summa:-sdSum});
+    else if (tanlov.tip === 'sdacha') _ktSdachaPul = sdSum;
   }
 
   // ── 6-QADAM: QOLGAN OSTATKA — sovdadan KEYINGI holat (bashorat)
@@ -12033,14 +12120,17 @@ function kTolovChekUpd() {
       .map(function(b){ return {zavod:b.zavod, tur:b.tur, g:b.qarz}; });
   }
 
-  document.getElementById('kt-chek-body').textContent = chekQur({
+  _ktChekBody = kTolovChekGen({
     nom: k ? k.nom : '\u2014', sana: sana+' - '+soat, tip: "TO'LOV",
     turlar: turlar, jamiSumma: Math.round(jamiPul*100)/100, skidka: skidka,
     jamiGramm: Math.round(jamiG*100)/100,
-    tolovlar: tolovlar, jamiTolandi: Math.round(jamiTolandi*100)/100, sdacha: sd,
+    tolovlar: tolovlar, jamiTolandi: Math.round(jamiTolandi*100)/100,
+    sdacha: sd, sdachaPul: _ktSdachaPul,
     ostatkalar: ostatkalar
   });
+  document.getElementById('kt-chek-body').textContent = chekYakun(_ktChekBody).ekran;
 }
+var _ktChekBody = '';
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
@@ -12305,14 +12395,8 @@ function saqlashKlientTolov(){
   })();
   save('Klient tolov: '+k.nom);
   var chekEl = document.getElementById('kt-chek-body');
-  if (_ktChekOn && chekEl && chekEl.textContent.trim()) {
-    var _ktText = chekEl.textContent+'\n\n';
-    for (var _ktI = 0; _ktI < _ktCnt; _ktI++) {
-      (function(idx){ setTimeout(function(){
-        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:_ktText,logo:true})}).catch(printXato);
-      }, idx*1500); })(_ktI);
-    }
+  if (_ktChekOn && chekEl && chekEl.textContent.trim() && _ktChekBody) {
+    chekIkkiChop(chekYakun(_ktChekBody), _ktCnt);
   }
   closeModal('modal-ktolov');
   renderKlientlar();renderHome();renderKassa();
@@ -13400,6 +13484,7 @@ function kSotuvCalc() {
   var tqEl2=document.getElementById('ks-taqsim');
   var qEl = document.getElementById('ks-qaytim');
   var qValEl = document.getElementById('ks-qaytim-val');
+  window._ksSotuvOrtiqcha = ortiqcha;   // chek previewi bilan chop bir xil bo'lsin
   if (ortiqcha > 0.01) {
     sdachaTaqsimRender('ks', ortiqcha, ksSdachaMap, _ksSotuvKi);
     if(qEl) qEl.style.display='block';
@@ -13763,7 +13848,9 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       var _sanaPrev=(document.getElementById('ks-sana')&&document.getElementById('ks-sana').value)?document.getElementById('ks-sana').value.split('-').reverse().join('.'):today();
       var _cPrev=klientSotuvChekYangiGen({
         klientNom:_kPrev.nom, sana:_sanaPrev, soat:'',
-        oldilar:_sOld, lomlar:_lomPrev, berildiMap:_bMap, eskiOstMap:_oMap
+        oldilar:_sOld, lomlar:_lomPrev, berildiMap:_bMap, eskiOstMap:_oMap,
+        skidka:parseNum((document.getElementById('ks-skidka')||{}).value)||0,
+        ortiqcha:(window._ksSotuvOrtiqcha||0), tanlov:(window._ksSotuvOrtiqchaTanlov||null)
       });
       document.getElementById('ks-chek-body').textContent = _cPrev.body;
       return;
@@ -14079,7 +14166,8 @@ function saqlashKlientSotuv() {
     var _cheklar=klientSotuvChekYangiGen({
       klientNom:k.nom, sana:sana, soat:_soat_sv3,
       oldilar:_sotOldilar, lomlar:lomlar,
-      berildiMap:_berildiMap, eskiOstMap:_eskiOstMap
+      berildiMap:_berildiMap, eskiOstMap:_eskiOstMap,
+      skidka:_skidka, ortiqcha:_chekOrtiqcha, tanlov:_chekTanlov
     });
     for(var _ci=0;_ci<(_ksSotuvCnt||1);_ci++){
       (function(){
@@ -14137,6 +14225,7 @@ function klientSotuvChekYangiGen(opts){
   function fmtD(v){return Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
   var LINE=Array(W+1).join('=')+'\n';
   var DASH=Array(W+1).join('-')+'\n';
+  var DOTS=' '+Array(W).join('.')+'\n';
 
   var o=opts;
   // TANA (logosiz gavda)
@@ -14168,7 +14257,7 @@ function klientSotuvChekYangiGen(opts){
       t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+'g x '+r.narx, fmtD(s)+'#')+'\n';
       var b=o.berildiMap[r.zavod+'||'+r.tur]; if(b===undefined) b=r.gramm;
       var q=Math.round((b-r.gramm)*100)/100;
-      if(q>0.001){ t+=rjust('   qoldi '+fmtG(q)+'g','')+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+q; }
+      if(q>0.001){ t+=DOTS+rjust('   Qoldi', fmtG(q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+q; }
     });
     jamiS=Math.round(jamiS*100)/100;
     // Sotilmagan (oldilarda yo'q, berildiMapda bor) -> to'liq qoldi (yangi ostatka)
@@ -14190,17 +14279,35 @@ function klientSotuvChekYangiGen(opts){
     }
     var naqd=Math.round((jamiS-lomPul)*100)/100;
     t+=rjust(' N', fmtD(naqd)+'#')+'\n';
+    // Yakuniy blok: yalang'och summa -> Skidka -> nuqta -> Umumiy Summa -> Umumiy g
+    var sk=Math.round((o.skidka||0)*100)/100;
+    var net=Math.round((jamiS-sk)*100)/100;
     t+=LINE;
-    t+=rjust(' Umumiy Summa', fmtD(jamiS)+'#')+'\n';
+    t+=rjust(' ', fmtD(jamiS)+'#')+'\n';
+    if(sk>0.001) t+=rjust(' Skidka','-'+fmtD(sk)+'#')+'\n';
+    t+=DOTS;
+    t+=rjust(' Umumiy Summa', fmtD(net)+'#')+'\n';
     t+=rjust(' Umumiy g', fmtG(jamiG)+'g')+'\n';
-    // 4) OSTATKA (eski/yangi/jami)
+    // Ortiqcha pul: naqd qaytsa SDACHA, zavod turidan yopilsa Qolgan summa
+    var ort=Math.round((o.ortiqcha||0)*100)/100, tn=o.tanlov||null;
+    if(ort>0.01){
+      t+=DOTS;
+      if(tn && tn.tip==='tur' && tn.narx>0){
+        t+=rjust(' Qolgan summa -> '+tn.zavod+' '+tn.tur, '+'+fmtG(Math.round(ort/tn.narx*100)/100)+'g')+'\n';
+      } else if(tn && tn.tip==='bizda'){
+        t+=rjust(' Qolgan summa', fmtD(ort)+'#')+'\n';
+      } else {
+        t+=rjust(' SDACHA', fmtD(ort)+'#')+'\n';
+      }
+    }
+    // 4) OSTATKA (Ostatka/yangi/jami)
     var zlar={};
     Object.keys(o.eskiOstMap||{}).forEach(function(k){ zlar[k]=1; });
     Object.keys(yangiOst).forEach(function(k){ zlar[k]=1; });
     var keys=Object.keys(zlar);
     if(keys.length){
       t+=LINE+'Ostatka\n';
-      t+=padL('',18)+pad('eski',10)+pad('yangi',10)+pad('jami',10)+'\n';
+      t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
       var te=0,ty=0,tj=0;
       keys.forEach(function(k){
         var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0, j=Math.round((e+y)*100)/100;
@@ -14217,7 +14324,7 @@ function klientSotuvChekYangiGen(opts){
   // CHEK 1 (klient, logo) + CHEK 2 (o'zimizga, logosiz, ptichka)
   // oxirida feed (bo'sh qatorlar) - printer kesish chizig'i oxirgi matnni kesmasin
   var chek1=body+LINE+center('Rahmat')+'\n\n\n\n';
-  var chek2=body+LINE+center('[ ] Tekshirildi')+'\n\n\n\n';
+  var chek2=body+LINE+'\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00'+'\n\n\n\n';
   return {chek1:chek1, chek2:chek2, body:body};
 }
 function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan, chekTanlov, chekOrtiqcha) {
@@ -14580,20 +14687,20 @@ function klientQarzChekPrint(ki) {
   chekText+=LINE;
   chekText+=center('OSTATKA HISOBOTI')+'\n';
   chekText+=LINE;
-  var curZavod='';
+  // Zavod alohida sarlavha emas — zavod va tur ketma-ket bitta qatorda.
+  // Klient qarzi belgisiz, biz qarzdor bo'lsak "(biz qarz)" va "+".
+  var qJami=0;
   d.qarz_tarkib.forEach(function(b){
-    if(b.zavod!==curZavod){
-      curZavod=b.zavod;
-      chekText+=b.zavod+'\n';
-    }
     if(b.qarz<0){
-      // Biz qarzdor — yashil ko'rsatish (terminalda asterisk bilan ajratish)
-      var turLabel='  '+b.tur+' (biz qarz)';
-      chekText+=rjust(turLabel, '+'+fmtG(Math.abs(b.qarz)))+'\n';
+      chekText+=rjust(' '+b.zavod+' '+b.tur+' (biz qarz)', '+'+fmtG(Math.abs(b.qarz))+'g')+'\n';
     } else {
-      chekText+=rjust('  '+b.tur, '-'+fmtG(b.qarz))+'\n';
+      chekText+=rjust(' '+b.zavod+' '+b.tur, fmtG(b.qarz)+'g')+'\n';
     }
+    qJami+=b.qarz;                         // biz qarzdor qism minus bo'lib qo'shiladi
   });
+  qJami=Math.round(qJami*100)/100;
+  chekText+=LINE;
+  chekText+=rjust(' JAMI', (qJami<0?'+':'')+fmtG(Math.abs(qJami))+'g')+'\n';
   chekText+=LINE;
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
