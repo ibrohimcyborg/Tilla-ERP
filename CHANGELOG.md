@@ -3,6 +3,49 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v157: CHEK tugmasi doim yoqiq ochiladi
+
+Ibrohim: "chek chiqarishni bosadigan o'chib qolgan, kerakmas paytida o'chirardim,
+umuman o'chib turipti, shuni yoqib tursin".
+
+### Sabab
+
+Tugma holati emas, `localStorage` dagi bayroq. Modal ochilganda holat har safar
+qaytadan hisoblanardi:
+
+```
+_kbChekOn = !printerYoq();      // 10704, 10938, 11248, 12458
+printerYoq() -> localStorage['tilla-printer-yoq'] === '1'
+```
+
+Ya'ni tugmani qo'lda yoqsa ham, modal yopilib qayta ochilganda yana o'chardi.
+
+Bayroq `printXato` ichida yoqiladi: chek chiqmaganda chiqadigan oynada "OK"
+bosilsa `setItem('tilla-printer-yoq','1')` yoziladi. Bir vaqt print server
+o'chiq bo'lganda shu bosilgan.
+
+### ASOSIY XATO
+
+`tilla-printer-yoq` kodda faqat IKKI joyda uchrardi: 2023 o'qish, 2030 yoqish.
+O'chiradigan joy YO'Q. Sozlamalarda ham yo'q. Bir marta bosilgan, o'sha
+qurilmada cheklar abadiy o'chgan holda qolgan.
+
+### Tuzatish
+
+To'rt joyda `!printerYoq()` -> `true`. Chek tugmasi endi DOIM yoqiq ochiladi,
+kerak bo'lmasa Ibrohim qo'lda o'chiradi (avval ham shunday ishlatardi).
+
+`printerYoq()` funksiyasi o'chirilmadi, `printXato` ichida qoldi: printeri yo'q
+qurilmada xato oynasi chiqavermasin. Bayroq endi chek tugmasiga TA'SIR QILMAYDI,
+faqat xato oynasini jimlatadi.
+
+### OCHIQ QOLGANI
+
+Sozlamalarga "bu qurilmada printer bor / yo'q" almashtirgichi qo'shilmadi
+(mockupdagi C varianti). Ibrohim faqat "yoqib tursin" dedi, C ni tasdiqlamadi.
+Bayroqni o'chirish hali ham faqat konsol orqali:
+`localStorage.removeItem('tilla-printer-yoq')`
+
 ## v156: Cheklar to'liq qayta ishlandi (2 chek, yangi to'lov formati, ieroglif sababi)
 
 Ibrohim butun sistemadagi cheklarni nomerlab ko'rib chiqdi va har biriga alohida ko'rsatma berdi.
