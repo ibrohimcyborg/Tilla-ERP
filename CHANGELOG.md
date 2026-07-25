@@ -3,6 +3,145 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v158.1: Retro Z seyfga supurmaydi
+
+Ibrohim: "z hisobbi qaysidur sanalada yopilmagan bosa bugunga tegmi qogan
+kunlanikini yopish uchun nima qisa bo'ladi".
+
+### Muammo
+
+v158 da har Z qoldiqni seyfga supurardi. Yopilmagan eski kunlarni ketma-ket
+yopganda har biri supurish yozuvi qoldirardi va oxirida hamma narsa seyfda
+bo'lardi — lekin o'sha kunlarda pul jismonan seyfga solinmagan. Yozuv
+haqiqatdan ajralib ketardi.
+
+### Tuzatish
+
+```
+function kassaZRetro(sana){ return sanaKey(sana) < sanaKey(kunOldin(today())); }
+```
+
+| Z sanasi | Supuradimi |
+|---|---|
+| Bugun | ha |
+| Kecha | ha |
+| 2 kun va undan eski | YO'Q |
+
+`kassaZSaqla` da `_supur` shartiga `&& !kassaZRetro(sana)` qo'shildi.
+Tasdiq oynasi va yakuniy alert retro holatda boshqa matn chiqaradi.
+
+### Z modalida ko'rinadi
+
+Yangi qator `#kz-supur` (tafovut qatoridan keyin), `kassaZUpd` ichida
+yangilanadi. Sana o'zgarganda darrov aytadi — bosishdan oldin bilinadi:
+
+* teal — `→ Seyfga o'tadi: $X · Yg 583 · Zg 999`
+* kulrang — `Eski kun — seyfga o'tmaydi`
+* kulrang — `Kassa bo'sh — seyfga o'tadigan narsa yo'q`
+
+Zakaz muzlatilgan bo'lsa tagida ko'k qator: `zakaz uchun $X kassada qoladi`.
+
+### Natija
+
+Yopilmagan eski kunlarni bemalol ketma-ket yopish mumkin — kun muhrlanadi,
+tafovut yoziladi, pul qimirlamaydi. Bugungi Z ga yetganda qoldiq seyfga o'tadi.
+
+## v158: SEYF cho'ntagi — Z da avtomat supurish
+
+Ibrohim: "kassadigi pull keyingi kunga 0 qilib o'tiqzamizami" -> "z bosilsa
+avtomat, hammasi seyfga".
+
+### Mockupda aniqlangan narsa
+
+Boshida "seyfga ko'chirsak foyda buziladi" degan mockup chiqarilgandi. Faylni
+o'qib ko'rilganda XATO ekani chiqdi:
+
+* `renderKassa` 8829 dagi "JAMI KASSA" — sotuvlar summasi, kassa qoldig'i EMAS
+* foyda `jamiFoyda` — har operatsiyadan alohida: `summa − kirimNarx×ekvivalent`
+* ya'ni kassa qoldig'i foyda formulasiga umuman kirmaydi
+
+Xulosa: seyf foydaga TEGMAYDI. Foyda hisobiga bitta ham qator qo'shilmadi.
+
+Yana bir topilma: `kassaZSaqla` allaqachon "Ertaga shu qoldiq boshlang'ich
+bo'ladi" derdi — tizim hech qachon 0 qilmagan, qoldiqni o'zi o'tkazgan.
+Ibrohimning asl savoli shu bilan yopildi.
+
+### Yangi ma'lumot
+
+```
+data.kassa.seyf[] — append-only, CHIQIM EMAS
+{id, ts, sana, soat, yon:'seyfga'|'kassaga', naqd, lomEkv, toza, zSana?, izoh?, bekor?}
+```
+
+Migratsiya `data.kassa.qolda` yonida.
+
+### kassaOqim — 2-parametr yangi
+
+```
+kassaOqim(limitSana, zSanaSkip)
+```
+
+Yangi maydonlar: `o.sNaqd`, `o.sLom`, `o.sToza`. Seyf tarmog'i 3.9-bo'lim
+sifatida qo'shildi (Z tuzatishlaridan oldin).
+
+`zSanaSkip` NEGA KERAK: Z modali tafovutni supurishdan OLDINGI kassa bilan
+solishtirishi shart. Bo'lmasa, yopilgan kunning Z modalini qayta ochganda
+sistema 0 ko'rsatadi (o'z supurishini o'qiydi) va yolg'on tafovut chiqarib
+`tuzatishlar` ga axlat yozadi. `kassaZSanaUpd`, `kassaZUpd`, `kassaZSaqla` —
+uchalasi `kassaOqim(sana, sana)` chaqiradi.
+
+`kassaOqim` 17 joyda chaqiriladi. 2-parametr ixtiyoriy, qolgan 14 chaqiruv
+`undefined` yuboradi va avvalgidek ishlaydi.
+
+### kassaZSaqla — avtomat supurish
+
+Kun yopilgach `data.kassa.seyf` ga `yon:'seyfga'` yozuvi tushadi.
+Summa = sanalgan qiymat (hn/hl/h9), chunki tafovut tuzatishlari sistemani
+sanalganga tenglashtiradi.
+
+Ikki qoida:
+
+* **Zakaz muzlatilgan pul kassada QOLADI.** `_sN = hn − kassaMuzlatilgan()`.
+  Supurilsa `erkin` manfiy chiqib panel buzilardi.
+* **Qayta yopilsa** eski supurish `bekor:true` bo'ladi, o'chirilmaydi —
+  ikki marta ko'chib ketmasin, tarix ham qolsin. `kassaOqim` `bekor` ni
+  o'tkazib yuboradi (`snabAmallar` dagi `holat==='bekor'` bilan bir xil uslub).
+
+### Panel
+
+`kassaQoldiqPanelHTML` — Lom/999 qatoridan keyin teal SEYF bloki:
+3 katak (Naqd · Lom 583 · 999) DOIM turadi, qiymat 0 bo'lsa ham. Tagida
+"← Kassaga qaytarish" tugmasi (seyf bo'sh bo'lsa o'chiq).
+
+`renderKassaCard` (home mini karta) — doimiy seyf qatori, ajratuvchi chiziq
+bilan.
+
+### Yangi funksiyalar va modal
+
+`openSeyfQaytar` · `seyfQaytarHammasi` · `seyfQaytarTozala` · `seyfQaytarUpd`
+· `seyfQaytarSaqla`, modal `#modal-seyf-qaytar` — seyfdan kassaga QO'LDA
+qaytarish (ertalabki ish puli uchun). Validatsiya: seyfda boridan ko'p
+kiritilsa saqlash tugmasi o'chadi.
+
+### Boshqa tegilgan joylar
+
+* `kassaSnapshotObj` — `seyfNaqd`, `seyfLom`, `seyfToza` qo'shildi
+  (Zavod ERP o'qiydi)
+* `grammNollash` — `data.kassa.seyf` ham nollanadi, statistikaga qo'shildi
+
+### QOIDALAR
+
+* Ko'chirish CHIQIM EMAS — pul kompaniyada qoladi, faqat cho'ntagi o'zgaradi
+* Karta va Perech seyfga ketmaydi — ular bankda, jismonan ko'chmaydi
+
+### OCHIQ QOLGANI
+
+* Seyf snabjenets / Abdulhamid roliga ko'rinishi hal qilinmadi — hozir
+  hammaga ko'rinadi
+* `kassaMuzlatilgan()` sana bo'yicha chegaralanmaydi — retro Z da bugungi
+  band summa ishlatilardi. v158.1 dan keyin retro supurmagani uchun bu
+  masala amalda yo'qoldi, lekin funksiyaning o'zi tuzatilmadi
+
 ## v157: CHEK tugmasi doim yoqiq ochiladi
 
 Ibrohim: "chek chiqarishni bosadigan o'chib qolgan, kerakmas paytida o'chirardim,
