@@ -1,4 +1,3 @@
-<!-- v158.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1131,37 +1130,11 @@ body.rol-hamid .hamid-x { display: none !important; }
       <div style="font-size:12px;color:var(--green);" id="kz-tafovut-txt">Tafovut yo'q — kassa tenglashdi ✓</div>
     </div>
 
-    <!-- seyfga supurish holati — retro kunda supurilmaydi -->
-    <div id="kz-supur" style="border-radius:12px;padding:9px 12px;margin:6px 0 4px;background:var(--teal-bg);border:1px solid var(--teal-bd);">
-      <div style="font-size:11.5px;line-height:1.6;color:var(--teal);" id="kz-supur-txt"></div>
-    </div>
-
     <div class="btn-row">
       <button class="btn" onclick="closeModal('modal-kassa-z')">Bekor</button>
       <button class="btn gold" onclick="kassaZSaqla()">Kunni yopish</button>
     </div>
-    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Tafovut bo'lsa tuzatish yozuvi qo'shiladi (tarix o'chirilmaydi).<br>Qoldiq yopilgandan keyin <b style="color:var(--teal);">seyfga</b> o'tadi — kassa ertaga 0 dan boshlanadi.</div>
-  </div>
-</div>
-
-<!-- ===== HAQIQIY KASSA: SEYFDAN KASSAGA QAYTARISH ===== -->
-<div class="modal-overlay" id="modal-seyf-qaytar" onclick="if(event.target===this)closeModal('modal-seyf-qaytar')">
-  <div class="modal" style="max-width:480px;">
-    <div class="modal-handle"></div>
-    <div class="modal-header"><span style="font-weight:700;font-size:16px;">Seyfdan kassaga qaytarish</span><button class="modal-close" onclick="closeModal('modal-seyf-qaytar')">×</button></div>
-    <div style="background:var(--teal-bg);border:1px solid var(--teal-bd);border-radius:9px;padding:8px 10px;font-size:11.5px;color:var(--teal);margin-bottom:12px;line-height:1.6;">Bu <b>kirim emas</b> — pul allaqachon kompaniyaniki. Faqat cho'ntagi o'zgaradi, foydaga tegmaydi.</div>
-    <div class="field"><label>Naqd $ — seyfda <span id="sq-max-n" style="color:var(--teal);"></span></label><input type="number" id="sq-naqd" inputmode="decimal" placeholder="0" oninput="seyfQaytarUpd()"></div>
-    <div class="field"><label>Lom 583 (g) — seyfda <span id="sq-max-l" style="color:var(--teal);"></span></label><input type="number" id="sq-lom" inputmode="decimal" placeholder="0" oninput="seyfQaytarUpd()"></div>
-    <div class="field"><label>999 (g) — seyfda <span id="sq-max-9" style="color:var(--teal);"></span></label><input type="number" id="sq-999" inputmode="decimal" placeholder="0" oninput="seyfQaytarUpd()"></div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button class="btn" style="font-size:12px;padding:9px;" onclick="seyfQaytarHammasi()">Hammasini</button>
-      <button class="btn" style="font-size:12px;padding:9px;" onclick="seyfQaytarTozala()">Tozalash</button>
-    </div>
-    <div id="sq-ogoh" style="display:none;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:9px;padding:8px 10px;font-size:11.5px;color:var(--red);margin-bottom:12px;line-height:1.6;"></div>
-    <div class="btn-row">
-      <button class="btn" onclick="closeModal('modal-seyf-qaytar')">Bekor</button>
-      <button class="btn gold" id="sq-saqla" onclick="seyfQaytarSaqla()">Qaytarish</button>
-    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Tafovut bo'lsa tuzatish yozuvi qo'shiladi (tarix o'chirilmaydi).<br>Kechagi qoldiq ertaga o'zi ko'chib o'tadi.</div>
   </div>
 </div>
 
@@ -2029,7 +2002,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v157';
+var APP_VER = 'v158';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -2227,10 +2200,6 @@ if (!data.kassa.snabAmallar) data.kassa.snabAmallar = [];
 if (!data.kassa.zaImportIds) data.kassa.zaImportIds = [];
 // qo'lda kirim/chiqim: [{id, ts, sana, soat, tip:'kirim'|'chiqim', summa, kategoriya, izoh}]
 if (!data.kassa.qolda) data.kassa.qolda = [];
-// SEYF — kassadan tashqari cho'ntak. Ko'chirish yozuvlari (append-only, CHIQIM EMAS):
-// [{id, ts, sana, soat, yon:'seyfga'|'kassaga', naqd, lomEkv, toza, zSana?, izoh?, bekor?}]
-// zSana bo'lsa — Z kun yopishda avtomat supurilgan (o'sha kunning Z sanasi).
-if (!data.kassa.seyf) data.kassa.seyf = [];
 
 function save(logText) {
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
@@ -3118,14 +3087,11 @@ function sanaKey(s){ // 'dd.mm.yyyy' -> 'yyyymmdd' (taqqoslash uchun)
   var p = String(s).split('.');
   return p.length===3 ? p[2]+p[1]+p[0] : '';
 }
-// zSanaSkip — shu Z sanasining AVTOMAT seyf supurishini hisobga OLMA.
-// Kerak: Z modali tafovutni supurishdan OLDINGI kassa bilan solishtirishi shart,
-// aks holda qayta ochilganda sistema 0 ko'rsatib yolg'on tafovut chiqaradi.
-function kassaOqim(limitSana, zSanaSkip){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu kun ham kiradi); bo'lmasa hammasi
+function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu kun ham kiradi); bo'lmasa hammasi
   var t = limitSana || today();
   var lim = limitSana ? sanaKey(limitSana) : null;
   function ichida(sana){ return !lim || (sanaKey(sana) && sanaKey(sana) <= lim); }
-  var o = {naqd:0, karta:0, perech:0, lomEkv:0, toza:0, bugunKirim:0, bugunChiqim:0, sNaqd:0, sLom:0, sToza:0};
+  var o = {naqd:0, karta:0, perech:0, lomEkv:0, toza:0, bugunKirim:0, bugunChiqim:0};
   // 1) Klient to'lovlari — tushum (offset _kdYopish emas)
   (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
     if(op.tip!=='tolov' || op._kdYopish || !ichida(op.sana)) return;
@@ -3178,16 +3144,6 @@ function kassaOqim(limitSana, zSanaSkip){ // limitSana: 'dd.mm.yyyy' — shu kun
     if(r.tip==='kirim'){ o.naqd += s3; if(r.sana===t) o.bugunKirim += s3; }
     else { o.naqd -= s3; if(r.sana===t) o.bugunChiqim += s3; }
   });
-  // 3.9) SEYF ko'chirishlari — CHIQIM EMAS. Pul kompaniyada qoladi, cho'ntagi o'zgaradi.
-  // Foydaga tegmaydi (foyda har operatsiyadan alohida hisoblanadi, kassa qoldig'idan emas).
-  ((data.kassa&&data.kassa.seyf)||[]).forEach(function(r){
-    if(r.bekor || !ichida(r.sana)) return;
-    if(zSanaSkip && r.zSana===zSanaSkip) return;   // Z modali uchun: o'z supurishini ko'rmasin
-    var sgn = (r.yon==='kassaga') ? -1 : 1;
-    var n=parseNum(r.naqd), l=parseNum(r.lomEkv), t9=parseNum(r.toza);
-    o.naqd -= sgn*n;  o.lomEkv -= sgn*l;  o.toza -= sgn*t9;
-    o.sNaqd += sgn*n; o.sLom   += sgn*l;  o.sToza += sgn*t9;
-  });
   // 4) Z tafovut tuzatishlari (append-only)
   ((data.kassa&&data.kassa.tuzatishlar)||[]).forEach(function(tz){
     if(!ichida(tz.sana)) return;
@@ -3197,75 +3153,16 @@ function kassaOqim(limitSana, zSanaSkip){ // limitSana: 'dd.mm.yyyy' — shu kun
   });
   o.naqd=Math.round(o.naqd*100)/100; o.karta=Math.round(o.karta*100)/100; o.perech=Math.round(o.perech*100)/100; o.lomEkv=roundG(o.lomEkv); o.toza=roundG(o.toza);
   o.bugunKirim=Math.round(o.bugunKirim*100)/100; o.bugunChiqim=Math.round(o.bugunChiqim*100)/100;
-  o.sNaqd=Math.round(o.sNaqd*100)/100; o.sLom=roundG(o.sLom); o.sToza=roundG(o.sToza);
   return o;
 }
 function kassaOxirgiZ(){ var zl=(data.kassa&&data.kassa.zlar)||[]; return zl.length ? zl[zl.length-1] : null; }
-// Seyfga supurish FAQAT bugungi yoki kechagi Z da bo'ladi.
-// Sabab: eski kunni yopganda pul jismonan seyfga solinmagan — yozuv haqiqatdan ajralib ketadi.
-function kassaZRetro(sana){ return sanaKey(sana) < sanaKey(kunOldin(today())); }
-/* ---- SEYF → KASSA qaytarish (qo'lda) ---- */
-function openSeyfQaytar(){
-  var o = kassaOqim();
-  if(o.sNaqd<=0.005 && o.sLom<=0.005 && o.sToza<=0.005) return;
-  document.getElementById('sq-max-n').textContent = '$'+fmtD(o.sNaqd);
-  document.getElementById('sq-max-l').textContent = fmtG(o.sLom)+' g';
-  document.getElementById('sq-max-9').textContent = fmtG(o.sToza)+' g';
-  document.getElementById('sq-naqd').value=''; document.getElementById('sq-lom').value=''; document.getElementById('sq-999').value='';
-  seyfQaytarUpd();
-  document.getElementById('modal-seyf-qaytar').classList.add('open');
-}
-function seyfQaytarHammasi(){
-  var o = kassaOqim();
-  document.getElementById('sq-naqd').value = o.sNaqd>0.005 ? o.sNaqd : '';
-  document.getElementById('sq-lom').value  = o.sLom>0.005  ? o.sLom  : '';
-  document.getElementById('sq-999').value  = o.sToza>0.005 ? o.sToza : '';
-  seyfQaytarUpd();
-}
-function seyfQaytarTozala(){
-  ['sq-naqd','sq-lom','sq-999'].forEach(function(i){ document.getElementById(i).value=''; });
-  seyfQaytarUpd();
-}
-function seyfQaytarUpd(){
-  var o = kassaOqim();
-  var n=parseNum(document.getElementById('sq-naqd').value),
-      l=parseNum(document.getElementById('sq-lom').value),
-      t=parseNum(document.getElementById('sq-999').value);
-  var err=[];
-  if(n>o.sNaqd+0.005) err.push('Naqd yetmaydi — seyfda $'+fmtD(o.sNaqd));
-  if(l>o.sLom+0.005)  err.push('Lom 583 yetmaydi — seyfda '+fmtG(o.sLom)+' g');
-  if(t>o.sToza+0.005) err.push('999 yetmaydi — seyfda '+fmtG(o.sToza)+' g');
-  var box=document.getElementById('sq-ogoh');
-  if(err.length){ box.style.display='block'; box.innerHTML=err.join('<br>'); }
-  else box.style.display='none';
-  var bosh = !(n>0.005 || l>0.005 || t>0.005);
-  var b=document.getElementById('sq-saqla');
-  b.disabled = (err.length>0 || bosh);
-  b.style.opacity = b.disabled ? '.45' : '1';
-}
-function seyfQaytarSaqla(){
-  var o = kassaOqim();
-  var n=parseNum(document.getElementById('sq-naqd').value),
-      l=parseNum(document.getElementById('sq-lom').value),
-      t=parseNum(document.getElementById('sq-999').value);
-  if(!(n>0.005 || l>0.005 || t>0.005)) return;
-  if(n>o.sNaqd+0.005 || l>o.sLom+0.005 || t>o.sToza+0.005) return;
-  var ts=Date.now();
-  if(!data.kassa.seyf) data.kassa.seyf = [];
-  data.kassa.seyf.push({id:'sf'+ts, ts:ts, sana:today(), soat:nowSoat(), yon:'kassaga',
-    naqd:Math.round(n*100)/100, lomEkv:roundG(l), toza:roundG(t), izoh:'Seyfdan kassaga'});
-  save('Seyfdan kassaga | $'+fmtD(n)+' · '+fmtG(l)+'g · '+fmtG(t)+'g');
-  closeModal('modal-seyf-qaytar');
-  if(typeof renderKassa==='function') renderKassa();
-  renderKassaCard();
-}
 function kassaZTanlSana(){ // date inputdan 'dd.mm.yyyy'
   var v = document.getElementById('kz-sana-inp').value;
   return v ? v.split('-').reverse().join('.') : today();
 }
 function kassaZSanaUpd(){ // sana o'zgarganda sistema qiymatlarini o'sha kungacha qayta hisoblash
   var sana = kassaZTanlSana();
-  var o = kassaOqim(sana, sana);   // o'z avtomat supurishini hisobga olma
+  var o = kassaOqim(sana);
   document.getElementById('kz-sana').textContent = 'Yopilayotgan kun: '+sana;
   document.getElementById('kz-sis-naqd').textContent = '$'+fmtD(o.naqd);
   document.getElementById('kz-sis-lom').textContent = fmtG(o.lomEkv);
@@ -3281,8 +3178,7 @@ function openKassaZ(){
   document.getElementById('modal-kassa-z').classList.add('open');
 }
 function kassaZUpd(){
-  var _zs = kassaZTanlSana();
-  var o = kassaOqim(_zs, _zs);   // o'z avtomat supurishini hisobga olma
+  var o = kassaOqim(kassaZTanlSana());
   var dn = Math.round((parseNum(document.getElementById('kz-naqd').value)-o.naqd)*100)/100;
   var dl = roundG(parseNum(document.getElementById('kz-lom').value)-o.lomEkv);
   var d9 = roundG(parseNum(document.getElementById('kz-999').value)-o.toza);
@@ -3300,33 +3196,10 @@ function kassaZUpd(){
     if(d9) qat.push('999: '+(d9>0?'+':'')+fmtG(d9)+'g');
     txt.innerHTML='TAFOVUT — '+qat.join(' · ')+'<br><span style="font-size:11px;">Saqласангиз tuzatish yozuvi qo\'shiladi</span>'.replace('Saqласангиз','Saqlasangiz');
   }
-  // seyfga supurish ko'rsatkichi
-  var _sbox=document.getElementById('kz-supur'), _stx=document.getElementById('kz-supur-txt');
-  if(_sbox && _stx){
-    var _hn=parseNum(document.getElementById('kz-naqd').value);
-    var _hl=parseNum(document.getElementById('kz-lom').value);
-    var _h9=parseNum(document.getElementById('kz-999').value);
-    var _bd=kassaMuzlatilgan();
-    var _sn=Math.round(Math.max(0,_hn-_bd)*100)/100, _sl=roundG(Math.max(0,_hl)), _s9=roundG(Math.max(0,_h9));
-    if(kassaZRetro(_zs)){
-      _sbox.style.background='var(--surf2)'; _sbox.style.border='1px solid var(--border)';
-      _stx.style.color='var(--muted)';
-      _stx.innerHTML='<b>Eski kun</b> — seyfga o\'tmaydi. Faqat bugungi yoki kechagi Z qoldiqni seyfga supuradi.';
-    } else if(_sn>0.005 || _sl>0.005 || _s9>0.005){
-      _sbox.style.background='var(--teal-bg)'; _sbox.style.border='1px solid var(--teal-bd)';
-      _stx.style.color='var(--teal)';
-      _stx.innerHTML='→ <b>Seyfga o\'tadi:</b> $'+fmtD(_sn)+' · '+fmtG(_sl)+' g 583 · '+fmtG(_s9)+' g 999'
-        + (_bd>0.005 ? '<br><span style="color:var(--blue);">zakaz uchun $'+fmtD(_bd)+' kassada qoladi</span>' : '');
-    } else {
-      _sbox.style.background='var(--surf2)'; _sbox.style.border='1px solid var(--border)';
-      _stx.style.color='var(--muted)';
-      _stx.innerHTML='Kassa bo\'sh — seyfga o\'tadigan narsa yo\'q.';
-    }
-  }
 }
 function kassaZSaqla(){
   var sana = kassaZTanlSana();
-  var o = kassaOqim(sana, sana);   // o'z avtomat supurishini hisobga olma
+  var o = kassaOqim(sana);
   var hn = parseNum(document.getElementById('kz-naqd').value);
   var hl = parseNum(document.getElementById('kz-lom').value);
   var h9 = parseNum(document.getElementById('kz-999').value);
@@ -3339,20 +3212,7 @@ function kassaZSaqla(){
   // tanlangan kundan KEYINGI sanaga Z bormi? (retro Z keyingi tafovutlarni chalkashtirishi mumkin)
   var keyingi = ((data.kassa&&data.kassa.zlar)||[]).some(function(z){ return sanaKey(z.sana) > sanaKey(sana); });
   if(keyingi && !confirm('DIQQAT: '+sana+' dan KEYINGI kunga Z allaqachon qilingan.\nEski kunni hozir yopish keyingi tafovutlarni chalkashtirishi mumkin.\nDavom etilsinmi?')) return;
-  // SEYFGA SUPURISH — zakazda muzlatilgan pul kassada QOLADI (zakaz uni talab qiladi)
-  var _band = kassaMuzlatilgan();
-  var _sN = Math.round(Math.max(0, hn - _band)*100)/100;
-  var _sL = roundG(Math.max(0, hl));
-  var _s9 = roundG(Math.max(0, h9));
-  var _supur = (_sN>0.005 || _sL>0.005 || _s9>0.005) && !kassaZRetro(sana);   // retro kun supurmaydi
   var msg = sana+' KUNI YOPILSINMI?\n\nNaqd: $'+fmtD(hn)+(dn?' (tafovut '+(dn>0?'+':'')+fmtD(dn)+')':'')+'\nLom 583: '+fmtG(hl)+' g'+(dl?' (tafovut '+(dl>0?'+':'')+fmtG(dl)+')':'')+'\n999: '+fmtG(h9)+' g'+(d9?' (tafovut '+(d9>0?'+':'')+fmtG(d9)+')':'');
-  if(_supur){
-    msg += '\n\n→ SEYFGA O\'TADI:\n   $'+fmtD(_sN)+' · '+fmtG(_sL)+' g 583 · '+fmtG(_s9)+' g 999';
-    if(_band>0.005) msg += '\n   (zakaz uchun $'+fmtD(_band)+' kassada qoladi)';
-    msg += '\n\nPulni HAQIQATAN seyfga soling — aks holda ertaga tafovut chiqadi.';
-  } else if(kassaZRetro(sana)){
-    msg += '\n\nEski kun — seyfga O\'TMAYDI.\nFaqat kun muhrlanadi va tafovut yoziladi.';
-  }
   if(!confirm(msg)) return;
   var ts=Date.now(), soat=nowSoat();
   function tuzat(chontak, delta){
@@ -3361,22 +3221,11 @@ function kassaZSaqla(){
   }
   tuzat('naqd',dn); tuzat('lom',dl); tuzat('999',d9);
   data.kassa.zlar.push({ts:ts, sana:sana, soat:soat, naqd:hn, lomEkv:roundG(hl), toza:roundG(h9), tafN:dn, tafL:dl, taf9:d9});
-  // shu kun QAYTA yopilyapti bo'lsa — eski supurishni bekor qilamiz (o'chirmaymiz, tarix qoladi)
-  if(!data.kassa.seyf) data.kassa.seyf = [];
-  data.kassa.seyf.forEach(function(r){ if(r.zSana===sana && !r.bekor) r.bekor = true; });
-  if(_supur){
-    data.kassa.seyf.push({id:'sf'+ts, ts:ts, sana:sana, soat:soat, yon:'seyfga',
-      naqd:_sN, lomEkv:_sL, toza:_s9, zSana:sana, izoh:'Z kun yopish — avtomat'});
-  }
-  save('Kun yopildi (Z) | '+sana+' | $'+fmtD(hn)+(_supur?' | seyfga $'+fmtD(_sN):''));
+  save('Kun yopildi (Z) | '+sana+' | $'+fmtD(hn));
   closeModal('modal-kassa-z');
   if(typeof renderKassa==='function') renderKassa();
   renderKassaCard();
-  alert('✓ Kun yopildi — Z muhrlandi.'
-    + (_supur ? '\n\nSeyfga o\'tdi: $'+fmtD(_sN)+' · '+fmtG(_sL)+' g 583 · '+fmtG(_s9)+' g 999'
-                + '\nKassa ertaga '+(_band>0.005?('$'+fmtD(_band)+' (zakaz) bilan'):'0 dan')+' boshlanadi.'
-              : kassaZRetro(sana) ? '\n\nEski kun — seyfga o\'tmadi, qoldiq kassada qoldi.'
-              : '\nKassa bo\'sh — seyfga o\'tadigan narsa yo\'q.'));
+  alert('✓ Kun yopildi — Z muhrlandi.\nErtaga shu qoldiq boshlang\'ich bo\'ladi.');
 }
 // ---- ZAPROS: zavodga berilgan, hali taqsimlanmagan avanslar ----
 // Har berish yozuvida taqsimlangan qism kuzatiladi: tPul/tLom/tToza. Qoldiq = pul−tPul ...
@@ -4876,20 +4725,6 @@ function kassaQoldiqPanelHTML(){
   h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
   h += cho('999',fmtG(o.toza)+' g','blue');
   h += '</div>';
-  // SEYF — aylanmadan tashqari cho'ntak. Kataklar DOIM 3 ta (qiymat 0 bo'lsa ham turadi).
-  var _sBosh = (o.sNaqd<=0.005 && o.sLom<=0.005 && o.sToza<=0.005);
-  h += '<div style="background:var(--teal-bg);border:1px solid var(--teal-bd);border-radius:10px;padding:8px 9px;margin-bottom:8px;">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-    + '<span style="font-size:10.5px;color:var(--teal);letter-spacing:.06em;font-weight:600;">SEYF — AYLANMADAN TASHQARI</span>'
-    + '<span style="font-size:10px;color:var(--muted);">Z da avtomat</span></div>';
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:6px;">';
-  h += cho('Naqd','$'+fmtD(o.sNaqd),'teal');
-  h += cho('Lom 583',fmtG(o.sLom)+' g','teal');
-  h += cho('999',fmtG(o.sToza)+' g','teal');
-  h += '</div>';
-  h += '<button onclick="openSeyfQaytar()"'+(_sBosh?' disabled':'')
-    + ' style="width:100%;background:var(--surf2);border:1px solid var(--border);color:var(--'+(_sBosh?'muted':'text')+');border-radius:9px;padding:8px;font-size:12px;font-weight:600;font-family:Outfit,sans-serif;cursor:'+(_sBosh?'default':'pointer')+';opacity:'+(_sBosh?'.5':'1')+';">← Kassaga qaytarish</button>';
-  h += '</div>';
   // v112: ZAVODGA TO'LANMAGAN — ochiq pozitsiya (foyda suzib turibdi)
   var _tlm = kassaZavodgaTolanmagan();
   if(_tlm.jami>0.005){
@@ -4968,8 +4803,6 @@ function renderKassaCard(){
     + cho('999',fmtG(o.toza)+' g','blue')
     + '</div>'
     + (kassaMuzlatilgan()>0 ? '<div style="font-size:10px;margin-top:6px;text-align:center;"><span style="color:var(--green);">erkin $'+fmtD(Math.round((o.naqd-kassaMuzlatilgan())*100)/100)+'</span> · <span style="color:var(--blue);">band (zakaz) $'+fmtD(kassaMuzlatilgan())+'</span></div>' : '')
-    // seyf qatori — DOIM turadi (0 bo'lsa ham), panel joyidan siljimasin
-    + '<div style="font-size:10px;margin-top:6px;text-align:center;color:var(--muted);border-top:0.5px solid var(--border);padding-top:5px;">Seyf: <span style="color:var(--teal);font-family:Roboto,sans-serif;">$'+fmtD(o.sNaqd)+'</span> · <span style="color:var(--teal);font-family:Roboto,sans-serif;">'+fmtG(o.sLom)+'g</span> · <span style="color:var(--teal);font-family:Roboto,sans-serif;">'+fmtG(o.sToza)+'g</span></div>'
     + '</div>';
   var pc=document.getElementById('kassa-card-pc'); if(pc) pc.innerHTML=html;
   var mb=document.getElementById('kassa-card-mob'); if(mb) mb.innerHTML=html;
@@ -6180,23 +6013,41 @@ function donaBazaEkranRender(){
     crumb.style.display='block';
     crumb.innerHTML = '<span style="cursor:pointer;color:var(--gold);" onclick="_odbZT=null;donaBazaEkranRender();">‹ '+_odbSana+'</span> · <b>'+_odbZT.z+' · '+_odbZT.t+'</b>';
     var recs = all.filter(function(r){ return (r.sana||'').slice(0,10)===_odbSana && r.zavod===_odbZT.z && r.tur===_odbZT.t; });
-    var out = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">';
-    recs.forEach(function(r,i){
-      var ket = r.holat==='berilgan';
-      out += '<div onclick="donaBazaKatakOch(\''+r.id+'\')" style="aspect-ratio:2/1;border-radius:8px;border:1px solid var(--border);background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Roboto,sans-serif;position:relative;overflow:hidden;cursor:pointer;'+(ket?'opacity:.5;':'')+'">'
+    // holat bo'yicha sanoq
+    var san={}, jamiG={};
+    DONA_HOLATLAR.forEach(function(h){ san[h.k]=0; jamiG[h.k]=0; });
+    recs.forEach(function(r){ var h=r.holat||'ombor'; if(san[h]===undefined){san[h]=0;jamiG[h]=0;} san[h]++; jamiG[h]+=r.gramm; });
+    // FILTR CHIPLARI
+    var out='<div style="display:flex;gap:5px;overflow-x:auto;padding-bottom:9px;margin-bottom:10px;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;">';
+    out+='<div onclick="donaBazaFiltr(\'\')" style="flex:none;font-size:11.5px;padding:5px 11px;border-radius:20px;cursor:pointer;border:1px solid '+(_odbFiltr===''?'var(--gold-bd)':'var(--border)')+';background:'+(_odbFiltr===''?'var(--gold-bg)':'var(--surf2)')+';color:'+(_odbFiltr===''?'var(--gold)':'var(--muted)')+';">Hammasi <b>'+recs.length+'</b></div>';
+    DONA_HOLATLAR.forEach(function(h){
+      if(!san[h.k]) return;   // bo'sh holat chipi ko'rsatilmaydi
+      var on=(_odbFiltr===h.k);
+      out+='<div onclick="donaBazaFiltr(\''+h.k+'\')" style="flex:none;font-size:11.5px;padding:5px 11px;border-radius:20px;cursor:pointer;white-space:nowrap;border:1px solid '+(on?h.bd:'var(--border)')+';background:'+(on?h.bg:'var(--surf2)')+';color:'+(on?h.rang:'var(--muted)')+';">'+h.nom+' <b>'+san[h.k]+'</b></div>';
+    });
+    out+='</div>';
+    // KATAKLAR
+    var kor = _odbFiltr ? recs.filter(function(r){ return (r.holat||'ombor')===_odbFiltr; }) : recs;
+    out += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">';
+    kor.forEach(function(r,i){
+      var h=r.holat||'ombor', m=donaHolatMeta(h), omb=(h==='ombor');
+      out += '<div onclick="donaBazaKatakOch(\''+r.id+'\')" style="aspect-ratio:2/1;border-radius:8px;border:1px solid '+(omb?'var(--border)':m.bd)+';background:'+(omb?'var(--surf2)':m.bg)+';display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Roboto,sans-serif;position:relative;overflow:hidden;cursor:pointer;'+(omb?'':'opacity:.72;')+'">'
         + '<span style="font-size:7.5px;color:var(--muted);line-height:1;">'+(i+1)+'</span>'
-        + '<span style="font-size:12.5px;font-weight:600;line-height:1.2;color:'+(ket?'var(--muted)':'var(--text)')+';">'+fmtG(r.gramm)+'</span>'
-        + (ket && r.klient ? '<span style="position:absolute;bottom:0;left:0;right:0;font-size:7px;background:var(--red-bg);color:var(--red);padding:1px 2px;text-align:center;border-top:.5px solid var(--red-bd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_odbIsm(r.klient)+'</span>' : '')
+        + '<span style="font-size:12.5px;font-weight:600;line-height:1.2;color:'+m.rang+';'+(omb?'':'text-decoration:line-through;')+'">'+fmtG(r.gramm)+'</span>'
+        + (!omb && r.klient ? '<span style="position:absolute;bottom:0;left:0;right:0;font-size:7px;background:'+m.bg+';color:'+m.rang+';padding:1px 2px;text-align:center;border-top:.5px solid '+m.bd+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_odbIsm(r.klient)+'</span>'
+           : (!omb ? '<span style="position:absolute;bottom:0;left:0;right:0;font-size:7px;background:'+m.bg+';color:'+m.rang+';padding:1px 2px;text-align:center;border-top:.5px solid '+m.bd+';">'+m.nom+'</span>' : ''))
         + '</div>';
     });
     out += '</div>';
-    // legenda + jami
-    var omb = recs.filter(function(r){return r.holat==='ombor';});
-    var ket = recs.filter(function(r){return r.holat==='berilgan';});
-    var ombG = omb.reduce(function(a,r){return a+r.gramm;},0);
-    out += '<div style="display:flex;justify-content:center;gap:16px;margin-top:11px;font-size:10px;color:var(--muted);">'
-      +'<span>Omborda: <b style="color:var(--green);font-family:Roboto,sans-serif;">'+omb.length+' · '+fmtG(roundG(ombG))+'g</b></span>'
-      +'<span>Ketgan: <b style="color:var(--red);font-family:Roboto,sans-serif;">'+ket.length+'</b></span></div>';
+    if(!kor.length) out += '<div style="font-size:11.5px;color:var(--muted);text-align:center;padding:16px 0;">Bu holatda dona yo\u02bcq</div>';
+    // YAKUN — har holat alohida qator
+    out += '<div style="margin-top:11px;border-top:1px solid var(--border);padding-top:9px;">';
+    DONA_HOLATLAR.forEach(function(h){
+      if(!san[h.k]) return;
+      out += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11.5px;"><span style="color:'+h.rang+';">'+h.nom+'</span>'
+           + '<b style="font-family:Roboto,sans-serif;color:'+h.rang+';">'+san[h.k]+' \u00b7 '+fmtG(roundG(jamiG[h.k]))+'g</b></div>';
+    });
+    out += '</div>';
     body.innerHTML = out;
     return;
   }
@@ -6210,8 +6061,9 @@ function donaBazaEkranRender(){
     var zt = {}, ztsr = [];
     kunRecs.forEach(function(r){
       var key = r.zavod+'|'+r.tur;
-      if(!zt[key]){ zt[key]={z:r.zavod,t:r.tur,n:0,g:0}; ztsr.push(key); }
+      if(!zt[key]){ zt[key]={z:r.zavod,t:r.tur,n:0,g:0,omb:0,ombG:0}; ztsr.push(key); }
       zt[key].n++; zt[key].g += r.gramm;
+      if((r.holat||'ombor')==='ombor'){ zt[key].omb++; zt[key].ombG += r.gramm; }
     });
     ztsr.sort();
     var out='';
@@ -6219,7 +6071,7 @@ function donaBazaEkranRender(){
       var x=zt[key];
       out += '<div onclick="_odbZT={z:\''+x.z.replace(/'/g,"")+'\',t:\''+x.t.replace(/'/g,"")+'\'};donaBazaEkranRender();" style="display:flex;justify-content:space-between;align-items:center;padding:10px 11px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;background:var(--surf2);">'
         + '<span style="font-size:12.5px;font-weight:600;">'+x.z+' · '+x.t+'</span>'
-        + '<span style="font-family:Roboto,sans-serif;font-size:11.5px;color:var(--muted);"><b style="color:var(--green);">'+x.n+' ta</b> · '+fmtG(roundG(x.g))+' g ›</span></div>';
+        + '<span style="font-family:Roboto,sans-serif;font-size:11.5px;color:var(--muted);"><b style="color:var(--green);">'+x.omb+' ombor</b> \u00b7 '+fmtG(roundG(x.ombG))+' g'+(x.n>x.omb?' <span style="color:var(--red);">('+(x.n-x.omb)+' ketgan)</span>':'')+' \u203a</span></div>';
     });
     body.innerHTML = out || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px 0;">Bu kunda dona yo\u02bcq</div>';
     return;
@@ -7432,6 +7284,7 @@ function cloudToldir(){
 }
 
 function donaBazaQosh(zavod, tur, donalar, sana){
+  if(typeof getRol==='function' && getRol()==='hamid') return;  // hamid logikasiga tegmaydi
   var arr=donaBazaOl();
   (donalar||[]).forEach(function(g){
     var rec={ id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), sana:sana||today(), zavod:zavod, tur:tur, gramm:roundG(g), holat:'ombor' };
@@ -7471,6 +7324,51 @@ function donaBazaOlish(zavod, tur, arr, klient){
     if(bestI>=0){ all[bestI].holat='berilgan'; all[bestI].chiqimSana=today(); if(klient) all[bestI].klient=klient; donaBazaCloudYoz(all[bestI]); }
   });
   donaBazaSaqla(all);
+}
+// Dona baza holatlari — RANG va NOM bitta joydan olinadi.
+var DONA_HOLATLAR = [
+  {k:'ombor',    nom:'Ombor',     rang:'var(--green)', bg:'var(--green-bg)', bd:'var(--green-bd)'},
+  {k:'berilgan', nom:'Berilgan',  rang:'var(--blue)',  bg:'var(--blue-bg)',  bd:'var(--blue-bd)'},
+  {k:'sotilgan', nom:'Sotilgan',  rang:'var(--gold)',  bg:'var(--gold-bg)',  bd:'var(--gold-bd)'},
+  {k:'vozvrat',  nom:'Vozvrat',   rang:'var(--red)',   bg:'var(--red-bg)',   bd:'var(--red-bd)'},
+  {k:'yoqolgan', nom:"Yo'qolgan", rang:'var(--muted)', bg:'var(--surf2)',    bd:'var(--border)'}
+];
+function donaHolatMeta(h){
+  for(var i=0;i<DONA_HOLATLAR.length;i++) if(DONA_HOLATLAR[i].k===h) return DONA_HOLATLAR[i];
+  return DONA_HOLATLAR[0];
+}
+var _odbFiltr='ombor';   // dona baza ekranidagi tanlangan holat ('' = hammasi)
+function donaBazaFiltr(h){ _odbFiltr=h; donaBazaEkranRender(); }
+
+// Dona bazadagi yozuv HOLATINI o'zgartiradi (o'chirmaydi). Skan vozvrat, tekshiruv
+// va boshqa amallar shu orqali ishlaydi.
+//   ombor -> bizda | berilgan -> klientda | sotilgan -> klient to'ladi
+//   vozvrat -> zavodga qaytdi | yoqolgan -> tekshiruvda topilmadi
+// Abdulhamid rolida dona baza ISHLATILMAYDI - yozuvlarga tegilmaydi.
+function donaBazaHolat(zavod, tur, arr, holat, izoh){
+  if(typeof getRol==='function' && getRol()==='hamid') return;   // hamid logikasiga tegmaydi
+  if(!arr || !arr.length) return;
+  var all=donaBazaOl(), ozgardi=0;
+  arr.forEach(function(g){
+    g=roundG(g); var bestI=-1, bestD=DONA_TOL+0.0001;
+    for(var i=0;i<all.length;i++){
+      var r=all[i];
+      // faqat HALI OMBORDAGI yozuv holatini o'zgartiramiz
+      if(r.zavod===zavod && r.tur===tur && r.holat==='ombor'){
+        var d=Math.abs(r.gramm-g);
+        if(d<=DONA_TOL && d<bestD){ bestD=d; bestI=i; }
+      }
+    }
+    if(bestI>=0){
+      all[bestI].holat=holat;
+      all[bestI].chiqimSana=today();
+      if(izoh) all[bestI].holatIzoh=izoh;
+      donaBazaCloudYoz(all[bestI]);
+      ozgardi++;
+    }
+  });
+  if(ozgardi) donaBazaSaqla(all);
+  return {ozgardi:ozgardi, topilmadi:arr.length-ozgardi};
 }
 var _donaBazaOpen={};
 function donaBazaToggle(key){ _donaBazaOpen[key]=!_donaBazaOpen[key]; if(typeof renderZavod==='function') renderZavod(); }
@@ -7629,6 +7527,7 @@ function skSaqlash(){
     t.ostatka = roundG((t.ostatka||0) - total);
     t.donaOst = Math.max(0, turDona(t) - skState.pass1.length);
     donaRegOlish(t, skState.pass1); // aniq og'irliklar registrdan olinadi (topilmagani jimgina o'tadi)
+    var _vzN=donaBazaHolat(z.nom, t.nom, skState.pass1, 'vozvrat');  // v158: bazada 'vozvrat' deb belgilanadi
     if (!t.tarix) t.tarix = [];
     t.tarix.push({ tip:'vozvrat', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
     save('Skan vozvrat | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
@@ -7638,6 +7537,7 @@ function skSaqlash(){
     t.ostatka = roundG((t.ostatka||0) + total);
     t.donaOst = turDona(t) + skState.pass1.length;
     donaRegQosh(t, skState.pass1);
+    donaBazaQosh(z.nom, t.nom, skState.pass1, sana);   // v158: skan kirim ham dona bazaga tushadi
     if (!t.tarix) t.tarix = [];
     t.tarix.push({ tip:'mol', sana:sana, gramm:total, skan:true, dona:skState.pass1.length, donalar:skState.pass1.slice() });
     save('Skan kirim | '+z.nom+' · '+t.nom+' | '+fmtG(total)+'g · '+skState.pass1.length+' dona');
@@ -8438,9 +8338,9 @@ function grammNollash(){
     k.tarix=[];
   });
   stKassa=(data.lomlar||[]).length;
-  if(data.kassa){ stKassa+=(data.kassa.zlar||[]).length+(data.kassa.tuzatishlar||[]).length+(data.kassa.zakazlar||[]).length+(data.kassa.seyf||[]).length; }
+  if(data.kassa){ stKassa+=(data.kassa.zlar||[]).length+(data.kassa.tuzatishlar||[]).length+(data.kassa.zakazlar||[]).length; }
   data.lomlar=[];
-  data.kassa={ zlar:[], tuzatishlar:[], zakazlar:[], seyf:[] };   // seyf ham nollanadi
+  data.kassa={ zlar:[], tuzatishlar:[], zakazlar:[] };
   // 3) SAQLASH — localStorage + cloud (TEST rejimida o'z izolyatsiyasida) sinxron bo'ladi
   save('GRAMMLAR NOLLANDI (yangi davr) | '+stTur+' tur, '+stKl+' klient, '+stYoz+' yozuv, '+stKassa+' kassa yozuvi');
   // 4) BARCHA EKRANLARNI YANGILASH — eski raqam hech qayerda qolib ketmasin
@@ -16264,8 +16164,6 @@ function kassaSnapshotObj(vaqt){
     importedIds: (data.kassa.zaImportIds||[]).slice(-100),
     bekorIds: ((data.kassa.snabAmallar||[]).filter(function(r){return r.holat==='bekor';}).map(function(r){return r.id;})).slice(-100),
     naqd: o.naqd, lomEkv: o.lomEkv, toza: o.toza,
-    // seyf — kassadan tashqari, aylanmaga kirmaydi
-    seyfNaqd: o.sNaqd, seyfLom: o.sLom, seyfToza: o.sToza,
     erkin: Math.round((o.naqd-band)*100)/100, band: band,
     bugunKirim: o.bugunKirim, bugunChiqim: o.bugunChiqim,
     zakazlar: ochiqZ,
