@@ -1,4 +1,4 @@
-<!-- v164 -->
+<!-- v165 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2003,7 +2003,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v164';
+var APP_VER = 'v165';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5127,6 +5127,7 @@ function renderZavod() {
       + (turBizningQarzimiz>0.001 ? '<div class="stat2-item" style="background:var(--gold-bg);border-color:var(--gold-bd);"><div class="stat2-label" style="color:var(--gold);">BIZNING QARZIMIZ</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--gold);">'+fmtG(turBizningQarzimiz)+'g</div></div>' : '')
       + '</div>'
       + donaBazaRender(z.nom, t.nom)
+      + (z.turlar.length>1 ? '<div onclick="event.stopPropagation();turBirlashModal('+ti+')" style="margin-top:8px;padding:9px;border-radius:9px;border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-size:12px;font-weight:600;text-align:center;cursor:pointer;">\u21e5 Turni birlashtirish</div>' : '')
       + (klientRows ? '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Klientlarda</div>' + klientRows + '<div style="height:1px;background:var(--border);margin:10px 0;"></div>' : '')
       + (rows || '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px;">Tarix yoq</div>')
       + '</div></div>';
@@ -5136,16 +5137,140 @@ function renderZavod() {
 
 function toggleTur(ti) { openTurIdx = openTurIdx === ti ? -1 : ti; renderZavod(); }
 
+// ══════════════════════════════════════════════════════════════
+// v165: TUR NOMI HAMMA JOYDA KO'CHADI.
+// Avval `turNomTahrir` FAQAT `t.nom` ni o'zgartirardi. Tur nomi esa klient
+// tarixida, dona bazada va oplogda KALIT bo'lib ishlatiladi — nom o'zgarsa
+// eski yozuvlar bog'lanmay qolardi. Ibrohimda aynan shu bo'ldi: "S" -> "3DS"
+// qilingach klient qarzlari (144.53 g) ko'rinmay qoldi, keyin yangi "S" tur
+// qo'shilgach ular unga yopishdi va bitta tur IKKIGA BO'LINDI.
+//
+// eskiTur — FAQAT KO'RSATISH uchun. Hech qanday hisob uni o'qimaydi.
+// Bir marta yoziladi: ikkinchi ko'chirishda BIRINCHI nom saqlanadi.
+// ══════════════════════════════════════════════════════════════
+// Tur o'chirilganda/birlashtirilganda narx-foiz kalitlarini tekislaydi.
+// Narx TUR INDEKSI bo'yicha saqlanadi (tilla-foiz-{zi} = {ti: qiymat}), shuning
+// uchun o'rtadagi tur o'chsa keyingilarining narxi siljib ketardi.
+function turNarxKalitOchir(zi, delTi, turSoni){
+  NARX_PREFIKSLAR.forEach(function(pfx){
+    var key = pfx + zi, o;
+    try{ o = JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return; }
+    if(!o || typeof o!=='object') return;
+    var y = {};
+    Object.keys(o).forEach(function(k){
+      var i = parseInt(k,10);
+      if(isNaN(i)){ y[k]=o[k]; return; }
+      if(i === delTi) return;            // o'chirilgan tur — tashlanadi
+      y[ i > delTi ? (i-1) : i ] = o[k]; // keyingilari bir pog'ona pastga
+    });
+    try{ localStorage.setItem(key, JSON.stringify(y)); }catch(e){}
+  });
+}
+
+// Eski nom belgisi. FAQAT KO'RSATISH uchun — hech qanday hisob buni o'qimaydi.
+function _eskiTurBelgi(op){
+  if(!op || !op.eskiTur || op.eskiTur===op.tur) return '';
+  return '<span style="font-size:9.5px;color:var(--muted);background:var(--surf2);padding:1px 6px;border-radius:20px;margin-left:5px;white-space:nowrap;">avval '+op.eskiTur+'</span>';
+}
+
+function _turKochir(zavodNom, eskiNom, yangiNom){
+  var n = {klient:0, dona:0};
+  // 1) Klient tarixi
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(op.zavod===zavodNom && op.tur===eskiNom){
+        if(op.eskiTur===undefined) op.eskiTur = eskiNom;   // faqat bir marta
+        op.tur = yangiNom;
+        n.klient++;
+      }
+    });
+  });
+  // 2) Dona baza (lokal + cloud)
+  try{
+    if(typeof donaBazaOl==='function'){
+      var all=donaBazaOl(), ozg=false;
+      all.forEach(function(r){
+        if(r.zavod===zavodNom && r.tur===eskiNom){
+          r.tur = yangiNom; ozg=true; n.dona++;
+          if(typeof donaBazaCloudYoz==='function') donaBazaCloudYoz(r);
+        }
+      });
+      if(ozg && typeof donaBazaSaqla==='function') donaBazaSaqla(all);
+    }
+  }catch(e){ if(window.console) console.error('_turKochir dona:', e); }
+  // 3) Hisob snapshot keshi — kalit eskirdi, tozalanadi
+  try{ localStorage.removeItem('tilla-hisob-snap'); }catch(e){}
+  return n;
+}
+
 function turNomTahrir(ti) {
   var z = data.zavodlar[curZ];
   var t = z.turlar[ti];
-  var yangiNom = prompt("Tur nomini o'zgartiring:", t.nom);
+  var eskiNom = t.nom;
+  var yangiNom = prompt("Tur nomini o'zgartiring:", eskiNom);
   if (yangiNom === null) return;
   yangiNom = yangiNom.trim();
   if (!yangiNom) { alert("Nom bo'sh bo'lishi mumkin emas!"); return; }
+  if (yangiNom === eskiNom) return;
+  if (z.turlar.some(function(x,i){ return i!==ti && x.nom===yangiNom; })){
+    alert('Bu zavodda "'+yangiNom+'" nomli tur allaqachon bor.\nBirlashtirmoqchi bo\'lsangiz "Birlashtirish" tugmasini ishlating.');
+    return;
+  }
   t.nom = yangiNom;
-  save();
+  var n = _turKochir(z.nom, eskiNom, yangiNom);   // klient tarixi + dona baza
+  if(typeof obyektPush==='function') obyektPush('tur',{nom:yangiNom, zavod:z.nom});
+  save('Tur nomi: '+z.nom+' | '+eskiNom+' -> '+yangiNom);
   renderZavod();
+  alert('\u2713 Nom o\'zgartirildi.\n'+n.klient+' ta klient yozuvi, '+n.dona+' ta dona ko\'chdi.');
+}
+
+// ── TURNI BIRLASHTIRISH: ochilgan tur boshqasiga qo'shiladi va O'CHADI
+function turBirlashModal(ti){
+  var z=data.zavodlar[curZ]; if(!z) return;
+  var t=z.turlar[ti]; if(!t) return;
+  if(z.turlar.length<2){ alert('Bu zavodda boshqa tur yo\'q.'); return; }
+  var boshqa = z.turlar.map(function(x,i){ return {x:x,i:i}; }).filter(function(o){ return o.i!==ti; });
+  var msg = '"'+t.nom+'" turi QAYSI turga qo\'shilsin?\n\n';
+  boshqa.forEach(function(o,k){ msg += (k+1)+') '+o.x.nom+'  ('+fmtG(o.x.ostatka||0)+' g)\n'; });
+  msg += '\nRaqamni yozing:';
+  var jav = prompt(msg,'');
+  if(jav===null) return;
+  var ix = parseInt(String(jav).trim(),10);
+  if(!(ix>=1 && ix<=boshqa.length)){ alert('Noto\'g\'ri raqam.'); return; }
+  var maqsad = boshqa[ix-1].x, maqsadI = boshqa[ix-1].i;
+  // Oldindan hisob
+  var klN=0;
+  (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
+    if(op.zavod===z.nom && op.tur===t.nom) klN++; }); });
+  var dnN=0;
+  try{ if(typeof donaBazaOl==='function') dnN=donaBazaOl().filter(function(r){
+    return r.zavod===z.nom && r.tur===t.nom; }).length; }catch(e){}
+  var yangiOst = roundG((maqsad.ostatka||0)+(t.ostatka||0));
+  if(!confirm('"'+t.nom+'" -> "'+maqsad.nom+'"\n\n'
+    +'Ostatka: '+fmtG(maqsad.ostatka||0)+' + '+fmtG(t.ostatka||0)+' = '+fmtG(yangiOst)+' g\n'
+    +'Klient yozuvlari: '+klN+' ta\n'
+    +'Dona baza: '+dnN+' ta\n'
+    +'Zavod tarixi: '+((t.tarix||[]).length)+' ta\n\n'
+    +'"'+t.nom+'" turi O\'CHADI. Qaytarib bo\'lmaydi.\nBackup oldingizmi?')) return;
+  if(!confirm('Haqiqatan ham birlashtirilsinmi?')) return;
+
+  var n = _turKochir(z.nom, t.nom, maqsad.nom);      // klient tarixi + dona baza
+  maqsad.ostatka = yangiOst;
+  maqsad.donaOst = (maqsad.donaOst||0) + (t.donaOst||0);
+  if(!Array.isArray(maqsad.tarix)) maqsad.tarix=[];
+  if(!Array.isArray(maqsad.donalar)) maqsad.donalar=[];
+  (t.tarix||[]).forEach(function(r){ maqsad.tarix.push(r); });
+  (t.donalar||[]).forEach(function(g){ maqsad.donalar.push(g); });
+  maqsad.tarix.sort(function(a,b){ return String(a.sana||'').localeCompare(String(b.sana||'')); });
+  // Narx/foiz kalitlari tur INDEKSI bo'yicha saqlanadi — o'chirilgan indeksdan
+  // keyingilari siljiydi, shuning uchun tekislanadi.
+  if(typeof turNarxKalitOchir==='function') turNarxKalitOchir(curZ, ti, z.turlar.length);
+  z.turlar.splice(ti,1);
+  openTurIdx=-1;
+  save('Tur birlashtirildi: '+z.nom+' | '+t.nom+' -> '+maqsad.nom);
+  renderZavod();
+  alert('\u2713 Birlashtirildi.\n'+n.klient+' ta klient yozuvi, '+n.dona+' ta dona ko\'chdi.\n'
+    +maqsad.nom+' ostatkasi: '+fmtG(yangiOst)+' g');
 }
 
 function ochirTur(ti) {
@@ -9912,7 +10037,7 @@ function renderKlientHisobot() {
         html+='<div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);">';
         sess.ops.forEach(function(x){
           var op=x.op;
-          var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+          var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
           if(tip==='tolov'&&op._kdYopish){
             html+='<div style="font-size:11px;padding:2px 0;color:var(--green);">↳ offsetdan — '+turStr+(op.summa>0?' $'+fmtD(op.summa):'')+'</div>';
             return;
@@ -9930,7 +10055,7 @@ function renderKlientHisobot() {
         html+='</div>';
       } else {
         var op=sess.ops[0].op;
-        var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+        var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
         var s=tip==='tolov'?(op.summa||0):0;
         if(turStr||s>0){
           html+='<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+turStr+(s>0?' · $'+fmtD(s):'')+'</div>';
@@ -9969,7 +10094,7 @@ function klientGunTahrir(ki, sana) {
     var tip = op.tip;
     var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
     var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
-    var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur):'';
+    var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
 
     body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
     body += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
