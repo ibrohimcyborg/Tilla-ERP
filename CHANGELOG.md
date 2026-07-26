@@ -3,6 +3,102 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v163: Clouddan yuklash QAT'IY — ustiga qo'shilmaydi
+
+Ibrohim telefonidan cloudni yukladi, lekin grammlar mos kelmadi:
+
+```
+PC (Qurilma-1)   12769.21 g   bizda 8339.56   klientda 4429.65
+iPhone           12963.79 g   bizda 8339.56   klientda 4624.23
+                                              farq +194.58 g
+```
+
+### SABAB — BIZDA mos, KLIENTDA mos emas
+
+Bu tasodif emas. Ikkalasi butunlay boshqacha hisoblanadi (5047-5052):
+
+```
+bizda    = sum(t.ostatka)            // SAQLANGAN raqam, blobdan keladi
+klientda = sum(klientQarzSplit(...)) // TARIXDAN qayta hisoblanadi
+```
+
+Blob to'g'ri yuklangan (bizda aynan mos). Lekin telefonda ORTIQCHA TARIX
+YOZUVLARI paydo bo'lgan va ular klient qarzini 194.58 g ga oshirgan.
+Ma'lumot yo'qolmagan — USTIGA QO'SHILGAN.
+
+### IKKI XATO TOPILDI
+
+**1. `cloudYuklab` synced ro'yxatini tozalardi**
+
+```
+localStorage.removeItem('tilla-amal-synced');   // "ko'rilgan yozuvlar"
+```
+
+Tozalangach `amalListen` oplogdagi HAMMA yozuvni `known===undefined` deb
+ko'radi va `amalRecAdd` bilan blobning USTIGA qayta qo'shadi.
+
+**2. `amalInit` versiyani 1 ga tushirardi**
+
+```
+set[r._id]=1;      // har doim 1
+```
+
+Oplogdagi haqiqiy `vaqt` (Date.now, ~1.7e12) 1 dan katta. Shuning uchun
+`amalListen` dagi `dv<=known` sharti HECH QACHON rost bo'lmaydi va har yozuv
+"yangilangan" deb `remove+add` qilinadi. Agar `amalRecRemoveById` yozuvni
+topa olmasa (masalan blobdagi `_id` boshqacha) — remove ishlamaydi, add
+ishlaydi -> IKKILANISH.
+
+### TUZATISH
+
+**1. `amalInit`** — mavjud versiyani tushirmaydi:
+
+```
+if(set[r._id]===undefined) set[r._id]=1;
+```
+
+**2. `cloudYuklab`** — blob YAGONA HAQIQAT. Yuklangandan keyin oplog to'liq
+o'qiladi va HAMMA yozuv HAQIQIY vaqti bilan "ko'rilgan" deb belgilanadi:
+
+```
+_aRef.get().then(function(snap){
+  var base = {};
+  snap.forEach(function(doc){ base[doc.id] = (doc.data()||{}).vaqt || Date.now(); });
+  localStorage.setItem('tilla-amal-synced', JSON.stringify(base));
+  location.reload();
+})
+```
+
+Shundan keyin oplogdagi eski yozuvlar ustiga QO'SHILMAYDI — faqat
+yuklashdan KEYIN kelgan yangi yozuvlar qabul qilinadi.
+
+XATO HOLATI: oplog o'qilmasa, eski `tilla-amal-synced` TOZALANMAYDI
+(bo'sh baseline xavfli — hammasi qayta qo'shilardi) va ogohlantirish chiqadi.
+
+### SINOV (t31.js)
+
+Mantiq simulyatsiya qilindi, 3 ta oplog yozuvi bilan:
+
+```
+ESKI (synced bo'sh)   -> 3 ta qo'shildi   <- ikkilanish
+ESKI (versiya=1)      -> 3 ta qo'shildi   <- bu ham ikkilaydi
+YANGI (baseline)      -> 0 ta qo'shildi   OK
+keyingi yangi yozuv   -> 1 ta qabul qilindi  OK
+```
+
+### IBROHIMGA AYTILGAN
+
+* PC dagi 12769.21 g TO'G'RI — u hech qachon blob yuklamagan
+* Telefondan hech narsa kiritmasin (ikkilangan yozuv cloudga chiqib PC ga o'tardi)
+* Backup olsin
+
+Tuzatilgach telefon PC dan qayta yuklab oladi va farq o'z-o'zidan yo'qoladi.
+
+### VERSIYA IZOHI
+
+Ibrohim so'ragan: index.html ning ENG BIRINCHI qatoriga `<!-- v163 -->`.
+Shu versiyadan boshlab yozib boriladi.
+
 ## v162: Qurilma raqamlash — cloud navbat bo'yicha raqam beradi
 
 Ibrohim: "Qurilma-1 asosiy qilamiz, mani pcim Qurilma-1 bo'lgan. Yana bitta muhim
