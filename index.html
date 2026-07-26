@@ -2002,7 +2002,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v161';
+var APP_VER = 'v162';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -16113,12 +16113,104 @@ function cloudYozaOladi(){ if(_kvotaTugadi) return false; if(cloudYozuvBugun()>Y
 function cloudKol(){ return (TEST_MODE?'TEST_':'') + 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza; TEST rejimda HAR DOIM alohida (TEST_) kolleksiya — haqiqiy ma'lumotga aralashmasin
 function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'))||'0'); }
 function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'), String(v)); }
+// ══════════════════════════════════════════════════════════════
+// v162: QURILMA RAQAMLASH — cloud navbat bo'yicha raqam beradi.
+// Avval prompt() chiqardi va standart qiymati 'Qurilma-1' edi — kim OK bossa
+// u ham Qurilma-1 bo'lardi. Natijada cloudListen dagi `m.qurilma !== mening`
+// sharti hech qachon rost bo'lmasdi va qurilmalar bir-birini KO'RMASDI.
+//
+// ABDULHAMID ROLIGA TEGMAYDI — u eski yo'l bilan ishlaydi (hisob-kitobi ochilmasin).
+// ══════════════════════════════════════════════════════════════
+function _qurilmaHamid(){ return (typeof getRol==='function' && getRol()==='hamid'); }
+
+// Qurilmaning O'ZGARMAS ID si (bir marta beriladi, hech qachon o'zgarmaydi)
+function qurilmaId(){
+  var id = localStorage.getItem('tilla-qurilma-id');
+  if(!id){
+    id = 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+    localStorage.setItem('tilla-qurilma-id', id);
+  }
+  return id;
+}
+function qurilmaRaqam(){ return parseInt(localStorage.getItem('tilla-qurilma-raqam')||'0',10)||0; }
+function qurilmaAsosiy(){ return qurilmaRaqam()===1; }
+function qurilmaRoyxatRef(){
+  try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('_qurilmalar'); }catch(e){}
+  return null;
+}
+// Nom bandmi? Qurilma-1 HIMOYALANGAN: yozilishi qanday bo'lsa ham (qurilma1, QURILMA 1 ...)
+function _nomNormal(x){ return String(x||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function qurilmaNomBand(nom, royxat, ozId){
+  var n=_nomNormal(nom);
+  if(!n) return "Nom bo'sh bo'lmasin";
+  if(n==='qurilma1' && !(royxat[ozId] && royxat[ozId].raqam===1)) return 'Bu nom band \u2014 Qurilma-1 asosiy qurilma';
+  var band=null;
+  Object.keys(royxat||{}).forEach(function(k){
+    if(k===ozId) return;
+    if(_nomNormal(royxat[k].nom)===n) band='Bu nom band \u2014 '+royxat[k].nom;
+  });
+  return band;
+}
+// Ro'yxatga qo'shilish. Transaction: ikki qurilma bir vaqtda ulansa bir xil raqam olmasin.
+function qurilmaRoyxatgaQosh(){
+  if(_qurilmaHamid()) return;                       // hamid logikasiga tegmaydi
+  var ref = qurilmaRoyxatRef(); if(!ref) return;
+  var id = qurilmaId();
+  _cloudDb.runTransaction(function(tx){
+    return tx.get(ref).then(function(doc){
+      var r = (doc.exists ? doc.data() : {}) || {};
+      if(r[id]){                                     // allaqachon bor — o'z raqamini oladi
+        r[id].oxirgi = Date.now();
+        tx.set(ref, r);
+        return r[id];
+      }
+      var mx=0;
+      Object.keys(r).forEach(function(k){ if((r[k].raqam||0)>mx) mx=r[k].raqam; });
+      var yangi = { raqam: mx+1, nom: 'Qurilma-'+(mx+1), birinchi: Date.now(), oxirgi: Date.now() };
+      r[id] = yangi;
+      tx.set(ref, r);
+      return yangi;
+    });
+  }).then(function(m){
+    if(!m) return;
+    localStorage.setItem('tilla-qurilma-raqam', String(m.raqam));
+    localStorage.setItem('tilla-qurilma', m.nom);
+    try{ cloudYozuvSana(1); }catch(e){}
+  }).catch(function(e){ if(window.console) console.error('qurilmaRoyxatgaQosh:', e); });
+}
+// Nomni o'zgartirish (raqam O'ZGARMAYDI)
+function qurilmaNomOzgartir(){
+  if(_qurilmaHamid()){ alert('Bu rejimda mavjud emas'); return; }
+  var ref=qurilmaRoyxatRef(); if(!ref){ alert('Cloudga kirmagansiz'); return; }
+  var id=qurilmaId();
+  ref.get().then(function(doc){
+    var r=(doc.exists?doc.data():{})||{};
+    if(!r[id]){ alert("Qurilma ro'yxatda yo'q. Cloudga qayta kiring."); return; }
+    var yangi = prompt("Qurilma nomi (raqam "+r[id].raqam+" o'zgarmaydi):", r[id].nom);
+    if(yangi===null) return;
+    yangi = String(yangi).trim();
+    var xato = qurilmaNomBand(yangi, r, id);
+    if(xato){ alert('\u2715 '+xato); return; }
+    r[id].nom = yangi; r[id].oxirgi = Date.now();
+    ref.set(r).then(function(){
+      localStorage.setItem('tilla-qurilma', yangi);
+      try{ cloudYozuvSana(1); }catch(e){}
+      alert('\u2713 Nom o\'zgartirildi: '+yangi);
+      if(typeof cloudChipClick==='function'){}
+    }).catch(function(e){ alert('Xato: '+(e&&e.code?e.code:e)); });
+  }).catch(function(e){ alert('Xato: '+(e&&e.code?e.code:e)); });
+}
 function cloudQurilma(){
   var q = localStorage.getItem('tilla-qurilma');
-  if (!q) {
-    q = prompt('Bu qurilmaga nom bering (masalan: Dokon-PC, Telefon):', 'Qurilma-1') || 'Qurilma-1';
-    localStorage.setItem('tilla-qurilma', q);
+  if (_qurilmaHamid()) {                             // ESKI YO'L — hamid rejimi tegilmaydi
+    if (!q) { q = prompt('Bu qurilmaga nom bering (masalan: Dokon-PC, Telefon):', 'Qurilma-1') || 'Qurilma-1';
+              localStorage.setItem('tilla-qurilma', q); }
+    return q;
   }
+  // Ro'yxatdan raqam kelguncha VAQTINCHALIK nom = qurilma ID si.
+  // U ham noyob, shuning uchun cloudListen dagi qurilma solishtiruvi to'g'ri ishlaydi.
+  if (!q) { q = qurilmaId(); localStorage.setItem('tilla-qurilma', q); }
+  qurilmaRoyxatgaQosh();                             // raqam kelgach nom almashadi
   return q;
 }
 function cloudStatus(rang, matn){
@@ -16161,7 +16253,11 @@ function cloudChipClick(){
   } else {
     var v = cloudVaqtLocal();
     var body = 'Login: <b>'+(_cloudUser.email||'')+'</b><br>'
-      + 'Qurilma: <b>'+(localStorage.getItem('tilla-qurilma')||'—')+'</b><br>'
+      + 'Qurilma: <b>'+(localStorage.getItem('tilla-qurilma')||'\u2014')+'</b>'
+        + (!_qurilmaHamid() && qurilmaAsosiy() ? ' <span style="font-size:10px;padding:2px 8px;border-radius:20px;border:1.3px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-weight:700;">ASOSIY</span>' : '')
+        + (!_qurilmaHamid() && qurilmaRaqam() ? ' <span style="font-size:11px;color:var(--muted);">\u00b7 raqam '+qurilmaRaqam()+'</span>' : '')
+        + (!_qurilmaHamid() ? ' <span onclick="qurilmaNomOzgartir()" style="font-size:11px;color:var(--gold);cursor:pointer;margin-left:6px;">nomni o\'zgartirish</span>' : '')
+        + '<br>'
       + 'Oxirgi sinxron: <b>'+(v? new Date(v).toLocaleString() : '—')+'</b><br>'
       + 'Holat: '+(_cloudPending?'<span style="color:var(--gold);">yozish kutilmoqda</span>':'<span style="color:var(--green);">sinxron</span>');
     document.getElementById('cloud-info-body').innerHTML = body;
