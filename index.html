@@ -1,4 +1,4 @@
-<!-- v163 -->
+<!-- v164 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2003,7 +2003,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v163';
+var APP_VER = 'v164';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -7070,6 +7070,91 @@ function amalWalk(cb){
   // data.kassa — OBYEKT (zlar/tuzatishlar/zakazlar...), massiv emas — oplogga kirmaydi, blob orqali sinxron bo'ladi.
 }
 function _turKey(z,t){ return z+'||'+t; }
+// ══════════════════════════════════════════════════════════════
+// v164: YANGI OBYEKT (klient / zavod / tur) OPLOGGA CHIQADI.
+// Avval ular faqat blobda edi: bir qurilmada qo'shilgan klient boshqasida
+// KO'RINMASDI, va blob yozilganda YO'QOLIB KETARDI.
+//
+// amalRecAdd allaqachon yetishmagan zavod/tur/klientni o'zi yaratadi — lekin
+// faqat TARIX yozuvi kelganda. Amali yo'q yangi klient hech qachon o'tmasdi.
+//
+// Bu QO'SHISH amali — to'qnashmaydi. Ikki qurilma ikki klient qo'shsa
+// ikkalasi ham qoladi.
+// ══════════════════════════════════════════════════════════════
+function obyektRef(){
+  try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('_obyektlar').collection('items'); }catch(e){}
+  return null;
+}
+function _obySetOl(){
+  try{ return JSON.parse(localStorage.getItem('tilla-obyekt-synced')||'{}'); }catch(e){ return {}; }
+}
+function _obySetSaqla(o){ try{ localStorage.setItem('tilla-obyekt-synced', JSON.stringify(o)); }catch(e){} }
+
+// Cloudga yuborish. tip: 'klient' | 'zavod' | 'tur'
+function obyektPush(tip, obj){
+  var ref=obyektRef(); if(!ref) return;
+  if(typeof cloudYozaOladi==='function' && !cloudYozaOladi()) return;
+  var id = tip==='tur' ? ('tur|'+obj.zavod+'|'+obj.nom) : (tip+'|'+obj.nom);
+  var d = { tip:tip, nom:obj.nom, vaqt:Date.now(),
+            qurilma: localStorage.getItem('tilla-qurilma')||'' };
+  if(tip==='klient') d.tel = obj.tel||'';
+  if(tip==='tur')    d.zavod = obj.zavod||'';
+  try{
+    ref.doc(id).set(d, {merge:true}).catch(cloudXato);
+    cloudYozuvSana(1);
+    var set=_obySetOl(); set[id]=d.vaqt; _obySetSaqla(set);
+  }catch(e){}
+}
+// Kelgan obyektni lokalga qo'shish. MAVJUDIGA TEGILMAYDI (ustidan yozilmaydi).
+function obyektQabul(d){
+  if(!d || !d.nom) return false;
+  if(d.tip==='klient'){
+    if(!Array.isArray(data.klientlar)) data.klientlar=[];
+    if(data.klientlar.some(function(k){return k.nom===d.nom;})) return false;
+    data.klientlar.push({nom:d.nom, tel:d.tel||'', tarix:[]});
+    return true;
+  }
+  if(d.tip==='zavod'){
+    if(!Array.isArray(data.zavodlar)) data.zavodlar=[];
+    if(data.zavodlar.some(function(z){return z.nom===d.nom;})) return false;
+    data.zavodlar.push({nom:d.nom, turlar:[]});
+    return true;
+  }
+  if(d.tip==='tur'){
+    if(!Array.isArray(data.zavodlar)) data.zavodlar=[];
+    var z=data.zavodlar.filter(function(x){return x.nom===d.zavod;})[0];
+    if(!z){ z={nom:d.zavod, turlar:[]}; data.zavodlar.push(z); }
+    if(!Array.isArray(z.turlar)) z.turlar=[];
+    if(z.turlar.some(function(t){return t.nom===d.nom;})) return false;
+    z.turlar.push({nom:d.nom, ostatka:0, donaOst:0, tarix:[], donalar:[]});
+    return true;
+  }
+  return false;
+}
+var _obyUnsub=null;
+function obyektListen(){
+  var ref=obyektRef(); if(!ref || _obyUnsub) return;
+  _obyUnsub=ref.onSnapshot(function(snap){
+    var set=_obySetOl(), ozg=false;
+    snap.forEach(function(doc){
+      var id=doc.id, d=doc.data()||{};
+      if(set[id]!==undefined && (d.vaqt||0)<=set[id]) return;   // ko'rilgan
+      if(obyektQabul(d)) ozg=true;
+      set[id]=d.vaqt||Date.now();
+    });
+    _obySetSaqla(set);
+    if(ozg){
+      try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
+      try{
+        if(typeof renderKlientlar==='function') renderKlientlar();
+        if(typeof renderHome==='function') renderHome();
+        if(typeof renderZavodlar==='function') renderZavodlar();
+      }catch(e){}
+    }
+  }, function(err){ if(window.console) console.error('obyektListen:', err); });
+}
+function obyektUnsub(){ if(_obyUnsub){ try{_obyUnsub();}catch(e){} _obyUnsub=null; } }
+
 // BIR MARTALIK INIT: mavjud tarix = umumiy baza deb belgilanadi (PUSH QILINMAYDI — blob orqali allaqachon umumiy),
 // va hisob snap (ostatka/donaOst baseline) yoziladi. Shu tufayli eski yozuvlar dublikat bo'lmaydi.
 function amalInit(){
@@ -7803,8 +7888,8 @@ function chiqimSaqlash() {
 }
 function openZavodModal() { document.getElementById('zavod-nom').value=''; document.getElementById('modal-zavod').classList.add('open'); setTimeout(function(){ document.getElementById('zavod-nom').focus(); },100); }
 function openTurModal() { document.getElementById('tur-modal-title').textContent='Tur qoshish — '+(data.zavodlar[curZ]?data.zavodlar[curZ].nom:''); document.getElementById('tur-nom').value=''; document.getElementById('modal-tur').classList.add('open'); setTimeout(function(){ document.getElementById('tur-nom').focus(); },100); }
-function saqlashZavod() { var nom=document.getElementById('zavod-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar.push({nom:nom,turlar:[]}); save(); closeModal('modal-zavod'); renderHome(); }
-function saqlashTur() { var nom=document.getElementById('tur-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar[curZ].turlar.push({nom:nom,ostatka:0,tarix:[]}); save(); closeModal('modal-tur'); renderZavod(); }
+function saqlashZavod() { var nom=document.getElementById('zavod-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar.push({nom:nom,turlar:[]}); obyektPush('zavod',{nom:nom}); save(); closeModal('modal-zavod'); renderHome(); }
+function saqlashTur() { var nom=document.getElementById('tur-nom').value.trim(); if(!nom){alert('Nom kiriting!');return;} data.zavodlar[curZ].turlar.push({nom:nom,ostatka:0,tarix:[]}); obyektPush('tur',{nom:nom, zavod:data.zavodlar[curZ].nom}); save(); closeModal('modal-tur'); renderZavod(); }
 
 document.addEventListener('wheel', function(e){
   if(document.activeElement && document.activeElement.type==='number'){
@@ -10706,7 +10791,7 @@ function renderKdHisobot() {
   document.getElementById('kd-hisobot').innerHTML=html;
 }
 function openKlientModal(){document.getElementById('klient-nom').value='';document.getElementById('klient-tel').value='';document.getElementById('modal-klient').classList.add('open');setTimeout(function(){document.getElementById('klient-nom').focus();},100);}
-function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();var tel=document.getElementById('klient-tel').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tel:tel,tarix:[]});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
+function saqlashKlient(){var nom=document.getElementById('klient-nom').value.trim();var tel=document.getElementById('klient-tel').value.trim();if(!nom){alert('Ism kiriting!');return;}if(!data.klientlar)data.klientlar=[];data.klientlar.push({nom:nom,tel:tel,tarix:[]});obyektPush('klient',{nom:nom,tel:tel});save('Yangi klient: '+nom);closeModal('modal-klient');renderKlientlar();}
 
 function _klientDropHTML(q, pickFn) {
   var html = '';
@@ -12742,6 +12827,7 @@ function ksSotuvAddNew() {
   var tel = document.getElementById('ks-new-tel').value.trim();
   if (!data.klientlar) data.klientlar = [];
   data.klientlar.push({nom:nom, tel:tel, tarix:[]});
+  obyektPush('klient',{nom:nom, tel:tel});
   save('Yangi klient: '+nom);
   _ksSotuvKi = data.klientlar.length - 1;
   var ini = nom.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2)||'YK';
@@ -16242,8 +16328,8 @@ function cloudInit(){
         if (!TEST_MODE) { localStorage.setItem('tilla-cloud-tasdiq','1'); } // haqiqiy rejimdagi mavjud sessiya — qonuniy
         else { firebase.auth().signOut(); return; } // TEST rejimga meros sessiya kirolmaydi
       }
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); amalListen(); hisobListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
-      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); amalUnsubAll(); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
+      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); obyektUnsub(); amalUnsubAll(); }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
   } catch(e) { console.error('cloudInit:', e); cloudStatus('red','xato'); }
