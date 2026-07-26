@@ -3,6 +3,135 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v167: "Klientda bor" pul paneli — kalkulyator
+
+Ibrohim: "klientda nechpul borligini yozadigan joy yo'q ozi, manga shunaqa joy
+kere bo'vottide. Klient qo'lida puli bor, man hisoblab plus minus qb yurman.
+Pulini yozib uni qarziga chochvoradigan qiladigan qilsak bo'lmaydimi?"
+
+Aniqlashtirildi: bu SAQLANADIGAN HISOB EMAS. Klient keladi, mol oladi,
+qo'lidagi pulni beradi — o'sha pul turlarga taqsimlanadi va oxirida 0 bo'ladi.
+"Bu odatda olgan molidan beradigan puli kam bo'lganda ko'proq asqotadi."
+
+### PANEL
+
+Joyi: "Kerakli summa" blokining USTIDA, to'lov va sotuv modalida bir xil
+(Ibrohim: "kerakli summani tepasida tursa bo'ldi").
+
+Tarkibi:
+* Naqd / Karta / Perech — qo'lda yoziladi
+* Lom — pastdagi lom qatorlaridan AVTOMAT yig'iladi
+* Jami = naqd + karta + perech + lom
+* Progress chizig'i
+* Taqsimlandi / Qoldi
+
+Jami 0 bo'lsa panel KO'RINMAYDI.
+
+### YANGI FUNKSIYALAR
+
+`pulPanelLom(pfx)` — lom qatorlaridan gramm, kurs, pul. Id naqshlari:
+`<pfx>-lg-{i}` gramm, `<pfx>-lk-{i}` kurs. Gramm yoki kurs yo'q bo'lsa
+o'sha qator hisobga KIRMAYDI.
+
+`pulPanelTaqsim(pfx)` — turlarga yozilgan summalar yig'indisi.
+To'lov modali `kt-s-{zi}-{ti}`, sotuv modali `kst-s-{zi}-{ti}`.
+DIQQAT: naqshlar boshqa-boshqa, shuning uchun to'lov va sotuv ARALASHMAYDI.
+
+`pulPanelUpd(pfx, tushir)` — qayta hisoblaydi. Qoldi manfiy bo'lsa
+"Oshdi N$" deb QIZIL bo'ladi, lekin saqlashga xalaqit bermaydi.
+
+`pulPanelReset(pfx)` — modal ochilganda tozalanadi.
+
+### PASTGA TUSHIRISH
+
+Ibrohim: "ha tushursin, biratola yozib o'tirmiman kerakli summaga".
+
+Panelga yozilgan naqd/karta/perech pastdagi `<pfx>-naqt-berildi`,
+`-karta-berildi`, `-perech-berildi` maydonlariga tushadi va ularning
+`oninput` i chaqiriladi — ya'ni mavjud hisob o'zi ishlaydi.
+
+Foydalanuvchi o'sha maydonni TAHRIRLAYOTGAN bo'lsa (`document.activeElement`)
+tegilmaydi — yozayotganini buzmasin.
+
+### SAQLANMAYDI
+
+Panel hech narsani saqlamaydi, yangi maydon qo'shmaydi. Modal yopilganda
+yo'qoladi. Ishlatmasangiz ko'rinmaydi ham.
+
+### SINOV (t35.js)
+
+1. Bitta lom: 10.70g × 72.7 = 777.89$
+2. Ikki lom qo'shiladi: 15.7g = 1,127.89$
+3. Kurssiz lom hisobga kirmaydi
+4. To'lov taqsimoti 10,403.76$, sotuv 3,000$
+5. To'lov va sotuv ARALASHMAYDI
+6. Jami 13,627.89$, qoldi 3,224.13$
+7. Panel ikkala modalda, reset ulangan, tushirish bor
+
+### HALI YOZILMAGAN — keyingi qadam
+
+Ibrohim so'ragan OLTIN "$" TUGMASI har tur qatorida (grammning yashil ✓
+yonida, chap tomonda). Bosilganda klientda QOLGAN pulni o'sha turga qo'yadi.
+Qarzdan ko'p bo'lsa faqat qarzicha qo'yadi.
+
+Va har tur tagida "qolgan N$ → M g" ko'rsatkichi.
+
+Bular tur qatorlarini render qiladigan funksiyalarga tegishni talab qiladi —
+alohida qadam sifatida qoldirildi.
+
+## v166: ochirTur narx kalitlari + chekda "aylantirildi"
+
+Ibrohim: "A va B ni qilib qo'ysin".
+
+### A — `ochirTur` narx kalitlarini tekislamasdi
+
+Narx TUR INDEKSI bo'yicha saqlanadi: `tilla-foiz-{zi} = {ti: qiymat}`.
+Tur o'chirilganda `z.turlar.splice(ti,1)` keyingilarining indeksini siljitardi,
+lekin narx kalitlari joyida qolardi. Natijada foizi 13.5 bo'lgan tur 3.7 bo'lib
+qolardi — sezilmaydigan, lekin PULGA TA'SIR QILADIGAN xato.
+
+`turNarxKalitOchir` v165 da yozilgan edi (birlashtirish uchun), lekin `ochirTur`
+ga ulanmagan edi. Endi `splice` dan OLDIN chaqiriladi.
+
+To'rt prefiks ham tekislanadi: `tilla-foiz-`, `tilla-manual-`,
+`tilla-a-foiz-`, `tilla-a-manual-`.
+
+`save()` ga izoh ham qo'shildi: "Tur ochirildi: Zavod | Tur".
+
+### B — chekda "aylantirildi"
+
+Offset qatori chekda faqat `O` harfi bilan chiqardi, klient nima bo'lganini
+bilmasdi. Endi:
+
+```
+ O  Rasul Oddiy aylantirildi              684.70#
+```
+
+YO'LDA TOPILGAN: bu qatorda hali `\u00b7` (o'rta nuqta) qolgan ekan —
+`r.zavod+' \u00b7 '+r.tur+' dan'`. v160 da to'lov chekining TUR nomidagi
+nuqta tuzatilgan, lekin OFFSET qatoridagi qolib ketgan. UTF-8 da ikki bayt,
+printerda xitoy ieroglifi bo'lardi. Olib tashlandi.
+
+KENGLIK TEKSHIRILDI: dastlab "dan aylantirildi" yozilgan edi, lekin
+"Butterfly Polimer" bilan qator 49 belgi bo'lib 48 dan OSHIB KETDI.
+"dan" olib tashlandi — endi eng uzun haqiqiy nom bilan ham aynan 48 ga sig'adi.
+
+### SINOV (t34.js)
+
+* `turNarxKalitOchir` `splice` dan OLDIN chaqiriladi
+* Chekda "aylantirildi" bor, `\u00b7` yo'q
+* Haqiqiy zavod-tur nomlari bilan qator kengligi 48 dan oshmaydi
+
+### IBROHIM JAVOBLARI (keyingi ishlar uchun)
+
+* **C** — kurs/foizni PC ga bog'lash KERAK EMAS. Aksincha: PC da o'zgarsa
+  hammada o'zgarsin, lekin PC da svet ketsa telefondan ham o'zgartirib bo'lsin.
+  Ya'ni vazifa "cheklash" emas, "SINXRONLASH" ga aylandi.
+* **F** — IKKALASI ham kerak: shakllantirish (baza shu bo'yicha qayta quriladi)
+  VA qo'shish (bazaga tegmay qo'shiladi). "Odatda shakllantiraman, lekin nimadur
+  qolib ketsa qo'shvorish uchun tegmaydigan joyi ham kerak."
+* **D, E, G** — Ibrohim tushuntirish so'radi, mockup kutmoqda
+
 ## v165: Tur nomi hamma joyda ko'chadi + turni birlashtirish
 
 Ibrohim topgan JIDDIY bug: "zavod turining otini o'zgartiruvdim, sistema eski
