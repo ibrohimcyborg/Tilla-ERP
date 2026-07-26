@@ -3,6 +3,123 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v165: Tur nomi hamma joyda ko'chadi + turni birlashtirish
+
+Ibrohim topgan JIDDIY bug: "zavod turining otini o'zgartiruvdim, sistema eski
+otida deb o'ylayapti, narxini chiqarberolmayapti... 3DS qilib berilgan
+klientlarga ostatka ko'rsatib, S bo'lib kirgan klientlarniki o'chib ketgan,
+keyin S deb tur qo'shsam S digi ostatkalar ko'rindi".
+
+### SABAB — bitta qator
+
+```
+function turNomTahrir(ti) {
+  t.nom = yangiNom;   // FAQAT shu. Boshqa hech narsa.
+  save();
+}
+```
+
+Tur nomi HAMMA JOYDA KALIT: klient tarixida `op.tur`, dona bazada `r.tur`,
+oplogda `loc.tur`. Nom o'zgarsa eski yozuvlar bog'lanmay qoladi.
+
+DIQQAT: `zavodNomTahrir` (zavod nomi) klient tarixini YANGILAYDI. Ya'ni to'g'ri
+yo'l kodda bor edi — tur uchun yozilmagan.
+
+Ibrohimda nima bo'ldi:
+1. "S" turi bor edi — omborda oltin, 14 klientda 144.53 g qarz
+2. Nomi "3DS" qilindi — faqat tur obyektining nomi o'zgardi
+3. Klient yozuvlari hali ham `tur:'S'` — hech qaysi turga bog'lanmadi, ko'rinmay qoldi
+4. Yangi "S" turi qo'shildi — eski yozuvlar darrov unga yopishdi
+5. Natija: bitta tur IKKIGA BO'LINDI (oltin 3DS da, qarzlar S da)
+
+### `_turKochir(zavodNom, eskiNom, yangiNom)`
+
+Umumiy funksiya, nom o'zgarganda ham birlashtirishda ham ishlatiladi:
+
+* Klient tarixi — `op.zavod` VA `op.tur` ikkalasi mos kelsa ko'chadi
+  (boshqa zavoddagi bir xil nomli tur TEGILMAYDI)
+* Dona baza — lokal + `donaBazaCloudYoz` bilan cloudga
+* Hisob snapshot keshi tozalanadi (kalit eskirdi)
+
+### eskiTur — FAQAT KO'RSATISH UCHUN
+
+Ibrohim B variantini tanladi: eski yozuvlarda eski nom eslatilsin
+(qog'ozdagi chek bilan chalkashmasin). Lekin "sistema chalkashib ketmasa bo'ldi"
+dedi — shuning uchun:
+
+```
+{ tip:'berish', tur:'3DS', eskiTur:'S', gramm:20.79 }
+                ^ sistema shuni    ^ faqat ekranga
+                  ishlatadi
+```
+
+Hisob-kitob, guruhlash, narx, ostatka — HAMMASI `tur` ni o'qiydi, u bitta qiymat.
+`eskiTur` ni HECH QANDAY HISOB o'qimaydi. Grep bilan tekshirildi (t33.js, 9-sinov):
+u faqat `_eskiTurBelgi` (ko'rsatish), `_turKochir` (yozish) va uchta render
+joyida uchraydi.
+
+Bir marta yoziladi: `if(op.eskiTur===undefined)`. Ikkinchi ko'chirishda BIRINCHI
+nom saqlanadi (S -> 3DS -> XYZ bo'lsa ham `eskiTur` "S" bo'lib qoladi).
+
+KO'RINADI: klient tarixi breakdown qatorlari (10040, 10058, 10097).
+KO'RINMAYDI: klient ostatkasi, zavod ekrani, chek, dona baza — ular YIG'INDI,
+ichida eski ham yangi ham bor, "avval S" yozish yolg'on bo'lardi.
+
+### TURNI BIRLASHTIRISH
+
+Tur ochilganda, dona baza panelidan keyin "Turni birlashtirish" tugmasi.
+Faqat zavodda 2+ tur bo'lsa ko'rinadi.
+
+Ochilgan tur BOSHQASIGA qo'shiladi va o'chadi. Raqam bilan tanlanadi, keyin
+oldindan hisob ko'rsatiladi (ostatka, klient yozuvlari, dona, zavod tarixi soni),
+ikki marta tasdiq so'raladi.
+
+Ko'chadi: klient tarixi, dona baza, zavod tarixi, donalar ro'yxati.
+Qo'shiladi: ostatka, donaOst.
+
+### `turNarxKalitOchir(zi, delTi, turSoni)` — YANGI
+
+Narx TUR INDEKSI bo'yicha saqlanadi: `tilla-foiz-{zi} = {ti: qiymat}`.
+Tur o'chirilsa keyingilarining indeksi siljiydi va NARXI ARALASHIB KETARDI.
+
+Bu funksiya to'rt prefiksni ham (`tilla-foiz-`, `tilla-manual-`,
+`tilla-a-foiz-`, `tilla-a-manual-`) tekislaydi: o'chirilgan indeks tashlanadi,
+undan keyingilari bir pog'ona pastga suriladi.
+
+MUHIM: mavjud `ochirTur` (turni o'chirish) bu funksiyani CHAQIRMAYDI — ya'ni
+qo'lda tur o'chirilsa narxlar hali ham siljiydi. Bu ALOHIDA bug, Ibrohim
+aytmagani uchun tegilmadi.
+
+### `turNomTahrir` YANGILANDI
+
+* Bir xil nomli tur bo'lsa OGOHLANTIRADI va birlashtirishga yo'naltiradi
+* `_turKochir` chaqiriladi
+* `obyektPush('tur',...)` — yangi nom cloudga ham chiqadi (v164)
+* Oxirida nechta yozuv ko'chgani aytiladi
+
+### SINOV (t33.js)
+
+1. 2 klient yozuvi + 2 dona ko'chdi
+2. BOSHQA zavoddagi "S" tegilmadi
+3. Boshqa tur ("3D") tegilmadi
+4. `eskiTur` yozildi
+5. Cloudga yozildi (d1, d2)
+6. Ikkinchi ko'chirishda birinchi nom saqlandi
+7. Belgi matni; `eskiTur` yo'q yoki `tur` ga teng bo'lsa bo'sh
+8. Narx kalitlari to'g'ri siljidi (foiz va manual)
+9. `eskiTur` grep — hisobda ishlatilmaydi
+
+### CLOUD HAQIDA OGOHLANTIRISH
+
+Oplogdagi ESKI yozuvlarda `loc.tur` hali eski nomda. Nom o'zgartirilgandan
+keyin boshqa qurilma oplogdan eski nomli yozuv olishi mumkin.
+
+Shuning uchun: nom o'zgartirgandan yoki birlashtirgandan keyin PC dan
+"Bu qurilmanikini cloudga yuborish", boshqa qurilmalarda "Cloud'dan yuklab
+olish" bosilsin. Blobda nomlar to'g'ri.
+
+Bu to'liq hal qilinmadi — oplogga qayta yuborish keyingi ish.
+
 ## v164: Yangi klient / zavod / tur endi OQADI
 
 Ibrohim: "3 ta klient keldi, 3 ta qurilma ishlayapti... nimalar to'qnashayapti,
