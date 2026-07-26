@@ -3,6 +3,85 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v164: Yangi klient / zavod / tur endi OQADI
+
+Ibrohim: "3 ta klient keldi, 3 ta qurilma ishlayapti... nimalar to'qnashayapti,
+manga cloud sekundiga ishlasa zo'r edi, live daka ishlaydigan, nimadur qo'shilsa
+olinsa ketsa to'g'ri silliq xatosiz".
+
+Ibrohim shuni ham aytdi: "san tarixni o'qima, shunchaki hozirgi holatdan tuzatib
+ket, sani tarixlar chalg'itadi". Shuning uchun v99/v104 sabablariga qaralmadi —
+faqat hozirgi kod bo'yicha ishlandi.
+
+### TASNIF (Ibrohimga tushuntirilgan)
+
+Uch xil amal bor:
+
+* **QO'SHISH** — yangi narsa qo'shiladi, eskisiga tegilmaydi. TO'QNASHMAYDI.
+* **DELTA** — "shuncha kamaydi" deb yoziladi, cloud o'zi qo'shadi. TO'QNASHMAYDI.
+* **ALMASHTIRISH** — eski qiymat yangisiga almashadi. TO'QNASHADI.
+
+Hozir HAMMASI to'qnashadi, chunki `cloudSaqla` butun ma'lumotni bitta hujjatga
+yozadi. Blok — kasallik emas, BINT. Kasallik butun holatni yozishda.
+
+Ibrohim qaror qildi: kurs va foizni faqat PC (Qurilma-1) o'zgartiradi.
+Shu bilan ALMASHTIRISH kategoriyasi butunlay yo'qoladi.
+
+### BU VERSIYADA — 1-QADAM
+
+Yangi klient / zavod / tur oplogga chiqadi.
+
+TOPILGAN: `amalRecAdd` (7112) allaqachon yetishmagan zavod/tur/klientni O'ZI
+yaratadi — lekin faqat TARIX yozuvi kelganda. Amali yo'q yangi klient hech qachon
+o'tmasdi, va blob yozilganda YO'QOLIB KETARDI.
+
+Yangi kod:
+
+* `obyektRef()` — cloudda `_obyektlar/items` kolleksiyasi
+* `obyektPush(tip, obj)` — 'klient' | 'zavod' | 'tur'. Hujjat id si:
+  `klient|Nom`, `zavod|Nom`, `tur|Zavod|Nom`. `{merge:true}` bilan yoziladi.
+* `obyektQabul(d)` — MAVJUDIGA TEGMAYDI. Faqat yo'q bo'lsa qo'shadi.
+  Tur kelsa va zavodi yo'q bo'lsa — zavod ham yaratiladi.
+* `obyektListen()` — onSnapshot, LIVE. Ko'rilganini `tilla-obyekt-synced`
+  bo'yicha o'tkazib yuboradi.
+* `obyektUnsub()` — chiqishda to'xtatiladi
+
+Chaqiruv joylari: `saqlashKlient` (10709), klient sotuv modalidagi qo'shish
+(12744), `saqlashZavod` (7806), `saqlashTur` (7807).
+
+Listener `donaBazaCloudListen()` yonida yoqiladi/o'chiriladi.
+
+### NEGA XAVFSIZ
+
+Bu QO'SHISH amali. Ikki qurilma ikki klient qo'shsa ikkalasi ham qoladi.
+Mavjud yozuv hech qachon ustidan yozilmaydi — nom, telefon, tarix tegilmaydi.
+
+### SINOV (t32.js)
+
+1. Yangi klient qabul qilindi
+2. MAVJUD klient ustidan yozilmadi (tel 999 kelsa ham eskisi qoldi)
+3. Yangi zavod
+4. Yangi tur mavjud zavodga
+5. Noma'lum zavodga tur kelsa — zavod ham yaratildi
+6. Takror tur qo'shilmadi
+7. Tur id si zavod bilan, `{merge:true}`
+8. Listener ko'rilganini o'tkazadi
+9. To'rt chaqiruv joyi ham ulangan
+
+### KEYINGI QADAMLAR (hali qilinmagan)
+
+* **2-qadam:** kurs va foizni PC ga bog'lash (kichik, xavfsiz)
+* **3-qadam:** ostatka delta hisoblagichga (o'rta) — SHUNDAN KEYIN blok yechiladi
+* **4-qadam:** kassa amallarga (katta, eng xavfli)
+
+Blok faqat 3-qadamdan keyin yechiladi: blok yechilsa blob avtomat yuklanadi,
+ostatka hali blobda bo'lsa u yo'qoladi.
+
+### OCHIQ SAVOL
+
+Ibrohim "C kategoriyada narxini o'zgartirsa bo'ladi" dedi — tushunilmadi.
+Tur narxini (foizni) telefondan ham o'zgartirish kerakmi, yoki u ham faqat PC damikan?
+
 ## v163: Clouddan yuklash QAT'IY — ustiga qo'shilmaydi
 
 Ibrohim telefonidan cloudni yukladi, lekin grammlar mos kelmadi:
