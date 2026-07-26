@@ -3,144 +3,441 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
-## v158.1: Retro Z seyfga supurmaydi
+## v162: Qurilma raqamlash — cloud navbat bo'yicha raqam beradi
 
-Ibrohim: "z hisobbi qaysidur sanalada yopilmagan bosa bugunga tegmi qogan
-kunlanikini yopish uchun nima qisa bo'ladi".
+Ibrohim: "Qurilma-1 asosiy qilamiz, mani pcim Qurilma-1 bo'lgan. Yana bitta muhim
+joyi: Qurilma-1 bo'lgandan keyin luboy boshqa qurilma qo'shilsa, ketma-ketligida
+cloudga kirsa 'Qurilma-1 mi' deb so'radi, u 'ha' deb yozsa u ham Qurilma-1
+bo'p qolishi mumkin. Shuning uchun kim ulansa qurilmalar ketma-ketligida nomer
+berib ketishi kerak."
 
-### Muammo
-
-v158 da har Z qoldiqni seyfga supurardi. Yopilmagan eski kunlarni ketma-ket
-yopganda har biri supurish yozuvi qoldirardi va oxirida hamma narsa seyfda
-bo'lardi — lekin o'sha kunlarda pul jismonan seyfga solinmagan. Yozuv
-haqiqatdan ajralib ketardi.
-
-### Tuzatish
+### XATO
 
 ```
-function kassaZRetro(sana){ return sanaKey(sana) < sanaKey(kunOldin(today())); }
+q = prompt('Bu qurilmaga nom bering...', 'Qurilma-1') || 'Qurilma-1';
 ```
 
-| Z sanasi | Supuradimi |
-|---|---|
-| Bugun | ha |
-| Kecha | ha |
-| 2 kun va undan eski | YO'Q |
+Standart qiymat 'Qurilma-1'. Kim OK bossa — u ham Qurilma-1. BEKOR bossa ham
+Qurilma-1 (`|| 'Qurilma-1'`).
 
-`kassaZSaqla` da `_supur` shartiga `&& !kassaZRetro(sana)` qo'shildi.
-Tasdiq oynasi va yakuniy alert retro holatda boshqa matn chiqaradi.
-
-### Z modalida ko'rinadi
-
-Yangi qator `#kz-supur` (tafovut qatoridan keyin), `kassaZUpd` ichida
-yangilanadi. Sana o'zgarganda darrov aytadi — bosishdan oldin bilinadi:
-
-* teal — `→ Seyfga o'tadi: $X · Yg 583 · Zg 999`
-* kulrang — `Eski kun — seyfga o'tmaydi`
-* kulrang — `Kassa bo'sh — seyfga o'tadigan narsa yo'q`
-
-Zakaz muzlatilgan bo'lsa tagida ko'k qator: `zakaz uchun $X kassada qoladi`.
-
-### Natija
-
-Yopilmagan eski kunlarni bemalol ketma-ket yopish mumkin — kun muhrlanadi,
-tafovut yoziladi, pul qimirlamaydi. Bugungi Z ga yetganda qoldiq seyfga o'tadi.
-
-## v158: SEYF cho'ntagi — Z da avtomat supurish
-
-Ibrohim: "kassadigi pull keyingi kunga 0 qilib o'tiqzamizami" -> "z bosilsa
-avtomat, hammasi seyfga".
-
-### Mockupda aniqlangan narsa
-
-Boshida "seyfga ko'chirsak foyda buziladi" degan mockup chiqarilgandi. Faylni
-o'qib ko'rilganda XATO ekani chiqdi:
-
-* `renderKassa` 8829 dagi "JAMI KASSA" — sotuvlar summasi, kassa qoldig'i EMAS
-* foyda `jamiFoyda` — har operatsiyadan alohida: `summa − kirimNarx×ekvivalent`
-* ya'ni kassa qoldig'i foyda formulasiga umuman kirmaydi
-
-Xulosa: seyf foydaga TEGMAYDI. Foyda hisobiga bitta ham qator qo'shilmadi.
-
-Yana bir topilma: `kassaZSaqla` allaqachon "Ertaga shu qoldiq boshlang'ich
-bo'ladi" derdi — tizim hech qachon 0 qilmagan, qoldiqni o'zi o'tkazgan.
-Ibrohimning asl savoli shu bilan yopildi.
-
-### Yangi ma'lumot
+Bu sinxronni BUTUNLAY o'ldiradi, chunki `cloudListen` qurilma nomiga tayanadi:
 
 ```
-data.kassa.seyf[] — append-only, CHIQIM EMAS
-{id, ts, sana, soat, yon:'seyfga'|'kassaga', naqd, lomEkv, toza, zSana?, izoh?, bekor?}
+if (m.vaqt > lokalVaqt && m.qurilma !== mening) { ... }
 ```
 
-Migratsiya `data.kassa.qolda` yonida.
+Ikkala qurilma ham 'Qurilma-1' bo'lsa bu shart HECH QACHON rost bo'lmaydi.
+Ular bir-birining o'zgarishini umuman ko'rmaydi, har biri o'zicha ishlaydi.
+Ibrohim sezgan "o'zicha bo'p qolyapti" ning sabablaridan biri shu.
 
-### kassaOqim — 2-parametr yangi
+### YANGI
+
+`qurilmaId()` — qurilmaning O'ZGARMAS ID si (`tilla-qurilma-id`), bir marta
+beriladi. Tasodifiy, noyob, hech qachon o'zgarmaydi.
+
+`_qurilmalar` — cloudda ro'yxat hujjati:
 
 ```
-kassaOqim(limitSana, zSanaSkip)
+{ q7f3a9c2e: {raqam:1, nom:'Qurilma-1', birinchi:..., oxirgi:...},
+  qb21d8f04: {raqam:2, nom:'Qurilma-2', ...} }
 ```
 
-Yangi maydonlar: `o.sNaqd`, `o.sLom`, `o.sToza`. Seyf tarmog'i 3.9-bo'lim
-sifatida qo'shildi (Z tuzatishlaridan oldin).
+`qurilmaRoyxatgaQosh()` — TRANSACTION bilan ishlaydi. ID ro'yxatda bo'lsa o'z
+raqamini oladi; bo'lmasa eng katta raqam + 1. Transaction shart: ikki qurilma
+bir vaqtda ulansa bir xil raqam olmasin.
 
-`zSanaSkip` NEGA KERAK: Z modali tafovutni supurishdan OLDINGI kassa bilan
-solishtirishi shart. Bo'lmasa, yopilgan kunning Z modalini qayta ochganda
-sistema 0 ko'rsatadi (o'z supurishini o'qiydi) va yolg'on tafovut chiqarib
-`tuzatishlar` ga axlat yozadi. `kassaZSanaUpd`, `kassaZUpd`, `kassaZSaqla` —
-uchalasi `kassaOqim(sana, sana)` chaqiradi.
+`qurilmaRaqam()`, `qurilmaAsosiy()` — raqam 1 bo'lsa ASOSIY.
 
-`kassaOqim` 17 joyda chaqiriladi. 2-parametr ixtiyoriy, qolgan 14 chaqiruv
-`undefined` yuboradi va avvalgidek ishlaydi.
+### NOM O'ZGARTIRISH — QURILMA-1 HIMOYALANGAN
 
-### kassaZSaqla — avtomat supurish
+Ibrohim: "mumkin bo'vursin lekin Qurilma-1 qilolmasin ulanbo'lgandan keyin".
 
-Kun yopilgach `data.kassa.seyf` ga `yon:'seyfga'` yozuvi tushadi.
-Summa = sanalgan qiymat (hn/hl/h9), chunki tafovut tuzatishlari sistemani
-sanalganga tenglashtiradi.
+`_nomNormal()` harf va raqamdan boshqasini olib tashlaydi, kichik harfga
+o'giradi. Shuning uchun `Qurilma-1`, `qurilma1`, `QURILMA 1`, `Qurilma - 1`,
+`qUrIlMa1` — hammasi bir xil deb tanilib to'siladi.
 
-Ikki qoida:
+`qurilmaNomBand(nom, royxat, ozId)` uchta narsani tekshiradi:
+1. Bo'sh nom
+2. `qurilma1` — faqat raqami 1 bo'lgan qurilmaning O'ZI ishlata oladi
+3. Boshqa qurilmaning nomi band bo'lsa
 
-* **Zakaz muzlatilgan pul kassada QOLADI.** `_sN = hn − kassaMuzlatilgan()`.
-  Supurilsa `erkin` manfiy chiqib panel buzilardi.
-* **Qayta yopilsa** eski supurish `bekor:true` bo'ladi, o'chirilmaydi —
-  ikki marta ko'chib ketmasin, tarix ham qolsin. `kassaOqim` `bekor` ni
-  o'tkazib yuboradi (`snabAmallar` dagi `holat==='bekor'` bilan bir xil uslub).
+RAQAM O'ZGARMAYDI — faqat ko'rinadigan nom almashadi.
 
-### Panel
+### ABDULHAMID ROLIGA TEGMAYDI
 
-`kassaQoldiqPanelHTML` — Lom/999 qatoridan keyin teal SEYF bloki:
-3 katak (Naqd · Lom 583 · 999) DOIM turadi, qiymat 0 bo'lsa ham. Tagida
-"← Kassaga qaytarish" tugmasi (seyf bo'sh bo'lsa o'chiq).
+Ibrohim aniq aytdi: "faqat bu Abdulhamid logiga ta'sir qilmasin, u alohida
+har doim, unga ta'sir qilsa uni hisob-kitoblari ochib muammo bo'lishi mumkin".
 
-`renderKassaCard` (home mini karta) — doimiy seyf qatori, ajratuvchi chiziq
-bilan.
+`_qurilmaHamid()` qo'riqchisi UCH joyda:
+* `qurilmaRoyxatgaQosh()` — darrov qaytadi, cloud ro'yxatiga umuman tegmaydi
+* `qurilmaNomOzgartir()` — ishlamaydi
+* `cloudQurilma()` — hamid rejimida ESKI prompt yo'li saqlanadi
 
-### Yangi funksiyalar va modal
+Ya'ni hamid rejimida `_qurilmalar` hujjati yaratilmaydi ham, o'qilmaydi ham.
 
-`openSeyfQaytar` · `seyfQaytarHammasi` · `seyfQaytarTozala` · `seyfQaytarUpd`
-· `seyfQaytarSaqla`, modal `#modal-seyf-qaytar` — seyfdan kassaga QO'LDA
-qaytarish (ertalabki ish puli uchun). Validatsiya: seyfda boridan ko'p
-kiritilsa saqlash tugmasi o'chadi.
+### VAQTINCHALIK NOM
 
-### Boshqa tegilgan joylar
+Ro'yxatdan raqam kelguncha (transaction async) nom sifatida qurilma ID si
+ishlatiladi. U ham NOYOB, shuning uchun `cloudListen` dagi qurilma solishtiruvi
+shu paytda ham TO'G'RI ishlaydi. Raqam kelgach nom `Qurilma-N` ga almashadi.
 
-* `kassaSnapshotObj` — `seyfNaqd`, `seyfLom`, `seyfToza` qo'shildi
-  (Zavod ERP o'qiydi)
-* `grammNollash` — `data.kassa.seyf` ham nollanadi, statistikaga qo'shildi
+Eski `tilla-qurilma` kaliti saqlanib qoldi — u 7 joyda o'qiladi (7094, 7140,
+7145, 7234, 16164, 16210, 16382), ularga tegilmadi.
 
-### QOIDALAR
+### CLOUD HOLATI OYNASI
 
-* Ko'chirish CHIQIM EMAS — pul kompaniyada qoladi, faqat cho'ntagi o'zgaradi
-* Karta va Perech seyfga ketmaydi — ular bankda, jismonan ko'chmaydi
+Qurilma qatoriga qo'shildi: `ASOSIY` belgisi (raqam 1 bo'lsa), raqam, va
+"nomni o'zgartirish" tugmasi. Hamid rejimida bularning hech biri ko'rinmaydi.
 
-### OCHIQ QOLGANI
+### SINOV (t30.js)
 
-* Seyf snabjenets / Abdulhamid roliga ko'rinishi hal qilinmadi — hozir
-  hammaga ko'rinadi
-* `kassaMuzlatilgan()` sana bo'yicha chegaralanmaydi — retro Z da bugungi
-  band summa ishlatilardi. v158.1 dan keyin retro supurmagani uchun bu
-  masala amalda yo'qoldi, lekin funksiyaning o'zi tuzatilmadi
+1. ID barqaror — ikki chaqiriqda bir xil
+2. Boshqa qurilma boshqa ID oladi
+3. `Qurilma-1` besh xil yozilishda ham to'sildi
+4. Qurilma-1 ning O'ZI o'z nomini saqlay oladi
+5. Band nom to'sildi
+6. Bo'sh nom to'sildi
+7. Oddiy nom ("Kassa PC") o'tdi
+8. Hamid rejimi uch joyda ham to'xtatadi, `cloudQurilma` eski yo'lda qoladi
+9. Raqam 1 -> asosiy, raqam 2 -> asosiy emas
+
+### ISHLATISHDAN OLDIN
+
+Ibrohim PC dan BIRINCHI kirishi kerak — shunda PC raqam 1 ni oladi va ASOSIY
+bo'ladi. Boshqa qurilma oldin kirsa, u 1 bo'lib qoladi.
+
+### KEYINGISI — HALI QILINMAGAN
+
+"Jo'natish / qabul qilish" modeli. Ibrohim alohida qilishni tanladi.
+Tashxis tayyor (`cloudListen` 16210 da blob qabul qilinmaydi, faqat vaqt
+belgilanadi va yashil "sinxron" yoziladi — yolg'on). Hal qilinmagan savollar:
+asosiyni ko'chirish, qurilmalar ro'yxatini ko'rish, eski qurilmani o'chirish.
+
+## v161: Klient tarixi — to'lov turi belgilari, pul, filtr menyusi
+
+Ibrohim: "Tarixda to'lov naqt yoki karta yoki aralash bo'lgan bo'lsa ko'rsatishi kerak
+grammi oldida, keyin puliniyam ko'rsatishi kerak". Va: "Klient offset qilsa tarixida
+to'lov bo'p turipti, o'shani offset qilinganini aytish kerak".
+
+### TASDIQLANGAN QARORLAR
+
+* Sof offset ham, aralash ham -> `$ Tolov` + `OFFSET` belgisi (alohida sarlavha EMAS)
+* V1: aralashda HAMMA belgi ko'rinadi (`NAQT` `KARTA` `LOM`), bitta "ARALASH" emas
+* Pul ajratiladi: har tur alohida qatorda
+* Lom: gramm, kurs va pul UCHALASI ko'rsatiladi
+* Belgi FAQAT ikki ekranda: klient tarixi va Hisobot/Tahrirlash.
+  Klient hisoboti (9792) va kun tahrirlash (9881) TEGILMADI
+* Filtr menyusi qoladi
+* Bo'sh tur menyuda KO'RSATILMAYDI
+* Jami pul SKIDKA AYIRILGAN
+
+### MA'LUMOT ALLAQACHON BOR EDI
+
+Tekshirildi: har to'lov yozuvida `naqtPul`, `kartaPul`, `perechPul`, `lomPul`,
+`lomGramm`, `lomKurs` saqlanadi (12376). Offset esa `_kdYopish` bayrog'i bilan.
+Ya'ni ESKI yozuvlarda ham hammasi ko'rinadi, qayta hisoblash kerak emas.
+
+MUHIM: `summa` maydoni SKIDKA AYIRILGAN qiymat (12343: `sNet = s - sSk`).
+Shuning uchun jami pulga qo'shimcha ayirish KERAK EMAS — bu tekshirildi,
+aks holda skidka ikki marta ayirilardi.
+
+### YANGI KOD
+
+`TOLOV_TURLARI` — tur, harf, belgi nomi va rang bitta manbadan (dona baza
+`DONA_HOLATLAR` bilan bir xil naqsh).
+
+`_tolovTurAniq(ops)` -> `{bor:[...], lomG, lomK, ofNom, jami}`.
+Guruhdagi hamma operatsiyani yig'ib, qaysi tur ishlatilganini aniqlaydi.
+0.009 dan kichik summalar hisobga olinmaydi.
+
+`_tolovPillHTML(bor)` — sarlavha yonidagi belgilar.
+
+`_tolovPulQator(d)` — pul ajratmasi. Bitta tur bo'lsa BO'SH qaytaradi
+(jami allaqachon yuqorida turibdi, takrorlash shart emas).
+Lom qatori: `Lom 10.70g × 72.7$/g` -> `$778.05`.
+Offset qatori: `Offset — Rasul · Oddiy dan` -> `$684.70`.
+
+### FILTR MENYUSI
+
+`_ktTarixFiltr` ('' = hammasi), `_ktTarixMenyu` (ochiq/yopiq), `_ktTarixKi`
+(qayta render uchun klient indeksi — `openKlientDetail` boshida yoziladi).
+
+Tugma bosilganda menyu ochiladi: Hammasi · Berildi · To'lov · Vozvrat ·
+Bizda qolsin. Bo'sh turlar ro'yxatga KIRMAYDI. Bitta turdan boshqa hech narsa
+bo'lmasa menyu umuman chiqmaydi (`_fBor.length>1` sharti).
+
+Tanlangan tur keyin yo'qolsa (masalan yozuv o'chirilsa) filtr avtomatik
+'Hammasi' ga qaytadi.
+
+### ESKI OFFSET QUTISI OLIB TASHLANDI
+
+Avval aralash holatda pastda yashil quti chiqardi:
+"↳ pul offsetdan berildi — ... (Ng ishlatildi)". Endi bu ma'lumot yuqoridagi
+`OFFSET` belgisi va pul qatorida ko'rinadi, quti takror bo'lib qolgandi.
+Kodi o'chirilmadi, sharti `false &&` bilan o'chirildi — kerak bo'lsa qaytarish oson.
+
+### SINOV (t29.js)
+
+1. Faqat naqt -> `[N:500]`, jami $500
+2. Naqt + karta -> `[N:1500 K:406.65]`, jami $1906.65
+3. Lom -> `[L:778.05]`, gramm 10.7, kurs 72.7
+4. Offset + naqt -> `[N:2000 O:684.7]`, manba "Rasul · Oddiy"
+5. Skidkali -> jami $1978.84 (ikki marta ayirilmadi)
+6. Bitta tur -> pul qatori chiqmadi
+7. Ikki tur -> pul qatori chiqdi, lom matni to'liq
+
+### TEGILMAGANI
+
+* `renderKlientHisobot` (9792) va `klientGunTahrir` (9881) — Ibrohim aytdi,
+  ularda belgi kerak emas
+* Chekda "Aylantirildi" so'zi hali YOZILMADI — Ibrohim tasdiqlagan, lekin bu
+  alohida ish (chek generatorlariga tegish kerak)
+
+## v160: Chekda skidka SDACHA bo'lib chiqishi tuzatildi
+
+Ibrohim: "Skidka qilingan summani oxirida sdacha db yozib qo'yvotti chekda".
+Keyin aniqlashtirdi: "Sistemada to'g'ri, chekda noto'g'ri ko'rsatvotti, formula
+to'g'ri lekin".
+
+### SABAB — chek generatoridagi else tarmog'i
+
+v156 da sotuv chekiga ortiqcha bloki yozilganda default XATO qo'yilgan edi:
+
+```
+if(tn && tn.tip==='tur')        -> Qolgan summa -> zavod tur
+else if(tn && tn.tip==='bizda') -> Qolgan summa
+else                            -> SDACHA          <- XATO
+```
+
+`tanlov` NULL bo'lganda (foydalanuvchi taqsimotni tanlamagan — 12506, 13475)
+`else` tarmog'iga tushib "SDACHA" yozilardi.
+
+Sistemada bu holatda hech narsa saqlanmaydi (kodda izoh bor: "Sdacha bo'lsa —
+hech narsa saqlanmaydi, faqat chekda ko'rinadi"). Ya'ni kassa to'g'ri edi, faqat
+qog'oz "klientga N$ qaytarildi" degan yolg'onni yozardi.
+
+Skidka bo'lganda bu ayniqsa ko'rinardi, chunki `_lomOrtiqchaSave` (14200) skidkani
+qo'shadi va to'lov to'liq bo'lmasa skidkaning o'zi ortiqcha bo'lib qolardi.
+
+### TUZATISH
+
+SDACHA endi FAQAT `tip==='sdacha'` aniq tanlanganda yoziladi. Tanlov yo'q bo'lsa
+chekka hech narsa chiqmaydi:
+
+```
+if(ort>0.01 && tn){
+  if(tn.tip==='tur' && tn.narx>0)  -> Qolgan summa -> zavod tur
+  else if(tn.tip==='bizda')        -> Qolgan summa
+  else if(tn.tip==='sdacha')       -> SDACHA
+}
+```
+
+HISOB FORMULASIGA TEGILMADI. Ibrohim aniq aytdi: "formula to'g'ri". `_lomOrtiqchaSave`
+(14200), `lomOrtiqchaPul` (13412) va boshqa hisob joylari o'z holicha qoldi.
+
+To'lov chekida (`kTolovChekGen`) bir xil xato YO'Q edi — u `_ktSdachaPul` ni ishlatadi,
+u esa faqat `tanlov.tip==='sdacha'` bo'lganda to'ldiriladi (12090). Faqat izoh qo'shildi.
+
+### SINOV (t28.js)
+
+1. Tanlov yo'q + ortiqcha 100 -> chekka hech narsa yozilmadi
+2. `tip='sdacha'` -> SDACHA chiqdi
+3. `tip='tur'` -> "Qolgan summa -> Simay 3D", SDACHA yo'q
+4. `tip='bizda'` -> "Qolgan summa", SDACHA yo'q
+5. Ortiqcha 0 -> hech narsa
+
+### TAHLILDA TOPILGAN, LEKIN TUZATILMAGAN
+
+Preview va chek ORTIQCHANI ikki xil formula bilan hisoblaydi:
+
+```
+preview 13412: lomPulJami - kerakliNarxi + skidka          // JAMI narx
+chek    14200: _lomPulJamiSave - _jamiSotuvPulReal + _skidka2  // TO'LANGAN
+```
+
+Ya'ni ekranda ortiqcha chiqmasligi, chekda chiqishi mumkin. v154 da chek MATNI bir
+funksiyaga birlashtirilgan edi, lekin ortiqcha HISOBI ikki joyda alohida qolgan.
+Ibrohim "formula to'g'ri" degani uchun tegilmadi — lekin bu ochiq masala.
+
+## v159: Ostatka shakllantirish endi QO'YADI (qo'shmaydi)
+
+Ibrohim: "Ostatka dona baza shakllantirish bosgan bazaga boriga qo'shilishi keremas,
+prosta shakllantirgan vesi i donasini qo'yishi kere".
+Keyin aniqlashtirdi: "Umuman 0 bo'lib shakllansin boshqattan, uje u tema yopiladi".
+
+### XATO
+
+Ostatka ekranidagi shakllantirish USTIGA QO'SHARDI:
+
+```
+7452: if(_ostMode==='shakl') donaRegQosh(c.t, p1);      // registrga QO'SHADI
+7453: if(_ostMode==='shakl') donaBazaQosh(...);          // bazaga QO'SHADI
+```
+
+Bazada 5 dona bo'lsa, yangi 5 tani skanlaganda 10 dona bo'lib qolardi.
+Ostatka grammi to'g'ri qolardi (u farq bilan hisoblanadi), lekin baza va registr
+shishardi. Keyingi berishda dona soni mos kelmasdi.
+
+Dona baza ekranida bu allaqachon to'g'ri ishlardi (`donaBazaTekshirSaqla` 6273,
+`rejim==='shakl'`) — eski ombor o'chirilib, keyin skan qo'shilardi. Ikki ekran
+bir xil ishni ikki xil qilardi.
+
+### TUZATISH
+
+**Yangi funksiya `donaBazaOmborOchir(zavod, tur)`** — zavod-turning OMBOR
+yozuvlarini bazadan butunlay o'chiradi, cloud'dan ham (`donaBazaCloudOchir`).
+Hamma sanadan o'chadi, faqat bugungidan emas.
+
+**`ostFormSaqla` shakl tarmog'i qayta yozildi:**
+
+```
+if(_ostMode==='shakl'){
+  donaBazaOmborOchir(c.z.nom, c.t.nom);   // eski ombor butunlay o'chadi
+  c.t.donalar = p1.slice();               // registr ALMASHTIRILADI
+  donaBazaQosh(c.z.nom, c.t.nom, p1, sana);
+}
+```
+
+Registr endi `donaRegQosh` bilan qo'shilmaydi, `=` bilan almashtiriladi.
+Aks holda baza tuzatilsa ham registr shishib qolaverardi.
+
+### NIMA O'CHADI, NIMA QOLADI
+
+Faqat `holat==='ombor'`. Berilgan, sotilgan, vozvrat TEGILMAYDI — klientda turgan
+dona shakllantirish bilan yo'qolmasligi kerak. Boshqa zavod-turlar ham tegilmaydi.
+
+Ibrohim tanladi: eski ombor yozuvlari CHIZIB QOLDIRILMAYDI, butunlay o'chadi.
+Sabab (uning so'zi bilan): "uje u tema yopiladi" — har hafta shakllantirish qilinadi,
+qatlam yig'ilishi kerak emas.
+
+### YON FOYDA — donaSlack 0 ga tushadi
+
+`donaSlack(t) = turDona(t) - turDonalar(t).length`. Registr endi skan bilan aynan
+teng bo'lgani uchun slack 0 bo'ladi. Bu MUHIM: hozir gramm bilan berilganda kod
+`[roundG(g)]` soxta bitta dona yasab, registrdan topa olmay, slack tufayli JIMGINA
+o'tib ketardi. Slack 0 bo'lgach `donaRegOlish` mos kelmaganini `yoq` ro'yxatiga
+qo'shadi va `ozConfirmOch` ogohlantirish chiqaradi (10989, 14257).
+
+Ya'ni Ibrohimning "endi umumiy gramm qilmayman" degani kod tomonidan eslatiladi.
+DIQQAT: ogohlantirish SO'RAYDI, lekin TO'XTATMAYDI — "OK" bosilsa baribir o'tadi.
+
+### SINOV (t27.js)
+
+1. Ombor yozuvlari o'chdi (2 ta), berilgan/vozvrat/boshqa tur qoldi
+2. Cloud'dan ham o'chirildi (`a`, `b`)
+3. Hamid rolida umuman tegilmadi (0 qaytdi, baza o'zgarmadi)
+4. Registr qo'shilmadi, qo'yildi (3 dona)
+
+### TASDIQLANMAGANI
+
+* Tasdiqlash oynasi QO'SHILMADI. Dona baza ekranida bor ("Baza to'liq
+  almashtirilsinmi?"), Ostatkada yo'q. Ibrohim bu savolga javob bermadi.
+* Tekshiruv rejimi (`_ostMode==='tekshir'`) TEGILMADI, hozirgidek qoladi —
+  bazaga yozmaydi. Ibrohim uni keyinga qoldirdi.
+
+## v158: Dona baza holatlari + skan kirim/vozvrat bazaga bog'landi
+
+Ibrohim: "Dona baza nega faqat 13chida shakllangani bo'yicha qopketgan, man qolgan
+kunlayam skanda donaga kirim qilganman, umuman qo'shilmayapti".
+
+### TASHXIS
+
+Ikkita alohida ro'yxat bor edi va ular boshqa-boshqa to'ldirilardi:
+
+* `t.donalar` REGISTR — `donaRegQosh()` bilan, 9 joyda
+* `tilla-dona-baza` BAZA — `donaBazaQosh()` bilan, atigi 4 joyda
+
+Dona baza ekrani faqat ikkinchisini ko'rsatadi. Farq 5 joy edi.
+
+Asosiy sabab 7473 (hozir 7506), SKAN KIRIM:
+
+```
+t.ostatka = roundG((t.ostatka||0) + total);
+t.donaOst = turDona(t) + skState.pass1.length;
+donaRegQosh(t, skState.pass1);      // registrga qo'shilardi
+// donaBazaQosh YO'Q               <- shu yerda yetishmasdi
+```
+
+Ostatka oshgan, registr to'lgan, tarixga yozilgan — bazaga hech narsa tushmagan.
+13.07 turgani: o'sha kuni shakllantirish qilingan, u yagona yo'l bo'lib bazaga yozardi
+(7388, faqat `_ostMode==='shakl'` bo'lganda).
+
+### QILINGANI
+
+**1. `donaBazaHolat(zavod, tur, arr, holat, izoh)`** — yangi funksiya.
+Yozuvni O'CHIRMAYDI, faqat holatini o'zgartiradi. Mavjud `donaBazaOlish()` ga
+o'xshaydi, lekin holat parametrdan keladi (`donaBazaOlish` faqat 'berilgan' yozardi).
+Faqat `holat==='ombor'` yozuvlarga tegadi.
+
+**2. `DONA_HOLATLAR`** — holat, nom va rang bitta manbadan:
+
+```
+ombor     yashil   bizda
+berilgan  ko'k     klientda
+sotilgan  oltin    klient to'ladi
+vozvrat   qizil    zavodga qaytdi
+yoqolgan  kulrang  tekshiruvda topilmadi
+```
+
+`donaHolatMeta(h)` — holat bo'yicha rang/nom qaytaradi.
+
+**3. Skan kirim (7506)** — `donaBazaQosh(z.nom, t.nom, skState.pass1, sana)`.
+Sana `sana` o'zgaruvchisidan, tarixga yozilayotgani bilan bir xil.
+
+**4. Skan vozvrat (7496)** — `donaBazaHolat(..., 'vozvrat')`.
+Yozuv o'z kunida qoladi, faqat holati o'zgaradi.
+
+**5. Dona baza ekrani (3-daraja)** — filtr chiplari qo'shildi. Ochilganda `Ombor`
+tanlangan. Bo'sh holat chipi ko'rsatilmaydi. Kataklar holat rangida, ketganlar
+chizilgan. Tagida har holat alohida qator bo'lib yakunlanadi.
+
+**6. Zavod·tur ro'yxati (2-daraja)** — avval jami dona ko'rsatardi, endi
+`N ombor · Ng` va yonida `(M ketgan)`. Sabab: jami raqam "bizda nima bor" degan
+savolga javob bermaydi.
+
+### ABDULHAMID ROLIGA TEGMAYDI
+
+Ibrohim aniq aytdi. Skan kirim tugmasi (343, 371) `hamid-x` EMAS — ya'ni Abdulhamid
+ham skan kirim qila oladi. Shuning uchun qo'riqchi funksiya ICHIGA qo'yildi:
+
+```
+if(typeof getRol==='function' && getRol()==='hamid') return;
+```
+
+`donaBazaQosh` va `donaBazaHolat` ikkalasida ham bor. Hamid rolida baza yozuvlariga
+umuman tegilmaydi.
+
+### SINOV (t26.js)
+
+1. Vozvrat -> yozuv soni o'zgarmadi (4 ta qoldi), 2 tasining holati 'vozvrat' bo'ldi
+2. `DONA_TOL = 0` -> 4.53 skanlansa bazadagi 4.52 TOPILMAYDI (aniq mos kerak)
+3. 'berilgan' yozuvga tegmaydi — faqat 'ombor' o'zgaradi
+4. Hamid rolida funksiya darrov qaytadi, baza o'zgarmaydi
+
+### HAL QILINMAGANI — 'sotilgan' HOLATI
+
+Ibrohim "sotilganini sotilgan qilib" dedi, LEKIN mexanizm aniq emas, shuning uchun
+YOZILMADI. Sabab: hozir berish (10908) va sotuv (13902) IKKALASI ham 'berilgan'
+yozadi. Sotuv modalida `ksg-` skan qilingan donalar — bu BERILDI qismi, sotilgan emas.
+v154 da aniqlangan: sotildi = to'langan summa / narx, berildi = oldilar.gramm.
+Ya'ni klient 30g olib 20g pulini to'lasa, qaysi ANIQ dona sotilganini kod bilmaydi.
+
+Uch yo'l bor, Ibrohim tanlashi kerak:
+A) sotuv modalida skan qilinganlar 'sotilgan' (lekin bu noto'g'ri — berildi != sotildi)
+B) to'lov to'liq bo'lganda o'sha klientning hamma 'berilgan' donasi 'sotilgan' ga o'tadi
+C) 'sotilgan' umuman kiritilmaydi, uch holat qoladi
+
+`yoqolgan` holati ham ta'rifda bor, lekin hali hech kim yozmaydi — ostatka
+tekshiruvi bilan bog'lanmagan (Ibrohim uni keyinga qoldirdi).
+
+### TEGILMAGANI
+
+* `ostFormSaqla` 7389 — ostatka tekshiruvi hali bazaga tegmaydi
+* `donaBazaTekshirSaqla` 6239 — baza ekranidagi tekshiruv, eski ikki rejimda qoldi
+* Klient vozvrati (11197, 12380, 14135) — registrga qo'shiladi, bazada 'berilgan'
+  bo'lib qolaveradi
+* `donaBazaRender` 7331 (zavod ekranidagi ro'yxat) — hali `r.holat!=='ombor'` deb
+  ikkiga bo'ladi, besh holatga moslanmagan
 
 ## v157: CHEK tugmasi doim yoqiq ochiladi
 
