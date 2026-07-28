@@ -1,4 +1,4 @@
-<!-- v168.2 -->
+<!-- v168.3 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1931,7 +1931,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v168.2';
+var APP_VER = 'v168.3';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -11772,6 +11772,11 @@ function openKlientTolov(){
   document.getElementById('kt-sel').style.display='none';
   document.getElementById('kt-sana').value=nowDate();
   document.getElementById('kt-turlar-cont').style.display='none';
+  // v168.3: eski qatorlar DOM da qolib ketardi (yashirilardi, tozalanmasdi).
+  // Yashirin kt-s-* inputlari "Taqsimlandi" ga qo'shilib ketardi.
+  var ktTl=document.getElementById('kt-turlar-list'); if(ktTl) ktTl.innerHTML='';
+  var ktVc=document.getElementById('kt-vozvrat-list'); if(ktVc) ktVc.innerHTML='';
+  window._kTolovBD=null;
   var ki2=document.getElementById('kt-kat-info'); if(ki2) ki2.style.display='none';
   var cg=document.getElementById('kt-c-global'); if(cg) cg.style.display='none';
   var skBl=document.getElementById('kt-skidka-blok'); if(skBl) skBl.style.display='none';
@@ -11813,6 +11818,7 @@ function ktPickK(ki){
 function ktResetKlient(){ _klientResetSel('kt'); document.getElementById('kt-turlar-cont').style.display='none'; }
 function kTolovKlientChange(){
   pulPanelReset('kt');   // v168.2: oldingi klient puli qolib ketmasin
+  var _tl0=document.getElementById('kt-turlar-list'); if(_tl0) _tl0.innerHTML='';  // v168.3
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){document.getElementById('kt-turlar-cont').style.display='none';return;}
   var k=data.klientlar[ki];
