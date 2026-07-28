@@ -3,6 +3,64 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v168.1: $ tugmasi ustiga qo'shmaydi · Lom oynasi bosiladi
+
+* `turDolTog` — qatorga qo'lda summa yozilgan bo'lsa, `$` bosilganda ustiga
+  QO'SHILMAYDI. Klientda QOLGAN pul yoziladi (qolgan = jami − boshqa qatorlar).
+  Ibrohim: "qo'lda yozib qo'yib $ bossa ustigamas klientda qogan pulli yozishi kere".
+* Paneldagi **Lom** oynasi bosiladigan bo'ldi — `pulPanelLomQosh(pfx)` yangi lom
+  qatorini qo'shadi, ekranni o'sha qatorga suradi va gramm maydoniga fokus beradi.
+  Yorlig'i "Lom +", ramkasi oltin. To'lov modalida klient tanlanmagan bo'lsa
+  ishlamaydi (`kt-lom-btn` yashirin bo'lsa chiqib ketadi).
+
+## v168: Panel yagona kirish joyi · 1 qatorli oynalar · tur qatorida $ tugmasi
+
+**Muammo (v167 da topilgan):** panel pastdagi "Kerakli summa" maydonlari bilan
+bitta pulni talashardi. Panelga turlardan OLDIN yozilsa, yozilgan raqam
+`kTolovCalc` ning nol-holat shoxida darrov o'chib ketardi; keyin avto-to'ldirish
+kerakli summani NAQT ga yozardi. Natija: 300 naqd + 200 karta olingan to'lov
+**500$ naqd** bo'lib saqlanardi. Jami to'g'ri, tur bo'linishi xato — kassa naqd
+qoldig'i, klient tarixidagi to'lov turi belgisi, kunlik naqd hisobi buzilardi.
+
+**Panel (ikkala modalda):**
+* 4 oyna bir qatorda: **Naqt · Perech · Karta · Lom**. Nom tepasida, summa tagida.
+* Qiymati 0 bo'lgan oyna YASHIRILMAYDI — 4 ustun doim 4 ustun.
+* Panel turlar ro'yxatidan TEPAGA ko'chdi (avval lom bo'limidan keyin edi).
+* Panel doim ochiq (avval faqat pul yozilganda chiqardi).
+* Lom oynasi lom qatorlaridan avtomat to'ladi.
+
+**Kerakli summa bloki:** u ham 4 oynali bir qator (Naqt/Perech/Karta/Lom),
+`readonly`, faqat ko'rsatadi. Eski ✓ katakchalari (`*-cb-*`) olib tashlandi —
+`_tolovToggle` cbEl topolmay chiqib ketadi, qolgan chaqiruvlar `if()` bilan
+himoyalangan.
+
+**Tur qatori — 3-variant (yorliqsiz, 2 qator):**
+* Tepada: tur nomi + qarz gramm. ✓ tepadan pastga tushdi.
+* Pastda bitta qatorda: `$` · SUMMA · $/g · gramm · ✓. SUMMA/$/g/gramm
+  yorliqlari olib tashlandi, birlik belgisi maydon ichida qoldi.
+* Biz qarzdor qatorlarda `$` va ✓ o'rniga `$ offset` turadi.
+* Sotuv modalida ham shunday (u yerda yorliqlar allaqachon yo'q edi).
+
+**Yangi funksiyalar:** `pulPanelBor` (klientda bor pul), `pulPanelSync`
+(panel → pastki maydonlar, hodisasiz — rekursiya bo'lmasin), `turDolTog`
+($ tugmasi), `ktQarzD`/`ksQarzD` (qatorning dollardagi qarzi).
+`pulPanelUpd` endi FAQAT KO'RSATADI, hech qayerga yozmaydi.
+
+**Jonli hisob:** `pulPanelUpd` `kTolovCalc` va `kSotuvCalc` oxiriga ulandi —
+tur summasi, lom, skidka o'zgarganda Jami/Taqsimlandi/Qoldi darrov yangilanadi.
+Avval faqat panelning o'z maydoniga tegilganda yangilanardi.
+
+**Nol-holat tuzatildi:** `jamiSummaKt===0` shoxi endi panelda pul bo'lsa
+pastdagi maydonlarni TOZALAMAYDI — `pulPanelSync` bilan qayta yozadi.
+
+**Claude qarori (Ibrohimdan chiqmagan):** panel BO'SH bo'lsa eski avto-to'ldirish
+ishlayveradi. Sababi: butunlay o'chirilsa, ✓ bosib qarz yopilganda-yu panelga pul
+yozilmasa **0$ to'lov** saqlanardi. Panelga pul yozilishi bilan panel g'olib
+bo'ladi (`userEdited='1'`).
+
+**Tegilmadi:** skidka, saqlash, chek, kassa, klient tarixi, sdacha, qarz hisobi,
+$/g va gramm qiymatlari, dona baza, ostatka, cloud, Abdulhamid rejimi.
+
 ## v167: "Klientda bor" pul paneli — kalkulyator
 
 Ibrohim: "klientda nechpul borligini yozadigan joy yo'q ozi, manga shunaqa joy
