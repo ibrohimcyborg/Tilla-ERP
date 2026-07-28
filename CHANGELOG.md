@@ -3,6 +3,36 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v168.2: uch xato tuzatildi (Ibrohim sinovi)
+
+**1. Panel oldingi klientdan qolib ketardi.** Bir klientga pul yozib, keyingisiga
+kirilganda paneldagi "Jami 1,000$" qolib turardi (oynalar bo'sh, lekin ko'rsatkich
+eski). Sabab: `pulPanelReset` faqat qiymatlarni tozalardi, ko'rinishni yangilamasdi,
+va klient almashganda umuman chaqirilmasdi.
+* `pulPanelReset` oxirida `pulPanelUpd(pfx)` chaqiriladi.
+* `pulPanelReset` panel oynalaridagi `userEdited` belgilarini ham tozalaydi.
+* `kTolovKlientChange()` va `ksSotuvPickK()` boshida `pulPanelReset` chaqiriladi.
+
+**2. Panelda avto-to'ldirish yo'q edi.** Ibrohim: "kerakli summa 4053.12 edi,
+kartaga 2000$ yozsam naqtda 2053.12 bo'lishi keregidi, u o'zgarmayapti".
+* Yangi `pulPanelAvto(pfx, kerakli)` — TEGILMAGAN birinchi oyna (naqt -> perech ->
+  karta) kerakli summaning qolganini oladi. Tegilganlari qotadi.
+* Yangi `pulPanelKirit(pfx, el)` — oynaga yozilganda `userEdited='1'` qo'yadi,
+  bo'shatilsa olib tashlaydi (avto qaytadi). Panel oynalarining `oninput` i shunga
+  ulandi.
+* `pulPanelAvto` `kTolovCalc` va `kSotuvCalc` ichida, kerakli summa hisoblangandan
+  keyin chaqiriladi.
+
+**3. Sdacha.** Ibrohim: "klient puli ko'p bo'sa sdacha chiqsin". Avto-to'ldirish
+`Math.max(0, kerakli - tegilganlar)` ishlatgani uchun, tegilgan summa kerakliddan
+oshsa avto oyna 0 ga tushadi va jami kerakliddan katta bo'lib qoladi — mavjud
+sdacha hisobi (`max(0, ktBerdi - ktKerakli)`) o'z-o'zidan ishlaydi. Panelda
+"Oshdi N$" qizil chiqadi.
+
+**Ochiq qolgan:** panel oynalari tartibi hozir Naqt · Perech · Karta (Ibrohim
+shunday yozgan edi). Sinov rasmida u "kartaga yozdim" degan, lekin 2000 PERECH da
+turgan — tartib chalkashtirayotgan bo'lishi mumkin.
+
 ## v168.1: $ tugmasi ustiga qo'shmaydi · Lom oynasi bosiladi
 
 * `turDolTog` — qatorga qo'lda summa yozilgan bo'lsa, `$` bosilganda ustiga
