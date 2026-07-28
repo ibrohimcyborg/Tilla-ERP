@@ -1,4 +1,4 @@
-<!-- v167 -->
+<!-- v168.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1633,6 +1633,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
     </div>
     <div id="kt-turlar-cont" style="display:none;">
+      <div id="kt-pulp" style="display:none;background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:10px 12px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;"><span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--gold);">Klientda bor</span><span id="kt-pp-kerak" style="font-size:11px;color:var(--gold);font-family:Roboto,sans-serif;font-weight:700;"></span></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Naqt</div><input type="number" id="kt-pp-naqd" placeholder="0" oninput="pulPanelSync('kt');kTolovCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--green);outline:none;padding:0;"></div><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Perech</div><input type="number" id="kt-pp-perech" placeholder="0" oninput="pulPanelSync('kt');kTolovCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--teal);outline:none;padding:0;"></div><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Karta</div><input type="number" id="kt-pp-karta" placeholder="0" oninput="pulPanelSync('kt');kTolovCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--blue);outline:none;padding:0;"></div><div onclick="pulPanelLomQosh('kt')" title="Lom qo'shish" style="background:transparent;border:1px dashed var(--gold-bd);border-radius:9px;padding:5px 7px 6px;min-width:0;cursor:pointer;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--gold);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Lom +</div><div id="kt-pp-lom" style="text-align:right;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;">—</div></div></div><div style="border-top:1px solid var(--gold-bd);margin:8px 0 6px;"></div><div style="display:flex;justify-content:space-between;padding-bottom:6px;"><span style="font-size:12px;color:var(--muted);font-weight:600;">Jami</span><b id="kt-pp-jami" style="font-family:Roboto,sans-serif;font-size:16px;font-weight:700;color:var(--gold);">0$</b></div><div style="height:6px;border-radius:20px;background:var(--surf2);overflow:hidden;margin-bottom:5px;"><i id="kt-pp-bar" style="display:block;height:100%;width:0%;background:var(--green);border-radius:20px;"></i></div><div style="display:flex;justify-content:space-between;font-size:12px;"><span id="kt-pp-taq" style="color:var(--muted);">Taqsimlandi 0$</span><b id="kt-pp-qoldi" style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--green);">Qoldi 0$</b></div></div>
       <div id="kt-turlar-list"></div>
       <div onclick="toggleKtVozvrat()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:10px;cursor:pointer;margin:10px 0 0;">
         <div style="font-size:13px;color:var(--blue);font-weight:500;">↩ Vozvrat ham qo'shish</div>
@@ -1658,47 +1659,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       <button onclick="kTolovAddLom()" id="kt-lom-btn" style="display:none;width:100%;padding:8px;border-radius:8px;border:1px dashed var(--gold-bd);background:transparent;color:var(--gold);font-size:12px;cursor:pointer;margin-top:6px;">+ Lom qo'shish</button>
 
       <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
-      <div id="kt-pulp" style="display:none;background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:10px 12px;margin-bottom:8px;"><div style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--gold);margin-bottom:7px;">Klientda bor</div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Naqd</span><input type="number" id="kt-pp-naqd" placeholder="0" oninput="pulPanelUpd('kt',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Karta</span><input type="number" id="kt-pp-karta" placeholder="0" oninput="pulPanelUpd('kt',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Perech</span><input type="number" id="kt-pp-perech" placeholder="0" oninput="pulPanelUpd('kt',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Lom</span><span id="kt-pp-lom" style="flex:1;text-align:right;color:var(--muted);font-size:11.5px;padding:6px 2px;">—</span></div><div style="border-top:1px solid var(--gold-bd);margin:6px 0 5px;"></div><div style="display:flex;justify-content:space-between;padding:1px 0 7px;"><span style="font-size:12px;color:var(--muted);font-weight:600;">Jami</span><b id="kt-pp-jami" style="font-family:Roboto,sans-serif;font-size:16px;font-weight:700;color:var(--gold);">0$</b></div><div style="height:6px;border-radius:20px;background:var(--surf2);overflow:hidden;margin-bottom:5px;"><i id="kt-pp-bar" style="display:block;height:100%;width:0%;background:var(--green);border-radius:20px;"></i></div><div style="display:flex;justify-content:space-between;font-size:12px;"><span id="kt-pp-taq" style="color:var(--muted);">Taqsimlandi 0$</span><b id="kt-pp-qoldi" style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--green);">Qoldi 0$</b></div></div>
-      <div id="kt-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;border-left:3px solid var(--green-bd);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;color:var(--muted);">Kerakli summa</span>
-          <span id="kt-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
-        </div>
-        <!-- Naqt -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
-          <div onclick="ktToggleTolov('naqt')" id="kt-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-naqt-berildi" placeholder="0" oninput="var kn=document.getElementById('kt-kerakli-naqt');if(kn)kn.dataset.lastChanged='naqt';this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--green);">$</span>
-          </div>
-        </div>
-        <!-- Karta -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
-          <div onclick="ktToggleTolov('karta')" id="kt-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-karta-berildi" placeholder="0" oninput="var kn=document.getElementById('kt-kerakli-naqt');if(kn)kn.dataset.lastChanged='karta';this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--blue);">$</span>
-          </div>
-        </div>
-        <!-- Perech -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:12px;color:var(--teal);width:44px;flex-shrink:0;">Perech</span>
-          <div onclick="ktToggleTolov('perech')" id="kt-cb-perech" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--teal-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--teal-bd);background:var(--teal-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="kt-perech-berildi" placeholder="0" oninput="var kn=document.getElementById('kt-kerakli-naqt');if(kn)kn.dataset.lastChanged='perech';this.dataset.userEdited='1';kTolovCalc();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--teal);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--teal);">$</span>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:13px;">
-          <span style="color:var(--muted);">Sdacha</span>
-          <span id="kt-sdacha-val" style="font-weight:500;color:var(--muted);">yo'q</span>
-        </div>
-      </div>
+      <div id="kt-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:8px;border-left:3px solid var(--green-bd);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;color:var(--muted);">Kerakli summa</span><span id="kt-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><div style="background:var(--surf);border:1px solid var(--green-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Naqt</div><input type="number" id="kt-naqt-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--green);outline:none;padding:0;pointer-events:none;"></div><div style="background:var(--surf);border:1px solid var(--teal-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Perech</div><input type="number" id="kt-perech-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--teal);outline:none;padding:0;pointer-events:none;"></div><div style="background:var(--surf);border:1px solid var(--blue-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Karta</div><input type="number" id="kt-karta-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--blue);outline:none;padding:0;pointer-events:none;"></div><div style="background:transparent;border:1px dashed var(--border);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Lom</div><div id="kt-nb-lom" style="text-align:right;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;">—</div></div></div><div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:13px;"><span style="color:var(--muted);">Sdacha</span><span id="kt-sdacha-val" style="font-weight:500;color:var(--muted);">yo'q</span></div></div>
 
       <!-- Sdacha taqsim -->
       <div id="kt-sdacha-taqsim" style="display:none;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:10px;padding:12px;margin-top:8px;">
@@ -1847,6 +1808,7 @@ body.rol-hamid .hamid-x { display: none !important; }
             $
           </div>
         </div>
+        <div id="ks-pulp" style="display:none;background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:10px 12px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;"><span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--gold);">Klientda bor</span><span id="ks-pp-kerak" style="font-size:11px;color:var(--gold);font-family:Roboto,sans-serif;font-weight:700;"></span></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Naqt</div><input type="number" id="ks-pp-naqd" placeholder="0" oninput="pulPanelSync('ks');kSotuvCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--green);outline:none;padding:0;"></div><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Perech</div><input type="number" id="ks-pp-perech" placeholder="0" oninput="pulPanelSync('ks');kSotuvCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--teal);outline:none;padding:0;"></div><div style="background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:5px 7px 6px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Karta</div><input type="number" id="ks-pp-karta" placeholder="0" oninput="pulPanelSync('ks');kSotuvCalc();" autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;color:var(--blue);outline:none;padding:0;"></div><div onclick="pulPanelLomQosh('ks')" title="Lom qo'shish" style="background:transparent;border:1px dashed var(--gold-bd);border-radius:9px;padding:5px 7px 6px;min-width:0;cursor:pointer;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--gold);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Lom +</div><div id="ks-pp-lom" style="text-align:right;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;">—</div></div></div><div style="border-top:1px solid var(--gold-bd);margin:8px 0 6px;"></div><div style="display:flex;justify-content:space-between;padding-bottom:6px;"><span style="font-size:12px;color:var(--muted);font-weight:600;">Jami</span><b id="ks-pp-jami" style="font-family:Roboto,sans-serif;font-size:16px;font-weight:700;color:var(--gold);">0$</b></div><div style="height:6px;border-radius:20px;background:var(--surf2);overflow:hidden;margin-bottom:5px;"><i id="ks-pp-bar" style="display:block;height:100%;width:0%;background:var(--green);border-radius:20px;"></i></div><div style="display:flex;justify-content:space-between;font-size:12px;"><span id="ks-pp-taq" style="color:var(--muted);">Taqsimlandi 0$</span><b id="ks-pp-qoldi" style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--green);">Qoldi 0$</b></div></div>
         <div id="ks-tolov-list"></div>
         <div id="ks-naqt-res" style="font-size:11px;color:var(--green);margin-top:4px;display:none;"></div>
         <input type="hidden" id="ks-naqt" value="0">
@@ -1873,43 +1835,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
 
       <!-- Naqt / Karta (lom bo'lganda ko'rinadi) -->
-      <div id="ks-pulp" style="display:none;background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:12px;padding:10px 12px;margin-bottom:8px;"><div style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--gold);margin-bottom:7px;">Klientda bor</div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Naqd</span><input type="number" id="ks-pp-naqd" placeholder="0" oninput="pulPanelUpd('ks',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Karta</span><input type="number" id="ks-pp-karta" placeholder="0" oninput="pulPanelUpd('ks',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Perech</span><input type="number" id="ks-pp-perech" placeholder="0" oninput="pulPanelUpd('ks',1)" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:Roboto,sans-serif;font-size:14px;font-weight:700;text-align:right;background:var(--surf);color:var(--text);"><span style="font-size:11px;color:var(--muted);width:9px;">$</span></div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;"><span style="flex:none;width:54px;font-size:12.5px;color:var(--muted);font-weight:600;">Lom</span><span id="ks-pp-lom" style="flex:1;text-align:right;color:var(--muted);font-size:11.5px;padding:6px 2px;">—</span></div><div style="border-top:1px solid var(--gold-bd);margin:6px 0 5px;"></div><div style="display:flex;justify-content:space-between;padding:1px 0 7px;"><span style="font-size:12px;color:var(--muted);font-weight:600;">Jami</span><b id="ks-pp-jami" style="font-family:Roboto,sans-serif;font-size:16px;font-weight:700;color:var(--gold);">0$</b></div><div style="height:6px;border-radius:20px;background:var(--surf2);overflow:hidden;margin-bottom:5px;"><i id="ks-pp-bar" style="display:block;height:100%;width:0%;background:var(--green);border-radius:20px;"></i></div><div style="display:flex;justify-content:space-between;font-size:12px;"><span id="ks-pp-taq" style="color:var(--muted);">Taqsimlandi 0$</span><b id="ks-pp-qoldi" style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--green);">Qoldi 0$</b></div></div>
-      <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;color:var(--muted);">Kerakli summa</span>
-          <span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span>
-        </div>
-        <!-- Naqt -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Naqt</span>
-          <div onclick="ksSotuvToggleTolov('naqt')" id="ks-cb-naqt" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--green-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--green-bd);background:var(--green-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-naqt-berildi" placeholder="0" oninput="var kn=document.getElementById('ks-kerakli-naqt');if(kn)kn.dataset.lastChanged='naqt';this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--green);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--green);">$</span>
-          </div>
-        </div>
-        <!-- Karta -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:12px;color:var(--muted);width:40px;flex-shrink:0;">Karta</span>
-          <div onclick="ksSotuvToggleTolov('karta')" id="ks-cb-karta" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--blue-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--blue-bd);background:var(--blue-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-karta-berildi" placeholder="0" oninput="var kn=document.getElementById('ks-kerakli-naqt');if(kn)kn.dataset.lastChanged='karta';this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--blue);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--blue);">$</span>
-          </div>
-        </div>
-        <!-- Perech -->
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:12px;color:var(--teal);width:44px;flex-shrink:0;">Perech</span>
-          <div onclick="ksSotuvToggleTolov('perech')" id="ks-cb-perech" style="width:18px;height:18px;border-radius:4px;border:1.5px solid var(--teal-bd);background:transparent;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;align-items:center;gap:4px;border:1.5px solid var(--teal-bd);background:var(--teal-bg);border-radius:8px;padding:0 10px;height:34px;">
-            <input type="number" id="ks-perech-berildi" placeholder="0" oninput="var kn=document.getElementById('ks-kerakli-naqt');if(kn)kn.dataset.lastChanged='perech';this.dataset.userEdited='1';kSotuvNaqtBerildiUpd();" autocomplete="off"
-              style="width:100%;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--teal);text-align:right;outline:none;">
-            <span style="font-size:12px;color:var(--teal);">$</span>
-          </div>
-        </div>
-      </div>
+      <div id="ks-naqt-berildi-blok" style="display:none;background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--green-bd);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;color:var(--muted);">Kerakli summa</span><span id="ks-kerakli-naqt" style="font-size:13px;font-weight:600;color:var(--text);">0$</span></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><div style="background:var(--surf);border:1px solid var(--green-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Naqt</div><input type="number" id="ks-naqt-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--green);outline:none;padding:0;pointer-events:none;"></div><div style="background:var(--surf);border:1px solid var(--teal-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Perech</div><input type="number" id="ks-perech-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--teal);outline:none;padding:0;pointer-events:none;"></div><div style="background:var(--surf);border:1px solid var(--blue-bd);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Karta</div><input type="number" id="ks-karta-berildi" placeholder="0" readonly autocomplete="off" style="width:100%;border:none;background:transparent;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;text-align:right;color:var(--blue);outline:none;padding:0;pointer-events:none;"></div><div style="background:transparent;border:1px dashed var(--border);border-radius:8px;padding:4px 7px 5px;min-width:0;"><div style="font-size:9px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px;white-space:nowrap;overflow:hidden;">Lom</div><div id="ks-nb-lom" style="text-align:right;font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;">—</div></div></div></div>
 
       <!-- Hisob -->
       <div id="ks-hisob" style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;display:none;">
@@ -2005,7 +1931,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v167';
+var APP_VER = 'v168.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5189,7 +5115,6 @@ function _pnum(id){ var e=document.getElementById(id); return e ? (parseNum(e.va
 
 // Lom qatorlaridan jami pul. Ikkala modalda ham lom ro'yxati bor.
 function pulPanelLom(pfx){
-  // Lom qatorlari: <pfx>-lg-{i} gramm, <pfx>-lk-{i} kurs
   var g=0, pul=0, kurs=0;
   document.querySelectorAll('[id^="'+pfx+'-lg-"]').forEach(function(ge){
     var i = ge.id.slice((pfx+'-lg-').length);
@@ -5201,7 +5126,7 @@ function pulPanelLom(pfx){
 }
 
 // Turlarga yozilgan summalar yig'indisi.
-// To'lov modali: kt-s-{zi}-{ti}   Sotuv modali: kst-s-{zi}-{ti}
+// To'lov modali: kt-s-{idx}   Sotuv modali: kst-s-{zi}-{ti}
 function pulPanelTaqsim(pfx){
   var pre = (pfx==='ks') ? 'kst-s-' : 'kt-s-';
   var sum=0;
@@ -5212,22 +5137,51 @@ function pulPanelTaqsim(pfx){
   return Math.round(sum*100)/100;
 }
 
-// Panelni qayta hisoblaydi. tushir=1 bo'lsa pastdagi maydonlarga ham yozadi.
-function pulPanelUpd(pfx, tushir){
-  var box=document.getElementById(pfx+'-pulp'); if(!box) return;
-  var n=_pnum(pfx+'-pp-naqd'), k=_pnum(pfx+'-pp-karta'), pe=_pnum(pfx+'-pp-perech');
+// Klientda bor pul: paneldagi uch maydon + lom.
+function pulPanelBor(pfx){
+  var n=_pnum(pfx+'-pp-naqd'), pe=_pnum(pfx+'-pp-perech'), k=_pnum(pfx+'-pp-karta');
   var lom=pulPanelLom(pfx);
-  var jami=Math.round((n+k+pe+lom.pul)*100)/100;
-  box.style.display = (jami>0.009) ? 'block' : 'none';
+  return {naqt:n, perech:pe, karta:k, lom:lom.pul, lomG:lom.g, lomKurs:lom.kurs,
+          jami:Math.round((n+pe+k+lom.pul)*100)/100};
+}
+
+// v168: PANEL = YAGONA KIRISH JOYI.
+// Paneldagi raqamlar pastdagi "Kerakli summa" maydonlariga YOZILADI.
+// Hodisa yuborilmaydi (rekursiya bo'lmasin) — chaqiruvchi o'zi hisobni yuritadi.
+// Panel bo'sh bo'lsa TEGILMAYDI: eski avto-to'ldirish o'z ishini qiladi.
+function pulPanelSync(pfx){
+  var b=pulPanelBor(pfx);
+  var bor = (b.naqt+b.perech+b.karta) > 0.009;
+  [['naqt',b.naqt],['perech',b.perech],['karta',b.karta]].forEach(function(pr){
+    var dst=document.getElementById(pfx+'-'+pr[0]+'-berildi');
+    if(!dst) return;
+    if(bor){ dst.value = pr[1]>0.009 ? Math.round(pr[1]*100)/100 : 0; dst.dataset.userEdited='1'; }
+    else   { dst.dataset.userEdited=''; }
+  });
+  return b;
+}
+
+// Panelni qayta chizadi. FAQAT KO'RSATADI — hech qayerga yozmaydi.
+function pulPanelUpd(pfx){
+  var box=document.getElementById(pfx+'-pulp'); if(!box) return;
+  var b=pulPanelBor(pfx);
+  box.style.display='block';
 
   var le=document.getElementById(pfx+'-pp-lom');
-  if(le) le.innerHTML = lom.pul>0.009
-    ? (fmtG(lom.g)+'g \u00d7 '+lom.kurs+'$/g = <b style="font-family:Roboto,sans-serif;font-size:13px;font-weight:700;color:var(--gold);">'+fmtD(lom.pul)+'$</b>')
-    : '\u2014';
+  if(le){
+    le.textContent = b.lom>0.009 ? fmtD(b.lom) : '\u2014';
+    le.style.color = b.lom>0.009 ? 'var(--gold)' : 'var(--muted)';
+    le.title = b.lom>0.009 ? (fmtG(b.lomG)+'g \u00d7 '+b.lomKurs+'$/g') : '';
+  }
+  var nl=document.getElementById(pfx+'-nb-lom');
+  if(nl){
+    nl.textContent = b.lom>0.009 ? fmtD(b.lom) : '\u2014';
+    nl.style.color = b.lom>0.009 ? 'var(--gold)' : 'var(--muted)';
+  }
 
   var taq=pulPanelTaqsim(pfx);
-  var qoldi=Math.round((jami-taq)*100)/100;
-  var je=document.getElementById(pfx+'-pp-jami'); if(je) je.textContent=fmtD(jami)+'$';
+  var qoldi=Math.round((b.jami-taq)*100)/100;
+  var je=document.getElementById(pfx+'-pp-jami'); if(je) je.textContent=fmtD(b.jami)+'$';
   var te=document.getElementById(pfx+'-pp-taq'); if(te) te.textContent='Taqsimlandi '+fmtD(taq)+'$';
   var qe=document.getElementById(pfx+'-pp-qoldi');
   if(qe){
@@ -5236,28 +5190,81 @@ function pulPanelUpd(pfx, tushir){
   }
   var be=document.getElementById(pfx+'-pp-bar');
   if(be){
-    var pct = jami>0 ? Math.min(100, Math.max(0, taq/jami*100)) : 0;
+    var pct = b.jami>0 ? Math.min(100, Math.max(0, taq/b.jami*100)) : 0;
     be.style.width=pct.toFixed(1)+'%';
     be.style.background = (qoldi < -0.009) ? 'var(--red)' : 'var(--green)';
   }
-  // Pastdagi "Kerakli summa" maydonlariga tushirish
-  if(tushir){
-    [['naqd','naqt'],['karta','karta'],['perech','perech']].forEach(function(pr){
-      var src=document.getElementById(pfx+'-pp-'+pr[0]), dst=document.getElementById(pfx+'-'+pr[1]+'-berildi');
-      if(src && dst && document.activeElement!==dst){
-        dst.value = src.value;
-        if(dst.oninput) dst.oninput();
-        else dst.dispatchEvent(new Event('input'));
-      }
-    });
+  var ke=document.getElementById(pfx+'-pp-kerak');
+  if(ke){
+    var kn=document.getElementById(pfx+'-kerakli-naqt');
+    var kv=kn ? (parseFloat(kn.dataset.val)||0) : 0;
+    ke.textContent = kv>0.009 ? ('kerak '+fmtD(kv)+'$') : '';
   }
+  // Tur qatorlaridagi $ tugmalari: panel bo'sh bo'lsa ko'rinmasin
+  var bor=b.jami>0.009;
+  document.querySelectorAll('[id^="'+pfx+'-dt-"]').forEach(function(btn){
+    btn.style.opacity = bor ? '1' : '0';
+    btn.style.pointerEvents = bor ? 'auto' : 'none';
+  });
 }
+
+// v168.1: paneldagi Lom oynasi bosilsa yangi lom qatori qo'shiladi.
+function pulPanelLomQosh(pfx){
+  if(pfx==='kt'){
+    var btn=document.getElementById('kt-lom-btn');
+    if(!btn || btn.style.display==='none') return;   // klient tanlanmagan
+    kTolovAddLom();
+  } else {
+    kSotuvAddLom();
+  }
+  var lst=document.getElementById(pfx+'-lom-list');
+  if(!lst) return;
+  var oxirgi=lst.lastElementChild; if(!oxirgi) return;
+  if(oxirgi.scrollIntoView) oxirgi.scrollIntoView({block:'center'});
+  var g=oxirgi.querySelector('[id^="'+pfx+'-lg-"]');
+  if(g && g.focus) g.focus();
+}
+
+// v168: tur qatorining qarzi DOLLARDA — o'sha qatordagi joriy $/g bo'yicha.
+function ktQarzD(idx, qarzG){
+  var k=parseNum((document.getElementById('kt-k-'+idx)||{}).value)||0;
+  return Math.round(Math.abs(qarzG||0)*k*100)/100;
+}
+function ksQarzD(zi, ti, qarzG){
+  var k=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+  return Math.round(Math.abs(qarzG||0)*k*100)/100;
+}
+
+// v168: tur qatoridagi $ tugmasi — paneldagi QOLGAN pulni shu turga yozadi.
+// Turning qarzidan ko'p bo'lsa faqat qarzicha oladi. Qayta bosilsa nolga tushiradi.
+function turDolTog(pfx, sid, btnId, qarzD){
+  var inp=document.getElementById(sid); if(!inp) return;
+  var btn=document.getElementById(btnId);
+  if(btn && btn.dataset.on==='1'){
+    inp.value=''; btn.dataset.on='';
+    btn.style.background='transparent'; btn.style.color='var(--gold)';
+  } else {
+    var jami=pulPanelBor(pfx).jami;
+    var cur=parseNum(inp.value)||0;
+    // v168.1: qo'lda yozilgani USTIGA QO'SHILMAYDI — klientda QOLGAN pul yoziladi
+    var boshqalar=Math.round((pulPanelTaqsim(pfx)-cur)*100)/100;
+    var qolgan=Math.max(0, Math.round((jami-boshqalar)*100)/100);
+    var yangi=Math.min(qolgan, Math.round(qarzD*100)/100);
+    inp.value = yangi>0.009 ? yangi : '';
+    if(btn){ btn.dataset.on='1'; btn.style.background='var(--gold)'; btn.style.color='var(--on-gold,#fff)'; }
+  }
+  if(inp.oninput) inp.oninput();
+}
+
 // Modal ochilganda tozalash
 function pulPanelReset(pfx){
-  ['naqd','karta','perech'].forEach(function(x){
+  ['naqd','perech','karta'].forEach(function(x){
     var e=document.getElementById(pfx+'-pp-'+x); if(e) e.value='';
   });
-  var b=document.getElementById(pfx+'-pulp'); if(b) b.style.display='none';
+  var b=document.getElementById(pfx+'-pulp'); if(b) b.style.display='block';
+  ['naqt','perech','karta'].forEach(function(x){
+    var e=document.getElementById(pfx+'-'+x+'-berildi'); if(e){ e.value=''; e.dataset.userEdited=''; }
+  });
 }
 
 function _turKochir(zavodNom, eskiNom, yangiNom){
@@ -11848,24 +11855,23 @@ function kTolovKlientChange(){
     turlarHTML+='<div style="background:'+(bizQarzdor?'var(--green-bg)':'var(--surf2)')+';border:1px solid '+(bizQarzdor?'var(--green-bd)':'var(--border)')+';border-radius:10px;padding:12px;margin-bottom:8px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
       +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+b.zavod+' · '+b.tur+'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<div id="kt-qarz-lbl-'+idx+'" style="font-size:12px;color:'+(bizQarzdor?'var(--green)':'var(--red)')+';font-weight:'+(bizQarzdor?'600':'400')+';">'+(bizQarzdor?'+':'−')+fmtG(Math.abs(b.qarz))+'g'+(bizQarzdor?' ↩biz qarzdor':'')+'</div>'
-      +(bizQarzdor?'':'<button onclick="ktHammasi('+idx+','+b.qarz+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>')
-      +'</div></div>'
+      +'<div id="kt-qarz-lbl-'+idx+'" style="font-size:12px;color:'+(bizQarzdor?'var(--green)':'var(--red)')+';font-weight:'+(bizQarzdor?'600':'400')+';">'+(bizQarzdor?'+':'\u2212')+fmtG(Math.abs(b.qarz))+'g'+(bizQarzdor?' \u21a9biz qarzdor':'')+'</div>'
+      +'</div>'
       +cUstamaRow
       +'<div style="display:flex;gap:4px;align-items:center;">'
-      +'<div style="flex:1.2;"><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SUMMA ($)</div>'
-      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--border);background:var(--surf);border-radius:7px;padding:0 7px;height:36px;">'
+      +(bizQarzdor?'':'<button id="kt-dt-'+idx+'" onclick="turDolTog(\'kt\',\'kt-s-'+idx+'\',\'kt-dt-'+idx+'\',ktQarzD('+idx+','+b.qarz+'))" title="Klient pulini shu turga yoz" style="flex:none;width:26px;height:36px;border-radius:7px;border:1.5px solid var(--gold-bd);background:transparent;color:var(--gold);font-family:Roboto,sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:0;pointer-events:none;padding:0;">$</button>')
+      +'<div style="flex:1.2;display:flex;align-items:center;gap:2px;border:0.5px solid var(--border);background:var(--surf);border-radius:7px;padding:0 7px;height:36px;min-width:0;">'
       +'<input type="number" id="kt-s-'+idx+'" placeholder="0" oninput="ktUpd(\'s\','+idx+','+b.zi+','+b.ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--text);text-align:right;outline:none;width:0;">'
-      +'<span style="font-size:10px;color:var(--muted);">$</span></div></div>'
-      +'<div style="flex:1;"><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">$/g</div>'
-      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:7px;padding:0 7px;height:36px;">'
+      +'<span style="font-size:10px;color:var(--muted);">$</span></div>'
+      +'<div style="flex:1;display:flex;align-items:center;gap:2px;border:0.5px solid var(--gold-bd);background:var(--gold-bg);border-radius:7px;padding:0 7px;height:36px;min-width:0;">'
       +'<input type="number" id="kt-k-'+idx+'" placeholder="0" oninput="ktUpd(\'n\','+idx+','+b.zi+','+b.ti+')" value="'+(katNarx||'')+'" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--gold);text-align:right;outline:none;width:0;">'
-      +'<span style="font-size:9px;color:var(--gold-bd);">$/g</span></div></div>'
-      +'<div style="flex:1;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;"><span style="font-size:10px;color:var(--muted);">gramm</span>'+(bizQarzdor?'<button onclick="event.stopPropagation();ktOffsetToggle('+idx+','+Math.abs(b.qarz)+',this)" id="kt-offset-btn-'+idx+'" style="font-size:10px;font-weight:600;padding:1px 7px;border-radius:5px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);cursor:pointer;">$ offset</button>':'')+'</div>'
-      +'<div style="display:flex;align-items:center;gap:2px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:7px;padding:0 7px;height:36px;">'
+      +'<span style="font-size:9px;color:var(--gold-bd);">$/g</span></div>'
+      +'<div style="flex:1;display:flex;align-items:center;gap:2px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:7px;padding:0 7px;height:36px;min-width:0;">'
       +'<input type="number" id="kt-g-'+idx+'" placeholder="0" oninput="ktUpd(\'g\','+idx+','+b.zi+','+b.ti+')" style="flex:1;border:none;background:transparent;font-size:13px;color:var(--green);text-align:right;outline:none;width:0;">'
-      +'<span style="font-size:9px;color:var(--green-bd);">g</span></div></div>'
+      +'<span style="font-size:9px;color:var(--green-bd);">g</span></div>'
+      +(bizQarzdor
+          ? '<button onclick="event.stopPropagation();ktOffsetToggle('+idx+','+Math.abs(b.qarz)+',this)" id="kt-offset-btn-'+idx+'" title="$ offset" style="flex:none;width:30px;height:36px;border-radius:7px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);font-size:12px;font-weight:700;cursor:pointer;padding:0;">$</button>'
+          : '<button onclick="ktHammasi('+idx+','+b.qarz+')" title="Qarzni toliq yop" style="flex:none;width:30px;height:36px;border-radius:7px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:13px;font-weight:600;cursor:pointer;padding:0;">\u2713</button>')
       +'</div>'
       +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">= <span style="color:'+(bizQarzdor?'var(--gold)':'var(--green)')+';font-weight:600;" id="kt-eq-'+idx+'">0g</span> '+(bizQarzdor?'qarz ko\'payadi':'qarz kamayadi')+'</div>'
       +(bizQarzdor?('<div id="kto-blok-'+idx+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:6px 10px;margin-top:4px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span id="kto-lbl-'+idx+'" style="font-size:12px;font-weight:600;color:var(--green);">O  '+fmtG(Math.abs(b.qarz))+'g &times; '+katNarx+'$/g</span><span id="kto-sum-'+idx+'" style="font-size:13px;font-weight:600;color:var(--green);">= '+fmtD(Math.round(Math.abs(b.qarz)*(katNarx||0)*100)/100)+'$</span></div></div>'):'')
@@ -12416,11 +12422,16 @@ function kTolovCalc(){
   if(jamiSummaKt>0){
     if(ktNbBlok) ktNbBlok.style.display='block';
     if(ktKnEl){ktKnEl.textContent=fmtD(ktKerakli)+'$';ktKnEl.dataset.val=ktKerakli;}
+    pulPanelSync('kt');
     if(ktNbEl&&!ktNbEl.dataset.userEdited) ktNbEl.value=ktKerakli>0?ktKerakli:'';
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
-    if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
-    ['karta','perech'].forEach(function(_x){ var _e=document.getElementById('kt-'+_x+'-berildi'); if(_e){_e.value='';_e.dataset.userEdited='';} });
+    if(ktKnEl){ktKnEl.textContent='0$';ktKnEl.dataset.val=0;}
+    if(pulPanelBor('kt').jami>0.009){ pulPanelSync('kt'); }
+    else {
+      if(ktNbEl){ktNbEl.value='';ktNbEl.dataset.userEdited='';}
+      ['karta','perech'].forEach(function(_x){ var _e=document.getElementById('kt-'+_x+'-berildi'); if(_e){_e.value='';_e.dataset.userEdited='';} });
+    }
     var ktTq=document.getElementById('kt-sdacha-taqsim'); if(ktTq) ktTq.style.display='none';
   }
 
@@ -12524,6 +12535,7 @@ function kTolovCalc(){
   }
 
   kTolovChekUpd();
+  pulPanelUpd('kt');
 }
 
 
@@ -13252,7 +13264,6 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:13px;font-weight:500;color:var(--text);">'+t.nom+'</span>';
       out += '<div style="display:flex;align-items:center;gap:6px;">';
       out += '<span style="font-size:11px;color:var(--muted);" id="kst-lbl-'+zi+'-'+ti+'">'+lblHtml+'</span>';
-      if (obshiy > 0.001 && !bizQarz) out += '<button onclick="kstHammasi('+zi+','+ti+','+obshiy.toFixed(2)+')" style="padding:2px 8px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;cursor:pointer;">✓</button>';
       out += '</div></div>';
       var kat = k ? (k.kat||'A') : 'A';
       // C kategoriyada har bir tur uchun ustama input
@@ -13267,6 +13278,7 @@ function kSotuvRenderTolov() {
         out += '</div>';
       }
       out += '<div style="display:flex;align-items:center;gap:3px;">';
+      out += (bizQarz || !(obshiy > 0.001)) ? '' : '<button id="ks-dt-'+zi+'-'+ti+'" onclick="turDolTog(\'ks\',\'kst-s-'+zi+'-'+ti+'\',\'ks-dt-'+zi+'-'+ti+'\',ksQarzD('+zi+','+ti+','+obshiy.toFixed(2)+'))" title="Klient pulini shu turga yoz" style="flex:none;width:24px;height:32px;border-radius:6px;border:1.5px solid var(--gold-bd);background:transparent;color:var(--gold);font-family:Roboto,sans-serif;font-size:12px;font-weight:700;cursor:pointer;opacity:0;pointer-events:none;padding:0;">$</button>';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--border);background:var(--surf);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
       out += '<input type="number" id="kst-s-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'s\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--text);text-align:right;outline:none;min-width:0;width:0;">';
       out += '<span style="font-size:10px;color:var(--muted);flex-shrink:0;">$</span>';
@@ -13280,6 +13292,7 @@ function kSotuvRenderTolov() {
       out += '<input type="number" id="kst-g-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'g\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--green);text-align:right;outline:none;min-width:0;width:0;">';
       out += '<span style="font-size:9px;color:var(--green-bd);flex-shrink:0;">g</span>';
       out += '</div>';
+      out += (bizQarz || !(obshiy > 0.001)) ? '' : '<button onclick="kstHammasi('+zi+','+ti+','+obshiy.toFixed(2)+')" title="Qarzni toliq yop" style="flex:none;width:28px;height:32px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:12px;font-weight:600;cursor:pointer;padding:0;">\u2713</button>';
       out += '</div>';
       out += '<div id="kst-res-'+zi+'-'+ti+'" style="font-size:11px;margin-top:3px;min-height:14px;"></div>';
       { var _oNarx=getKatNarx(zi,ti,_ksSotuvKi)||0; var _qolganG=bizQarz?Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100):0; var _oSum=Math.round(_qolganG*_oNarx*100)/100; out += '<div id="kso-blok-'+zi+'-'+ti+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:8px 10px;margin-top:4px;" data-qarzg="'+(bizQarz?Math.abs(turQarz):0)+'" data-narx="'+_oNarx+'"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;"><span id="kso-lbl-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">O  '+fmtG(_qolganG)+'g × '+_oNarx+'$/g</span><span id="kso-sum-'+zi+'-'+ti+'" style="font-size:12px;font-weight:600;color:var(--green);">'+fmtD(_oSum)+'$ → boshqa to\'lovdan ayiriladi</span></div></div>'; }
@@ -13850,13 +13863,18 @@ function kSotuvCalc() {
   if (mahsulotNarxi > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
+    pulPanelSync('ks');
     if (!nbEl.dataset.userEdited) nbEl.value = kerakliNaqt > 0 ? kerakliNaqt : '';
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
-    if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
-    if (nbKEl) { nbKEl.value = ''; nbKEl.dataset.userEdited = ''; }
-    var nbPEl0 = document.getElementById('ks-perech-berildi');
-    if (nbPEl0) { nbPEl0.value = ''; nbPEl0.dataset.userEdited = ''; }
+    if (knEl) { knEl.textContent = '0$'; knEl.dataset.val = 0; }
+    if (pulPanelBor('ks').jami > 0.009) { pulPanelSync('ks'); }
+    else {
+      if (nbEl) { nbEl.value = ''; nbEl.dataset.userEdited = ''; }
+      if (nbKEl) { nbKEl.value = ''; nbKEl.dataset.userEdited = ''; }
+      var nbPEl0 = document.getElementById('ks-perech-berildi');
+      if (nbPEl0) { nbPEl0.value = ''; nbPEl0.dataset.userEdited = ''; }
+    }
   }
 
   // v136: uchta maydon (naqt/karta/perech) — tegilmaganidan birinchisi qoldiqni oladi
@@ -14019,6 +14037,7 @@ function kSotuvCalc() {
   window._ksSotuvFinQarz = finQarz;
 
   kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, vozJami, finQarz, jamiOldiPul, sdacha, ortiqcha, taqsimTanlov);
+  pulPanelUpd('ks');
 }
 
 // v136: TO'LOV TURLARI — naqt / karta / perech (uchalasi bir xil qoida)
