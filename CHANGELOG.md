@@ -3,6 +3,33 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v168.3: yashirin eski qatorlar (Taqsimlandi qopketishi)
+
+**Ibrohim:** "bundan oldin summa yozasanu nimadur summala keyingi safar to'lovga
+kirsen qopketib qovotti" — panelda hamma oyna bo'sh, Jami 0$, lekin
+Taqsimlandi 236.5$ va qizil "Oshdi 236.5$".
+
+**Sabab (eski, v168 ochib qo'ydi):** `openKlientTolov()` modal ochilganda tur
+ro'yxatini faqat YASHIRARDI (`kt-turlar-cont.style.display='none'`), lekin
+`kt-turlar-list.innerHTML` ni TOZALAMASDI. Oldingi seansdagi qatorlar summasi
+bilan DOM da qolib ketardi. v168 gacha buni hech kim o'qimasdi — `kTolovCalc`
+o'zining `jamiSummaKt` sini joriy klient breakdown i bo'yicha sanaydi.
+Yangi `pulPanelTaqsim` esa `[id^="kt-s-"]` bilan DOM dagi HAMMA summa maydonini
+sanaydi, shu jumladan yashirin eskilarini.
+
+Natijada: Taqsimlandi = eski qatorlar (236.5), kerakli = joriy klient (0) ->
+`pulPanelAvto('kt', 0)` panelni tozalab qo'yardi.
+
+**Tuzatildi:**
+* `openKlientTolov()` — `kt-turlar-list` va `kt-vozvrat-list` tozalanadi,
+  `window._kTolovBD=null` qilinadi.
+* `kTolovKlientChange()` — klient almashganda ham `kt-turlar-list` tozalanadi.
+* Sotuv modalida bu muammo yo'q edi (`ks-tolov-list` allaqachon tozalanardi).
+
+**Takrorlash sinovi** (`t49.js`, haqiqiy `kTolovCalc` soxta DOM da):
+tozalashdan oldin `Taqsimlandi 236.5$ · Oshdi 236.5$`, keyin `Taqsimlandi 0$ ·
+Qoldi 0$`.
+
 ## v168.2: uch xato tuzatildi (Ibrohim sinovi)
 
 **1. Panel oldingi klientdan qolib ketardi.** Bir klientga pul yozib, keyingisiga
