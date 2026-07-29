@@ -3,6 +3,37 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v170: panel pastga · ptichka naqtga yozmaydi · $ ketma-ket taqsimlaydi
+
+**1. "Klientda bor" pastga tushdi.** Endi turlar ro'yxatidan keyin, "Kerakli summa"
+blokining ustida. Ikkala raqamni bir qarashda solishtirish uchun.
+
+**2. Ptichka pastdagi Naqt ga yozmaydi.** Ibrohim: "ptichka bossa kerakli summa
+ko'rinsin, kerakli summadigi naqtga yozmasin". ✓ tur qatoriga qarzni yozadi,
+Kerakli summa hisoblanadi va blok ochiladi — uchala maydon BO'SH turadi.
+* `kTolovCalc`/`kSotuvCalc` dan avto-naqt qatorlari olib tashlandi.
+* `_tolovAvto` ga qo'riq qo'shildi: maydonlarning HECH BIRIGA tegilmagan bo'lsa
+  o'zi to'ldirmaydi. Bittasiga yozilishi bilan qolgani eski qoida bo'yicha
+  taqsimlanadi (karta 500 → naqt 1500).
+
+**3. `$` toggle ketma-ket taqsimlaydi.** Ibrohim misoli: 2 tur, 1154.42$ + 845.58$
+= 2000$, klientda 1800$. 1-turga `$` → 1154.42$ (to'liq), 2-turga `$` → ptichka
+qo'ygan 845.58$ o'chib **645.58$** bo'ladi, qolgan **200$ = 2.36g** ostatka bo'lib
+qoladi. `$/g` ga TEGILMAYDI — chegirma yo'q.
+* Yangi `dataset.tik` belgisi: ✓ to'ldirgan summa `tik='1'` bo'ladi.
+* `turDolTog` endi boshqa qatorlardan faqat `tik` BO'LMAGANLARINI ayiradi —
+  ptichka qo'ygan summalar hisobga olinmaydi, chunki ular baribir ustiga yoziladi.
+* Qo'lda yozilgan summa `tik` ni o'chiradi → puldan ayiriladi.
+* `$` bosilgan qator ham `tik` dan chiqadi.
+* `$` qayta bosilsa nolga tushadi (o'zgarmadi).
+
+**Claude xatosi (tuzatildi):** avvalgi maketda buni chegirma deb tushunib `$/g` ni
+o'zgartirgan edim. Ibrohim: "hichqanaqa chegirma yo'q, g/$ga tegma".
+
+**Sinov** (`t53.js`): 6 holat — Ibrohim misoli aynan chiqdi (1154.42 / 645.58 /
+ostatka 200$ = 2.36g), qo'lda yozilgani ayiriladi, pul kam bo'lsa borichasi
+yoziladi, `_tolovAvto` qo'rig'i ishlaydi.
+
 ## v169: panel hisoblagichga aylandi, to'lov pastga qaytdi
 
 **Ibrohim:** "man shu ptichkani bosganda summa kerakli summa naqtga yozilsin,
