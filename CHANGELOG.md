@@ -3,6 +3,44 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v169: panel hisoblagichga aylandi, to'lov pastga qaytdi
+
+**Ibrohim:** "man shu ptichkani bosganda summa kerakli summa naqtga yozilsin,
+klientda bor naqtgamas. shunda man klient qanchadur qismini karta qisam kerakli
+summada o'zgaradi." Va: "ptichkani bosganda klientda borga yozib qo'yishi o'zi
+aslida muammo" — ✓ bosilganda klient hali hech narsa bermagan, sistema esa
+"8493.4$ naqd olib kelgan" deb yozib qo'yardi.
+
+**Oldingi xato (v168.3 da topilgan):** pastdagi Perech va Karta yozsa bo'ladigan
+holatda qolgan edi (`openKlientTolov` dagi eski `readOnly=false` qatorlari), lekin
+yozilgan raqam hech qanday hisobni ishga tushirmasdi va Naqt qayta hisoblanmasdi.
+Natija: 8493.4 + 2000 + 2000 = 12 493.4$ saqlanib ketishi mumkin edi.
+
+**Qaror — panel endi FAQAT HISOBLAGICH:**
+* `pulPanelSync` va `pulPanelAvto` O'CHIRILDI. Panel hech qayerga yozmaydi.
+* Panel sarlavhasida "hisoblagich · saqlanmaydi" yozuvi.
+* Panelda Jami / Taqsimlandi / Qoldi · Oshdi ko'rsatiladi — klientda yetarli pul
+  bor-yo'qligini ko'rish uchun. Tur qatoridagi `$` tugmasi shu paneldan oladi.
+* `pulPanelKirit` endi faqat `pulPanelUpd` ni chaqiradi (hisobga tegmaydi).
+
+**To'lov yana pastdagi blokdan kiritiladi:**
+* Oltita maydon (`kt-` va `ks-` naqt/perech/karta) `readonly` dan chiqarildi,
+  `oninput` handlerlari qaytarildi (v168 dan oldingi asl holat).
+* Qayta taqsimlashni eski `_tolovAvto` qiladi: tegilmagan birinchi maydon
+  kerakli summaning qolganini oladi.
+* ✓ bosilganda tur qarzi yoziladi -> kerakli summa hisoblanadi -> pastdagi Naqt
+  to'ladi. Karta/Perech ga yozilsa Naqt o'zi kamayadi.
+* Ikkala modal ham bir xil (Ibrohim: "SOTUV VA TO'LOV modalini ikkalasidayam bir
+  xil qilib to'g'irla").
+
+**Saqlanib qolgani (v168 dan):** panel va Kerakli summa bloklarining 4 oynali bir
+qatorli ko'rinishi, tur qatorining yorliqsiz 2 qatorli ko'rinishi, `$` toggle,
+Lom oynasi bosilishi, yashirin eski qatorlar tuzatilishi.
+
+**Sinov** (`t51.js`, haqiqiy `_tolovAvto`): kerakli 8493.4$ — karta 2000 ->
+naqt 6493.4 · karta 2000 + perech 2000 -> naqt 4493.4 · naqt qo'lda 1000 ->
+karta 7493.4 · kerakliddan ko'p yozilsa manfiy chiqmaydi.
+
 ## v168.3: yashirin eski qatorlar (Taqsimlandi qopketishi)
 
 **Ibrohim:** "bundan oldin summa yozasanu nimadur summala keyingi safar to'lovga
