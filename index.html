@@ -1,4 +1,4 @@
-<!-- v171 -->
+<!-- v171.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171';
+var APP_VER = 'v171.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -6859,9 +6859,10 @@ function _qoEsc(s){
 function qoldData(){
   var dv = qoldDavr();
 
-  // Klient amallari BIR MARTA zavod|tur bo'yicha indekslanadi —
-  // har tur uchun hamma klientni qayta aylanib chiqmaslik uchun.
-  var K = {};
+  // Klient amallari BIR MARTA zavod|tur bo'yicha indekslanadi.
+  //   K[key]  — SHU HAFTA ichidagi amallar (qator bo'lib chiqadi)
+  //   KA[key] — hafta TUGAGANDAN KEYINGI amallar yig'indisi (orqaga qaytarish uchun)
+  var K = {}, KA = {};
   (data.klientlar||[]).forEach(function(k){
     (k.tarix||[]).forEach(function(op){
       if(!op || !op.zavod || !op.tur) return;
@@ -6870,13 +6871,15 @@ function qoldData(){
       var g = parseNum(op.gramm);
       if(!(g > 0)) return;                           // manfiy — ostatkaga tegmaydi
       var ts = fdSanaTs(op.sana, op.soat) || 0;
-      if(ts < dv.bosh || ts > dv.oxir) return;
+      var sg = (op.tip==='berish') ? -g : g;
       var key = op.zavod+'\u0000'+op.tur;
+      if(ts > dv.oxir){ KA[key] = (KA[key]||0) + sg; return; }
+      if(ts < dv.bosh) return;                       // hafta oldidagilar — allaqachon qoldiqda
       (K[key] || (K[key]=[])).push({
         ts: ts,
         sana: (op.sana||'').slice(0,10),
         nom: op.tip==='berish' ? 'Klientga ketdi' : 'Klientdan vozvrat',
-        g: op.tip==='berish' ? -g : g
+        g: sg
       });
     });
   });
@@ -6885,30 +6888,37 @@ function qoldData(){
   (data.zavodlar||[]).forEach(function(z){
     var zo = {nom: z.nom, jami: 0, turlar: []};
     (z.turlar||[]).forEach(function(t){
-      var ost = roundG(t.ostatka||0);
-      var ops = [];
+      var key = z.nom+'\u0000'+t.nom;
+      var ops = [], keyin = KA[key] || 0;            // hafta tugagandan keyingi harakat
       (t.tarix||[]).forEach(function(op){
         if(!op) return;
         if(op.tip!=='mol' && op.tip!=='vozvrat') return;
-        var ts = fdSanaTs(op.sana, op.soat) || 0;
-        if(ts < dv.bosh || ts > dv.oxir) return;
         var g = parseNum(op.gramm);
         if(!g) return;
+        var ts = fdSanaTs(op.sana, op.soat) || 0;
         var nom, sg;
         if(op.inventar){ nom = 'Ostatka tuzatish'; sg = (op.tip==='vozvrat' ? -g : g); }
         else if(op.tip==='mol'){ nom = 'Zavoddan keldi'; sg = g; }
         else { nom = 'Zavodga vozvrat'; sg = -g; }
+        if(ts > dv.oxir){ keyin += sg; return; }
+        if(ts < dv.bosh) return;
         ops.push({ts:ts, sana:(op.sana||'').slice(0,10), nom:nom, g:sg});
       });
-      var kk = K[z.nom+'\u0000'+t.nom];
+      var kk = K[key];
       if(kk) ops = ops.concat(kk);
+
+      // Shu hafta OXIRIDAGI qoldiq = bugungi ostatka − hafta tugagandan keyingi harakat.
+      // Bu hafta uchun "keyin" nol, ya'ni bugungi ostatka. O'tgan haftalar uchun esa
+      // o'sha yakshanbadagi haqiqiy qoldiq chiqadi — shuning uchun bir haftaning oxiri
+      // keyingi haftaning boshiga to'g'ri ulanadi.
+      var oxir = roundG((t.ostatka||0) - roundG(keyin));
 
       // Bir kunda bir xil turdagi amallar bitta qatorga yig'iladi.
       var mp = {}, qat = [];
       ops.forEach(function(o){
-        var key = o.sana+'\u0000'+o.nom;
-        var c = mp[key];
-        if(!c){ c = mp[key] = {ts:o.ts, sana:o.sana, nom:o.nom, g:0}; qat.push(c); }
+        var kq = o.sana+'\u0000'+o.nom;
+        var c = mp[kq];
+        if(!c){ c = mp[kq] = {ts:o.ts, sana:o.sana, nom:o.nom, g:0}; qat.push(c); }
         c.g += o.g;
         if(o.ts < c.ts) c.ts = o.ts;
       });
@@ -6916,12 +6926,12 @@ function qoldData(){
 
       var harakat = 0;
       qat.forEach(function(q){ q.g = roundG(q.g); harakat = roundG(harakat + q.g); });
-      var bosh = roundG(ost - harakat);
+      var bosh = roundG(oxir - harakat);
       var yur = bosh;
       qat.forEach(function(q){ yur = roundG(yur + q.g); q.qold = yur; });
 
-      zo.turlar.push({nom:t.nom, ost:ost, bosh:bosh, qatorlar:qat});
-      zo.jami = roundG(zo.jami + ost);
+      zo.turlar.push({nom:t.nom, ost:oxir, bosh:bosh, qatorlar:qat});
+      zo.jami = roundG(zo.jami + oxir);
     });
     jami = roundG(jami + zo.jami);
     Z.push(zo);
