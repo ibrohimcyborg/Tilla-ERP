@@ -1,4 +1,4 @@
-<!-- v170 -->
+<!-- v171 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1333,6 +1333,10 @@ body.rol-hamid .hamid-x { display: none !important; }
         <div style="font-size:14px;font-weight:700;color:var(--text);">📅 Haftalik ostatka</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Hafta ichida kimga necha gramm berilgani va vozvrati — bloknot bilan solishtirish</div>
       </button>
+      <button onclick="qoldOch()" style="width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);">📦 Qo'limizdagi ostatka</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Har zavod/turdan hozir necha gramm bor — dushanba skan bilan solishtirish uchun</div>
+      </button>
       <button onclick="donaBazaEkranOch()" class="hamid-x" style="width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
         <div style="font-size:14px;font-weight:700;color:var(--text);">🗄 Dona baza</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Sana bo'yicha kirgan donalar — grammlari, kimga ketgani</div>
@@ -1367,6 +1371,23 @@ body.rol-hamid .hamid-x { display: none !important; }
         <button onclick="haftaOstPDF()" class="btn" style="flex:1;font-size:12px;padding:9px 0;">📄 PDF</button>
         <button onclick="haftaOstExcel()" class="btn" style="flex:1;font-size:12px;padding:9px 0;">📊 Excel</button>
       </div>
+    </div>
+
+    <div class="card" id="ost-qold" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);">📦 QO'LIMIZDAGI OSTATKA</div>
+        <button onclick="qoldYop()" style="border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;">×</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:7px 10px;margin-bottom:9px;">
+        <span onclick="qoldNav(-1)" style="font-size:16px;color:var(--gold);cursor:pointer;padding:0 10px;">‹</span>
+        <span id="qo-davr" style="font-size:12px;font-weight:600;"></span>
+        <span onclick="qoldNav(1)" style="font-size:16px;color:var(--gold);cursor:pointer;padding:0 10px;">›</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:9px;padding:9px 11px;margin-bottom:9px;">
+        <span style="font-size:12px;font-weight:600;">Jami qo'limizda</span>
+        <b id="qo-jami" style="font-family:Roboto,sans-serif;font-size:16px;color:var(--gold);">0.00 g</b>
+      </div>
+      <div id="qo-list"></div>
     </div>
 
     <div class="card" id="ost-kl-search" style="display:none;">
@@ -1931,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v170';
+var APP_VER = 'v171';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -6794,6 +6815,194 @@ function haftaOstExcel(){
   a.download='haftalik-ostatka-'+haftaOstSanaFmt(dv.bosh).replace(/\./g,'-')+'.csv';
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   QO'LIMIZDAGI OSTATKA (v171)
+   Har zavod / har turdan HOZIR bizda necha gramm borligi — bitta ro'yxatda.
+   Dushanba skan qilib solishtirish uchun. Oldi-berdi bo'lmagan zavod/tur ham
+   ro'yxatda qoladi (nol bo'lsa ham) — skanda birontasi tushib qolmasin.
+   Tur ochilsa: hafta boshi -> kun-kun harakat -> qolgan ostatka.
+
+   OSTATKAGA TA'SIR QOIDALARI — koddan tekshirilgan (v170):
+     zavod  tip:'mol'      ostatka += gramm   (manfiy gramm ham)
+     zavod  tip:'vozvrat'  ostatka -= gramm
+     klient tip:'berish'   ostatka -= gramm   FAQAT gramm > 0
+     klient tip:'vozvrat'  ostatka += gramm   FAQAT gramm > 0
+     klient inventar:'boshlangich'  zavod ostatkasiga TEGMAYDI
+   Manfiy berish (biz qarzdor, pul-asosli) ostatkaga tegmaydi — shuning uchun
+   hisobga ham olinmaydi, aks holda hafta boshi noto'g'ri chiqadi.
+
+   Ostatka shakllantirish/tekshiruv (inventar belgili) ostatkani O'ZGARTIRADI,
+   shuning uchun zanjirdan tashlab bo'lmaydi — lekin "Zavoddan keldi" ga
+   QO'SHILMAYDI, alohida "Ostatka tuzatish" qatori bo'lib chiqadi.
+
+   Hafta boshi saqlanmagan — hozirgi ostatkadan shu haftadagi harakatlar
+   orqaga ayirib topiladi. Ya'ni zanjir o'z ichiga yopiq, tekshiruv emas.
+   Tekshiruv — dushanbadagi jismoniy skan.
+   ══════════════════════════════════════════════════════════════════ */
+var _qoOffset = 0;
+var _qoOchiq  = {};
+
+function qoldDavr(){
+  var n = new Date();
+  var d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  var kun = (d.getDay()+6)%7;                        // dushanba = 0
+  var bosh = d.getTime() - kun*86400000 + _qoOffset*7*86400000;
+  return {bosh: bosh, oxir: bosh + 7*86400000 - 1};
+}
+function _qoEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function qoldData(){
+  var dv = qoldDavr();
+
+  // Klient amallari BIR MARTA zavod|tur bo'yicha indekslanadi —
+  // har tur uchun hamma klientni qayta aylanib chiqmaslik uchun.
+  var K = {};
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || !op.zavod || !op.tur) return;
+      if(op.tip!=='berish' && op.tip!=='vozvrat') return;
+      if(op.inventar==='boshlangich') return;
+      var g = parseNum(op.gramm);
+      if(!(g > 0)) return;                           // manfiy — ostatkaga tegmaydi
+      var ts = fdSanaTs(op.sana, op.soat) || 0;
+      if(ts < dv.bosh || ts > dv.oxir) return;
+      var key = op.zavod+'\u0000'+op.tur;
+      (K[key] || (K[key]=[])).push({
+        ts: ts,
+        sana: (op.sana||'').slice(0,10),
+        nom: op.tip==='berish' ? 'Klientga ketdi' : 'Klientdan vozvrat',
+        g: op.tip==='berish' ? -g : g
+      });
+    });
+  });
+
+  var Z = [], jami = 0;
+  (data.zavodlar||[]).forEach(function(z){
+    var zo = {nom: z.nom, jami: 0, turlar: []};
+    (z.turlar||[]).forEach(function(t){
+      var ost = roundG(t.ostatka||0);
+      var ops = [];
+      (t.tarix||[]).forEach(function(op){
+        if(!op) return;
+        if(op.tip!=='mol' && op.tip!=='vozvrat') return;
+        var ts = fdSanaTs(op.sana, op.soat) || 0;
+        if(ts < dv.bosh || ts > dv.oxir) return;
+        var g = parseNum(op.gramm);
+        if(!g) return;
+        var nom, sg;
+        if(op.inventar){ nom = 'Ostatka tuzatish'; sg = (op.tip==='vozvrat' ? -g : g); }
+        else if(op.tip==='mol'){ nom = 'Zavoddan keldi'; sg = g; }
+        else { nom = 'Zavodga vozvrat'; sg = -g; }
+        ops.push({ts:ts, sana:(op.sana||'').slice(0,10), nom:nom, g:sg});
+      });
+      var kk = K[z.nom+'\u0000'+t.nom];
+      if(kk) ops = ops.concat(kk);
+
+      // Bir kunda bir xil turdagi amallar bitta qatorga yig'iladi.
+      var mp = {}, qat = [];
+      ops.forEach(function(o){
+        var key = o.sana+'\u0000'+o.nom;
+        var c = mp[key];
+        if(!c){ c = mp[key] = {ts:o.ts, sana:o.sana, nom:o.nom, g:0}; qat.push(c); }
+        c.g += o.g;
+        if(o.ts < c.ts) c.ts = o.ts;
+      });
+      qat.sort(function(a,b){ return a.ts - b.ts; });
+
+      var harakat = 0;
+      qat.forEach(function(q){ q.g = roundG(q.g); harakat = roundG(harakat + q.g); });
+      var bosh = roundG(ost - harakat);
+      var yur = bosh;
+      qat.forEach(function(q){ yur = roundG(yur + q.g); q.qold = yur; });
+
+      zo.turlar.push({nom:t.nom, ost:ost, bosh:bosh, qatorlar:qat});
+      zo.jami = roundG(zo.jami + ost);
+    });
+    jami = roundG(jami + zo.jami);
+    Z.push(zo);
+  });
+  return {Z:Z, jami:jami, dv:dv};
+}
+
+function qoldOch(){
+  _qoOffset = 0; _qoOchiq = {};
+  document.getElementById('ost-choice').style.display='none';
+  document.getElementById('ost-qold').style.display='block';
+  qoldRender();
+}
+function qoldYop(){
+  document.getElementById('ost-qold').style.display='none';
+  document.getElementById('ost-choice').style.display='block';
+}
+function qoldNav(d){ _qoOffset = Math.min(0, _qoOffset + d); _qoOchiq = {}; qoldRender(); }
+function qoldTur(zi, ti){ var k = zi+'|'+ti; _qoOchiq[k] = !_qoOchiq[k]; qoldRender(); }
+
+function _qoQator(sana, nom, gr, qold, uslub){
+  var gRang = (gr==null) ? 'var(--muted)'
+            : (gr>0 ? 'var(--green)' : (gr<0 ? 'var(--red)' : 'var(--muted)'));
+  var gMatn = (gr==null) ? '' : (gr>0?'+':'')+fmtG(gr);
+  var qRang = (uslub==='fin') ? 'var(--gold)' : 'var(--text)';
+  return '<div style="display:grid;grid-template-columns:40px 1fr 70px 74px;gap:5px;align-items:center;'
+    + 'padding:5px 0;border-top:.5px solid var(--border);font-size:11.5px;">'
+    + '<span style="color:var(--gold);font-family:Roboto,sans-serif;font-weight:600;">'+_qoEsc(sana)+'</span>'
+    + '<span style="color:'+(uslub?'var(--text)':'var(--muted)')+';'+(uslub?'font-weight:600;':'')+'">'+_qoEsc(nom)+'</span>'
+    + '<span style="text-align:right;font-family:Roboto,sans-serif;color:'+gRang+';">'+gMatn+'</span>'
+    + '<span style="text-align:right;font-family:Roboto,sans-serif;color:'+qRang+';'+(uslub?'font-weight:700;':'')+'">'+fmtG(qold)+'</span>'
+    + '</div>';
+}
+
+function qoldRender(){
+  var R = qoldData(), dv = R.dv;
+  document.getElementById('qo-davr').textContent =
+    haftaOstSanaFmt(dv.bosh)+' \u2014 '+haftaOstSanaFmt(dv.oxir-86400000+1)
+    +(_qoOffset===0?' (bu hafta)':'');
+  document.getElementById('qo-jami').textContent = fmtG(R.jami)+' g';
+
+  var out = '';
+  R.Z.forEach(function(z, zi){
+    out += '<div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;">'
+        +  '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--gold-bg);">'
+        +    '<b style="font-size:13px;">'+_qoEsc(z.nom)+'</b>'
+        +    '<span style="font-family:Roboto,sans-serif;font-size:11.5px;color:var(--muted);">'+fmtG(z.jami)+' g</span>'
+        +  '</div>';
+    if(!z.turlar.length){
+      out += '<div style="padding:10px 11px;font-size:11.5px;color:var(--muted);border-top:.5px solid var(--border);">Tur yo\'q</div>';
+    }
+    z.turlar.forEach(function(t, ti){
+      var och = !!_qoOchiq[zi+'|'+ti], yoq = !t.qatorlar.length;
+      out += '<div onclick="qoldTur('+zi+','+ti+')" style="display:flex;justify-content:space-between;align-items:center;'
+          +  'padding:10px 11px 10px 18px;border-top:.5px solid var(--border);cursor:pointer;">'
+          +  '<span style="font-size:13px;'+(yoq?'color:var(--muted);':'')+'">'+(och?'\u25be':'\u25b8')+' '+_qoEsc(t.nom)
+          +  (yoq?' <span style="font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 5px;margin-left:3px;">harakat yo\'q</span>':'')
+          +  '</span>'
+          +  '<b style="font-family:Roboto,sans-serif;font-size:15px;color:'+(yoq?'var(--muted)':'var(--gold)')+';">'+fmtG(t.ost)+'</b>'
+          +  '</div>';
+      if(och){
+        out += '<div style="padding:2px 11px 10px 18px;background:var(--surf2);">';
+        out += _qoQator('', 'Hafta boshi', null, t.bosh, 'head');
+        if(yoq){
+          out += '<div style="text-align:center;color:var(--muted);font-size:11px;padding:9px 0;border-top:.5px solid var(--border);">bu haftada oldi-berdi bo\'lmagan</div>';
+        } else {
+          var ox = '';
+          t.qatorlar.forEach(function(q){
+            var sd = (q.sana===ox) ? '' : (q.sana||'').slice(0,5);
+            ox = q.sana;
+            out += _qoQator(sd, q.nom, q.g, q.qold, '');
+          });
+        }
+        out += _qoQator('', 'Qolgan ostatka', null, t.ost, 'fin');
+        out += '</div>';
+      }
+    });
+    out += '</div>';
+  });
+  document.getElementById('qo-list').innerHTML = out ||
+    '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0;">Zavod yo\'q.</div>';
 }
 
 function ostHisobotOch(){
