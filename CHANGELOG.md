@@ -3,6 +3,66 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171: Qo'limizdagi ostatka
+
+**Yangi ekran.** Ostatka modaliga "📦 Qo'limizdagi ostatka" tugmasi qo'shildi.
+Har zavod / har turdan HOZIR bizda necha gramm borligi bitta ro'yxatda —
+dushanba kuni skan qilib solishtirish uchun. Ibrohim: "manga shunchaki
+'qo'limizdagi ostatka' kere, biz qaysi zavodning qaysi turidan qancha qolganini
+dushanba kuni skan qilib tekshiramiz, bo'ldi shu".
+
+**Oldi-berdi bo'lmagan zavod/tur ham ro'yxatda qoladi** — nol gramm bo'lsa ham,
+yonida "harakat yo'q" belgisi bilan. Ibrohim: "hech qanaqa oldi-berdi bo'lmagan
+zavodlar ham tursin". Skanda birontasi tushib qolmasligi uchun.
+
+**Tur ochilsa** hafta ichidagi harakat kun-kun chiqadi: hafta boshi → har kungi
+amal va o'sha kundan keyingi qoldiq → qolgan ostatka. Bir kunda bir xil turdagi
+amallar bitta qatorga yig'iladi.
+
+**Klient nomlari YO'Q.** Faqat zavod → tur → umumiy gramm. Ibrohim: "shart emas
+klientni nomma-nom etishi, faqat zavodni turiga qarab etib bersa bo'ldi".
+
+**Farq, skan, dona, lom — kirmaydi.** Ibrohim: "farqqa hali beri o'tmaymiz,
+bizga oldin ostatkani ko'rsatib tursin, farqni keyin shakllantiramiz".
+Tekshiruv sistema ichida emas — dushanbadagi jismoniy skan.
+
+### Ostatkaga ta'sir qoidalari (koddan tekshirilgan)
+Hafta boshi saqlanmagan, shuning uchun hozirgi ostatkadan shu haftadagi
+harakatlar orqaga ayirib topiladi. Zanjir to'g'ri yopilishi uchun hisobga
+olinadigan harakatlar ostatkani haqiqatda o'zgartiradiganlar bilan AYNAN mos
+kelishi kerak:
+* zavod `tip:'mol'` → `ostatka += gramm` (manfiy gramm ham)
+* zavod `tip:'vozvrat'` → `ostatka -= gramm`
+* klient `tip:'berish'` → `ostatka -= gramm` **faqat gramm > 0**
+* klient `tip:'vozvrat'` → `ostatka += gramm` **faqat gramm > 0**
+* klient `inventar:'boshlangich'` → zavod ostatkasiga tegmaydi
+
+**Manfiy berish e'tiborga olinmaydi.** `saqlashKlientBerish` da manfiy berish
+(biz qarzdor, pul-asosli) ostatkaga tegmaydi — hisobga qo'shilsa hafta boshi
+noto'g'ri chiqardi.
+
+**Ostatka tuzatishlari alohida qator.** `inventar:'boshlangich'/'tekshiruv'`
+yozuvlari ostatkani O'ZGARTIRADI, shuning uchun zanjirdan tashlab bo'lmaydi —
+lekin "Zavoddan keldi" ga qo'shilmaydi, "Ostatka tuzatish" nomi bilan alohida
+chiqadi. Ibrohim: "to'g'ri, qo'shmasligi kerak".
+
+### Qo'shilgan
+* HTML: `#ost-qold` kartasi, `#ost-choice` ga tugma
+* JS: `_qoOffset`, `_qoOchiq`, `qoldDavr`, `_qoEsc`, `qoldData`, `qoldOch`,
+  `qoldYop`, `qoldNav`, `qoldTur`, `_qoQator`, `qoldRender`
+* Hafta dushanbadan boshlanadi (mavjud `haftaOstDavr` bilan bir xil qoida)
+* Mavjud funksiyalarning HECH BIRIGA tegilmadi — ekran faqat o'qiydi
+
+### Ochiq qolgan
+* **Sotildi / Ostatkaga berildi ajratilmaydi.** Ikkisi ham `tip:'berish'` bo'lib
+  bir xil yoziladi — shuning uchun vaqtincha bitta "Klientga ketdi" qatori.
+  Ostatka grammiga ta'siri yo'q (ikkisi ham bir xil ayiradi).
+* Sotuv belgisi (`manba:'sotuv'`) hech qayerda yozilmaydi — `haftaOstData`
+  (6180/6187) uni o'qiydi, natija doim `false`. Dona bazadagi `'sotilgan'`
+  holati ham hech qachon qo'yilmaydi.
+
+---
+
 ## v170: panel pastga · ptichka naqtga yozmaydi · $ ketma-ket taqsimlaydi
 
 **1. "Klientda bor" pastga tushdi.** Endi turlar ro'yxatidan keyin, "Kerakli summa"
