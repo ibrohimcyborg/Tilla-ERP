@@ -3,6 +3,113 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.3: sdacha ikki marta yozilishi + turda ko'rinishi
+
+### Xato 1 — sdacha grammi ikki marta qo'shilardi
+To'lov saqlanganda sdacha yozuvi **ikki alohida joydan** yozilardi:
+1. `saqlashKlientTolov` ichidagi `ktTanlov.tip==='tur'` bloki
+2. undan keyingi qatorda chaqiriladigan `sdachaTaqsimSaqla('kt', ...)`
+
+Ikkalasi ham bir xil tanlovni o'qiydi — `_ktSdachaTanlov` va `_sdachaRadio_kt`
+bitta joyda (12502/12525-12530) birga o'rnatiladi. Natijada klient tarixiga
+ikkita bir xil yozuv tushardi va "bizning qarz" ikki barobar shishardi.
+
+Ibrohim misoli (Zulfiya Opa Andijon, 31.07.2026): sdacha 12.63 g bo'lishi kerak
+edi, "bizning qarz" **25.26 g** ko'rsatdi. Tarixda ikkita `↩ Butterfly · Oddiy
++12.63g` — biri soati bilan, biri soatsiz. Soat farqi manba ikki xil ekanining
+dalili bo'ldi (blok soat yozmasdi, funksiya yozardi).
+
+**Tuzatish.** `ktTanlov.tip==='tur'` bloki olib tashlandi.
+Qaysi biri qoldirildi va nega — `sdachaTaqsimSaqla`:
+* sotuv modalidan ham chaqiriladi, o'chirib bo'lmaydi
+* `soat` yozadi
+* "Sdacha — naqt qaytardim" tanlovini qo'llaydi (kassaga chiqim)
+
+Blokda uchalasi ham yo'q edi. `tip==='bizda'` tarmog'i **qoldirildi** —
+`sdachaTaqsimSaqla` faqat `"zavod||tur"` shaklidagi tanlovni qabul qiladi,
+'bizda' ga unda muqobil yo'q. Unga ham `soat` qo'shildi.
+
+### Xato 2 — sdacha turi bilan ko'rinmasdi
+`_qarzTarkib` (Qarz tarkibi paneli manbasi) `klientda` yozuvini **umuman qayta
+ishlamasdi**. Yozuvda `zavod`/`tur` saqlanadi (tarixda `↩ Butterfly · Oddiy`
+deb chiqadi), lekin taqsimotga tushmasdi — faqat yuqoridagi umumiy "bizning
+qarz" raqamiga jim qo'shilardi. Shu sababli takror yozuv ko'zga tashlanmagan.
+
+**Tuzatish.** `_qarzTarkib` ga `klientda` tarmog'i qo'shildi — zavod/tur bo'lsa
+o'sha tur qarzidan ayiriladi. Panel manfiy qiymatni allaqachon qo'llaydi
+(`↩ biz qarzdor`, yashil). Jami qarz alohida `klientJamiQarz` dan olinadi,
+o'zgarmadi.
+
+Eslatma: koddagi boshqa 11 joyda `klientda` allaqachon turdan ayirilardi
+(`turQarz -= op.gramm`). `_qarzTarkib` va `klientQarzSplit` istisno edi.
+Bu yerda faqat `_qarzTarkib` tuzatildi — `klientQarzSplit` tegilmadi.
+
+### Tekshirilmagan / ochiq
+* **Lom narxi chekda 73.1, saqlanganda 73** — 10.89 $ farq. Chek ham, saqlash
+  ham aynan bir xil maydondan `parseNum` bilan o'qiydi (vergul himoyasi bor).
+  Sabab topilmadi, tegilmadi. Ibrohim takrorlab tekshiradi.
+* Allaqachon ikkilanib yozilgan eski yozuvlar tozalanmadi.
+* `klientQarzSplit` da `klientda` hali ham to'g'ridan-to'g'ri `bizQarzi` ga
+  qo'shiladi (tur bo'yicha emas).
+
+---
+
+## v171.2: sdacha soat xatosi
+
+**Xato.** To'lov modalida sdacha saqlanganda `soat` maydoniga `"11:49"` matni
+o'rniga **Date obyekti** uzatilardi. 12934–12935-qatorlarda ikkala qiymat ham
+tayyor turadi (`_now_kt` — Date, `_soat_kt` — matn), lekin chaqiruvda
+noto'g'risi yozilgan edi. Sotuv tomonida (`_soat_ks2`) to'g'ri qilingan —
+faqat to'lov tomoni xato.
+
+Oqibat: `renderKlientHisobot` sessiyalarni saralaganda
+`(b.soat||'').localeCompare(...)` chaqiradi — Date obyektida bu metod yo'q,
+ekran qulardi. JSON ga saqlangach Date ISO matnga aylanadi
+(`"2026-07-31T06:49:41.000Z"`) — qulash to'xtaydi, lekin soat noto'g'ri
+ko'rinadi va noto'g'ri saralanadi.
+
+**Tuzatish 1 — yozuvchi tomon.** `sdachaTaqsimSaqla('kt', k, sana, _now_kt ? ...)`
+→ `sdachaTaqsimSaqla('kt', k, sana, _soat_kt)`.
+
+**Tuzatish 2 — eski yozuvlar.** `data._soatFix1` bayrog'i bilan bir martalik
+migratsiya qo'shildi (yuklashdagi tozalash yonida). `soat` Date obyekti, ISO
+matni yoki raqam bo'lsa `"HH:MM"` ga qaytariladi — mahalliy vaqt bo'yicha.
+Sog'lom `"HH:MM"` qiymatlarga va `soat` yo'q yozuvlarga tegilmaydi.
+Nechta yozuv tuzatilgani konsolga yoziladi.
+
+### Orqaga qaytarilgan
+v171.2 da ruxsatsiz qo'shilgan `_qoCache` (qo'limizdagi ostatka ekrani uchun
+tezlik keshi) **olib tashlandi**. Ibrohim buni so'ramagan edi. Ekran v171.1
+holatiga qaytdi — tur ochilganda hisob qaytadan bajariladi.
+
+---
+
+## v171.1: haftalik zanjir tuzatildi
+
+**Xato (v171).** Hafta oxiridagi qoldiq DOIM bugungi ostatka deb olinardi.
+Shu haftada to'g'ri ishlardi, lekin orqaga varaqlaganda o'tgan haftalar
+butunlay noto'g'ri raqam ko'rsatardi — chunki oradagi haftalarning harakati
+hisobga olinmasdi.
+
+**Tuzatish.** Endi:
+* `hafta oxiri qoldig'i = bugungi ostatka − hafta TUGAGANDAN KEYINGI harakatlar`
+* `hafta boshi = hafta oxiri qoldig'i − shu hafta ichidagi harakatlar`
+
+Shunda bir haftaning oxiri keyingi haftaning boshiga aniq ulanadi.
+
+**Ibrohim misoli (tekshirildi).** Butterfly oddiy yakshanba 1000 g. Keyingi
+hafta: dushanba +100 zavoddan, seshanba −200 zavodga vozvrat, chorshanba −50
+klientga, payshanba −100 klientga → `1000+100−200−50−100 = 750 g`.
+Butterfly 3D — hech qanday harakat yo'q, ikkala haftada ham 500 g.
+Orqaga varaqlanganda o'tgan hafta oxiri 1000 g chiqadi va bu haftaning
+boshiga ulanadi.
+
+`qoldData` da klient amallari indekslanganda hafta tugagandan keyingi
+harakatlar `KA` yig'indisiga, zavod tarixida esa `keyin` o'zgaruvchisiga
+yig'iladi.
+
+---
+
 ## v171: Qo'limizdagi ostatka
 
 **Yangi ekran.** Ostatka modaliga "📦 Qo'limizdagi ostatka" tugmasi qo'shildi.
