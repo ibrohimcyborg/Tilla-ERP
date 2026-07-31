@@ -3,6 +3,58 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.6: vozvrat va sotuv skani — berishdagidek
+
+Ibrohim: "berish modalida skan bilan vozvrat va sotuvda skan boshqacha,
+shuni hammasini berishdagidek qilish kerak" + "eskisini qilaqol"
+(ixcham/pill ko'rinish rad etildi — berishdagi ro'yxat ko'rinishi qoldi).
+
+### Sodda skan berish darajasiga ko'tarildi
+Vozvrat va sotuvdagi skan (`uniSkan*`) da faqat bitta yig'indi qatori bor edi:
+"3 dona · 8.17 g · oxirgisi 3.40g". Ro'yxat yo'q edi, shuning uchun xato skan
+bo'lsa faqat oxirgisini o'chirish mumkin edi.
+
+Qo'shildi (berishdagi panel bilan bir xil ko'rinishda):
+* **1-skan / 2-skan** rejimi
+* **Ikki skanni solishtirish** — "2-skanda kam / ortiq", mos bo'lsa yashil ✓
+* **Skan qilinganlar ro'yxati**, har qatorda **×** bilan o'chirish
+* Dona va Jami kartalari
+
+### Chaqiruv joylariga TEGILMADI
+`uniSkanBtn` / `uniSkanPanel` / `uniSkanDona` / `uniSkanArr` / `uniSkanReset`
+imzosi o'zgarmadi, shuning uchun 5 ta joy o'z holicha qoldi: klient vozvrat,
+to'lovdagi vozvrat, sotuv grammi, sotuvdagi vozvrat va ostatka vozvrati.
+
+**Muhim:** `uniSkanDona` va `uniSkanArr` DOIM **1-skan** ro'yxatidan oladi,
+maydonga ham 1-skan yig'indisi yoziladi. 2-skan faqat tekshirish uchun —
+saqlashga umuman ta'sir qilmaydi. Shu sababli dona registri
+(`donaRegQosh` / `donaRegOlish`) avvalgidek ishlaydi. Sinovda tasdiqlandi.
+
+### Fokus (berishda ham)
+Ibrohim: "× bosganda 2-skanga o'tganda chiqib ketib qolmasin".
+* `uniSkanDelAt`, `uniSkanDelLast`, `uniSkanSetMode`, `uniSkanAdd` —
+  fokus kiritish maydoniga qaytadi
+* `kbSkanDelAt` (berish ×) — fokus qaytmasdi, endi qaytadi
+* `kbSkanSetMode` (berish 1/2-skan) — fokus **umuman yo'q edi**, qo'shildi
+* `kbSkanToggle` — `setTimeout` ichidagi fokus bosish lahzasiga ko'chirildi,
+  kechikish faqat zaxira bo'lib qoldi (telefon brauzeri kechiktirilgan
+  `.focus()` ni rad etadi)
+
+Yangi `kbSkanFokus` va `uniSkanFokus` kursorni matn oxiriga qo'yadi.
+
+### Berishdan farq qiladigan bitta joy
+Berishda **−** tugmasi MANFIY gramm qo'shadi (tuzatish uchun), o'chirmaydi.
+Vozvrat/sotuvda **−** avvalgidek **oxirgisini o'chiradi** — o'zgartirilmadi.
+Sabab: manfiy gramm `uniSkanArr` orqali dona registriga tushib ketardi va
+uni buzishi mumkin edi. Bu Ibrohim tasdiqlagan mockupdagi xulq.
+Berishdagidek bo'lishi kerak bo'lsa — alohida aytilsin.
+
+### Tegilmagan
+Panel ochilishida sensorli qurilmada fokus berilmaydi (`_touchQurilma`) —
+bu eski qoida, klaviatura o'z-o'zidan ochilib ketmasligi uchun. O'zgartirilmadi.
+
+---
+
 ## v171.5: skan — fokus kiritish maydonida qoladi
 
 Ibrohim: "× bossam skan qilish o'chmasin, chunki × bosvomman keyin yana
