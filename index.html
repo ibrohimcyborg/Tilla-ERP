@@ -1,4 +1,4 @@
-<!-- v171.3 -->
+<!-- v171.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171.3';
+var APP_VER = 'v171.4';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -9508,8 +9508,14 @@ function renderKassa() {
   html+='</div>';
 
   var expKassa={};
+  // v171.4: KUN DARAJASIDA YIG'ISH. Hamma kun yopiq, faqat bugungisi ochiq.
+  // expKun null bo'lsa birinchi chizishda bugun ochiladi; keyin foydalanuvchi
+  // bosgani saqlanadi (bugungisini ham yopsa bo'ladi).
+  var expKun=null;
+  var _kassaBugun=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
   function kassaRender(){
     var out=html;
+    if(expKun===null){ expKun={}; expKun[_kassaBugun]=true; }
     dayOrder.forEach(function(sana){
       var klientlar=byDay[sana];
       var daySumma=0, dayFoyda=0, dayFoydaAsl=0;
@@ -9519,10 +9525,20 @@ function renderKassa() {
       var daySz = Math.abs(dayFoyda-dayFoydaAsl)>0.005;
       var dayStrelka = daySz ? (dayFoyda>dayFoydaAsl?' <span style="color:var(--green);">▲</span>':' <span style="color:var(--red);">▼</span>') : '';
 
-      out+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;display:flex;justify-content:space-between;">';
-      out+='<span>'+sana+'  <span style="color:var(--gold);">$'+fmtD(daySumma)+'</span></span>';
+      var _koch=!!expKun[sana];
+      out+='<div onclick="kassaKunToggle(\''+sana+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;background:var(--surf);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;">';
+      out+='<span style="display:flex;align-items:center;gap:7px;min-width:0;">';
+      out+='<span style="font-size:9px;color:var(--muted);display:inline-block;transform:rotate('+(_koch?'90deg':'0deg')+');">&#9654;</span>';
+      out+='<span style="font-size:13px;font-weight:600;color:var(--text);">'+sana+'</span>';
+      out+='<span style="font-size:13px;font-weight:600;color:var(--gold);">$'+fmtD(daySumma)+'</span>';
+      if(sana===_kassaBugun) out+='<span style="font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px;">bugun</span>';
+      out+='</span>';
+      out+='<span style="display:flex;align-items:center;gap:7px;white-space:nowrap;">';
+      out+='<span style="font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:1px 8px;">'+Object.keys(klientlar).length+' ta</span>';
       out+='<span style="font-size:11px;">'+(daySz?'<span style="text-decoration:line-through;color:var(--muted);font-size:10px;">+$'+fmtD(dayFoydaAsl)+'</span> ':'')+'<span style="color:'+(dayFoyda>0.005?'var(--green)':'var(--red)')+';font-weight:600;">'+(dayFoyda>0?'+':'')+'$'+fmtD(dayFoyda)+'</span>'+dayStrelka+'</span>';
+      out+='</span>';
       out+='</div>';
+      out+='<div style="display:'+(_koch?'block':'none')+';">';
 
       Object.keys(klientlar).sort(function(a,b){ return (klientlar[b].soat||'').localeCompare(klientlar[a].soat||''); }).forEach(function(key){
         var kg=klientlar[key];
@@ -9725,11 +9741,13 @@ function renderKassa() {
       out+='<span><span style="color:var(--gold);font-weight:500;">$'+fmtD(daySumma)+'</span>';
       if(dayFoyda>0) out+=' · <span style="color:var(--green);font-weight:500;">+$'+fmtD(dayFoyda)+'</span>';
       out+='</span></div>';
+      out+='</div>';   // v171.4: kun yig'ish o'ramining yopilishi
     });
     cont.innerHTML=out;
   }
 
   window.kassaToggle=function(key){ expKassa[key]=!expKassa[key]; kassaRender(); };
+  window.kassaKunToggle=function(sana){ if(expKun===null) expKun={}; expKun[sana]=!expKun[sana]; kassaRender(); };
   kassaRender();
 }
 
@@ -10306,6 +10324,26 @@ function kassaPDFYukor(dan, gacha) {
     .catch(function(e){alert('PDF xato: '+e.message);});
 }
 
+/* v171.4: KLIENT HISOBOTI — sana bo'yicha yig'ish + amal turi filtri.
+   _khOchiq null bo'lsa birinchi chizishda faqat bugungi sana ochiladi;
+   keyin foydalanuvchi bosgani saqlanadi (bugungisini ham yopsa bo'ladi).
+   Filtr: hisobot yorlig'i berish/vozvrat dan boshqa hamma narsani "Tolov"
+   deb ko'rsatadi, shuning uchun filtr ham shu uch guruh bo'yicha. */
+var _khFiltr = 'all';
+var _khOchiq = null;
+function _khBugun(){
+  return new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function _khGuruh(tip){
+  return tip==='berish' ? 'berish' : (tip==='vozvrat' ? 'vozvrat' : 'tolov');
+}
+window.khKunToggle=function(sana){
+  if(_khOchiq===null) _khOchiq={};
+  _khOchiq[sana]=!_khOchiq[sana];
+  renderKlientHisobot();
+};
+window.khFiltrTanla=function(f){ _khFiltr=f; renderKlientHisobot(); };
+
 function renderKlientHisobot() {
   var cont = document.getElementById('klient-hisobot-list');
   if(!cont) return;
@@ -10337,12 +10375,44 @@ function renderKlientHisobot() {
 
   var html='';
   var shownLom={};
+
+  if(_khOchiq===null){ _khOchiq={}; _khOchiq[_khBugun()]=true; }
+  var _bugunS=_khBugun();
+
+  // filtr chiplari — har turdagi sessiya soni bilan
+  var _cnt={all:0,berish:0,vozvrat:0,tolov:0};
+  sessions.forEach(function(s){ _cnt.all++; _cnt[_khGuruh(s.tip)]++; });
+  var _chips=[['all','Hammasi'],['berish','&#8593; Berildi'],['vozvrat','&#8617; Vozvrat'],['tolov','$ Tolov']];
+  html+='<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;">';
+  _chips.forEach(function(c){
+    var on=_khFiltr===c[0];
+    html+='<button onclick="khFiltrTanla(\''+c[0]+'\')" style="padding:8px 14px;border-radius:20px;'
+      + 'border:1px solid '+(on?'var(--gold-bd)':'var(--border)')+';'
+      + 'background:'+(on?'var(--gold-bg)':'var(--surf)')+';'
+      + 'color:'+(on?'var(--gold)':'var(--muted)')+';font-weight:'+(on?'600':'500')+';'
+      + 'font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;">'
+      + c[1]+' <span style="font-size:11px;opacity:.7;">'+_cnt[c[0]]+'</span></button>';
+  });
+  html+='</div>';
+
   dayOrder.forEach(function(sana){
-    var daySessions=byDay[sana];
+    var daySessions=byDay[sana].filter(function(s){
+      return _khFiltr==='all' || _khGuruh(s.tip)===_khFiltr;
+    });
+    if(!daySessions.length) return;
     // sessiyalarni soat bo'yicha tartiblash
     daySessions.sort(function(a,b){ return (b.soat||'').localeCompare(a.soat||''); });
 
-    html+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0 2px;">'+sana+'</div>';
+    var _och=!!_khOchiq[sana];
+    html+='<div onclick="khKunToggle(\''+sana+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;background:var(--surf);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;">';
+    html+='<span style="display:flex;align-items:center;gap:7px;min-width:0;">';
+    html+='<span style="font-size:9px;color:var(--muted);display:inline-block;transform:rotate('+(_och?'90deg':'0deg')+');">&#9654;</span>';
+    html+='<span style="font-size:13px;font-weight:600;color:var(--text);">'+sana+'</span>';
+    if(sana===_bugunS) html+='<span style="font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px;">bugun</span>';
+    html+='</span>';
+    html+='<span style="font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:1px 8px;white-space:nowrap;">'+daySessions.length+' ta</span>';
+    html+='</div>';
+    if(!_och) return;
 
     daySessions.forEach(function(sess){
       var tip=sess.tip;
@@ -10420,6 +10490,7 @@ function renderKlientHisobot() {
     });
     html+='<div style="height:1px;background:var(--border);margin:8px 0;"></div>';
   });
+  if(_cnt[_khFiltr]===0) html+='<div class="empty">Bu turdagi amal yo\'q</div>';
   cont.innerHTML=html;
 }
 
