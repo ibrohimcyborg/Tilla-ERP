@@ -1,4 +1,4 @@
-<!-- v171.5 -->
+<!-- v171.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171.5';
+var APP_VER = 'v171.6';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -11436,6 +11436,15 @@ function kBerishUpdateChek() {
 var _kbChekBody = '';
 var _kbSkanState = {};
 function kbSkanKey(zi,ti){ return zi+'_'+ti; }
+// v171.6: berish skanida ham fokus kiritish maydonida qolsin.
+// .focus() BOSISH LAHZASIDA chaqiriladi — setTimeout ichida bo'lsa
+// telefon brauzeri rad etadi va klaviatura ochilmaydi.
+function kbSkanFokus(zi,ti){
+  var i = document.getElementById('kbskan-inp-'+kbSkanKey(zi,ti));
+  if(!i) return;
+  i.focus();
+  try{ i.setSelectionRange(i.value.length, i.value.length); }catch(e){}
+}
 function kbSkanToggle(zi,ti){
   var key = kbSkanKey(zi,ti);
   var panel = document.getElementById('kbskan-'+key);
@@ -11451,7 +11460,8 @@ function kbSkanToggle(zi,ti){
     panel.style.display = 'block';
     kbSkanSetModeUI(zi,ti);
     kbSkanRender(zi,ti);
-    setTimeout(function(){ var inp=document.getElementById('kbskan-inp-'+key); if(inp) inp.focus(); }, 50);
+    kbSkanFokus(zi,ti);                                   // bosish lahzasida
+    setTimeout(function(){ kbSkanFokus(zi,ti); }, 50);    // zaxira
   }
 }
 function kbSkanSetModeUI(zi,ti){
@@ -11468,6 +11478,8 @@ function kbSkanSetMode(zi,ti,m){
   st.mode = m;
   kbSkanSetModeUI(zi,ti);
   kbSkanRender(zi,ti);
+  kbSkanFokus(zi,ti);                                   // bosish lahzasida
+  setTimeout(function(){ kbSkanFokus(zi,ti); }, 50);    // zaxira
 }
 function kbSkanArr(zi,ti){
   var st = _kbSkanState[kbSkanKey(zi,ti)];
@@ -11489,6 +11501,7 @@ function kbSkanAdd(zi,ti,sign){
 function kbSkanDelAt(zi,ti,i){
   var arr = kbSkanArr(zi,ti);
   if (i>=0 && i<arr.length){ arr.splice(i,1); kbSkanRender(zi,ti); kbSkanApplyToField(zi,ti); }
+  kbSkanFokus(zi,ti);        // × bosilganda skan to'xtamasin
 }
 function kbSkanApplyToField(zi,ti){
   var st = _kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
@@ -11874,21 +11887,71 @@ function kvChekToggle() {
 // Bitta naqsh: gramm maydoni yoniga barcode tugma -> panel -> har skan +1 dona, gramm yig'ilib
 // maydonga avto tushadi va maydonning oz oninput'i chaqiriladi. Saqlashda uniSkanDona(fid)
 // dona sonini beradi. Bir xil grammlar ALOHIDA dona. Enter/+/- stopPropagation (v59 himoyasi).
+/* ══════════════════════════════════════════════════════════════════════════
+   UNIVERSAL SKAN (v171.6) — endi BERISHDAGI panel bilan bir xil.
+
+   Ibrohim: "berish modalida skan bilan vozvrat va sotuvda skan boshqacha,
+   shuni hammasini berishdagidek qilish kerak" + "eskisini qilaqol"
+   (ya'ni ixcham/pill ko'rinish emas, berishdagi ro'yxat ko'rinishi).
+
+   QO'SHILDI: 1-skan / 2-skan rejimi, ikki skanni solishtirish (kam/ortiq),
+   skan qilinganlar RO'YXATI va har qatorda × bilan o'chirish.
+
+   API O'ZGARMADI — uniSkanBtn / uniSkanPanel / uniSkanDona / uniSkanArr /
+   uniSkanReset avvalgidek ishlaydi. Shuning uchun 5 ta CHAQIRUV JOYIGA
+   TEGILMADI: klient vozvrat, to'lovdagi vozvrat, sotuv grammi,
+   sotuvdagi vozvrat va ostatka vozvrati.
+
+   uniSkanDona / uniSkanArr — DOIM 1-SKAN ro'yxatidan oladi (maydonga ham
+   1-skan yig'indisi yoziladi). 2-skan faqat tekshirish uchun, saqlanmaydi.
+   Shu sababli dona registri (donaRegQosh / donaRegOlish) avvalgidek ishlaydi.
+
+   FOKUS: .focus() BOSISH LAHZASIDA chaqiriladi. setTimeout ichiga solinsa
+   telefon brauzeri uni rad etadi va klaviatura ochilmaydi.
+   ══════════════════════════════════════════════════════════════════════════ */
 var _uniSkan = {};
 var _skanSvg = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:block;margin:auto;"><rect x="2.5" y="4.5" width="19" height="15" rx="5"/><line x1="7" y1="9" x2="7" y2="15"/><line x1="10.3" y1="9" x2="10.3" y2="10.3"/><line x1="10.3" y1="12.6" x2="10.3" y2="15"/><line x1="13.6" y1="9" x2="13.6" y2="12.4"/><line x1="17" y1="9" x2="17" y2="15"/></svg>';
 function uniSkanReset(prefix){
   Object.keys(_uniSkan).forEach(function(k){ if(k.indexOf(prefix)===0) delete _uniSkan[k]; });
 }
+function uniSkanSt(fid){
+  if(!_uniSkan[fid]) _uniSkan[fid] = { mode:1, pass1:[], pass2:[] };
+  var s = _uniSkan[fid];
+  if(!s.pass1) s.pass1 = [];
+  if(!s.pass2) s.pass2 = [];
+  if(!s.mode)  s.mode  = 1;
+  return s;
+}
+function uniSkanArrCur(fid){
+  var s = uniSkanSt(fid);
+  return s.mode===1 ? s.pass1 : s.pass2;
+}
+function uniSkanFokus(fid){
+  var i = document.getElementById('usi-'+fid);
+  if(!i) return;
+  i.focus();
+  try{ i.setSelectionRange(i.value.length, i.value.length); }catch(e){}
+}
 function uniSkanBtn(fid){
   return '<button type="button" id="usb-'+fid+'" onclick="uniSkanToggle(\''+fid+'\')" style="width:32px;height:34px;border-radius:8px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;flex-shrink:0;padding:0;">'+_skanSvg+'</button>';
 }
 function uniSkanPanel(fid){
-  return '<div id="usp-'+fid+'" style="display:none;margin-top:5px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:7px;">'
-    +'<div style="display:flex;gap:6px;">'
-    +'<input type="text" inputmode="decimal" autocomplete="off" id="usi-'+fid+'" placeholder="Barcode skan qiling..." onkeydown="if(event.key===\'Enter\'||event.key===\'+\'){event.preventDefault();event.stopPropagation();uniSkanAdd(\''+fid+'\');}else if(event.key===\'-\'){event.preventDefault();event.stopPropagation();uniSkanDelLast(\''+fid+'\');}" style="flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1px solid var(--gold-bd);font-size:13px;background:var(--surf);color:var(--text);box-sizing:border-box;">'
-    +'<button type="button" onclick="uniSkanDelLast(\''+fid+'\')" style="width:30px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--red);font-size:15px;cursor:pointer;">−</button>'
+  return '<div id="usp-'+fid+'" style="display:none;margin-top:5px;background:var(--surf2);border-radius:10px;padding:10px 12px;">'
+    +'<div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">'
+    +'<input type="text" inputmode="decimal" autocomplete="off" id="usi-'+fid+'" placeholder="Gramm skan qiling…" onkeydown="if(event.key===\'Enter\'||event.key===\'+\'){event.preventDefault();event.stopPropagation();uniSkanAdd(\''+fid+'\');}else if(event.key===\'-\'){event.preventDefault();event.stopPropagation();uniSkanDelLast(\''+fid+'\');}" style="flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid var(--gold-bd);font-size:14px;background:var(--surf);color:var(--text);box-sizing:border-box;">'
+    +'<button type="button" onclick="uniSkanAdd(\''+fid+'\')" style="width:36px;height:36px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;flex-shrink:0;">+</button>'
+    +'<button type="button" onclick="uniSkanDelLast(\''+fid+'\')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--red);color:var(--red);background:transparent;font-size:18px;cursor:pointer;flex-shrink:0;">−</button>'
     +'</div>'
-    +'<div id="usl-'+fid+'" style="font-size:10px;color:var(--muted);margin-top:4px;">Hali skan yo\'q</div>'
+    +'<div style="display:flex;gap:5px;margin-bottom:10px;">'
+    +'<button type="button" id="usm1-'+fid+'" onclick="uniSkanSetMode(\''+fid+'\',1)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:11px;font-weight:600;cursor:pointer;">1-skan</button>'
+    +'<button type="button" id="usm2-'+fid+'" onclick="uniSkanSetMode(\''+fid+'\',2)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">2-skan</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">'
+    +'<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Dona</div><div id="usc-'+fid+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>'
+    +'<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Jami</div><div id="uss-'+fid+'" style="font-size:15px;font-weight:600;color:var(--text);">0.00 g</div></div>'
+    +'</div>'
+    +'<div id="usr-'+fid+'" style="margin-bottom:8px;"></div>'
+    +'<div id="usrec-'+fid+'" style="display:none;"></div>'
     +'</div>';
 }
 function uniSkanToggle(fid){
@@ -11898,44 +11961,113 @@ function uniSkanToggle(fid){
   p.style.display = ochiq?'none':'block';
   if(b){ b.style.background=ochiq?'var(--surf2)':'var(--gold)'; b.style.color=ochiq?'var(--muted)':'var(--on-gold)'; }
   if(!ochiq){
-    if(!_uniSkan[fid]) _uniSkan[fid]={arr:[]};
-    var i=document.getElementById('usi-'+fid);
-    if(i && !(typeof _touchQurilma!=='undefined' && _touchQurilma)) i.focus();
+    uniSkanSt(fid);
+    uniSkanSetModeUI(fid);
+    uniSkanRender(fid);
+    // Panel ochilishida fokus — sensorli qurilmada avvalgidek berilmaydi
+    // (klaviatura o'z-o'zidan ochilib ketmasin). Bu qoida o'zgartirilmadi.
+    if(!(typeof _touchQurilma!=='undefined' && _touchQurilma)) uniSkanFokus(fid);
   }
+}
+function uniSkanSetModeUI(fid){
+  var st=uniSkanSt(fid);
+  var b1=document.getElementById('usm1-'+fid), b2=document.getElementById('usm2-'+fid);
+  if(!b1||!b2) return;
+  function on(b){ b.style.background='var(--gold)'; b.style.color='var(--on-gold)'; b.style.borderColor='var(--gold)'; }
+  function off(b){ b.style.background='var(--surf2)'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)'; }
+  if(st.mode===1){ on(b1); off(b2); } else { on(b2); off(b1); }
+}
+function uniSkanSetMode(fid,m){
+  var st=uniSkanSt(fid);
+  st.mode=m;
+  uniSkanSetModeUI(fid);
+  uniSkanRender(fid);
+  uniSkanFokus(fid);                                    // bosish lahzasida
+  setTimeout(function(){ uniSkanFokus(fid); }, 50);     // zaxira
 }
 function uniSkanAdd(fid){
   var i=document.getElementById('usi-'+fid); if(!i) return;
   var v=skParseGram(i.value);
-  i.value=''; i.focus();
+  i.value='';
+  uniSkanFokus(fid);
   if(!v || v<=0) return;
-  if(!_uniSkan[fid]) _uniSkan[fid]={arr:[]};
-  _uniSkan[fid].arr.push(roundG(v));
+  uniSkanArrCur(fid).push(roundG(v));
+  uniSkanRender(fid);
   uniSkanApply(fid);
 }
 function uniSkanDelLast(fid){
-  var st=_uniSkan[fid];
-  if(st && st.arr.length){ st.arr.pop(); uniSkanApply(fid); }
-  var i=document.getElementById('usi-'+fid); if(i) i.focus();
+  var a=uniSkanArrCur(fid);
+  if(a.length) a.pop();
+  uniSkanRender(fid);
+  uniSkanApply(fid);
+  uniSkanFokus(fid);
+}
+function uniSkanDelAt(fid,i){
+  var a=uniSkanArrCur(fid);
+  if(i>=0 && i<a.length) a.splice(i,1);
+  uniSkanRender(fid);
+  uniSkanApply(fid);
+  uniSkanFokus(fid);        // × bosilganda skan to'xtamasin
+}
+function uniSkanRender(fid){
+  var st=uniSkanSt(fid), arr=uniSkanArrCur(fid);
+  var rowsEl=document.getElementById('usr-'+fid);
+  if(rowsEl){
+    if(!arr.length){
+      rowsEl.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yo\'q</div>';
+    } else {
+      var o='';
+      for(var i=arr.length-1;i>=0;i--){
+        var hl=(i===arr.length-1)?'background:var(--gold-bg);':'';
+        o+='<div style="display:grid;grid-template-columns:24px 1fr 22px;gap:6px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border);font-size:13px;'+hl+'">'
+         + '<span style="color:var(--muted);font-size:11px;">'+(i+1)+'</span>'
+         + '<span style="color:var(--text);">'+fmtG(arr[i])+' g</span>'
+         + '<span onclick="uniSkanDelAt(\''+fid+'\','+i+')" style="cursor:pointer;color:var(--red);text-align:center;font-size:16px;">×</span></div>';
+      }
+      rowsEl.innerHTML=o;
+    }
+  }
+  var c=document.getElementById('usc-'+fid), s=document.getElementById('uss-'+fid);
+  if(c) c.textContent=arr.length;
+  if(s) s.textContent=fmtG(skSum(arr))+' g';
+  var rec=document.getElementById('usrec-'+fid);
+  if(rec){
+    if(st.pass1.length && st.pass2.length){
+      var ma=skMultiset(st.pass1), mb=skMultiset(st.pass2), keys={};
+      for(var k in ma) keys[k]=1;
+      for(var k2 in mb) keys[k2]=1;
+      var kam=[], ortiq=[];
+      Object.keys(keys).sort(function(a,b){ return parseFloat(a)-parseFloat(b); }).forEach(function(kk){
+        var ca=ma[kk]||0, cb=mb[kk]||0;
+        if(ca>cb) kam.push({g:kk,n:ca-cb});
+        if(cb>ca) ortiq.push({g:kk,n:cb-ca});
+      });
+      var h='';
+      kam.forEach(function(x){ h+='<div style="display:flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--red);">↓ 2-skanda kam — '+x.g+'g ('+x.n+' ta)</div>'; });
+      ortiq.forEach(function(x){ h+='<div style="display:flex;align-items:center;gap:6px;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--yellow);">↑ 2-skanda ortiq — '+x.g+'g ('+x.n+' ta)</div>'; });
+      if(!kam.length && !ortiq.length) h='<div style="text-align:center;font-size:11px;color:var(--green);padding:4px 0 8px;">Ikkala skan to\'liq mos ✓</div>';
+      rec.innerHTML=h; rec.style.display='block';
+    } else {
+      rec.innerHTML=''; rec.style.display='none';
+    }
+  }
 }
 function uniSkanApply(fid){
-  var st=_uniSkan[fid]||{arr:[]};
-  var jg=0; st.arr.forEach(function(g){ jg+=g; }); jg=roundG(jg);
-  var f=document.getElementById(fid), l=document.getElementById('usl-'+fid);
+  var st=uniSkanSt(fid);
+  var jg=skSum(st.pass1);
+  var f=document.getElementById(fid);
   if(f){
-    f.value = st.arr.length?jg:'';
-    if(typeof f.oninput==='function') f.oninput(); // maydonning oz hisob-kitobi ishlasin
+    f.value = st.pass1.length ? jg : '';       // avvalgidek xom son yoziladi
+    if(typeof f.oninput==='function') f.oninput(); // maydonning o'z hisobi ishlasin
   }
-  if(l) l.innerHTML = st.arr.length
-    ? '<b style="color:var(--text);">'+st.arr.length+' dona · '+fmtG(jg)+' g</b> · oxirgisi '+fmtG(st.arr[st.arr.length-1])+'g'
-    : 'Hali skan yo\'q';
 }
 function uniSkanDona(fid){
   var st=_uniSkan[fid];
-  return (st && st.arr.length) ? st.arr.length : 0;
+  return (st && st.pass1 && st.pass1.length) ? st.pass1.length : 0;
 }
 function uniSkanArr(fid){
   var st=_uniSkan[fid];
-  return (st && st.arr.length) ? st.arr.slice() : [];
+  return (st && st.pass1 && st.pass1.length) ? st.pass1.slice() : [];
 }
 
 function kvCntChg(d) {
