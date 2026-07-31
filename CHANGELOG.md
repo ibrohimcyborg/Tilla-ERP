@@ -3,6 +3,31 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.5: skan — fokus kiritish maydonida qoladi
+
+Ibrohim: "× bossam skan qilish o'chmasin, chunki × bosvomman keyin yana
+mishka bilan gramm skan qilishga kirib davom ettirishimga to'g'ri kelvotti,
+bu vaqtni ovotti" va "2-skanni bosganda 'gramm skan qiling'ga o'zi avtomat
+kirib turishi kerak".
+
+**`skRemoveAt`** — qator o'chirilgandan keyin fokus qaytarilmasdi, shuning uchun
+skaner yozishni to'xtatardi va sichqoncha bilan qaytadan maydonga kirish kerak
+edi. Endi `skFokus()` chaqiriladi.
+
+**`skSetMode`** — fokus kodda BOR edi, lekin faqat `setTimeout` ichida.
+Telefon brauzeri kechiktirilgan `.focus()` ni rad etadi (u faqat bosish
+lahzasidagi harakat zanjirida ishlaydi), shu sababli klaviatura ochilmasdi.
+Endi fokus bosish lahzasida chaqiriladi, `setTimeout` esa faqat zaxira
+bo'lib qoldi (qayta chizish sekin bo'lgan holat uchun).
+
+Yangi `skFokus()` yordamchisi kursorni matn oxiriga qo'yadi
+(`setSelectionRange`), shunda skaner keyingi qiymatni to'g'ri yozadi.
+
+Faqat zavod skan ekrani (`sk-scan`) tegildi. Ostatka skani va Dona baza
+skani o'z holicha qoldirildi.
+
+---
+
 ## v171.4: klient hisoboti va kassa — kunlar yig'ilgan
 
 Ibrohim: "hammasi sanama sana tursinde bugungidan tashqari, bo'lmasam uzun
