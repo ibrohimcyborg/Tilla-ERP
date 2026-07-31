@@ -3,6 +3,44 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.4: klient hisoboti va kassa — kunlar yig'ilgan
+
+Ibrohim: "hammasi sanama sana tursinde bugungidan tashqari, bo'lmasam uzun
+jadval bo'lib ketvotti... sananing ustiga bossa chiqsin... keyin filtr qo'y"
+va "huddi shu narsani kassada ham qilish kerak, qolgan kunlar yopiq bugun
+ochiq, lekin yopsa bo'ladigan qilib".
+
+### Klient hisoboti (`renderKlientHisobot`)
+* Sana sarlavhasi endi **bosiladigan** — chevron, "bugun" belgisi va
+  o'sha kundagi amallar soni bilan.
+* Hamma kun **yopiq**, faqat bugungisi ochiq. Bugungisini ham yopsa bo'ladi.
+* Yuqorida **filtr chiplari**: Hammasi / ↑ Berildi / ↩ Vozvrat / $ Tolov,
+  har birida soni. Filtr qo'yilganda mos amali yo'q kunlar umuman
+  ko'rinmaydi. Hech nima topilmasa "Bu turdagi amal yo'q".
+* Filtr guruhlari yorliq mantig'iga mos: `berish` → Berildi,
+  `vozvrat` → Vozvrat, **qolgan hammasi** → Tolov (hisobot allaqachon
+  shunday ko'rsatadi — `klientda`/sdacha ham "Tolov" bo'lib chiqadi).
+* Holat funksiyadan tashqarida (`_khFiltr`, `_khOchiq`) — qayta chizilganda
+  yo'qolmaydi. `_khOchiq` null bo'lsa birinchi chizishda bugun ochiladi.
+
+### Kassa (`renderKassa` → `kassaRender`)
+* Kun sarlavhasi **bosiladigan** bo'ldi. Yig'ilgan holatda ham kunlik
+  **summa, foyda va nechta to'lov** borligi sarlavhada ko'rinib turadi —
+  ochmasdan bilinadi.
+* Hamma kun yopiq, bugungisi ochiq, bugungisi ham yopiladi.
+* Klient qatorlari va "Kun jami" o'ramning ichida — yopilganda birga
+  yashiriladi (jami sarlavhada takrorlanmasin deb).
+* `expKun` holati `expKassa` yonida, `kassaKunToggle` esa `kassaToggle`
+  yonida ro'yxatdan o'tkazildi. Klient darajasidagi mavjud ochish-yopish
+  o'zgarmadi.
+
+Sana `today()` bilan bir xil formatda hisoblanadi (`ru-RU`, DD.MM.YYYY) —
+"bugun" belgisi to'g'ri joyda chiqadi.
+
+Boshqa hech narsaga tegilmadi.
+
+---
+
 ## v171.3: sdacha ikki marta yozilishi + turda ko'rinishi
 
 ### Xato 1 — sdacha grammi ikki marta qo'shilardi
