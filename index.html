@@ -1,4 +1,4 @@
-<!-- v171.1 -->
+<!-- v171.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171.1';
+var APP_VER = 'v171.2';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -2085,6 +2085,31 @@ function isBadVozvrat(op) {
 data.klientlar.forEach(function(k){
   if (k && k.tarix) k.tarix = k.tarix.filter(function(op){ return !isBadVozvrat(op); });
 });
+// v171.2: SDACHA SOAT TUZATISH (bir martalik).
+// Xato: to'lov modalida sdacha saqlanganda `soat` ga "HH:MM" matni o'rniga Date
+// obyekti uzatilardi. JSON ga saqlanganda u ISO matnga aylangan
+// ("2026-07-31T06:49:41.000Z"), shu sababli hisobot saralashi qulardi va
+// soat noto'g'ri ko'rinardi. Yozuvchi tomon tuzatildi; bu yerda ESKI yozuvlar
+// "HH:MM" ga qaytariladi. Date/ISO/raqam — uchalasi ham qamrab olinadi.
+if (!data._soatFix1) {
+  var _soatTuz = 0;
+  (data.klientlar||[]).forEach(function(k){
+    if(!k || !k.tarix) return;
+    k.tarix.forEach(function(op){
+      if(!op || !op.soat) return;
+      var s = op.soat, d = null;
+      if (s instanceof Date) d = s;
+      else if (typeof s === 'number') d = new Date(s);
+      else if (typeof s === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(s)) d = new Date(s);
+      if (d && !isNaN(d.getTime())) {
+        op.soat = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+        _soatTuz++;
+      }
+    });
+  });
+  data._soatFix1 = true;
+  if (_soatTuz) console.log('v171.2: '+_soatTuz+' ta yozuvda soat tuzatildi');
+}
 if (!data.lomlar) data.lomlar = []; // {tip:'kirim'|'chiqim', manba:'klient'|'kocha'|'zavod'|'boshqa', klientIdx, zavodNom, boshqaNom, sana, proba, gramm, narx, sotuvNarx, summa, foyda, izoh, sana_ts}
 if (!data.lomNarxTarix) data.lomNarxTarix = []; // {id, sana, sana_ts, narx, zaxiraG}
 if (!data.lomProbalar) data.lomProbalar = []; // foydalanuvchi o'zi qo'shadigan probalar: ['585','750',...]
@@ -13103,7 +13128,7 @@ function saqlashKlientTolov(){
         kurs:ktTanlov.narx,zavod:ktTanlov.zavod,tur:ktTanlov.tur});
     }
   }
-  sdachaTaqsimSaqla('kt', k, sana, _now_kt ? _now_kt : (function(){var n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');})());
+  sdachaTaqsimSaqla('kt', k, sana, _soat_kt);
   window._ktSdachaTanlov=null;
 
   // Yaroqsiz vozvratni tozalash
