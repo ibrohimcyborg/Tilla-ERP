@@ -1,4 +1,4 @@
-<!-- v172.1 -->
+<!-- v172.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.1';
+var APP_VER = 'v172.2';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -7479,9 +7479,19 @@ function ostSkDelLast(){
   if(a.length){ a.pop(); ostSkRender(); }
   var i=document.getElementById('ost-f-inp'); if(i) i.focus();
 }
+// v172.2: kirimdagi skFokus (5908) bilan bir xil — × bosilganda fokus skan
+// maydonida qoladi, ketma-ket skan davom etadi. .focus() bosish lahzasida
+// chaqirilishi shart (setTimeout'ni telefon brauzeri rad etadi).
+function ostSkFokus(){
+  var s=document.getElementById('ost-f-inp');
+  if(!s) return;
+  s.focus();
+  try{ s.setSelectionRange(s.value.length, s.value.length); }catch(e){}
+}
 function ostSkRemoveAt(i){
   var a=ostSkArr();
   if(i>=0 && i<a.length){ a.splice(i,1); ostSkRender(); }
+  ostSkFokus();
 }
 function ostSkRender(){
   var a=ostSkArr();

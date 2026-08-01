@@ -3,6 +3,23 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.2: ostatka skanida × bosilganda fokus maydonda qoladi
+
+Ibrohim: ostatka ro'yxatida × bosib gramm o'chirilsa, skan maydonidan fokus
+chiqib ketardi — har safar sichqoncha bilan qaytib kirishga to'g'ri kelardi.
+Kirimda bu v171.5 da tuzatilgan edi (skFokus, 5908), ostatkaga o'shanda
+ko'chirilmagan.
+
+Tuzatish: ostSkFokus qo'shildi (skFokus nusxasi — sinxron .focus() +
+kursor oxiriga; setTimeout emas, telefon brauzeri rad etadi),
+ostSkRemoveAt oxirida chaqiriladi — kirimdagi skRemoveAt (5914) bilan
+bir xil naqsh.
+
+Sinov: brauzerda ikki marta ketma-ket × — fokus har safar ost-f-inp da;
+node --check toza. Eslatma: ostSkSetMode dagi fokus hozircha eskicha
+(setTimeout + _touchQurilma sharti bilan) — Ibrohim faqat × haqida aytdi,
+mode-almashish tegilmadi.
+
 ## v172.1: ostatka formi dizayni skan-kirim uslubiga o'tkazildi
 
 Ibrohim so'radi (skrinshot bilan): ostatka shakllantirish formi skan-kirim
