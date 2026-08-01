@@ -1,4 +1,4 @@
-<!-- v172 -->
+<!-- v172.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1413,47 +1413,42 @@ body.rol-hamid .hamid-x { display: none !important; }
       <button onclick="ostKlSaqla()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;border:none;background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:700;cursor:pointer;">✓ Saqlash → keyingi klient</button>
     </div>
 
-  <div class="card" id="ost-form" style="display:none;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Zavod</div>
+  <div id="ost-form" style="display:none;">
+    <div class="card">
+      <div class="card-title">Zavod / Tur</div>
       <div class="field"><select id="ost-zavod" onchange="ostZavodChangeUser()"></select></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Tur</div>
-      <div class="field"><select id="ost-tur" onchange="ostTurChangeUser()"></select></div>
+      <div class="field" style="margin-bottom:0;"><select id="ost-tur" onchange="ostTurChangeUser()"></select></div>
 
-      <div id="ost-ogoh" style="display:none;font-size:11px;color:var(--yellow);background:var(--yellow-bg);border-radius:8px;padding:7px 10px;margin-bottom:8px;"></div>
-      <div id="ost-sistema" style="display:none;font-size:12px;background:var(--blue-bg);color:var(--blue);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;justify-content:space-between;"></div>
+      <div id="ost-ogoh" style="display:none;font-size:11px;color:var(--yellow);background:var(--yellow-bg);border-radius:8px;padding:7px 10px;margin-top:10px;"></div>
+      <div id="ost-sistema" style="display:none;font-size:12px;background:var(--blue-bg);color:var(--blue);border-radius:8px;padding:8px 10px;margin-top:10px;display:flex;justify-content:space-between;"></div>
+    </div>
 
-      <div style="background:var(--surf2);border-radius:10px;padding:10px 12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">SKAN</div>
-          <div style="display:flex;gap:4px;">
-            <button type="button" id="ost-mode1" onclick="ostSkSetMode(1)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:12px;font-weight:600;cursor:pointer;">1-skan</button>
-            <button type="button" id="ost-mode2" onclick="ostSkSetMode(2)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">2-skan</button>
-          </div>
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;">
-          <input type="text" inputmode="decimal" autocomplete="off" id="ost-f-inp" placeholder="Gramm skan qiling..." onkeydown="if(event.key==='Enter'||event.key==='+'){event.preventDefault();event.stopPropagation();ostSkAdd();}else if(event.key==='-'){event.preventDefault();event.stopPropagation();ostSkDelLast();}" style="flex:1;">
-          <button type="button" onclick="ostSkAdd()" style="width:38px;background:var(--gold);color:var(--on-gold);border:none;border-radius:9px;font-size:16px;cursor:pointer;">+</button>
-          <button type="button" onclick="ostSkDelLast()" style="width:38px;border-radius:9px;border:1px solid var(--border);background:var(--surf);color:var(--red);font-size:16px;cursor:pointer;">−</button>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">USB / Bluetooth — Enter bilan avtomat · 2,59 = 2.59</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <div style="background:var(--surf);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);">Dona</div>
-            <div id="ost-f-d" style="font-size:18px;font-weight:700;">0</div>
-          </div>
-          <div style="background:var(--surf);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);">Skan jami</div>
-            <div id="ost-f-g" style="font-size:18px;font-weight:700;">0.00 g</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:30px 1fr 28px;gap:6px;padding:6px 2px 4px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);margin-top:8px;">
-          <span>#</span><span>Gramm</span><span></span>
-        </div>
-        <div id="ost-f-rows"></div>
-        <div id="ost-recon" style="display:none;margin-top:10px;"></div>
+    <div class="card">
+      <div class="card-title">Skan</div>
+
+      <div style="display:flex;gap:5px;justify-content:flex-end;margin-bottom:14px;">
+        <button type="button" id="ost-mode1" onclick="ostSkSetMode(1)" style="padding:9px 11px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">1-skan</button>
+        <button type="button" id="ost-mode2" onclick="ostSkSetMode(2)" style="padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;">2-skan</button>
       </div>
 
-      <div id="ost-farq" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;font-size:12px;text-align:center;"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
+        <input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="ost-f-inp" placeholder="Gramm skan qiling…" onkeydown="if(event.key==='Enter'||event.key==='+'){event.preventDefault();event.stopPropagation();ostSkAdd();}else if(event.key==='-'){event.preventDefault();event.stopPropagation();ostSkDelLast();}" style="flex:1;padding:11px 12px;border-radius:8px;border:1px solid var(--gold-bd);font-size:15px;background:var(--surf2);color:var(--text);">
+        <button type="button" onclick="ostSkAdd()" aria-label="Qoshish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:20px;cursor:pointer;">+</button>
+        <button type="button" onclick="ostSkDelLast()" aria-label="Oxirgini ochirish" style="width:42px;height:42px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:20px;cursor:pointer;">−</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">USB / Bluetooth — Enter bilan avtomat · 2,59 = 2.59</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div style="background:var(--surf2);border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--muted);">Dona</div><div id="ost-f-d" style="font-size:20px;font-weight:600;color:var(--text);">0</div></div>
+        <div style="background:var(--surf2);border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--muted);">Skan jami</div><div id="ost-f-g" style="font-size:20px;font-weight:600;color:var(--text);">0.00 g</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:30px 1fr 28px;gap:6px;font-size:11px;color:var(--muted);padding:0 2px 5px;border-bottom:1px solid var(--border);"><span>#</span><span>Gramm</span><span></span></div>
+      <div id="ost-f-rows" style="margin-bottom:12px;"></div>
+      <div id="ost-recon" style="display:none;border-top:1px solid var(--border);padding-top:12px;"></div>
+    </div>
+
+    <div id="ost-farq" style="display:none;margin-top:8px;padding:8px 10px;border-radius:8px;font-size:12px;text-align:center;"></div>
 
     <div class="btn-row" style="margin-top:10px;">
       <button class="btn" onclick="ostBack()">← Ortga</button>
@@ -1964,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172';
+var APP_VER = 'v172.1';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');

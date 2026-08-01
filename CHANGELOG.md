@@ -3,6 +3,25 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.1: ostatka formi dizayni skan-kirim uslubiga o'tkazildi
+
+Ibrohim so'radi (skrinshot bilan): ostatka shakllantirish formi skan-kirim
+ekrani dizaynida bo'lsin. Sof vizual — id/handler/mantiq o'zgarmadi.
+
+* Bitta katta karta ikkiga bo'lindi: "Zavod / Tur" (card-title + 2 select,
+  alohida labellar olib tashlandi) va "Skan" kartasi.
+* ost-ogoh / ost-sistema bannerlari Zavod/Tur kartasi ichida qoldi.
+* 1-skan/2-skan tugmalari kirim uslubida (9px/11px padding, 13px, Outfit),
+  o'ng tomonda alohida qatorda.
+* Skan input: oltin ramka (gold-bd), 15px, 42×42 +/− tugmalar
+  (− endi qizil emas, muted — kirimdagidek).
+* Dona/Skan jami kartochkalari: chapga tekis, 20px/600 (avval markazda 18/700).
+* "Zavod bergan ves (g)" maydoni KO'CHIRILMADI — u kirim mantig'i.
+
+ost-form endi .card emas, wrapper div (ostBack/ostChoice display toggle
+ishlashi tekshirildi). Sinov: node --check toza, layout brauzerda tekshirildi
+(2 karta, mode-toggle ishlaydi, hamma id joyida), konsol toza.
+
 ## v172: qayta shakllantirish — "USTIGA yoki BOSHQATTAN?" so'rovi
 
 Ibrohim so'radi: shakllantirilgan turda qayta shakllantirish bosilsa tizim

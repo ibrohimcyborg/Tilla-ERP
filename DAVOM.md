@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172 · 2026-08-01
+**Oxirgi yangilanish:** v172.1 · 2026-08-01
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v172** (`index.html` birinchi qatorida `<!-- v172 -->`, `APP_VER` da ham) |
+| Versiya | **v172.1** (`index.html` birinchi qatorida `<!-- v172.1 -->`, `APP_VER` da ham) |
 | Hajm | 17,385 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -119,6 +119,7 @@ Qaror qabul qilinmagan.
 | v171.8 | `kh*` global to'qnashuvi (v171.4 dan): klient hisoboti `khr*` ga ko'chdi, kassa kh-filtr paneli tuzaldi |
 | v171.9 | Vaqt mashinasi / nollash parol maydonlari: type="text" + CSS maska — Chrome parol-ro'yxati chiqmaydi |
 | v172 | Qayta shakllantirishda "USTIGA / BOSHQATTAN" modal; ustiga-yo'lning registr/dona-baza bug'i tuzatildi; boshqattan faqat orada harakat bo'lmaganda (aks holda Tekshiruvga yo'naltiradi) |
+| v172.1 | Ostatka formi dizayni skan-kirim uslubiga o'tkazildi (2 karta, kirim tugma/maydon uslublari) — sof vizual |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 
