@@ -1,4 +1,4 @@
-<!-- v171.9 -->
+<!-- v172 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1473,6 +1473,18 @@ body.rol-hamid .hamid-x { display: none !important; }
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="modal-ost-shakl">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Bu tur allaqachon shakllantirilgan</div>
+    <div id="ost-shakl-msg" style="font-size:13px;line-height:1.6;margin-bottom:16px;color:var(--text);"></div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn" style="background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd);" onclick="ostShaklJavob('ustiga')">➕ Ustiga qo'shish</button>
+      <button class="btn" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);" onclick="ostShaklJavob('boshqattan')">🔄 Boshqattan shakllantirish</button>
+      <button class="btn" onclick="ostShaklJavob(null)">Bekor qilish</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-ost-hisobot">
   <div class="modal" style="max-width:470px;">
     <div class="modal-handle"></div>
@@ -1952,7 +1964,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171.9';
+var APP_VER = 'v172';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -7354,6 +7366,58 @@ function ostSwitchJavob(tanlov){
   var cb=_ostSwitchCb; _ostSwitchCb=null;
   if(cb) cb(tanlov==='kochir'); // true=ko'chir (buferni saqla), false=toza (reset)
 }
+// ===== v172: QAYTA SHAKLLANTIRISH — "ustiga yoki boshqattan?" so'rovi =====
+var _ostShaklCb=null;
+function ostShaklSora(eskiD, eskiG, yangiD, yangiG, cb){
+  _ostShaklCb=cb;
+  var msg=document.getElementById('ost-shakl-msg');
+  if(msg) msg.innerHTML='Mavjud shakllantirish: <b>'+eskiD+' dona ('+fmtG(eskiG)+'g)</b><br>Yangi skan: <b>'+yangiD+' dona ('+fmtG(yangiG)+'g)</b><br><br><b>Ustiga</b> — eski donalar qoladi, skan ustiga qo\'shiladi (qo\'shimcha partiya uchun).<br><b>Boshqattan</b> — eski shakllantirish bekor bo\'ladi, skan yangi haqiqat bo\'ladi (xato shakllantirishni qayta qilish uchun).';
+  var mo=document.getElementById('modal-ost-shakl'); if(mo) mo.classList.add('open');
+}
+function ostShaklJavob(tanlov){
+  var mo=document.getElementById('modal-ost-shakl'); if(mo) mo.classList.remove('open');
+  var cb=_ostShaklCb; _ostShaklCb=null;
+  if(cb && tanlov) cb(tanlov);
+}
+// Modal javobidan keyin saqlashning davomi. boshG/boshD — mavjud boshlangich yig'indisi.
+function _ostShaklDavom(c, p1, jg, dona, sana, soat, boshG, boshD, tanlov){
+  var matn;
+  if(tanlov==='boshqattan'){
+    // A-yo'l (Ibrohim tanladi): shakllantirishdan keyin harakat bo'lgan bo'lsa —
+    // boshqattan taqiqlanadi, Tekshiruv rejimiga yo'naltiriladi. Belgi: ostatka/donaOst
+    // boshlangich yig'indisidan farq qilsa, demak kirim/berish/vozvrat bo'lgan.
+    var harakat = Math.abs(roundG((c.t.ostatka||0)-boshG))>0.005 || turDona(c.t)!==boshD;
+    if(harakat){
+      alert('Shakllantirishdan keyin bu turda kirim/berish bo\'lgan — BOSHQATTAN mumkin emas (grammlar ikki marta hisoblanadi).\n\nBuning o\'rniga "Ostatka tekshirish" rejimini ishlating: u skan bilan tizimni solishtirib, farqni tuzatadi.');
+      return;
+    }
+    matn=c.z.nom+' · '+c.t.nom+': eski '+boshD+'d/'+fmtG(boshG)+'g bekor, yangi '+dona+'d/'+fmtG(jg)+'g';
+    if(!confirm('BOSHQATTAN SHAKLLANTIRILSINMI?\n\n'+matn)) return;
+    c.t.tarix = c.t.tarix.filter(function(op){ return op.inventar!=='boshlangich'; });
+    c.t.tarix.push({ tip:'mol', sana:sana, soat:soat, gramm:jg, dona:dona, izoh:"Boshlang'ich ostatka (boshqattan)", inventar:'boshlangich', donalar:p1.slice() });
+    c.t.ostatka = roundG((c.t.ostatka||0) - boshG + jg);
+    c.t.donaOst = turDona(c.t) - boshD + dona;
+    donaBazaOmborOchir(c.z.nom, c.t.nom);
+    c.t.donalar = p1.slice();
+    donaBazaQosh(c.z.nom, c.t.nom, p1, sana);
+    save("Boshlang'ich ostatka (boshqattan) | "+c.z.nom+'·'+c.t.nom);
+  } else {
+    // USTIGA — registr va dona baza ham QO'SHILADI (v172 gacha registr almashtirilib,
+    // dona bazadagi eski ombor yozuvlari o'chirilardi — yarim-yarim xato edi)
+    matn=c.z.nom+' · '+c.t.nom+': +'+dona+'d, +'+fmtG(jg)+'g (ustiga)';
+    if(!confirm("USTIGA QO'SHILSINMI?\n\n"+matn)) return;
+    c.t.tarix.push({ tip:'mol', sana:sana, soat:soat, gramm:jg, dona:dona, izoh:"Boshlang'ich ostatka (ustiga)", inventar:'boshlangich', donalar:p1.slice() });
+    c.t.ostatka = roundG((c.t.ostatka||0) + jg);
+    c.t.donaOst = turDona(c.t) + dona;
+    donaRegQosh(c.t, p1);
+    donaBazaQosh(c.z.nom, c.t.nom, p1, sana);
+    save("Boshlang'ich ostatka (ustiga) | "+c.z.nom+'·'+c.t.nom);
+  }
+  renderHome();
+  ostSkReset();
+  ostTurChange();
+  alert('✓ Saqlandi: '+matn+'\n\nBoshqa turni tanlang yoki "Ortga" bosing.');
+}
 function ostZavodChangeUser(){
   if(ostBufBor()) ostSwitchSora(function(kochir){ ostZavodChange(kochir); });
   else ostZavodChange(false);
@@ -7378,7 +7442,7 @@ function ostTurChange(skipReset){
   if(_ostMode==='shakl'){
     sis.style.display='none';
     var bor = (c.t.tarix||[]).some(function(op){ return op.inventar==='boshlangich'; });
-    if(bor){ ogoh.style.display='block'; ogoh.textContent="⚠ Bu tur allaqachon shakllantirilgan. Davom etsangiz USTIGA qo'shiladi."; }
+    if(bor){ ogoh.style.display='block'; ogoh.textContent="⚠ Bu tur allaqachon shakllantirilgan. Saqlashda USTIGA yoki BOSHQATTAN so'raladi."; }
     else ogoh.style.display='none';
   } else {
     ogoh.style.display='none';
@@ -8020,6 +8084,14 @@ function ostFormSaqla(){
   }
   var gFarq, dFarq, sarl, izoh, inventar;
   if(_ostMode==='shakl'){
+    // v172: allaqachon shakllantirilgan bo'lsa — USTIGA yoki BOSHQATTAN so'raladi
+    var boshG=0, boshD=0, boshBor=false;
+    (c.t.tarix||[]).forEach(function(op){ if(op.inventar==='boshlangich'){ boshBor=true; boshG+=(op.gramm||0); boshD+=(op.dona||0); } });
+    boshG=roundG(boshG);
+    if(boshBor){
+      ostShaklSora(boshD, boshG, dona, jg, function(tanlov){ _ostShaklDavom(c, p1, jg, dona, sana, soat, boshG, boshD, tanlov); });
+      return;
+    }
     gFarq=jg; dFarq=dona;
     sarl="BOSHLANG'ICH OSTATKA KIRITILSINMI?";
     izoh="Boshlang'ich ostatka"; inventar='boshlangich';

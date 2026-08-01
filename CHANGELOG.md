@@ -3,6 +3,40 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172: qayta shakllantirish — "USTIGA yoki BOSHQATTAN?" so'rovi
+
+Ibrohim so'radi: shakllantirilgan turda qayta shakllantirish bosilsa tizim
+so'rasin — ustigami yoki boshqattan. Tekshiruvda qo'shimcha chiqdi: hozirgi
+qayta-shakllantirish YARIM-YARIM edi — gramm/donaOst USTIGA qo'shilardi
+(8034–8035), registr/dona baza esa ALMASHTIRILARDI (8041–8043), natijada
+hisob ikki barobar, registr esa faqat yangi skan bo'lib qolardi. Bundan
+tashqari donaBazaOmborOchir skan-kirimdan kelgan donalarni ham o'chirardi.
+
+Mockup: mockups/v172-tashxis-ost-shakl-qayta.html. Ibrohim qarorlari:
+eski yozuv butunlay o'chsin / orada harakat bo'lsa A-yo'l (Tekshiruvga
+yo'naltirish) / klient tomoni keyinroq / v172.
+
+Yangi oqim (faqat zavod ostatkasi, _ostMode==='shakl'):
+* Birinchi shakllantirish — o'zgarishsiz (v159 semantikasi).
+* Qayta shakllantirishda modal (modal-ost-shakl, ostSwitchSora uslubida):
+  - USTIGA: tarix/ostatka/donaOst ustiga (avvalgidek), LEKIN registr endi
+    donaRegQosh bilan QO'SHILADI va OmborOchir CHAQIRILMAYDI — yarim-yarim
+    bug tuzatildi, kirim donalari saqlanadi.
+  - BOSHQATTAN: eski inventar:'boshlangich' yozuvlari t.tarix dan o'chadi,
+    ostatka/donaOst dan yig'indisi ayiriladi, yangi skan yoziladi; registr
+    va dona baza almashtiriladi (OmborOchir+Qosh). Himoya: ostatka/donaOst
+    boshlangich yig'indisidan farq qilsa (orada kirim/berish bo'lgan) —
+    taqiqlanadi, alert Tekshiruv rejimiga yo'naltiradi.
+* Banner matni yangilandi (7381): "Saqlashda USTIGA yoki BOSHQATTAN so'raladi".
+
+Yangi kod: ostShaklSora/ostShaklJavob/_ostShaklDavom (ostSwitchJavob dan
+keyin), modal-ost-shakl (modal-ost-switch dan keyin). ostFormSaqla shakl
+tarmog'ida boshBor tekshiruvi.
+
+Sinov: node --check toza; brauzerda 3 stsenariy sinovdan o'tdi (boshqattan
+toza holat: ostatka=skan; boshqattan harakat bilan: taqiqlandi, o'zgarish 0;
+ustiga: registr qo'shildi, 2 boshlangich yozuv). hamid shartlariga tegilmadi.
+
 ## v171.9: ichki parol maydonlarida Chrome parol-ro'yxati o'chirildi
 
 Ibrohim skrinshot ko'rsatdi: Vaqt mashinasi parol maydonida Chrome saqlangan

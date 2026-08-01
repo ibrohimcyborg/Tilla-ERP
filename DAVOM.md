@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v171.9 · 2026-08-01
+**Oxirgi yangilanish:** v172 · 2026-08-01
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v171.9** (`index.html` birinchi qatorida `<!-- v171.9 -->`, `APP_VER` da ham) |
+| Versiya | **v172** (`index.html` birinchi qatorida `<!-- v172 -->`, `APP_VER` da ham) |
 | Hajm | 17,385 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -27,6 +27,13 @@
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0a. Klient ostatka shakllantirish — "ustiga/boshqattan" dialogi YO'Q
+
+v172 da zavod tomoniga qo'shildi, klient tomoni (ostKlSaqla, "✓
+shakllantirilgan" belgisi 6111 atrofida) Ibrohim qarori bilan keyinga
+qoldirildi. Klient tomonida qayta shakllantirish hozir ham eski usulda
+ishlaydi — dialog yo'q.
 
 ### 0. O'lik kod — tashxis tayyor, o'chirish KEYINROQ (Ibrohim qarori)
 
@@ -111,6 +118,7 @@ Qaror qabul qilinmagan.
 | v171.7 | Chip ro'yxati + 2-skan chek-ro'yxat — uchala modalda bir xil |
 | v171.8 | `kh*` global to'qnashuvi (v171.4 dan): klient hisoboti `khr*` ga ko'chdi, kassa kh-filtr paneli tuzaldi |
 | v171.9 | Vaqt mashinasi / nollash parol maydonlari: type="text" + CSS maska — Chrome parol-ro'yxati chiqmaydi |
+| v172 | Qayta shakllantirishda "USTIGA / BOSHQATTAN" modal; ustiga-yo'lning registr/dona-baza bug'i tuzatildi; boshqattan faqat orada harakat bo'lmaganda (aks holda Tekshiruvga yo'naltiradi) |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 
