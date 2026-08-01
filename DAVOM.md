@@ -81,8 +81,10 @@ Koddan tasdiqlangan holat:
 To'lov cheki sharti `if(s>0 && n>0)` — qarzga sotuv (Ibrohim tasdiqlagan
 odatiy holat) belgisiz qoladi.
 
-Mockuplar: `mockups/v170-tashxis-sotuv-belgisi.html`,
-`mockups/v170-tashxis-2-oddiy-tilda.html`. Qaror qabul qilinmagan.
+Bu masala bo'yicha eski mockuplar bor edi, lekin ular **saqlanmadi va
+kerak emas** — v170 holatiga tayangan, qator raqamlari eskirgan.
+Ish boshlanganda tahlil **qaytadan**, hozirgi koddan qilinadi.
+Qaror qabul qilinmagan.
 
 ---
 

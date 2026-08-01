@@ -260,7 +260,9 @@ Zavod kirim/vozvratini ko'rsatadigan hisobot uchun yangi o'quvchi kerak
 index.html        ~17 385 qator (~1 MB, ~311k token) — butun ilova
 CHANGELOG.md      versiya arxivi (YOZASAN, O'QIMAYSAN)
 DAVOM.md          hozirgi holat + keyingi vazifa
-mockups/          tasdiq kutayotgan va tasdiqlangan mockuplar
+mockups/          joriy ish uchun mockuplar (eskilari saqlanmaydi —
+                  bajarilgach o'chiriladi, chunki qator raqamlari eskiradi
+                  va adashtiradi)
 api/pdf.py        PDF generator (Vercel funksiyasi)
 print_server.py   termal chek printer (localhost:5000)
 vercel.json       deploy sozlamalari
