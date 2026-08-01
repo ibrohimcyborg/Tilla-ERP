@@ -3,6 +3,31 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.3: Abdulhamid loginida kassa — v171.3 oddiy ketma-ketligiga qaytarildi
+
+Ibrohim: "abdulhamid logida kassa modalini oddiy ketma-ketligida qilib qo'y,
+sanama-sana keremas". CLAUDE.md §6 istisno ruxsati berildi (bir martalik).
+
+Eski holat gitdan topildi (9f73f9e = v171.3) va mockupda ko'rsatildi
+(HOZIR / ESKI v171.3 / A yaxlit / B ochiq) — Ibrohim ESKI holatni tanladi.
+
+Bajarildi: kassaRender kun-siklida `if(_hamidRol)` tarmog'i — hamid uchun
+v171.3 dagi chizuv AYNAN qaytarildi (HTML eski koddan ko'chirildi):
+kun oddiy matn-yorliq (bosilmaydi, ► / "N ta" / "bugun" yo'q), klient
+qatorlari doim ochiq, kun oxirida "Kun jami" chizig'i. Ibrohim yo'li
+(else tarmoq) bayt-ma-bayt o'zgarmadi — v171.4 kun-kartalari qoladi.
+
+Klient darajasidagi ochish-yopish (kassaToggle) ikkala rolda ham ishlaydi.
+CLAUDE.md §6 yangilandi: yangi tarmoq ham himoya ro'yxatiga kirdi, qator
+raqamlari yangilandi (7927/7992/8002/9493/9555/17066).
+
+Sinov: node --check toza; brauzerda renderKassa ikkala rolda (oddiy/hamid
+stub) xatosiz; konsol toza. Jonli tekshiruv Abdulhamid loginida qilinadi.
+
+Eslatma: mockup fayli v172.4 deb nomlangan edi, lekin versiya ketma-ketligi
+uchun bu ish v172.3 bo'ldi (sotuv-chek-offset tashxisi hali qaror kutmoqda,
+u tasdiqlansa keyingi raqamni oladi).
+
 ## v172.2: ostatka skanida × bosilganda fokus maydonda qoladi
 
 Ibrohim: ostatka ro'yxatida × bosib gramm o'chirilsa, skan maydonidan fokus

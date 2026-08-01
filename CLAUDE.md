@@ -140,11 +140,16 @@ qolib ketdi. Ibrohim topdi, Claude emas.
 shartlari — o'zgartirma, qo'shma.
 
 `hamid-x` klassi: 271, 342, 345, 377, 394, 1340
-`getRol()==='hamid'` sharti: 7858, 7923, 7933, 9416, 9478, 16976
+`getRol()==='hamid'` sharti: 7927, 7992, 8002, 9493, 9555, 17066
 `rol-hamid` CSS bloki: 261–271
+`kassaRender` ichidagi `if(_hamidRol)` kun-tarmog'i (~9619, v172.3) —
+bu ham himoyada: hamid kassani v171.3 uslubida (yaxlit, yig'ilmagan) ko'radi.
 
-(v171.7 holati. Qator raqamlari har versiyada siljiydi — ishonchsiz bo'lsa
+(v172.3 holati. Qator raqamlari har versiyada siljiydi — ishonchsiz bo'lsa
 `grep -n "hamid"` bilan qayta top.)
+
+Istisno tarixi: v172.3 da Ibrohim ruxsati bilan (2026-08-01) kassa kun-sikliga
+bitta hamid-tarmoq qo'shildi. Bu ruxsat BIR MARTALIK edi — qoida kuchda qoladi.
 
 ---
 

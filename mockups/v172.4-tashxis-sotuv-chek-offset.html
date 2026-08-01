@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.3 — Sotuv chekida offset ko'rinmaydi</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;background:#14161a;color:#e8e6e0;line-height:1.5}
+  h1{font-size:21px;border-bottom:2px solid #c9a227;padding-bottom:8px}
+  h2{font-size:16px;color:#c9a227;margin-top:28px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #333;padding:5px 9px;text-align:left;vertical-align:top}
+  th{background:#1e2126}
+  code{background:#22252b;padding:1px 5px;border-radius:4px;font-size:12px;color:#7fd4a0}
+  .num{color:#8ab4f8;font-family:monospace}
+  .box{background:#1e2126;border:1px solid #333;border-radius:10px;padding:12px 16px;margin:12px 0}
+  .warn{border-left:4px solid #e05050}
+  .ok{border-left:4px solid #4a9}
+  .qq{border-left:4px solid #c9a227}
+  .muted{color:#999;font-size:12px}
+  .cheklar{display:flex;gap:16px;flex-wrap:wrap}
+  .chek{flex:1;min-width:320px}
+  .chek h3{font-size:13px;margin:0 0 6px}
+  .chek pre{background:#faf7f0;color:#222;border-radius:10px;padding:12px;font-size:11px;line-height:1.45;overflow-x:auto;margin:0}
+  .bad{background:#ffd7d7}
+  .good{background:#d3f0d9}
+  .h{background:#fdeec2}
+</style>
+</head>
+<body>
+
+<h1>v172.3 — Sotuv chekida OFFSET to'lovi ko'rinmaydi</h1>
+
+<h2>MISOL STSENARIY</h2>
+<div class="box">
+Klient: <b>Zulfiya</b>. Sotuv: <b>Butterfly Oddiy 10.00 g × 75 = 750.00 #</b>.<br>
+To'lov: <b>300 #</b> — offset (Butterfly <b>3D</b> turida biz klientga <b>5.00 g qarzmiz</b>, kurs 60 → 300 #)
++ <b>450 #</b> naqt.
+</div>
+
+<h2>HOZIRGI HOLAT — preview nima ko'rsatadi</h2>
+
+<div class="cheklar">
+<div class="chek">
+<h3>❌ HOZIR (preview va PRINT ham)</h3>
+<pre>                    Zulfiya
+                01.08.2026 - 14:20
+================================================
+Berildi
+ Butterfly Oddiy                        -10.00g
+------------------------------------------------
+ JAMI berildi                           -10.00g
+================================================
+To'lov
+ Butterfly Oddiy  10.00g x 75           750.00#
+================================================
+Jami to'landi
+<span class="bad"> N                                      750.00#</span>
+================================================
+                                        750.00#
+ ...............................................
+ Umumiy Summa                           750.00#
+ Umumiy g                                10.00g
+================================================
+Ostatka
+                     Ostatka    yangi     jami
+<span class="bad"> (3D "bizda" qatori umuman YO'Q)</span>
+</pre>
+</div>
+<div class="chek">
+<h3>✅ TAKLIF</h3>
+<pre>                    Zulfiya
+                01.08.2026 - 14:20
+================================================
+Berildi
+ Butterfly Oddiy                        -10.00g
+------------------------------------------------
+ JAMI berildi                           -10.00g
+================================================
+To'lov
+ Butterfly Oddiy  10.00g x 75           750.00#
+================================================
+Jami to'landi
+<span class="good"> O  3D aylantirildi  5.00g x 60        300.00#</span>
+<span class="good"> N                                      450.00#</span>
+================================================
+                                        750.00#
+ ...............................................
+ Umumiy Summa                           750.00#
+ Umumiy g                                10.00g
+================================================
+Ostatka
+                     Ostatka    yangi     jami
+<span class="good"> Butterfly 3D (bizda)  5.00g   -5.00g    0.00g</span>
+</pre>
+</div>
+</div>
+
+<p class="muted">O harfi — to'lov chekidagi mavjud belgi bilan bir xil
+(L lom · O offset · N naqt · K karta · P perech, <span class="num">13203</span> izohi).</p>
+
+<h2>TASHXIS — nega bunday (kod dalillari)</h2>
+
+<div class="box warn">
+<table>
+<tr><th>№</th><th>Muammo</th><th>Joy</th></tr>
+<tr><td>1</td><td><b>Yangi format generatorida offset UMUMAN YO'Q.</b> «Jami to'landi» bloki
+faqat L (lom) va bitta N qatori: <code>naqd = jamiS − lomPul</code> — offset bilan to'langan
+pul ham <b>N (naqt) deb</b> yoziladi. Karta/perech ham shu yerda yutiladi.</td>
+<td class="num">15403–15412 (klientSotuvChekYangiGen)</td></tr>
+<tr><td>2</td><td>Preview generatorga offset haqida <b>hech narsa uzatmaydi</b> —
+opts ichida offset maydoni yo'q.</td>
+<td class="num">14980–14985</td></tr>
+<tr><td>3</td><td>Ostatka jadvaliga faqat <b>musbat</b> qarzlar kiradi
+(<code>if(_eqm[kk]&gt;0.001)</code>) — offset manbai (biz qarzdor, manfiy) ko'rinmaydi,
+uning nolga siljishi ham yo'q.</td>
+<td class="num">14970</td></tr>
+<tr><td>4</td><td>Eski (lines2) formatda offset bloki BOR edi, lekin v154.2 dan beri klient
+tanlangan bo'lsa yangi format <code>return</code> qiladi — eski blok <b>hech qachon
+ko'rinmaydi</b> (sotuvda klient doim tanlangan). O'sha blokning o'zida ham xato bor:
+kerak hisobida lom ayirilmaydi (<span class="num">14797</span>), saqlash esa ayiradi
+(<span class="num">15158</span>) — preview va saqlash farqlanadi.</td>
+<td class="num">14796–14804 vs 14956–14988</td></tr>
+</table>
+<p><b>Saqlash yo'li TO'G'RI ishlaydi</b> (<span class="num">15157–15181</span>):
+offset faqat kerakligicha ishlatiladi, <code>_kdYopish:true</code> yozuvi to'g'ri tushadi.
+Muammo faqat CHEK KO'RINISHIda.</p>
+</div>
+
+<h2>TAKLIF TAFSILOTI</h2>
+
+<div class="box ok">
+<ol>
+<li><code>klientSotuvChekYangiGen</code> ga yangi opts maydoni: <code>offsetlar:
+[{zavod, tur, gramm, kurs, summa}]</code> (ishlatilgan ulush — saqlashdagi
+<code>_svRowUsed</code> formulasi bilan bir xil).</li>
+<li>«Jami to'landi» blokida L dan keyin O qatorlari, keyin
+<code>N = jamiS − lomPul − offsetJami</code>. Karta/perech kiritilgan bo'lsa N o'rniga
+K/P qatorlari (hozirgi N-yagona mantig'i ham aslida karta/perechni yutadi — bu ham
+tuzatiladimi, qaror №3).</li>
+<li>Ostatka jadvaliga offset manbai turi «(bizda)» belgisi bilan kiradi:
+eski −5.00 → yangi +5.00 → jami 0.00.</li>
+<li>Preview chaqiruvida offsetlar hisoblanib uzatiladi (kso-blok ochiq qatorlar,
+ishlatilgan ulush bilan).</li>
+<li>Print/saqlangan chek ham SHU generatordan chiqadi — tuzatish ikkalasiga birdek
+ta'sir qiladi.</li>
+</ol>
+</div>
+
+<h2>TAXMIN BLOKI</h2>
+
+<div class="box qq">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>O qatori matni qanday bo'lsin: «3D aylantirildi 5.00g x 60» (to'lov chekidagidek)
+yoki boshqa matn?</li>
+<li>Ostatka jadvalida offset manbai «(bizda)» ko'rinishi kerakmi, yoki faqat
+«Jami to'landi»dagi O qatori yetarlimi?</li>
+<li>N-yagona muammosi (karta/perech ham N deb chiqishi) shu versiyada tuzatilsinmi
+yoki alohida? Bu offset masalasidan kengroq.</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li>Ishlatilgan ulush formulasi saqlashdagi bilan AYNAN bir xil bo'ladi
+(<code>_needBeforeOffsetSv</code> — lom va skidka ayirilgan). <i>(mendan — preview saqlash
+bilan mos bo'lishi shart)</i></li>
+<li>Eski lines2 offset bloki (14796–14804) tegilmaydi — u o'lik-yo'l, alohida o'lik-kod
+masalasida hal bo'ladi. <i>(mendan)</i></li>
+<li>Umumiy Summa qatori o'zgarmaydi — offset to'lov turi, summaga ta'sir qilmaydi. <i>(mendan)</i></li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><code>klientSotuvChekYangiGen</code> <span class="num">15344–15453</span> — «Jami to'landi» va «Ostatka» bloklari</li>
+<li>Preview chaqiruv <span class="num">14956–14988</span> — offsetlar yig'ib uzatiladi</li>
+<li>Print yo'li: <code>klientSotuvChekYangiGen</code> ni chaqiradigan saqlash tomoni
+(<span class="num">~15297</span> atrofi) — o'sha yerda ham offsetlar uzatiladi</li>
+<li>Saqlash mantig'i (<span class="num">15157–15181</span>) O'ZGARMAYDI — faqat o'qiladi</li>
+<li>To'lov cheki (kt) tegilmaydi — u allaqachon to'g'ri</li>
+</ul>
+</div>
+
+<h2>QAROR NUQTALARI — Ibrohimdan</h2>
+<div class="box qq">
+<ol>
+<li>Taklifdagi chek ko'rinishi to'g'rimi (O qatori + Ostatka'da «bizda» qatori)?</li>
+<li>Print ham o'zgaradi (bir generator) — rozimisiz?</li>
+<li>Karta/perech N bo'lib chiqish muammosi ham shu versiyada tuzatilsinmi?</li>
+<li>Versiya v172.3 bo'lsinmi?</li>
+</ol>
+</div>
+
+</body>
+</html>
