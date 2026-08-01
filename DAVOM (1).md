@@ -1,171 +1,156 @@
-# Tilla ERP — davom (v170 dan keyin)
+# DAVOM.md — qayerdan davom etamiz
 
-Men Ibrohim, Tilla ERP (tilla-erp.vercel.app) egasiman. Single-file `index.html`,
-vanilla JS, localStorage `tilla-v2`, Firebase Firestore. **APP_VER hozir v170.**
+> Bu fayl **har seans boshida o'qiladi**. Ish qoidalari CLAUDE.md da.
+> Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
+> nimadan davom etishini bilmaydi.
 
-## ISH QOIDALARI (qat'iy)
-
-1. **Hech qachon index.html ga to'g'ridan kod yozma.** LOGIKA / MAYDON / HISOB
-   o'zgarsa avval MOCKUP (alohida vizual HTML) → men "ha" / "to'g'ri" / "boshla"
-   deb tasdiqlagach → kod. Sof vizual o'zgarish uchun ham avval so'ra.
-2. **ESKI VERSIYALARGA QAYTIB TAHLIL QILMA.** CHANGELOG faqat arxiv — yozasan,
-   lekin eski yozuvlarni tahlil qilmaysan. Eski kod DALIL emas.
-   **Faqat ikki manba:** (1) men hozir aytgan spetsifikatsiya, (2) index.html ning
-   HOZIRGI kodi. Mavjud funksiyani CHAQIRISH yaxshi, eski QARORNI ko'chirish yomon.
-3. **Yangi funksiya yozishdan oldin grep bilan tekshir.** id/maydon naqshlarini
-   taxmin qilma, kodda tekshir.
-4. Har mockup oxirida taxmin bloki: (1) aniq bilmayotgan joylarim, (2) taxminlarim
-   (mendanmi yoki sendanmi — belgilab), (3) ta'sir qiladigan joylar (grep natijasi).
-5. Versiya izohi CHANGELOG.md ga. Node sintaksis-sinov majburiy, keyin
-   `present_files`.
-6. **index.html ning ENG BIRINCHI qatoriga** `<!-- v171 -->` ko'rinishida versiya.
-   Faqat raqam.
-7. O'zgarishlar faqat TEST va asosiy rejimga — **Abdulhamid rejimiga qo'shma**
-   (`hamid-x` klassi, `getRol()==='hamid'`).
-
-## FAYLLAR
-Ish nusxasi `/home/claude/w/index.html`, CHANGELOG `/home/claude/CHANGELOG.md`.
+**Oxirgi yangilanish:** v171.7 · 2026-08-01
 
 ---
 
-# 1. DARROV BOSHLANADIGAN ISH — Haftalik daftar
+## Hozirgi holat
 
-**Men tasdiqladim, savol yo'q, yozilsa bo'ladi.**
+| | |
+|---|---|
+| Versiya | **v171.7** (`index.html` birinchi qatorida `<!-- v171.7 -->`, `APP_VER` da ham) |
+| Hajm | 17,385 qator · ~1 MB · **~311k token** |
+| Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
+| Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
+| Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. Ishlab chiqarishda sinamaymiz. |
 
-Mavjud **Haftalik ostatka** ekraniga (davr strelkalari, ikki karta, ochiladigan tur
-qatorlari, PDF/Excel) **ikkinchi modal** qo'shiladi: **Umumiy oldi-berdi**.
+> **DIQQAT — faylni to'liq o'qib bo'lmaydi.** 311k token, kontekst oynasi 200k.
+> Har doim `grep` bilan qidiring, keyin kerakli 20–50 qatorni o'qing.
+> `CHANGELOG.md` (221 KB) — **hech qachon o'qilmaydi**, faqat yoziladi.
 
-Birinchi modal (klient oldi-berdisi) allaqachon bor — TEGILMAYDI.
+---
 
-## Ko'rinishi
-Hozirgi Haftalik ostatka bilan bir xil uslub. Tur qatori bosilsa daftari ochiladi:
+## Ochiq masalalar
+
+Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 1. Lom narxi chekda 73.1, saqlanganda 73 — SABAB TOPILMAGAN
+
+Zulfiya Opa Andijon, 31.07.2026. Chekda `108.93 g × 73.1 = 7,962.78 $`,
+tarixga `108.93 × 73 = 7,951.89 $` tushgan. Farq **10.89 $** — bu sdachani
+12.77 g dan 12.63 g ga tushirgan.
+
+Tekshirilgani: chek chizuvchi ham, saqlovchi ham **aynan bir xil maydondan**
+(`kt-lk-<i>`) **aynan bir xil usul bilan** (`parseNum`) o'qiydi. `parseNum`
+da vergul himoyasi bor — `73,1` to'g'ri o'qiladi.
+
+Demak qiymat **chek chizilgandan keyin, Saqlash bosilgunicha** o'zgargan.
+Taxmin bilan kod o'zgartirilmadi.
+
+**Ibrohimdan kutilmoqda:** takrorlash. Lom narxini **nuqta bilan** kiritib,
+keyin boshqa maydonga tegmasdan saqlash. Farq chiqadimi-yo'qmi.
+
+### 2. Eski ikkilangan sdacha yozuvlari tozalanmagan
+
+v171.3 da sabab tuzatildi (ikki joydan yozilardi), lekin **allaqachon
+yozilganlari turibdi**. Zulfiya Opada ortiqcha **+12.63 g**. Boshqa
+klientlarda ham bo'lishi mumkin — sdacha qaytarilgan har to'lovda.
+
+Avtomatik tozalash **qilinmadi, ataylab** — ikkita bir xil yozuv haqiqatan
+ham ikki alohida amal bo'lishi mumkin. Qaror Ibrohimdan: topib ko'rsatish
+kerakmi, yoki qo'lda o'zi o'chiradimi.
+
+### 3. `klientQarzSplit` da sdacha turga ajratilmaydi
+
+v171.3 da `_qarzTarkib` tuzatildi — Qarz tarkibi panelida sdacha endi o'z
+turi ostida ko'rinadi. Lekin `klientQarzSplit` da hali ham:
+
+```js
+else if(op.tip==='klientda') bizQarzi += op.gramm;   // umumiy qopga
+```
+
+Ya'ni tur bo'yicha emas, to'g'ridan-to'g'ri umumiy "bizning qarz" ga.
+Ibrohim panel haqida aytgan edi, faqat o'sha tuzatildi. Bu tegilmadi.
+
+### 4. Sotuv va berish yozuvlari farqlanmaydi
+
+`saqlashKlientBerish` va `saqlashKlientSotuv` ikkalasi ham bir xil
+`tip:'berish'` yozadi — maydon-maydon farqsiz.
+
+Koddan tasdiqlangan holat:
+* `manba:'sotuv'` — butun faylda **0 marta yoziladi**
+* `_sotuv:true` — **hech qachon yozilmaydi**
+* Lekin `haftaOstData` (6239, 6246-qatorlar) ikkalasini ham **o'qiydi**
+  → natija **doim `false`**
+* Dona bazadagi `holat:'sotilgan'` — **0 marta qo'yiladi**
+
+To'lov cheki sharti `if(s>0 && n>0)` — qarzga sotuv (Ibrohim tasdiqlagan
+odatiy holat) belgisiz qoladi.
+
+Mockuplar: `mockups/v170-tashxis-sotuv-belgisi.html`,
+`mockups/v170-tashxis-2-oddiy-tilda.html`. Qaror qabul qilinmagan.
+
+---
+
+## Oxirgi versiyalar (qisqacha)
+
+| Versiya | Nima qilindi |
+|---|---|
+| v171 | "Qo'limizdagi ostatka" ekrani — zavod→tur→gramm, hafta bo'yicha |
+| v171.1 | Hafta zanjiri tuzatildi (hafta oxiri = bugungi ostatka − keyingi harakatlar) |
+| v171.2 | Sdacha `soat` ga Date obyekti yozilardi → tuzatildi + bir martalik migratsiya (`data._soatFix1`) |
+| v171.3 | Sdacha **ikki marta** yozilardi → takror blok o'chirildi; `_qarzTarkib` ga `klientda` qo'shildi |
+| v171.4 | Klient hisoboti va kassa — kunlar yig'ilgan, bugun ochiq; hisobotga filtr (Berildi/Vozvrat/Tolov) |
+| v171.5 | Zavod skanida fokus — × va rejim almashishda kiritish maydonida qoladi |
+| v171.6 | Vozvrat/sotuv skani berish darajasiga ko'tarildi (1/2-skan, ro'yxat, ×) |
+| v171.7 | Chip ro'yxati + 2-skan chek-ro'yxat — uchala modalda bir xil |
+
+To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
+
+---
+
+## Muhim texnik joylar
+
+**Skan tizimi (v171.7 dan keyin):**
+* `_skanChipHTML(pass1, pass2, mode, oc)` — **umumiy chizuvchi**, uchala
+  modal ham shundan foydalanadi. Ko'rinish o'zgarsa faqat shu yerda.
+* Berish: `kbSkan*` (`_kbSkanState`, kalit `zi_ti`)
+* Vozvrat/sotuv: `uniSkan*` (`_uniSkan`, kalit maydon id si)
+* **`uniSkanDona` / `uniSkanArr` DOIM `pass1` dan** — 2-skan saqlashga
+  ta'sir qilmaydi. Dona registri shunga bog'liq, buzmang.
+* `uniSkan*` **5 joyda** chaqiriladi: klient vozvrat, to'lovdagi vozvrat,
+  sotuv grammi, sotuvdagi vozvrat, ostatka vozvrati. API o'zgartirilmasin.
+
+**Ataylab farqli qoldirilgan:** berishda `−` tugmasi **manfiy gramm
+qo'shadi** (tuzatish uchun), vozvrat/sotuvda **oxirgisini o'chiradi**.
+Sabab: manfiy gramm dona registriga tushib uni buzishi mumkin.
+
+**Tegilmaydigan joylar — `hamid-x`** (snabjenets rolidan yashiriladi):
+qatorlar **271, 342, 345, 377, 394, 1340**. Bularga tegmang.
+
+**Yordamchilar:** `roundG`, `parseNum`, `fdSanaTs(sana,soat)`, `fmtG`,
+`fmtD`, `esc`, `today()` (ru-RU DD.MM.YYYY), `skParseGram`, `skSum`,
+`skMultiset`, `_skanSvg`, `_touchQurilma`.
+
+---
+
+## Rejalashtirilgan, hali kod yozilmagan
+
+* **Yangi foyda modeli** — narx qatlamlari (Zavod%, A%, B=A+2$), foyda tur
+  bo'yicha, chiqimda qulflanadi, LOM foydasi 100% kompaniyaniki
+* **Haqiqiy Kassa** — uch cho'ntak, nol nuqta, lom ombori, zakaz muzlatish,
+  999 arbitraji, ulush havzasi (pro-rata)
+* **Abdulhamid diler tizimi** — alohida Firebase, ikki tomonlama sinx
+
+Bularning hammasi **mockup/tahlil bosqichida**. Kod yozilmagan.
+
+---
+
+## Seans boshlash
 
 ```
-Butterfly                                        840.00
-  Hafta boshi                                  1 000.00
-  27.07  Zavod · kirim          +250.00        1 250.00
-  28.07  Zavod · vozvrat         −60.00        1 190.00
-         Klientga berildi  5 klient  −300.00     890.00
-         Sotildi                 −80.00          810.00
-         Klientdan vozvrat       +30.00          840.00
-  = Qo'limizda                                   840.00
+cd Tilla-ERP
+claude
 ```
 
-## Qat'iy qarorlar
-* **FARQ YO'Q.** Sanoq bilan solishtirish qatori ham yo'q. Faqat harakat va qoldiq.
-  Uning o'rniga **Qo'limizda** ko'rsatiladi.
-* **Klient amallari YIG'ILADI** — bittalab chiqmaydi (spiska uzayib ketadi).
-  Uch qator: Klientga berildi / Sotildi / Klientdan vozvrat. Yoniga nechta klient.
-* **Zavod amallari sanasi bilan qoladi** — ular haftada bir-ikki marta.
-* **Hafta boshidagi qoldiq = o'tgan hafta oxiri.** Saqlangan haftalik qoldiq yo'q,
-  shuning uchun amalda: bugungi `t.ostatka` dan shu haftadagi harakatlar orqaga
-  ayiriladi. Zanjir shunday quriladi.
-* **Faqat GRAMM.** Dona ustuni yo'q — men "dona hozircha shart emas" dedim.
+Keyin:
+> CLAUDE.md va DAVOM.md ni o'qi. v171.7 dan davom etamiz.
 
-## Ochiq qolgan mayda savollar
-* Yuqoridagi ikki karta nima ko'rsatsin — Claude `Qo'limizda` va `Farq` qilgan edi,
-  farq olib tashlanadi. Ikkinchi karta nima bo'lishi aytilmagan.
-* Sotuv "berildi" dan alohida yozilishi kodda tasdiqlanmagan — tekshirilsin.
-* "5 klient" belgisi bosilganda ro'yxat ochilsinmi — ikkinchi qadam, hozir shart emas.
+Keyingi safar shu ishni davom ettirish uchun — `claude -c`.
 
-## Ma'lumot manbalari — koddan tasdiqlangan
-```
-Zavoddan kirim      t.tarix  tip:'mol'       sana + gramm
-Zavodga vozvrat     t.tarix  tip:'vozvrat'   sana + gramm
-Klientga berilgan   k.tarix  tip:'berish'    sana + gramm + zavod/tur
-Klientdan vozvrat   k.tarix  tip:'vozvrat'   sana + gramm + zavod/tur
-```
-Klient harakatlari HAMMA klientdan yig'iladi.
-
-**TUZOQ:** ostatka tekshiruv tuzatishi ham `tip:'mol'` bo'lib yoziladi
-(`inventar` belgisi bilan). Ajratilmasa "Zavoddan kirim" ga qo'shilib ketadi va
-daftar yolg'on chiqadi. Alohida qator qilinsin.
-
----
-
-# 2. KEYINGI ISH — F (Ostatka ikki rejim)
-
-**Men javob berganman, savol yo'q.**
-
-Ostatka ekranida **Tekshiruv** rejimida Saqlash bosilganda ikki tugma chiqsin
-(Dona baza ekranida allaqachon bor — `donaBazaTekshirSaqla`, o'sha mantiq
-`ostFormSaqla` ga keltiriladi):
-
-* **Shakllantirish** — skan = haqiqat. Eski ombor o'chadi. Hozirgi yagona yo'l.
-* **Qo'shish** — bazaga TEGILMAYDI, faqat yangi topilganlar qo'shiladi.
-
-**Nega kerak:** faqat yangi mol skan qilinganda hozirgi kod butun omborni o'chirib
-yuboradi (10 dona 125 g → 3 dona 40 g, 85 g yo'qoladi).
-
-**Ochiq:** ikki tugma faqat Tekshiruv rejimida chiqsinmi yoki Boshlang'ich
-ostatkada ham (Claude: faqat Tekshiruvda, boshlang'ichda baza baribir bo'sh).
-
-**Sana masalasi:** shakllantirish `donaBazaOmborOchir` bilan hamma ombor yozuvini
-o'chirib, skanni bugungi sana bilan qayta yozadi. Dona baza ekrani sana bo'yicha
-guruhlaydi, ya'ni zavod kirimlarining sanasi yo'qoladi. Uchinchi yo'l taklif
-qilingan (mos kelgan donalar eski sanasi bilan qolsin) — men javob bermaganman.
-
----
-
-# 3. QO'LDA BERISH — hal qilingan, kod o'zgarmaydi
-
-Qo'lda gramm yozilganda kod `[gramm]` ni bitta soxta dona deb qidiradi, topmaydi,
-hech narsa belgilamaydi. Dona registri buziladi.
-
-**Bu muammo emas** chunki:
-* Gramm hisobi dona bazasidan mustaqil — `t.ostatka` ayrim yuritiladi.
-* Nomuvofiqlik faqat `ozConfirmOch` ogohlantirishi chiqaradi, "ha" desang amal
-  odatdagidek yoziladi. Hech narsa to'smaydi, grammda ortiqcha paydo bo'lmaydi.
-* Men: dona hozircha shart emas, haftalik shakllantirish tekislab boradi.
-
-**Qaysi dona ketganini taxmin qilish MUMKIN EMAS** — 10 g / 4 dona uchun
-2.3+2.7+3.1+1.9 va 4.1+3.1+1.9+0.9 va boshqalar bir xil natija beradi.
-Bu yo'l butunlay yopildi.
-
----
-
-# 4. BU SEANSDA QILINGANI (v168 → v170)
-
-* **v168** — Panel yagona kirish joyi bo'ldi, 4 oyna bir qatorda
-  (Naqt·Perech·Karta·Lom), tur qatori yorliqsiz 2 qator (`$` · summa · $/g ·
-  gramm · ✓), Kerakli summa bloki 1 qator. **500$ naqd xatosi yopildi** — 300 naqd
-  + 200 karta endi to'g'ri bo'linib saqlanadi.
-* **v168.1** — `$` ustiga qo'shmaydi, klientda qolgan pulni yozadi. Lom oynasi
-  bosiladigan bo'ldi (`Lom +`).
-* **v168.2** — panel klient almashganda tozalanadi, avto-to'ldirish, sdacha.
-* **v168.3** — **yashirin eski qatorlar**: `openKlientTolov` tur ro'yxatini
-  yashirardi lekin tozalamasdi, yashirin `kt-s-*` lar "Taqsimlandi" ga qo'shilib
-  ketardi. Eski xato, v168 ochib qo'ydi.
-* **v169** — panel FAQAT HISOBLAGICHGA aylandi, hech qayerga yozmaydi
-  ("hisoblagich · saqlanmaydi"). To'lov yana pastdagi Kerakli summa blokidan
-  kiritiladi, `_tolovAvto` qayta taqsimlaydi.
-* **v170** — panel pastga, Kerakli summa ustiga ko'chdi. **Ptichka pastdagi Naqt
-  ga yozmaydi** — blok ochiladi, maydonlar bo'sh turadi. **`$` ketma-ket
-  taqsimlaydi**: 2 tur 1154.42+845.58=2000$, klientda 1800$ → 1-turga `$` 1154.42,
-  2-turga `$` 645.58, qolgan 200$ = 2.36g ostatka. `$/g` ga TEGILMAYDI.
-
----
-
-# 5. KEYINGI LOYIHADAN KEYIN
-
-* **D** — ortiqcha formulasi: ekran jami sotuv narxidan, chek kiritilgan to'lovdan
-  hisoblaydi. Javob bermaganman.
-* **E** — dona bazada "sotilgan" holati. Claude C ni (kiritilmasin) tavsiya qilgan.
-* Ostatka tekshiruvida "yo'q" donalar: tegilmaydi / "yo'qolgan" / o'chirish.
-* O'lik kod: `klientSotuvChekPrint` (141 qator), `chekQur` — o'chirilmagan.
-* `print_server.py` v163 da tuzatilgan, sinalganmi bilmayman.
-* **G — Ostatka delta hisoblagichga.** 34 ta yozish joyi. Avval bir hafta faqat
-  kuzatish (`ostatka 935 · delta 935 ✓` yonma-yon), farq chiqmasa delta asosiy.
-  Shundan keyin cloud bloki yechiladi. Bu yo'l ma'qulmi — javob bermaganman.
-* **H — Kassa amallarga.** 6 maydon, 56 joy. G bir hafta sinalmasdan tegilmaydi.
-
----
-
-# 6. BIRINCHI XABARDA NIMA QILISH KERAK
-
-1. `index.html` va `CHANGELOG.md` ni ish papkasiga ko'chir, APP_VER ni tasdiqla.
-   **CHANGELOG ni O'QIMA.**
-2. **1-bo'limdagi Haftalik daftarni yoz** — savol yo'q, spetsifikatsiya to'liq.
-   Mavjud Haftalik ostatka kodini (klient yig'ish, PDF, Excel) qayta ishlat.
-3. Keyin **2-bo'limdagi F**.
-4. Keyin o'lik kod tozalash.
+**Har versiyadan keyin:** `/clear` qiling va yangi seans boshlang.
+Uzun seans tokenni ko'p yeydi (har so'rovda butun suhbat qayta yuboriladi).
