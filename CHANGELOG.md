@@ -3,6 +3,47 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.7: chip ro'yxati + 2-skan chek-ro'yxat — uchala modal
+
+Ibrohim tanladi: "chip oqimi yaxshi" + "2-skanni bosganda xira turishi kerak,
+bor grammlar kichkina ptichka qo'shilib tiniq bo'lib qolishi kerak, yo'q yoki
+boshqalari boshqacha ko'rinishi kerak" → tasdiqlangan mockup:
+mockups/v171-chip-2skan-checklist.html → "shu bo'yicha to'g'irla 3la modalli".
+
+### Umumiy chizuvchi: `_skanChipHTML(pass1, pass2, mode, oc)`
+Berish (`kbSkanRender`), vozvrat va sotuv (`uniSkanRender`) endi bitta
+funksiya orqali chiziladi.
+
+**1-skan** — chip oqimi: har donada tartib raqami va ×, oxirgisi oltin,
+manfiy gramm (berishdagi − tuzatish) qizil rangda.
+
+**2-skan — chek-ro'yxat:** 1-skan chiplari XIRA (opacity .38) turadi.
+Mos gramm skan qilinganda chip yashil bo'lib ✓ oladi. 1-skanda yo'q gramm
+QIZIL "ortiqcha" chip bo'lib chiqadi (× bilan o'chiriladi). Tepada yurish
+chizig'i: "Tekshirildi m / n" + ortiqchalar soni. Hammasi mos bo'lsa
+"Ikkala skan to'liq mos ✓".
+
+Dona kartasi 2-skanda "Tekshirildi m / n" ko'rsatadi, Jami — 2-skan
+yig'indisi. Eski kam/ortiq bloklari (usrec/kbskan-rec) chek-ro'yxat o'rnini
+bosgani uchun yashirildi.
+
+### Tasdiqlangan qarorlar (mockupda)
+1. Yashil chipdagi ✓ bosilsa tekshiruv BEKOR bo'ladi — `uniSkanTick` /
+   `kbSkanTick` pass2 dan o'sha grammning bittasini olib tashlaydi.
+2. Bir xil grammlar TARTIB bilan belgilanadi — qaysi aynan donasi farq
+   qilmaydi, soni to'g'ri bo'lsa yetadi.
+
+### Saqlashga ta'sir YO'Q (sinovda tasdiqlandi)
+`uniSkanDona`/`uniSkanArr` va `kbSkanApplyToField` faqat pass1 dan o'qiydi —
+o'zgartirilmadi. 2-skanda nima qilinsa ham dona/gramm/maydon o'zgarmaydi.
+2-rejimdagi × (ortiqcha chip) joriy massiv pass2 dan o'chiradi — mavjud
+`DelAt` bilan, pass1 ga tegmaydi.
+
+Sinovlar: 7 xil moslashtirish holati (bo'sh, mos, ortiqcha, takror gramm,
+manfiy gramm), ✓ bekor qilish, 2-rejim ×, to'liq-mos xabari — hammasi o'tdi.
+
+---
+
 ## v171.6: vozvrat va sotuv skani — berishdagidek
 
 Ibrohim: "berish modalida skan bilan vozvrat va sotuvda skan boshqacha,
