@@ -3,6 +3,29 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.8: kh* global to'qnashuvi tuzatildi — klient hisoboti khr* ga ko'chdi
+
+Muammo (v171.4 dan beri): kassa paneli va klient hisoboti bitta global
+nomlarni talashardi — `_khFiltr` (3927 vs 10345), `_khOchiq` (3927 vs 10346),
+`khFiltrTanla` (3930 vs 10358). Keyingi e'lon avvalgisini bosib ketardi:
+
+1. Yuklanishda `_khFiltr='all'` bo'lib qolardi → kassa lentasi bo'sh ochilardi
+   (filtr `'hammasi'` kutadi), dropdown esa "hammasi" deb ko'rsatib turardi.
+2. `window.khFiltrTanla=` kassaning funksiyasini bosardi → kassa dropdown'i
+   `renderKassa()` o'rniga `renderKlientHisobot()` ni chaqirardi, hisobot
+   filtriga `'avto'` kabi yot qiymat yozilib u ham bo'shab qolardi.
+3. `_khOchiq` tip to'qnashuvi (boolean vs obyekt) → kassa toggle'idan keyin
+   hisobot kunlari ochilmay qolardi va aksincha.
+
+Yechim (Ibrohim tanladi, mockup: mockups/v171.8-khr-takror-elon.html):
+v171.4 tomoni `khr*` prefiksiga ko'chirildi, kassa tomoni tegilmadi —
+`_khrFiltr`, `_khrOchiq`, `khrFiltrTanla`, `khrKunToggle` (oxirgisi
+to'qnashmasa ham oila birligi uchun). O'zgargan oraliq: 10341–10506.
+
+Tekshirildi: node --check toza; runtime'da `_khFiltr='hammasi'` saqlanadi,
+`khFiltrTanla` yana kassaniki. `lblOf`/`balansOf`/`sanaToDt` takrorlari
+tekshirildi — lokal scope'larda, xavfsiz, tegilmadi.
+
 ## v171.7: chip ro'yxati + 2-skan chek-ro'yxat — uchala modal
 
 Ibrohim tanladi: "chip oqimi yaxshi" + "2-skanni bosganda xira turishi kerak,

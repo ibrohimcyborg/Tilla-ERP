@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v171.7 · 2026-08-01
+**Oxirgi yangilanish:** v171.8 · 2026-08-01
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v171.7** (`index.html` birinchi qatorida `<!-- v171.7 -->`, `APP_VER` da ham) |
+| Versiya | **v171.8** (`index.html` birinchi qatorida `<!-- v171.8 -->`, `APP_VER` da ham) |
 | Hajm | 17,385 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -27,6 +27,15 @@
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0. O'lik kod — tashxis tayyor, o'chirish KEYINROQ (Ibrohim qarori)
+
+47 funksiya hech qayerdan chaqirilmaydi — to'liq ro'yxat guruhlari bilan:
+`mockups/v171.7-tashxis-olik-kod.html`. Ibrohim: "hozir o'chirmaymiz —
+keyinroq". Tashxisdagi takroriy e'lonlardan `kh*` to'qnashuvi v171.8 da
+tuzatildi; `lblOf`/`balansOf`/`sanaToDt` lokal chiqdi (xavfsiz, tegilmadi).
+Diqqat: o'chirish paytida qator raqamlari siljiydi → CLAUDE.md §6/§10
+raqamlarini yangilash kerak bo'ladi.
 
 ### 1. Lom narxi chekda 73.1, saqlanganda 73 — SABAB TOPILMAGAN
 
@@ -100,6 +109,7 @@ Qaror qabul qilinmagan.
 | v171.5 | Zavod skanida fokus — × va rejim almashishda kiritish maydonida qoladi |
 | v171.6 | Vozvrat/sotuv skani berish darajasiga ko'tarildi (1/2-skan, ro'yxat, ×) |
 | v171.7 | Chip ro'yxati + 2-skan chek-ro'yxat — uchala modalda bir xil |
+| v171.8 | `kh*` global to'qnashuvi (v171.4 dan): klient hisoboti `khr*` ga ko'chdi, kassa kh-filtr paneli tuzaldi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 

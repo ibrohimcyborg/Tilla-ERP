@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v171.7 — O'lik kod tashxisi</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;background:#14161a;color:#e8e6e0;line-height:1.5}
+  h1{font-size:22px;border-bottom:2px solid #c9a227;padding-bottom:8px}
+  h2{font-size:16px;color:#c9a227;margin-top:28px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #333;padding:5px 9px;text-align:left}
+  th{background:#1e2126}
+  code{background:#22252b;padding:1px 5px;border-radius:4px;font-size:12px;color:#7fd4a0}
+  .num{color:#8ab4f8;font-family:monospace}
+  .box{background:#1e2126;border:1px solid #333;border-radius:10px;padding:12px 16px;margin:12px 0}
+  .warn{border-left:4px solid #e0a030}
+  .ok{border-left:4px solid #4a9}
+  .qq{border-left:4px solid #c9a227}
+  .muted{color:#999;font-size:12px}
+</style>
+</head>
+<body>
+
+<h1>v171.7 — O'lik kod tashxisi</h1>
+<p class="muted">2026-08-01 · index.html 17,385 qator · usul: 733 funksiya e'loni → har biriga
+so'z-chegarali qidiruv → izohlar chiqarib tashlandi → tranzitiv tekshiruv (faqat o'lik
+funksiyadan chaqiriladiganlar ham o'lik) → dinamik chaqiruvlar (<code>window[fnName]</code> /
+<code>cddPick</code>) alohida tekshirildi.</p>
+
+<div class="box ok">
+<b>Xulosa:</b> 47 ta funksiya hech qayerdan chaqirilmaydi (jonli koddan ham,
+HTML onclick'dan ham, dinamik chaqiruvdan ham). CLAUDE.md §10 dagi 2 ta ma'lum o'lik
+(<code>chekQur</code>, <code>klientSotuvChekPrint</code>) tasdiqlandi, yana 45 ta yangi topildi.
+</div>
+
+<h2>1-guruh · «Zapros taqsim» paneli — butun klaster o'lik (9 fn)</h2>
+<p>Qatorlar <span class="num">3207–3350</span>. Ildiz <code>zaprosPanelHTML</code> hech qayerdan
+chaqirilmaydi, qolganlari faqat bir-biridan.</p>
+<table><tr><th>Funksiya</th><th>Qator</th></tr>
+<tr><td><code>zaprosQoldiq</code></td><td class="num">3207</td></tr>
+<tr><td><code>zaprosPulGramm</code></td><td class="num">3220</td></tr>
+<tr><td><code>zaprosChontakIstemol</code></td><td class="num">3234</td></tr>
+<tr><td><code>zaprosPanelHTML</code> (ildiz)</td><td class="num">3245</td></tr>
+<tr><td><code>openZaprosTaqsim</code></td><td class="num">3260</td></tr>
+<tr><td><code>ztYop</code> / <code>ztOqi</code> / <code>ztHisob</code></td><td class="num">3295 / 3296 / 3311</td></tr>
+<tr><td><code>zaprosTaqsimSaqla</code></td><td class="num">3332</td></tr></table>
+
+<h2>2-guruh · Eski chek quruvchi — butun klaster o'lik (7 fn)</h2>
+<p>Qatorlar <span class="num">9777–9900</span>. Ildiz <code>chekQur</code> (CLAUDE.md §10 da ma'lum edi).
+Yordamchilari faqat shu ichidan chaqiriladi. Jonli generator — <code>kTolovChekGen</code>
+(<span class="num">9902</span>) — bularni ISHLATMAYDI.</p>
+<table><tr><th>Funksiya</th><th>Qator</th></tr>
+<tr><td><code>chekC</code> / <code>chekR</code> / <code>chekG</code> / <code>chekPad</code></td><td class="num">9777 / 9778 / 9782 / 9779</td></tr>
+<tr><td><code>chekTurBloki</code></td><td class="num">9786</td></tr>
+<tr><td><code>chekRoyxat</code></td><td class="num">9805</td></tr>
+<tr><td><code>chekQur</code> (ildiz)</td><td class="num">9814</td></tr></table>
+
+<h2>3-guruh · To'lov toggle zanjiri (3 fn)</h2>
+<p><code>_tolovToggle</code> (<span class="num">14561</span>) faqat ikkita wrapper'dan chaqiriladi,
+wrapper'larning o'zi esa hech qayerdan: <code>ksSotuvToggleTolov</code> (<span class="num">14581</span>),
+<code>ktToggleTolov</code> (<span class="num">14582</span>). Uchalasi birga o'lik.</p>
+
+<h2>4-guruh · Sdacha/sotuv qoldiqlari (7 fn)</h2>
+<table><tr><th>Funksiya</th><th>Qator</th><th>Izoh</th></tr>
+<tr><td><code>sdachaInpUpd</code> / <code>sdachaJamiUpd</code> / <code>sdachaPrich</code></td><td class="num">12809–12811</td><td><b>bo'sh tanali stub</b> <code>{}</code></td></tr>
+<tr><td><code>kTolovSdachaTanlovSet</code></td><td class="num">12815</td><td></td></tr>
+<tr><td><code>ksSotuvNaqtBerildiUpd</code></td><td class="num">14607</td><td>wrapper; asl <code>kSotuvNaqtBerildiUpd</code> jonli</td></tr>
+<tr><td><code>ksSotuvTanlovSet</code></td><td class="num">14613</td><td></td></tr>
+<tr><td><code>ksSotuvPickTaqsim</code></td><td class="num">14624</td><td></td></tr></table>
+
+<h2>5-guruh · Skan pass2 qoldiqlari (4 fn)</h2>
+<p>v171.7 skan qayta qurilishidan qolgan ko'rinadi:</p>
+<table><tr><th>Funksiya</th><th>Qator</th></tr>
+<tr><td><code>kbSkanUncheck</code> / <code>kbSkanDelPass2</code></td><td class="num">11542 / 11549</td></tr>
+<tr><td><code>uniSkanUncheck</code> / <code>uniSkanDelPass2</code></td><td class="num">12099 / 12107</td></tr></table>
+
+<h2>6-guruh · hk* panel qoldiqlari (3 fn)</h2>
+<table><tr><th>Funksiya</th><th>Qator</th></tr>
+<tr><td><code>hkNarxUpd</code> / <code>hkToggle</code> / <code>hkToggleTarix</code></td><td class="num">2629 / 2636 / 2719</td></tr></table>
+<p class="muted">Diqqat: <code>hkUpd</code>, <code>hkSaqla</code>, <code>hkLomUpd</code> va boshqa hk* lar JONLI — faqat shu uchtasi o'lik.</p>
+
+<h2>7-guruh · Yakka o'liklar (14 fn)</h2>
+<table><tr><th>Funksiya</th><th>Qator</th><th>Izoh</th></tr>
+<tr><td><code>_hisobListen_eski</code></td><td class="num">7759</td><td>nomining o'zi aytib turibdi</td></tr>
+<tr><td><code>_hisobSnapOl</code> / <code>hisobRef</code></td><td class="num">7542 / 7659</td><td>faqat <code>_hisobListen_eski</code> ichidan</td></tr>
+<tr><td><code>chiqimUnlock</code></td><td class="num">6072</td><td></td></tr>
+<tr><td><code>cloudTanlovOch</code></td><td class="num">17177</td><td></td></tr>
+<tr><td><code>donaMosEmaslarniTop</code></td><td class="num">6024</td><td></td></tr>
+<tr><td><code>getLomJamiZaxiraG</code></td><td class="num">16250</td><td></td></tr>
+<tr><td><code>kassaChiqimYopdiHTML</code></td><td class="num">4329</td><td></td></tr>
+<tr><td><code>kberishKlientChange</code></td><td class="num">11585</td><td></td></tr>
+<tr><td><code>klientKatSet</code></td><td class="num">10780</td><td></td></tr>
+<tr><td><code>klientSotuvChekPrint</code></td><td class="num">15384</td><td>CLAUDE.md §10 da ma'lum edi</td></tr>
+<tr><td><code>kstCUpd</code> / <code>ktCUpd</code></td><td class="num">13825 / 12542</td><td></td></tr>
+<tr><td><code>openKassaQolda</code></td><td class="num">3809</td><td>modal HTML (1029) <code>kassaQoldaSaqla</code> ni ishlatadi, ochuvchi yo'q</td></tr></table>
+
+<h2>Qo'shimcha topilma — takroriy e'lonlar (o'lik emas, lekin xavfli)</h2>
+<div class="box warn">
+<p>Bular ikki marta e'lon qilingan — keyingisi avvalgisini <b>jimgina bosib ketadi</b>:</p>
+<table><tr><th>Nom</th><th>Qatorlar</th><th>Holat</th></tr>
+<tr><td><code>khFiltrTanla</code></td><td class="num">3930 (function) → 10358 (window.=)</td><td>10358 g'olib — 3930 dagi tana hech qachon ishlamaydi, lekin ular <b>har xil ish qiladi</b> (renderKassa vs renderKlientHisobot)!</td></tr>
+<tr><td><code>lblOf</code></td><td class="num">12181 → 12447</td><td>ikkinchisi g'olib</td></tr>
+<tr><td><code>balansOf</code></td><td class="num">12206 → 13399</td><td>ikkinchisi g'olib</td></tr>
+<tr><td><code>sanaToDt</code></td><td class="num">2669 → 10045</td><td>ikkinchisi g'olib</td></tr></table>
+<p class="muted">Bu alohida masala — o'chirishdan oldin har juftlikning tanasi bir xilmi solishtirish kerak.
+<code>khFiltrTanla</code> da tanalar HAR XIL — bu potensial bug.</p>
+</div>
+
+<h2>TAXMIN BLOKI</h2>
+
+<div class="box qq">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>«Zapros» paneli (1-guruh) kelajakdagi funksiya uchun ataylab saqlanganmi yoki chala qolgan ishmi — bilmayman.</li>
+<li><code>getLomJamiZaxiraG</code> — «Yangi foyda modeli» / «Haqiqiy Kassa» rejalarida kerak bo'lishi mumkinmi?</li>
+<li>Takroriy e'lonlarda (ayniqsa <code>khFiltrTanla</code>) qaysi versiya to'g'ri niyat — sizdan.</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li>«O'chirish» deb hisoblayapman, «kommentga olish» emas — git tarixida baribir qoladi. <i>(mendan)</i></li>
+<li>Skan pass2 qoldiqlari (5-guruh) v171.7 dagi qayta qurishdan qolgan. <i>(mendan, DAVOM.md dagi v171.6–171.7 tavsifiga asoslanib)</i></li>
+<li>Takroriy e'lonlar bu tashxis doirasiga KIRMAYDI — alohida qaror. <i>(mendan)</i></li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR</b>
+<ul>
+<li>47 funksiya ham 0 chaqiruvli — o'chirish hech bir jonli oqimga tegmaydi (grep bilan tekshirilgan, dinamik chaqiruvlar ham).</li>
+<li>CLAUDE.md §6 «hamid» qatorlari (271…16976) — bu ro'yxatda YO'Q, tegilmaydi.</li>
+<li>O'chirilgach qator raqamlari siljiydi → CLAUDE.md §6 va §10 dagi raqamlarni yangilash kerak bo'ladi.</li>
+</ul>
+</div>
+
+<h2>QAROR NUQTALARI — Ibrohimdan</h2>
+<div class="box qq">
+<ol>
+<li><b>Qaysi guruhlar o'chirilsin?</b> Hammasi (1–7) yoki tanlab? (masalan, «zapros» panelini saqlab qolish mumkin)</li>
+<li><b>Takroriy e'lonlar</b> (khFiltrTanla, lblOf, balansOf, sanaToDt) — alohida ko'rib chiqilsinmi? Bu o'lik kod emas, mantiq masalasi.</li>
+<li><b>Versiya</b> — o'chirish v171.8 bo'lsinmi?</li>
+</ol>
+</div>
+
+</body>
+</html>
