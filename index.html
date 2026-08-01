@@ -1,4 +1,4 @@
-<!-- v171.6 -->
+<!-- v171.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1952,7 +1952,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v171.6';
+var APP_VER = 'v171.7';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -11509,52 +11509,47 @@ function kbSkanApplyToField(zi,ti){
   var fieldEl = document.getElementById('kbg-'+zi+'-'+ti);
   if (fieldEl){ fieldEl.value = total ? fmtG(total) : ''; berishOstatkaUpdate(fieldEl); }
 }
+function kbSkanTick(zi,ti,k){
+  var st=_kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
+  for(var i=st.pass2.length-1;i>=0;i--) if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
+  kbSkanRender(zi,ti); kbSkanFokus(zi,ti);
+}
 function kbSkanRender(zi,ti){
   var key = kbSkanKey(zi,ti);
   var st = _kbSkanState[key]; if(!st) return;
-  var arr = kbSkanArr(zi,ti);
+  // v171.7: ro'yxat endi umumiy chip ko'rinishida (_skanChipHTML) —
+  // vozvrat/sotuv bilan bir xil. Solishtirish 2-skan chek-ro'yxatiga ko'chdi.
+  var res=_skanChipHTML(st.pass1, st.pass2, st.mode, {
+    del:'kbSkanDelAt('+zi+','+ti+',',
+    tick:'kbSkanTick('+zi+','+ti+','
+  });
   var rowsEl = document.getElementById('kbskan-rows-'+key);
-  if (rowsEl){
-    if (!arr.length){ rowsEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yoq</div>'; }
-    else {
-      var out = '';
-      for (var i=arr.length-1; i>=0; i--){
-        var g = arr[i];
-        var hl = (i===arr.length-1) ? 'background:var(--gold-bg);' : '';
-        var neg = g < 0;
-        var val = (neg?'-':'+')+fmtG(Math.abs(g))+' g';
-        out += '<div style="display:grid;grid-template-columns:24px 1fr 22px;gap:6px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border);font-size:13px;'+hl+'">'
-          + '<span style="color:var(--muted);font-size:11px;">'+(i+1)+'</span>'
-          + '<span style="color:'+(neg?'var(--red)':'var(--text)')+';">'+val+'</span>'
-          + '<span onclick="kbSkanDelAt('+zi+','+ti+','+i+')" style="cursor:pointer;color:var(--red);text-align:center;font-size:16px;">×</span></div>';
-      }
-      rowsEl.innerHTML = out;
-    }
-  }
+  if (rowsEl) rowsEl.innerHTML = res.html;
+  var cl = document.getElementById('kbskan-cl-'+key);
   var cntEl = document.getElementById('kbskan-cnt-'+key), sumEl = document.getElementById('kbskan-sum-'+key);
-  if (cntEl) cntEl.textContent = arr.length;
-  if (sumEl) sumEl.textContent = fmtG(skSum(arr)) + ' g';
-  var recEl = document.getElementById('kbskan-rec-'+key);
-  if (recEl){
-    if (st.pass1.length && st.pass2.length){
-      var ma = skMultiset(st.pass1), mb = skMultiset(st.pass2);
-      var keys = {}; for (var k in ma) keys[k]=1; for (var k2 in mb) keys[k2]=1;
-      var kam = [], ortiq = [];
-      Object.keys(keys).sort(function(a,b){ return parseFloat(a)-parseFloat(b); }).forEach(function(kk){
-        var ca = ma[kk]||0, cb = mb[kk]||0;
-        if (ca>cb) kam.push({g:kk,n:ca-cb});
-        if (cb>ca) ortiq.push({g:kk,n:cb-ca});
-      });
-      var h = '';
-      kam.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--red);">↓ 2-skanda kam — '+x.g+'g ('+x.n+' ta)</div>'; });
-      ortiq.forEach(function(x){ h += '<div style="display:flex;align-items:center;gap:6px;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--yellow);">↑ 2-skanda ortiq — '+x.g+'g ('+x.n+' ta)</div>'; });
-      if (!kam.length && !ortiq.length) h = '<div style="text-align:center;font-size:11px;color:var(--green);padding:4px 0 8px;">Ikkala skan toliq mos ✓</div>';
-      recEl.innerHTML = h;
-      recEl.style.display = 'block';
-    } else {
-      recEl.style.display = 'none'; recEl.innerHTML = '';
-    }
+  if(st.mode===1){
+    if(cl) cl.textContent='Dona';
+    if(cntEl) cntEl.textContent = st.pass1.length;
+    if(sumEl) sumEl.textContent = fmtG(skSum(st.pass1)) + ' g';
+  } else {
+    if(cl) cl.textContent='Tekshirildi';
+    if(cntEl) cntEl.innerHTML = res.matched+' <span style="font-size:11px;color:var(--muted);font-weight:400;">/ '+st.pass1.length+'</span>';
+    if(sumEl) sumEl.textContent = fmtG(skSum(st.pass2)) + ' g';
   }
+  var recEl = document.getElementById('kbskan-rec-'+key);
+  if (recEl){ recEl.innerHTML=''; recEl.style.display='none'; }
+}
+function kbSkanUncheck(zi,ti,k){
+  var st=_kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
+  for(var i=st.pass2.length-1;i>=0;i--){
+    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
+  }
+  kbSkanRender(zi,ti); kbSkanFokus(zi,ti);
+}
+function kbSkanDelPass2(zi,ti,j){
+  var st=_kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
+  if(j>=0 && j<st.pass2.length) st.pass2.splice(j,1);
+  kbSkanRender(zi,ti); kbSkanFokus(zi,ti);
 }
 function openKlientBerish(){
   document.getElementById('kb-klient').value='';
@@ -11647,7 +11642,7 @@ function renderBerishTurlar(zavodlar){
       out+='<button type="button" id="kbskan-m2-'+zi+'_'+ti+'" onclick="kbSkanSetMode('+zi+','+ti+',2)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">2-skan</button>';
       out+='</div>';
       out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">';
-      out+='<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Dona</div><div id="kbskan-cnt-'+zi+'_'+ti+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>';
+      out+='<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);" id="kbskan-cl-'+zi+'_'+ti+'">Dona</div><div id="kbskan-cnt-'+zi+'_'+ti+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>';
       out+='<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Jami</div><div id="kbskan-sum-'+zi+'_'+ti+'" style="font-size:15px;font-weight:600;color:var(--text);">0.00 g</div></div>';
       out+='</div>';
       out+='<div id="kbskan-rows-'+zi+'_'+ti+'" style="margin-bottom:8px;"></div>';
@@ -11947,7 +11942,7 @@ function uniSkanPanel(fid){
     +'<button type="button" id="usm2-'+fid+'" onclick="uniSkanSetMode(\''+fid+'\',2)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">2-skan</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">'
-    +'<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Dona</div><div id="usc-'+fid+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>'
+    +'<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);" id="uscl-'+fid+'">Dona</div><div id="usc-'+fid+'" style="font-size:15px;font-weight:600;color:var(--text);">0</div></div>'
     +'<div style="background:var(--surf);border-radius:8px;padding:6px 8px;"><div style="font-size:10px;color:var(--muted);">Jami</div><div id="uss-'+fid+'" style="font-size:15px;font-weight:600;color:var(--text);">0.00 g</div></div>'
     +'</div>'
     +'<div id="usr-'+fid+'" style="margin-bottom:8px;"></div>'
@@ -12009,48 +12004,110 @@ function uniSkanDelAt(fid,i){
   uniSkanApply(fid);
   uniSkanFokus(fid);        // × bosilganda skan to'xtamasin
 }
+/* v171.7: UMUMIY CHIP RO'YXATI — berish, vozvrat, sotuv skanlarida bitta ko'rinish.
+   Ibrohim tasdiqlagan mockup: mockups/v171-chip-2skan-checklist.html
+   1-skan: chip oqimi (tartib raqami + ×, oxirgisi oltin).
+   2-skan: CHEK-RO'YXAT — 1-skan chiplari XIRA turadi, mos gramm skan
+   qilinganda ✓ bilan yashil bo'ladi; 1-skanda yo'q gramm QIZIL "ortiqcha"
+   chip bo'lib chiqadi. Yurish chizig'i: nechtasi tekshirilgani.
+   Tasdiqlangan qarorlar: (1) yashil ✓ bosilsa tekshiruv bekor bo'ladi;
+   (2) bir xil grammlar tartib bilan belgilanadi — soni to'g'ri bo'lsa yetadi.
+   MUHIM: bu faqat KO'RINISH. Saqlash o'zgarmagan — dona/gramm doim 1-skandan. */
+function _skanChipHTML(p1, p2, mode, oc){
+  var bx='display:flex;flex-wrap:wrap;gap:4px;background:var(--surf);border-radius:8px;border:1px solid var(--border);padding:7px;max-height:150px;overflow-y:auto;';
+  var ch='display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:4px 5px 4px 8px;font-size:12.5px;white-space:nowrap;';
+  var xs='width:16px;height:16px;border-radius:4px;background:var(--red-bg);color:var(--red);font-size:11px;line-height:16px;text-align:center;cursor:pointer;user-select:none;';
+  var ts='width:16px;height:16px;border-radius:4px;background:var(--green);color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;user-select:none;';
+  var ns='color:var(--muted);font-size:9.5px;';
+  function K(g){ return roundG(g).toFixed(2); }
+  var out='', matched=0, extras=[];
+  if(mode===1){
+    if(!p1.length) return {html:'<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yo\'q</div>', matched:0, extraN:0};
+    out='<div style="'+bx+'">';
+    for(var i=p1.length-1;i>=0;i--){
+      var neg=p1[i]<0;
+      var st=ch+(i===p1.length-1?'background:var(--gold-bg);border:1px solid var(--gold-bd);':'background:var(--surf2);border:1px solid var(--border);')+(neg?'color:var(--red);':'');
+      out+='<span style="'+st+'"><span style="'+ns+'">'+(i+1)+'</span>'+(neg?'\u2212':'')+fmtG(Math.abs(p1[i]))+'<span onclick="'+oc.del+i+')" style="'+xs+'">\u00d7</span></span>';
+    }
+    out+='</div>';
+    return {html:out, matched:0, extraN:0};
+  }
+  // 2-skan — chek-ro'yxat. Tartib bilan belgilash: har gramm bo'yicha
+  // 2-skandagi soni qancha bo'lsa, 1-skan chiplaridan shuncha birinchisi ✓.
+  var kv={};
+  p2.forEach(function(g){ var k=K(g); kv[k]=(kv[k]||0)+1; });
+  var used={}, rows=[];
+  p1.forEach(function(g,i){
+    var k=K(g); used[k]=used[k]||0;
+    var ok = used[k] < (kv[k]||0);
+    if(ok){ used[k]++; matched++; }
+    rows.push({ok:ok,k:k,g:g,i:i});
+  });
+  p2.forEach(function(g,j){
+    var k=K(g);
+    var cap=0; p1.forEach(function(x){ if(K(x)===k) cap++; });
+    var seen=0; for(var t=0;t<=j;t++) if(K(p2[t])===k) seen++;
+    if(seen>cap) extras.push({k:k,j:j});
+  });
+  var pc = p1.length ? Math.round(matched/p1.length*100) : 0;
+  out+='<div style="font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px;"><span>Tekshirildi: <b style="color:var(--green);">'+matched+' / '+p1.length+'</b></span>'+(extras.length?'<span style="color:var(--red);font-weight:600;">ortiqcha: '+extras.length+' ta</span>':'')+'</div>';
+  out+='<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:'+pc+'%;background:var(--green);"></div></div>';
+  out+='<div style="'+bx+'">';
+  for(var r=rows.length-1;r>=0;r--){
+    var rw=rows[r], neg2=rw.g<0;
+    var st2=ch+(rw.ok?'background:var(--green-bg);border:1px solid var(--green-bd);':'background:var(--surf2);border:1px solid var(--border);opacity:.38;')+(neg2?'color:var(--red);':'');
+    out+='<span style="'+st2+'"><span style="'+ns+'">'+(rw.i+1)+'</span>'+(neg2?'\u2212':'')+fmtG(Math.abs(rw.g))
+       + (rw.ok?'<span onclick="'+oc.tick+'\''+rw.k+'\')" style="'+ts+'">\u2713</span>':'')
+       + '</span>';
+  }
+  for(var e=extras.length-1;e>=0;e--){
+    out+='<span style="'+ch+'background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);"><span style="'+ns+'color:var(--red);opacity:.7;">!</span>'+extras[e].k
+       + '<span onclick="'+oc.del+extras[e].j+')" style="'+xs+'">\u00d7</span></span>';
+  }
+  out+='</div>';
+  if(p1.length && matched===p1.length && !extras.length)
+    out+='<div style="text-align:center;font-size:11px;color:var(--green);padding:6px 0 2px;">Ikkala skan to\'liq mos \u2713</div>';
+  return {html:out, matched:matched, extraN:extras.length};
+}
+function uniSkanTick(fid,k){
+  var st=uniSkanSt(fid);
+  for(var i=st.pass2.length-1;i>=0;i--) if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
+  uniSkanRender(fid); uniSkanFokus(fid);
+}
 function uniSkanRender(fid){
-  var st=uniSkanSt(fid), arr=uniSkanArrCur(fid);
+  var st=uniSkanSt(fid);
+  var res=_skanChipHTML(st.pass1, st.pass2, st.mode, {
+    del:"uniSkanDelAt('"+fid+"',",
+    tick:"uniSkanTick('"+fid+"',"
+  });
   var rowsEl=document.getElementById('usr-'+fid);
-  if(rowsEl){
-    if(!arr.length){
-      rowsEl.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yo\'q</div>';
-    } else {
-      var o='';
-      for(var i=arr.length-1;i>=0;i--){
-        var hl=(i===arr.length-1)?'background:var(--gold-bg);':'';
-        o+='<div style="display:grid;grid-template-columns:24px 1fr 22px;gap:6px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border);font-size:13px;'+hl+'">'
-         + '<span style="color:var(--muted);font-size:11px;">'+(i+1)+'</span>'
-         + '<span style="color:var(--text);">'+fmtG(arr[i])+' g</span>'
-         + '<span onclick="uniSkanDelAt(\''+fid+'\','+i+')" style="cursor:pointer;color:var(--red);text-align:center;font-size:16px;">×</span></div>';
-      }
-      rowsEl.innerHTML=o;
-    }
+  if(rowsEl) rowsEl.innerHTML=res.html;
+  var cl=document.getElementById('uscl-'+fid);
+  var c=document.getElementById('usc-'+fid), sm=document.getElementById('uss-'+fid);
+  if(st.mode===1){
+    if(cl) cl.textContent='Dona';
+    if(c) c.textContent=st.pass1.length;
+    if(sm) sm.textContent=fmtG(skSum(st.pass1))+' g';
+  } else {
+    if(cl) cl.textContent='Tekshirildi';
+    if(c) c.innerHTML=res.matched+' <span style="font-size:11px;color:var(--muted);font-weight:400;">/ '+st.pass1.length+'</span>';
+    if(sm) sm.textContent=fmtG(skSum(st.pass2))+' g';
   }
-  var c=document.getElementById('usc-'+fid), s=document.getElementById('uss-'+fid);
-  if(c) c.textContent=arr.length;
-  if(s) s.textContent=fmtG(skSum(arr))+' g';
   var rec=document.getElementById('usrec-'+fid);
-  if(rec){
-    if(st.pass1.length && st.pass2.length){
-      var ma=skMultiset(st.pass1), mb=skMultiset(st.pass2), keys={};
-      for(var k in ma) keys[k]=1;
-      for(var k2 in mb) keys[k2]=1;
-      var kam=[], ortiq=[];
-      Object.keys(keys).sort(function(a,b){ return parseFloat(a)-parseFloat(b); }).forEach(function(kk){
-        var ca=ma[kk]||0, cb=mb[kk]||0;
-        if(ca>cb) kam.push({g:kk,n:ca-cb});
-        if(cb>ca) ortiq.push({g:kk,n:cb-ca});
-      });
-      var h='';
-      kam.forEach(function(x){ h+='<div style="display:flex;align-items:center;gap:6px;background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--red);">↓ 2-skanda kam — '+x.g+'g ('+x.n+' ta)</div>'; });
-      ortiq.forEach(function(x){ h+='<div style="display:flex;align-items:center;gap:6px;background:var(--yellow-bg);border:1px solid var(--gold-bd);border-radius:8px;padding:6px 8px;margin-bottom:4px;font-size:11px;color:var(--yellow);">↑ 2-skanda ortiq — '+x.g+'g ('+x.n+' ta)</div>'; });
-      if(!kam.length && !ortiq.length) h='<div style="text-align:center;font-size:11px;color:var(--green);padding:4px 0 8px;">Ikkala skan to\'liq mos ✓</div>';
-      rec.innerHTML=h; rec.style.display='block';
-    } else {
-      rec.innerHTML=''; rec.style.display='none';
-    }
+  if(rec){ rec.innerHTML=''; rec.style.display='none'; }  // chek-ro'yxat o'rnini bosdi
+}
+function uniSkanUncheck(fid,k){
+  // ✓ bosilsa — o'sha grammning OXIRGI 2-skan yozuvi olib tashlanadi (tekshiruv bekor)
+  var st=uniSkanSt(fid);
+  for(var i=st.pass2.length-1;i>=0;i--){
+    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
   }
+  uniSkanRender(fid); uniSkanFokus(fid);
+}
+function uniSkanDelPass2(fid,j){
+  var st=uniSkanSt(fid);
+  if(j>=0 && j<st.pass2.length) st.pass2.splice(j,1);
+  uniSkanRender(fid); uniSkanFokus(fid);
 }
 function uniSkanApply(fid){
   var st=uniSkanSt(fid);
