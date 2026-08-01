@@ -3,6 +3,23 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v171.9: ichki parol maydonlarida Chrome parol-ro'yxati o'chirildi
+
+Ibrohim skrinshot ko'rsatdi: Vaqt mashinasi parol maydonida Chrome saqlangan
+loginlar ro'yxatini chiqarardi. Maydonda himoya bor edi
+(autocomplete="new-password", yasama name, data-lpignore, readonly+onfocus),
+lekin Chrome type="password" maydonlarda baribir taklif chiqaraveradi.
+
+Yechim: `snap-parol` (1237) va `reset-parol` (1203) — type="text" +
+`-webkit-text-security:disc` (CSS maska). Ko'rinish o'zgarmadi (nuqtalar),
+lekin Chrome endi parol maydoni deb bilmaydi.
+
+Tegilmadi: `login-pass` (294, Firebase kirish — saqlangan parol foydali),
+`cl-parol` (1284, ataylab current-password). Mantiq o'zgarmadi —
+snapParolTekshir/resetParolTekshir .value ni avvalgidek o'qiydi.
+Eslatma: -webkit-text-security Firefox'da ishlamaydi (maska ko'rinmaydi),
+ilova Chrome'da ishlatiladi.
+
 ## v171.8: kh* global to'qnashuvi tuzatildi — klient hisoboti khr* ga ko'chdi
 
 Muammo (v171.4 dan beri): kassa paneli va klient hisoboti bitta global

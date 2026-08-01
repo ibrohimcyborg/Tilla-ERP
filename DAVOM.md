@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v171.8 · 2026-08-01
+**Oxirgi yangilanish:** v171.9 · 2026-08-01
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v171.8** (`index.html` birinchi qatorida `<!-- v171.8 -->`, `APP_VER` da ham) |
+| Versiya | **v171.9** (`index.html` birinchi qatorida `<!-- v171.9 -->`, `APP_VER` da ham) |
 | Hajm | 17,385 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -110,6 +110,7 @@ Qaror qabul qilinmagan.
 | v171.6 | Vozvrat/sotuv skani berish darajasiga ko'tarildi (1/2-skan, ro'yxat, ×) |
 | v171.7 | Chip ro'yxati + 2-skan chek-ro'yxat — uchala modalda bir xil |
 | v171.8 | `kh*` global to'qnashuvi (v171.4 dan): klient hisoboti `khr*` ga ko'chdi, kassa kh-filtr paneli tuzaldi |
+| v171.9 | Vaqt mashinasi / nollash parol maydonlari: type="text" + CSS maska — Chrome parol-ro'yxati chiqmaydi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 
