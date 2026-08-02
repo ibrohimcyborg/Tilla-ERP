@@ -3,6 +3,45 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.9: sotuv chekida boshqa turga to'langan pul ko'rinadi
+
+Ibrohim topdi: "berish qilamiz boshqa firmadande, lekin boshqa narsaga to'lov
+qilsa chekda ko'rsatmayapti". Mockup:
+mockups/tashxis-sotuv-chek-boshqa-tur-tolov.html.
+
+BU PUL XATOSI edi, ko'rinish emas: klient 436.00$ to'lasa, chekda 276.00$
+yozilardi. Farq 160.00$ chekda umuman ko'rinmasdi — na qatori, na
+"Umumiy Summa" da. Ma'lumot bazasiga esa to'g'ri tushardi.
+
+Ildiz: chek ro'yxati (_sOld 15033 / _sotOldilar 15359) `oldilar` ustidan
+qurilardi, `oldilar` esa FAQAT ksg- (berilgan gramm) dan yig'iladi
+(14384, 15111). Ya'ni kst-s ga pul yozilgan, lekin shu sotuvda mol
+berilmagan tur (eski qarzga to'lov) siklga umuman kirmasdi.
+Saqlash sikli (15238) esa `data.zavodlar` ni to'liq aylanadi va hammasini
+k.tarix ga yozadi — shuning uchun hisob to'g'ri, chek yolg'on edi.
+
+Bajarildi: yangi `_ksChekTolovRows(oldilar)` — manba endi saqlash sikli
+bilan BIR XIL: kst-s / kst-n yozilgan hamma tur. Preview ham, print ham
+shu bitta funksiyadan o'qiydi. Offset qatorlari (kso-blok ochiq)
+CHIQARILADI — ular v172.6 dan beri ayirish blokida. kst-n bo'sh bo'lsa
+oldilar dagi narx zaxira sifatida ishlatiladi (avvalgi "|| o.narx" xulqi
+saqlandi).
+
+Ibrohim qarorlari: (1) taklif to'g'ri (2) gramm "Umumiy g" ga qo'shiladi,
+"JAMI berildi" ga TEGILMAYDI (3) oddiy qator, alohida belgisiz (4) v172.9.
+
+Natija misolda: "To'lov" da ikkala qator, Umumiy Summa 436.00#,
+Umumiy g 5.00g; "Berildi" faqat Zmeyka -11.22g (o'zgarmadi).
+Hayat qatorida "Qoldi" chiqmaydi (0) va v172.7 tartibi bo'yicha u tepada.
+
+Tegilmadi: saqlash mantig'i, berildiMap, to'lov cheki (kt) — unda bu
+muammo yo'q, u qatorlarni _kTolovBD dan quradi.
+
+Sinov: node --check toza, konsol toza. Brauzerda sun'iy DOM bilan:
+offset qatori chiqarildi (offsetChiqarildimi=true); regressiya — oddiy
+sotuv o'zgarmadi, kst-n bo'sh bo'lsa zaxira narx ishladi, to'lovsiz
+holatda ro'yxat bo'sh.
+
 ## v172.8: "KLIENTDA BOR" paneli offsetni resurs deb sanaydi
 
 Ibrohim skrinshot bilan topdi: panel "Jami 0$ · Taqsimlandi 451.96$ ·
