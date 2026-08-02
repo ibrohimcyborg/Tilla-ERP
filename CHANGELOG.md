@@ -3,6 +3,39 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.7: "Qoldi 0" chiqmaydi + yopilganlar tepada (ikkala chek bir xil)
+
+Ibrohim: "0 qo'sa ostatkasi QOLDI 0 kerakmasde" va "shu ostatkadan qolib
+ketadigan bo'lsa o'sha chekni oxirida ko'rinsin, to'liq yopilgan to'lovlar
+tepada ko'rinsa chalkashilmaydigan bo'ladi". Keyin: "3 ni qilgin, To'lov va
+Sotuvga bittada qil, offset ham bir xil bo'lsin — v172.6 dagidek".
+
+To'lov cheki (kTolovChekGen 9991):
+* "Qoldi 0.00" qatori endi CHIQMAYDI (nuqta chizig'i bilan birga). Avval har
+  turdan keyin doim chiqardi. Sotuv chekida bu shart allaqachon bor edi
+  (q>0.001) — endi ikkalasi bir xil.
+* Turlar ikki guruhga bo'linadi: to'liq yopilganlar (Qoldi yo'q) TEPADA,
+  qoldig'i borlar PASTDA. Guruh ichida asl tartib saqlanadi (saralash yo'q).
+
+Sotuv cheki (klientSotuvChekYangiGen 15457): xuddi shu tartiblash qo'shildi.
+Qoldi 0 allaqachon yashiringan edi, tartib yo'q edi.
+
+Natija: ikkala chekning "To'lov" bloki bir xil kirish ma'lumotida
+BAYT-MA-BAYT bir xil chiqadi (brauzerda tekshirildi). v172.6 dagi offset
+bloki ham ikkalasida bir xil ishlayveradi.
+
+Chegara farqi (ataylab): to'lovda |q|<0.005 yashiriladi (manfiy qoldiq ham
+ko'rsatiladi), sotuvda q<=0.001 (mavjud shart o'zgartirilmadi — u yerda
+manfiy qoldiq bo'lishi mumkin emas: berilgandan ko'p sotilmaydi).
+
+Tegilmadi: hisob-kitob, offset formulasi, jamiS/jamiG/yangiOst yig'indilari
+(tartibga bog'liq emas).
+
+Sinov: node --check toza, konsol toza. Brauzerda 4 turli aralash misol —
+ikkala chekning "To'lov" bloki bir xil; offsetli yakuniy blok ham bir xil
+(BIR_XILMI=true); hamma tur yopilgan holatda hech qanday "Qoldi" chiqmadi.
+Chek kengligi 48.
+
 ## v172.6: offset umumiy summadan AYIRILIB ko'rsatiladi (ikkala chek)
 
 Ibrohim to'lov chekida 100.04$ (qolgan summa) hech qayerda yo'qligini topdi:

@@ -1,4 +1,4 @@
-<!-- v172.6 -->
+<!-- v172.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.6';
+var APP_VER = 'v172.7';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -9988,12 +9988,18 @@ function kTolovChekGen(d){
   var EQ=Array(W+1).join('=')+'\n', DASH=Array(W+1).join('-')+'\n', DOTS=' '+Array(W).join('.')+'\n';
   var t=ctr(d.nom)+'\n'+ctr(d.sana)+'\n'+EQ;
 
+  // v172.6: offset turlari pastdagi ayirish blokida — bu yerda ko'rinmaydi.
+  // v172.7: "Qoldi 0" chiqmaydi; to'liq yopilganlar TEPADA, qoldig'i borlar
+  // PASTDA (sotuv cheki bilan bir xil). Guruh ichida asl tartib saqlanadi.
   t+="To'lov\n";
-  (d.turlar||[]).forEach(function(x){
-    if(x.off) return;   // v172.6: offset turlari pastdagi ayirish blokida
+  var _ktQ=(d.turlar||[]).filter(function(x){ return !x.off; }).map(function(x){
+    return {x:x, q:Math.round(((x.ostatka||0)-(x.tolG||0)-(x.voz||0))*100)/100};
+  });
+  _ktQ=_ktQ.filter(function(o){return Math.abs(o.q)<0.005;}).concat(_ktQ.filter(function(o){return Math.abs(o.q)>=0.005;}));
+  _ktQ.forEach(function(o){
+    var x=o.x;
     t+=rj(' '+x.nom+'  '+fmtG(x.tolG||0)+'g x '+x.tolN, fmtD(x.tolS||0)+'#')+'\n';
-    var q=Math.round(((x.ostatka||0)-(x.tolG||0)-(x.voz||0))*100)/100;
-    t+=DOTS+rj('   Qoldi', fmtG(q))+'\n';
+    if(Math.abs(o.q)>=0.005) t+=DOTS+rj('   Qoldi', fmtG(o.q))+'\n';
   });
 
   t+=EQ+"Jami to'landi\n";
@@ -15454,12 +15460,18 @@ function klientSotuvChekYangiGen(opts){
     t+="To'lov\n";
     var jamiS=0,jamiG=0;
     var yangiOst={};
-    o.oldilar.forEach(function(r){
+    // v172.7: to'liq yopilganlar (Qoldi yo'q) TEPADA, qoldig'i borlar PASTDA —
+    // to'lov cheki bilan bir xil tartib. Guruh ichida asl tartib saqlanadi.
+    var _sotQ=(o.oldilar||[]).map(function(r){
+      var b=o.berildiMap[r.zavod+'||'+r.tur]; if(b===undefined) b=r.gramm;
+      return {r:r, q:Math.round((b-r.gramm)*100)/100};
+    });
+    _sotQ=_sotQ.filter(function(x){return x.q<=0.001;}).concat(_sotQ.filter(function(x){return x.q>0.001;}));
+    _sotQ.forEach(function(x){
+      var r=x.r;
       var s=Math.round(r.gramm*r.narx*100)/100; jamiS+=s; jamiG+=r.gramm;
       t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+'g x '+r.narx, fmtD(s)+'#')+'\n';
-      var b=o.berildiMap[r.zavod+'||'+r.tur]; if(b===undefined) b=r.gramm;
-      var q=Math.round((b-r.gramm)*100)/100;
-      if(q>0.001){ t+=DOTS+rjust('   Qoldi', fmtG(q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+q; }
+      if(x.q>0.001){ t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q; }
     });
     jamiS=Math.round(jamiS*100)/100;
     // Sotilmagan (oldilarda yo'q, berildiMapda bor) -> to'liq qoldi (yangi ostatka)
