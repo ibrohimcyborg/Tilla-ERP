@@ -3,6 +3,53 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.6: offset umumiy summadan AYIRILIB ko'rsatiladi (ikkala chek)
+
+Ibrohim to'lov chekida 100.04$ (qolgan summa) hech qayerda yo'qligini topdi:
+276.00 to'lanishi kerak, 175.96 offsetdan, qolgan 100.04 chekda ko'rinmasdi.
+Mockup: mockups/tashxis-offset-umumiy-summadan-ayirish.html (A3 varianti).
+Ibrohim tanladi: "675.50 — Umumiy Summa, 367.54 — Kerakli summa".
+
+Yangi yakuniy blok (IKKALA chekda bir xil):
+    Umumiy Summa                            675.50#
+    Skidka                                  -10.00#
+    Offset  Butterfly Oddiy 2.12g x 83     -175.96#
+    Offset  Zarafshon 3D 1.50g x 88        -132.00#
+    ...............................................
+    Kerakli summa                           357.54#
+"Kerakli summa" — ekrandagi panel bilan bir xil so'z. Ayirma bo'lmasa
+(offset ham, skidka ham yo'q) bu qator CHIQMAYDI — bir xil raqam
+takrorlanmasin. Avval yalang'och summa va "Umumiy Summa" allaqachon bir xil
+raqamni ikki marta ko'rsatardi, endi u ham yo'qoldi.
+
+To'lov cheki (kTolovChekGen):
+* "To'lov" blokidan offset turlari OLIB TASHLANDI (9993) — avval manfiy gramm
+  bilan turardi va blok 983.46 ga yig'ilib, yalang'och summa 675.50 deb
+  turardi. Endi blok faqat sotilgan molni ko'rsatadi.
+* "Jami to'landi" dan O qatori olib tashlandi (10001) — u ayirish blokiga
+  ko'chdi. Blok L va N/K/P uchun qoladi.
+* "Ostatka" jadvaliga "Bizda (offset)" guruhi (10051): offset turlari asosiy
+  jadvaldan chiqarildi va JAMI ga qo'shilmaydi — u klient qarzi, bu bizniki.
+* kTolovChekUpd (13228) endi tolovlar ga O push qilmaydi, o'rniga
+  _ktOffsetlar ro'yxatini quradi va generatorga uzatadi.
+
+Sotuv cheki (klientSotuvChekYangiGen): v172.5 dagi O qatori "Jami to'landi"
+dan olib tashlanib, xuddi shu ayirish blokiga ko'chirildi (15482, 15499).
+Endi ikkala chek bir xil qolipda.
+
+Tegilmadi: saqlash mantig'i, offset ulushi formulasi (_ksChekOffsetRows va
+kTolovChekUpd dagi offIsh), skidka hisobi, "Umumiy g".
+
+Sinov: node --check toza, konsol toza. Brauzerda 4 zavodli misol (2 sotuv +
+2 offset) ikkala generatorda: offsetli / skidkali / offsetsiz / lom+offset.
+Barcha holatda chek kengligi 48. Hisob: 675.50 - 307.96 = 367.54 ✓,
+skidka bilan 675.50 - 10 - 307.96 = 357.54 ✓.
+
+MA'LUM CHEKLOV: skidka bor va to'lov maydonlari bo'sh bo'lsa, avto-N
+skidkani ayirmaydi (N 367.54 vs Kerakli summa 357.54). Bu v172.5 gacha ham
+shunday edi (naqd = jamiS - lomPul), lekin endi ikki qator yonma-yon
+turgani uchun ko'zga tashlanadi. Ibrohim qaroriga qoldirildi.
+
 ## v172.5: sotuv chekida OFFSET + karta/perech ko'rsatiladi
 
 Ibrohim: "sotuv chekida offset bilan to'lov qilsihshi ... chek preview to'g'ri

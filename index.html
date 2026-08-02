@@ -1,4 +1,4 @@
-<!-- v172.5 -->
+<!-- v172.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.5';
+var APP_VER = 'v172.6';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -9990,6 +9990,7 @@ function kTolovChekGen(d){
 
   t+="To'lov\n";
   (d.turlar||[]).forEach(function(x){
+    if(x.off) return;   // v172.6: offset turlari pastdagi ayirish blokida
     t+=rj(' '+x.nom+'  '+fmtG(x.tolG||0)+'g x '+x.tolN, fmtD(x.tolS||0)+'#')+'\n';
     var q=Math.round(((x.ostatka||0)-(x.tolG||0)-(x.voz||0))*100)/100;
     t+=DOTS+rj('   Qoldi', fmtG(q))+'\n';
@@ -9997,31 +9998,44 @@ function kTolovChekGen(d){
 
   t+=EQ+"Jami to'landi\n";
   (d.tolovlar||[]).forEach(function(x){
+    if((x.harf||'')==='O') return;   // v172.6: O ayirish blokiga ko'chdi
     t+=rj(' '+(x.harf||'')+(x.matn?'  '+x.matn:''), fmtD(x.summa||0)+'#')+'\n';
   });
 
+  // v172.6: Umumiy Summa -> Skidka -> Offset -> Kerakli summa.
+  // Ayirma bo'lmasa "Kerakli summa" chiqmaydi (bir xil raqam takrorlanmasin).
   var sk=Math.round((d.skidka||0)*100)/100;
   var gross=Math.round((d.jamiSumma||0)*100)/100;
-  t+=EQ+rj(' ', fmtD(gross)+'#')+'\n';
+  var offJ=0; (d.offsetlar||[]).forEach(function(x){ offJ+=(x.summa||0); });
+  offJ=Math.round(offJ*100)/100;
+  t+=EQ+rj(' Umumiy Summa', fmtD(gross)+'#')+'\n';
   if(sk>0.001) t+=rj(' Skidka','-'+fmtD(sk)+'#')+'\n';
-  t+=DOTS+rj(' Umumiy Summa', fmtD(Math.round((gross-sk)*100)/100)+'#')+'\n';
+  (d.offsetlar||[]).forEach(function(x){
+    t+=rj(' Offset  '+x.nom+' '+fmtG(x.gramm||0)+'g x '+x.kurs, '-'+fmtD(x.summa||0)+'#')+'\n';
+  });
+  if(sk>0.001 || offJ>0.001) t+=DOTS+rj(' Kerakli summa', fmtD(Math.round((gross-sk-offJ)*100)/100)+'#')+'\n';
   t+=rj(' Umumiy g', fmtG(d.jamiGramm||0)+'g')+'\n';
   // v160: sotuv cheki bilan bir xil - SDACHA faqat aniq tanlanganda
   // (_ktSdachaPul faqat tanlov.tip==='sdacha' bo'lganda to'ldiriladi)
   if(d.sdacha) t+=DOTS+rj(' Qolgan summa -> '+d.sdacha.qayerga,'+'+fmtG(d.sdacha.g)+'g')+'\n';
   else if(d.sdachaPul>0.01) t+=DOTS+rj(' SDACHA', fmtD(d.sdachaPul)+'#')+'\n';
 
-  var keys=[], seen={}, mp={};
+  // v172.6: offset turlari asosiy jadvaldan chiqarildi — ular "Bizda (offset)"
+  // guruhida, JAMI ga qo'shilmaydi (u klient qarzi, bu bizniki).
+  var keys=[], seen={}, mp={}, offNom={};
+  (d.offsetlar||[]).forEach(function(x){ offNom[x.nom]=1; });
   (d.turlar||[]).forEach(function(x){
+    if(x.off || offNom[x.nom]) return;
     if(seen[x.nom]) return; seen[x.nom]=1; keys.push(x.nom);
     mp[x.nom]={eski:x.ostatka||0, tol:Math.round((-(x.tolG||0)-(x.voz||0))*100)/100, qoldi:null};
   });
   (d.ostatkalar||[]).forEach(function(b){
     var n=b.zavod+' '+b.tur;
+    if(offNom[n]) return;
     if(!seen[n]){ seen[n]=1; keys.push(n); mp[n]={eski:b.g, tol:0, qoldi:b.g}; }
     else mp[n].qoldi=b.g;
   });
-  if(keys.length){
+  if(keys.length || (d.offsetlar||[]).length){
     t+=EQ+'Ostatka\n';
     t+=pL('',18)+pR('Ostatka',10)+pR("to'landi",10)+pR('qoldi',10)+'\n';
     var te=0,tt=0,tq=0;
@@ -10033,6 +10047,14 @@ function kTolovChekGen(d){
     });
     t+=DASH+pL(' JAMI',18)+pR(fmtG(Math.round(te*100)/100)+'g',10)
       +pR(fmtG(Math.round(tt*100)/100)+'g',10)+pR(fmtG(Math.round(tq*100)/100)+'g',10)+'\n';
+    if((d.offsetlar||[]).length){
+      t+=' Bizda (offset)\n';
+      (d.offsetlar||[]).forEach(function(x){
+        var e=Math.abs(Math.round((x.eskiQarz||0)*100)/100);
+        var y=-Math.round((x.gramm||0)*100)/100;
+        t+=pL(' '+x.nom,18)+pR(fmtG(e)+'g',10)+pR(fmtG(y)+'g',10)+pR(fmtG(Math.round((e+y)*100)/100)+'g',10)+'\n';
+      });
+    }
   }
   return t;
 }
@@ -13203,11 +13225,15 @@ function kTolovChekUpd() {
   // ── 4-QADAM: to'lov turlari — FAQAT harf (L lom · O offset · N naqt · K karta · P perech)
   var tolovlar = [];
   lomlar.forEach(function(l){ tolovlar.push({harf:'L', matn:fmtG(l.g)+' x '+l.n+' =', summa:l.s}); });
+  // v172.6: offset endi "Jami to'landi" da EMAS — pastdagi ayirish blokida
+  // (Umumiy Summa - Skidka - Offset = Kerakli summa). Shu ro'yxat o'sha yerga ketadi.
+  var _ktOffsetlar = [];
   qatorlar.forEach(function(r){
     if (!r.off) return;
     var frac = offJami > 0 ? r.summa/offJami : 0;
     var us = Math.round(offIsh*frac*100)/100;
-    if (us > 0.001) tolovlar.push({harf:'O', matn:r.zavod+' '+r.tur+' aylantirildi', summa:us});
+    if (us > 0.001) _ktOffsetlar.push({nom:r.zavod+' '+r.tur, gramm:(r.n>0?roundG(us/r.n):0),
+                                       kurs:r.n, summa:us, eskiQarz:r.qarz});
   });
   var nb = parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
   var kb = parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
@@ -13259,7 +13285,7 @@ function kTolovChekUpd() {
     jamiGramm: Math.round(jamiG*100)/100,
     tolovlar: tolovlar, jamiTolandi: Math.round(jamiTolandi*100)/100,
     sdacha: sd, sdachaPul: _ktSdachaPul,
-    ostatkalar: ostatkalar
+    ostatkalar: ostatkalar, offsetlar: _ktOffsetlar
   });
   document.getElementById('kt-chek-body').textContent = chekYakun(_ktChekBody).ekran;
 }
@@ -15453,12 +15479,10 @@ function klientSotuvChekYangiGen(opts){
         t+=rjust(' L  '+fmtG(l.gramm)+'g x '+l.kurs, fmtD(lp)+'#')+'\n';
       });
     }
-    // v172.5: O (offset) qatorlari — L dan keyin, N/K/P dan oldin
+    // v172.6: offset "Jami to'landi" da EMAS — pastdagi ayirish blokida
+    // (Umumiy Summa - Skidka - Offset = Kerakli summa), to'lov cheki bilan bir xil.
     var offPul=0; (o.offsetlar||[]).forEach(function(x){ offPul+=(x.summa||0); });
     offPul=Math.round(offPul*100)/100;
-    (o.offsetlar||[]).forEach(function(x){
-      t+=rjust(' O  '+x.zavod+' '+x.tur+'  '+fmtG(x.gramm)+'g x '+x.kurs, fmtD(x.summa)+'#')+'\n';
-    });
     // v172.5: naqt/karta/perech ALOHIDA (avval hammasi bitta N bo'lib chiqardi).
     // Uchala maydon ham bo'sh bo'lsa — sof naqt sotuv, avvalgi mantiq saqlanadi.
     var _nb=Math.round((o.naqt||0)*100)/100;
@@ -15472,14 +15496,16 @@ function klientSotuvChekYangiGen(opts){
       if(_kb>0.001) t+=rjust(' K', fmtD(_kb)+'#')+'\n';
       if(_pb>0.001) t+=rjust(' P', fmtD(_pb)+'#')+'\n';
     }
-    // Yakuniy blok: yalang'och summa -> Skidka -> nuqta -> Umumiy Summa -> Umumiy g
+    // v172.6: Umumiy Summa -> Skidka -> Offset -> Kerakli summa (to'lov cheki bilan bir xil).
+    // Ayirma bo'lmasa "Kerakli summa" chiqmaydi — bir xil raqam takrorlanmasin.
     var sk=Math.round((o.skidka||0)*100)/100;
-    var net=Math.round((jamiS-sk)*100)/100;
     t+=LINE;
-    t+=rjust(' ', fmtD(jamiS)+'#')+'\n';
+    t+=rjust(' Umumiy Summa', fmtD(jamiS)+'#')+'\n';
     if(sk>0.001) t+=rjust(' Skidka','-'+fmtD(sk)+'#')+'\n';
-    t+=DOTS;
-    t+=rjust(' Umumiy Summa', fmtD(net)+'#')+'\n';
+    (o.offsetlar||[]).forEach(function(x){
+      t+=rjust(' Offset  '+x.zavod+' '+x.tur+' '+fmtG(x.gramm)+'g x '+x.kurs, '-'+fmtD(x.summa)+'#')+'\n';
+    });
+    if(sk>0.001 || offPul>0.001) t+=DOTS+rjust(' Kerakli summa', fmtD(Math.round((jamiS-sk-offPul)*100)/100)+'#')+'\n';
     t+=rjust(' Umumiy g', fmtG(jamiG)+'g')+'\n';
     // Ortiqcha pul: naqd qaytsa SDACHA, zavod turidan yopilsa Qolgan summa
     var ort=Math.round((o.ortiqcha||0)*100)/100, tn=o.tanlov||null;
