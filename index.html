@@ -1,4 +1,4 @@
-<!-- v172.4 -->
+<!-- v172.5 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.4';
+var APP_VER = 'v172.5';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -14981,7 +14981,11 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         klientNom:_kPrev.nom, sana:_sanaPrev, soat:'',
         oldilar:_sOld, lomlar:_lomPrev, berildiMap:_bMap, eskiOstMap:_oMap,
         skidka:parseNum((document.getElementById('ks-skidka')||{}).value)||0,
-        ortiqcha:(window._ksSotuvOrtiqcha||0), tanlov:(window._ksSotuvOrtiqchaTanlov||null)
+        ortiqcha:(window._ksSotuvOrtiqcha||0), tanlov:(window._ksSotuvOrtiqchaTanlov||null),
+        offsetlar:_ksChekOffsetRows(_eqm),
+        naqt:parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0,
+        karta:parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0,
+        perech:parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0
       });
       document.getElementById('ks-chek-body').textContent = _cPrev.body;
       return;
@@ -15298,7 +15302,9 @@ function saqlashKlientSotuv() {
       klientNom:k.nom, sana:sana, soat:_soat_sv3,
       oldilar:_sotOldilar, lomlar:lomlar,
       berildiMap:_berildiMap, eskiOstMap:_eskiOstMap,
-      skidka:_skidka, ortiqcha:_chekOrtiqcha, tanlov:_chekTanlov
+      skidka:_skidka, ortiqcha:_chekOrtiqcha, tanlov:_chekTanlov,
+      offsetlar:_ksChekOffsetRows(_eskiQarzMap),
+      naqt:_naqtBerdiSave, karta:_kartaBerdiSave, perech:_perechBerdiSave
     });
     for(var _ci=0;_ci<(_ksSotuvCnt||1);_ci++){
       (function(){
@@ -15339,6 +15345,45 @@ function _klientTurQarzMap(k){
   });
   Object.keys(m).forEach(function(kk){ m[kk]=Math.round(m[kk]*100)/100; });
   return m;
+}
+// v172.5: sotuv chekidagi OFFSET qatorlari. Preview ham, print ham SHU YERDAN
+// o'qiydi — formula saqlash yo'lidan (_needBeforeOffsetSv / _svRowUsed) aynan
+// ko'chirilgan, shunda chek va saqlangan yozuv bir xil bo'ladi.
+// Qaytaradi: [{zavod,tur,kurs,summa,gramm,eskiQarz}] — faqat ISHLATILGAN ulush.
+function _ksChekOffsetRows(qarzMap){
+  var xom=[], raw=0, jamiRaw=0;
+  data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
+    var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
+    jamiRaw+=s;
+    var blok=document.getElementById('kso-blok-'+zi+'-'+ti);
+    if(!(blok && blok.style.display!=='none')) return;
+    var n=parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value)||0;
+    var g=parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value)||0;
+    var sum=s>0?s:Math.round(g*n*100)/100;
+    if(sum>0.001 && n>0){ xom.push({zavod:z.nom,tur:t.nom,kurs:n,s:sum}); raw+=sum; }
+  }); });
+  if(!xom.length) return [];
+  raw=Math.round(raw*100)/100;
+  var lomJ=0;
+  document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el){
+    var i=el.id.split('-')[2];
+    var lg=parseNum((document.getElementById('ks-lg-'+i)||{}).value)||0;
+    var lk=parseNum((document.getElementById('ks-lk-'+i)||{}).value)||0;
+    if(lg>0&&lk>0) lomJ+=Math.round(lg*lk*100)/100;
+  });
+  var sk=parseNum((document.getElementById('ks-skidka')||{}).value)||0;
+  var regular=Math.max(0, Math.round((jamiRaw-raw)*100)/100);
+  var kerak=Math.max(0, Math.round((regular-lomJ-sk)*100)/100);
+  var ishlatilgan=Math.min(raw, kerak);
+  var natija=[];
+  xom.forEach(function(r){
+    var ulush=Math.round(ishlatilgan*(raw>0?r.s/raw:0)*100)/100;
+    if(ulush<=0.001) return;
+    natija.push({zavod:r.zavod, tur:r.tur, kurs:r.kurs, summa:ulush,
+                 gramm:(r.kurs>0?roundG(ulush/r.kurs):0),
+                 eskiQarz:((qarzMap&&qarzMap[r.zavod+'||'+r.tur])||0)});
+  });
+  return natija;
 }
 // klientSotuvChekYangi — yangi sodda sotuv chek (2 chek: klient logo, o'zimizga ptichka)
 function klientSotuvChekYangiGen(opts){
@@ -15408,8 +15453,25 @@ function klientSotuvChekYangiGen(opts){
         t+=rjust(' L  '+fmtG(l.gramm)+'g x '+l.kurs, fmtD(lp)+'#')+'\n';
       });
     }
-    var naqd=Math.round((jamiS-lomPul)*100)/100;
-    t+=rjust(' N', fmtD(naqd)+'#')+'\n';
+    // v172.5: O (offset) qatorlari — L dan keyin, N/K/P dan oldin
+    var offPul=0; (o.offsetlar||[]).forEach(function(x){ offPul+=(x.summa||0); });
+    offPul=Math.round(offPul*100)/100;
+    (o.offsetlar||[]).forEach(function(x){
+      t+=rjust(' O  '+x.zavod+' '+x.tur+'  '+fmtG(x.gramm)+'g x '+x.kurs, fmtD(x.summa)+'#')+'\n';
+    });
+    // v172.5: naqt/karta/perech ALOHIDA (avval hammasi bitta N bo'lib chiqardi).
+    // Uchala maydon ham bo'sh bo'lsa — sof naqt sotuv, avvalgi mantiq saqlanadi.
+    var _nb=Math.round((o.naqt||0)*100)/100;
+    var _kb=Math.round((o.karta||0)*100)/100;
+    var _pb=Math.round((o.perech||0)*100)/100;
+    var naqd=Math.round((jamiS-lomPul-offPul)*100)/100;
+    if(_nb<0.001 && _kb<0.001 && _pb<0.001){
+      t+=rjust(' N', fmtD(naqd)+'#')+'\n';
+    } else {
+      if(_nb>0.001) t+=rjust(' N', fmtD(_nb)+'#')+'\n';
+      if(_kb>0.001) t+=rjust(' K', fmtD(_kb)+'#')+'\n';
+      if(_pb>0.001) t+=rjust(' P', fmtD(_pb)+'#')+'\n';
+    }
     // Yakuniy blok: yalang'och summa -> Skidka -> nuqta -> Umumiy Summa -> Umumiy g
     var sk=Math.round((o.skidka||0)*100)/100;
     var net=Math.round((jamiS-sk)*100)/100;
@@ -15438,7 +15500,7 @@ function klientSotuvChekYangiGen(opts){
     Object.keys(o.eskiOstMap||{}).forEach(function(k){ zlar[k]=1; });
     Object.keys(yangiOst).forEach(function(k){ zlar[k]=1; });
     var keys=Object.keys(zlar);
-    if(keys.length){
+    if(keys.length || (o.offsetlar||[]).length){
       t+=LINE+'Ostatka\n';
       t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
       var te=0,ty=0,tj=0;
@@ -15449,6 +15511,17 @@ function klientSotuvChekYangiGen(opts){
         t+=padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n';
       });
       t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
+      // v172.5: offset manbai — BIZ qarzdor bo'lgan tur. JAMI ga qo'shilmaydi
+      // (u klient qarzi, bu bizniki — bir ustunda qo'shilsa ma'nosi buziladi).
+      // "(bizda)" nom ustuniga sig'maydi (18 belgi), shuning uchun guruh sarlavhasida.
+      if((o.offsetlar||[]).length){
+        t+=' Bizda (offset)\n';
+        (o.offsetlar||[]).forEach(function(x){
+          var e=Math.abs(Math.round((x.eskiQarz||0)*100)/100);
+          var y=-Math.round((x.gramm||0)*100)/100;
+          t+=padL(' '+x.zavod+' '+x.tur,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(Math.round((e+y)*100)/100)+'g',10)+'\n';
+        });
+      }
     }
     return t;
   }

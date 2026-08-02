@@ -3,6 +3,41 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.5: sotuv chekida OFFSET + karta/perech ko'rsatiladi
+
+Ibrohim: "sotuv chekida offset bilan to'lov qilsihshi ... chek preview to'g'ri
+ishlamayapti" va "Karta K Naqt N Perech P ko'rsatishi kerak".
+Mockup: mockups/tashxis-sotuv-chek-offset.html.
+
+Ildiz — klientSotuvChekYangiGen dagi "JAMI TO'LANDI (L + N)" bloki faqat ikki
+to'lov turini bilardi: naqd = jamiS - lomPul, bitta N qatori. Natijada
+offset ham, karta ham, perech ham chekda NAQT bo'lib chiqardi. Eski lines2
+formatda N/K/P ajratmasi bor edi, lekin u v154.2 dan beri hech qachon
+ishlamaydi (klient tanlangan bo'lsa yangi format return qiladi).
+Saqlash yo'li to'g'ri edi — faqat chek ko'rinishi yolg'on edi.
+
+Bajarildi:
+* Yangi `_ksChekOffsetRows(qarzMap)` — offsetning ISHLATILGAN ulushini
+  hisoblaydi. Formula saqlash yo'lidan (_needBeforeOffsetSv / _svRowUsed)
+  aynan ko'chirildi, shunda preview / print / saqlash uchtasi bir xil chiqadi.
+  Preview ham, print ham SHU bitta funksiyadan o'qiydi.
+* "Jami to'landi" bloki: L (lom) → O (offset) → N/K/P alohida qatorlar.
+  Uchala to'lov maydoni bo'sh bo'lsa — sof naqt sotuv, avvalgi mantiq
+  (naqd = jamiS - lomPul) saqlanadi, ya'ni regressiya yo'q.
+* "Ostatka" jadvaliga "Bizda (offset)" guruhi: offset manbai turi
+  eski / -ishlatilgan / qolgan ustunlari bilan. JAMI ga qo'shilmaydi —
+  u klient qarzi, bu bizniki, bir ustunda qo'shilsa ma'no buziladi.
+  "(bizda)" yorlig'i nom ustuniga (18 belgi) sig'magani uchun guruh
+  sarlavhasiga chiqarildi — chek kengligi 48 da qoladi.
+
+Tegilmadi: saqlash mantig'i (faqat formulasi o'qildi), to'lov cheki (kt) —
+u allaqachon to'g'ri, skidka hisobi.
+
+Sinov: node --check toza. Brauzerda 8 stsenariy, hammasi 750$ ga yig'ildi:
+sof naqt (regressiya, avvalgidek) / faqat karta / faqat perech / N+K+P
+aralash / offset+naqt / offset+karta / lom+offset+naqt / offset to'liq
+qoplagan (N 0.00). Chek kengligi offsetli va offsetsiz holatda ham 48.
+
 ## v172.4: v172.3 BEKOR — Abdulhamid kassasi avvalgi holatga qaytarildi
 
 Ibrohim: "shart emas ekan, Abdulhamid logini o'zgarishi kerak emas ekan,
