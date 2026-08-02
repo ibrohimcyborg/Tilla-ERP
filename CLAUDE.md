@@ -65,11 +65,33 @@ Ikkilangan holat = **LOGIKA** deb hisobla, mockup qil.
 Ibrohimdan chiqadi. Avvalgi seanslarda aynan shu joyda xato bo'lgan:
 oddiy deb o'ylangan narsa oddiy emas edi.
 
+### So'ralganidan ortiq ish qilma
+
+So'ralgan narsani **aynan** qil — ortig'ini emas.
+
+So'ralmasa **qilinmaydi**:
+- rename, refactor, `"shu yerdaman, buniyam tuzatay"`
+- so'ralmagan error handling, validatsiya, himoya tekshiruvlari
+- `"tabiiy juftlik"` ko'ringan qo'shimcha funksiya
+- tegishsiz qatorlarni qayta formatlash yoki tartiblash
+
+**Bir turda bitta o'zgarish.** Kichik ko'rinsa ham ikkinchisini qo'shib
+yuborma.
+
+**Diff budjeti.** Boshlashdan oldin taxminan necha qator o'zgarishini ayt.
+Haqiqiy diff shu taxmindan ~2 barobar oshsa — **to'xta va xabar ber**,
+davom etma. Shishgan diff = qamrov siljigan.
+
+**Nega bu bor:** so'ralmagan o'zgarishlar diffga qo'shilgani uchun ish
+chigallashadi va keyingi xato qaysi so'rovdan kelganini topib bo'lmaydi.
+
 ---
 
-## 2. HAR MOCKUP OXIRIDA — TAXMIN BLOKI
+## 2. HAR KOD O'ZGARISHIDAN OLDIN — TAXMIN BLOKI
 
-So'ralmasa ham, avtomatik, kodga o'tishdan oldin uch qism:
+So'ralmasa ham, avtomatik, kodga o'tishdan oldin uch qism.
+**Mockup bor-yo'qligidan qat'i nazar** — kichik, mockupsiz o'zgarishda ham
+shu blok chiqadi.
 
 **1. ANIQ BILMAYOTGAN JOYLARIM**
 Spetsifikatsiyadagi bo'shliqlar, aniq aytilmagan qarorlar.
@@ -159,6 +181,52 @@ v172.2 holatiga qaytarildi. Qoida to'liq kuchda.
   Asosiy kolleksiyaga tegmaydi.
 - Lokalda ochish: `python3 -m http.server 8000` → `http://localhost:8000`
   **`file://` bilan ochma** — Firebase auth ishlamaydi.
+
+---
+
+## 7.1. TEKSHIRUV — `"tayyor"` deyishdan oldin
+
+O'zgarish **yozilgani uchun** bajarilgan bo'lmaydi. **Tushganini
+isbotlaganingda** bajarilgan bo'ladi.
+
+`git commit` dan oldin shu blokni chiqar:
+
+```
+TEKSHIRUV
+So'ralgan: <bir qatorli: nima → nimaga>
+Qilingan:  <haqiqatda nima o'zgardi>
+Dalil:     <fayl>:<qator>   eski → yangi
+Grep:      <maydon/funksiya> o'qiladigan joylar: <ro'yxat>
+           — hammasi yangilandi / <qaysilari emas va nega>
+```
+
+`Dalil` qatorini **haqiqiy qator raqami** va **haqiqiy eski → yangi** bilan
+to'ldira olmasang — o'zgarish tushmagan. `"Tayyor"` dema, shuni ochiq ayt.
+
+Mockup **oldin** ko'rsatadi — HOZIRGI vs TAKLIF, bu **taklif**.
+TEKSHIRUV **keyin** ko'rsatadi — eski → yangi, bu **dalil**.
+Ikkalasi ham kerak, biri ikkinchisining o'rnini bosmaydi.
+
+Bajarilmagan ish `"bajarildi"` bo'lib ketishining odatiy yo'llari — har birini
+tekshir:
+- edit noto'g'ri faylga yoki fayl nusxasiga tushgan
+- ikkinchi kod yo'li hali eski qiymatni o'qiydi — grep o'tkazib yuborgan
+- o'zgarish hech qachon ishlamaydigan shart ichida qolgan
+- matnda tasvirlangan, lekin edit haqiqatda qo'llanmagan
+- fayl yozilgan, lekin Node sintaksis-sinov ishga tushirilmagan
+
+### `"Ishlamadi"` deyilganda
+
+Ibrohim `"o'zgarmadi"` yoki `"men so'ramagan narsa paydo bo'ldi"` desa:
+
+- avvalgi natijani **himoya qilma**
+- ustiga darhol ikkinchi fix **yozma**
+- nima **so'ralganini** qayta o'qi, nima **yozilganini** qayta o'qi,
+  ikkisining **farqini ayt**
+- keyin bitta aniq tuzatish taklif qil va **to'xta**
+
+Tekshirilmagan fix ustiga tekshirilmagan fix qo'yish — kod izlanmaydigan
+bo'lib qolishining yo'li.
 
 ---
 
