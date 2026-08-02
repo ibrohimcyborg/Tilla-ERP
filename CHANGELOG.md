@@ -3,6 +3,49 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.8: "KLIENTDA BOR" paneli offsetni resurs deb sanaydi
+
+Ibrohim skrinshot bilan topdi: panel "Jami 0$ · Taqsimlandi 451.96$ ·
+Oshdi 451.96$" ko'rsatardi. 451.96 = 276.00 (Zmeyka) + 175.96 (Butterfly
+OFFSET) — offset qatoriga yozilgan summa "taqsimlandi" ga qo'shilib ketardi.
+Mockup: mockups/tashxis-klientda-bor-offset.html. Ibrohim B variantini
+tanladi ("B albatta, sotuvda ham to'lovda ham").
+
+Ildiz: pulPanelTaqsim (5183) hamma kt-s-* / kst-s-* maydonini qo'shardi,
+offsetni ajratmasdi. Offset belgisi kodda bor edi (kto-blok-<idx> va
+kso-blok-<zi>-<ti>, 12691/13010/13375/16346 da ishlatiladi), lekin panelda
+tekshirilmagan.
+
+Mantiq: panel modeli "Jami = klient resursi, Taqsimlandi = tarqatilgani".
+Offset — RESURS (biz klientga qarzdormiz, klient shu qiymatni keltiradi),
+tarqatma emas. U noto'g'ri tomonda turardi.
+
+Bajarildi:
+* Yangi `_pulPanelOffsetQatormi(pfx, inpId)` — qator offsetmi, kodda mavjud
+  naqsh bilan bir xil tekshiruv.
+* Yangi `pulPanelOffset(pfx)` — offset yig'indisi. XOM summa olinadi
+  (chekdagi "ishlatilgan ulush" formulasi emas) — panel oddiy hisoblagich.
+* `pulPanelTaqsim` offset qatorlarini endi SANAMAYDI.
+* `pulPanelBor` ga `offset` maydoni qo'shildi, `jami` ga kiradi.
+* `pulPanelUpd` da yangi OFFSET katakchasi: faqat offset bor bo'lganda
+  ko'rinadi, shunda grid 4 ustundan 5 ga o'tadi (bo'sh joy egallanmasin).
+* Panel HTML ikkala modalda (1689 kt, 1865 ks): `-pp-grid`, `-pp-off-box`,
+  `-pp-offset` id'lari qo'shildi.
+
+Ataylab TEGILMADI: tur qatorlaridagi "$" tugmalarining ko'rinish sharti
+endi `jami - offset` bo'yicha (5290) — ular naqd/lom pulni tarqatadi,
+offsetni emas, shuning uchun xulqi avvalgidek qoldi.
+
+Tegilmadi: chek generatorlari (o'z hisobini yuritadi), saqlash mantig'i,
+offset ulushi formulasi.
+
+Sinov: node --check toza, konsol toza. Brauzerda sun'iy DOM bilan:
+to'lov va sotuv ikkalasida ham offset=175.96, jami=175.96,
+taqsimlandi=276.00, natija "Oshdi 100.04$" — ikkisi AYNAN bir xil
+(BIR_XILMI=true). Katakcha offset bo'lganda ko'rinadi (5 ustun),
+bo'lmaganda yashirinadi (4 ustun). Offsetsiz regressiya holati to'g'ri.
+100.04 — chek pastidagi "Kerakli summa" bilan bir xil raqam.
+
 ## v172.7: "Qoldi 0" chiqmaydi + yopilganlar tepada (ikkala chek bir xil)
 
 Ibrohim: "0 qo'sa ostatkasi QOLDI 0 kerakmasde" va "shu ostatkadan qolib
