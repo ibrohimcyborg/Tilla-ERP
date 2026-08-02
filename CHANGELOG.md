@@ -3,6 +3,20 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.4: v172.3 BEKOR — Abdulhamid kassasi avvalgi holatga qaytarildi
+
+Ibrohim: "shart emas ekan, Abdulhamid logini o'zgarishi kerak emas ekan,
+o'zi zo'r bo'lgan ekan". v172.3 dagi hamid kun-tarmog'i olib tashlandi.
+
+index.html endi v172.2 bilan BAYT-MA-BAYT bir xil (faqat versiya qatorlari
+farq qiladi — git diff bilan tekshirildi). Hamid ham, Ibrohim ham kassani
+v171.4 kun-kartalari bilan ko'radi (hamma uchun bir xil, avvalgidek).
+
+CLAUDE.md §6 qaytarildi: kassaRender tarmog'i ro'yxatdan chiqdi, qator
+raqamlari yangilandi (17066 → 17055), istisno tarixiga bekor belgisi qo'shildi.
+
+Sinov: node --check toza; git diff 190f992 faqat 2 versiya qatorini ko'rsatadi.
+
 ## v172.3: Abdulhamid loginida kassa — v171.3 oddiy ketma-ketligiga qaytarildi
 
 Ibrohim: "abdulhamid logida kassa modalini oddiy ketma-ketligida qilib qo'y,
