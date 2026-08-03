@@ -3,6 +3,48 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.11: dona bazasi kataklik ko'rinishga o'tdi (×N guruhlangan)
+
+Ibrohim: "dona bazani manga bunaqa ko'rsatmasin, kataklik spiskada ko'rsatsin,
+sanasini bossam nechta kirgan/qolgan/berilgan bo'lsa shunaqa ko'rsatsin,
+masalan 10x qilib qatorda keltirsin, tagida omborda yoki o'chirib berilgan
+bo'lsin". Mockup: mockups/tashxis-dona-baza-kataklik.html.
+
+Avval har dona alohida to'liq enli qator edi — 124 dona = 124 qator.
+Endi bir xil gramm+holat juftligi bitta katakka birlashadi: 124 dona -> ~10 katak.
+
+* Sana sarlavhasi bosiladigan bo'ldi va YOPIQ turadi (Ibrohim: "spiska uzun
+  bo'p ketmasin"). Sarlavhada to'liq sanoq: kirgan N · omborda N · berilgan N ·
+  sotilgan N · vozvrat N — ochmasdan ko'rinadi.
+* Kataklar: gramm · ×N · holat nomi. Ombordagi tiniq, chiqib ketganlar
+  ustidan chizilgan, rang DONA_HOLATLAR dan (yangi rang o'ylab topilmadi).
+* Tartib: DONA_HOLATLAR tartibida (ombor -> berilgan -> sotilgan -> vozvrat ->
+  yo'qolgan), holat ichida gramm kamayish bo'yicha.
+* Kenglik — Ibrohim A variantini tanladi: repeat(auto-fill, minmax(72px,1fr)).
+  Ekran eniga qarab o'zi moslashadi, hech qayerda yon skrol yo'q.
+  (Qat'iy 8 ustun sinaldi va RAD ETILDI: 340px ekranda panel 88-98px yon
+  tomonga chiqib ketardi — o'lchandi.)
+* Ibrohim: "dona tahrirlanishi shart emas" — kataklar bosilmaydi, eski
+  donaBazaKatakOch faqat alohida "Dona baza" ekranida qoladi.
+
+Yangi: _donaBazaSanaOpen + donaBazaSanaToggle (donaBazaToggle yonida).
+O'zgargan: donaBazaRender sana-guruh bloki.
+
+TEGILMADI: ma'lumot tuzilishi, holat o'tishlari, saqlash, cloud, alohida
+"Dona baza" ekrani (donaBazaEkranRender — u allaqachon kataklik).
+
+Sinov: node --check toza, konsol toza. Brauzerda 49 donali misol -> 5 katak;
+sanoq "kirgan 49 · 29 ombor · 10 berilgan · 6 sotilgan · 4 vozvrat";
+yopiq holatda katak umuman chizilmaydi. Kenglik sinovi eng uzun qiymatlar
+(107.42g, 1234.56g) bilan o'lchandi: 340px -> 4 ustun/81px · 375px -> 4/90px ·
+900px -> 5/77px (sinovda 5 ta katak bor edi, hammasi bir qatorga sig'di).
+Uchala enda ham yon skrol YO'Q va qirqilgan matn YO'Q (0 ta).
+
+OCHIQ QOLDI: Ibrohim "vozvrat ... toki berilgan bo'lmaguncha" dedi, ya'ni
+vozvrat donasi keyin berilgan bo'la olishi kerak. Hozir donaBazaHolat (8049)
+faqat holat==='ombor' bo'lganini o'zgartiradi — vozvrat donasi qotib qoladi.
+Bu MANTIQ o'zgarishi, shu versiyaga kiritilmadi, alohida qaror kutilmoqda.
+
 ## v172.9: sotuv chekida boshqa turga to'langan pul ko'rinadi
 
 Ibrohim topdi: "berish qilamiz boshqa firmadande, lekin boshqa narsaga to'lov

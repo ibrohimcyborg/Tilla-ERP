@@ -1,4 +1,4 @@
-<!-- v172.9 -->
+<!-- v172.11 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.9';
+var APP_VER = 'v172.11';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -8064,6 +8064,9 @@ function donaBazaHolat(zavod, tur, arr, holat, izoh){
 }
 var _donaBazaOpen={};
 function donaBazaToggle(key){ _donaBazaOpen[key]=!_donaBazaOpen[key]; if(typeof renderZavod==='function') renderZavod(); }
+// v172.11: sana guruhlari YOPIQ turadi — spiska uzayib ketmasin. Bosilsa ochiladi.
+var _donaBazaSanaOpen={};
+function donaBazaSanaToggle(k){ _donaBazaSanaOpen[k]=!_donaBazaSanaOpen[k]; if(typeof renderZavod==='function') renderZavod(); }
 function donaBazaRender(zavod, tur){
   var recs=donaBazaTur(zavod, tur);
   var key=zavod+'||'+tur;
@@ -8078,16 +8081,47 @@ function donaBazaRender(zavod, tur){
     + '</div>';
   if(!ochiq) return h;
   if(!recs.length){ h+='<div style="font-size:11px;color:var(--muted);padding:2px 0 8px;">Bo\'sh — Ostatka \u2192 Shakllantirish orqali to\'ladi.</div>'; return h; }
-  // Sana bo'yicha guruh
+  // v172.11: sana bo'yicha guruh \u2014 sarlavhada to'liq sanoq, ichida bir xil grammlar
+  // \u00d7N bo'lib birlashadi. Sanalar YOPIQ ochiladi (spiska uzayib ketmasin).
   var by={}; recs.forEach(function(r){ (by[r.sana]=by[r.sana]||[]).push(r); });
+  var _hTartib={}; DONA_HOLATLAR.forEach(function(m,i){ _hTartib[m.k]=i; });
   Object.keys(by).sort().reverse().forEach(function(d){
-    var rows=by[d], dOmb=rows.filter(function(r){ return r.holat==='ombor'; });
-    var dSum=dOmb.reduce(function(a,r){ return a+r.gramm; }, 0);
-    h+='<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:var(--text);font-weight:500;">\ud83d\udcc5 '+d+'</span><span style="color:var(--muted);">'+dOmb.length+' dona \u00b7 '+fmtG(dSum)+'g</span></div>';
-    rows.forEach(function(r){
-      var sold=r.holat!=='ombor';
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--surf2);border:0.5px solid var(--border);border-radius:6px;margin-bottom:3px;'+(sold?'opacity:.45;':'')+'"><span style="flex:1;font-family:Roboto,sans-serif;font-size:12px;color:var(--text);">'+r.gramm.toFixed(2)+'g</span><span style="font-size:9px;color:'+(sold?'var(--muted)':'var(--green)')+';">'+(sold?r.holat:'ombor')+'</span></div>';
+    var rows=by[d];
+    var sKey=key+'||'+d, ochiqD=!!_donaBazaSanaOpen[sKey];
+    var san={}; rows.forEach(function(r){ var hh=r.holat||'ombor'; san[hh]=(san[hh]||0)+1; });
+    var sanoq='kirgan <b>'+rows.length+'</b>';
+    DONA_HOLATLAR.forEach(function(m){
+      if(!san[m.k]) return;
+      sanoq+=' \u00b7 <b style="color:'+m.rang+';">'+san[m.k]+'</b> '+m.nom.toLowerCase();
     });
+    h+='<div style="margin-bottom:8px;">';
+    h+='<div onclick="donaBazaSanaToggle(\''+sKey.replace(/'/g,"\\'")+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px;padding:6px 8px;background:var(--surf2);border:0.5px solid var(--border);border-radius:7px;margin-bottom:5px;cursor:pointer;">'
+      + '<span style="color:var(--text);font-weight:600;white-space:nowrap;">'+(ochiqD?'\u2304':'\u203a')+' \ud83d\udcc5 '+d+'</span>'
+      + '<span style="color:var(--muted);text-align:right;line-height:1.35;">'+sanoq+'</span></div>';
+    if(ochiqD){
+      var gr={};
+      rows.forEach(function(r){
+        var hh=r.holat||'ombor', gk=hh+'|'+r.gramm.toFixed(2);
+        if(!gr[gk]) gr[gk]={holat:hh, gramm:r.gramm, n:0};
+        gr[gk].n++;
+      });
+      var lst=Object.keys(gr).map(function(k2){ return gr[k2]; });
+      lst.sort(function(a,b){
+        var ta=(_hTartib[a.holat]===undefined?9:_hTartib[a.holat]);
+        var tb=(_hTartib[b.holat]===undefined?9:_hTartib[b.holat]);
+        return ta!==tb ? ta-tb : b.gramm-a.gramm;
+      });
+      h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:5px;">';
+      lst.forEach(function(x){
+        var m=donaHolatMeta(x.holat), omb=(x.holat==='ombor');
+        h+='<div style="border-radius:9px;padding:7px 3px 6px;text-align:center;border:1px solid '+m.bd+';background:'+m.bg+';">'
+          + '<div style="font-family:Roboto,sans-serif;font-size:13.5px;font-weight:700;line-height:1.15;color:'+m.rang+';'+(omb?'':'text-decoration:line-through;')+'">'+fmtG(x.gramm)+'</div>'
+          + '<div style="font-size:12.5px;font-weight:800;color:var(--muted);line-height:1.3;">\u00d7'+x.n+'</div>'
+          + '<div style="font-size:8px;text-transform:uppercase;letter-spacing:.03em;margin-top:3px;border-top:0.5px solid '+m.bd+';padding-top:3px;color:'+m.rang+';">'+m.nom+'</div>'
+          + '</div>';
+      });
+      h+='</div>';
+    }
     h+='</div>';
   });
   // Umumiy jami

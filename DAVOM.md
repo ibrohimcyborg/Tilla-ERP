@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.9 · 2026-08-02
+**Oxirgi yangilanish:** v172.11 · 2026-08-02
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v172.9** (`index.html` birinchi qatorida `<!-- v172.9 -->`, `APP_VER` da ham) |
+| Versiya | **v172.11** (`index.html` birinchi qatorida `<!-- v172.11 -->`, `APP_VER` da ham) |
 | Hajm | 17,385 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -27,6 +27,25 @@
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0b. Vozvrat donasi keyin "berilgan" bo'la olmaydi — QAROR KUTILMOQDA
+
+Ibrohim v172.11 da aytdi: "vozvrat bo'gan zavodga qaytgan bo'sa ko'rsatsin
+toki berilgan bo'magunicha" — ya'ni vozvrat donasi keyin berilgan bo'lishi
+kerak. Hozir `donaBazaHolat` (8049) faqat `holat==='ombor'` bo'lgan donani
+o'zgartiradi, shuning uchun vozvrat donasi o'sha holatda qotib qoladi.
+
+Ochilsa yana bir savol: `donaBazaOmbor` / `donaBazaMosEmas` (7976, 7978) ham
+vozvratni omborda deb hisoblasinmi? Zavodga vozvrat qilingan dona jismonan
+bizda emas — shuning uchun bu oddiy shart o'zgarishi emas.
+
+### 0c. v172.10 — bajarilmagan (raqam bo'sh qoldi)
+
+Sotuv chekida BIZNING qarzimiz ko'rinmasligi (eskiOstMap `>0.001` filtri,
+15035 va 15357) + berish chekiga Ostatka jadvali qo'shish. Mockup tayyor
+edi va Ibrohim tasdiqlagan (ishora: `+2 / −5 = −3`, qoldiq 0 bo'lsa ham
+ko'rsatilsin), lekin kod yozilmadi — dona baza ishi oldinga o'tdi.
+Mockup fayli o'chirilgan, kerak bo'lsa qaytadan qilinadi.
 
 ### 0a. Klient ostatka shakllantirish — "ustiga/boshqattan" dialogi YO'Q
 
@@ -128,6 +147,7 @@ Qaror qabul qilinmagan.
 | v172.7 | `Qoldi 0` chiqmaydi; to'liq yopilganlar tepada, qoldig'i borlar pastda — ikkala chekda bir xil |
 | v172.8 | «KLIENTDA BOR» paneli: offset endi RESURS (Jami ga kiradi), tarqatma emas → `Oshdi 100.04$`. Yangi OFFSET katakchasi, ikkala modalda |
 | v172.9 | Sotuv chekida boshqa turning eski qarziga to'langan pul ko'rinadi (avval chek 160$ kam summa yozardi — pul xatosi) |
+| v172.11 | Dona bazasi kataklik: bir xil gramm+holat `×N` bo'lib birlashadi, sana sarlavhasida sanoq, sanalar yopiq ochiladi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 
