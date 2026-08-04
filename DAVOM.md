@@ -17,6 +17,7 @@
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. Ishlab chiqarishda sinamaymiz. |
+| Git | ⚠ **v172.12 PUSH QILINMAGAN** — `main` `origin/main` dan 1 commit oldinda. Ibrohim push'ni to'xtatdi (commitga `api/pdf.py` ham kirgan — u Ibrohimning o'z o'zgarishi edi). |
 
 > **DIQQAT — faylni to'liq o'qib bo'lmaydi.** 311k token, kontekst oynasi 200k.
 > Har doim `grep` bilan qidiring, keyin kerakli 20–50 qatorni o'qing.
@@ -27,6 +28,24 @@
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0d. QARZ TARKIBI paneli — «Jami» o'z qatorlariga mos emas (MOCKUP TAYYOR)
+
+Ibrohim topdi: panel sarlavhasi −641.83, o'z qatorlari esa −636.49 beradi
+(farq 5.34). Chek TO'G'RI, panel noto'g'ri — Ibrohim shuni tasdiqladi.
+
+Ildiz: `_qarzTarkib` (15997) bitta obyektda ikki xil manba qaytaradi —
+qatorlar o'zining hisobidan, `jamiQarz` esa `klientJamiQarz` → `klientQarzSplit`
+dan. Ular manfiy `berish` / `klientda` / offset ni boshqacha yozadi.
+PDF cheki (`klientQarzChekPDF`) ham o'sha noto'g'ri raqamni yuboradi;
+termal chek esa o'zi qatorlarni qo'shadi, shuning uchun to'g'ri.
+
+Mockup: `mockups/tashxis-qarz-cheki-jami.html` (commit qilingan).
+Taklif: `jamiQarz` o'z qatorlaridan hisoblansin + pastda «Klient qarzi /
+Bizning qarz / Jami» alohida. `klientQarzSplit` ga TEGILMASIN — u kassa va
+boshqa joylarda ishlatiladi.
+
+Ibrohimdan javob kutilmoqda (mockup oxiridagi 5 savol). Versiya v172.13.
 
 ### 0b. Vozvrat donasi keyin "berilgan" bo'la olmaydi — QAROR KUTILMOQDA
 
