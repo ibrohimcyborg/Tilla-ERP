@@ -1,4 +1,4 @@
-<!-- v172.11 -->
+<!-- v172.12 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.11';
+var APP_VER = 'v172.12';
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -11126,8 +11126,12 @@ function openKlientDetail(ki) {
   // kategoriya tugmalarini yangilash
   var kat = k.kat || 'A';
   _katBtnUpd('kd', kat);
-  var _split=klientQarzSplit(k);
-  var qarz=_split.klientQarzi, bizQarz=_split.bizQarzi;
+  // v172.12: tepadagi blok ham QARZ TARKIBI qatorlaridan o'qiydi (avval
+  // klientQarzSplit dan olardi va pastdagi ro'yxatga mos kelmasdi).
+  // klientQarzSplit ning O'ZIGA tegilmadi — u boshqa 11 joyda ishlatiladi.
+  var _ktQarz = _qarzTarkib(ki);
+  var _jr = _qarzJamiRows(_ktQarz.qarz_tarkib);
+  var qarz=_jr.ostatka, bizQarz=_jr.bizQarz;
   var savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
   var qEl=document.getElementById('kd-qarz');
   qEl.textContent='−'+fmtG(qarz)+' g';
@@ -11144,17 +11148,25 @@ function openKlientDetail(ki) {
   var st=document.getElementById('kd-status');
   if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
   else st.style.display='none';
-  var _ktQarz = _qarzTarkib(ki);
-  var jamiQarzVal = _ktQarz.jamiQarz;
   var byZavod={};
   _ktQarz.qarz_tarkib.forEach(function(b){
     if(!byZavod[b.zavod]) byZavod[b.zavod]=[];
     byZavod[b.zavod].push(b);
   });
   var bHTML='<div class="card">';
-  bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
-  bHTML+='<div style="font-size:12px;color:var(--muted);">Jami</div>';
-  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:'+(jamiQarzVal>0?'var(--red)':'var(--green)')+'">'+(jamiQarzVal>0?'−':'+')+fmtG(Math.abs(jamiQarzVal))+'</div>';
+  // v172.12: bitta "Jami" o'rniga ikkita qator — ikkalasi ham quyidagi
+  // qatorlardan hisoblanadi. Sof qoldiq YOZILMAYDI (Ibrohim qarori).
+  bHTML+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
+  bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+  bHTML+='<div style="font-size:12px;color:var(--muted);">Klient ostatkasi</div>';
+  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:var(--red);">−'+fmtG(_jr.ostatka)+'</div>';
+  bHTML+='</div>';
+  if(_jr.bizQarz>0.001){
+    bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">';
+    bHTML+='<div style="font-size:12px;color:var(--muted);">Bizning qarz</div>';
+    bHTML+='<div style="font-family:Roboto,sans-serif;font-size:17px;font-weight:600;color:var(--green);">+'+fmtG(_jr.bizQarz)+'</div>';
+    bHTML+='</div>';
+  }
   bHTML+='</div>';
 
   var hasQarz=false;
@@ -14629,7 +14641,18 @@ function kSotuvCalc() {
   var lomTolovG = lomOrtiqchaPul > 0.01
     ? Math.round((jamiOldiPul / (jamiOldiPul > 0 ? jamiOldiPul : 1)) * oldilar.reduce(function(a,o){return a+o.gramm;},0) * 100) / 100
     : 0;
-  var finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - naqtTolovG - ortiqchaG - vozJami) * 100) / 100;
+  // v172.12: sotilayotgan turda BIZ qarzdor bo'lsak, yangi gramm avval o'sha
+  // qarzni YEYDI. joriyQarz (klientJamiQarz) faqat klient qarzini beradi —
+  // manfiy turlar unga kirmaydi, shuning uchun 10g to'liq ustiga qo'shilib
+  // "Qolgan qarz" oshib ketardi (47.36 + 10 - 4.58 = 52.78, aslida 47.36).
+  var _tqMap = _klientTurQarzMap(k);
+  var _offYeyilgan = 0;
+  oldilar.forEach(function(o){
+    var tq = _tqMap[o.zavod+'||'+o.tur] || 0;
+    if (tq < -0.001) _offYeyilgan += Math.min(o.gramm, -tq);
+  });
+  _offYeyilgan = Math.round(_offYeyilgan*100)/100;
+  var finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - _offYeyilgan - naqtTolovG - ortiqchaG - vozJami) * 100) / 100;
   if (lomOrtiqchaPul > 0.01) {
     // Lom hammasini yopdi
     finQarz = Math.round((joriyQarz + oldilar.reduce(function(a,o){return a+o.gramm;},0) - oldilar.reduce(function(a,o){return a+o.gramm;},0) - vozJami) * 100) / 100;
@@ -15066,7 +15089,9 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       (oldilar||[]).forEach(function(o){ var kk=o.zavod+'||'+o.tur; _bMap[kk]=(_bMap[kk]||0)+o.gramm; });
       var _sOld=_ksChekTolovRows(oldilar);   // v172.9: to'lov yozilgan HAMMA tur
       var _eqm=_klientTurQarzMap(_kPrev);
-      Object.keys(_eqm).forEach(function(kk){ if(_eqm[kk]>0.001) _oMap[kk]=_eqm[kk]; });
+      // v172.12: MANFIY ham kiradi — biz qarzdor bo'lgan tur chekda ko'rinsin
+      // (avval >0.001 edi: offset yeyilgani ko'rinmay, Ostatka teskari chiqardi)
+      Object.keys(_eqm).forEach(function(kk){ if(Math.abs(_eqm[kk])>0.001) _oMap[kk]=_eqm[kk]; });
       var _lomPrev=[];
       document.querySelectorAll('[id^="ks-lom-"]').forEach(function(el){
         var _idm=el.id.match(/^ks-lom-(\d+)$/); if(!_idm) return;
@@ -15386,9 +15411,11 @@ function saqlashKlientSotuv() {
     // _sotOldilar: gramm = HAQIQIY SOTILDI (to'langan summa / narx). To'lov bo'lmasa (0) chekda ko'rinmaydi.
     // v172.9: preview bilan BITTA manbadan — to'lov yozilgan hamma tur kiradi.
     var _sotOldilar=_ksChekTolovRows(oldilar);
-    // eski ostatka = sotuvdan oldingi tur-qarz (musbat)
+    // eski ostatka = sotuvdan oldingi tur-qarz.
+    // v172.12: MANFIY ham kiradi (preview bilan bir xil) — biz qarzdor bo'lgan
+    // tur chekda ko'rinsin, offset yeyilgani Ostatka jadvalida to'g'ri chiqsin.
     Object.keys(_eskiQarzMap||{}).forEach(function(kk){
-      var v=_eskiQarzMap[kk]; if(v>0.001) _eskiOstMap[kk]=v;
+      var v=_eskiQarzMap[kk]; if(Math.abs(v)>0.001) _eskiOstMap[kk]=v;
     });
     var _now_sv3=new Date();
     var _soat_sv3=String(_now_sv3.getHours()).padStart(2,'0')+':'+String(_now_sv3.getMinutes()).padStart(2,'0');
@@ -15538,9 +15565,10 @@ function klientSotuvChekYangiGen(opts){
       var b=o.berildiMap[k]; if(b===undefined) b=0;
       if(b<=0.001) return;
       jamiB+=b;
-      t+=rjust(' '+k.split('||').join(' '), '-'+fmtG(b)+'g')+'\n';
+      // v172.12: minussiz — blok nomi allaqachon "Berildi", minus chalg'itardi
+      t+=rjust(' '+k.split('||').join(' '), fmtG(b)+'g')+'\n';
     });
-    t+=DASH+rjust(' JAMI berildi','-'+fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
+    t+=DASH+rjust(' JAMI berildi', fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
     // 2) TO'LOV (sotildi)
     t+="To'lov\n";
     var jamiS=0,jamiG=0;
@@ -15556,7 +15584,18 @@ function klientSotuvChekYangiGen(opts){
       var r=x.r;
       var s=Math.round(r.gramm*r.narx*100)/100; jamiS+=s; jamiG+=r.gramm;
       t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+'g x '+r.narx, fmtD(s)+'#')+'\n';
-      if(x.q>0.001){ t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q; }
+      // v172.12: shu turda BIZ qarzdor bo'lgan bo'lsak, "Qoldi" chalg'itadi —
+      // farq klient qarzi emas, bizning eski qarzimizdan yopilgan. O'rniga izoh.
+      var _ek=(o.eskiOstMap||{})[r.zavod+'||'+r.tur]||0;
+      var _ber=(o.berildiMap||{})[r.zavod+'||'+r.tur];
+      if(_ek<-0.001 && _ber>0.001){
+        t+=DOTS+' '+fmtG(_ber)+' - '+fmtG(Math.abs(_ek))+' (qarzimiz) = '+fmtG(Math.round((_ber+_ek)*100)/100)+'\n';
+        // Ostatka jadvali uchun "yangi" ustuni baribir to'ldiriladi (Qoldi qatori
+        // ko'rinmasa ham) — aks holda jami noto'g'ri chiqadi.
+        if(x.q>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
+      } else if(x.q>0.001){
+        t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
+      }
     });
     jamiS=Math.round(jamiS*100)/100;
     // Sotilmagan (oldilarda yo'q, berildiMapda bor) -> to'liq qoldi (yangi ostatka)
@@ -15933,6 +15972,18 @@ document.addEventListener('click', function(e) {
   if (ochir) { e.stopPropagation(); klientTarixOchir(ochir); }
 });
 
+// v172.12: QARZ TARKIBI QATORLARIDAN klient ostatkasi va bizning qarz.
+// Avval tepadagi blok, panel sarlavhasi va PDF `klientJamiQarz` dan (boshqa
+// funksiya) o'qirdi va o'z qatorlariga mos kelmasdi — 641.83 vs 638.61.
+// Endi ekran, termal chek va PDF — hammasi SHU manbadan, ya'ni ko'rsatilayotgan
+// qatorlarning o'zidan hisoblanadi.
+function _qarzJamiRows(qarz_tarkib){
+  var ost=0, biz=0;
+  (qarz_tarkib||[]).forEach(function(b){
+    if(b.qarz>0) ost+=b.qarz; else biz+=-b.qarz;
+  });
+  return {ostatka:Math.round(ost*100)/100, bizQarz:Math.round(biz*100)/100};
+}
 function _qarzTarkib(ki) {
   var k=data.klientlar[ki];
   var qbd={};
@@ -16006,7 +16057,11 @@ function klientQarzChekPDF(ki) {
   var today2=new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
   var nowT=new Date();
   var soat=String(nowT.getHours()).padStart(2,'0')+':'+String(nowT.getMinutes()).padStart(2,'0');
-  var payload={tip:'klient_qarz_chek',klient_nom:d.k.nom,sana:today2+' - '+soat,jami_qarz:d.jamiQarz,qarz_tarkib:d.qarz_tarkib};
+  // v172.12: PDF ham qatorlardan hisoblangan raqamni oladi (avval jamiQarz —
+  // boshqa funksiyadan — kelardi va o'z qatorlariga mos kelmasdi).
+  var _jrp=_qarzJamiRows(d.qarz_tarkib);
+  var payload={tip:'klient_qarz_chek',klient_nom:d.k.nom,sana:today2+' - '+soat,
+               jami_qarz:_jrp.ostatka, biz_qarz:_jrp.bizQarz, qarz_tarkib:d.qarz_tarkib};
   fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){if(!r.ok) throw new Error('Xato');return r.blob();})
   .then(function(blob){var url=URL.createObjectURL(blob);window.open(url,'_blank');setTimeout(function(){URL.revokeObjectURL(url);},15000);})

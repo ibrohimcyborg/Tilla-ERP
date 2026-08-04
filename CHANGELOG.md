@@ -3,6 +3,49 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.12: sotuvda offset avtomat yeyilgani chekda va "Qolgan qarz" da to'g'ri
+
+Ibrohim: Diamond Oddiy'da BIZ 5.42g qarzdor edik, klient 10g oldi. Ekran
+to'g'ri ko'rsatardi (bizda 5.42 + yangi 10.00 = 4.58), lekin chek va
+"Qolgan qarz" noto'g'ri chiqardi. Mockup:
+mockups/tashxis-offset-avtomat-sotuvda.html.
+
+Ekran hisobi ALLAQACHON to'g'ri edi (kSotuvGUpdate 14163:
+obshiy = turQarz + yangiG) — unga tegilmadi. Xato uch joyda edi:
+
+1. Chek "Berildi" bloki minus bilan yozardi (-10.00g). Ibrohim: minussiz.
+   Blok nomi allaqachon "Berildi" — minus chalg'itardi. "JAMI berildi" ham.
+
+2. Chek "To'lov" blokidagi "Qoldi 5.42" chalg'itardi — u klient qarzi emas,
+   bizning eski qarzimizdan yopilgan qism. Endi o'sha turda biz qarzdor
+   bo'lsak, "Qoldi" o'rniga izoh chiqadi:
+       10.00 - 5.42 (qarzimiz) = 4.58
+   Oddiy holatda (biz qarzdor emasmiz) "Qoldi" avvalgidek qoladi.
+
+3. Chek "Ostatka" jadvali TESKARI chiqardi — eskiOstMap faqat musbat qarzni
+   olardi (15035 preview / 15357 print: if(v>0.001)), manfiy tushib qolardi.
+   Endi Math.abs(v)>0.001. Bu Ibrohim avval aytgan v172.10 masalasi edi.
+
+4. Ekrandagi "Qolgan qarz" 52.78g chiqardi, 47.36g bo'lishi kerak edi.
+   finQarz (14644) joriyQarz = klientJamiQarz(k) dan boshlanadi — u FAQAT
+   klient qarzini beradi, manfiy turlar unga kirmaydi. Shuning uchun 10g
+   to'liq ustiga qo'shilib ketardi. Endi sotilayotgan turda biz qarzdor
+   bo'lsak, yangi gramm avval o'sha qarzni yeyadi (_offYeyilgan).
+   klientQarzSplit ning O'ZIGA TEGILMADI — u kassa va boshqa joylarda
+   ishlatiladi.
+
+Sinov (node --check toza, konsol toza), brauzerda:
+* to'langan holat: Ostatka -5.42 / 5.42 / 0.00 ✓ · izoh qatori chiqadi
+* to'lanmagan holat: Ostatka -5.42 / 10.00 / 4.58 ✓
+* regressiya (offsetsiz, qisman sotilgan): "Qoldi 6.00" avvalgidek ✓
+* regressiya (to'liq sotilgan): Qoldi chiqmaydi (v172.7 qoidasi) ✓
+* Berildi minussiz ✓ · chek kengligi 48 ✓
+* finQarz formulasi Ibrohim raqamlari bilan: eski 52.78 -> yangi 47.36 ✓
+
+DIFF BUDJETI OSHDI: taxmin ~35 qator edi, haqiqiy 89. Sababi — finQarz
+tuzatishi budjetga kiritilmagan edi va izohlar uzun yozildi. Ibrohimga
+aytildi.
+
 ## v172.11: dona bazasi kataklik ko'rinishga o'tdi (×N guruhlangan)
 
 Ibrohim: "dona bazani manga bunaqa ko'rsatmasin, kataklik spiskada ko'rsatsin,

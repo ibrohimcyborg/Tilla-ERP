@@ -293,8 +293,8 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
     doc.build(story); buf.seek(0); return buf.read()
 
 
-def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib):
-    buf = io.BytesIO(); W = 72*mm; est_h = 50 + len(qarz_tarkib)*15 + 30
+def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0):
+    buf = io.BytesIO(); W = 72*mm; est_h = 50 + len(qarz_tarkib)*15 + 38
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
         a = {'LEFT': TA_LEFT, 'CENTER': TA_CENTER, 'RIGHT': TA_RIGHT}
         s = ParagraphStyle('cp', fontName=font, fontSize=size, textColor=color, alignment=a.get(align, TA_CENTER), leading=size+2)
@@ -317,20 +317,34 @@ def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib):
         z = item.get('zavod', '')
         if z not in by_zavod: by_zavod[z] = []
         by_zavod[z].append(item)
+    # v172.12: biz qarzdor bo'lgan turlar avval BUTUNLAY tashlab yuborilardi
+    # (qarz < 0.01 -> continue), lekin z_total ga qo'shilardi. Endi ular
+    # "(biz qarz)" bo'lib ko'rinadi, zavod jamisi esa faqat klient qarzidan.
     for znom, turs in by_zavod.items():
-        z_total = sum(t.get('qarz', 0) for t in turs)
+        z_total = sum(t.get('qarz', 0) for t in turs if t.get('qarz', 0) > 0)
         story.append(CP(znom, 'Helvetica-Bold', 9, C_GOLD, 'LEFT'))
         for t in turs:
-            if t.get('qarz', 0) < 0.01: continue
-            story.append(row2('  ' + t.get('tur',''), f"-{t['qarz']:.2f}g", cb=C_RED))
+            q = t.get('qarz', 0)
+            if q > 0.01:
+                story.append(row2('  ' + t.get('tur',''), f"-{q:.2f}g", cb=C_RED))
+            elif q < -0.01:
+                story.append(row2('  ' + t.get('tur','') + ' (biz qarz)', f"+{abs(q):.2f}g", cb=C_GREEN))
         story.append(row2('  Jami:', f'-{z_total:.2f}g', fb='Helvetica-Bold', cb=C_RED))
         story.append(Spacer(1, 1*mm))
     story.append(dline2()); story.append(Spacer(1, 1*mm))
-    story.append(Table([[CP('UMUMIY QARZ:', 'Helvetica-Bold', 10, C_RED, 'LEFT'),
+    # v172.12: "UMUMIY QARZ" o'rniga ikkita qator — klient ostatkasi va bizning
+    # qarz alohida. Sof qoldiq YOZILMAYDI. Bizning qarz 0 bo'lsa chiqmaydi.
+    story.append(Table([[CP('KLIENT OSTATKASI:', 'Helvetica-Bold', 10, C_RED, 'LEFT'),
         CP(f'-{abs(jami_qarz):.2f}g', 'Helvetica-Bold', 12, C_RED, 'RIGHT')]],
         colWidths=[W*0.55-3*mm, W*0.45-3*mm],
         style=[('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#FFF0F0')),
                ('TOPPADDING',(0,0),(-1,-1),3),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
+    if abs(biz_qarz) > 0.001:
+        story.append(Table([[CP('BIZNING QARZ:', 'Helvetica-Bold', 10, C_GREEN, 'LEFT'),
+            CP(f'+{abs(biz_qarz):.2f}g', 'Helvetica-Bold', 12, C_GREEN, 'RIGHT')]],
+            colWidths=[W*0.55-3*mm, W*0.45-3*mm],
+            style=[('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#F0FFF4')),
+                   ('TOPPADDING',(0,0),(-1,-1),3),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
     story.append(Spacer(1, 2*mm)); story.append(dline2())
     story.append(CP('— Tilla Hisob —', size=7, color=C_MUTED))
     doc = SimpleDocTemplate(buf, pagesize=(W, est_h*mm), leftMargin=3*mm, rightMargin=3*mm, topMargin=4*mm, bottomMargin=4*mm)
@@ -521,7 +535,8 @@ class handler(BaseHTTPRequestHandler):
 
             if tip == "klient_qarz_chek":
                 pdf = build_klient_qarz_chek(body.get("klient_nom",""), body.get("sana",""),
-                    body.get("jami_qarz",0), body.get("qarz_tarkib",[])); return self._send_pdf(pdf, "qarz-chek.pdf")
+                    body.get("jami_qarz",0), body.get("qarz_tarkib",[]),
+                    body.get("biz_qarz",0)); return self._send_pdf(pdf, "qarz-chek.pdf")
 
             if tip == "klient_chek":
                 pdf = build_klient_chek(body.get("klient_nom",""), body.get("ops_grouped",[]),
