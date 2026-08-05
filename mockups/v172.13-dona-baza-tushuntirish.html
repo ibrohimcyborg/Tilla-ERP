@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>DONA BAZASI — nima, qanday ishlaydi, qayerda buziladi</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1180px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:23px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:26px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:38px 0 8px;font-weight:700}
+  h3{font-size:13.5px;color:#e9e7e1;margin:20px 0 6px}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}
+  .note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.6}
+  .q{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q ol{margin:8px 0 0;padding-left:20px}.q li{margin:8px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .ok{color:#8fe0ab;font-weight:700}
+  .bad{color:#ff8b8b;font-weight:700}
+  .warn{color:#e8c14f;font-weight:700}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:900px){.three{grid-template-columns:1fr}}
+  .box{background:#1a1d22;border:1px solid #2e3238;border-radius:10px;padding:13px 15px}
+  .box h4{margin:0 0 8px;font-size:13px;color:#c9a227}
+  .box .where{font-family:monospace;font-size:11.5px;color:#8ab4f8;margin-bottom:6px;word-break:break-all}
+  .box p{margin:6px 0 0;font-size:12.5px;color:#a9adb6}
+  .rec{background:#101215;border:1px solid #2a2d33;border-radius:8px;padding:12px;font-family:Consolas,monospace;font-size:12px;line-height:1.75;margin:10px 0;overflow-x:auto}
+  .rec .k{color:#8ab4f8}.rec .v{color:#8fe0ab}.rec .c{color:#6b7280}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0;font-size:12.5px}
+  .st{padding:5px 12px;border-radius:18px;font-weight:700;font-size:12px;white-space:nowrap}
+  .st.omb{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .st.ber{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .st.sot{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+  .st.voz{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .st.yoq{background:#22252b;color:#8b8f98;border:1px solid #3a3f47}
+  .ar{color:#6b7280}
+  .hisob{background:#1a1d22;border:1px solid #2e3238;border-radius:8px;padding:11px 15px;
+         font-family:monospace;font-size:13px;margin:10px 0;line-height:1.9}
+  .yes{color:#8fe0ab}.no{color:#ff8b8b}.na{color:#8b8f98}
+  .tagline{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+           padding:2px 8px;border-radius:12px;margin-left:6px;vertical-align:middle}
+  .tagline.f{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<h1>DONA BAZASI — nima, qanday ishlaydi, qayerda buziladi</h1>
+<div class="sub">Hammasi <code>index.html</code> dan o'qilgan. Har qator raqami tekshirilgan. Taxmin yo'q —
+bilmagan joyimni «BILMAYMAN» deb yozdim.</div>
+
+<!-- ============================================================ -->
+<h2>1 · Tizimda dona uch joyda sanaladi</h2>
+<p class="lead">Bu eng muhim narsa. «Dona» bitta joyda emas — <b>uchta mustaqil sanoq</b> bor,
+va ular bir-birini tekshirmaydi.</p>
+
+<div class="three">
+  <div class="box">
+    <h4>1 · donaOst — SON</h4>
+    <div class="where">data.zavodlar[].turlar[].donaOst</div>
+    <p>Faqat raqam: «107 dona». Og'irliklari noma'lum.
+    Ekranda BIZDA ostidagi «107 dona» — <b>shu</b>.</p>
+    <p class="muted"><span class="num">6039</span> · <code>tilla-v2</code> ichida</p>
+  </div>
+  <div class="box">
+    <h4>2 · donalar — REGISTR</h4>
+    <div class="where">data.zavodlar[].turlar[].donalar</div>
+    <p>Og'irliklar massivi: <code>[2.14, 3.05, 2.14, …]</code>.
+    Kimga ketgani, sanasi — <b>yozilmaydi</b>. Faqat «bizda shu og'irliklar bor».</p>
+    <p class="muted"><span class="num">6048</span> · <code>tilla-v2</code> ichida</p>
+  </div>
+  <div class="box" style="border-color:#6b5a20">
+    <h4>3 · DONA BAZASI — YOZUVLAR</h4>
+    <div class="where">localStorage['tilla-dona-baza']</div>
+    <p>Har dona = <b>alohida yozuv</b>: id, sana, zavod, tur, gramm, holat, klient.
+    Ekrandagi «DONA BAZASI» paneli — <b>shu</b>.</p>
+    <p class="muted"><span class="num">7588</span> · <b>tilla-v2 dan TASHQARIDA</b></p>
+  </div>
+</div>
+
+<div class="note bad">
+<b>Diqqat — 3-si asosiy ma'lumotdan butunlay ajratilgan.</b>
+<code>tilla-dona-baza</code> — <b>alohida localStorage kaliti</b> (<span class="num">7588</span>),
+Firebase da ham <b>alohida kolleksiya</b>: <code>_donabaza/items</code> (<span class="num">7597</span>).
+Ya'ni «asosiy ma'lumotni tikladim» degani dona bazasi ham tiklandi degani <b>emas</b>.
+</div>
+
+<!-- ============================================================ -->
+<h2>2 · Dona Bazasidagi bitta yozuv qanday ko'rinadi</h2>
+<p class="lead">Yaratilishi: <code>donaBazaQosh()</code> <span class="num">7965–7974</span></p>
+
+<div class="rec">
+{ <span class="k">id</span>:      <span class="v">"dm3k9x2a7f"</span>   <span class="c">// tasodifiy — vaqt + random (7969)</span>
+  <span class="k">sana</span>:    <span class="v">"13.07.2026"</span>   <span class="c">// kirim/skan sanasi</span>
+  <span class="k">zavod</span>:   <span class="v">"Hayat"</span>        <span class="c">// ← NOM MATNI, id emas</span>
+  <span class="k">tur</span>:     <span class="v">"Oddiy"</span>        <span class="c">// ← NOM MATNI, id emas</span>
+  <span class="k">gramm</span>:   <span class="v">2.14</span>           <span class="c">// roundG — 2 xona</span>
+  <span class="k">holat</span>:   <span class="v">"ombor"</span>        <span class="c">// boshlanish holati (7969)</span>
+<span class="c">  // keyin qo'shiladi:</span>
+  <span class="k">klient</span>:  <span class="v">"Dilnoza Opa"</span>  <span class="c">// berilganda (8003)</span>
+  <span class="k">chiqimSana</span>: <span class="v">"04.08.2026"</span> <span class="c">// holat o'zgarganda (8003, 8056)</span>
+}
+</div>
+
+<div class="note info">
+<b>Zavod va tur NOM MATNI bilan bog'lanadi</b>, raqamli id bilan emas —
+<code>r.zavod===zavod &amp;&amp; r.tur===tur</code> (<span class="num">7975</span>).
+Bu keyingi bo'limlarda muhim bo'ladi.
+</div>
+
+<!-- ============================================================ -->
+<h2>3 · Besh holat va o'tishlar</h2>
+<p class="lead"><code>DONA_HOLATLAR</code> <span class="num">8008–8014</span></p>
+
+<div class="flow">
+  <span class="st omb">ombor</span><span class="ar">→</span>
+  <span class="st ber">berilgan</span>
+  <span class="ar">&nbsp;·&nbsp;</span>
+  <span class="st omb">ombor</span><span class="ar">→</span>
+  <span class="st sot">sotilgan</span>
+  <span class="ar">&nbsp;·&nbsp;</span>
+  <span class="st omb">ombor</span><span class="ar">→</span>
+  <span class="st voz">vozvrat</span>
+  <span class="ar">&nbsp;·&nbsp;</span>
+  <span class="st omb">ombor</span><span class="ar">→</span>
+  <span class="st yoq">yoqolgan</span>
+</div>
+
+<table>
+<tr><th>Holat</th><th>Ma'nosi</th><th>Kim qo'yadi</th></tr>
+<tr><td><span class="st omb">ombor</span></td><td>bizda turibdi</td><td><code>donaBazaQosh</code> <span class="num">7969</span> — boshlanish holati</td></tr>
+<tr><td><span class="st ber">berilgan</span></td><td>klientda</td><td><code>donaBazaOlish</code> <span class="num">8003</span></td></tr>
+<tr><td><span class="st sot">sotilgan</span></td><td>klient to'ladi</td><td class="bad">koddan chaqiruvchi TOPILMADI</td></tr>
+<tr><td><span class="st voz">vozvrat</span></td><td>zavodga qaytdi</td><td><code>donaBazaHolat(...,'vozvrat')</code> <span class="num">8272</span></td></tr>
+<tr><td><span class="st yoq">yoqolgan</span></td><td>tekshiruvda topilmadi</td><td class="bad">koddan chaqiruvchi TOPILMADI</td></tr>
+</table>
+
+<div class="note bad">
+<b>Bir tomonlama ko'cha.</b> <code>donaBazaHolat</code> (<span class="num">8040</span>) da
+<span class="num">8049</span>-qator:
+<pre class="kod">if(r.zavod===zavod &amp;&amp; r.tur===tur &amp;&amp; r.holat==='ombor'){   // ← FAQAT 'ombor'</pre>
+Ya'ni holat <b>faqat <code>ombor</code> dan boshqasiga</b> o'zgara oladi.
+<code>berilgan</code> yoki <code>vozvrat</code> bo'lgan dona <b>hech qachon ortga qaytmaydi</b>.
+Bu — DAVOM.md dagi <b>0b masalasi</b>, sen v172.11 da aytgan eding.
+</div>
+
+<!-- ============================================================ -->
+<h2>4 · Qaysi amal qaysi sanoqqa tegadi — to'liq jadval</h2>
+<p class="lead">Bu jadval butun masalaning kaliti. <span class="ok">✓</span> = yangilanadi ·
+<span class="no">✗</span> = <b>tegilmaydi</b> · <span class="na">—</span> = tegishli emas</p>
+
+<div class="scroll">
+<table>
+<tr><th>Amal</th><th>Qator</th><th>1 · donaOst</th><th>2 · donalar</th><th>3 · DONA BAZA</th></tr>
+
+<tr><td><b>Zavod skan kirim</b></td><td class="num">8279–8282</td>
+    <td class="yes">✓ +N</td><td class="yes">✓ donaRegQosh</td><td class="yes">✓ donaBazaQosh</td></tr>
+
+<tr><td><b>Zavodga skan vozvrat</b></td><td class="num">8269–8272</td>
+    <td class="yes">✓ −N</td><td class="yes">✓ donaRegOlish</td><td class="yes">✓ holat='vozvrat'</td></tr>
+
+<tr><td><b>Ostatka shakl. (boshqattan)</b></td><td class="num">7432–7436</td>
+    <td class="yes">✓ qo'yiladi</td><td class="yes">✓ almashadi</td><td class="yes">✓ ombor o'chib, yangi</td></tr>
+
+<tr><td><b>Ostatka shakl. (ustiga)</b></td><td class="num">7444–7447</td>
+    <td class="yes">✓ +N</td><td class="yes">✓ qo'shiladi</td><td class="yes">✓ qo'shiladi</td></tr>
+
+<tr><td><b>Ostatka TEKSHIRUV</b></td><td class="num">8184–8196</td>
+    <td class="yes">✓ ±farq</td><td class="yes">✓ almashadi</td><td class="no">✗ TEGILMAYDI</td></tr>
+
+<tr><td><b>Klientga berish (skan bilan)</b></td><td class="num">11957–11961</td>
+    <td class="yes">✓ −N</td><td class="yes">✓ donaRegOlish</td><td class="yes">✓ holat='berilgan'</td></tr>
+
+<tr><td><b>Klientga berish (qo'lda gramm)</b></td><td class="num">11957–11961</td>
+    <td class="no">✗ tegilmaydi</td><td class="no">✗ tegilmaydi</td><td class="warn">⚠ jami=1 dona deb qidiradi</td></tr>
+
+<tr><td><b>Sotuv (skan bilan)</b></td><td class="num">15158–15161</td>
+    <td class="yes">✓ −N</td><td class="yes">✓ donaRegOlish</td><td class="yes">✓ holat='berilgan'</td></tr>
+
+<tr><td><b>Klientdan VOZVRAT</b> (3 joy)</td><td class="num">12431 · 13617 · 15394</td>
+    <td class="yes">✓ +N</td><td class="yes">✓ donaRegQosh</td><td class="no">✗ TEGILMAYDI</td></tr>
+
+<tr><td><b>🔧 Ostatkani qayta tiklash</b></td><td class="num">8725–8728</td>
+    <td class="yes">✓ qayta yozadi</td><td class="no">✗ TEGILMAYDI</td><td class="no">✗ TEGILMAYDI</td></tr>
+
+<tr><td><b>GRAMMLAR NOLLASH</b></td><td class="num">9075</td>
+    <td class="yes">✓ = 0</td><td class="yes">✓ = []</td><td class="no">✗ TEGILMAYDI</td></tr>
+
+<tr><td><b>Vaqt mashinasi (snapshot)</b></td><td class="num">8812</td>
+    <td class="yes">✓ tiklanadi</td><td class="yes">✓ tiklanadi</td><td class="no">✗ TEGILMAYDI</td></tr>
+
+<tr><td><b>Backup Eksport / Import</b></td><td class="num">8739 · 8766</td>
+    <td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ (kalit 'tilla' bilan boshlanadi)</td></tr>
+</table>
+</div>
+
+<div class="note bad">
+<b>Jadvaldan chiqadigan xulosa:</b> «tozalash» va «tiklash» amallarining
+<b>faqat bittasi</b> — Backup&nbsp;Import — dona bazasiga tegadi.
+Nollash ham, Vaqt mashinasi ham, 🔧 tugma ham unga <b>tegmaydi</b>.
+</div>
+
+<!-- ============================================================ -->
+<h2>5 · Bulut qanday ishlaydi — va nega tozalash yordam bermaydi</h2>
+
+<pre class="kod">7597:  _cloudDb.collection(cloudKol()).doc('_donabaza').collection('items')
+7600:  donaBazaCloudYoz(rec)      → har dona ALOHIDA hujjat, id bo'yicha
+7615:  donaBazaCloudListen()      → onSnapshot: bulutdagi har yozuv
+7623:      if(!ex){ local.push(rec); changed=true; }   ← LOKALDA YO'Q BO'LSA QO'SHADI</pre>
+
+<div class="note bad">
+<b>Bulut lokalga har doim quyiladi, teskarisi emas.</b>
+<code>donaBazaCloudListen</code> (<span class="num">7615–7633</span>) bulutdagi har yozuvni
+lokalga <b>qo'shadi</b> (<span class="num">7623</span>). Lekin lokalda o'chirilgan yozuvni
+bulutdan <b>o'chirmaydi</b>.
+<p style="margin-bottom:0">Ya'ni <code>localStorage['tilla-dona-baza']</code> ni qo'lda tozalasang ham —
+ilova qayta ochilganda bulut hammasini <b>qaytadan quyadi</b>.
+Yagona haqiqiy o'chirish yo'li: <code>donaBazaCloudOchir(id)</code> (<span class="num">7610</span>),
+u faqat <code>donaBazaOmborOchir</code> (<span class="num">8030</span>) dan chaqiriladi —
+va u ham <b>faqat <code>holat==='ombor'</code></b> yozuvlarni o'chiradi (<span class="num">8034</span>).</p>
+</div>
+
+<h3>Ya'ni bularni hech narsa o'chira olmaydi:</h3>
+<table>
+<tr><th>Holat</th><th>O'chiriladimi?</th><th>Nega</th></tr>
+<tr><td><span class="st ber">berilgan</span></td><td class="bad">YO'Q — abadiy</td><td rowspan="3"><code>donaBazaOmborOchir</code> <span class="num">8034</span> faqat <code>'ombor'</code> ni oladi; qolganlari <code>qoldi[]</code> ga o'tadi (<span class="num">8035</span>)</td></tr>
+<tr><td><span class="st sot">sotilgan</span></td><td class="bad">YO'Q — abadiy</td></tr>
+<tr><td><span class="st voz">vozvrat</span></td><td class="bad">YO'Q — abadiy</td></tr>
+<tr><td><span class="st omb">ombor</span></td><td class="ok">HA</td><td>shakllantirishda (7434, 8191)</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>6 · SENING SAVOLING: yangidan boshlasam adashadimi?</h2>
+<p class="lead">«Yangi LOG, yangi Butterfly zavod, ostatkalarni boshqattan shakllantirsam,
+Firebase ni yangi qilsam, klient ostatkalarini ham shakllantirsam — sistema yana adashadimi?»</p>
+
+<div class="note bad">
+<b>JAVOB: HA, adashadi — lekin faqat BITTA sabab bilan: DONA BAZASI ko'chib qoladi.</b>
+</div>
+
+<h3>Nega — qadam-baqadam</h3>
+<div class="hisob">
+1. «GRAMMLAR NOLLASH» bosasan
+   → <span class="yes">ostatka=0, tarix=[], donaOst=0, donalar=[]</span>   <span class="num">(9075)</span>
+   → <span class="no">tilla-dona-baza — TEGILMAYDI</span>              <span class="num">(9065–9097 da chaqiruv yo'q)</span>
+
+2. Yoki «Cache o'chirish» bosasan
+   → <span class="yes">localStorage.removeItem('tilla-v2')</span>       <span class="num">(9100)</span>
+   → <span class="no">'tilla-dona-baza' — O'CHIRILMAYDI</span>
+
+3. Yangi «Butterfly · Oddiy» yaratasan, skan bilan shakllantirasan
+   → donaBazaOmborOchir('Butterfly','Oddiy')            <span class="num">(7434)</span>
+     <span class="yes">eski 'ombor' yozuvlar o'chadi</span>
+     <span class="no">eski 'berilgan' / 'vozvrat' yozuvlar QOLADI</span>   <span class="num">(8034–8035)</span>
+   → donaBazaQosh(...) yangi donalarni qo'shadi          <span class="num">(7436)</span>
+
+4. NATIJA: DONA BAZASI panelida eski «berilgan» donalar
+   yangi donalar bilan ARALASH turadi.
+</div>
+
+<div class="note bad">
+<b>Sabab — nom bo'yicha bog'lanish.</b> Yozuvda <code>zavod:"Butterfly"</code>,
+<code>tur:"Oddiy"</code> — <b>matn</b> (<span class="num">7969</span>), zavodning id si emas.
+Eski zavodni o'chirib, <b>xuddi shu nom bilan</b> yangisini yaratsang —
+dona bazasi ikkalasini <b>bir xil zavod deb biladi</b> (<span class="num">7975</span>).
+</div>
+
+<div class="note good">
+<b>Adashmaydigan holat:</b> agar yangi zavod/tur nomi <b>haqiqatan yangi</b> bo'lsa
+(masalan «Butterfly 2026 · Oddiy») — eski yozuvlar bilan to'qnashmaydi,
+chunki filtr nomga qarab ishlaydi. Toza chiqadi.
+</div>
+
+<h3>Klient ostatkasi tomoni — bu joyi TOZA</h3>
+<div class="note good">
+Klient ostatka shakllantirish (<span class="num">6235</span>) <code>k.tarix</code> ga
+<code>inventar:'boshlangich'</code> bayrog'i bilan yozadi va zavod ostatkasiga
+<b>ataylab tegmaydi</b> (<span class="num">6233</span> izohi, <span class="num">6239</span> ogohlantirishi).
+<code>ostatkaHisobla</code> ham uni chetlab o'tadi (<span class="num">8695</span>).
+Bu qism <b>to'g'ri yozilgan</b> — bu yerdan xato chiqmaydi.
+</div>
+
+<!-- ============================================================ -->
+<h2>7 · index.html da topilgan aniq xatolar</h2>
+<p class="lead">Har biri o'qilgan qatordan. «Xato» deganim — kodning o'z izohida yozilgan
+niyati bilan haqiqiy xatti-harakati mos kelmagan joylar.</p>
+
+<h3>X1 · Klientdan vozvratda dona bazasi omborga qaytmaydi <span class="tagline f">3 joy</span></h3>
+<pre class="kod">12431:  if(_dv>0){ _vop.dona=_dv; _t.donaOst=turDona(_t)+_dv; donaRegQosh(_t, …); }
+13617:  if(_dv2>0){ … _t2.donaOst=turDona(_t2)+_dv2; donaRegQosh(_t2, …); }
+15394:  if(_dv3>0){ … _t3.donaOst=turDona(_t3)+_dv3; donaRegQosh(_t3, …); }
+        <span style="color:#ff8b8b">// uchalasida ham donaBazaHolat(…, 'ombor') CHAQIRILMAYDI</span></pre>
+<p class="muted">Natija: klient qaytargan dona sanoqda (1,2) omborga qaytadi, lekin
+DONA BAZASI panelida abadiy <b>«berilgan»</b> bo'lib qoladi. Ekranda ikki xil haqiqat.</p>
+
+<h3>X2 · Ostatka TEKSHIRUV dona bazasini yangilamaydi</h3>
+<pre class="kod">8186:  if(_ostMode==='shakl'){
+8191:      donaBazaOmborOchir(c.z.nom, c.t.nom);
+8193:      donaBazaQosh(c.z.nom, c.t.nom, p1, sana);
+8195:  }
+8196:  else c.t.donalar = p1.slice();   <span style="color:#ff8b8b">// ← tekshiruv: dona bazaga hech narsa</span></pre>
+<p class="muted">Tekshiruv 1 va 2-sanoqni haqiqatga tenglashtiradi, 3-si (Dona Baza) eski holida qoladi.</p>
+
+<h3>X3 · 🔧 «Ostatkani qayta tiklash» uch sanoqni bir-biridan uzadi</h3>
+<pre class="kod">8727:  t.ostatka=h.gramm; t.donaOst=h.dona;
+       <span style="color:#ff8b8b">// t.donalar — tegilmaydi · dona bazasi — tegilmaydi</span></pre>
+<p class="muted">Bosgandan keyin: <code>donaOst</code> yangi raqam, <code>donalar</code> eski massiv,
+Dona Baza uchinchi holat. Sen bugun ko'rgan chalkashlik — shu.</p>
+
+<h3>X4 · <code>ostatkaHisobla</code> da vozvrat DONASI teskari ishorada</h3>
+<div class="scroll">
+<table>
+<tr><th></th><th>Haqiqiy amal</th><th>Qayta hisoblash</th></tr>
+<tr><td>gramm</td><td class="num">8269: ostatka − total</td><td class="num">8685: g −= gramm &nbsp;<span class="ok">mos</span></td></tr>
+<tr><td>dona</td><td class="num">8270: donaOst − pass1.length</td><td class="num">8685: d <b>+=</b> op.dona &nbsp;<span class="bad">TESKARI</span></td></tr>
+</table>
+</div>
+<pre class="kod">8685:  else if(op.tip==='vozvrat'){ g -= (op.gramm||0); d += (op.dona||0); }
+                                                        <span style="color:#ff8b8b">^^ bu −= bo'lishi kerakka o'xshaydi</span></pre>
+<p class="muted">Zavodga vozvrat qilingan dona bizdan <b>chiqib ketgan</b> — sanoq kamayishi kerak.
+Qayta hisoblash esa uni <b>qo'shyapti</b>. Har vozvrat 2×dona xatoga aylanadi.
+<b>BILMAYMAN:</b> bu ataylab qilinganmi (masalan boshqa ma'no bilan) — izoh yo'q, aytolmayman.</p>
+
+<h3>X5 · Vaqt mashinasi dona bazasini tiklamaydi</h3>
+<pre class="kod">8812:  data: JSON.stringify(data)      <span style="color:#ff8b8b">// faqat 'data' — tilla-dona-baza yo'q</span>
+8739:  if(k.indexOf('tilla')===0) dump[k]=…   <span style="color:#8fe0ab">// backupExport — HAMMASINI oladi</span></pre>
+<div class="note bad" style="margin-top:6px">
+<b>Bugungi tiklashing uchun muhim:</b> agar sen <b>Backup faylidan Import</b> qilgan bo'lsang —
+dona bazasi ham tiklandi, hammasi joyida.
+Agar <b>🕐 Vaqt mashinasidan</b> tiklagan bo'lsang — <code>data</code> qaytdi, lekin
+<b>dona bazasi 🔧 tugmadan keyingi holatda qoldi</b>.
+<p style="margin-bottom:0">Qaysi yo'l bilan tikladingizni ayting — buni tekshirish kerak.</p>
+</div>
+
+<h3>X6 · Qo'lda gramm yozilganda dona bazasi jami-ni bitta dona deb qidiradi</h3>
+<pre class="kod">11960:  var _bArr=(_st &amp;&amp; _st.pass1 &amp;&amp; _st.pass1.length) ? _st.pass1 : [roundG(g)];
+11961:  donaBazaOlish(z.nom, t.nom, _bArr, k.nom);</pre>
+<p class="muted">Skansiz «50» deb yozsang — baza «50.00 g li bitta dona» ni qidiradi.
+Topmasa <b>jimgina hech narsa qilmaydi</b> (<span class="num">8003</span> — <code>if(bestI&gt;=0)</code>).
+Ogohlantirish yo'q. <code>donaOst</code> ham tegilmaydi (<span class="num">11957</span>: faqat <code>_dona&gt;0</code> bo'lsa).
+<br>Kod izohida bu <b>ataylab</b> deb yozilgan (<span class="num">11948</span>) — xato emas, lekin dona bazasi
+shu yo'ldan har safar orqada qoladi.</p>
+
+<h3>X7 · Ikki holat hech qachon qo'yilmaydi</h3>
+<p class="muted"><code>'sotilgan'</code> va <code>'yoqolgan'</code> — <code>DONA_HOLATLAR</code> da
+e'lon qilingan (<span class="num">8011</span>, <span class="num">8013</span>), filtri bor
+(<span class="num">8020</span>), lekin butun faylda ularni <b>qo'yadigan chaqiruv yo'q</b>.
+Sotuv ham <code>donaBazaOlish</code> orqali <code>'berilgan'</code> yozadi (<span class="num">15161</span> → <span class="num">8003</span>).
+Bu CLAUDE.md §10 dagi «<code>holat:'sotilgan'</code> 0 marta qo'yiladi» yozuviga mos.</p>
+
+<!-- ============================================================ -->
+<h2>8 · «Dona baza xato beradimi?» — qisqa javob</h2>
+<table>
+<tr><th>Savol</th><th>Javob</th></tr>
+<tr><td>Skan bilan berish/sotuv/kirim/vozvratda to'g'ri ishlaydimi?</td>
+    <td class="ok">HA — uchala sanoq birga yangilanadi</td></tr>
+<tr><td>Klient vozvrat qilganda?</td>
+    <td class="bad">YO'Q — X1, dona «berilgan» bo'lib qoladi</td></tr>
+<tr><td>Qo'lda gramm yozilganda?</td>
+    <td class="warn">Jimgina o'tkazib yuboradi — X6</td></tr>
+<tr><td>Tekshiruvdan keyin?</td>
+    <td class="bad">YO'Q — X2, eski holida qoladi</td></tr>
+<tr><td>🔧 tugmadan keyin?</td>
+    <td class="bad">YO'Q — X3, uch sanoq uzilib qoladi</td></tr>
+<tr><td>Nollash / yangidan boshlashda?</td>
+    <td class="bad">YO'Q — eski yozuvlar ko'chib qoladi (6-bo'lim)</td></tr>
+<tr><td>Backup Import bilan tiklashda?</td>
+    <td class="ok">HA — to'liq tiklanadi</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>9 · BILMAYDIGAN JOYLARIM — ochiq aytaman</h2>
+<div class="q">
+<ul>
+<li><b>X4 (vozvrat dona ishorasi)</b> ataylabmi yoki xatomi — kodda izoh yo'q, aytolmayman.</li>
+<li><b>Sening ma'lumotingda</b> hozir dona bazasida nechta «berilgan»/«vozvrat» yozuv borligini
+ko'rmadim — buni faqat ilovadan ko'rsa bo'ladi.</li>
+<li><b>Nega aynan 2.02 g</b> (17.07 sotuvi) ostatkadan ayirilgan, qolgan 4 sotuv esa yo'q —
+bu <code>k.tarix</code> dagi yozuvlarga bog'liq, kodni o'qib aytolmayman.</li>
+<li><b>Bugun qaysi yo'l bilan tikladingiz</b> — Backup Import mi yoki Vaqt mashinasi?
+X5 shunga bog'liq.</li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<h2>QAROR — sendan</h2>
+<div class="q">
+<ol>
+<li>Bu tushuntirish to'g'ri tushdimi — dona bazasi haqidagi tasavvuring shunaqami,
+yoki men noto'g'ri o'qiganim bormi?</li>
+<li>Yangidan boshlashni <b>xohlaysanmi</b>? Xohlasang — dona bazasini ham tozalaydigan
+yo'l kerak (hozir yo'q). Buni alohida ish qilamizmi?</li>
+<li>X1–X7 dan <b>qaysi birini</b> avval tuzatamiz? Yoki avval hech narsaga tegmasdan,
+hozirgi ma'lumotdagi haqiqiy holatni ko'rib chiqamizmi?</li>
+<li>Bugun <b>Backup Import</b> bilan tikladingmi yoki <b>Vaqt mashinasi</b> bilan?
+(X5 uchun kerak)</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu fayl — <b>tashxis</b>. Hech qanday kod o'zgartirilmadi.
+<code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

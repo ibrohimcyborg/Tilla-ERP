@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.12 · 2026-08-04
+**Oxirgi yangilanish:** v172.13 · 2026-08-05
 
 ---
 
@@ -12,12 +12,24 @@
 
 | | |
 |---|---|
-| Versiya | **v172.12** (`index.html` birinchi qatorida `<!-- v172.12 -->`, `APP_VER` da ham) |
-| Hajm | 17,385 qator · ~1 MB · **~311k token** |
+| Versiya | **v172.13** (`index.html` birinchi qatorida `<!-- v172.13 -->`, `APP_VER` da ham) |
+| Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. Ishlab chiqarishda sinamaymiz. |
-| Git | ⚠ **v172.12 PUSH QILINMAGAN** — `main` `origin/main` dan 1 commit oldinda. Ibrohim push'ni to'xtatdi (commitga `api/pdf.py` ham kirgan — u Ibrohimning o'z o'zgarishi edi). |
+| Git | ⚠ **v172.12 dan beri PUSH QILINMAGAN** — `main` `origin/main` dan bir necha commit oldinda. Prod hali v172.11. Push qarori faqat Ibrohimda. |
+| **Dona baza** | **CHERNOVIK** — `DONA_BAZA_UI=false` (1966). Ko'rinmaydi, yozmaydi, muzlatilgan. To'liq o'tish rejasi: **PLAN.md** |
+
+### 2026-08-05 seansida bo'lgan voqea (muhim kontekst)
+
+Ibrohim BIZDA raqami noto'g'riligini ko'rdi (BIZDA 230.66 bo'lishi kerak ~0).
+Tahlil: klientga berilganlar va sotuvlar ombordan ayirilmagan — `t.ostatka`
+41 joydan yoziladi, xato yig'ilib qolgan. 🔧 «Ostatkani qayta tiklash»
+bosilgan, natija yomonlashgan → Ibrohim backupdan tikladi. Qaysi yo'l bilan
+tiklagani (Backup Import / Vaqt mashinasi) ANIQLANMAGAN — Vaqt mashinasi
+bo'lsa dona bazasi eski holatda qolgan bo'lishi mumkin (endi bu muhim emas,
+dona baza muzlatildi). Shu voqea dona bazani chernovikka chiqarish qaroriga
+olib keldi.
 
 > **DIQQAT — faylni to'liq o'qib bo'lmaydi.** 311k token, kontekst oynasi 200k.
 > Har doim `grep` bilan qidiring, keyin kerakli 20–50 qatorni o'qing.
@@ -29,23 +41,19 @@
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
-### 0d. QARZ TARKIBI paneli — «Jami» o'z qatorlariga mos emas (MOCKUP TAYYOR)
+### 0e. Dona bazaga to'liq o'tish — PLAN.md da (yangi, v172.13)
 
-Ibrohim topdi: panel sarlavhasi −641.83, o'z qatorlari esa −636.49 beradi
-(farq 5.34). Chek TO'G'RI, panel noto'g'ri — Ibrohim shuni tasdiqladi.
+Dona baza chernovikda. Qachondir to'liq o'tiladi — qilinadigan ishlar
+ro'yxati (X1–X7 xatolar, qaytadan shakllantirish, bayroq yoqish) **PLAN.md** da.
+Bayroq: `DONA_BAZA_UI` (1966). Yoqishdan oldin PLAN.md 1-qadami shart.
 
-Ildiz: `_qarzTarkib` (15997) bitta obyektda ikki xil manba qaytaradi —
-qatorlar o'zining hisobidan, `jamiQarz` esa `klientJamiQarz` → `klientQarzSplit`
-dan. Ular manfiy `berish` / `klientda` / offset ni boshqacha yozadi.
-PDF cheki (`klientQarzChekPDF`) ham o'sha noto'g'ri raqamni yuboradi;
-termal chek esa o'zi qatorlarni qo'shadi, shuning uchun to'g'ri.
+### 0d. ~~QARZ TARKIBI paneli «Jami» mos emas~~ — BAJARILGAN BO'LIB CHIQDI
 
-Mockup: `mockups/tashxis-qarz-cheki-jami.html` (commit qilingan).
-Taklif: `jamiQarz` o'z qatorlaridan hisoblansin + pastda «Klient qarzi /
-Bizning qarz / Jami» alohida. `klientQarzSplit` ga TEGILMASIN — u kassa va
-boshqa joylarda ishlatiladi.
-
-Ibrohimdan javob kutilmoqda (mockup oxiridagi 5 savol). Versiya v172.13.
+2026-08-05 da tekshirildi: mockupdagi taklif **v172.12 da allaqachon
+bajarilgan** (`_qarzJamiRows` 15980 atrofi, panel 11157, PDF 16062, tepadagi
+blok 11129). Bu yozuv eskirgan edi. Prodda ko'rinmasligining sababi —
+v172.12 push qilinmagan, prod v172.11 da. Mockup
+`mockups/tashxis-qarz-cheki-jami.html` endi arxiv — o'chirsa bo'ladi.
 
 ### 0b. Vozvrat donasi keyin "berilgan" bo'la olmaydi — QAROR KUTILMOQDA
 

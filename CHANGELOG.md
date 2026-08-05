@@ -3,6 +3,41 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.13: dona baza CHERNOVIK rejimiga chiqarildi (DONA_BAZA_UI=false)
+
+Ibrohim qarori: qopcha (gramm) hisobi asosiy — dona baza to'liq
+shakllanmaguncha ishga aralashmaydi, chernovik bo'lib turadi. Sabab:
+qo'lda gramm yozilgan amallar bazaga tushmagani uchun baza haqiqatdan
+uzoqlashgan edi ("107 dona" vs bazada "1 dona"), ogohlantirishlar har
+berishda bezovta qilardi. Mockup: mockups/v172.13-dona-baza-chiqarish.html,
+tushuntirish: mockups/v172.13-dona-baza-tushuntirish.html.
+
+Bitta bayroq: var DONA_BAZA_UI = false (1966, APP_VER yonida). 11 qo'riqchi:
+
+* 5109 — BIZDA ostidagi "N dona" yashirindi (donaOst hisoblanaveradi)
+* 8081 donaBazaRender — tur ichidagi DONA BAZASI paneli chizilmaydi
+* 1344 — 🗄 Dona baza tugmasi display:none (hamid-x qator — §6, Ibrohim
+  ruxsati bilan; klass tegilmadi, faqat style)
+* 6325 donaBazaEkranOch — ekran ochilmaydi
+* 11985 / 15458 — berish va sotuvdagi "dona ro'yxatda yo'q"
+  ogohlantirishlari chiqmaydi (donaBazaMosEmas funksiyasiga tegilmadi)
+* MUZLATISH (Ibrohim B ni tanladi — "bug berib qolishi mumkin"):
+  7972 donaBazaQosh, 7999 donaBazaOlish, 8050 donaBazaHolat — yozmaydi;
+  8039 donaBazaOmborOchir — o'chirmaydi (aks holda shakllantirish bazani
+  Qosh'siz bo'shatib qo'yardi); 7621 donaBazaCloudListen — cloud'dan
+  quyilmaydi.
+
+Ma'lumot joyida: tilla-dona-baza (localStorage) + _donabaza/items (cloud).
+Tur ko'chirish/birlashtirishdagi baza-ko'chirish mantig'iga tegilmadi —
+u yangi yozmaydi, borini ko'chiradi. Gramm hisobi, qarz, kassa, chek —
+bironta qatoriga tegilmadi. Skan oqimi va xabarlaridagi "N dona" qoldi
+(u qopcha sanog'i, dona bazasi emas).
+
+Yangi fayl: PLAN.md — to'liq o'tish rejasi (X1–X7 xatolar ro'yxati,
+qaytadan shakllantirish, bayroqni yoqish tartibi).
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.12: sotuvda offset avtomat yeyilgani chekda va "Qolgan qarz" da to'g'ri
 
 Ibrohim: Diamond Oddiy'da BIZ 5.42g qarzdor edik, klient 10g oldi. Ekran

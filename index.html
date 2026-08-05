@@ -1,4 +1,4 @@
-<!-- v172.12 -->
+<!-- v172.13 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1337,7 +1337,7 @@ body.rol-hamid .hamid-x { display: none !important; }
         <div style="font-size:14px;font-weight:700;color:var(--text);">📦 Qo'limizdagi ostatka</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Har zavod/turdan hozir necha gramm bor — dushanba skan bilan solishtirish uchun</div>
       </button>
-      <button onclick="donaBazaEkranOch()" class="hamid-x" style="width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
+      <button onclick="donaBazaEkranOch()" class="hamid-x" style="display:none;width:100%;text-align:left;margin-top:8px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);cursor:pointer;">
         <div style="font-size:14px;font-weight:700;color:var(--text);">🗄 Dona baza</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px;">Sana bo'yicha kirgan donalar — grammlari, kimga ketgani</div>
       </button>
@@ -1959,7 +1959,11 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.12';
+var APP_VER = 'v172.13';
+// v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
+// false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
+// Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
+var DONA_BAZA_UI = false;
 document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
@@ -5102,7 +5106,7 @@ function renderZavod() {
       + '</div>'
       + '<div class="tacc-body">'
       + '<div class="stat2" style="grid-template-columns:repeat(' + (turBizningQarzimiz>0.001?4:3) + ',minmax(0,1fr));margin-bottom:10px;">'
-      + '<div class="stat2-item"><div class="stat2-label">BIZDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--green);">'+fmtG(turBizda)+'g</div>'+(turDona(t)>0?'<div style="font-size:10px;color:var(--muted);margin-top:1px;">'+turDona(t)+' dona</div>':'')+'</div>'
+      + '<div class="stat2-item"><div class="stat2-label">BIZDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--green);">'+fmtG(turBizda)+'g</div>'+(DONA_BAZA_UI&&turDona(t)>0?'<div style="font-size:10px;color:var(--muted);margin-top:1px;">'+turDona(t)+' dona</div>':'')+'</div>'
       + '<div class="stat2-item"><div class="stat2-label">KLIENTDA</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--red);">'+fmtG(turKlientda)+'g</div></div>'
       + '<div class="stat2-item"><div class="stat2-label">JAMI</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:500;color:var(--gold);">'+fmtG(turJami)+'g</div></div>'
       + (turBizningQarzimiz>0.001 ? '<div class="stat2-item" style="background:var(--gold-bg);border-color:var(--gold-bd);"><div class="stat2-label" style="color:var(--gold);">BIZNING QARZIMIZ</div><div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:700;color:var(--gold);">'+fmtG(turBizningQarzimiz)+'g</div></div>' : '')
@@ -6318,6 +6322,7 @@ var _hoOchiq = {};
 var _odbSana = null, _odbZT = null; // navigatsiya holati
 
 function donaBazaEkranOch(){
+  if(!DONA_BAZA_UI) return;   // v172.13: chernovik rejimi — ekran ochilmaydi
   _odbSana = null; _odbZT = null; _dbSk = null;
   document.getElementById('ost-choice').style.display='none';
   document.getElementById('ost-dona-baza').style.display='block';
@@ -7613,6 +7618,7 @@ function donaBazaCloudOchir(id){ // v149: cloud'dan rekord o'chirish
   try{ ref.doc(id).delete().catch(cloudXato); }catch(e){}
 }
 function donaBazaCloudListen(){
+  if(!DONA_BAZA_UI) return;   // v172.13: muzlatilgan — cloud'dan quyilmaydi ham
   var ref=donaBazaCloudRef(); if(!ref || _donaBazaUnsub) return;
   _donaBazaUnsub=ref.onSnapshot(function(snap){
     var local=donaBazaOl(), byId={}; local.forEach(function(r){ byId[r.id]=r; });
@@ -7963,6 +7969,7 @@ function cloudToldir(){
 }
 
 function donaBazaQosh(zavod, tur, donalar, sana){
+  if(!DONA_BAZA_UI) return;   // v172.13: muzlatilgan — bazaga yozilmaydi
   if(typeof getRol==='function' && getRol()==='hamid') return;  // hamid logikasiga tegmaydi
   var arr=donaBazaOl();
   (donalar||[]).forEach(function(g){
@@ -7989,6 +7996,7 @@ function donaBazaMosEmas(zavod, tur, arr){
 }
 // Berish saqlangach: mos donalarni bazada 'berilgan' deb belgilaydi (baza kamayadi).
 function donaBazaOlish(zavod, tur, arr, klient){
+  if(!DONA_BAZA_UI) return;   // v172.13: muzlatilgan — holat o'zgartirilmaydi
   if(!arr || !arr.length) return;
   var all=donaBazaOl();
   arr.forEach(function(g){
@@ -8028,6 +8036,7 @@ function donaBazaFiltr(h){ _odbFiltr=h; donaBazaEkranRender(); }
 // Berilgan / sotilgan / vozvrat TEGILMAYDI - ular tarix, klientda turgan dona
 // shakllantirish bilan yo'qolmasligi kerak. Qaytaradi: o'chirilgan yozuvlar soni.
 function donaBazaOmborOchir(zavod, tur){
+  if(!DONA_BAZA_UI) return 0;   // v172.13: muzlatilgan — o'chirilmaydi (aks holda shakllantirish bazani Qosh'siz bo'shatib qo'yadi)
   if(typeof getRol==='function' && getRol()==='hamid') return 0;   // hamid logikasiga tegmaydi
   var all=donaBazaOl(), qoldi=[], n=0;
   all.forEach(function(r){
@@ -8038,6 +8047,7 @@ function donaBazaOmborOchir(zavod, tur){
   return n;
 }
 function donaBazaHolat(zavod, tur, arr, holat, izoh){
+  if(!DONA_BAZA_UI) return;   // v172.13: muzlatilgan — holat o'zgartirilmaydi
   if(typeof getRol==='function' && getRol()==='hamid') return;   // hamid logikasiga tegmaydi
   if(!arr || !arr.length) return;
   var all=donaBazaOl(), ozgardi=0;
@@ -8068,6 +8078,7 @@ function donaBazaToggle(key){ _donaBazaOpen[key]=!_donaBazaOpen[key]; if(typeof 
 var _donaBazaSanaOpen={};
 function donaBazaSanaToggle(k){ _donaBazaSanaOpen[k]=!_donaBazaSanaOpen[k]; if(typeof renderZavod==='function') renderZavod(); }
 function donaBazaRender(zavod, tur){
+  if(!DONA_BAZA_UI) return '';   // v172.13: chernovik rejimi — panel chizilmaydi
   var recs=donaBazaTur(zavod, tur);
   var key=zavod+'||'+tur;
   var omb=recs.filter(function(r){ return r.holat==='ombor'; });
@@ -11971,7 +11982,7 @@ function saqlashKlientBerish(){
   }
   closeModal('modal-kberish');renderKlientlar();renderHome();if(typeof renderZavod==='function'&&curZ>=0) renderZavod();
   } // davomEt oxiri
-  if(_mismatch.length){
+  if(DONA_BAZA_UI && _mismatch.length){
     ozConfirmOch(donaMismatchMatn(_mismatch), function(ok){ if(ok) davomEt(); });
   } else {
     davomEt();
@@ -15444,7 +15455,7 @@ function saqlashKlientSotuv() {
   renderKassa();
 
   } // _sotuvDavomEt oxiri
-  if(_mismatchSv.length){
+  if(DONA_BAZA_UI && _mismatchSv.length){
     ozConfirmOch(donaMismatchMatn(_mismatchSv), function(ok){ if(ok) _sotuvDavomEt(); });
   } else {
     _sotuvDavomEt();
