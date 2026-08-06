@@ -3,6 +3,33 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.19: KLIENTDA ning O'ZI sof bo'ldi (v172.18 ni to'ldiradi)
+
+Ibrohim: "klientdani notori korsatvossan, 615.08 − 75.98 = 539.10 korsatishi
+kere". v172.18 da faqat JAMI tuzatilgan edi, KLIENTDA katakchasi yalpi
+(615.08) qolgandi — mockupdagi 3-savol shu haqda edi, endi javob aniq.
+
+Uchala darajada ham KLIENTDA endi SOF:
+
+* Tur paneli (5106): turKlientda = turKlientda − turBizningQarzimiz
+* Zavod sarlavhasi (5070): klientda = klientQarzi − bizQarzi
+* Bosh ekran (4832): klientda = klientQarzi − bizQarzi
+
+MUHIM — ikki marta ayirish tuzog'i: KLIENTDA sof bo'lgach JAMI dan yana
+ayirilsa 1224.14 chiqadi (xato). Shuning uchun v172.18 dagi jami
+formulasidan ayirish OLIB TASHLANDI, jami yana oddiy qo'shuv:
+  tur (5108): turBizda + turKlientda
+  zavod (5071): bizda + klientda
+  bosh (4833): bizda + klientda
+Natija o'sha: 761.02 + 539.10 = 1300.12.
+
+BIZDA (761.02) va BIZNING QARZIMIZ (75.98) katakchalari o'zgarmadi.
+klientQarzSplit ning o'ziga tegilmadi. t.ostatka, cheklar, Qo'limizdagi
+ostatka, qarz hisoblari — tegilmadi.
+
+Sinov: Node sintaksis toza; hisob sinovi Ibrohim raqamlari bilan —
+KLIENTDA 539.1 ✓, JAMI 1300.12 ✓.
+
 ## v172.18: JAMI dan BIZNING QARZIMIZ ayiriladi (uch daraja)
 
 Ibrohim: "Jami 1376.10 ko'rsatvotti, aslida 1300.12 bo'lishi kerak —
