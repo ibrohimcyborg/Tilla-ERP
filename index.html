@@ -1,4 +1,4 @@
-<!-- v172.15 -->
+<!-- v172.16 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1405,6 +1405,8 @@ body.rol-hamid .hamid-x { display: none !important; }
         <button class="btn" onclick="ostKlBack()" style="padding:6px 10px;font-size:12px;">‹ Boshqa klient</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">Qaysi zavod-turdan qancha gramm bor — kiriting. Minus (−) yozilsa BIZNING QARZIMIZ bo'lib saqlanadi. Zavod ostatkasiga (BIZDA) TEGMAYDI.</div>
+      <!-- v172.16: sana klientdan klientga saqlanib qoladi — har birida qayta tanlanmaydi -->
+      <div class="field" style="margin-bottom:8px;"><label>📅 Sana</label><input type="date" id="ost-kl-sana" style="font-size:15px;"></div>
       <div id="ost-kl-rows"></div>
       <div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;justify-content:space-between;">
         <span style="font-size:13px;font-weight:600;">Jami kiritilmoqda</span>
@@ -1418,6 +1420,8 @@ body.rol-hamid .hamid-x { display: none !important; }
       <div class="card-title">Zavod / Tur</div>
       <div class="field"><select id="ost-zavod" onchange="ostZavodChangeUser()"></select></div>
       <div class="field" style="margin-bottom:0;"><select id="ost-tur" onchange="ostTurChangeUser()"></select></div>
+      <!-- v172.16: shakllantirish/tekshiruv sanasi — Ibrohim: "hafta boshidan shakllantiraman" -->
+      <div class="field" style="margin:10px 0 0;"><label>📅 Sana</label><input type="date" id="ost-sana" style="font-size:15px;"></div>
 
       <div id="ost-ogoh" style="display:none;font-size:11px;color:var(--yellow);background:var(--yellow-bg);border-radius:8px;padding:7px 10px;margin-top:10px;"></div>
       <div id="ost-sistema" style="display:none;font-size:12px;background:var(--blue-bg);color:var(--blue);border-radius:8px;padding:8px 10px;margin-top:10px;display:flex;justify-content:space-between;"></div>
@@ -1964,7 +1968,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.15';
+var APP_VER = 'v172.16';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -6174,6 +6178,7 @@ function ostKlPick(ki){
   _ostKlI=ki;
   document.getElementById('ost-kl-search').style.display='none';
   document.getElementById('ost-kl-form').style.display='block';
+  _ostSanaInit('ost-kl-sana');   // v172.16: bo'sh bo'lsa bugun; tanlangan sana klientdan klientga qoladi
   document.getElementById('ost-kl-nom').textContent = data.klientlar[ki].nom;
   ostKlFormRender();
 }
@@ -6221,9 +6226,25 @@ function ostKlJami(){
   e.textContent=(s>0?'+':'')+fmtG(s)+' g';
   e.style.color = s<0?'var(--green)':'var(--text)';
 }
+// v172.16: shakllantirish sana maydoni — kalendar (YYYY-MM-DD) -> ilova formati (DD.MM.YYYY).
+// Bo'sh bo'lsa bugun. _ostSanaInit — forma ochilganda bo'sh maydonga bugunni qo'yadi.
+function _ostSanaOl(id){
+  var el=document.getElementById(id);
+  var v=el&&el.value;
+  if(!v) return today();
+  var p=v.split('-');
+  return p[2]+'.'+p[1]+'.'+p[0];
+}
+function _ostSanaInit(id){
+  var el=document.getElementById(id);
+  if(el && !el.value){
+    var d=new Date();
+    el.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+}
 function ostKlSaqla(){
   var k=data.klientlar[_ostKlI]; if(!k){ alert('Klient tanlanmagan!'); return; }
-  var sana=today();
+  var sana=_ostSanaOl('ost-kl-sana');
   var _n=new Date();
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   var ishlar=[];
@@ -7384,6 +7405,7 @@ function ostChoice(mode){
   _ostMode = mode;
   document.getElementById('ost-choice').style.display='none';
   document.getElementById('ost-form').style.display='block';
+  _ostSanaInit('ost-sana');   // v172.16: bo'sh bo'lsa bugun
   var zSel=document.getElementById('ost-zavod');
   zSel.innerHTML = (data.zavodlar||[]).map(function(z,zi){ return '<option value="'+zi+'">'+z.nom+'</option>'; }).join('');
   document.getElementById('ost-save-btn').textContent = mode==='shakl' ? '✓ Shakllantirish' : '✓ Tekshiruvni saqlash';
@@ -8164,7 +8186,7 @@ function ostFormSaqla(){
   }
   var jg=skSum(p1);
   var dona=p1.length;
-  var sana=today();
+  var sana=_ostSanaOl('ost-sana');   // v172.16: sanani formadagi kalendar belgilaydi
   var _n=new Date();
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   if(!c.t.tarix) c.t.tarix=[];

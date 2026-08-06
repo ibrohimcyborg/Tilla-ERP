@@ -3,6 +3,27 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.16: shakllantirishga 📅 Sana maydoni (zavod + klient)
+
+Ibrohim: "shakllantiraman desam 06.08 bo'p qolyapti, menga hafta boshidan
+(03.08) kerak". Ikkala shakllantirish ham sanani qotirib bugundan olardi.
+Mockup: mockups/v172.16-shakl-sana.html.
+
+* Zavod formasi (1424) va klient formasi (1409) ga <input type="date">.
+* _ostSanaOl(id) (6231): kalendar YYYY-MM-DD -> ilova DD.MM.YYYY, bo'sh
+  bo'lsa today(). _ostSanaInit(id) (6238): forma ochilganda bo'sh maydonga
+  bugun — ostChoice (7408) va ostKlPick (6181) da chaqiriladi.
+* ostFormSaqla (8189) va ostKlSaqla (6247): var sana=today() ->
+  _ostSanaOl(...). Zavod formasida sana shakllantirish VA tekshiruvga
+  tegishli (forma bitta, Ibrohim roziligi bilan).
+* Klient formasida sana klientdan klientga saqlanib qoladi (init faqat
+  bo'sh bo'lsa yozadi).
+* Soat hozirgicha (hozirgi vaqt) qoladi — hafta/kun hisobiga ta'sir yo'q.
+* _ostShaklDavom sanani parametr orqali oladi — o'z-o'zidan to'g'ri boradi.
+  Yozuv tuzilishi, bayroqlar, hisoblar — tegilmadi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.15: admin/admin123 — yangi ADMIN sandbox xonasi
 
 Ibrohim: haftani boshidan shakllantirib yangi Qo'limizdagi ostatka hisobini
