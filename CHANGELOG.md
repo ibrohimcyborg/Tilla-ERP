@@ -3,6 +3,26 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.17: zavodlar tartibi qo'lda — ⇅ rejim, ↑↓ tugmalar
+
+Ibrohim: "keyingi qo'shilgan zavodlar pastda, ishlamaydiganlarim o'rtada
+bo'p qolyapti" — sabab: renderHome ro'yxatni gramm bo'yicha avto-saralardi
+(musbat -> 0 -> manfiy), yangi/ishlamaydigan zavodlar 0 bilan o'rtaga tushardi.
+Mockup: mockups/v172.17-zavod-tartib.html.
+
+* Avto-saralash O'CHIRILDI — ro'yxat data.zavodlar massiv tartibida (4846).
+* Ro'yxat tepasida ⇅ Tartib tugmasi (4849) — bosilsa rejim: har qatorda
+  ↑↓ (chetkilari o'chiq), qator bosilsa zavod OCHILMAYDI. "✓ Tayyor" —
+  oddiy ko'rinishga qaytadi.
+* zavodTartibRejim (4809) / zavodKochir (4814): massivda qo'shni bilan
+  splice-siz almashtirish, har surishda save() (snapshot'siz), Tayyor'da
+  bitta snapshot ("Zavod tartibi o'zgartirildi").
+* Xavfsiz: yozuvlar zavodga NOM bilan bog'langan (op.zavod), saqlanadigan
+  indeks yo'q — tartib hisobga ta'sir qilmaydi. Tartib data bilan cloudga
+  boradi, select ro'yxatlar (kirim/ostatka) massiv tartibiga ergashadi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.16: shakllantirishga 📅 Sana maydoni (zavod + klient)
 
 Ibrohim: "shakllantiraman desam 06.08 bo'p qolyapti, menga hafta boshidan

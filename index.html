@@ -1,4 +1,4 @@
-<!-- v172.16 -->
+<!-- v172.17 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1968,7 +1968,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.16';
+var APP_VER = 'v172.17';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -4803,6 +4803,21 @@ function renderKassaCard(){
 }
 /* ================== /HAQIQIY KASSA ================== */
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// v172.17: zavodlar tartibi qo'lda — ⇅ rejim. Har surishda saqlanadi (snapshot'siz),
+// "Tayyor" bosilganda bitta snapshot yoziladi. Tartib data bilan cloudga boradi.
+var _zTartib = false;
+function zavodTartibRejim(){
+  _zTartib = !_zTartib;
+  if(!_zTartib) save('Zavod tartibi oʻzgartirildi');
+  renderHome();
+}
+function zavodKochir(zi, d){
+  var j = zi + d;
+  if(j < 0 || j >= data.zavodlar.length) return;
+  var tmp = data.zavodlar[zi]; data.zavodlar[zi] = data.zavodlar[j]; data.zavodlar[j] = tmp;
+  save();
+  renderHome();
+}
 function renderHome() {
   var bizda = 0;
   data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
@@ -4827,31 +4842,34 @@ function renderHome() {
   if(list && list.getAttribute('data-lom-mode')==='1') return;
   if (!data.zavodlar.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  var zavodlarSorted = data.zavodlar.map(function(z, zi){
+  // v172.17 (Ibrohim): gramm bo'yicha avto-saralash O'CHIRILDI — ro'yxat massiv
+  // tartibida chiziladi, tartib ⇅ rejimida qo'lda boshqariladi. Yozuvlar zavodga
+  // NOM bilan bog'langan, indekslar runtime — o'rin almashtirish hisobga ta'sir qilmaydi.
+  var out='<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'
+    + '<button onclick="zavodTartibRejim()" style="font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:\'Outfit\',sans-serif;font-weight:600;'
+    + (_zTartib ? 'border:1.5px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);' : 'border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);')
+    + '">'+(_zTartib?'✓ Tayyor':'⇅ Tartib')+'</button></div>';
+  data.zavodlar.forEach(function(z, zi){
     var zG=0; z.turlar.forEach(function(t){ zG+=t.ostatka; });
-    return {z:z, zi:zi, zG:Math.round(zG*100)/100};
-  }).sort(function(a,b){
-    // musbat → 0 → manfiy
-    var aPos=a.zG>0, bPos=b.zG>0;
-    var aZero=a.zG===0, bZero=b.zG===0;
-    var aNeg=a.zG<0, bNeg=b.zG<0;
-    if(aPos&&bPos) return b.zG-a.zG;   // musbat: kattadan kichikka
-    if(aPos) return -1;
-    if(bPos) return 1;
-    if(aZero&&bZero) return 0;
-    if(aZero) return -1;
-    if(bZero) return 1;
-    return a.zG-b.zG;                  // manfiy: kichikdan kattaga
-  });
-  var out='';
-  zavodlarSorted.forEach(function(item){
-    var z=item.z, zi=item.zi, zG=item.zG;
-    out += '<div class="zrow" onclick="openZavod(' + zi + ')">'
-      + '<div><div class="zrow-name">' + z.nom + '</div>'
-      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
-      + '<div style="display:flex;align-items:center;gap:8px;">'
-      + '<div class="zrow-g" style="color:'+(zG>0?'var(--red)':zG<0?'var(--green)':'var(--muted)')+'">'+(zG<0?'−':'')+fmtG(Math.abs(zG)) + ' g</div>'
-      + '<div style="color:var(--muted);">›</div></div></div>';
+    zG=Math.round(zG*100)/100;
+    if(_zTartib){
+      // tartib rejimi: qator bosilsa zavod OCHILMAYDI, faqat ↑↓
+      var bst='width:34px;height:34px;border-radius:9px;border:1.5px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-size:15px;font-weight:700;cursor:pointer;';
+      out += '<div class="zrow">'
+        + '<div><div class="zrow-name">' + z.nom + '</div>'
+        + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
+        + '<div style="display:flex;align-items:center;gap:6px;">'
+        + '<button onclick="zavodKochir('+zi+',-1)"'+(zi===0?' disabled':'')+' style="'+bst+(zi===0?'opacity:.25;cursor:default;':'')+'">↑</button>'
+        + '<button onclick="zavodKochir('+zi+',1)"'+(zi===data.zavodlar.length-1?' disabled':'')+' style="'+bst+(zi===data.zavodlar.length-1?'opacity:.25;cursor:default;':'')+'">↓</button>'
+        + '</div></div>';
+    } else {
+      out += '<div class="zrow" onclick="openZavod(' + zi + ')">'
+        + '<div><div class="zrow-name">' + z.nom + '</div>'
+        + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + z.turlar.length + ' ta tur</div></div>'
+        + '<div style="display:flex;align-items:center;gap:8px;">'
+        + '<div class="zrow-g" style="color:'+(zG>0?'var(--red)':zG<0?'var(--green)':'var(--muted)')+'">'+(zG<0?'−':'')+fmtG(Math.abs(zG)) + ' g</div>'
+        + '<div style="color:var(--muted);">›</div></div></div>';
+    }
   });
   list.innerHTML = out;
   if (curHomeTab === 'hisobot') renderHisobot();
