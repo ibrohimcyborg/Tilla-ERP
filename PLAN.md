@@ -65,6 +65,28 @@ Bular tuzatilmasa baza yana yolg'on ko'rsatadi. Har biri alohida versiya bo'lish
 
 ---
 
+## «Qo'limizdagi ostatka» — C bosqich: dushanba skan langari (KELAJAK)
+
+> Ibrohim qarori (2026-08-05): avval B qilinadi (hafta boshi TARIXDAN
+> hisoblanadi, saqlangan `t.ostatka` ga qaralmaydi — v172.14).
+> Keyin C ga o'tiladi.
+
+C nima: har dushanba jismoniy skan natijasi «haftaning rasmiy boshi»
+sifatida SAQLANADI va hisob shu langar-nuqtadan yuradi. Shunda hisob
+tarixga ham emas, haqiqiy sanoqqa bog'lanadi.
+
+C uchun qilinadigan ishlar:
+- [ ] Langar yozuvi qayerda saqlanishi (yangi struktura: zavod·tur·hafta → gramm)
+- [ ] Dushanba skan oqimi bilan bog'lash — skan yakunida «hafta langari
+      sifatida saqlansinmi?» qadami
+- [ ] `qoldData` da langar bor haftalar langar­dan, yo'q haftalar B usulida
+      (tarixdan) hisoblanishi
+- [ ] Langar bilan tarix orasida farq chiqsa — farqni ko'rsatish
+      (qayerda yozuv yetishmasligini topish vositasi)
+- [ ] Cloud sinxron: langar yozuvlari boshqa qurilmalarga ham borishi
+
+---
+
 ## Eslatmalar
 
 - X1–X7 tafsiloti bilan: `mockups/v172.13-dona-baza-tushuntirish.html`

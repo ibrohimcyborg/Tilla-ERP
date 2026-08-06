@@ -1,4 +1,4 @@
-<!-- v172.13 -->
+<!-- v172.14 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1959,7 +1959,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.13';
+var APP_VER = 'v172.14';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -6926,9 +6926,15 @@ function haftaOstExcel(){
    shuning uchun zanjirdan tashlab bo'lmaydi — lekin "Zavoddan keldi" ga
    QO'SHILMAYDI, alohida "Ostatka tuzatish" qatori bo'lib chiqadi.
 
-   Hafta boshi saqlanmagan — hozirgi ostatkadan shu haftadagi harakatlar
-   orqaga ayirib topiladi. Ya'ni zanjir o'z ichiga yopiq, tekshiruv emas.
-   Tekshiruv — dushanbadagi jismoniy skan.
+   v172.14 (B usuli, Ibrohim qarori): HAFTA BOSHI = hafta boshigacha bo'lgan
+   BARCHA tarix yozuvlari yig'indisi (zavod tarixi + klient tarixi).
+   t.ostatka bu ekranda O'QILMAYDI — saqlangan raqamdagi xato bu yerga o'tmaydi.
+   Ekran BIZDA dan farq qilsa — tarixda yozuv yetishmaydi yoki t.ostatka buzuq;
+   farq aynan qaysi zavod·turda ekanini shu ekran ko'rsatib beradi.
+   Qator tartibi (Ibrohim): bosh -> +zavod kirimlari (sana bilan) ->
+   +klient vozvrat (haftalik umumiy) -> JAMI -> -klient berish (haftalik umumiy)
+   -> -zavodga vozvratlar (sana bilan) -> qolgan ostatka.
+   Tekshiruv — dushanbadagi jismoniy skan (C bosqich: PLAN.md).
    ══════════════════════════════════════════════════════════════════ */
 var _qoOffset = 0;
 var _qoOchiq  = {};
@@ -6948,10 +6954,11 @@ function _qoEsc(s){
 function qoldData(){
   var dv = qoldDavr();
 
-  // Klient amallari BIR MARTA zavod|tur bo'yicha indekslanadi.
-  //   K[key]  — SHU HAFTA ichidagi amallar (qator bo'lib chiqadi)
-  //   KA[key] — hafta TUGAGANDAN KEYINGI amallar yig'indisi (orqaga qaytarish uchun)
-  var K = {}, KA = {};
+  // Klient amallari BIR MARTA zavod|tur bo'yicha indekslanadi (v172.14 — B usuli).
+  //   Kpre[key] — hafta BOSHIGACHA yig'indi (berish −, vozvrat +) — langarning klient qismi
+  //   Kb[key] / Kv[key] — hafta ICHIDAGI umumiy berish / vozvrat (bittadan qator bo'lib chiqadi)
+  //   Filtr Haftalik ostatka (haftaOstData) bilan bir xil: zavod+tur bor, boshlangich emas, g>0.
+  var Kpre = {}, Kb = {}, Kv = {};
   (data.klientlar||[]).forEach(function(k){
     (k.tarix||[]).forEach(function(op){
       if(!op || !op.zavod || !op.tur) return;
@@ -6962,14 +6969,10 @@ function qoldData(){
       var ts = fdSanaTs(op.sana, op.soat) || 0;
       var sg = (op.tip==='berish') ? -g : g;
       var key = op.zavod+'\u0000'+op.tur;
-      if(ts > dv.oxir){ KA[key] = (KA[key]||0) + sg; return; }
-      if(ts < dv.bosh) return;                       // hafta oldidagilar — allaqachon qoldiqda
-      (K[key] || (K[key]=[])).push({
-        ts: ts,
-        sana: (op.sana||'').slice(0,10),
-        nom: op.tip==='berish' ? 'Klientga ketdi' : 'Klientdan vozvrat',
-        g: sg
-      });
+      if(ts > dv.oxir) return;                       // haftadan keyingisi bu hisobga kirmaydi
+      if(ts < dv.bosh){ Kpre[key] = (Kpre[key]||0) + sg; return; }
+      if(op.tip==='berish') Kb[key] = (Kb[key]||0) + g;
+      else Kv[key] = (Kv[key]||0) + g;
     });
   });
 
@@ -6978,7 +6981,7 @@ function qoldData(){
     var zo = {nom: z.nom, jami: 0, turlar: []};
     (z.turlar||[]).forEach(function(t){
       var key = z.nom+'\u0000'+t.nom;
-      var ops = [], keyin = KA[key] || 0;            // hafta tugagandan keyingi harakat
+      var ops = [], pre = Kpre[key] || 0;            // hafta boshigacha: klient tomonining yig'indisi
       (t.tarix||[]).forEach(function(op){
         if(!op) return;
         if(op.tip!=='mol' && op.tip!=='vozvrat') return;
@@ -6989,18 +6992,14 @@ function qoldData(){
         if(op.inventar){ nom = 'Ostatka tuzatish'; sg = (op.tip==='vozvrat' ? -g : g); }
         else if(op.tip==='mol'){ nom = 'Zavoddan keldi'; sg = g; }
         else { nom = 'Zavodga vozvrat'; sg = -g; }
-        if(ts > dv.oxir){ keyin += sg; return; }
-        if(ts < dv.bosh) return;
+        if(ts > dv.oxir) return;
+        if(ts < dv.bosh){ pre += sg; return; }
         ops.push({ts:ts, sana:(op.sana||'').slice(0,10), nom:nom, g:sg});
       });
-      var kk = K[key];
-      if(kk) ops = ops.concat(kk);
-
-      // Shu hafta OXIRIDAGI qoldiq = bugungi ostatka − hafta tugagandan keyingi harakat.
-      // Bu hafta uchun "keyin" nol, ya'ni bugungi ostatka. O'tgan haftalar uchun esa
-      // o'sha yakshanbadagi haqiqiy qoldiq chiqadi — shuning uchun bir haftaning oxiri
-      // keyingi haftaning boshiga to'g'ri ulanadi.
-      var oxir = roundG((t.ostatka||0) - roundG(keyin));
+      // v172.14 (B usuli): HAFTA BOSHI = hafta boshigacha bo'lgan tarix yig'indisi
+      // (zavod tarixi `pre` ga yuqorida qo'shildi + klient tarixi Kpre dan).
+      // t.ostatka bu yerda O'QILMAYDI — saqlangan raqamdagi xato ekranga o'tmaydi.
+      var bosh = roundG(pre);
 
       // Bir kunda bir xil turdagi amallar bitta qatorga yig'iladi.
       var mp = {}, qat = [];
@@ -7013,11 +7012,21 @@ function qoldData(){
       });
       qat.sort(function(a,b){ return a.ts - b.ts; });
 
-      var harakat = 0;
-      qat.forEach(function(q){ q.g = roundG(q.g); harakat = roundG(harakat + q.g); });
-      var bosh = roundG(oxir - harakat);
+      // v172.14 tartibi (Ibrohim): +zavod qatorlari (sana bilan) -> +klient vozvrat
+      // (haftalik umumiy) -> JAMI -> -klient berish (haftalik umumiy) -> -zavod
+      // qatorlari (sana bilan). Zavod qatorlari (tuzatish ham) ishorasiga qarab
+      // bo'linadi: plus JAMIdan oldin, minus keyin. Amal bo'lmasa qator chiqmaydi.
+      var plus = [], minus = [];
+      qat.forEach(function(q){ q.g = roundG(q.g); (q.g >= 0 ? plus : minus).push(q); });
+      var kv = roundG(Kv[key]||0), kb = roundG(Kb[key]||0);
+      qat = plus;
+      if(kv > 0.001) qat.push({sana:'', nom:'Klientdan vozvrat (hafta)', g:kv});
+      if(qat.length || kb > 0.001 || minus.length) qat.push({sana:'', nom:'JAMI', g:null, jami:true});
+      if(kb > 0.001) qat.push({sana:'', nom:'Klientga berildi (hafta)', g:-kb});
+      qat = qat.concat(minus);
       var yur = bosh;
-      qat.forEach(function(q){ yur = roundG(yur + q.g); q.qold = yur; });
+      qat.forEach(function(q){ if(q.g != null) yur = roundG(yur + q.g); q.qold = yur; });
+      var oxir = yur;
 
       zo.turlar.push({nom:t.nom, ost:oxir, bosh:bosh, qatorlar:qat});
       zo.jami = roundG(zo.jami + oxir);
@@ -7045,9 +7054,10 @@ function _qoQator(sana, nom, gr, qold, uslub){
   var gRang = (gr==null) ? 'var(--muted)'
             : (gr>0 ? 'var(--green)' : (gr<0 ? 'var(--red)' : 'var(--muted)'));
   var gMatn = (gr==null) ? '' : (gr>0?'+':'')+fmtG(gr);
-  var qRang = (uslub==='fin') ? 'var(--gold)' : 'var(--text)';
+  var qRang = (uslub==='fin'||uslub==='jami') ? 'var(--gold)' : 'var(--text)';
   return '<div style="display:grid;grid-template-columns:40px 1fr 70px 74px;gap:5px;align-items:center;'
-    + 'padding:5px 0;border-top:.5px solid var(--border);font-size:11.5px;">'
+    + 'padding:5px 0;border-top:.5px solid var(--border);font-size:11.5px;'
+    + (uslub==='jami'?'background:var(--gold-bg);border-radius:6px;':'')+'">'
     + '<span style="color:var(--gold);font-family:Roboto,sans-serif;font-weight:600;">'+_qoEsc(sana)+'</span>'
     + '<span style="color:'+(uslub?'var(--text)':'var(--muted)')+';'+(uslub?'font-weight:600;':'')+'">'+_qoEsc(nom)+'</span>'
     + '<span style="text-align:right;font-family:Roboto,sans-serif;color:'+gRang+';">'+gMatn+'</span>'
@@ -7087,11 +7097,8 @@ function qoldRender(){
         if(yoq){
           out += '<div style="text-align:center;color:var(--muted);font-size:11px;padding:9px 0;border-top:.5px solid var(--border);">bu haftada oldi-berdi bo\'lmagan</div>';
         } else {
-          var ox = '';
           t.qatorlar.forEach(function(q){
-            var sd = (q.sana===ox) ? '' : (q.sana||'').slice(0,5);
-            ox = q.sana;
-            out += _qoQator(sd, q.nom, q.g, q.qold, '');
+            out += _qoQator((q.sana||'').slice(0,5), q.nom, q.g, q.qold, q.jami?'jami':'');
           });
         }
         out += _qoQator('', 'Qolgan ostatka', null, t.ost, 'fin');

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.13 · 2026-08-05
+**Oxirgi yangilanish:** v172.14 · 2026-08-06
 
 ---
 
@@ -12,12 +12,13 @@
 
 | | |
 |---|---|
-| Versiya | **v172.13** (`index.html` birinchi qatorida `<!-- v172.13 -->`, `APP_VER` da ham) |
+| Versiya | **v172.14** (`index.html` birinchi qatorida `<!-- v172.14 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. Ishlab chiqarishda sinamaymiz. |
-| Git | ⚠ **v172.12 dan beri PUSH QILINMAGAN** — `main` `origin/main` dan bir necha commit oldinda. Prod hali v172.11. Push qarori faqat Ibrohimda. |
+| Git | v172.13 gacha push qilingan (2026-08-05, Ibrohim buyrug'i bilan), prod v172.13. **v172.14 hali push qilinmagan.** Push qarori faqat Ibrohimda. |
+| **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
 | **Dona baza** | **CHERNOVIK** — `DONA_BAZA_UI=false` (1966). Ko'rinmaydi, yozmaydi, muzlatilgan. To'liq o'tish rejasi: **PLAN.md** |
 
 ### 2026-08-05 seansida bo'lgan voqea (muhim kontekst)

@@ -3,6 +3,43 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.14: «Qo'limizdagi ostatka» — B usuli (tarix langari) + yangi qator tartibi
+
+Ibrohim: ostatkada juda qiynalyapmiz, hisob noto'g'ri chiqyapti. Tahlil:
+formula to'g'ri edi, lekin zanjir langari t.ostatka (saqlangan BIZDA raqami)
+edi — u 41 joydan yoziladi va unda yig'ilgan xato butun zanjirni siljitardi
+(hafta boshi ham, qolgan ostatka ham noto'g'ri, o'rtadagi harakat qatorlari
+to'g'ri). Mockuplar ko'rsatildi, Ibrohim B ni tanladi, misol bilan tasdiqladi
+(500 + 150 + 100 + 29.01 = 779.01; − 69.48 − 120 = 589.53).
+
+O'zgarish faqat qoldData (6954) + qoldRender/_qoQator — boshqa ekranlar,
+t.ostatka yozuvchilar, haftaOstData TEGILMADI.
+
+1. B usuli — HAFTA BOSHI = hafta boshigacha bo'lgan BARCHA tarix yig'indisi:
+   zavod tarixi (mol +, vozvrat −, tuzatish ±, boshlangich ham mol bo'lib +)
+   + klient tarixi (berish −, vozvrat +, g>0, boshlangich emas).
+   t.ostatka bu ekranda UMUMAN O'QILMAYDI. KA (haftadan keyingi harakatlar)
+   mexanizmi olib tashlandi — kerak emas, hisob oldinga yuradi.
+   Ekran BIZDA dan farq qilsa — tarix chala yoki t.ostatka buzuq degani;
+   endi bu ko'rinadi, ilgari jim yutilardi.
+
+2. Qator tartibi (Ibrohim): Hafta boshi -> +zavod kirimlari (har kuni sanasi
+   bilan) -> +Klientdan vozvrat (haftalik umumiy, bitta qator) -> JAMI
+   (oltin fon) -> -Klientga berildi (haftalik umumiy) -> -zavodga vozvratlar
+   (sanasi bilan) -> Qolgan ostatka. Amal bo'lmasa qatori chiqmaydi.
+   Tuzatish qatorlari ishorasiga qarab: plus JAMIdan oldin, minus keyin.
+   Klient umumiylari Haftalik ostatka ekrani bilan bir xil filtrdan.
+
+3. Manfiy berish avvalgidek hisobga kirmaydi (Ibrohim: manfiy holat odatda
+   vozvrat bo'lib keladi, u + bo'lib qo'shiladi).
+
+Sinov: Node sintaksis toza. Mantiq Node'da haqiqiy qoldData bilan:
+Ibrohim misoli aynan (bosh 500, JAMI 779.01, qolgan 589.53; buzuq
+t.ostatka=621.13 ta'sir qilmadi); keyingi hafta boshi 589.53 ga o'z-o'zidan
+ulandi; ‹ bilan orqaga qaytganda 500/589.53 saqlanadi.
+
+C bosqich (dushanba skan langari) — PLAN.md ga yozilgan, keyin.
+
 ## v172.13: dona baza CHERNOVIK rejimiga chiqarildi (DONA_BAZA_UI=false)
 
 Ibrohim qarori: qopcha (gramm) hisobi asosiy — dona baza to'liq
