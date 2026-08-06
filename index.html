@@ -1,4 +1,4 @@
-<!-- v172.17 -->
+<!-- v172.18 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1968,7 +1968,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.17';
+var APP_VER = 'v172.18';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -4821,12 +4821,16 @@ function zavodKochir(zi, d){
 function renderHome() {
   var bizda = 0;
   data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
-  var klientda = 0;
+  // v172.18 (Ibrohim): JAMI = Bizda + Klientda − BIZNING QARZIMIZ. Biz qarzdor bo'lgan
+  // gramm jismonan BIZDA ichida yotadi, lekin egasi klient — jami sof bo'lishi kerak.
+  // BIZDA/KLIENTDA katakchalari o'zgarmaydi (jismoniy joylashuv), faqat jami.
+  var klientda = 0, bizQarz = 0;
   (data.klientlar||[]).forEach(function(k){
-    klientda += klientQarzSplit(k).klientQarzi;
+    var sp = klientQarzSplit(k);
+    klientda += sp.klientQarzi; bizQarz += sp.bizQarzi;
   });
   klientda = Math.round(klientda*100)/100;
-  var tot = Math.round((bizda+klientda)*100)/100;
+  var tot = Math.round((bizda+klientda-bizQarz)*100)/100;
   var g = '<span>g</span>';
   var sg = '<span style="font-size:12px;color:var(--muted);margin-left:2px;">g</span>';
   document.getElementById('home-total').innerHTML = fmtG(tot)+g;
@@ -5057,12 +5061,14 @@ function renderZavod() {
   if (!z) return;
   document.getElementById('zavod-title').textContent = z.nom;
   var bizda = 0; z.turlar.forEach(function(t){ bizda += t.ostatka; });
-  var klientda = 0;
+  // v172.18: zavod jami ham sof — bizning qarzimiz ayiriladi (bosh ekran va tur paneli bilan izchil)
+  var klientda = 0, zBizQarz = 0;
   (data.klientlar||[]).forEach(function(k){
-    klientda += klientQarzSplit(k, z.nom).klientQarzi;
+    var sp = klientQarzSplit(k, z.nom);
+    klientda += sp.klientQarzi; zBizQarz += sp.bizQarzi;
   });
   klientda = Math.round(klientda*100)/100;
-  var zG = Math.round((bizda+klientda)*100)/100;
+  var zG = Math.round((bizda+klientda-zBizQarz)*100)/100;
   var g='<span>g</span>';
   var sg='<span style="font-size:11px;color:var(--muted);margin-left:2px;">g</span>';
   document.getElementById('zavod-total').innerHTML = fmtG(zG)+g;
@@ -5095,7 +5101,9 @@ function renderZavod() {
     var turBizningQarzimiz = Object.values(turKlientlar).reduce(function(a,b){return a+(b<0?-b:0);},0);
     turBizningQarzimiz = Math.round(turBizningQarzimiz*100)/100;
     var turBizda = t.ostatka;
-    var turJami = Math.round((turBizda+turKlientda)*100)/100;
+    // v172.18 (Ibrohim): "bizani qarzimiz klient qo'lidamasku" — JAMI dan ayiriladi.
+    // 761.02 + 615.08 − 75.98 = 1300.12. BIZDA/KLIENTDA katakchalari o'zgarmaydi.
+    var turJami = Math.round((turBizda+turKlientda-turBizningQarzimiz)*100)/100;
 
     var isOpen = openTurIdx === ti;
     var rows = '';

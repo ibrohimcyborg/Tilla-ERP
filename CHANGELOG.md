@@ -3,6 +3,33 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.18: JAMI dan BIZNING QARZIMIZ ayiriladi (uch daraja)
+
+Ibrohim: "Jami 1376.10 ko'rsatvotti, aslida 1300.12 bo'lishi kerak —
+75.98 bizning qarzimiz, u klient qo'lidamasku". Mockup:
+mockups/v172.18-jami-qarz-ayirish.html.
+
+Tashxis: KLIENTDA (615.08) ichida 75.98 YO'Q edi — kod (5099) unga faqat
+musbat balanslarni yig'adi, manfiylar alohida BIZNING QARZIMIZ ga chiqadi.
+Xato JAMI formulasida edi: biz qarzdor bo'lgan gramm jismonan BIZDA ichida
+yotadi, lekin egasi klient — jami undan ayirilishi kerak.
+
+Grep bilan xuddi shu formula UCH darajada topildi, uchalasi ham tuzatildi:
+
+* Tur paneli (5106): turBizda + turKlientda − turBizningQarzimiz
+  761.02 + 615.08 − 75.98 = 1300.12 (tur sarlavhasidagi raqam ham shu)
+* Zavod sarlavhasi (5071): klientQarzSplit(k, z.nom) dan bizQarzi ham
+  yig'iladi va ayiriladi
+* Bosh ekran (4833): klientQarzSplit(k) dan bizQarzi ham yig'iladi va
+  ayiriladi
+
+BIZDA / KLIENTDA / BIZNING QARZIMIZ katakchalari O'ZGARMADI — ular tilla
+jismonan qayerdaligini ko'rsatadi, bu to'g'ri edi. klientQarzSplit ning
+O'ZIGA tegilmadi (11+ joyda ishlatiladi). t.ostatka, cheklar, Qo'limizdagi
+ostatka, qarz hisoblari — tegilmadi. Bu sof KO'RSATISH o'zgarishi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.17: zavodlar tartibi qo'lda — ⇅ rejim, ↑↓ tugmalar
 
 Ibrohim: "keyingi qo'shilgan zavodlar pastda, ishlamaydiganlarim o'rtada
