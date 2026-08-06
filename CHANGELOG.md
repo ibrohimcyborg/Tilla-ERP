@@ -3,6 +3,27 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.20: sandbox belgisi tepa markazga (sof vizual)
+
+Ibrohim adashib ADMIN xonasida ishlab yuborgan edi — skan vozvrat qilib,
+keyin haqiqiy bazada topolmagan. Sabab: belgi pastda o'ngda, 9px, yarim
+shaffof, versiya yonida — ko'zga tashlanmasdi. Mockup:
+mockups/v172.20-sandbox-belgi.html (Ibrohim: "sal kichraytir" — 11px dan
+9px ga tushirildi, versiya belgisi bilan bir o'lchamda).
+
+* 1959–1963: bottom:6px;right:48px -> top:0;left:50% (markaz).
+  Markaz tanlandi — o'ng tepada cloud/kurs/mavzu/sozlama/chiqish tugmalari
+  bor, ularni to'smasligi kerak.
+* Rang rgba(200,69,69,.6)+opacity:.8 -> to'q #c84545 (shaffofsiz).
+* Matn '🧪 '+SANDBOX -> '🧪 '+SANDBOX+' XONASI'.
+* Shakl: pastdan osilgan chiziq (border-radius:0 0 8px 8px).
+* Bosilsa yashirinadi — avvalgi xatti-harakat saqlandi.
+
+Versiya banneri (pastda o'ngda) TEGILMADI. Xona mantiqi (prefiks, cloudKol,
+doLogin) TEGILMADI. Haqiqiy bazada belgi avvalgidek umuman chizilmaydi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.19: KLIENTDA ning O'ZI sof bo'ldi (v172.18 ni to'ldiradi)
 
 Ibrohim: "klientdani notori korsatvossan, 615.08 − 75.98 = 539.10 korsatishi

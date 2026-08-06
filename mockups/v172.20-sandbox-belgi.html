@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.20 — Sandbox belgisi tepaga</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1080px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:26px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:34px 0 8px;font-weight:700}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .ba{display:grid;grid-template-columns:1fr 40px 1fr;align-items:start}
+  @media(max-width:900px){ .ba{grid-template-columns:1fr;gap:16px} .arrow{display:none} }
+  .arrow{display:flex;align-items:center;justify-content:center;height:100%;color:#c9a227;font-size:24px;padding-top:120px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;
+       text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:9px}
+  .tag.b{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .tag.a{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .tag.b .dot{background:#e05050}.tag.a .dot{background:#4ac97e}
+
+  /* telefon ekran taqlidi */
+  .phone{position:relative;background:#f7f4ec;border-radius:16px;padding:0;overflow:hidden;
+         height:330px;color:#33302b;box-shadow:0 8px 26px rgba(0,0,0,.45)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f1ece0;border-bottom:1px solid #e0dcd2}
+  .topbar .ttl{font-weight:800;font-size:15px;color:#8a6d1c}
+  .icons{display:flex;gap:6px}
+  .icons span{width:22px;height:22px;border-radius:6px;background:#e6e0d1;display:flex;align-items:center;justify-content:center;font-size:10px;color:#8a8578}
+  .body{padding:12px}
+  .card{background:#fff;border:1px solid #e0dcd2;border-radius:10px;padding:11px;margin-bottom:8px}
+  .big{font-family:Roboto,monospace;font-size:24px;font-weight:700;color:#a8842a}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .lb{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:#8a8578}
+  .vg{font-family:Roboto,monospace;font-size:14px;font-weight:600;color:#2e7d32}
+  .vr{font-family:Roboto,monospace;font-size:14px;font-weight:600;color:#c0392b}
+  .zrow{display:flex;justify-content:space-between;background:#efece4;border:1px solid #e0dcd2;border-radius:9px;padding:9px 11px;font-size:12.5px;margin-bottom:5px}
+
+  /* belgilar */
+  .badge-old{position:absolute;bottom:6px;right:46px;background:rgba(200,69,69,.6);color:#fff;
+             font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.03em;opacity:.8}
+  .badge-ver{position:absolute;bottom:6px;right:6px;background:rgba(184,137,43,.55);color:#fff;
+             font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.03em;opacity:.75}
+  .badge-new{position:absolute;top:0;left:50%;transform:translateX(-50%);background:#c84545;color:#fff;
+             font-size:9px;font-weight:700;padding:2px 9px;border-radius:0 0 8px 8px;letter-spacing:.04em;
+             box-shadow:0 1px 5px rgba(200,69,69,.4);z-index:5}
+  .ring{outline:2px dashed #4ac97e;outline-offset:3px;border-radius:10px}
+
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+  @media(max-width:800px){.three{grid-template-columns:1fr}}
+  .mini{position:relative;background:#f7f4ec;border-radius:12px;height:92px;overflow:hidden;border:1px solid #e0dcd2}
+  .mini .tb{display:flex;justify-content:space-between;padding:8px 10px;background:#f1ece0;border-bottom:1px solid #e0dcd2;font-size:11px;font-weight:800;color:#8a6d1c}
+  .mini .bn{position:absolute;top:0;left:50%;transform:translateX(-50%);color:#fff;font-size:8px;font-weight:700;
+            padding:2px 8px;border-radius:0 0 7px 7px;letter-spacing:.04em}
+  .cap{font-size:11.5px;color:#8b8f98;text-align:center;margin-top:5px}
+</style>
+</head>
+<body>
+
+<h1>Sandbox belgisi — pastdan tepaga</h1>
+<div class="sub">Ibrohim adashib ADMIN xonasida ishlab yuborgan edi. Belgi ko'rinmas darajada kichik.
+Bu <b>sof vizual</b> taklif — kod yozilmagan.</div>
+
+<h2>1 · Hozir · Taklif</h2>
+
+<div class="ba">
+  <div>
+    <span class="tag b"><span class="dot"></span>Hozir</span>
+    <div class="phone">
+      <div class="topbar"><span class="ttl">Tilla ERP</span>
+        <span class="icons"><span>☁</span><span>$</span><span>◐</span><span>⚙</span><span>⏻</span></span></div>
+      <div class="body">
+        <div class="card"><div class="lb">Jami</div><div class="big">1300.12 g</div>
+          <div class="row2"><div><div class="lb">Bizda</div><div class="vg">761.02g</div></div>
+          <div><div class="lb">Klientda</div><div class="vr">539.10g</div></div></div></div>
+        <div class="zrow"><span>Merrit</span><span>589.53 g</span></div>
+        <div class="zrow"><span>Hayat</span><span>230.66 g</span></div>
+      </div>
+      <div class="badge-old ring">🧪 ADMIN</div>
+      <div class="badge-ver">v172.19</div>
+    </div>
+    <p class="muted">Belgi pastda o'ngda, 9px, yarim shaffof — versiya yonida yo'qolib ketadi.
+    Ish paytida ekranning pastiga qaralmaydi.</p>
+  </div>
+  <div class="arrow">→</div>
+  <div>
+    <span class="tag a"><span class="dot"></span>Taklif</span>
+    <div class="phone">
+      <div class="badge-new">🧪 ADMIN XONASI</div>
+      <div class="topbar" style="padding-top:18px;"><span class="ttl">Tilla ERP</span>
+        <span class="icons"><span>☁</span><span>$</span><span>◐</span><span>⚙</span><span>⏻</span></span></div>
+      <div class="body">
+        <div class="card"><div class="lb">Jami</div><div class="big">1300.12 g</div>
+          <div class="row2"><div><div class="lb">Bizda</div><div class="vg">761.02g</div></div>
+          <div><div class="lb">Klientda</div><div class="vr">539.10g</div></div></div></div>
+        <div class="zrow"><span>Merrit</span><span>589.53 g</span></div>
+        <div class="zrow"><span>Hayat</span><span>230.66 g</span></div>
+      </div>
+      <div class="badge-ver">v172.19</div>
+    </div>
+    <p class="muted">Tepa markazda, to'q qizil, <b>9px</b> (versiya belgisi bilan bir o'lchamda) —
+    kichkina, lekin rangi va joyi tufayli darrov ko'zga tashlanadi.
+    O'ng tepadagi tugmalarni to'smaydi. <b>Versiya pastda o'z joyida qoladi.</b></p>
+  </div>
+</div>
+
+<h2>2 · Uch xona yonma-yon</h2>
+<div class="three">
+  <div>
+    <div class="mini"><div class="tb"><span>Tilla ERP</span><span>☁ ⚙</span></div></div>
+    <div class="cap"><b>tilla</b> — haqiqiy baza<br>belgi YO'Q</div>
+  </div>
+  <div>
+    <div class="mini"><div class="bn" style="background:#c84545">🧪 ADMIN XONASI</div>
+      <div class="tb" style="padding-top:16px"><span>Tilla ERP</span><span>☁ ⚙</span></div></div>
+    <div class="cap"><b>admin</b> — sinov xonasi</div>
+  </div>
+  <div>
+    <div class="mini"><div class="bn" style="background:#c84545">🧪 TEST XONASI</div>
+      <div class="tb" style="padding-top:16px"><span>Tilla ERP</span><span>☁ ⚙</span></div></div>
+    <div class="cap"><b>test</b> — eski sinov xonasi</div>
+  </div>
+</div>
+
+<div class="note good">
+Haqiqiy bazada (<code>tilla</code> logini) belgi <b>umuman chizilmaydi</b> — hozirgidek.
+Ya'ni tepada chiziq ko'rinsa — demak sinov xonasidasan, ish qilma.
+</div>
+
+<h2>3 · Nima o'zgaradi — koddan</h2>
+<table>
+<tr><th>Joy</th><th>Qator</th><th>Hozir</th><th>Bo'ladi</th></tr>
+<tr><td>Sandbox belgisi</td><td class="num">1954–1962</td>
+    <td><code>bottom:6px; right:48px</code> · 9px · <code>rgba(200,69,69,.6)</code> · <code>'🧪 '+SANDBOX</code></td>
+    <td><code>top:0; left:50%</code> (markaz) · <b>9px</b> · to'q <code>#c84545</code> · <code>'🧪 '+SANDBOX+' XONASI'</code></td></tr>
+<tr><td>Versiya belgisi</td><td class="num">1985 atrofi</td><td>pastda o'ngda</td><td class="muted">TEGILMAYDI</td></tr>
+</table>
+
+<div class="note info">
+Belgi avvalgidek <b>bosilsa yashirinadi</b> (hozirgi xatti-harakat saqlanadi) —
+skrinshot olayotganda xalal bermasin.
+</div>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>Matn «🧪 ADMIN XONASI» bo'lsinmi, yoki qisqa «🧪 ADMIN»?</li>
+<li>Bosilsa yashirinishi qolsinmi? (Men <b>qolsin</b> deb turibman — lekin adashish ehtimoli bor;
+xohlasang yashirilmaydigan qilaman.)</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li>[IBROHIM] Belgi tepada, dashboardda ko'rinsin.</li>
+<li>[IBROHIM] Versiya pastda qolsin.</li>
+<li>[MEN] Tepa <b>markaz</b> — o'ng tepada cloud/kurs/mavzu/sozlama/chiqish tugmalari bor, ularni to'smaslik uchun.</li>
+<li>[MEN] <code>position:fixed</code> — hamma ekranda ko'rinadi, faqat dashboardda emas.</li>
+<li>[MEN] Faqat CSS va matn o'zgaradi — mantiqqa, xona ajratishga tegilmaydi.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><code>SANDBOX</code> belgisi chizuvchi blok — <span class="num">1954–1962</span>, boshqa joyda chizilmaydi</li>
+<li>Versiya banneri — alohida blok, tegilmaydi</li>
+<li>Xona mantiqi (prefiks, <code>cloudKol</code>, <code>doLogin</code>) — tegilmaydi</li>
+</ul>
+<b>DIFF BUDJETI:</b> ~4 qator. Versiya <b>v172.20</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>Tepa markazda, to'q qizil chiziq — ma'qulmi?</li>
+<li>Matn: «🧪 ADMIN XONASI» yoki qisqa «🧪 ADMIN»?</li>
+<li>Bosilsa yashirinsinmi, yoki doim tursinmi?</li>
+<li>Versiya v172.20?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

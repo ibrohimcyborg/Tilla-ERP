@@ -1,4 +1,4 @@
-<!-- v172.19 -->
+<!-- v172.20 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1953,12 +1953,15 @@ if (TEST_MODE) {
   })();
   document.addEventListener('DOMContentLoaded', function(){
     var b=document.createElement('div');
-    // v130.3: O'NG PASTGA — tepadagi tugmalarni (cloud/kurs/mavzu/sozlama/chiqish) to'smasin
-    b.textContent='🧪 '+SANDBOX;
+    // v172.20: TEPA MARKAZGA — Ibrohim adashib ADMIN xonasida ishlab yuborgan edi, pastdagi
+    // belgi versiya yonida ko'rinmasdi. Markaz tanlandi: o'ng tepada cloud/kurs/mavzu/
+    // sozlama/chiqish tugmalari bor, ularni to'smasligi kerak. O'lcham versiya belgisiday (9px).
+    b.textContent='🧪 '+SANDBOX+' XONASI';
     b.title=SANDBOX+' REJIMI — alohida baza, haqiqiyga tegilmaydi';
-    b.style.cssText='position:fixed;bottom:6px;right:48px;z-index:99998;background:rgba(200,69,69,.6);'
-      +'color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;'
-      +'font-family:sans-serif;letter-spacing:.03em;opacity:.8;cursor:pointer;user-select:none;';
+    b.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99998;background:#c84545;'
+      +'color:#fff;font-size:9px;font-weight:700;padding:2px 9px;border-radius:0 0 8px 8px;'
+      +'font-family:sans-serif;letter-spacing:.04em;box-shadow:0 1px 5px rgba(200,69,69,.4);'
+      +'cursor:pointer;user-select:none;';
     b.onclick=function(){ b.style.display='none'; };
     document.body.appendChild(b);
   });
@@ -1968,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.19';
+var APP_VER = 'v172.20';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
