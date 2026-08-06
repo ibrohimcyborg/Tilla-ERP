@@ -1,4 +1,4 @@
-<!-- v172.14 -->
+<!-- v172.15 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1933,10 +1933,15 @@ var _rawLS = {
   set: Storage.prototype.setItem.bind(localStorage),
   rem: Storage.prototype.removeItem.bind(localStorage)
 };
-var TEST_MODE = (function(){ try { return _rawLS.get('tilla-test-mode')==='1'; } catch(e){ return false; } })();
+// v172.15: sandbox NOMLANGAN bo'ldi — 'test' logini eski '1' qiymati bilan TEST xonasiga,
+// 'admin' logini 'ADMIN' qiymati bilan ADMIN xonasiga kiradi. Har xona o'z prefiksli
+// localStorage'i va o'z cloud kolleksiyasi (TEST_/ADMIN_) bilan yashaydi — aralashmaydi.
+var SANDBOX = (function(){ try { var m=_rawLS.get('tilla-test-mode'); return m==='1' ? 'TEST' : ((m && m!=='0') ? m : ''); } catch(e){ return ''; } })();
+var TEST_MODE = !!SANDBOX;   // eski nom saqlanadi — quyidagi kod shu bayroqni o'qiydi
 if (TEST_MODE) {
   (function(){
-    function tk(k){ return (typeof k==='string' && k!=='tilla-test-mode' && k!=='tilla-fb-signout') ? 'TEST-'+k : k; }
+    var _pfx = SANDBOX + '-';
+    function tk(k){ return (typeof k==='string' && k!=='tilla-test-mode' && k!=='tilla-fb-signout') ? _pfx+k : k; }
     var _g=Storage.prototype.getItem, _s=Storage.prototype.setItem, _r=Storage.prototype.removeItem;
     Storage.prototype.getItem = function(k){ return _g.call(this, tk(k)); };
     Storage.prototype.setItem = function(k,v){ return _s.call(this, tk(k), v); };
@@ -1945,8 +1950,8 @@ if (TEST_MODE) {
   document.addEventListener('DOMContentLoaded', function(){
     var b=document.createElement('div');
     // v130.3: O'NG PASTGA — tepadagi tugmalarni (cloud/kurs/mavzu/sozlama/chiqish) to'smasin
-    b.textContent='🧪 TEST';
-    b.title='TEST REJIMI — alohida baza, haqiqiyga tegilmaydi';
+    b.textContent='🧪 '+SANDBOX;
+    b.title=SANDBOX+' REJIMI — alohida baza, haqiqiyga tegilmaydi';
     b.style.cssText='position:fixed;bottom:6px;right:48px;z-index:99998;background:rgba(200,69,69,.6);'
       +'color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;'
       +'font-family:sans-serif;letter-spacing:.03em;opacity:.8;cursor:pointer;user-select:none;';
@@ -1959,7 +1964,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.14';
+var APP_VER = 'v172.15';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2000,7 +2005,8 @@ var CREDS = [
   {login:'tilla', parol:'tilla9999', rol:'admin'},
   {login:'zavod', parol:'zavod9999', rol:'zavod'},
   {login:'abdulhamid_7777', parol:'Scoplon2003', rol:'hamid'},
-  {login:'test', parol:'test7777', rol:'admin'} // TEST hisobi — sinov uchun
+  {login:'test', parol:'test7777', rol:'admin', sandbox:'TEST'},   // TEST hisobi — sinov uchun
+  {login:'admin', parol:'admin123', rol:'admin', sandbox:'ADMIN'}  // v172.15: ADMIN xonasi — bo'sh boshlanadi, alohida cloud (ADMIN_)
 ];
 function setAuth(rol){ localStorage.setItem('tilla-auth','1'); localStorage.setItem('tilla-rol',rol); document.cookie='tilla-auth=1;max-age=31536000;path=/'; }
 function getAuth(){ return localStorage.getItem('tilla-auth') || document.cookie.indexOf('tilla-auth=1')>=0; }
@@ -2019,16 +2025,14 @@ function doLogin(){
   var p=document.getElementById('login-pass').value;
   var found=CREDS.find(function(c){return c.login===u&&c.parol===p;});
   if(found){
-    // TEST rejimga kirish/chiqish — baza va cloud sessiyasi almashadi
-    if(found.login==='test' && !TEST_MODE){
-      _rawLS.set('tilla-test-mode','1');
-      _rawLS.set('TEST-tilla-auth','1'); _rawLS.set('TEST-tilla-rol',found.rol);
-      _rawLS.set('tilla-fb-signout','1');
-      location.reload(); return;
-    }
-    if(found.login!=='test' && TEST_MODE){
-      _rawLS.set('tilla-test-mode','0');
-      _rawLS.set('tilla-auth','1'); _rawLS.set('tilla-rol',found.rol);
+    // v172.15: sandbox kirish/chiqish umumlashdi — sandbox'li login o'z xonasiga
+    // (TEST- / ADMIN- prefiks), sandbox'siz login asosiy bazaga. Xona almashganda
+    // baza va cloud sessiyasi almashadi (fb-signout), sahifa qayta yuklanadi.
+    var _sb = found.sandbox || '';
+    if(_sb !== SANDBOX){
+      _rawLS.set('tilla-test-mode', _sb==='TEST' ? '1' : (_sb || '0'));
+      var _pf = _sb ? _sb+'-' : '';
+      _rawLS.set(_pf+'tilla-auth','1'); _rawLS.set(_pf+'tilla-rol',found.rol);
       _rawLS.set('tilla-fb-signout','1');
       location.reload(); return;
     }
@@ -17310,7 +17314,7 @@ function cloudXato(e){
 }
 function cloudYozaOladi(){ if(_kvotaTugadi) return false; if(cloudYozuvBugun()>YOZUV_LIMIT){ _kvotaTugadi=true; return false; } return true; }
 
-function cloudKol(){ return (TEST_MODE?'TEST_':'') + 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza; TEST rejimda HAR DOIM alohida (TEST_) kolleksiya — haqiqiy ma'lumotga aralashmasin
+function cloudKol(){ return (TEST_MODE?SANDBOX+'_':'') + 'tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); } // har Firebase-userga ALOHIDA baza; sandbox rejimda HAR DOIM alohida (TEST_/ADMIN_) kolleksiya — haqiqiy ma'lumotga aralashmasin (v172.15)
 function cloudVaqtLocal(){ return parseInt(localStorage.getItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'))||'0'); }
 function cloudVaqtSet(v){ localStorage.setItem('tilla-cloud-vaqt-'+(_cloudUser?_cloudUser.uid:'x'), String(v)); }
 // ══════════════════════════════════════════════════════════════

@@ -3,6 +3,32 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.15: admin/admin123 — yangi ADMIN sandbox xonasi
+
+Ibrohim: haftani boshidan shakllantirib yangi Qo'limizdagi ostatka hisobini
+toza muhitda tekshirish uchun yangi login kerak. Mockup:
+mockups/v172.15-admin-sandbox.html.
+
+TEST mexanizmi nomlangan sandboxga umumlashdi:
+
+* SANDBOX o'zgaruvchisi (1939): tilla-test-mode '1' -> 'TEST' (eski test,
+  orqaga mos), 'ADMIN' -> ADMIN xonasi. TEST_MODE = !!SANDBOX saqlanadi —
+  qolgan kod o'sha bayroqni o'qiyveradi.
+* localStorage prefiks endi SANDBOX nomidan: TEST- / ADMIN- (1943).
+* cloudKol (17317): TEST_ o'rniga SANDBOX+'_' — ADMIN xonasi cloudda
+  ADMIN_tilla_<uid> alohida kolleksiyada. 12 ta cloud yozish joyi hammasi
+  cloudKol dan o'tadi — aralashish yo'li yo'q.
+* CREDS: test yozuviga sandbox:'TEST', yangi {admin, admin123, rol admin,
+  sandbox:'ADMIN'} (2003-2004).
+* doLogin (2027): test uchun yozilgan ikki maxsus if umumlashdi —
+  sandbox'li login o'z xonasiga, sandbox'siz asosiyga (fb-signout + reload).
+* Banner: '🧪 TEST' -> '🧪 '+SANDBOX (1953).
+
+ADMIN xonasi bo'sh boshlanadi (prefiksli kalitlar hali yo'q). Haqiqiy baza,
+TEST xonasi, hamid roli — tegilmadi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.14: «Qo'limizdagi ostatka» — B usuli (tarix langari) + yangi qator tartibi
 
 Ibrohim: ostatkada juda qiynalyapmiz, hisob noto'g'ri chiqyapti. Tahlil:

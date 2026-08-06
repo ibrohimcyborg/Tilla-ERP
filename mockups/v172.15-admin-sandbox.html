@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.15 — admin/admin123: yangi toza muhit (sandbox)</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1080px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:26px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:36px 0 8px;font-weight:700}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}
+  .note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.65}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+  .badge{display:inline-block;background:rgba(91,141,214,.25);border:1px solid #33517a;color:#8ab4f8;
+         font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<h1>admin / admin123 — yangi TOZA muhit (sandbox)</h1>
+<div class="sub">Bu haftani boshidan shakllantirib tekshirish uchun. Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<!-- ============================================================ -->
+<h2>1 · Muammo — oddiy qo'shib bo'lmaydi</h2>
+<div class="note bad">
+Login ro'yxatiga (<code>CREDS</code>, <span class="num">1999</span>) shunchaki
+<code>admin/admin123</code> qo'shsam — u <b>sening haqiqiy bazangga kiradi</b>:
+o'sha localStorage (<code>tilla-v2</code>), o'sha cloud. «Yangi cloud ulansam»
+deganingda esa hozirgi haqiqiy ma'lumoting yangi kolleksiyaga oqib o'tadi yoki
+aralashadi. Toza tekshirish chiqmaydi, haqiqiy baza xavf ostida qoladi.
+</div>
+
+<div class="note good">
+<b>Yechim tayyor mexanizm ustiga quriladi:</b> tizimda allaqachon <code>test</code>
+logini bor (<span class="num">1927–1956</span>) — u kirganda BARCHA localStorage
+kalitlar <code>TEST-</code> prefiks bilan alohida yashaydi, cloud ham
+<code>TEST_tilla_&lt;uid&gt;</code> alohida kolleksiyaga yozadi (<span class="num">17313</span>).
+Haqiqiy bazaga bir bayt ham tegilmaydi. Xuddi shu mexanizmni <code>admin</code> uchun
+ikkinchi, ALOHIDA xonaga aylantiraman.
+</div>
+
+<!-- ============================================================ -->
+<h2>2 · Qanday bo'ladi</h2>
+
+<table>
+<tr><th>Login</th><th>localStorage</th><th>Cloud kolleksiya</th><th>Ma'lumot</th></tr>
+<tr><td><b>tilla</b> / tilla9999</td><td>tilla-v2 (asosiy)</td><td>tilla_&lt;uid&gt;</td><td>HAQIQIY — tegilmaydi</td></tr>
+<tr><td><b>test</b> / test7777</td><td>TEST- prefiks</td><td>TEST_tilla_&lt;uid&gt;</td><td>eski sinov xonasi — avvalgidek</td></tr>
+<tr><td><b>admin</b> / admin123 <span class="badge">YANGI</span></td><td>ADMIN- prefiks</td><td>ADMIN_tilla_&lt;uid&gt;</td><td><b>bo'sh boshlanadi</b> — shu yerda tekshirasan</td></tr>
+</table>
+
+<p class="lead">admin bilan kirganda nima ko'rasan:</p>
+<ul style="font-size:13.5px;color:#c5c9d1">
+<li><b>Bo'sh ilova</b> — zavod yo'q, klient yo'q, tarix yo'q. Merrit·Oddiy'ni o'zing yaratib,
+haftani boshidan shakllantirasan.</li>
+<li>Pastda <span class="badge">🧪 ADMIN</span> belgisi turadi — qaysi xonada ekaningni adashmaysan.</li>
+<li>☁ Cloud'ga <b>hozirgi emailing bilan</b> ulansang ham bo'ladi — kolleksiya baribir yangi
+(<code>ADMIN_tilla_&lt;uid&gt;</code>), haqiqiysiga aralashmaydi. Xohlasang Firebase Console'da
+yangi email ochib u bilan ham ulansa bo'ladi — ikkalasi ham toza.</li>
+<li><b>tilla</b> bilan qayta kirsang — haqiqiy bazang joyida, hech narsa o'zgarmagan.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>3 · Kod rejasi</h2>
+<pre class="kod">// Hozir (1936):  TEST_MODE = tilla-test-mode==='1'  →  prefiks 'TEST-'
+// Bo'ladi:       tilla-test-mode: '1' (test, eski) | 'ADMIN' (yangi) | yo'q (asosiy)
+//                prefiks:  '1' → 'TEST-'   'ADMIN' → 'ADMIN-'
+// cloudKol (17313):  'TEST_' o'rniga rejimga qarab 'TEST_' / 'ADMIN_'
+// CREDS (1999):  + {login:'admin', parol:'admin123', rol:'admin', sandbox:'ADMIN'}
+// doLogin (2017): test uchun yozilgan kirish/chiqish mantiqi umumlashtiriladi —
+//                 sandbox'li login o'z xonasiga, sandbox'siz asosiyga (reload bilan)
+// Banner (1948):  '🧪 TEST' → rejim nomi ('🧪 ADMIN')</pre>
+
+<!-- ============================================================ -->
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>admin xonasi <b>butunlay bo'sh</b> boshlansinmi (men shunday tushundim —
+«boshidan shakllantirib tekshiraman»), yoki haqiqiy ma'lumotning nusxasi bilanmi?</li>
+<li>Firebase: hozirgi email bilan ulanasanmi, yoki yangi email ochasanmi?
+(Ikkalasida ham kolleksiya yangi — ADMIN_tilla_&lt;uid&gt;. Yangi email ochish kerak bo'lsa —
+uni Firebase Console'da o'zing ochasan, ilova yangi user yarata olmaydi.)</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Login: admin / admin123, rol admin.</li>
+<li><span class="who u">IBROHIM</span> Maqsad: shu haftani boshidan shakllantirib, yangi
+Qo'limizdagi ostatka hisobini toza muhitda tekshirish.</li>
+<li><span class="who m">MEN</span> admin = ALOHIDA xona (TEST kabi, lekin o'zining ADMIN- prefiksi
+bilan) — haqiqiy bazaga tegmaydi. Oddiy CREDS qatori EMAS.</li>
+<li><span class="who m">MEN</span> test logini avvalgidek ishlayveradi, TEST- ma'lumotlariga tegilmaydi.</li>
+<li><span class="who m">MEN</span> hamid roli va uning mantiqiga tegilmaydi.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><span class="num">1936–1956</span> TEST_MODE bloki — prefiks umumlashadi</li>
+<li><span class="num">1999–2004</span> CREDS — 1 qator qo'shiladi</li>
+<li><span class="num">2017–2038</span> doLogin — sandbox kirish/chiqish umumlashadi</li>
+<li><span class="num">17313</span> cloudKol — prefiks rejimdan olinadi</li>
+<li><code>TEST_MODE</code> ishlatiladigan boshqa joylar grep bilan tekshiriladi — mantiqlari
+«sandbox'damanmi?» degani, ular umumiy bayroq bilan ishlayveradi</li>
+</ul>
+<b>DIFF BUDJETI:</b> ~25–35 qator. Oshsa to'xtab aytaman.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>admin xonasi <b>bo'sh</b> boshlanadimi? (ha desang — shunday qilaman)</li>
+<li>Umumiy yo'l ma'qulmi — admin alohida xona (TEST kabi), haqiqiy bazaga tegmaydi?</li>
+<li>Versiya <b>v172.15</b>?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. «Ha» desang kod yozaman.</p>
+
+</body>
+</html>
