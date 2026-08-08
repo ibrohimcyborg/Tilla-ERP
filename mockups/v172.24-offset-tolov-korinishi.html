@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.24 — Offsetdan to'langan amal «To'lov» bo'lib ko'rinyapti</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1080px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:24px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:34px 0 8px;font-weight:700}
+  h3{font-size:13px;color:#e9e7e1;margin:18px 0 6px}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .ba{display:grid;grid-template-columns:1fr 40px 1fr;align-items:start}
+  @media(max-width:920px){ .ba{grid-template-columns:1fr;gap:14px} .arrow{display:none} }
+  .arrow{display:flex;align-items:center;justify-content:center;height:100%;color:#c9a227;font-size:24px;padding-top:50px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;
+       text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:9px}
+  .tag.b{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .tag.a{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .tag.b .dot{background:#e05050}.tag.a .dot{background:#4ac97e}
+
+  /* tarix kartochkasi */
+  .card{background:#fff;border:1px solid #e0dcd2;border-left:3px solid #2d6ea8;border-radius:10px;
+        padding:10px 12px;color:#33302b;margin-bottom:8px}
+  .card.off{border-left-color:#7b5ea7}
+  .card.voz{border-left-color:#c9a227}
+  .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .card .lbl{font-size:13px;font-weight:700;color:#2d6ea8}
+  .card.off .lbl{color:#7b5ea7}
+  .card.voz .lbl{color:#a8842a}
+  .card .dt{font-size:10.5px;color:#8a8578;margin-top:2px}
+  .card .amt{text-align:right;font-family:Roboto,monospace;white-space:nowrap}
+  .card .g{font-size:14px;font-weight:700;color:#2e7d32}
+  .card .m{font-size:12px;color:#33302b;font-weight:600}
+  .rows{border-top:1px solid #eee9dd;margin-top:8px;padding-top:6px}
+  .r{display:flex;justify-content:space-between;font-size:11.5px;color:#8a8578;padding:2px 0}
+  .r b{color:#2d6ea8;font-family:Roboto,monospace}
+  .pill{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.05em;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
+  .pill.off{background:#efe7fa;border:1px solid #b9a3dd;color:#6b4f9c}
+  .pill.naqt{background:#e4f2e7;border:1px solid #9ccfa9;color:#2e7d32}
+
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.65}
+  .hisob{background:#1a1d22;border:1px solid #2e3238;border-radius:8px;padding:11px 15px;
+         font-family:monospace;font-size:13px;margin:10px 0;line-height:1.9}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0;font-size:12.5px}
+  .fb{background:#1a1d22;border:1px solid #2e3238;border-radius:8px;padding:7px 11px}
+  .ar{color:#6b7280}
+</style>
+</head>
+<body>
+
+<h1>Offsetdan to'langan amal tarixda «$ To'lov» bo'lib ko'rinyapti</h1>
+<div class="sub">Ibrohim: «klient vozvrat qildi → offset qildik → o'sha summani boshqa narsaga
+to'ladi. Tarixda buni to'lov emas, <b>Offset</b> deb ko'rsatsin». Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<h2>1 · Voqea zanjiri</h2>
+<div class="flow">
+  <div class="fb">Klient vozvrat<br><b>Jilva · Oddiy 14.69 g</b></div><span class="ar">→</span>
+  <div class="fb">Offsetga o'tdi<br><b>$1,289.78</b> <span class="muted">(87.8 $/g)</span></div><span class="ar">→</span>
+  <div class="fb">Boshqa turlarga to'landi<br><b>Butterfly·3D + Diamond·Oddiy</b></div>
+</div>
+<div class="hisob">
+745.59 + 544.19 = <b>1,289.78 $</b>   ← naqd pul kelmagan, offsetdan yopilgan
+</div>
+
+<h2>2 · Hozir · Taklif</h2>
+<div class="ba">
+  <div>
+    <span class="tag b"><span class="dot"></span>Hozir</span>
+    <div class="card">
+      <div class="top">
+        <div><div class="lbl">$ Tolov</div><div class="dt">06.08.2026 · 15:22</div></div>
+        <div class="amt"><div class="g">+14.77g</div><div class="m">$1,289.78</div></div>
+      </div>
+      <div class="rows">
+        <div class="r"><span>Butterfly · 3D — 745.59$ / 87$/g</span><b>+8.57g</b></div>
+        <div class="r"><span>Diamond · Oddiy — 544.19$ / 87.8$/g</span><b>+6.20g</b></div>
+      </div>
+    </div>
+    <p class="muted">Oddiy to'lovdan farqi yo'q. To'lov turi belgisi ham chiqmaydi —
+    chunki naqd/karta/perech/lom hammasi nol.</p>
+  </div>
+  <div class="arrow">→</div>
+  <div>
+    <span class="tag a"><span class="dot"></span>Taklif</span>
+    <div class="card off">
+      <div class="top">
+        <div><div class="lbl">⇄ Offset <span class="pill off">OFFSET</span></div><div class="dt">06.08.2026 · 15:22</div></div>
+        <div class="amt"><div class="g">+14.77g</div><div class="m">$1,289.78</div></div>
+      </div>
+      <div class="rows">
+        <div class="r"><span>Butterfly · 3D — 745.59$ / 87$/g</span><b>+8.57g</b></div>
+        <div class="r"><span>Diamond · Oddiy — 544.19$ / 87.8$/g</span><b>+6.20g</b></div>
+      </div>
+    </div>
+    <p class="muted">Sarlavha <b>⇄ Offset</b>, chap chiziq binafsha, OFFSET belgisi bilan.
+    Bir qarashda ko'rinadi: bu yerda naqd pul kelmagan.</p>
+  </div>
+</div>
+
+<h3>Aralash holat — qisman naqd, qisman offset</h3>
+<div class="card" style="max-width:420px">
+  <div class="top">
+    <div><div class="lbl">$ Tolov <span class="pill naqt">NAQT</span><span class="pill off">OFFSET</span></div>
+      <div class="dt">06.08.2026 · 15:20</div></div>
+    <div class="amt"><div class="g">+101.64g</div><div class="m">$8,999.99</div></div>
+  </div>
+</div>
+<p class="muted">Bir qismi haqiqiy pul bo'lsa — sarlavha <b>$ Tolov</b> bo'lib qoladi,
+belgilar ikkalasini ham ko'rsatadi. Faqat <b>100% offset</b> bo'lgandagina «⇄ Offset» bo'ladi.</p>
+
+<h2>3 · Sabab — koddan</h2>
+<div class="note bad">
+Offsetdan yopilgan qism <b>hech qayerda yozilmaydi</b>. To'lov yozuvida
+<code>naqtPul</code>, <code>kartaPul</code>, <code>perechPul</code>, <code>lomPul</code>
+maydonlari bor, lekin <b>offset uchun maydon yo'q</b> — u shunchaki naqd summadan
+ayirilib qo'yiladi (<span class="num">13655</span> atrofi):
+<pre class="kod">_ktQoldiq = sNet − _ktOffDeduct − _ktLomDeduct     ← offset ayirildi
+naqtPul   = _ktQoldiq − karta − perech             ← lekin qayerga ketgani yozilmadi</pre>
+Shuning uchun <code>_tolovTurAniq</code> (<span class="num">11175</span>) uni ko'ra olmaydi —
+u faqat o'sha to'rt maydonni va <code>_kdYopish</code> ni sanaydi.
+</div>
+
+<div class="note info">
+<b><code>_kdYopish</code> bayrog'i bor, lekin bu holatga tushmaydi.</b> U faqat
+<b>o'sha turning o'zida biz qarzdor</b> bo'lganda yoziladi (<span class="num">13637</span>,
+<code>if(bizQarzdorSave)</code>). Bu yerda qarz <b>Jilva</b>da edi, to'lov esa
+<b>Butterfly</b> va <b>Diamond</b>ga ketdi — boshqa turlar, shuning uchun bayroq qo'yilmagan.
+</div>
+
+<h2>4 · Yechim — eski yozuvlarga ham ishlaydi</h2>
+<div class="note good">
+Offset summasini <b>hisoblab olish mumkin</b>, yangi maydon shart emas:
+<div class="hisob" style="margin:8px 0">offset = summa − (naqt + karta + perech + lom)</div>
+Kodda naqd qismlar aynan <code>sNet − offset − lom</code> dan chiqadi, ya'ni bu ayirma
+<b>matematik jihatdan aniq</b> offsetni beradi. Demak:
+<ul style="margin:6px 0 0;padding-left:20px">
+<li>Migratsiya kerak emas</li>
+<li><b>Eski yozuvlar ham</b> to'g'ri ko'rina boshlaydi</li>
+<li>Ma'lumotga umuman tegilmaydi — bu sof ko'rsatish o'zgarishi</li>
+</ul>
+</div>
+
+<h3>O'zgaradigan joylar</h3>
+<table>
+<tr><th>Joy</th><th>Qator</th><th>Nima</th></tr>
+<tr><td><code>_tolovTurAniq</code></td><td class="num">11175</td>
+    <td>naqd qismlar yig'indisi <code>summa</code> dan kam bo'lsa — farqi <code>v.offset</code> ga qo'shiladi</td></tr>
+<tr><td>Tarix sarlavhasi</td><td class="num">11371</td>
+    <td>guruh 100% offset bo'lsa: <code>$ Tolov</code> → <code>⇄ Offset</code>, rangi binafsha</td></tr>
+<tr><td>Chap chiziq rangi</td><td class="num">11366</td>
+    <td>offset bo'lsa binafsha</td></tr>
+</table>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>Vozvratni pulga aylantirgan yozuv (3-rasmdagi eng pastki «$ Tolov +14.69g $1,289.78 —
+Jilva·Oddiy») ham nomi o'zgarsinmi? U <code>_kdVoz</code> bayrog'i bilan yoziladi
+(<span class="num">12561</span>) — masalan «⇄ Offsetga o'tkazildi». Sen bu haqda aytmading,
+<b>tegmayman</b> deb turibman.</li>
+<li>Klient hisoboti ekranida ham xuddi shunday sarlavha bo'lsinmi
+(<span class="num">10728</span>), yoki faqat klient tarixidami?</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Offsetdan to'langan amal «To'lov» emas, «Offset» deb ko'rinsin.</li>
+<li><span class="who m">MEN</span> Faqat <b>100% offset</b> bo'lganda sarlavha o'zgaradi;
+aralash bo'lsa «$ Tolov» qolib, belgilar ikkalasini ko'rsatadi.</li>
+<li><span class="who m">MEN</span> Offset summasi hisoblab olinadi — yangi maydon
+yozilmaydi, eski yozuvlar ham to'g'rilanadi.</li>
+<li><span class="who m">MEN</span> Saqlash mantiqi, qarz/kassa hisoblari, cheklar —
+TEGILMAYDI. Bu sof ko'rsatish.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><code>_tolovTurAniq</code> <span class="num">11175</span> — u yerdan
+<code>_tolovPillHTML</code>, jami, va boshqa ko'rsatkichlar oziqlanadi</li>
+<li>Tarix guruhi <span class="num">11360–11376</span> — sarlavha va rang</li>
+<li><code>TOLOV_TURLARI</code> da <code>offset</code> turi <b>allaqachon bor</b>
+(<span class="num">11173</span>, OFFSET belgisi tayyor) — yangi tur qo'shilmaydi</li>
+<li><code>isMixedTolovOffset</code> (<span class="num">11376</span>) — mavjud mantiq,
+tegilmaydi</li>
+<li>Saqlash (<span class="num">13637</span>, <span class="num">13655</span>),
+<code>klientQarzSplit</code>, kassa — TEGILMAYDI</li>
+</ul>
+<b>DIFF BUDJETI:</b> ~10–14 qator. Versiya <b>v172.24</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>100% offset bo'lganda «⇄ Offset» (binafsha) — ma'qulmi?</li>
+<li>Aralash bo'lsa «$ Tolov» + NAQT/OFFSET belgilari — to'g'rimi?</li>
+<li>Vozvratni pulga aylantirgan yozuv (eng pastki) ham nomi o'zgarsinmi, yoki tegilmasinmi?</li>
+<li>Klient hisoboti ekranida ham shunday bo'lsinmi?</li>
+<li>Versiya v172.24?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

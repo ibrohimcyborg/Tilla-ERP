@@ -3,6 +3,44 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.24: offsetdan yopilgan to'lov tarixda "⇄ Offset" bo'lib ko'rinadi
+
+Ibrohim: klient Jilva·Oddiy dan 14.69g vozvrat qildi -> offsetga o'tdi
+($1,289.78) -> o'sha summa Butterfly·3D va Diamond·Oddiy ga to'landi.
+Tarixda bu "$ Tolov" bo'lib chiqardi, hech qanday belgisiz. Mockup:
+mockups/v172.24-offset-tolov-korinishi.html.
+
+SABAB: offsetdan yopilgan qism alohida maydonda YOZILMAYDI. To'lov yozuvida
+naqtPul/kartaPul/perechPul/lomPul bor, offset uchun maydon yo'q — u
+naqd summadan ayirib qo'yiladi (13655: qoldiq = sNet − offset − lom),
+qayerga ketgani saqlanmaydi. _kdYopish bayrog'i esa FAQAT o'sha turda biz
+qarzdor bo'lganda yoziladi (13637, if(bizQarzdorSave)) — bu holatda qarz
+Jilva da, to'lov Butterfly/Diamond ga ketgan, shuning uchun bayroq yo'q.
+Natijada _tolovTurAniq hech nima ko'rmasdi: naqd qismlar nol, belgi chiqmasdi.
+
+YECHIM — ayirma bilan hisoblash (yangi maydon va migratsiya SHART EMAS):
+  offset = summa − (naqt + karta + perech + lom)
+Kodda naqd qismlar aynan sNet − offset − lom dan chiqadi, shuning uchun bu
+ayirma matematik jihatdan aniq. ESKI yozuvlar ham to'g'ri ko'rina boshlaydi.
+
+* _tolovTurAniq (11175): ayirma bilan v.offset hisoblanadi. Eski format
+  himoyasi — pul maydonlari umuman bo'lmasa (undefined) tegilmaydi, aks
+  holda butun summa "offset" bo'lib ketardi.
+* Klient tarixi (11382-11388): _sofOffset — guruh 100% offset bo'lsa
+  sarlavha "$ Tolov" -> "⇄ Offset", rangi binafsha. Aralash bo'lsa
+  "$ Tolov" qoladi, belgilar NAQT + OFFSET ni ko'rsatadi (Ibrohim qarori).
+* Klient hisoboti ekrani (10727-10734): xuddi shu qoida (Ibrohim: "hisobot
+  ekranidayam shunaqa ko'rinsin").
+* Vozvrat yozuvi TEGILMADI (Ibrohim: "vozvrat bo'b turusin, offset bo'lsayam
+  vozvrat ko'rinib tursin") — ↩ Vozvrat qatori avvalgidek ko'rinadi.
+* TOLOV_TURLARI da offset turi allaqachon bor edi (11173) — yangi tur
+  qo'shilmadi. isMixedTolovOffset (11376 edi) mantiqiga tegilmadi.
+* Saqlash mantiqi, qarz/kassa hisoblari, cheklar — TEGILMADI. Sof ko'rsatish.
+
+Sinov: Node sintaksis toza. Ayirma sinovi Ibrohim raqamlari bilan:
+745.59 + 544.19 = 1,289.78 ✓ · aralash 1000/naqd 400 -> offset 600 ✓ ·
+sof naqd 500 -> offset 0 ✓.
+
 ## v172.23: kurs avto-saqlash (Kunlik kurs ko'rinadi) + kategoriya doim A dan
 
 Mockup: mockups/v172.23-kurs-va-kategoriya-2.html.

@@ -1,4 +1,4 @@
-<!-- v172.23 -->
+<!-- v172.24 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.23';
+var APP_VER = 'v172.24';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10724,8 +10724,14 @@ function renderKlientHisobot() {
 
     daySessions.forEach(function(sess){
       var tip=sess.tip;
-      var color=tip==='berish'?(jamiG<0?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':'var(--blue)';
-      var label=tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':'$ Tolov';
+      // v172.24: klient tarixidagi bilan bir xil — sof offset "⇄ Offset" bo'lib chiqadi
+      var _sofOff = false;
+      if(tip==='tolov'){
+        var _t2 = _tolovTurAniq(sess.ops.map(function(x){return x.op;}));
+        _sofOff = !!(_t2 && _t2.bor.length===1 && _t2.bor[0].t.k==='offset');
+      }
+      var color=tip==='berish'?(jamiG<0?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':_sofOff?'var(--purple)':'var(--blue)';
+      var label=tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':(_sofOff?'⇄ Offset':'$ Tolov');
       var jamiG=0, jamiS=0;
       sess.ops.forEach(function(x){
         var op=x.op;
@@ -11187,6 +11193,22 @@ function _tolovTurAniq(ops){
     v.perech += (op.perechPul||0);
     v.lom    += (op.lomPul||0);
     if((op.lomGramm||0)>0){ lomG += op.lomGramm; if(op.lomKurs) lomK = op.lomKurs; }
+    // v172.24: OFFSETDAN yopilgan qism alohida maydonda YOZILMAYDI — u naqd summadan
+    // ayirib qo'yiladi (13655: qoldiq = sNet − offset − lom), qayerga ketgani saqlanmaydi.
+    // Shuning uchun uni ayirma bilan topamiz — natija matematik jihatdan aniq.
+    // _kdYopish faqat O'SHA turda biz qarzdor bo'lganda yoziladi (13637), boshqa turga
+    // to'langan offset esa belgisiz qolardi — Ibrohim ko'rgan holat shu.
+    // ESKI yozuvlar himoyasi: pul maydonlari umuman bo'lmasa (eski format) tegilmaydi,
+    // aks holda butun summa "offset" bo'lib ketardi.
+    var _pulBor = (op.naqtPul!==undefined)||(op.kartaPul!==undefined)||(op.perechPul!==undefined)||(op.lomPul!==undefined);
+    if(_pulBor){
+      var _naqdQism = (op.naqtPul||0)+(op.kartaPul||0)+(op.perechPul||0)+(op.lomPul||0);
+      var _off = Math.round(((op.summa||0) - _naqdQism)*100)/100;
+      if(_off > 0.009){
+        v.offset += _off;
+        if(!ofNom && op.zavod) ofNom = op.zavod+' · '+op.tur;
+      }
+    }
   });
   var bor=[];
   TOLOV_TURLARI.forEach(function(t){
@@ -11363,14 +11385,17 @@ function openKlientDetail(ki) {
     var hasVozvrat=g.tip==='vozvrat';
     var hasBerish=g.tip==='berish';
     var hasKlientda=g.tip==='klientda';
-    var bc=hasBerish?'var(--red)':hasTolov?'var(--blue)':hasKlientda?'var(--green)':'var(--gold)';
     var klientdaOp=hasKlientda&&g.ops.length>0?g.ops[0]:null;
     var klientdaLabel=klientdaOp&&klientdaOp.zavod&&klientdaOp.tur
       ? '↩ '+klientdaOp.zavod+' · '+klientdaOp.tur
       : '↩ Bizda qolsin';
-    var label=hasBerish?'↑ Berildi':hasTolov?'$ Tolov':hasKlientda?klientdaLabel:'↩ Vozvrat';
-    var lcolor=bc;
     var _tt = hasTolov ? _tolovTurAniq(g.ops) : null;   // v161: to'lov turlari
+    // v172.24 (Ibrohim): butunlay offsetdan yopilgan bo'lsa — "To'lov" emas, "Offset".
+    // Aralash bo'lsa (bir qismi naqd) "$ Tolov" qoladi, belgilar ikkalasini ko'rsatadi.
+    var _sofOffset = !!(hasTolov && _tt && _tt.bor.length===1 && _tt.bor[0].t.k==='offset');
+    var bc=hasBerish?'var(--red)':_sofOffset?'var(--purple)':hasTolov?'var(--blue)':hasKlientda?'var(--green)':'var(--gold)';
+    var label=hasBerish?'↑ Berildi':hasTolov?(_sofOffset?'⇄ Offset':'$ Tolov'):hasKlientda?klientdaLabel:'↩ Vozvrat';
+    var lcolor=bc;
     if(_tt && _tt.bor.length) label += ' ' + _tolovPillHTML(_tt.bor);
 
     var isMixedTolovOffset = hasTolov && g.ops.some(function(o){return o._kdYopish;}) && g.ops.some(function(o){return !o._kdYopish;});
