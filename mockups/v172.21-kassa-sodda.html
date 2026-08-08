@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.21 — Kassa qoldiq panelini soddalashtirish</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1120px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:26px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:36px 0 8px;font-weight:700}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .ba{display:grid;grid-template-columns:1fr 40px 1fr;align-items:start}
+  @media(max-width:940px){ .ba{grid-template-columns:1fr;gap:16px} .arrow{display:none} }
+  .arrow{display:flex;align-items:center;justify-content:center;height:100%;color:#c9a227;font-size:24px;padding-top:100px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;
+       text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:9px}
+  .tag.b{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .tag.a{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .tag.b .dot{background:#e05050}.tag.a .dot{background:#4ac97e}
+
+  /* ilova paneli taqlidi */
+  .pan{background:#f7f4ec;border:1px solid #e3cf94;border-top:2px solid #c9a227;border-radius:12px;padding:10px 12px;color:#33302b}
+  .plbl{font-size:10.5px;color:#8a6d1c;letter-spacing:.08em;font-weight:700;margin-bottom:8px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:5px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+  .ce{background:#efece4;border-radius:8px;padding:7px 2px;text-align:center}
+  .ce .l{font-size:9.5px;color:#8a8578}
+  .ce .v{font-size:14px;font-weight:600;font-family:Roboto,monospace}
+  .gold{color:#a8842a}.blue{color:#2d6ea8}.teal{color:#1f7a70}.grn{color:#2e7d32}.rd{color:#c0392b}
+  .warn{background:#fbf3dd;border:1px solid #e3cf94;border-radius:9px;padding:7px 10px;margin-bottom:6px;font-size:11.5px;color:#8a6d1c}
+  .warn.red{background:#fbe6e6;border-color:#e0a5a5;color:#a13a3a}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+  .bt{border-radius:9px;padding:8px;text-align:center;font-size:12px;font-weight:700}
+  .bt.g{background:#e4f2e7;border:1.5px solid #9ccfa9;color:#2e7d32}
+  .bt.b{background:#e3eef7;border:1.5px solid #9cc0dd;color:#2d6ea8}
+  .bt.r{background:#fbe6e6;border:1.5px solid #dd9c9c;color:#c0392b}
+  .bt.y{background:#c9a227;color:#fff;border:1.5px solid #c9a227}
+  .sec{font-size:10px;color:#8a8578;text-transform:uppercase;letter-spacing:.06em;margin:7px 0 5px}
+  .item{background:#efece4;border-radius:8px;padding:6px 9px;margin-bottom:5px;font-size:11px;display:flex;justify-content:space-between}
+  .foot{display:flex;justify-content:space-between;font-size:10.5px;color:#8a8578;flex-wrap:wrap;gap:4px;margin-top:6px}
+
+  /* yangi dizayn */
+  .hero{background:#fff;border:1px solid #e0dcd2;border-radius:10px;padding:11px 13px;margin-bottom:6px}
+  .hero .l{font-size:10px;color:#8a8578;letter-spacing:.05em;text-transform:uppercase}
+  .hero .v{font-family:Roboto,monospace;font-size:30px;font-weight:700;color:#a8842a;line-height:1.15}
+  .hero .sp{display:flex;gap:12px;margin-top:5px;font-size:11.5px}
+  .flowline{display:flex;justify-content:space-between;align-items:center;background:#efece4;border:1px dashed #d5cfc0;
+            border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#8a8578}
+  .flowline b{font-family:Roboto,monospace;color:#33302b;font-weight:600}
+
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+</style>
+</head>
+<body>
+
+<h1>Kassa qoldiq panelini soddalashtirish</h1>
+<div class="sub">Hozirgi panel koddan aynan chizildi (<code>kassaQoldiqPanelHTML</code>
+<span class="num">4684–4789</span>). Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<h2>1 · Hozir panelda nima bor</h2>
+<div class="note">
+Bitta panelda <b>7 xil narsa</b>: 5 ta katak · 3 turdagi ogohlantirish · 4 tugma ·
+ochiq zakazlar ro'yxati · snabjenets amallari · bugungi kirim/chiqim · oxirgi Z.
+Ekranga sig'maydi, muhimi ko'zga tashlanmaydi.
+</div>
+
+<div class="ba">
+  <div>
+    <span class="tag b"><span class="dot"></span>Hozir</span>
+    <div class="pan">
+      <div class="plbl">KASSA QOLDIQ — HAQIQIY</div>
+      <div class="warn">⚠ <b>05.08.2026 kuni yopilmagan.</b> Qoldiqni sanab Z-hisob qiling.</div>
+      <div class="g3">
+        <div class="ce"><div class="l">Naqd ›</div><div class="v gold">$12,450</div>
+          <div style="font-size:9.5px;margin-top:2px"><span class="grn">erkin $9,450</span> · <span class="blue">band $3,000</span></div></div>
+        <div class="ce"><div class="l">Karta ›</div><div class="v blue">$8,320</div></div>
+        <div class="ce"><div class="l">Perech ›</div><div class="v teal">$41,900</div>
+          <div style="font-size:9px;color:#8a8578;margin-top:2px">oqim</div></div>
+      </div>
+      <div class="g2">
+        <div class="ce"><div class="l">Lom 583</div><div class="v gold">184.20 g</div></div>
+        <div class="ce"><div class="l">999</div><div class="v blue">62.40 g</div></div>
+      </div>
+      <div class="warn">⏳ Zavodga to'lanmagan — foyda suzib turibdi &nbsp;<b>318.44 g ▼</b></div>
+      <div class="btns"><div class="bt g">+ Sotib olish</div><div class="bt b">+ Zakaz</div>
+        <div class="bt r">− Chiqim</div><div class="bt y">✓ Kunni yopish</div></div>
+      <div class="sec">Ochiq zakazlar</div>
+      <div class="item"><span>Merrit · zakaz</span><span class="blue">$3,000</span></div>
+      <div class="sec">Snabjenets amallari · bugun</div>
+      <div class="item"><span>Hayat · berish — pul −$1,200</span><span>14:20</span></div>
+      <div class="foot"><span>Bugun: <span class="grn">+$2,100</span> / <span class="rd">−$1,200</span></span>
+        <span>So'nggi Z: 04.08 18:30 · $11,550</span></div>
+    </div>
+  </div>
+  <div class="arrow">→</div>
+  <div>
+    <span class="tag a"><span class="dot"></span>Taklif</span>
+    <div class="pan">
+      <div class="plbl">KASSA</div>
+      <div class="warn">⚠ <b>05.08 yopilmagan</b> · ⏳ zavodga to'lanmagan <b>318.44 g</b> &nbsp;›</div>
+      <div class="hero">
+        <div class="l">Naqd pul</div>
+        <div class="v">$12,450</div>
+        <div class="sp"><span class="grn">erkin $9,450</span><span class="blue">band $3,000</span></div>
+      </div>
+      <div class="g2">
+        <div class="ce"><div class="l">Lom 583</div><div class="v gold">184.20 g</div></div>
+        <div class="ce"><div class="l">999</div><div class="v blue">62.40 g</div></div>
+      </div>
+      <div class="flowline"><span>Tushum oqimi — Karta · Perech</span><b>$8,320 · $41,900 ›</b></div>
+      <div class="btns"><div class="bt g">+ Sotib olish</div><div class="bt b">+ Zakaz</div>
+        <div class="bt r">− Chiqim</div><div class="bt y">✓ Kunni yopish</div></div>
+      <div class="sec">Ochiq zakazlar</div>
+      <div class="item"><span>Merrit · zakaz</span><span class="blue">$3,000</span></div>
+      <div class="foot"><span>Bugun: <span class="grn">+$2,100</span> / <span class="rd">−$1,200</span></span>
+        <span>Z: 04.08 · $11,550</span></div>
+    </div>
+  </div>
+</div>
+
+<h2>2 · Nima o'zgardi va nega</h2>
+<table>
+<tr><th>O'zgarish</th><th>Sabab</th></tr>
+<tr><td><b>Naqd — katta, alohida</b> (30px, oq karta)</td>
+    <td>Kassada haqiqatan qancha pul borligi — asosiy savol. Hozir u boshqa 4 katak bilan teng ko'rinishda, yo'qolib ketadi.</td></tr>
+<tr><td><b>Karta va Perech pastga, «Tushum oqimi» qatoriga</b></td>
+    <td>Ikkalasi ham <b>qoldiq emas</b> — faqat o'sadi, hech qachon kamaymaydi
+    (<span class="num">3098</span>, <span class="num">3102</span> — faqat <code>+=</code>).
+    Qoldiq bilan yonma-yon turgani chalg'itadi. Bosilsa avvalgidek hisobot ochiladi.</td></tr>
+<tr><td><b>Lom 583 / 999 o'z qatorida</b></td>
+    <td>Bular oltin, pul emas — aralashmasin.</td></tr>
+<tr><td><b>Ogohlantirishlar bitta qatorga yig'ildi</b></td>
+    <td>Hozir uch xil banner alohida joy egallaydi. Bittaga jamlanadi, bosilsa yoyiladi.</td></tr>
+<tr><td><b>Snabjenets ro'yxati panelidan chiqdi</b></td>
+    <td>Kassa harakatlari bo'limida allaqachon ko'rinadi — takror.</td></tr>
+</table>
+
+<div class="note good">
+<b>Hisob-kitob O'ZGARMAYDI.</b> <code>kassaOqim</code> ga tegilmaydi — raqamlar
+o'sha-o'sha, faqat qanday ko'rsatilishi o'zgaradi. Tugmalar, Z-hisob, zakaz
+mantiqi — hammasi joyida.
+</div>
+
+<h2>3 · Alohida savol — Karta cho'ntagi</h2>
+<div class="note bad">
+Tekshiruvda topilgan: <b>Karta faqat o'sadi</b> — zavodga kartadan to'lansa ayirilmaydi
+(<span class="num">3105</span> faqat <code>naqtSumma</code> ni ayiradi), Z-tuzatish ham
+kartani bilmaydi (<span class="num">3147–3149</span>).
+<p style="margin-bottom:0">Yuqoridagi taklif buni <b>tuzatmaydi</b> — faqat «oqim» deb
+to'g'ri nomlaydi, chalg'itmaydigan qiladi. Haqiqiy qoldiqqa aylantirish —
+<b>alohida ish</b> (chiqim tomonini yozish kerak). Kerakmi — sen ayt.</p>
+</div>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>«Soddalashtirish» deganda <b>ko'rinishni</b> nazarda tutdingmi (men shunday tushundim),
+yoki <b>hisob mantiqini</b> (cho'ntaklar sonini kamaytirish)?</li>
+<li>Snabjenets ro'yxatini paneldan olib tashlash to'g'rimi — yoki kerakmi?</li>
+<li>Karta cho'ntagini haqiqiy qoldiqqa aylantiraymizmi (alohida ish)?</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Kassa qoldiq paneli soddalashtirilsin.</li>
+<li><span class="who m">MEN</span> Naqd — asosiy raqam, qolganlari ikkinchi darajada.</li>
+<li><span class="who m">MEN</span> Karta/Perech qoldiq emas → «oqim» sifatida pastda.</li>
+<li><span class="who m">MEN</span> <code>kassaOqim</code> ga TEGILMAYDI — bu sof ko'rinish ishi.</li>
+<li><span class="who m">MEN</span> Tugmalar, zakazlar, Z-hisob — o'z joyida.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><code>kassaQoldiqPanelHTML</code> <span class="num">4684–4789</span> — asosiy o'zgarish</li>
+<li><code>renderKassaCard</code> <span class="num">4791</span> — bosh ekrandagi mini karta,
+xohlasang u ham shu ko'rinishga keltiriladi</li>
+<li><code>kassaOqim</code> <span class="num">3088</span> — TEGILMAYDI</li>
+<li><code>openTolovHisobot</code>, Z/zakaz/chiqim modallari — TEGILMAYDI</li>
+<li>hamid roli (<span class="num">9704</span> — panel u yerda yashirin) — TEGILMAYDI</li>
+</ul>
+<b>DIFF BUDJETI:</b> ~40–55 qator. Versiya <b>v172.21</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>Taklif ma'qulmi — Naqd katta, Karta/Perech pastda «oqim», ogohlantirishlar bitta qatorda?</li>
+<li>Snabjenets ro'yxati paneldan chiqsinmi?</li>
+<li>Bosh ekrandagi mini kassa kartasi ham shunga moslashtirilsinmi?</li>
+<li>Karta cho'ntagini keyinroq haqiqiy qoldiqqa aylantiramizmi?</li>
+<li>Versiya v172.21?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

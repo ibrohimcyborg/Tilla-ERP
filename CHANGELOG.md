@@ -3,6 +3,31 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.21: tahrirda sana qo'shni to'lovga ham yozilardi — soat filtri qo'shildi
+
+Ibrohim: "tahrirlashga kirib sanasini 07 qilsam tagidagiyam 07 bo'p qolyapti,
+04 qilsam 04 bo'lyapti, ikkalasiyam to'lovda". Butterfly·3D, 07.08.2026 —
+19:48 va 17:34 dagi ikki to'lov.
+
+Sabab — SOAT hisobga olinmasdi, ikki joyda:
+
+1. 11371 ktahrir-btn da data-soat YO'Q edi. Yonidagi kchek-btn (11370) va
+   kochir-btn (11372) da bor. Qo'shildi.
+2. klientTarixTahrir (15916) faqat sana+tip bo'yicha yig'ardi, shuning uchun
+   o'sha kundagi HAMMA to'lov ops ga tushardi. saqlashKlientTahrir (15995)
+   esa op.sana = yangiSana ni ops ichidagi HAMMASIGA yozadi -> qo'shni
+   to'lovning sanasi ham o'zgarardi.
+
+Tuzatish: klientTarixOchir (16013) dagi shart AYNAN ko'chirildi —
+  if (soat && op.soat && op.soat !== soat) return false;
+Endi tahrir va o'chirish bir xil qoidada ishlaydi.
+
+Summa/kurs maydonlari avval ham to'g'ri edi (ktr-s-<i> har qatorga alohida) —
+faqat sana umumiy edi. saqlashKlientTahrir ga TEGILMADI, ostatka/qarz
+hisoblariga tegilmadi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.20: sandbox belgisi tepa markazga (sof vizual)
 
 Ibrohim adashib ADMIN xonasida ishlab yuborgan edi — skan vozvrat qilib,

@@ -1,4 +1,4 @@
-<!-- v172.20 -->
+<!-- v172.21 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.20';
+var APP_VER = 'v172.21';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11368,7 +11368,7 @@ function openKlientDetail(ki) {
         +'</div>';
     }
     tHTML+='<button class="kchek-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-soat="'+(g.soat||'')+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--purple-bd);color:var(--purple);border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;">🖨</button>';
-    tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
+    tHTML+='<button class="ktahrir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-soat="'+(g.soat||'')+'" data-berish="'+bVal+'" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">✏</button>';
     tHTML+='<button class="kochir-btn" data-ki="'+ki+'" data-sana="'+g.sana+'" data-soat="'+(g.soat||'')+'" data-berish="'+bVal+'" data-tip="'+g.tip+'" style="background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);border-radius:6px;width:28px;height:28px;font-size:13px;cursor:pointer;">🗑</button>';
     tHTML+='</div></div>';
 
@@ -15915,10 +15915,17 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
 function klientTarixTahrir(el) {
   var ki = parseInt(el.dataset.ki);
   var sana = el.dataset.sana;
+  var soat = el.dataset.soat || '';
   var isBerish = el.dataset.berish === '1';
   var k = data.klientlar[ki];
+  // v172.21: SOAT ham tekshiriladi. Avval faqat sana+tip bo'yicha yig'ilardi —
+  // bir kunda ikki to'lov bo'lsa ✏ ikkalasini ochib, saqlashda IKKALASIGA bir xil
+  // sana yozardi (15995). O'chirish funksiyasi (16013) allaqachon soatni tekshiradi,
+  // shart aynan o'shandan ko'chirildi — ikkalasi bir xil qoidada ishlasin.
   var ops = k.tarix.filter(function(op) {
-    return op.sana === sana && (isBerish ? op.tip === 'berish' : (op.tip === 'tolov' || op.tip === 'vozvrat'));
+    if (op.sana !== sana) return false;
+    if (soat && op.soat && op.soat !== soat) return false;
+    return isBerish ? op.tip === 'berish' : (op.tip === 'tolov' || op.tip === 'vozvrat');
   });
   if (!ops.length) return;
 
