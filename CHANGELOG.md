@@ -3,6 +3,48 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.25: lom va offset o'z to'loviga bog'lanmay qolardi
+
+Ibrohim ikki holatni ko'rsatdi. Ikkalasining sababi bir xil — yozuv SOAT siz
+bog'lanib, o'sha kundagi boshqa to'lovga yopishardi. Mockup:
+mockups/v172.25-lom-offset-guruh.html.
+
+### A) LOM hisobotda noto'g'ri to'lovda ko'rinardi
+
+Shavkatxon oka TJK, 06.08: lom 16:06 dagi to'lovda berilgan, klient
+hisobotida 16:14 dagi to'lovda chiqardi (klient tarixida to'g'ri edi).
+
+Sabab — ikki ekran ikki xil kalit ishlatardi:
+  klient TARIXI   (11337): op.sana + '|' + (op.soat||'')     <- to'g'ri
+  klient HISOBOTI (10667): ki + '|' + op.sana                <- SOATSIZ
+Ustiga shownLom qo'riqchisi (10794) lomni kuniga bir marta ko'rsatardi —
+sessiyalar yangidan eskiga chizilgani uchun har doim ENG KECHKI to'lovga
+yopishardi.
+
+Tuzatish: hisobot kaliti ham ki|sana|soat bo'ldi (10667, 10799).
+Lom yozuvida soat ALLAQACHON bor (13626), shuning uchun ESKI yozuvlar ham
+darrov o'z joyiga tushadi — migratsiya kerak emas.
+Eski (soatsiz) lom yozuvlari uchun fallback qoldirildi (10800-10805):
+ki|sana|'' bucket shownLom bilan kunning birinchi to'loviga chiqadi —
+aks holda ular hisobotdan butunlay yo'qolardi.
+
+### B) OFFSET yozuviga soat qo'shildi
+
+13676: to'lovdagi offset (_kdYopish) soatsiz saqlanardi. Sessiya kaliti
+(9711: ki|sana|soat) bo'yicha o'sha kundagi hamma offset bitta guruhga
+yopishib, o'z to'lovidan ajralardi (Ibrohim: "offset o'ziga biriktirilgan
+to'lovda qolsin"). Endi soat:_soat_kt yoziladi.
+Oddiy to'lov qatori (13695) va sotuvdagi offset (15427) allaqachon soat
+bilan yozilardi — faqat to'lovdagi offset chala edi.
+
+DIQQAT: B faqat YANGI yozuvlarga ta'sir qiladi. Allaqachon soatsiz
+saqlangan offsetlar o'z joyiga qaytmaydi — ularni tuzatish alohida ish
+(Ibrohim: "alohida mockup bilan qil"), keyingi versiyada.
+
+Hisob-kitob, qarz, kassa, saqlash mantiqi — TEGILMADI.
+Sinov: Node sintaksis toza; guruhlash sinovi — 16:06 sessiyasiga 1 lom,
+16:14 ga 0 lom ✓, soatsiz fallback ishlaydi ✓.
+
 ## v172.24: offsetdan yopilgan to'lov tarixda "⇄ Offset" bo'lib ko'rinadi
 
 Ibrohim: klient Jilva·Oddiy dan 14.69g vozvrat qildi -> offsetga o'tdi

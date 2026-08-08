@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.24 · 2026-08-08
+**Oxirgi yangilanish:** v172.25 · 2026-08-08
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.24** (`index.html` birinchi qatorida `<!-- v172.24 -->`, `APP_VER` da ham) |
+| Versiya | **v172.25** (`index.html` birinchi qatorida `<!-- v172.25 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | v172.23 gacha push qilingan — prod v172.23. **v172.24 hali push qilinmagan.** Push qarori faqat Ibrohimda. |
+| Git | v172.24 gacha push qilingan — prod v172.24. **v172.25 hali push qilinmagan.** Push qarori faqat Ibrohimda. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
 | **Dona baza** | **CHERNOVIK** — `DONA_BAZA_UI=false` (1966). Ko'rinmaydi, yozmaydi, muzlatilgan. To'liq o'tish rejasi: **PLAN.md** |
 
@@ -41,6 +41,19 @@ olib keldi.
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0f. Eski (soatsiz) offset yozuvlarini o'z to'loviga qaytarish — MOCKUP KERAK
+
+v172.25 da offset yozuviga `soat` qo'shildi, lekin faqat **yangi** yozuvlarga.
+Undan oldin saqlangan `_kdYopish` yozuvlarida soat **umuman yo'q** — sessiya
+kaliti (`ki|sana|soat`, 9711) bo'yicha ular o'sha kundagi bitta guruhga
+yopishib qoladi va boshqa to'lovga qo'shilib ko'rinadi (Marhabo Opa TJK,
+06.08 · 15:20 vs 15:22 misoli).
+
+Yechim yo'nalishi: o'qish paytida soati yo'q offsetni o'sha sana + o'sha
+zavod·tur bo'yicha to'lov qatoriga bog'lash (offset yozuvida `zavod`/`tur`
+saqlangan). Nozik joyi — bir kunda bir xil turga ikki to'lov bo'lsa qaysi
+biriga bog'lash. Ibrohim: "alohida mockup bilan qil".
 
 ### 0e. Dona bazaga to'liq o'tish — PLAN.md da (yangi, v172.13)
 
@@ -189,6 +202,7 @@ Qaror qabul qilinmagan.
 | v172.22 | Sana keyin o'zgartirilsa chek yangilanmasdi — berish/vozvrat/to'lov sana maydonlariga onchange qo'shildi |
 | v172.23 | Kurs avto-saqlanadi (Saqlash tugmasi o'rnida «Kunlik kurs» ko'rinadi) + kategoriya har amalda A dan boshlanadi, klientga yozilmaydi |
 | v172.24 | Offsetdan yopilgan to'lov tarixda va hisobotda «⇄ Offset» bo'lib ko'rinadi (ayirma bilan aniqlanadi, eski yozuvlarga ham ishlaydi) |
+| v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 

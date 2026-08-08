@@ -1,4 +1,4 @@
-<!-- v172.24 -->
+<!-- v172.25 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.24';
+var APP_VER = 'v172.25';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10664,7 +10664,10 @@ function renderKlientHisobot() {
     // operatsiyalarni sessiyalarga ajratamiz
     var sessMap={};
     k.tarix.forEach(function(op, oi){
-      if(op.tip==='lom'){ var lmk=ki+'|'+op.sana; (lomMap[lmk]=lomMap[lmk]||[]).push(op); return; } // lom — to'lov ichida ko'rsatamiz
+      // v172.25: kalitga SOAT qo'shildi — lom o'z to'lovida ko'rinsin. Avval faqat
+      // ki|sana edi, shuning uchun bir kunda ikki to'lov bo'lsa lom noto'g'risiga
+      // yopishardi. Klient tarixi (11337) allaqachon sana|soat ishlatadi — namuna o'sha.
+      if(op.tip==='lom'){ var lmk=ki+'|'+op.sana+'|'+(op.soat||''); (lomMap[lmk]=lomMap[lmk]||[]).push(op); return; } // lom — to'lov ichida ko'rsatamiz
       if (isBadVozvrat(op)) return; // yaroqsiz vozvrat ko'rsatilmasin
       var sk = ki+'|'+op.sana+'|'+(op.soat||'')+'|'+op.tip;
       if(!sessMap[sk]) sessMap[sk]={ki:ki,knom:k.nom,sana:op.sana,soat:op.soat||'',tip:op.tip,ops:[],order:sessions.length};
@@ -10790,11 +10793,19 @@ function renderKlientHisobot() {
         }
       }
       if(tip==='tolov'){
-        var _lmk=sess.ki+'|'+sana;
-        if(lomMap[_lmk] && !shownLom[_lmk]){
-          shownLom[_lmk]=true;
+        // v172.25: aniq mos (sana+soat) lom shu to'lovda chiqadi. Soati yo'q eski
+        // yozuvlar uchun avvalgi xatti-harakat saqlanadi (kunning birinchi to'lovi,
+        // shownLom qo'riqchisi bilan) — aks holda ular hisobotdan butunlay yo'qolardi.
+        var _lmkS=sess.ki+'|'+sana+'|'+(sess.soat||'');
+        var _lmkD=sess.ki+'|'+sana+'|';
+        var _lomlar=(lomMap[_lmkS]||[]);
+        if(_lmkD!==_lmkS && lomMap[_lmkD] && !shownLom[_lmkD]){
+          shownLom[_lmkD]=true;
+          _lomlar=_lomlar.concat(lomMap[_lmkD]);
+        }
+        if(_lomlar.length){
           var _lkurs=(sess.ops[0]&&sess.ops[0].op.kurs)||0;
-          lomMap[_lmk].forEach(function(L){
+          _lomlar.forEach(function(L){
             var _leq=(_lkurs>0)?Math.round((L.summa/_lkurs)*100)/100:0;
             html+='<div style="font-size:11px;color:var(--gold);margin-top:2px;">↩ Lom '+(L.proba||'')+': '+fmtG(L.gramm||0)+'g × '+(L.narx||0)+'$/g = $'+fmtD(L.summa||0)+(_lkurs>0?' ('+fmtG(_leq)+'g)':'')+'</div>';
           });
@@ -13658,7 +13669,11 @@ function saqlashKlientTolov(){
         var _ktRowUsed=Math.round(_ktOffsetPulUsed*_ktRowFrac*100)/100;
         var _ktRowUsedEq=kurs>0?roundG(_ktRowUsed/kurs):0;
         if(_ktRowUsed>0.001){
-          k.tarix.push({tip:'tolov',sana:sana,zavod:b.zavod,tur:b.tur,
+          // v172.25: soat QO'SHILDI — avval yozilmasdi, shuning uchun sessiya kaliti
+          // (9711: ki|sana|soat) bo'yicha o'sha kundagi hamma offset bitta guruhga
+          // yopishib, o'z to'lovidan ajralib qolardi. Oddiy to'lov qatori (13680) va
+          // sotuvdagi offset (15427) allaqachon soat bilan yoziladi.
+          k.tarix.push({tip:'tolov',sana:sana,soat:_soat_kt,zavod:b.zavod,tur:b.tur,
             summa:_ktRowUsed,kurs:kurs,ekvivalent:_ktRowUsedEq,kirimNarx:0,_kdYopish:true,naqtPul:0,kartaPul:0});
         }
       } else {
