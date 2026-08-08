@@ -3,6 +3,33 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.22: sana keyin o'zgartirilsa chek yangilanmasdi (berish/vozvrat/to'lov)
+
+Ibrohim: "sanani yozsam chekda o'sha sana chiqyapti, lekin yozmasdan keyin
+o'zgartirsam chekda qolib ketyapti". Mockup:
+mockups/v172.22-chek-sana-yangilanmaydi.html.
+
+Sabab: sana maydonlarida hodisa ulanmagan edi. Chek chizuvchilar sanani
+to'g'ri o'qiydi (kBerishUpdateChek 11668 va h.k.), lekin ular FAQAT gramm
+maydoni o'zgarganda chaqirilardi (berishOstatkaUpdate 11926 — butun faylda
+yagona chaqiruv). Ya'ni sana oldin qo'yilsa chek to'g'ri, keyin
+o'zgartirilsa chek qayta chizilmasdi.
+
+Tuzatish — 3 qator, sotuv modalidagi naqsh (1824 oninput="kSotuvCalc()")
+qolgan uchtasiga ko'chirildi:
+* 1551 kb-sana  -> onchange="kBerishUpdateChek()"
+* 1600 kv-sana  -> onchange="kVozvratUpdateChek()"
+* 1656 kt-sana  -> onchange="kTolovChekUpd()"
+
+Uchala funksiya ham DOM dan o'zi o'qiydi (parametr olmaydi), kTolovChekUpd
+window._kTolovBD dan foydalanadi — u modal ochilganda to'ldiriladi.
+Funksiyalar ichiga TEGILMADI. Saqlash mantiqi TEGILMADI — u allaqachon
+to'g'ri edi (sanani saqlash paytida qaytadan o'qiydi, 11985/12469/13463),
+shuning uchun bazadagi ma'lumot hech qachon buzilmagan — faqat ekrandagi va
+bosilgan chek eski sanani ko'rsatardi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato).
+
 ## v172.21: tahrirda sana qo'shni to'lovga ham yozilardi — soat filtri qo'shildi
 
 Ibrohim: "tahrirlashga kirib sanasini 07 qilsam tagidagiyam 07 bo'p qolyapti,

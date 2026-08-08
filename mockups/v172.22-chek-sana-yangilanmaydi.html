@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.22 — Sana o'zgarsa chek yangilanmaydi</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1080px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:26px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:34px 0 8px;font-weight:700}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:880px){.steps{grid-template-columns:1fr}}
+  .st{background:#1a1d22;border:1px solid #2e3238;border-radius:10px;padding:12px}
+  .st .n{display:inline-block;width:20px;height:20px;border-radius:50%;background:#c9a227;color:#12141a;
+         font-size:12px;font-weight:800;text-align:center;line-height:20px;margin-bottom:7px}
+  .st.bad{border-color:#6b3030;background:#1e1618}
+  .st.bad .n{background:#e05050;color:#fff}
+  .fld{background:#f7f4ec;border:1.5px solid #e0dcd2;border-radius:8px;padding:7px 10px;color:#33302b;
+       font-family:Roboto,monospace;font-size:13px;margin:6px 0}
+  .fld.on{border-color:#c9a227;background:#fbf3dd}
+  .paper{background:#fbf8f1;color:#2a2622;border-radius:5px;padding:10px;margin-top:6px}
+  .paper pre{margin:0;font-family:Consolas,monospace;font-size:9.5px;line-height:1.45;white-space:pre}
+  .hit{background:#ffe0e0;color:#a13a3a;font-weight:700}
+  .fix{background:#d9f2e0;color:#1f6b35;font-weight:700}
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.65}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .yes{color:#8fe0ab;font-weight:700}.no{color:#ff8b8b;font-weight:700}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+</style>
+</head>
+<body>
+
+<h1>Sana keyin o'zgartirilsa chekda eski sana qoladi</h1>
+<div class="sub">Ibrohim: «sanani yozsam chekda o'sha sana chiqyapti, lekin yozmasdan keyin
+o'zgartirsam chekda qolib ketyapti». Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<h2>1 · Nima bo'lyapti — qadam-baqadam</h2>
+
+<div class="steps">
+  <div class="st">
+    <span class="n">1</span>
+    <div style="font-size:12.5px;color:#c5c9d1">Modal ochiladi — sana bugun</div>
+    <div class="fld">05.08.2026</div>
+    <div class="muted">Chek hali yo'q (gramm kiritilmagan)</div>
+  </div>
+  <div class="st">
+    <span class="n">2</span>
+    <div style="font-size:12.5px;color:#c5c9d1">Gramm kiritiladi → chek chiziladi</div>
+    <div class="fld">05.08.2026</div>
+    <div class="paper"><pre>          Muhlisa Opa 21
+            <span class="fix">05.08.2026</span>
+------------------------------------
+Klientga berildi
+  Simay - Oddiy            -31.85g</pre></div>
+  </div>
+  <div class="st bad">
+    <span class="n">3</span>
+    <div style="font-size:12.5px;color:#c5c9d1">Sana o'zgartiriladi → chek <b>qotib qoladi</b></div>
+    <div class="fld on">08.08.2026 ←&nbsp;o'zgardi</div>
+    <div class="paper"><pre>          Muhlisa Opa 21
+            <span class="hit">05.08.2026</span>  ← ESKI
+------------------------------------
+Klientga berildi
+  Simay - Oddiy            -31.85g</pre></div>
+  </div>
+</div>
+
+<div class="note bad">
+<b>Sabab — sana maydonida hodisa ulanmagan.</b>
+<pre class="kod">1551:  &lt;input type="date" id="kb-sana" style="font-size:16px;"&gt;
+       <span style="color:#ff8b8b">^^ onchange YO'Q — sana o'zgarganda hech narsa chaqirilmaydi</span></pre>
+Chek chizuvchi <code>kBerishUpdateChek</code> sanani <b>to'g'ri o'qiydi</b>
+(<span class="num">11668</span>), lekin u faqat <b>gramm maydoni o'zgarganda</b>
+chaqiriladi — <code>berishOstatkaUpdate</code> ichidan (<span class="num">11926</span>),
+butun faylda yagona chaqiruv.
+<p style="margin-bottom:0">Ya'ni: sanani <b>oldin</b> qo'yib keyin gramm yozsang — chek to'g'ri
+(2-qadam). Grammni oldin yozib keyin sanani o'zgartirsang — chek qayta chizilmaydi (3-qadam).</p>
+</div>
+
+<div class="note info">
+<b>Saqlanganda sana TO'G'RI tushadi.</b> <code>saqlashKlientBerish</code> sanani
+saqlash paytida qaytadan o'qiydi (<span class="num">11985</span>) — ya'ni bazadagi
+yozuv to'g'ri, faqat <b>ekrandagi va bosilgan chek</b> eski sanani ko'rsatadi.
+Ma'lumot buzilmagan.
+</div>
+
+<h2>2 · Xuddi shu xato yana ikki modalda</h2>
+<p class="lead">Grep bilan tekshirdim — to'rt modalda sana maydoni bor, uchtasida hodisa yo'q:</p>
+
+<table>
+<tr><th>Modal</th><th>Sana maydoni</th><th>onchange</th><th>Chek yangilovchi</th><th>Holat</th></tr>
+<tr><td><b>Klientga berish</b></td><td class="num">1551 kb-sana</td><td class="no">YO'Q</td>
+    <td><code>kBerishUpdateChek</code> <span class="num">11660</span></td><td class="no">XATO</td></tr>
+<tr><td><b>Vozvrat</b></td><td class="num">1600 kv-sana</td><td class="no">YO'Q</td>
+    <td><code>kVozvratUpdateChek</code> <span class="num">12401</span></td><td class="no">XATO</td></tr>
+<tr><td><b>To'lov</b></td><td class="num">1656 kt-sana</td><td class="no">YO'Q</td>
+    <td><code>kTolovChekUpd</code> <span class="num">13334</span></td><td class="no">XATO</td></tr>
+<tr><td><b>Sotuv</b></td><td class="num">1824 ks-sana</td><td class="yes">BOR — <code>oninput="kSotuvCalc()"</code></td>
+    <td>kSotuvCalc</td><td class="yes">TO'G'RI</td></tr>
+</table>
+
+<div class="note good">
+<b>Sotuv modali to'g'ri yozilgan</b> — undagi naqsh boshqa uchtasiga ko'chiriladi.
+Yangi funksiya yozilmaydi, mavjud chek-chizuvchilar chaqiriladi, xolos.
+</div>
+
+<h2>3 · Tuzatish</h2>
+<pre class="kod">1551:  &lt;input type="date" id="kb-sana" <span class="fix">onchange="kBerishUpdateChek()"</span> …&gt;
+1600:  &lt;input type="date" id="kv-sana" <span class="fix">onchange="kVozvratUpdateChek()"</span> …&gt;
+1656:  &lt;input type="date" id="kt-sana" <span class="fix">onchange="kTolovChekUpd()"</span> …&gt;</pre>
+
+<p class="muted">Uchala funksiya ham DOM dan o'zi o'qiydi (parametr olmaydi) — to'g'ridan-to'g'ri
+chaqirsa bo'ladi, tekshirildi. <code>kTolovChekUpd</code> <code>window._kTolovBD</code> dan
+foydalanadi, u modal ochilganda to'ldiriladi — sana o'zgarganda mavjud bo'ladi.</p>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>Uchala modal birga tuzatilsinmi (men shuni taklif qilaman), yoki faqat berish?</li>
+<li><code>onchange</code> yetarlimi, yoki <code>oninput</code> kerakmi? Sotuvda
+<code>oninput</code> ishlatilgan. Kalendar maydonida ikkalasi ham ishlaydi;
+<code>onchange</code> — sana tanlab bo'lgandan keyin, <code>oninput</code> — har bosishda.
+Men <code>onchange</code> deb turibman (kamroq qayta chizadi).</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Sana keyin o'zgartirilsa chek ham yangilansin.</li>
+<li><span class="who m">MEN</span> Uchala modal (berish, vozvrat, to'lov) birga tuzatiladi —
+xato bir xil, alohida qoldirilsa keyin yana chiqadi.</li>
+<li><span class="who m">MEN</span> Yangi funksiya yozilmaydi — mavjud chek chizuvchilar chaqiriladi.</li>
+<li><span class="who m">MEN</span> Saqlash mantiqi TEGILMAYDI — u allaqachon to'g'ri
+(sanani saqlash paytida qaytadan o'qiydi).</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><span class="num">1551</span>, <span class="num">1600</span>, <span class="num">1656</span> —
+faqat shu uch qatorga <code>onchange</code> qo'shiladi</li>
+<li><code>kBerishUpdateChek</code> / <code>kVozvratUpdateChek</code> / <code>kTolovChekUpd</code> —
+ichiga TEGILMAYDI</li>
+<li><code>saqlashKlientBerish</code> (<span class="num">11985</span>),
+<code>saqlashKlientVozvrat</code> (<span class="num">12469</span>),
+<code>saqlashKlientTolov</code> (<span class="num">13463</span>) — TEGILMAYDI</li>
+<li>Sotuv modali (<span class="num">1824</span>) — allaqachon to'g'ri, tegilmaydi</li>
+</ul>
+<b>DIFF BUDJETI:</b> 3 qator. Versiya <b>v172.22</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>Uchala modal birga tuzatilsinmi (berish + vozvrat + to'lov)?</li>
+<li><code>onchange</code> ma'qulmi, yoki sotuvdagiday <code>oninput</code>?</li>
+<li>Versiya v172.22?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!-- v172.21 -->
+<!-- v172.22 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1548,7 +1548,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
       <input type="hidden" id="kb-klient" value="">
     </div>
-    <div class="field"><label>Sana</label><input type="date" id="kb-sana" style="font-size:16px;"></div>
+    <div class="field"><label>Sana</label><input type="date" id="kb-sana" onchange="kBerishUpdateChek()" style="font-size:16px;"></div>
     <div id="kb-turlar-card" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Turlar — gramm</div>
       <div id="kb-turlar-inputs"></div>
@@ -1597,7 +1597,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
       <input type="hidden" id="kv-klient" value="">
     </div>
-    <div class="field"><label>Sana</label><input type="date" id="kv-sana" style="font-size:16px;"></div>
+    <div class="field"><label>Sana</label><input type="date" id="kv-sana" onchange="kVozvratUpdateChek()" style="font-size:16px;"></div>
     <div id="kv-turlar-cont" style="display:none;">
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Vozvrat — istalgan zavod/tur</div>
       <div id="kv-turlar-list"></div>
@@ -1653,7 +1653,7 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
       <input type="hidden" id="kt-klient" value="">
     </div>
-    <div class="field"><label>Sana</label><input type="date" id="kt-sana" style="font-size:16px;"></div>
+    <div class="field"><label>Sana</label><input type="date" id="kt-sana" onchange="kTolovChekUpd()" style="font-size:16px;"></div>
     <div id="kt-kat-info" style="display:none;margin-bottom:8px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span id="kt-kat-lbl" style="font-size:12px;padding:4px 10px;border-radius:8px;border:0.5px solid;"></span>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.21';
+var APP_VER = 'v172.22';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
