@@ -3,6 +3,59 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.23: kurs avto-saqlash (Kunlik kurs ko'rinadi) + kategoriya doim A dan
+
+Mockup: mockups/v172.23-kurs-va-kategoriya-2.html.
+
+### 1) KURS — Saqlash tugmasi olib tashlandi
+
+Ibrohim: "nechi yozilsa avtomat saqla, bir xillarda Saqlashni bosish esdan
+chiqib noto'g'ri chiqyapti". Ildiz sabab: LOM maydoni avto-saqlardi
+(hkLomUpd 2576), KURS esa yo'q — hkUpd (2584) faqat LOM ko'rsatkichini
+qayta hisoblardi. Kursni yozadigan yagona joy Saqlash tugmasi edi.
+
+* 2464: kurs input ga onchange="hkSaqla()" qo'shildi.
+* 2466: Saqlash tugmasi -> "Kunlik kurs" bloki (hk-kunlik). Ibrohim:
+  "shetta kunlik kursi ko'rsatib tursa bo'larkan, bazida kunlik kurs
+  o'zgarib qolgan bo'lsa ko'rmay qolish mumkin". Tizim HOZIR ishlatayotgan
+  kurs + qachon yozilgani ko'rinib turadi. RANG O'ZGARMAYDI (Ibrohim
+  qarori — farq bo'lsa qizarish taklifi rad etildi).
+* hkKunlikHTML / hkKunlikUpd (2560) — blokni chizadi/yangilaydi.
+* hkAvtoSaqla + _hkTimer (2573): yozayotganda 600 ms kutib
+  tilla-kurs-bugun yoziladi ("7", "76", "76.5" uch marta yozilmasin).
+  Tarixga yozish maydondan chiqqanda — chala raqam arxivga tushmasin.
+* hkSaqla (2794): bo'sh qiymatda alert o'rniga jim return (endi avtomat
+  chaqiriladi). Tarix qoidasi o'zgardi — BIR KUNDA BITTA YOZUV, oxirgisi
+  shu kunniki bo'lsa ustiga yoziladi (avval o'zgargan qiymat yangi qator
+  qo'shardi, avto-saqlash bilan arxiv ifloslanardi). hkKunlikUpd qo'shildi.
+* Fokus tekshirildi: hkAvtoSaqla renderHomeKurs ni CHAQIRMAYDI (faqat
+  hk-kunlik blokini), shuning uchun yozayotganda maydon fokusdan chiqmaydi.
+  hkSaqla oxiridagi renderHomeKurs qoldi — u blur'da ishlaydi, zarar yo'q.
+* LOM maydoni TEGILMADI.
+
+### 2) KATEGORIYA — har safar A dan boshlanadi
+
+Ibrohim: "kategoriyalar muqim qotib turmasin, kirganda A da tursa bo'ldi,
+hech qanaqa ogohlantirish kerak emas". Sabab: ktKatSet (11127) va ksKatSet
+(11102) data.klientlar[ki].kat ni YOZARDI — bir marta C bosilsa klient
+abadiy C bo'lib qolardi va keyingi hamma to'lov/sotuv/narx shu bo'yicha
+ketardi.
+
+* _aktivKat (11101) — yangi global, amal davomidagi kategoriya.
+* ktKatSet / ksKatSet: k.kat yozish va save() OLIB TASHLANDI, o'rniga
+  _aktivKat = kat.
+* kTolovKlientChange (12632) va ksSotuvPickK (13858): klient tanlanganda
+  _aktivKat = 'A'.
+* getKatNarx (13994) endi _aktivKat dan o'qiydi — 14 ta chaqiruv joyi
+  o'z-o'zidan to'g'ri ishlaydi.
+* 12680 kat2 ham _aktivKat dan.
+* klientKatSet (11078, klient kartochkasi) — TEGILMADI (Ibrohim: so'ralmagan
+  joyga tegilmasin). U hali ham k.kat ni yozadi, lekin modallar uni
+  o'qimaydi. narxlarKursda (9465, tarixiy vozvrat hisobi) ham k.kat dan
+  o'qiyveradi — tegilmadi.
+
+Sinov: Node sintaksis toza (1 inline script, 0 xato). Diff 63+/17−.
+
 ## v172.22: sana keyin o'zgartirilsa chek yangilanmasdi (berish/vozvrat/to'lov)
 
 Ibrohim: "sanani yozsam chekda o'sha sana chiqyapti, lekin yozmasdan keyin

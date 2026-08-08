@@ -1,4 +1,4 @@
-<!-- v172.22 -->
+<!-- v172.23 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.22';
+var APP_VER = 'v172.23';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2461,9 +2461,12 @@ function renderHomeKurs() {
   out += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">';
   out += '<div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;">Kurs</div>';
   out += '<div style="display:flex;align-items:center;gap:3px;border:1.5px solid var(--gold-bd);background:var(--surf);border-radius:8px;padding:0 10px;height:42px;width:110px;">';
-  out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
+  out += '<input type="number" id="hk-kurs-inp" value="'+kurs+'" placeholder="0.00" oninput="hkUpd()" onchange="hkSaqla()" style="flex:1;border:none;background:transparent;font-size:18px;color:var(--gold);text-align:right;outline:none;font-weight:700;width:0;">';
   out += '<span style="font-size:12px;color:var(--gold-bd);">$/g</span></div></div>';
-  out += '<button onclick="hkSaqla()" style="padding:0 14px;height:42px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;cursor:pointer;align-self:flex-end;">Saqlash</button>';
+  // v172.23 (Ibrohim): Saqlash tugmasi OLIB TASHLANDI — kurs avtomat saqlanadi (hkUpd 600ms).
+  // O'rnida tizim HAQIQATDA ishlatayotgan kunlik kurs turadi: "bazida kunlik kurs
+  // o'zgarib qolgan bo'lsa ko'rmay qolish mumkin". Rang o'zgarmaydi (Ibrohim qarori).
+  out += '<div id="hk-kunlik" style="border:1px dashed var(--gold-bd);background:rgba(255,255,255,0.35);border-radius:8px;height:42px;padding:0 11px;display:flex;flex-direction:column;justify-content:center;align-self:flex-end;min-width:104px;">'+hkKunlikHTML()+'</div>';
   out += '</div></div></div>';
   out += '<div style="background:var(--surf2);border-radius:12px;padding:12px;margin-bottom:12px;" id="hk-turlar-cont">';
   out += '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Turlar narxi</div>';
@@ -2549,6 +2552,33 @@ function hkLomUpd() {
   }
 }
 
+// v172.23: "Kunlik kurs" bloki — tizim HOZIR ishlatayotgan kurs va u qachon yozilgani.
+// Saqlash tugmasi o'rnida turadi, avto-saqlashdan keyin darrov yangilanadi.
+function hkKunlikHTML() {
+  var v = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0')||0;
+  var tarix = kursTarixOl();
+  var last = tarix.length ? tarix[tarix.length-1] : null;
+  var vaqt = last ? ((last.sana||'').slice(0,5)+' · '+(last.soat||'')) : '—';
+  return '<div style="font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;line-height:1.2;">Kunlik kurs</div>'
+    + '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:700;color:var(--gold);line-height:1.2;">'+(v>0?(v+' $/g'):'—')+'</div>'
+    + '<div style="font-size:8px;color:var(--muted);line-height:1.2;">'+vaqt+'</div>';
+}
+function hkKunlikUpd() {
+  var el = document.getElementById('hk-kunlik');
+  if (el) el.innerHTML = hkKunlikHTML();
+}
+// v172.23: yozayotganda 600 ms kutib avto-saqlash — "7", "76", "76.5" uch marta
+// yozilmasin. Faqat joriy kursni (tilla-kurs-bugun) yozadi; TARIXGA yozish
+// maydondan chiqqanda (onchange -> hkSaqla) bo'ladi, chala raqam arxivga tushmasin.
+var _hkTimer = null;
+function hkAvtoSaqla() {
+  var val = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
+  if (!val) return;
+  localStorage.setItem('tilla-kurs-bugun', val);
+  hkKunlikUpd();
+  if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
+  if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+}
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
   var farq = parseFloat(localStorage.getItem('tilla-lom-farq') || '-2');
@@ -2557,6 +2587,8 @@ function hkUpd() {
     var newLom = Math.round((kurs + farq)*10)/10;
     lomEl.value = newLom;
   }
+  if (_hkTimer) clearTimeout(_hkTimer);
+  _hkTimer = setTimeout(hkAvtoSaqla, 600);
   hkRenderTurlar(kurs);
 }
 
@@ -2761,22 +2793,30 @@ function kursTarixOl(){
 
 function hkSaqla() {
   var val = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
-  if (!val) { alert('Kurs kiriting!'); return; }
+  // v172.23: endi bu maydondan chiqqanda AVTOMAT chaqiriladi (tugma yo'q) —
+  // bo'sh bo'lsa jimgina chiqamiz, alert chiqarmaymiz.
+  if (!val) return;
   var tarix = kursTarixOl(); // xronologik saralangan
   var now = new Date();
   var sana = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-  // TAKROR HIMOYASI: oxirgi yozuv shu kunda va AYNAN shu kurs bo'lsa — tarixga qayta yozilmaydi
-  // (Saqlash tugmasi necha marta bosilsa ham bitta yozuv). Kurs o'zgargan bo'lsa — yangi yozuv.
+  // v172.23: BIR KUNDA BITTA YOZUV. Oxirgi yozuv shu kunniki bo'lsa — ustiga yoziladi
+  // (avval o'zgargan qiymat yangi qator qo'shardi; avto-saqlash bilan bu arxivni
+  // ifloslantirardi). Boshqa kun bo'lsa — yangi qator.
   var _oxirgi = tarix.length ? tarix[tarix.length-1] : null;
-  var _birXil = _oxirgi && _oxirgi.sana===sana && Math.abs(parseFloat(_oxirgi.kurs)-val)<0.001;
-  if (!_birXil) {
+  if (_oxirgi && _oxirgi.sana===sana) {
+    if (Math.abs(parseFloat(_oxirgi.kurs)-val) >= 0.001) {
+      _oxirgi.kurs = val; _oxirgi.soat = soat;
+      localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
+    }
+  } else {
     tarix.push({kurs:val, sana:sana, soat:soat});
     kursTarixSort(tarix); // saqlashda ham xronologik tartib kafolatlanadi
     if (tarix.length > 100) tarix = tarix.slice(-100);
     localStorage.setItem('tilla-kurs-tarix', JSON.stringify(tarix));
   }
   localStorage.setItem('tilla-kurs-bugun', val);
+  hkKunlikUpd();   // v172.23: "Kunlik kurs" bloki darrov yangi qiymatni ko'rsatsin
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
@@ -11054,11 +11094,15 @@ function _katBtnUpd(prefix, kat) {
   });
 }
 
+// v172.23 (Ibrohim): "kategoriyalar muqim qotib turmasin, kirganda A da tursa bo'ldi".
+// Avval bu tugmalar data.klientlar[ki].kat ni YOZARDI — bir marta C bosilsa klient
+// abadiy C bo'lib qolardi. Endi tanlov FAQAT shu amalga tegishli: _aktivKat da yashaydi,
+// modal ochilganda 'A' ga qaytariladi, klient yozuviga tegilmaydi.
+var _aktivKat = 'A';
 function ksKatSet(kat) {
   var ki = _ksSotuvKi;
   if(ki<0||!data.klientlar[ki]) return;
-  data.klientlar[ki].kat = kat;
-  save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
+  _aktivKat = kat;
   _katBtnUpd('ks', kat);
   var cG=document.getElementById('ks-c-global');
   if(cG) cG.style.display=kat==='C'?'flex':'none';
@@ -11084,8 +11128,7 @@ function ksKatSet(kat) {
 function ktKatSet(kat) {
   var ki = parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)||!data.klientlar[ki]) return;
-  data.klientlar[ki].kat = kat;
-  save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
+  _aktivKat = kat;                      // v172.23: faqat shu to'lovga, klientga yozilmaydi
   _katBtnUpd('kt', kat);
   var cG=document.getElementById('kt-c-global');
   if(cG) cG.style.display=kat==='C'?'flex':'none';
@@ -12586,7 +12629,8 @@ function kTolovKlientChange(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){document.getElementById('kt-turlar-cont').style.display='none';return;}
   var k=data.klientlar[ki];
-  var kat=k.kat||'A';
+  _aktivKat = 'A';               // v172.23: har klient tanlanganda A dan boshlanadi
+  var kat=_aktivKat;
   var katStyles={A:{bg:'var(--blue-bg)',bd:'var(--blue-bd)',c:'var(--blue)',lbl:'A — Optom'},B:{bg:'var(--green-bg)',bd:'var(--green-bd)',c:'var(--green)',lbl:'B — Guruh'},C:{bg:'var(--yellow-bg)',bd:'var(--gold-bd)',c:'var(--gold)',lbl:'C — Ixtiyoriy'}};
   var ks2=katStyles[kat]||katStyles.A;
   var katInfoEl=document.getElementById('kt-kat-info');
@@ -12633,7 +12677,7 @@ function kTolovKlientChange(){
     var bizQarzdor = b.qarz < -0.001;
     var katNarx=getKatNarx(b.zi,b.ti,ki);
     var zKirimNarx=getZavodNarx(b.zi,b.ti)||'';
-    var kat2=k.kat||'A';
+    var kat2=_aktivKat||'A';   // v172.23: shu to'lov uchun tanlangan kategoriya
     var cUstamaRow='';
     if(kat2==='C'){
       var zNarx2=getZavodNarx(b.zi,b.ti)||0;
@@ -13811,7 +13855,8 @@ function ksSotuvPickK(ki) {
   document.getElementById('ks-qarz-lbl').textContent = 'qarz: '+fmtG(qarz)+'g';
   document.getElementById('ks-qarz-lbl').style.color = qarz > 0 ? 'var(--red)' : 'var(--green)';
   document.getElementById('ks-yangi-tag').style.display = 'none';
-  var kat = k.kat||'A';
+  _aktivKat = 'A';               // v172.23: sotuvda ham har klientda A dan boshlanadi
+  var kat = _aktivKat;
   _katBtnUpd('ks', kat);
   var cG=document.getElementById('ks-c-global');
   if(cG) cG.style.display=kat==='C'?'flex':'none';
@@ -13945,7 +13990,8 @@ function kSotuvRenderZavodlar() {
 function getKatNarx(zi, ti, ki) {
   var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
   if (!kurs) return '';
-  var kat = (ki >= 0 && data.klientlar[ki]) ? (data.klientlar[ki].kat || 'A') : 'A';
+  // v172.23: klient yozuvidagi kat emas — shu amal uchun tanlangan kategoriya (doim A dan boshlanadi)
+  var kat = _aktivKat || 'A';
   if (kat === 'A' || kat === 'B') {
     // A: kurs + A%,  B: kurs + A% + ustama
     var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.23 — Kurs avto-saqlash (kunlik kurs ko'rinadi) + kategoriya doim A</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:1080px;margin:0 auto;padding:26px 18px 70px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:24px}
+  h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#c9a227;margin:34px 0 8px;font-weight:700}
+  h3{font-size:13px;color:#e9e7e1;margin:18px 0 6px}
+  .lead{color:#a9adb6;font-size:14px;margin:0 0 14px}
+  .part{border-top:1px solid #2c3038;margin-top:34px;padding-top:6px}
+  .ba{display:grid;grid-template-columns:1fr 40px 1fr;align-items:start}
+  @media(max-width:900px){ .ba{grid-template-columns:1fr;gap:14px} .arrow{display:none} }
+  .arrow{display:flex;align-items:center;justify-content:center;height:100%;color:#c9a227;font-size:24px;padding-top:55px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;
+       text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:9px}
+  .tag.b{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .tag.a{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .tag.b .dot{background:#e05050}.tag.a .dot{background:#4ac97e}
+
+  .kurs{background:#f6ecd0;border:1.5px solid #e3cf94;border-radius:12px;padding:12px;color:#33302b;
+        display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+  .kurs .ttl{font-size:12.5px;font-weight:600;color:#8a6d1c}
+  .kurs .sm{font-size:9.5px;color:#8a8578}
+  .inp{border:1px solid #d8d2c2;background:rgba(255,255,255,.7);border-radius:8px;padding:0 8px;height:38px;
+       display:flex;align-items:center;gap:3px;font-family:Roboto,monospace}
+  .inp.gold{border:1.5px solid #cfa93d;background:#fff}
+  .inp .v{font-size:16px;font-weight:600}
+  .inp.gold .v{font-size:17px;color:#a8842a;font-weight:700}
+  .inp .u{font-size:10px;color:#8a8578}
+  .lbl{font-size:8.5px;color:#8a8578;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;text-align:right}
+  .savebtn{background:#a8842a;color:#fff;border-radius:8px;height:38px;padding:0 14px;display:flex;align-items:center;font-size:12.5px;font-weight:600}
+  .kunlik{background:rgba(255,255,255,.55);border:1px dashed #cfa93d;border-radius:8px;height:38px;padding:0 11px;
+          display:flex;flex-direction:column;justify-content:center;min-width:104px}
+  .kunlik .k1{font-size:8px;color:#8a6d1c;text-transform:uppercase;letter-spacing:.05em;line-height:1.2}
+  .kunlik .k2{font-family:Roboto,monospace;font-size:13px;font-weight:700;color:#8a6d1c;line-height:1.2}
+  .kunlik .k3{font-size:8px;color:#8a8578;line-height:1.2}
+  .kunlik.warn{border-style:solid;border-color:#c84545;background:#fbe6e6}
+  .kunlik.warn .k1,.kunlik.warn .k2{color:#a13a3a}
+
+  .modal{background:#fbf8f1;border-radius:12px;padding:13px;color:#33302b;max-width:340px}
+  .kl{background:#e4f2e7;border:1px solid #9ccfa9;border-radius:10px;padding:9px 11px;margin-bottom:8px}
+  .kl .nm{font-size:13px;font-weight:700;margin-bottom:7px}
+  .kats{display:flex;gap:6px}
+  .kt{flex:1;text-align:center;padding:5px 0;border-radius:8px;font-size:12px;font-weight:700;
+      border:1.5px solid #ddd8cc;background:#efece4;color:#8a8578}
+  .kt.onblue{border-color:#9cc0dd;background:#e3eef7;color:#2d6ea8}
+  .kt.ongold{border-color:#cfa93d;background:#fbf3dd;color:#8a6d1c}
+  .chip{display:inline-block;background:#e3eef7;border:1px solid #9cc0dd;color:#2d6ea8;border-radius:7px;
+        padding:3px 9px;font-size:11px;font-weight:600;margin-top:7px}
+  .chip.gold{background:#fbf3dd;border-color:#e3cf94;color:#8a6d1c}
+  .warnrow{background:#fbe6e6;border:1px solid #e0a5a5;color:#a13a3a;border-radius:8px;padding:6px 10px;font-size:11px;margin-top:7px}
+
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+  td b{color:#f0ede6}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.65}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0}
+  .q2 ol{margin:8px 0 0;padding-left:20px}.q2 li{margin:8px 0}
+  .q2 ul{margin:6px 0 0;padding-left:20px}.q2 ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .yes{color:#8fe0ab;font-weight:700}.no{color:#ff8b8b;font-weight:700}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+</style>
+</head>
+<body>
+
+<h1>Kurs — kunlik kurs ko'rinib tursin · Kategoriya — doim A</h1>
+<div class="sub">Sening ikki qaroring bo'yicha qayta chizildi. Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<!-- ═══════════════ 1 ═══════════════ -->
+<h2>1 · Kurs paneli — Saqlash o'rniga «Kunlik kurs»</h2>
+
+<div class="ba">
+  <div>
+    <span class="tag b"><span class="dot"></span>Hozir</span>
+    <div class="kurs">
+      <div><div class="ttl">Bugungi kurs</div><div class="sm">08.08.2026 · 12:04</div></div>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <div><div class="lbl">Lom</div><div class="inp"><span class="v">74,5</span><span class="u">$/g</span></div></div>
+        <div><div class="lbl" style="color:#a8842a">Kurs</div><div class="inp gold"><span class="v">76,5</span><span class="u">$/g</span></div></div>
+        <div class="savebtn">Saqlash</div>
+      </div>
+    </div>
+    <p class="muted">Saqlash bosilmasa 76,5 hech qayerga yozilmaydi — tizim eski kursni ishlatadi,
+    lekin buni ko'rsatadigan hech narsa yo'q.</p>
+  </div>
+  <div class="arrow">→</div>
+  <div>
+    <span class="tag a"><span class="dot"></span>Taklif</span>
+    <div class="kurs">
+      <div><div class="ttl">Bugungi kurs</div><div class="sm">08.08.2026 · 12:04</div></div>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <div><div class="lbl">Lom</div><div class="inp"><span class="v">74,5</span><span class="u">$/g</span></div></div>
+        <div><div class="lbl" style="color:#a8842a">Kurs</div><div class="inp gold"><span class="v">76,5</span><span class="u">$/g</span></div></div>
+        <div class="kunlik"><div class="k1">Kunlik kurs</div><div class="k2">76,5 $/g</div><div class="k3">08.08 · 12:04</div></div>
+      </div>
+    </div>
+    <p class="muted">Saqlash tugmasi <b>yo'q</b> — yozilishi bilan avtomat saqlanadi.
+    O'rnida <b>haqiqatda saqlangan kunlik kurs</b> turadi: qachon va qancha.
+    Belgi ham, tugma ham kerak emas — raqamning o'zi javob beradi.</p>
+  </div>
+</div>
+
+<h3>Nima uchun aynan shunday</h3>
+<div class="note info">
+Sen aytding: «bazida kunlik kurs o'zgarib qolgan bo'lsa ko'rmay qolish mumkin».
+Endi o'ng tomonda <b>tizim ishlatayotgan kurs</b> doim ko'rinib turadi. Boshqa qurilmada
+o'zgargan bo'lsa ham, ertalabdan qolgan bo'lsa ham — sanasi bilan ko'rasan.
+</div>
+
+<div class="note bad">
+<b>Farq bo'lsa qizil bo'ladi</b> — yozayotgan raqaming saqlangandan boshqa bo'lsa
+(masalan yozib bo'lmay turib, yoki boshqa qurilma o'zgartirgan bo'lsa):
+<div style="margin-top:9px"><div class="kunlik warn" style="display:inline-flex"><div class="k1">Kunlik kurs</div><div class="k2">74,0 $/g</div><div class="k3">07.08 · 19:20</div></div></div>
+<p style="margin-bottom:0;margin-top:8px" class="muted">Bir soniyada ko'rinadi: ekranda 76,5 yozilgan,
+lekin tizim 74,0 ni ishlatyapti.</p>
+</div>
+
+<h3>Saqlash qachon bo'ladi</h3>
+<table>
+<tr><th>Qachon</th><th>Nima</th></tr>
+<tr><td>Yozayotganda (600 ms kutib)</td><td><code>tilla-kurs-bugun</code> yangilanadi, «Kunlik kurs» darrov yangi raqamni ko'rsatadi</td></tr>
+<tr><td>Maydondan chiqqanda</td><td>Kurs tarixiga yoziladi — bir kunda <b>bitta</b> yozuv, ustiga yoziladi (arxiv ifloslanmasin)</td></tr>
+</table>
+
+<!-- ═══════════════ 2 ═══════════════ -->
+<div class="part"></div>
+<h2>2 · Kategoriya — har safar A dan boshlanadi</h2>
+
+<div class="ba">
+  <div>
+    <span class="tag b"><span class="dot"></span>Hozir</span>
+    <div class="modal">
+      <div class="kl"><div class="nm">Shuhrat Aka 585</div>
+        <div class="kats"><div class="kt">A</div><div class="kt">B</div><div class="kt ongold">C</div></div>
+      </div>
+      <span class="chip gold">C — Ixtiyoriy</span>
+      <div class="warnrow">O'tgan safar C bosilgan → klient <b>abadiy C</b> bo'lib qolgan</div>
+    </div>
+    <p class="muted">Tugma <code>data.klientlar[ki].kat</code> ni yozadi
+    (<span class="num">11087</span>) — bir marta bosilsa keyingi hamma to'lov,
+    sotuv va narx hisobi C bo'yicha ketaveradi.</p>
+  </div>
+  <div class="arrow">→</div>
+  <div>
+    <span class="tag a"><span class="dot"></span>Taklif</span>
+    <div class="modal">
+      <div class="kl"><div class="nm">Shuhrat Aka 585</div>
+        <div class="kats"><div class="kt onblue">A</div><div class="kt">B</div><div class="kt">C</div></div>
+      </div>
+      <span class="chip">A — Optom</span>
+    </div>
+    <p class="muted">Modal <b>har safar A da ochiladi</b> — qaysi klient bo'lishidan qat'i nazar.
+    B yoki C bossang faqat <b>shu amalga</b> qo'llanadi, klient yozuviga yozilmaydi.
+    Modal yopilgach unutiladi. Hech qanday ogohlantirish yo'q.</p>
+  </div>
+</div>
+
+<div class="note good">
+Sotuv modalida ham xuddi shunday (<code>ksKatSet</code> <span class="num">11057</span>) —
+ikkisi har xil ishlamasin.
+</div>
+
+<div class="note info">
+<b>Narx hisobiga ta'sir:</b> A/B/C ustama formulasi <b>o'zgarmaydi</b>
+(<code>narxlarKursda</code> <span class="num">9465</span>). Faqat qaysi harf uzatilishi
+o'zgaradi — endi doim A dan boshlanadi, sen o'zgartirsang o'sha amalga o'zgargani ketadi.
+Eski yozuvlarga tegilmaydi.
+</div>
+
+<!-- ═══════════════ TAXMIN ═══════════════ -->
+<div class="part"></div>
+<h2>TAXMIN BLOKI</h2>
+<div class="q2">
+<b>1. ANIQ BILMAYOTGAN JOYIM</b>
+<ul>
+<li>Klient kartochkasidagi kategoriya tugmasi (<span class="num">11038</span>,
+<span class="num">11202</span>) nima bo'lsin? Modal endi uni o'qimaydi, ya'ni u
+<b>ishlamay qoladi</b>. Ikki yo'l: (a) o'sha yerda ham olib tashlash, (b) hozircha tegmasdan
+qoldirish. Men <b>(b)</b> deb turibman — so'ramagan joyingga tegmayin, keyin kerak bo'lsa aytasan.</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Kurs: Saqlash tugmasi olinsin, avto-saqlansin.</li>
+<li><span class="who u">IBROHIM</span> «✓ saqlandi» belgisi KERAK EMAS — o'rniga kunlik kurs ko'rinsin.</li>
+<li><span class="who u">IBROHIM</span> Kategoriya qotib qolmasin, kirganda A tursa bo'ldi.</li>
+<li><span class="who u">IBROHIM</span> Ogohlantirish KERAK EMAS.</li>
+<li><span class="who m">MEN</span> Yozayotganda 600 ms kutib saqlanadi — «7», «76», «76,5» uch marta yozilmasin.</li>
+<li><span class="who m">MEN</span> Kunlik kurs ekrandagidan farq qilsa qizil bo'ladi — ko'rmay qolmaslik uchun.</li>
+<li><span class="who m">MEN</span> Kurs tarixida bir kunda bitta yozuv (ustiga yoziladi).</li>
+<li><span class="who m">MEN</span> Kategoriya sotuv modaliga ham bir xil qoida bilan.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li>Kurs: <span class="num">2464</span> input · <span class="num">2466</span> Saqlash tugmasi →
+kunlik kurs bloki · <code>hkUpd</code> <span class="num">2552</span> ·
+<code>hkSaqla</code> <span class="num">2762</span> (avto-saqlashga moslanadi, o'chirilmaydi)</li>
+<li><code>tilla-kurs-bugun</code> o'quvchilar — TEGILMAYDI</li>
+<li>LOM maydoni — TEGILMAYDI (allaqachon avto-saqlaydi)</li>
+<li>Kategoriya: <code>ktKatSet</code> <span class="num">11084</span> ·
+<code>ksKatSet</code> <span class="num">11057</span> — <code>k.kat</code> yozish olib tashlanadi,
+o'rniga amal ichidagi o'zgaruvchi</li>
+<li>O'quvchilar <span class="num">12589</span> · <span class="num">13814</span> ·
+<span class="num">13948</span> — <code>k.kat</code> o'rniga <code>'A'</code> dan boshlanadi</li>
+<li><code>narxlarKursda</code> <span class="num">9465</span>, hisobotlar (<span class="num">9566</span>,
+<span class="num">9594</span>, <span class="num">9626</span>) — TEGILMAYDI</li>
+<li>Klient kartochkasi <span class="num">11038</span>/<span class="num">11202</span> —
+yuqoridagi savolga qarab</li>
+</ul>
+<b>DIFF BUDJETI:</b> kurs ~15 qator · kategoriya ~15 qator. Versiya <b>v172.23</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q2">
+<ol>
+<li>Kurs paneli shundaymi — Saqlash o'rnida «Kunlik kurs 76,5 · 08.08 12:04»?</li>
+<li>Farq bo'lsa qizil bo'lishi kerakmi, yoki doim bir xil rangda tursinmi?</li>
+<li>Kategoriya — modal doim A da ochiladi, B/C faqat shu amalga. To'g'rimi?</li>
+<li>Klient kartochkasidagi kategoriya tugmasiga tegilmasinmi (men shuni taklif qilaman)?</li>
+<li>Versiya v172.23 — ikkalasi birga?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:26px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>
