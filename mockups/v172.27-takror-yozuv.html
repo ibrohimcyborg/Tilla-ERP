@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.27 — Yozuvlar ikki marta yozilyapti</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:960px;margin:0 auto;padding:26px 18px 60px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:21px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:22px}
+  h2{font-size:15px;color:#c9a227;margin:30px 0 10px;font-weight:700}
+  h3{font-size:13px;color:#e9e7e1;margin:16px 0 6px}
+  .step{display:flex;gap:11px;margin-bottom:11px;align-items:flex-start}
+  .num{flex:none;width:24px;height:24px;border-radius:50%;background:#2c3038;color:#e9e7e1;
+       font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .num.bad{background:#c84545;color:#fff}
+  .step .tx{font-size:13.5px;color:#c5c9d1}
+  .step .tx b{color:#e9e7e1}
+  .card{background:#f7f4ec;border:1px solid #e0dcd2;border-radius:9px;padding:10px 12px;color:#33302b;margin:8px 0}
+  .card .nm{font-size:12.5px;font-weight:700;margin-bottom:6px}
+  .r{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:#8a8578}
+  .r b{font-family:Roboto,monospace;color:#c0392b}
+  .r.dup{background:#fbe6e6;border-radius:5px;padding:2px 6px;margin:1px -6px}
+  .r.dup b{font-weight:800}
+  .tot{border-top:1px solid #ddd8cc;margin-top:5px;padding-top:5px;display:flex;justify-content:space-between;font-size:12.5px;font-weight:700}
+  .hisob{background:#1a1d22;border:1px solid #2e3238;border-radius:8px;padding:12px 15px;
+         font-family:monospace;font-size:13px;margin:10px 0;line-height:1.9}
+  .del{color:#ff8b8b}.add{color:#8fe0ab}.gld{color:#e8c14f}
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.bad{border-left-color:#e05050}.note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.6}
+  .num2{color:#8ab4f8;font-family:monospace;font-size:12px}
+  .q{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px}
+  .q ol{margin:8px 0 0;padding-left:20px}.q li{margin:7px 0}
+  .q ul{margin:6px 0 0;padding-left:20px}.q ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .fix{background:#12211a;border:1px solid #2c5340;border-radius:9px;padding:11px 14px;margin:10px 0}
+  .fix .h{font-size:13px;font-weight:700;color:#8fe0ab;margin-bottom:5px}
+  .fix .b{font-size:12.5px;color:#a9c9b4}
+  .warn{background:#211412;border:1px solid #5a2d28;border-radius:9px;padding:11px 14px;margin:10px 0;font-size:12.5px;color:#e0a5a5}
+</style>
+</head>
+<body>
+
+<h1>Yozuvlar ikki marta yozilyapti — sabab va yechim</h1>
+<div class="sub">Ibrohim topdi: 41.56 g berdi, tizim 83.12 yozdi. 5 g o'chirdi, 10 g qo'shildi.
+Ikkalasi bir xil xato. Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<h2>1 · Nima bo'lyapti — qadam-baqadam</h2>
+
+<div class="step"><div class="num">1</div><div class="tx">
+  Klientga <b>5 g</b> berasan. Yozuv <b>_id siz</b> saqlanadi (localStorage ga).
+</div></div>
+<div class="step"><div class="num">2</div><div class="tx">
+  Keyin cloudga yuboriladi — <b>o'sha yerda _id beriladi</b>, lekin faqat xotirada.
+</div></div>
+<div class="step"><div class="num">3</div><div class="tx">
+  Ekran to'g'ri: <b>5980.82 − 5 = 5975.82</b> ✓ (bitta yozuv)
+</div></div>
+<div class="step"><div class="num bad">4</div><div class="tx">
+  <b>Sahifa qayta yuklanadi.</b> localStorage dagi nusxada _id yo'q. Cloud esa _id bilan
+  o'sha yozuvni qaytaradi. Tizim «bu _id bormi?» deb tekshiradi — lokal nusxada _id
+  yo'q, mos kelmaydi → <b>ikkinchi nusxa qo'shiladi</b>.
+</div></div>
+<div class="step"><div class="num bad">5</div><div class="tx">
+  Endi tarixda <b>ikkita −5</b> bor. Ombor 10 g kam ko'rsatadi.
+</div></div>
+<div class="step"><div class="num bad">6</div><div class="tx">
+  O'chirsang — kod sana+soat+tip bo'yicha <b>mos kelgan hammasini</b> o'chiradi.
+  Ikkalasi ketadi → <b>+10</b> qo'shiladi.
+</div></div>
+
+<h3>Sening ekranidagi dalil — Asror Aka 23</h3>
+<div class="card" style="max-width:380px">
+  <div class="nm">↑ Berildi · 14:55</div>
+  <div class="r"><span>Simay · Oddiy</span><b>−25.11g</b></div>
+  <div class="r"><span>Sepochka · Sep</span><b>−16.45g</b></div>
+  <div class="r dup"><span>Simay · Oddiy</span><b>−25.11g ← TAKROR</b></div>
+  <div class="r dup"><span>Sepochka · Sep</span><b>−16.45g ← TAKROR</b></div>
+  <div class="tot"><span>Tizim yozgan</span><span style="color:#c0392b">−83.12g</span></div>
+  <div class="tot" style="border:none;padding-top:2px"><span>Sen bergan</span><span style="color:#2e7d32">−41.56g</span></div>
+</div>
+
+<h2>2 · Kodda aynan qayerda</h2>
+<div class="note bad">
+<b>save() da tartib teskari:</b>
+<pre class="kod">localStorage.setItem('tilla-v2', ...)   ← yozuv _id SIZ saqlanadi
+amalSyncPush();                          ← _id faqat SHU YERDA beriladi</pre>
+<b>Dublikat tekshiruvi esa faqat _id ga qaraydi:</b>
+<pre class="kod">7962:  if(!k.tarix.some(x => x._id === id)) k.tarix.push(rec);
+       <span style="color:#ff8b8b">^^ lokal nusxada _id yo'q -> mos kelmaydi -> takror qo'shiladi</span></pre>
+</div>
+
+<div class="note info">
+<b>Bu YANGI xato emas — ancha oldindan bor.</b> Ilgari ko'rinmasdi, chunki BIZDA
+saqlangan raqamdan o'qirdi (u haqiqiy amalda bir marta o'zgargan). v172.26 dan
+BIZDA daftarni sanaydi — shuning uchun takror darrov ko'rinadigan bo'ldi.
+<p style="margin-bottom:0">Ya'ni <b>v172.26 ni qaytarish yechim emas</b> — u xatoni
+yana yashiradi. Takror yozuvlar esa qolib ketaveradi va klient qarzlarini,
+hisobotlarni, foydani buzaveradi.</p>
+</div>
+
+<h2>3 · Uchta tuzatish</h2>
+
+<div class="fix">
+  <div class="h">A · Takror boshqa paydo bo'lmasin &nbsp;<span class="muted">(~4 qator)</span></div>
+  <div class="b">
+    <code>_id</code> localStorage ga yozishdan <b>oldin</b> beriladi. Shunda saqlangan
+    nusxada ham <code>_id</code> bo'ladi, cloud qaytarganda tekshiruv mos keladi va
+    ikkinchi nusxa qo'shilmaydi.
+    <pre class="kod" style="margin-bottom:0">function save(logText){
+  <span class="add">_idTayinla();</span>                       // ← YANGI: hamma yozuvga _id
+  ...
+  localStorage.setItem('tilla-v2', ...)   // endi _id BILAN saqlanadi
+  amalSyncPush();</pre>
+  </div>
+</div>
+
+<div class="fix">
+  <div class="h">B · Mavjud takrorlarni tozalash &nbsp;<span class="muted">(ma'lumotga tegadi)</span></div>
+  <div class="b">
+    Qoida <b>aniq va tor</b>: bir massivda maydonlari <b>aynan bir xil</b> ikki yozuv bo'lsa
+    va <b>bittasida _id bor, ikkinchisida yo'q</b> — _id siz nusxa o'chiriladi.
+    <p style="margin-bottom:0">Nega xavfsiz: takror juftlik aynan shunday ko'rinadi
+    (lokal nusxa _id siz + cloud nusxasi _id bilan). Ikkalasida ham <b>o'z _id si bor</b>
+    yozuvlarga <b>TEGILMAYDI</b> — ular haqiqiy ikki amal bo'lishi mumkin.</p>
+  </div>
+</div>
+
+<div class="warn">
+<b>B ning tartibi — hech narsa jim o'chirilmaydi:</b>
+<ol style="margin:6px 0 0;padding-left:20px">
+<li>Avval <b>ro'yxat</b> chiqadi: nechta takror, qaysi klient/zavod, qaysi sana-soat, qancha gramm</li>
+<li>Sen ko'rib chiqasan</li>
+<li><b>Backup avtomat yuklanadi</b></li>
+<li>Shundan keyingina o'chiriladi</li>
+</ol>
+</div>
+
+<div class="fix">
+  <div class="h">C · O'chirish/yozish tasdiqdan keyin belgilansin &nbsp;<span class="muted">(~6 qator)</span></div>
+  <div class="b">
+    Hozir kod <code>.set()</code> ni chaqirib, <b>tasdiq kelmasdan</b> «yuborildi» deb belgilaydi.
+    Tarmoq yiqilsa qaytadan urinmaydi — sening o'chirishing PC ga shuning uchun yetib bormagan.
+    <pre class="kod" style="margin-bottom:0">ref.doc(id).set({...})
+   <span class="add">.then(function(){ set[id]=vaqt; _amalSetSaqla(); })</span>   // ← tasdiqdan keyin
+   .catch(cloudXato);</pre>
+  </div>
+</div>
+
+<h2>4 · Tartib — qaysi biri avval</h2>
+<table>
+<tr><th>Navbat</th><th>Nima</th><th>Nega shu tartibda</th></tr>
+<tr><td><b>1</b></td><td>A — takrorni to'xtatish</td>
+    <td>Har qayta yuklanishda yangi takror qo'shilyapti. Avval qonni to'xtatish kerak.</td></tr>
+<tr><td><b>2</b></td><td>B — mavjudini tozalash</td>
+    <td>A dan keyin qilinsa, tozalagandan keyin yana paydo bo'lmaydi.</td></tr>
+<tr><td><b>3</b></td><td>C — sinxron ishonchliligi</td>
+    <td>Alohida masala, shoshilinch emas.</td></tr>
+</table>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li>Hozir nechta takror bor — bilmayman. Sanash buyrug'ini ishga tushirmadingiz.
+B ni qilishdan oldin bu raqam kerak (10 ta bo'lsa qo'lda ham bo'ladi, 500 ta bo'lsa boshqa gap).</li>
+<li>Ikkalasida ham <code>_id</code> bor takrorlar bormi — bo'lsa ular alohida qaror
+talab qiladi (haqiqiy ikki amalmi yoki cloud takrorimi).</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li>[IBROHIM] Raqamlar to'g'ri bo'lishi kerak, chalkashlik ketishi kerak.</li>
+<li>[MEN] A birinchi navbatda — u kichik, xavfsiz va yangi takrorni to'xtatadi.</li>
+<li>[MEN] B da faqat «bittasida _id yo'q» juftliklar o'chiriladi, boshqasiga tegilmaydi.</li>
+<li>[MEN] v172.26 (BIZDA tarixdan) QAYTARILMAYDI — u xatoni ko'rsatib berdi, sababi emas.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR</b>
+<ul>
+<li>A: <code>save()</code> boshiga bitta chaqiruv + yangi <code>_idTayinla()</code> funksiyasi.
+<code>amalWalk</code> allaqachon hamma massivni aylanadi — undan foydalanadi.</li>
+<li>B: yangi funksiya + Sozlamalarga tugma. Mavjud kodga tegmaydi.</li>
+<li>C: <code>amalSyncPush</code>, <code>amalDeletePush</code>, <code>amalMovePush</code> —
+belgilash <code>.then</code> ga ko'chadi.</li>
+<li>Hisob-kitob, ombor, qarz, kassa formulalari — TEGILMAYDI.</li>
+</ul>
+<b>DIFF BUDJETI:</b> A ~4 qator · B ~45 qator · C ~10 qator
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q">
+<ol>
+<li><b>A ni hoziroq qilaymi?</b> (takrorni to'xtatish — kichik va xavfsiz)</li>
+<li>B dan oldin sanash buyrug'ini ishga tushirasanmi? Nechta takror borligini bilishim kerak.</li>
+<li>C ni A bilan birga qilaymi, yoki keyinroq?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:24px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

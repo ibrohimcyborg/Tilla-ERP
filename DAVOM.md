@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.26 · 2026-08-09
+**Oxirgi yangilanish:** v172.27 · 2026-08-09
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.26** (`index.html` birinchi qatorida `<!-- v172.26 -->`, `APP_VER` da ham) |
+| Versiya | **v172.27** (`index.html` birinchi qatorida `<!-- v172.27 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v172.26 gacha push qilingan** (2026-08-09) — prod v172.26. Ibrohim tekshirdi: BIZDA = Jami qo'limizda, 1:1 ✓ |
+| Git | v172.26 gacha push qilingan — prod v172.26. **v172.27 hali push qilinmagan.** |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -43,6 +43,28 @@ olib keldi.
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### 0g. MAVJUD takror yozuvlarni tozalash — SANASH KUTILMOQDA
+
+v172.27 da takror **paydo bo'lishi** to'xtatildi, lekin allaqachon yozilganlari
+ma'lumotda turibdi. Ular klient qarzi, hisobot, foyda va kassani buzadi
+(Asror Aka 23, 09.08 14:55 — berish 41.56 o'rniga 83.12, to'lov $7,428 o'rniga
+~$3,714, skidka 1.56 o'rniga ~0.78).
+
+Tozalash qoidasi tayyor: bir massivda `_ostImzo` si bir xil, **bittasida `_id`
+bor / ikkinchisida yo'q** juftlikdan `_id` siz nusxa o'chiriladi. Ikkalasida ham
+o'z `_id` si bor yozuvlarga TEGILMAYDI (haqiqiy ikki amal bo'lishi mumkin).
+Tartib: ro'yxat ko'rsatish → backup → o'chirish.
+
+Ibrohimga sanash uchun konsol buyrug'i berilgan, natija hali kelmagan.
+
+### 0h. Sinxron: "yuborildi" belgisi tasdiqdan OLDIN qo'yiladi
+
+`amalSyncPush` / `amalDeletePush` / `amalMovePush` — `.set()` chaqirilgach
+darhol `set[id]=vaqt` qilinadi, `.catch` faqat konsolga yozadi. Tarmoq yiqilsa
+yozuv/o'chirish **qaytadan urinilmaydi**. Ibrohimning o'chirishi PC ga shu
+sababli yetib bormagan (o'sha kuni `ERR_QUIC_PROTOCOL_ERROR` xatolari bor edi).
+Yechim: belgilashni `.then()` ga ko'chirish (~10 qator).
 
 ### 0f. Eski (soatsiz) offset yozuvlarini o'z to'loviga qaytarish — MOCKUP KERAK
 
@@ -205,6 +227,7 @@ Qaror qabul qilinmagan.
 | v172.23 | Kurs avto-saqlanadi (Saqlash tugmasi o'rnida «Kunlik kurs» ko'rinadi) + kategoriya har amalda A dan boshlanadi, klientga yozilmaydi |
 | v172.24 | Offsetdan yopilgan to'lov tarixda va hisobotda «⇄ Offset» bo'lib ko'rinadi (ayirma bilan aniqlanadi, eski yozuvlarga ham ishlaydi) |
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
+| v172.27 | **Takror yozuv tuzatildi** — `_id` saqlashdan oldin beriladi + cloud nusxasi `_id` siz egizakni topib unga id yopishtiradi; sinxrondan keyin `renderHome` chaqiriladi (Update bosish kerak emas) |
 | v172.26 | **BIZDA tarixdan** — «Jami qo'limizda» bilan 1:1, 18 joy o'tkazildi, 🔧 tugma o'chirildi. Qurilmalar orasidagi 199.49 g farq shu bilan yopiladi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).

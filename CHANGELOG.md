@@ -3,6 +3,65 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.27: TAKROR YOZUV — yozuvlar ikki marta yozilardi
+
+Ibrohim topdi: klientga 41.56 g berdi, tizim 83.12 g yozdi (Asror Aka 23,
+09.08 14:55 — Simay·Oddiy 25.11 va Sepochka·Sep 16.45 IKKI MARTA). To'lov
+ham 83.12 g / $7,428, skidka −1.56$ — hammasi ikki barobar. Keyin o'sha
+kunning 5 g berishini o'chirdi -> BIZDA ga 10 g qo'shildi.
+
+SABAB — save() da tartib teskari edi:
+    localStorage.setItem('tilla-v2', ...)   <- yozuv _id SIZ saqlanardi
+    amalSyncPush();                          <- _id faqat SHU YERDA berilardi
+Saqlangan nusxada _id yo'q. Sahifa qayta yuklanganda cloud o'sha yozuvni
+_id bilan qaytaradi, amalRecAdd esa faqat _id ni tekshirardi:
+    if(!k.tarix.some(x => x._id===id)) k.tarix.push(rec);
+Lokal nusxada _id yo'q -> mos kelmaydi -> IKKINCHI NUSXA qo'shilardi.
+O'chirishda esa klientTarixOchir sana+soat+tip bo'yicha MOS KELGAN HAMMASINI
+o'chiradi — ikkala nusxa ketgani uchun +10 chiqqan.
+
+Bu ESKI xato, v172.26 dan emas. Ilgari ko'rinmasdi: BIZDA saqlangan
+running-total dan o'qirdi (haqiqiy amalda bir marta o'zgargan), shuning uchun
+tarixdagi takror BIZDA da sezilmasdi — faqat klient qarzi, hisobot va
+foydani jim buzardi. v172.26 (BIZDA tarixdan) uni ko'rinadigan qildi.
+
+### Tuzatish — uch qism
+
+1) _idTayinla() (amalWalk yonida): har yozuvga _id, save() ichida
+   localStorage.setItem dan DARHOL OLDIN chaqiriladi. Endi saqlangan nusxada
+   ham _id bo'ladi.
+2) _ostImzo(op) + _amalQosh(arr, rec) — himoya to'ri. Cloud'dan kelgan
+   yozuvga _id bo'yicha mos nusxa topilmasa, AYNAN BIR XIL lekin _id SIZ
+   egizak qidiriladi: topilsa unga _id YOPISHTIRILADI, yangi nusxa
+   QO'SHILMAYDI. amalRecAdd ning uch joyi (zt/kl/lom) shunga o'tdi.
+   Imzo: tip|sana|soat|zavod|tur|gramm|summa|kurs|ekvivalent|inventar|
+         _kdYopish|_kdVoz|dona
+   MUHIM: ikkalasida ham O'Z _id si bor yozuvlarga TEGILMAYDI — ular haqiqiy
+   ikki alohida amal bo'lishi mumkin.
+3) Sinxron renderi: amal-listener changed blokida renderZavodlar() chaqirilardi
+   — bu funksiya BUTUN FAYLDA MAVJUD EMAS (0 marta), renderHome esa umuman
+   chaqirilmasdi. Shu sababli masofadan yozuv kelganda BIZDA yangilanmasdi va
+   Ibrohim qo'lda ⟳ Update bosishga majbur bo'lardi ("update qilishim nega
+   kerak o'zi"). Endi renderHome + renderKassaCard chaqiriladi.
+
+### Sinov (birlik-sinovi, 4 holat)
+
+* _id siz egizak bor -> takror qo'shilmadi, egizakka _id yopishtirildi ✓
+* o'sha yozuv qayta keldi -> uzunlik o'zgarmadi ✓
+* ikkalasida ham _id bor (haqiqiy 2 amal) -> IKKALASI qoldi ✓
+* boshqa gramm -> yangi yozuv qo'shildi, eskisi tegilmadi ✓
+* Node sintaksis toza (1 inline script, 0 xato)
+
+### Hali qilinmagan
+
+MAVJUD takrorlarni tozalash — alohida ish. Avval nechta borligini sanash
+kerak (Ibrohimga konsol buyrug'i berilgan). Qoida tayyor: bir massivda imzosi
+bir xil, bittasida _id bor / ikkinchisida yo'q juftlikdan _id siz nusxa
+o'chiriladi; avval ro'yxat + backup, keyin o'chirish.
+Yana: amalSyncPush/amalDeletePush hali .set() ni chaqirib TASDIQ KELMASDAN
+"yuborildi" deb belgilaydi — tarmoq yiqilsa qaytadan urinmaydi (Ibrohimning
+o'chirishi PC ga shu sababli yetib bormagan). Bu ham keyingi ish.
+
 ## v172.26: OMBOR RAQAMI TARIXDAN — BIZDA "Jami qo'limizda" bilan 1:1
 
 Ibrohim: "manga bir xil ko'rsatishi kerak, bu daftar-qog'oz degan narsalar

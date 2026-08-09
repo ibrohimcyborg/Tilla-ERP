@@ -1,4 +1,4 @@
-<!-- v172.26 -->
+<!-- v172.27 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.26';
+var APP_VER = 'v172.27';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2210,6 +2210,7 @@ function save(logText) {
     data._narxSync = narxHolatYig();
     localStorage.setItem('tilla-narx-sync-ts', String(data._narxSync.ts));
   }catch(e){}
+  _idTayinla();   // v172.27: _id saqlashdan OLDIN — takror nusxaning oldini oladi
   localStorage.setItem('tilla-v2', JSON.stringify(data));
   try{ amalSyncPush(); }catch(e){} // v93: yangi yozuvlar + ostatka deltalari cloudga (to'qnashuvsiz)
   if(logText) snapSaqla(logText);
@@ -7815,6 +7816,12 @@ function _hisobSnapOl(){ try{ return JSON.parse(localStorage.getItem('tilla-hiso
 function _hisobSnapSaqla(s){ try{ localStorage.setItem('tilla-hisob-snap', JSON.stringify(s)); }catch(e){} }
 function _amalHash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))|0; } return 'a'+(h>>>0).toString(36); }
 // Barcha yozuv joylarini kezish: cb(rec, loc) — loc={kind, zavod?, tur?, klient?}
+// v172.27: har yozuvga _id — SAQLASHDAN OLDIN. Avval _id faqat amalSyncPush da
+// (localStorage ga yozilgandan KEYIN) berilardi, shuning uchun saqlangan nusxa
+// _id siz qolardi va cloud nusxasi bilan taqqoslanmasdi.
+function _idTayinla(){
+  try{ amalWalk(function(r){ if(r && !r._id) r._id="n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }); }catch(e){}
+}
 function amalWalk(cb){
   if(!data) return;
   var A=function(x){ return Array.isArray(x)?x:[]; };
@@ -7946,6 +7953,29 @@ function amalSyncPush(){
 }
 // LISTENER 1: boshqa qurilmalarning yozuvlarini qabul qilib joyiga qo'shish (id bo'yicha, dublikatsiz)
 // Yozuvni joyiga qo'shish (ostatka'ga TEGMAYDI — u hisob-increment orqali keladi)
+// v172.27: TAKROR YOZUV TUZATISHI.
+// _ostImzo — yozuvning "barmoq izi". Cloud'dan kelgan yozuvga _id bo'yicha mos
+// keladigan lokal nusxa topilmasa, AYNAN BIR XIL lekin _id siz nusxani qidiramiz:
+// topilsa unga _id ni YOPISHTIRAMIZ, yangi nusxa QO'SHMAYMIZ. Avval bunday tekshiruv
+// yo'q edi -> sahifa qayta yuklanganda cloud nusxasi ikkinchi bo'lib qo'shilardi
+// (Ibrohim: 41.56 g berdi -> 83.12 yozildi; 5 g o'chirdi -> 10 g qo'shildi).
+function _ostImzo(op){
+  if(!op) return "";
+  return [op.tip||"", op.sana||"", op.soat||"", op.zavod||"", op.tur||"",
+          op.gramm||0, op.summa||0, op.kurs||0, op.ekvivalent||0,
+          op.inventar||"", op._kdYopish?1:0, op._kdVoz?1:0, op.dona||0].join("|");
+}
+// Massivga qo'shishdan oldin: _id mos kelsa -> hech nima; _id siz egizak bor bo'lsa ->
+// unga _id beriladi; aks holda yangi yozuv qo'shiladi. true = massiv o'zgardi.
+function _amalQosh(arr, rec){
+  var id=rec._id;
+  if(arr.some(function(x){ return x._id===id; })) return false;   // allaqachon bor
+  var im=_ostImzo(rec);
+  for(var i=0;i<arr.length;i++){
+    if(!arr[i]._id && _ostImzo(arr[i])===im){ arr[i]._id=id; return true; }  // egizak — id yopishtirildi
+  }
+  arr.push(rec); return true;
+}
 function amalRecAdd(loc, rec){
   var id=rec._id;
   if(loc.kind==='zt'){
@@ -7954,15 +7984,15 @@ function amalRecAdd(loc, rec){
     var t=(z.turlar||[]).find(function(x){return x.nom===loc.tur;});
     if(!t){ t={nom:loc.tur, ostatka:0, donaOst:0, tarix:[], donalar:[]}; z.turlar.push(t); }
     if(!t.tarix) t.tarix=[];
-    if(!t.tarix.some(function(x){return x._id===id;})) t.tarix.push(rec);
+    _amalQosh(t.tarix, rec);
   } else if(loc.kind==='kl'){
     var k=(data.klientlar||[]).find(function(x){return x.nom===loc.klient;});
     if(!k){ k={nom:loc.klient, tarix:[]}; data.klientlar.push(k); }
     if(!k.tarix) k.tarix=[];
-    if(!k.tarix.some(function(x){return x._id===id;})) k.tarix.push(rec);
+    _amalQosh(k.tarix, rec);
   } else if(loc.kind==='lom'){
     if(!Array.isArray(data.lomlar)) data.lomlar=[];
-    if(!data.lomlar.some(function(x){return x._id===id;})) data.lomlar.push(rec);
+    _amalQosh(data.lomlar, rec);
   }
   // kassa oplogga kirmaydi (obyekt) — bu yerda ishlanmaydi
 }
@@ -8020,7 +8050,7 @@ function amalListen(){
       _amalSetSaqla();
       turOstKeshTozala();   // v172.26: masofadan yozuv keldi -> ombor qayta sanaladi
       try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
-      try{ if(typeof renderZavodlar==='function') renderZavodlar(); if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); if(typeof renderKlientlar==='function') renderKlientlar(); }catch(e){}
+      try{ if(typeof renderHome==='function') renderHome(); if(typeof renderKassaCard==='function') renderKassaCard(); if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); if(typeof renderKlientlar==='function') renderKlientlar(); }catch(e){}   // v172.27: renderHome QO'SHILDI — avval yo'q edi (renderZavodlar esa mavjud emas), shuning uchun sinxrondan keyin BIZDA yangilanmasdi va qo'lda Update bosish kerak bo'lardi
     } else { _amalSetSaqla(); }
   }, function(err){ if(window.console) console.error('amalListen:', err); });
 }
