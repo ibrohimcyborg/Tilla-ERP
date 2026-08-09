@@ -44,6 +44,30 @@ olib keldi.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
+### 0i. Telefondan chek bosilsa PC dan chiqishi — MOCKUP KERAK
+
+Ibrohim so'radi (2026-08-09): telefondan chek bossa, PC ga ulangan termal
+printerdan chiqsin.
+
+**To'g'ridan-to'g'ri bo'lmaydi.** Kodda 5 joyda `fetch('http://localhost:5000/print')`
+(2913, 3096, 8514, 10190, 10193). `localhost` — har qurilmaning o'zi, telefonda
+printer yo'q. PC ning LAN IP siga yozish ham ishlamaydi: ilova HTTPS da (Vercel),
+brauzer HTTPS sahifadan `http://192.168.x.x` ga so'rovni mixed-content deb bloklaydi
+(`http://localhost` uchun maxsus istisno bor, LAN IP uchun yo'q).
+
+**Ishlaydigan yechim — chek navbati Firestore orqali:**
+telefon `_chekNavbat` ga topshiriq yozadi → PC (ilova ochiq) tinglaydi →
+o'z `localhost:5000` iga yuboradi → chek chiqadi. PC o'z localhost'iga murojaat
+qilgani uchun blok yo'q. Mavjud Firestore-listener qolipiga to'liq mos.
+
+Hal qilinadigan nuqtalar:
+- **Qaysi qurilma chiqaradi** — bitta qurilma "printer" deb belgilanishi kerak,
+  aks holda ikki PC ochiq bo'lsa chek ikki marta chiqadi
+- **Muddat** — PC keyinroq ochilsa eski chek chiqmasligi uchun (masalan 2 daqiqa)
+- **Telefonda javob** — "yuborildi / chiqarildi" ko'rinishi
+
+Diff taxmini: ~60-80 qator.
+
 ### 0g. MAVJUD takror yozuvlarni tozalash — SANASH KUTILMOQDA
 
 v172.27 da takror **paydo bo'lishi** to'xtatildi, lekin allaqachon yozilganlari
