@@ -3,6 +3,47 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.28: telefondan chek bosilsa PC dagi printerdan chiqadi
+
+Ibrohim so'radi: telefondan chek bossa PC dan chiqsin. Mockup:
+mockups/v172.28-chek-navbat.html.
+
+MUAMMO: 11 joyda fetch('http://localhost:5000/print') — localhost HAR
+QURILMANING O'ZI, telefonda printer yo'q. PC ning LAN IP siga yozib ham
+bo'lmaydi: ilova HTTPS da, brauzer HTTPS -> http://192.168.x.x ni
+mixed-content deb bloklaydi (localhost uchun maxsus istisno bor, LAN IP
+uchun yo'q).
+
+YECHIM — chek navbati Firestore orqali. Telefon topshiriq yozadi, PC
+tinglaydi va O'Z localhost iga yuboradi (blok yo'q). Rules O'ZGARTIRILMADI:
+hujjat cloudKol() ichida (_cheknavbat/items), mavjud ruxsat yetadi.
+
+* chekYubor(matn, logo) — YAGONA kirish nuqtasi, 11 chaqiruv shunga o'tdi
+  (2913, 3096, 8514, 10190, 10193, 10330, 15633, 15636, 16035, 16310, 16390
+  — eski raqamlar). _chekLokal ichida asl fetch qoldi.
+* chekBuQurilmadan() — SUKUT BO'YICHA !printerYoq(). Ya'ni printeri bor PC
+  da xatti-harakat AVVALGIDEK (lokal chiqaradi), printeri yo'q telefon esa
+  o'z-o'zidan navbatga yozadi. Regressiya yo'q.
+* Sozlamalar > Printer > "Chek shu qurilmadan chiqsin" kaliti
+  (tilla-chek-bu-qurilma). Qo'lda ustidan yozish uchun. Faqat BITTA
+  qurilmada yoqilishi kerak — aks holda chek ikki marta chiqadi.
+* chekNavbatTingla() — faqat chiqaruvchi qurilmada ishlaydi. Cloud ulanganda
+  boshqa tinglovchilar bilan birga ishga tushadi (17709).
+* Himoyalar: CHEK_MUDDAT 10 daqiqa (eskirgan topshiriq CHIQMAYDI, 'eskirdi'
+  deb yopiladi) · CHEK_TOZALA 1 soat (o'chiriladi) · holat 'bajarildi' deb
+  CHIQARISHDAN OLDIN belgilanadi (ikki marta chiqmasligi uchun) · o'zi
+  yozgan topshiriqni o'zi chiqarmaydi.
+* Telefonda qisqa xabar: "PC ga yuborildi" (2.5 s). "Chiqarildi" tasdig'i
+  ATAYLAB qilinmadi — qo'shimcha tinglovchi kerak, Ibrohim "bug bermasin"
+  dedi, kod kamroq bo'lsin.
+
+TEGILMADI: chek matnini tuzuvchi kod, print_server.py, printerYoq() bayrog'i
+(u alohida ma'noda qoladi), hisob-kitob.
+
+Sinov: Node sintaksis toza. Birlik-sinovi — sukut yo'naltirish (PC lokal /
+telefon navbat) va navbat qarorlari (yangi CHIQARADI · 12 daqiqa eskirdi ·
+bajarilgan o'tkaziladi · o'zim yozgan chiqarilmaydi · 2 soat o'chiriladi) ✓
+
 ## v172.27: TAKROR YOZUV — yozuvlar ikki marta yozilardi
 
 Ibrohim topdi: klientga 41.56 g berdi, tizim 83.12 g yozdi (Asror Aka 23,

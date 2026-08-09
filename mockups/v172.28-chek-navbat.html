@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.28 — Telefondan chek bosilsa PC dan chiqsin</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:980px;margin:0 auto;padding:26px 18px 60px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:21px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:22px}
+  h2{font-size:15px;color:#c9a227;margin:30px 0 10px;font-weight:700}
+  h3{font-size:13px;color:#e9e7e1;margin:16px 0 6px}
+  .flow{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr;gap:8px;align-items:center;margin:14px 0}
+  @media(max-width:820px){.flow{grid-template-columns:1fr;gap:10px}.ar{display:none}}
+  .bx{background:#1a1d22;border:1px solid #2e3238;border-radius:10px;padding:12px 13px;font-size:12.5px}
+  .bx .t{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#c9a227;margin-bottom:5px}
+  .bx.ph{border-color:#33517a}.bx.ph .t{color:#8ab4f8}
+  .bx.pc{border-color:#2c5340}.bx.pc .t{color:#8fe0ab}
+  .ar{text-align:center;color:#6b7280;font-size:18px}
+  .no{background:#211412;border:1px solid #5a2d28;border-radius:10px;padding:12px 14px;margin:12px 0;font-size:13px;color:#e0a5a5}
+  .no b{color:#ffb3b3}
+  .phone{background:#f7f4ec;border:1px solid #ddd8cc;border-radius:12px;padding:11px;color:#33302b;max-width:300px}
+  .btn{background:#c9a227;color:#fff;border-radius:9px;padding:9px;text-align:center;font-size:12.5px;font-weight:700;margin-bottom:6px}
+  .msg{border-radius:8px;padding:7px 10px;font-size:11.5px;margin-bottom:5px}
+  .msg.wait{background:#e3eef7;border:1px solid #9cc0dd;color:#2d6ea8}
+  .msg.ok{background:#e4f2e7;border:1px solid #9ccfa9;color:#1f6b35}
+  .set{background:#f7f4ec;border:1px solid #ddd8cc;border-radius:10px;padding:11px 13px;color:#33302b;max-width:360px}
+  .set .lb{font-size:10px;color:#8a8578;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;font-weight:700}
+  .sw{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0}
+  .tog{width:38px;height:21px;border-radius:12px;background:#cfa93d;position:relative;flex:none}
+  .tog::after{content:'';position:absolute;top:2.5px;right:2.5px;width:16px;height:16px;border-radius:50%;background:#fff}
+  .tog.off{background:#d5cfc0}.tog.off::after{left:2.5px;right:auto}
+  .note{background:#1b1e24;border-left:3px solid #c9a227;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:13.5px;color:#c5c9d1}
+  .note.good{border-left-color:#4ac97e}.note.info{border-left-color:#5b8dd6}.note.bad{border-left-color:#e05050}
+  .note b{color:#e9e7e1}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  code{background:#22252b;padding:1.5px 6px;border-radius:4px;font-size:12px;color:#8fe0ab}
+  pre.kod{background:#101215;color:#d8d5cd;border:1px solid #2a2d33;border-radius:8px;padding:11px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.6}
+  .num{color:#8ab4f8;font-family:monospace;font-size:12px}
+  .q{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px}
+  .q ol{margin:8px 0 0;padding-left:20px}.q li{margin:7px 0}
+  .q ul{margin:6px 0 0;padding-left:20px}.q ul li{margin:5px 0}
+  .muted{color:#8b8f98;font-size:12.5px}
+  .who{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 7px;border-radius:10px;margin-right:6px}
+  .who.u{background:#1b2a3d;color:#8ab4f8;border:1px solid #33517a}
+  .who.m{background:#332b13;color:#e8c14f;border:1px solid #6b5a20}
+</style>
+</head>
+<body>
+
+<h1>Telefondan chek bosilsa — PC dagi printerdan chiqsin</h1>
+<div class="sub">Bu <b>taklif</b> — kod yozilmagan.</div>
+
+<h2>1 · Nega hozir ishlamaydi</h2>
+<div class="no">
+Kodda <b>11 joyda</b> shunday yozilgan:
+<pre class="kod" style="margin:7px 0 0">fetch('http://localhost:5000/print', ...)</pre>
+<code>localhost</code> — <b>har qurilmaning o'zi</b>. Telefonda bossang, telefon
+o'zidan printer qidiradi.
+<p style="margin-bottom:0"><b>PC ning IP siga yozib ham bo'lmaydi:</b> ilova HTTPS da,
+brauzer HTTPS sahifadan <code>http://192.168.x.x</code> ga so'rovni bloklaydi.
+<code>http://localhost</code> uchun maxsus istisno bor, LAN manzili uchun yo'q.</p>
+</div>
+
+<h2>2 · Yechim — chek navbati</h2>
+<div class="flow">
+  <div class="bx ph"><div class="t">📱 Telefon</div>Chek bosildi → topshiriq <b>Firestore</b> ga yoziladi</div>
+  <div class="ar">→</div>
+  <div class="bx"><div class="t">☁ Firestore</div><code>_chekNavbat</code> — matn, sana, qurilma</div>
+  <div class="ar">→</div>
+  <div class="bx pc"><div class="t">💻 PC</div>Tinglaydi → <b>o'z</b> localhost:5000 iga yuboradi → chek chiqadi</div>
+</div>
+
+<div class="note good">
+PC <b>o'z localhost'iga</b> murojaat qilgani uchun blok yo'q. Firestore
+tinglovchilari sizda allaqachon ishlayapti — yangi mexanizm o'ylab chiqarilmaydi,
+o'sha qolipga qo'shiladi.
+</div>
+
+<h3>Telefonda nima ko'rinadi</h3>
+<div class="phone">
+  <div class="btn">🖨 Printer</div>
+  <div class="msg wait">⏳ PC ga yuborildi — chiqishi kutilmoqda</div>
+  <div class="msg ok">✓ Chek chiqarildi</div>
+</div>
+<p class="muted" style="margin-top:7px">Ikkinchi qatorni PC chekni chiqargach yozadi —
+ya'ni telefonda <b>chiqqanini bilib turasan</b>. Bu qism ixtiyoriy (pastdagi savolga qara).</p>
+
+<h2>3 · Qaysi qurilma chiqaradi</h2>
+<div class="note bad">
+Agar ikki PC ochiq bo'lsa — <b>ikkalasi ham chiqaradi</b>, chek ikki marta chiqadi.
+Shuning uchun bitta qurilma belgilanishi kerak.
+</div>
+
+<h3>Sozlamalarga bitta kalit</h3>
+<div class="set">
+  <div class="lb">Printer</div>
+  <div class="sw"><span>🖨 Chek shu qurilmadan chiqsin</span><span class="tog"></span></div>
+  <div class="muted" style="font-size:11px;margin-top:5px">PC da <b>yoqilgan</b> — boshqa
+  qurilmalardan kelgan cheklar shu yerda chiqadi. Telefonda <b>o'chiq</b>.</div>
+</div>
+
+<div class="note info">
+Ilovada allaqachon <code>printerYoq()</code> bayrog'i bor (<span class="num">1996</span>) —
+«bu qurilmada printer yo'q» degan. Yangi kalit undan <b>alohida</b>: bittasi «printer bormi»,
+ikkinchisi «boshqalarning chekini shu yerda chiqaraymi». Chalkashmasligi uchun ikkitasi ayri.
+</div>
+
+<h2>4 · Kod tomoni — bitta yordamchi</h2>
+<pre class="kod">// 11 joydagi fetch shu funksiyaga almashadi
+function chekYubor(matn, logo){
+  if (chekBuQurilmadan()) {                      // shu qurilma printer egasi
+    fetch('http://localhost:5000/print', {...})  // hozirgidek
+      .catch(printXato);
+  } else {
+    chekNavbatgaYoz(matn, logo);                 // Firestore ga topshiriq
+  }
+}</pre>
+<p class="muted">Chek matnini tuzadigan kodga <b>tegilmaydi</b> — faqat yuborish joyi
+o'zgaradi. 11 chaqiruv bir xil almashadi.</p>
+
+<h2>5 · Nozik joylar — o'ylab qo'yilgan</h2>
+<table>
+<tr><th>Holat</th><th>Nima bo'ladi</th></tr>
+<tr><td>PC yopiq, keyin ochildi</td>
+    <td>Eski topshiriq <b>chiqmaydi</b> — muddat qo'yiladi (masalan 10 daqiqa).
+    Aks holda ertalabki chek tushdan keyin chiqib ketardi.</td></tr>
+<tr><td>Chek chiqdi</td>
+    <td>Topshiriq <b>«bajarildi»</b> deb belgilanadi — ikkinchi marta chiqmaydi.</td></tr>
+<tr><td>Ikki PC ochiq</td>
+    <td>Faqat kaliti <b>yoqilgani</b> chiqaradi.</td></tr>
+<tr><td>Telefonda printer bor</td>
+    <td>Kalitni telefonda yoqsa — o'zida chiqaradi, navbatga yozmaydi.</td></tr>
+<tr><td>Internet yo'q</td>
+    <td>Topshiriq Firestore navbatida turadi, ulanish qaytganda ketadi.</td></tr>
+</table>
+
+<h2>TAXMIN BLOKI</h2>
+<div class="q">
+<b>1. ANIQ BILMAYOTGAN JOYLARIM</b>
+<ul>
+<li><b>Muddat qancha?</b> Men 10 daqiqa deb turibman. Qisqa bo'lsa (2 daqiqa) —
+PC bir zum yopilsa chek yo'qoladi. Uzun bo'lsa — kechikkan chek chiqib ketishi mumkin.</li>
+<li><b>Telefonda «✓ chiqarildi» ko'rinishi kerakmi?</b> Bu qo'shimcha tinglovchi talab qiladi
+(telefon topshiriq holatini kuzatadi). Kerak bo'lmasa faqat «yuborildi» yozamiz — kamroq kod.</li>
+<li>Chek <b>nusxasi</b> (2-3 nusxa) navbatda ham ishlashi kerak — hozirgi kodda nusxa soni bor,
+uni topshiriqqa qo'shaman deb turibman. To'g'rimi?</li>
+</ul>
+<b>2. TAXMINLARIM</b>
+<ul>
+<li><span class="who u">IBROHIM</span> Telefondan chek bosilsa PC dan chiqsin.</li>
+<li><span class="who u">IBROHIM</span> Bu takror tozalashdan muhimroq — avval shu qilinadi.</li>
+<li><span class="who m">MEN</span> Firestore navbati — LAN/IP yo'li HTTPS da ishlamaydi,
+boshqa yo'l yo'q.</li>
+<li><span class="who m">MEN</span> Sozlamalarga bitta kalit — «chek shu qurilmadan chiqsin».
+Avtomatik tanlash qilmayman: qaysi PC ekanini faqat sen bilasan.</li>
+<li><span class="who m">MEN</span> Chek matnini tuzadigan kodga tegilmaydi, faqat yuborish joyi.</li>
+<li><span class="who m">MEN</span> <code>print_server.py</code> ga tegilmaydi — u o'zgarishsiz ishlaydi.</li>
+</ul>
+<b>3. TA'SIR QILADIGAN JOYLAR (grep)</b>
+<ul>
+<li><code>localhost:5000/print</code> — <b>11 joy</b>: <span class="num">2913, 3096, 8514,
+10190, 10193, 10330, 15633, 15636, 16035, 16310, 16390</span>. Hammasi <code>chekYubor</code> ga o'tadi.</li>
+<li>Yangi: <code>chekYubor</code>, <code>chekNavbatgaYoz</code>, <code>chekNavbatTingla</code>,
+<code>chekBuQurilmadan</code> + Sozlamalarda kalit</li>
+<li><code>printerYoq()</code> <span class="num">1996</span> — tegilmaydi, alohida bayroq</li>
+<li>Chek matni tuzuvchilar (<code>klientQarzChekPrint</code>, <code>chekYakun</code> va h.k.) — TEGILMAYDI</li>
+<li><code>print_server.py</code> — TEGILMAYDI</li>
+</ul>
+<b>DIFF BUDJETI:</b> ~70–90 qator. Versiya <b>v172.28</b>.
+</div>
+
+<h2>QAROR — sendan</h2>
+<div class="q">
+<ol>
+<li>Umumiy yo'l ma'qulmi — telefon navbatga yozadi, PC chiqaradi?</li>
+<li>Muddat 10 daqiqami, yoki boshqa raqam?</li>
+<li>Telefonda «✓ chiqarildi» ko'rinishi kerakmi, yoki «yuborildi» yetadimi?</li>
+<li>Versiya v172.28 — boshlaymi?</li>
+</ol>
+</div>
+
+<p class="muted" style="margin-top:24px">Bu <b>taklif</b>. <code>index.html</code> ga tegilmadi.</p>
+
+</body>
+</html>

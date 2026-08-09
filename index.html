@@ -1,4 +1,4 @@
-<!-- v172.27 -->
+<!-- v172.28 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1195,7 +1195,7 @@ body.rol-hamid .hamid-x { display: none !important; }
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Sozlamalar</div>
-    <div style="margin-bottom:14px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Zaxira (backup)</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="davr-btn" onclick="backupExport()" style="color:var(--green);border-color:var(--green-bd);">⬇ Eksport</button><button class="davr-btn" onclick="document.getElementById('backup-import-inp').click()" style="color:var(--gold);border-color:var(--gold);">⬆ Import</button></div><input type="file" id="backup-import-inp" accept="application/json,.json" onchange="backupImportFile(this)" style="display:none;"><div style="font-size:11px;color:var(--muted);margin-top:6px;">Eksport — hamma malumotni faylga saqlaydi. Import — fayldan tiklaydi (ustiga yoziladi).</div></div>
+    <div style="margin-bottom:14px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Printer</div><button class="davr-btn" id="chek-soz-btn" onclick="chekBuQurilmaSet(!chekBuQurilmadan())" style="width:100%;">&#128424; Chek shu qurilmadan chiqsin</button><div style="font-size:11px;color:var(--muted);margin-top:6px;">Yoqilgan bo'lsa — boshqa qurilmalardan bosilgan cheklar shu yerda chiqadi. Printer ulangan kompyuterda YOQ, telefonda O'CHIQ bo'lishi kerak. Faqat bitta qurilmada yoqilsin, aks holda chek ikki marta chiqadi.</div></div><div style="margin-bottom:14px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Zaxira (backup)</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="davr-btn" onclick="backupExport()" style="color:var(--green);border-color:var(--green-bd);">⬇ Eksport</button><button class="davr-btn" onclick="document.getElementById('backup-import-inp').click()" style="color:var(--gold);border-color:var(--gold);">⬆ Import</button></div><input type="file" id="backup-import-inp" accept="application/json,.json" onchange="backupImportFile(this)" style="display:none;"><div style="font-size:11px;color:var(--muted);margin-top:6px;">Eksport — hamma malumotni faylga saqlaydi. Import — fayldan tiklaydi (ustiga yoziladi).</div></div>
     <!-- v172.26: 🔧 "Ostatkani qayta tiklash" OLIB TASHLANDI — BIZDA endi doim tarixdan hisoblanadi (turOstMap), tuzatishga hojat yoq (Ibrohim: "bu funksiya umuman kerak emas") -->
     <div id="reset-parol-blok" style="margin-bottom:12px;">
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.27';
+var APP_VER = 'v172.28';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -1994,6 +1994,94 @@ document.addEventListener('DOMContentLoaded', function(){
 // ═══════════ /VERSIYA BANNERI ═══════════
 var _printXatoVaqt = 0;
 function printerYoq(){ return localStorage.getItem('tilla-printer-yoq')==='1'; }
+// ═══════════ v172.28: CHEK NAVBATI — telefondan bosilsa PC dan chiqadi ═══════════
+// Muammo: 11 joyda fetch('http://localhost:5000/print') — localhost HAR QURILMANING
+// O'ZI. Telefonda printer yo'q. PC ning LAN IP siga yozib ham bo'lmaydi: ilova HTTPS
+// da, brauzer HTTPS -> http://192.168.x.x ni mixed-content deb bloklaydi (localhost
+// uchun maxsus istisno bor, LAN IP uchun yo'q).
+// Yechim: telefon Firestore ga topshiriq yozadi, PC tinglaydi va O'Z localhost iga
+// yuboradi — blok yo'q. Rules o'zgartirilmaydi: hujjat cloudKol() ichida.
+var CHEK_MUDDAT = 10*60*1000;      // 10 daqiqa — eskirgan topshiriq CHIQMAYDI
+var CHEK_TOZALA = 60*60*1000;      // 1 soatdan oshgan topshiriq o'chiriladi
+// Shu qurilma chek chiqaradimi. Sozlanmagan bo'lsa: printeri bor qurilma chiqaradi
+// (ya'ni PC da xatti-harakat AVVALGIDEK qoladi, telefon esa navbatga yozadi).
+function chekBuQurilmadan(){
+  var v = localStorage.getItem('tilla-chek-bu-qurilma');
+  if(v==='1') return true;
+  if(v==='0') return false;
+  return !printerYoq();
+}
+function chekSozTugmaUpd(){
+  var b=document.getElementById('chek-soz-btn'); if(!b) return;
+  var on=chekBuQurilmadan();
+  b.textContent = (on?'✓':'✗')+' Chek shu qurilmadan chiqsin';
+  b.style.color = on?'var(--green)':'var(--muted)';
+  b.style.borderColor = on?'var(--green-bd)':'var(--border)';
+}
+function chekBuQurilmaSet(on){
+  localStorage.setItem('tilla-chek-bu-qurilma', on?'1':'0');
+  if(on){ try{ chekNavbatTingla(); }catch(e){} }
+  if(typeof chekSozTugmaUpd==='function') chekSozTugmaUpd();
+}
+function chekNavbatRef(){
+  try{ if(typeof _cloudDb!=='undefined' && _cloudDb && _cloudUser)
+    return _cloudDb.collection(cloudKol()).doc('_cheknavbat').collection('items'); }catch(e){}
+  return null;
+}
+// Mahalliy printerga yuborish — hozirgi kodning aynan o'zi
+function _chekLokal(matn, logo){
+  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:matn, logo:!!logo})}).catch(printXato);
+}
+// YAGONA KIRISH NUQTASI — 11 joy shuni chaqiradi
+function chekYubor(matn, logo){
+  if(chekBuQurilmadan()){ _chekLokal(matn, logo); return; }
+  var ref = chekNavbatRef();
+  if(!ref){ _chekLokal(matn, logo); return; }   // cloud yo'q — hech bo'lmasa urinib ko'ramiz
+  try{
+    ref.add({ matn:String(matn||''), logo:!!logo, vaqt:Date.now(),
+              qurilma:(localStorage.getItem('tilla-qurilma')||''), holat:'kutilmoqda' })
+      .catch(cloudXato);
+    _chekXabar('PC ga yuborildi');
+  }catch(e){ _chekLokal(matn, logo); }
+}
+// Telefonda qisqa xabar (2.5 s)
+function _chekXabar(txt){
+  try{
+    var el=document.getElementById('chek-xabar');
+    if(!el){ el=document.createElement('div'); el.id='chek-xabar';
+      el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:64px;z-index:99999;'
+        +'background:#2d6ea8;color:#fff;font-size:12.5px;font-weight:600;padding:8px 16px;'
+        +'border-radius:20px;font-family:sans-serif;box-shadow:0 3px 12px rgba(0,0,0,.35);';
+      document.body.appendChild(el); }
+    el.textContent='⏳ '+txt; el.style.display='block';
+    clearTimeout(el._t); el._t=setTimeout(function(){ el.style.display='none'; }, 2500);
+  }catch(e){}
+}
+// PC tomoni: topshiriqlarni tinglaydi
+var _chekUnsub=null;
+function chekNavbatTingla(){
+  if(_chekUnsub) return;
+  if(!chekBuQurilmadan()) return;          // faqat chiqaruvchi qurilma tinglaydi
+  var ref=chekNavbatRef(); if(!ref) return;
+  var men=localStorage.getItem('tilla-qurilma')||'';
+  _chekUnsub=ref.onSnapshot(function(snap){
+    var now=Date.now();
+    snap.forEach(function(doc){
+      var d=doc.data()||{};
+      if((now-(d.vaqt||0)) > CHEK_TOZALA){ try{ doc.ref.delete(); }catch(e){} return; }
+      if(d.holat!=='kutilmoqda') return;   // allaqachon chiqarilgan
+      if(d.qurilma && d.qurilma===men) return;  // o'zim yozganini o'zim chiqarmayman
+      if((now-(d.vaqt||0)) > CHEK_MUDDAT){      // eskirgan — chiqarmaymiz, yopamiz
+        try{ doc.ref.set({holat:'eskirdi'},{merge:true}); }catch(e){} return; }
+      // BELGI AVVAL, chiqarish KEYIN — ikki marta chiqmasligi uchun
+      try{ doc.ref.set({holat:'bajarildi', bajarildiVaqt:now, bajardi:men},{merge:true}); }catch(e){}
+      _chekLokal(d.matn||'', !!d.logo);
+    });
+  }, function(err){ if(window.console) console.error('chekNavbatTingla:', err); });
+}
+function chekNavbatUnsub(){ if(_chekUnsub){ try{_chekUnsub();}catch(e){} _chekUnsub=null; } }
+// ═══════════ /CHEK NAVBATI ═══════════
 function printXato(){
   if (printerYoq()) return; // bu qurilmada printer yo'q — jim
   var now = Date.now();
@@ -2910,7 +2998,7 @@ function hkChekPrint(tip) {
   }
   lines.push(LINE);
   var t = lines.join('\n')+'\n\n';
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,logo:true})}).catch(printXato);
+  chekYubor(t, true);
 }
 function zKursRender() {
   var tarix = JSON.parse(localStorage.getItem('tilla-kurs-tarix') || '[]');
@@ -3093,7 +3181,7 @@ function zKursChekPrint() {
   }
   lines2.push(LINE);
   var t = lines2.join(NL)+NL+NL+NL;
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,logo:true})}).catch(printXato);
+  chekYubor(t, true);
 }
 
 function zKursSaqla() {
@@ -8511,7 +8599,7 @@ function skVozvratChek(){
   lines.push('');
   lines.push(Array(W+1).join('='));
   var txt = lines.join('\n')+'\n\n';
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt,logo:false})}).catch(printXato);
+  chekYubor(txt, false);
 }
 
 var _kimgaZavod = ''; // hozirgi zavod nomi
@@ -8926,6 +9014,7 @@ function backupImportFile(input){
 }
 function openResetModal() {
   document.getElementById('modal-reset').classList.add('open');
+  try{ chekSozTugmaUpd(); }catch(e){}   // v172.28: printer kaliti holati
   document.getElementById('reset-parol').value='';
   document.getElementById('reset-parol-err').textContent='';
   document.getElementById('reset-tugmalar').style.display='none';
@@ -10187,11 +10276,9 @@ function chekIkkiChop(cheklar, cnt) {
   for (var i = 0; i < cnt; i++) {
     (function(idx){
       setTimeout(function(){
-        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:cheklar.chek1,logo:true})}).catch(printXato);
+        chekYubor(cheklar.chek1, true);
         setTimeout(function(){
-          fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({text:cheklar.chek2,logo:false})}).catch(printXato);
+          chekYubor(cheklar.chek2, false);
         }, 2500);
       }, idx*5000);
     })(i);
@@ -10327,7 +10414,7 @@ function kassaChek(ki, sana) {
   t += rjust('Jami', fmtD(jamiSumma)+'#')+'\n';
   t += LINE+'\n';
   t += center('RAHMAT!')+'\n\n';
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,logo:true})}).catch(printXato);
+  chekYubor(t, true);
 }
 
 // ─── ANALITIKA (keyingi rejalarda) ────────────────────────
@@ -15630,10 +15717,10 @@ function saqlashKlientSotuv() {
     for(var _ci=0;_ci<(_ksSotuvCnt||1);_ci++){
       (function(){
         // CHEK 1: klient (logo)
-        fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_cheklar.chek1,logo:true})}).catch(printXato);
+        chekYubor(_cheklar.chek1, true);
         // CHEK 2: o'zimizga (logosiz + ptichka)
         setTimeout(function(){
-          fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:_cheklar.chek2,logo:false})}).catch(printXato);
+          chekYubor(_cheklar.chek2, false);
         },2500);
       })();
     }
@@ -16032,7 +16119,7 @@ function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt,
   t += center('RAHMAT!')+'\n\n';
   for (var i = 0; i < cnt; i++) {
     (function(idx){ setTimeout(function(){
-      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,logo:true})}).catch(printXato);
+      chekYubor(t, true);
     }, idx*1500); })(i);
   }
 }
@@ -16307,7 +16394,7 @@ function klientQarzChekPrint(ki) {
   chekText+='\n\n';
   for(var i=0;i<cnt;i++){
     (function(idx){setTimeout(function(){
-      fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:chekText,logo:true})}).catch(printXato);
+      chekYubor(chekText, true);
     },idx*1500);})(i);
   }
 }
@@ -16387,7 +16474,7 @@ function klientChekBasit(ki, sana, soat, isBerish) {
   var dubSoat=String(now2.getHours()).padStart(2,'0')+':'+String(now2.getMinutes()).padStart(2,'0');
   t+=center('DUBLIKAT  '+sana+(soat?' '+soat:'')+' ('+dubSoat+')')+'\n\n';
 
-  fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:t,logo:true})}).catch(printXato);
+  chekYubor(t, true);
 }
 
 function klientPDF(){
@@ -17627,8 +17714,8 @@ function cloudInit(){
         if (!TEST_MODE) { localStorage.setItem('tilla-cloud-tasdiq','1'); } // haqiqiy rejimdagi mavjud sessiya — qonuniy
         else { firebase.auth().signOut(); return; } // TEST rejimga meros sessiya kirolmaydi
       }
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
-      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); obyektUnsub(); amalUnsubAll(); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); chekNavbatTingla();   /* v172.28: chek navbati — faqat chiqaruvchi qurilmada ishlaydi */ if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
+      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); try{ chekNavbatUnsub(); }catch(e){} obyektUnsub(); amalUnsubAll(); }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
   } catch(e) { console.error('cloudInit:', e); cloudStatus('red','xato'); }
