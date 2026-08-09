@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>v172.26 — Oddiy qilib: nima qilaman</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:26px 18px 60px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:21px;margin:0 0 20px}
+  h2{font-size:15px;color:#c9a227;margin:30px 0 10px;font-weight:700}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .col .ttl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+            padding:5px 12px;border-radius:20px;display:inline-block;margin-bottom:10px}
+  .col.b .ttl{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .col.a .ttl{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .scr{background:#f7f4ec;border:1px solid #e0dcd2;border-radius:9px;padding:10px 12px;color:#33302b;margin-bottom:8px}
+  .scr .nm{font-size:10px;color:#8a8578;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .scr .v{font-family:Roboto,monospace;font-size:19px;font-weight:700}
+  .r1{color:#c0392b}.g1{color:#2e7d32}
+  .same{background:#e4f2e7;border-color:#9ccfa9}
+  .diff{background:#fbe6e6;border-color:#e0a5a5}
+  .big{background:#1a1d22;border:1px solid #2e3238;border-radius:10px;padding:14px 16px;margin:14px 0;
+       font-family:monospace;font-size:15px;line-height:2}
+  .del{color:#ff8b8b;text-decoration:line-through}
+  .add{color:#8fe0ab}
+  .note{background:#1b1e24;border-left:3px solid #4ac97e;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:14px;color:#c5c9d1}
+  .note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  .q{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0;font-size:14px}
+  .muted{color:#8b8f98;font-size:13px}
+  .strike{position:relative;display:inline-block;color:#8b8f98}
+  .strike::after{content:'';position:absolute;left:0;right:0;top:52%;height:1.5px;background:#c84545}
+</style>
+</head>
+<body>
+
+<h1>Nima qilaman — sening raqamlaring bilan</h1>
+
+<h2>Hozir: bir xil narsa, besh xil raqam</h2>
+<div class="two">
+  <div class="col b">
+    <span class="ttl">Hozir</span>
+    <div class="scr diff"><div class="nm">Bosh ekran — BIZDA</div><div class="v r1">6,706.43 g</div></div>
+    <div class="scr diff"><div class="nm">Zavod ekrani — BIZDA</div><div class="v r1">6,706.43 g</div></div>
+    <div class="scr diff"><div class="nm">Berish formasi — «ostatka:»</div><div class="v r1">6,706.43 g</div></div>
+    <div class="scr diff"><div class="nm">Tekshiruv — «Tizim hisobi»</div><div class="v r1">6,706.43 g</div></div>
+    <div class="scr same"><div class="nm">Jami qo'limizda</div><div class="v g1">6,506.94 g</div></div>
+    <p class="muted">To'rt joy <b>saqlangan</b> raqamni ko'rsatadi, bittasi <b>sanaydi</b>.
+    Farq 199.49 g.</p>
+  </div>
+  <div class="col a">
+    <span class="ttl">Bo'ladi</span>
+    <div class="scr same"><div class="nm">Bosh ekran — BIZDA</div><div class="v g1">6,506.94 g</div></div>
+    <div class="scr same"><div class="nm">Zavod ekrani — BIZDA</div><div class="v g1">6,506.94 g</div></div>
+    <div class="scr same"><div class="nm">Berish formasi — «ostatka:»</div><div class="v g1">6,506.94 g</div></div>
+    <div class="scr same"><div class="nm">Tekshiruv — «Tizim hisobi»</div><div class="v g1">6,506.94 g</div></div>
+    <div class="scr same"><div class="nm">Jami qo'limizda</div><div class="v g1">6,506.94 g</div></div>
+    <p class="muted">Beshtasi ham <b>sanaydi</b>. Farq bo'lishi mumkin emas.</p>
+  </div>
+</div>
+
+<h2>Kodda nima o'zgaradi — hammasi shu</h2>
+<div class="big">
+<span class="del">bizda += t.ostatka</span>          ← saqlangan raqamni oladi
+<span class="add">bizda += ombor[zavod+tur]</span>    ← tarixni sanaydi
+</div>
+<p class="muted">Yuqoridagi to'rt joyda aynan shu almashinuv. <code>ombor[...]</code> —
+«Jami qo'limizda» ishlatayotgan <b>o'sha hisobning o'zi</b>, boshqa emas.</p>
+
+<div class="note">
+<b>Nega 1:1 bo'ladi:</b> ikkala ekran bitta hisobni chaqiradi. Boshqa-boshqa
+hisoblanmagani uchun farq qiladigan joy qolmaydi.
+</div>
+
+<h2>JAMI ham tuzaladi</h2>
+<div class="big">
+hozir:   6,706.43 + 3,841.49 − qarz  =  <span class="del">10,547.92</span>
+bo'ladi: 6,506.94 + 3,841.49 − qarz  =  <span class="add">10,348.43</span>
+</div>
+<p class="muted">KLIENTDA (3,841.49) <b>o'zgarmaydi</b> — u allaqachon tarixdan hisoblanadi,
+shuning uchun ikkala qurilmada bir xil chiqyapti.</p>
+
+<h2>Yana ikki narsa</h2>
+<div class="q">
+<b>🔧 tugma o'chadi</b> — <span class="strike">Ostatkani Hisobotdan qayta tiklash</span><br>
+<span class="muted">Sozlamalar → Tuzatish. Endi raqam doim to'g'ri, tuzatishga hojat yo'q.</span>
+<div style="height:10px"></div>
+<b>Qurilmalar ajralmaydi</b><br>
+<span class="muted">Telefonda chiqim qilsang kompyuterda ham darrov to'g'ri chiqadi —
+ikkalasi bir xil tarixni sanaydi. Hozirgi 199.49 g farq shundan paydo bo'lgan edi.</span>
+</div>
+
+<div class="note info">
+<b>Tegilmaydi:</b> klient ostatkalari, qarz, kassa, cheklar, Abdulhamid rejimi.
+Faqat ombor (BIZDA) raqami qayerdan olinishi o'zgaradi.
+</div>
+
+<h2>Boshlaymi?</h2>
+<div class="q">
+«Boshla» desang yozaman — <b>v172.26</b>, ~70 qator.
+<div style="height:8px"></div>
+<span class="muted">Yozib bo'lgach ilovani ochib qarasan: BIZDA 6,506.94 bo'lishi kerak.
+Bo'lmasa ayt, orqaga qaytaramiz.</span>
+</div>
+
+</body>
+</html>

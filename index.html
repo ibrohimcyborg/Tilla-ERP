@@ -1,4 +1,4 @@
-<!-- v172.25 -->
+<!-- v172.26 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1196,7 +1196,7 @@ body.rol-hamid .hamid-x { display: none !important; }
     <div class="modal-handle"></div>
     <div class="modal-title">Sozlamalar</div>
     <div style="margin-bottom:14px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Zaxira (backup)</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="davr-btn" onclick="backupExport()" style="color:var(--green);border-color:var(--green-bd);">⬇ Eksport</button><button class="davr-btn" onclick="document.getElementById('backup-import-inp').click()" style="color:var(--gold);border-color:var(--gold);">⬆ Import</button></div><input type="file" id="backup-import-inp" accept="application/json,.json" onchange="backupImportFile(this)" style="display:none;"><div style="font-size:11px;color:var(--muted);margin-top:6px;">Eksport — hamma malumotni faylga saqlaydi. Import — fayldan tiklaydi (ustiga yoziladi).</div></div>
-    <div style="margin-bottom:14px;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Tuzatish</div><button class="davr-btn" onclick="ostatkaQaytaTiklaOch()" style="width:100%;color:var(--gold);border-color:var(--gold-bd);">🔧 Ostatkani Hisobotdan qayta tiklash</button><div style="font-size:11px;color:var(--muted);margin-top:6px;">Har turning BIZDA (gramm+dona) raqamini o'z Hisobot yozuvlaridan qayta hisoblaydi. Sinxron xatosidan keyin BIZDA 0 ko'rsatsa yoki minusga tushsa — shu tugma to'g'rilaydi. Avval backup oladi.</div></div>
+    <!-- v172.26: 🔧 "Ostatkani qayta tiklash" OLIB TASHLANDI — BIZDA endi doim tarixdan hisoblanadi (turOstMap), tuzatishga hojat yoq (Ibrohim: "bu funksiya umuman kerak emas") -->
     <div id="reset-parol-blok" style="margin-bottom:12px;">
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Parol kiriting</div>
       <div style="display:flex;gap:8px;">
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.25';
+var APP_VER = 'v172.26';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2199,6 +2199,7 @@ if (!data.kassa.zaImportIds) data.kassa.zaImportIds = [];
 if (!data.kassa.qolda) data.kassa.qolda = [];
 
 function save(logText) {
+  turOstKeshTozala();   // v172.26: ma'lumot o'zgardi -> ombor hisobi qayta sanaladi
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
   if (data && data.klientlar) {
     data.klientlar.forEach(function(k){
@@ -3340,7 +3341,7 @@ function openZaprosTaqsim(zavodNom){
   z.turlar.forEach(function(t,ti){
     h+='<div style="background:var(--surf2);border-radius:10px;padding:9px 11px;margin-bottom:6px;">';
     h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">';
-    h+='<span style="font-weight:600;">'+t.nom+' <span style="color:var(--red);font-size:11px;">qarz '+fmtG(t.ostatka)+'g</span></span>';
+    h+='<span style="font-weight:600;">'+t.nom+' <span style="color:var(--red);font-size:11px;">qarz '+fmtG(turOst(z.nom,t.nom))+'g</span></span>';
     h+='<span style="color:var(--green);font-size:12px;font-weight:600;" id="zt-yop-'+ti+'"></span></div>';
     h+='<div style="display:grid;grid-template-columns:'+((zp.pul>0.001?1:0)+(zp.lom>0.001?1:0)+(zp.toza>0.001?1:0)===1?'1fr':'repeat(auto-fit,minmax(90px,1fr))')+';gap:6px;">';
     if(zp.pul>0.001) h+='<div><div style="font-size:10px;color:var(--muted);">Pul $</div><input type="number" id="zt-p-'+ti+'" inputmode="decimal" oninput="ztHisob()" style="'+inp+'"></div>';
@@ -4862,8 +4863,10 @@ function zavodKochir(zi, d){
   renderHome();
 }
 function renderHome() {
+  // v172.26: BIZDA tarixdan — "Jami qo'limizda" bilan 1:1 (t.ostatka o'qilmaydi)
+  var _om = turOstMap();
   var bizda = 0;
-  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += t.ostatka; }); });
+  data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ bizda += (_om[z.nom+'||'+t.nom]||0); }); });
   // v172.19 (Ibrohim): KLIENTDA ning O'ZI sof bo'ladi — klient qarzidan bizning
   // qarzimiz ayiriladi (615.08 − 75.98 = 539.10). JAMI oddiy qo'shuv: ayirish
   // KLIENTDA da bajarilgan, jamida takrorlansa ikki marta ayirilib ketadi.
@@ -4897,7 +4900,7 @@ function renderHome() {
     + (_zTartib ? 'border:1.5px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);' : 'border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);')
     + '">'+(_zTartib?'✓ Tayyor':'⇅ Tartib')+'</button></div>';
   data.zavodlar.forEach(function(z, zi){
-    var zG=0; z.turlar.forEach(function(t){ zG+=t.ostatka; });
+    var zG=0; z.turlar.forEach(function(t){ zG+=(_om[z.nom+'||'+t.nom]||0); });   // v172.26: tarixdan
     zG=Math.round(zG*100)/100;
     if(_zTartib){
       // tartib rejimi: qator bosilsa zavod OCHILMAYDI, faqat ↑↓
@@ -5103,7 +5106,8 @@ function renderZavod() {
   var z = data.zavodlar[curZ];
   if (!z) return;
   document.getElementById('zavod-title').textContent = z.nom;
-  var bizda = 0; z.turlar.forEach(function(t){ bizda += t.ostatka; });
+  var _omZ = turOstMap();   // v172.26: BIZDA tarixdan (Jami qo'limizda bilan 1:1)
+  var bizda = 0; z.turlar.forEach(function(t){ bizda += (_omZ[z.nom+'||'+t.nom]||0); });
   // v172.19: KLIENTDA ning O'ZI sof (klient qarzi − bizning qarzimiz), jami oddiy qo'shuv
   var klientda = 0, zBizQarz = 0;
   (data.klientlar||[]).forEach(function(k){
@@ -5147,7 +5151,7 @@ function renderZavod() {
     // bo'ladi: 615.08 − 75.98 = 539.10. JAMI esa oddiy qo'shuv — ayirish KLIENTDA da
     // allaqachon bajarilgan, aks holda ikki marta ayirilib ketadi (1224.14 — xato).
     turKlientda = Math.round((turKlientda-turBizningQarzimiz)*100)/100;
-    var turBizda = t.ostatka;
+    var turBizda = (_omZ[z.nom+'||'+t.nom]||0);   // v172.26: tarixdan
     var turJami = Math.round((turBizda+turKlientda)*100)/100;
 
     var isOpen = openTurIdx === ti;
@@ -5502,7 +5506,7 @@ function turBirlashModal(ti){
   if(z.turlar.length<2){ alert('Bu zavodda boshqa tur yo\'q.'); return; }
   var boshqa = z.turlar.map(function(x,i){ return {x:x,i:i}; }).filter(function(o){ return o.i!==ti; });
   var msg = '"'+t.nom+'" turi QAYSI turga qo\'shilsin?\n\n';
-  boshqa.forEach(function(o,k){ msg += (k+1)+') '+o.x.nom+'  ('+fmtG(o.x.ostatka||0)+' g)\n'; });
+  boshqa.forEach(function(o,k){ msg += (k+1)+') '+o.x.nom+'  ('+fmtG(turOst(z.nom,o.x.nom))+' g)\n'; });
   msg += '\nRaqamni yozing:';
   var jav = prompt(msg,'');
   if(jav===null) return;
@@ -5516,9 +5520,9 @@ function turBirlashModal(ti){
   var dnN=0;
   try{ if(typeof donaBazaOl==='function') dnN=donaBazaOl().filter(function(r){
     return r.zavod===z.nom && r.tur===t.nom; }).length; }catch(e){}
-  var yangiOst = roundG((maqsad.ostatka||0)+(t.ostatka||0));
+  var yangiOst = roundG(turOst(z.nom,maqsad.nom)+turOst(z.nom,t.nom));
   if(!confirm('"'+t.nom+'" -> "'+maqsad.nom+'"\n\n'
-    +'Ostatka: '+fmtG(maqsad.ostatka||0)+' + '+fmtG(t.ostatka||0)+' = '+fmtG(yangiOst)+' g\n'
+    +'Ostatka: '+fmtG(turOst(z.nom,maqsad.nom))+' + '+fmtG(turOst(z.nom,t.nom))+' = '+fmtG(yangiOst)+' g\n'
     +'Klient yozuvlari: '+klN+' ta\n'
     +'Dona baza: '+dnN+' ta\n'
     +'Zavod tarixi: '+((t.tarix||[]).length)+' ta\n\n'
@@ -7047,6 +7051,61 @@ function _qoEsc(s){
          .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// v172.26 (Ibrohim): OMBOR RAQAMI TARIXDAN — "sistema BIZDA ni Jami qo'limizda bilan
+// 1:1 ko'rsatishi kerak". Avval BIZDA t.ostatka (saqlangan yugurik raqam) dan o'qilardi,
+// uni 44 joy o'zgartirardi va sinxron unga TEGMASDI (7851 izohi) — shuning uchun har
+// qurilmada boshqa raqam chiqardi (6706.43 vs 6506.94, farq 199.49 g).
+//
+// _ostDelta — bitta amalning omborga ta'siri. qoldData ham, turOstMap ham AYNAN shuni
+// chaqiradi, shuning uchun ikki ekran farq qilishi mumkin emas (1:1 konstruksiyadan).
+//   zavod tarixi:  mol +g · vozvrat −g · inventar(tuzatish) ±g
+//   klient tarixi: berish −g · vozvrat +g   (faqat g>0, boshlangich KIRMAYDI)
+//   to'lov / pul — omborga tegmaydi, 0 qaytadi
+function _ostDelta(op, klientTomon){
+  if(!op) return 0;
+  var g = parseNum(op.gramm);
+  if(klientTomon){
+    if(!op.zavod || !op.tur) return 0;
+    if(op.tip!=='berish' && op.tip!=='vozvrat') return 0;
+    if(op.inventar==='boshlangich') return 0;   // zavoddan chiqmagan
+    if(!(g > 0)) return 0;                      // manfiy berish — pul-asosli, omborga tegmaydi
+    return (op.tip==='berish') ? -g : g;
+  }
+  if(op.tip!=='mol' && op.tip!=='vozvrat') return 0;
+  if(!g) return 0;
+  if(op.inventar) return (op.tip==='vozvrat' ? -g : g);   // shakllantirish / tekshiruv tuzatishi
+  return (op.tip==='mol') ? g : -g;
+}
+// Har zavod·tur uchun HOZIRGI ombor qoldig'i — bitta o'tishda. Kalit: zavod \0 tur.
+var _ostKesh = null;   // v172.26: bir renderda qayta-qayta sanamaslik uchun
+function turOstKeshTozala(){ _ostKesh = null; }
+function turOstMap(){
+  if(_ostKesh) return _ostKesh;
+  var m = {};
+  (data.zavodlar||[]).forEach(function(z){
+    (z.turlar||[]).forEach(function(t){
+      var key = z.nom+'||'+t.nom, s = 0;
+      (t.tarix||[]).forEach(function(op){ s += _ostDelta(op, false); });
+      m[key] = s;
+    });
+  });
+  (data.klientlar||[]).forEach(function(k){
+    (k.tarix||[]).forEach(function(op){
+      var d = _ostDelta(op, true);
+      if(!d) return;
+      var key = op.zavod+'||'+op.tur;
+      m[key] = (m[key]||0) + d;
+    });
+  });
+  Object.keys(m).forEach(function(key){ m[key] = roundG(m[key]); });
+  _ostKesh = m;
+  return m;
+}
+// Bitta zavod·tur uchun (xarita tuzish shart bo'lmaganda)
+function turOst(zNom, tNom){
+  var m = turOstMap();
+  return m[zNom+'||'+tNom] || 0;
+}
 function qoldData(){
   var dv = qoldDavr();
 
@@ -7057,18 +7116,15 @@ function qoldData(){
   var Kpre = {}, Kb = {}, Kv = {};
   (data.klientlar||[]).forEach(function(k){
     (k.tarix||[]).forEach(function(op){
-      if(!op || !op.zavod || !op.tur) return;
-      if(op.tip!=='berish' && op.tip!=='vozvrat') return;
-      if(op.inventar==='boshlangich') return;
-      var g = parseNum(op.gramm);
-      if(!(g > 0)) return;                           // manfiy — ostatkaga tegmaydi
+      // v172.26: qoida _ostDelta da — BIZDA paneli ham AYNAN shuni chaqiradi (1:1 kafolati)
+      var sg = _ostDelta(op, true);
+      if(!sg) return;
       var ts = fdSanaTs(op.sana, op.soat) || 0;
-      var sg = (op.tip==='berish') ? -g : g;
       var key = op.zavod+'\u0000'+op.tur;
       if(ts > dv.oxir) return;                       // haftadan keyingisi bu hisobga kirmaydi
       if(ts < dv.bosh){ Kpre[key] = (Kpre[key]||0) + sg; return; }
-      if(op.tip==='berish') Kb[key] = (Kb[key]||0) + g;
-      else Kv[key] = (Kv[key]||0) + g;
+      if(sg < 0) Kb[key] = (Kb[key]||0) + (-sg);
+      else Kv[key] = (Kv[key]||0) + sg;
     });
   });
 
@@ -7079,15 +7135,12 @@ function qoldData(){
       var key = z.nom+'\u0000'+t.nom;
       var ops = [], pre = Kpre[key] || 0;            // hafta boshigacha: klient tomonining yig'indisi
       (t.tarix||[]).forEach(function(op){
-        if(!op) return;
-        if(op.tip!=='mol' && op.tip!=='vozvrat') return;
-        var g = parseNum(op.gramm);
-        if(!g) return;
+        // v172.26: qoida _ostDelta da (BIZDA paneli bilan bir xil manba)
+        var sg = _ostDelta(op, false);
+        if(!sg) return;
         var ts = fdSanaTs(op.sana, op.soat) || 0;
-        var nom, sg;
-        if(op.inventar){ nom = 'Ostatka tuzatish'; sg = (op.tip==='vozvrat' ? -g : g); }
-        else if(op.tip==='mol'){ nom = 'Zavoddan keldi'; sg = g; }
-        else { nom = 'Zavodga vozvrat'; sg = -g; }
+        var nom = op.inventar ? 'Ostatka tuzatish'
+                : (op.tip==='mol' ? 'Zavoddan keldi' : 'Zavodga vozvrat');
         if(ts > dv.oxir) return;
         if(ts < dv.bosh){ pre += sg; return; }
         ops.push({ts:ts, sana:(op.sana||'').slice(0,10), nom:nom, g:sg});
@@ -7529,7 +7582,7 @@ function _ostShaklDavom(c, p1, jg, dona, sana, soat, boshG, boshD, tanlov){
     // A-yo'l (Ibrohim tanladi): shakllantirishdan keyin harakat bo'lgan bo'lsa —
     // boshqattan taqiqlanadi, Tekshiruv rejimiga yo'naltiriladi. Belgi: ostatka/donaOst
     // boshlangich yig'indisidan farq qilsa, demak kirim/berish/vozvrat bo'lgan.
-    var harakat = Math.abs(roundG((c.t.ostatka||0)-boshG))>0.005 || turDona(c.t)!==boshD;
+    var harakat = Math.abs(roundG(turOst(c.z.nom,c.t.nom)-boshG))>0.005 || turDona(c.t)!==boshD;
     if(harakat){
       alert('Shakllantirishdan keyin bu turda kirim/berish bo\'lgan — BOSHQATTAN mumkin emas (grammlar ikki marta hisoblanadi).\n\nBuning o\'rniga "Ostatka tekshirish" rejimini ishlating: u skan bilan tizimni solishtirib, farqni tuzatadi.');
       return;
@@ -7590,7 +7643,8 @@ function ostTurChange(skipReset){
   } else {
     ogoh.style.display='none';
     sis.style.display='flex';
-    sis.innerHTML = '<span>Tizim hisobi</span><b>'+turDona(c.t)+' dona · '+fmtG(c.t.ostatka||0)+' g</b>';
+    // v172.26: tarixdan — skan bilan solishtiriladigan raqam BIZDA bilan bir xil bo'lsin
+    sis.innerHTML = '<span>Tizim hisobi</span><b>'+turDona(c.t)+' dona · '+fmtG(turOst(c.z.nom, c.t.nom))+' g</b>';
   }
 }
 var _ostSk = { mode:1, pass1:[], pass2:[] };
@@ -7680,7 +7734,7 @@ function ostSkRender(){
     var p1=_ostSk.pass1;
     if(c && p1.length){
       var jg1=skSum(p1);
-      var fd=p1.length-turDona(c.t), fg=roundG(jg1-(c.t.ostatka||0));
+      var fd=p1.length-turDona(c.t), fg=roundG(jg1-turOst(c.z.nom,c.t.nom));
       farq.style.display='block';
       if(fd===0 && Math.abs(fg)<0.005){ farq.style.background='var(--green-bg)'; farq.style.color='var(--green)'; farq.textContent='\u2713 Mos \u2014 farq yo\'q'; }
       else if(fd<0){ farq.style.background='var(--red-bg)'; farq.style.color='var(--red)'; farq.textContent=Math.abs(fd)+" dona yetishmayapti ("+fmtG(fg)+"g)"; }
@@ -7964,6 +8018,7 @@ function amalListen(){
       // to'g'ri; masofadan kelgan tarix qatori amalRecAdd bilan qo'shiladi. Ostatka kerak bo'lsa
       // Sozlamalar > "Ostatkani qayta tiklash" (endi klient bilan to'g'ri hisoblaydi) orqali tuziladi.
       _amalSetSaqla();
+      turOstKeshTozala();   // v172.26: masofadan yozuv keldi -> ombor qayta sanaladi
       try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
       try{ if(typeof renderZavodlar==='function') renderZavodlar(); if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); if(typeof renderKlientlar==='function') renderKlientlar(); }catch(e){}
     } else { _amalSetSaqla(); }
@@ -8262,7 +8317,7 @@ function ostFormSaqla(){
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   if(!c.t.tarix) c.t.tarix=[];
   if(_ostMode==='tekshir'){
-    var dFarq0=dona-turDona(c.t), gFarq0=roundG(jg-(c.t.ostatka||0));
+    var dFarq0=dona-turDona(c.t), gFarq0=roundG(jg-turOst(c.z.nom,c.t.nom));
     if(dFarq0===0 && Math.abs(gFarq0)<0.005){
       // Variant B: farq yo'q bo'lsa ham TEKSHIRILGANI hisobotda qolishi uchun 'mos' log yoziladi.
       // Ostatka/donaOst ga tegilmaydi (o'zgarish yo'q), faqat hisobot uchun iz.
@@ -8289,7 +8344,7 @@ function ostFormSaqla(){
     sarl="BOSHLANG'ICH OSTATKA KIRITILSINMI?";
     izoh="Boshlang'ich ostatka"; inventar='boshlangich';
   } else {
-    dFarq=dona-turDona(c.t); gFarq=roundG(jg-(c.t.ostatka||0));
+    dFarq=dona-turDona(c.t); gFarq=roundG(jg-turOst(c.z.nom,c.t.nom));
     sarl='TEKSHIRUV: farq TUZATILSINMI? (hisob haqiqiy sanoqqa tenglashadi)';
     izoh='Ostatka tekshiruv tuzatish'; inventar='tekshiruv';
   }
@@ -8366,8 +8421,9 @@ function skSaqlash(){
   var z = data.zavodlar[skState.zi];
   var t = z.turlar[skState.ti];
   var total = skSum(skState.pass1);
-  if (voz && total > (t.ostatka||0) + 0.005){
-    if (!confirm('Diqqat: qaytarilayotgan '+fmtG(total)+' g, ammo ostatka faqat '+fmtG(roundG(t.ostatka||0))+' g.\nBaribir davom etilsinmi?')) return;
+  var _ostVoz = turOst(z.nom, t.nom);   // v172.26: tarixdan
+  if (voz && total > _ostVoz + 0.005){
+    if (!confirm('Diqqat: qaytarilayotgan '+fmtG(total)+' g, ammo ostatka faqat '+fmtG(roundG(_ostVoz))+' g.\nBaribir davom etilsinmi?')) return;
   }
   if (skState.pass2.length){
     var r = skReconcile();
@@ -8518,7 +8574,7 @@ function cZavodChange() {
   var out = '';
   data.zavodlar[zi].turlar.forEach(function(t,ti) {
     out += '<div class="ctur-block">'
-      + '<div class="ctur-header"><span class="ctur-name">'+t.nom+'</span><span class="ctur-bal">'+fmtG(t.ostatka)+' g</span></div>'
+      + '<div class="ctur-header"><span class="ctur-name">'+t.nom+'</span><span class="ctur-bal">'+fmtG(turOst(data.zavodlar[zi].nom, t.nom))+' g</span></div>'
       + '<div class="ctur-grid">'
       + '<div class="ctur-field"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">NAQT ($)</div><input type="number" id="cn-n-'+ti+'" placeholder="0" oninput="cCalc('+ti+')"></div>'
       + '<div class="ctur-field"><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">KURS ($/g)</div><input type="number" id="cn-k-'+ti+'" placeholder="87.5" oninput="cCalc('+ti+')"></div>'
@@ -8793,58 +8849,10 @@ function editOchir() {
 // ===== OSTATKANI HISOBOTDAN QAYTA TIKLASH (sinxron xatosini tuzatish) =====
 // Har turning BIZDA raqamini (ostatka gramm + donaOst) o'z tarixidan qayta hisoblaydi.
 // Formula ilovaning o'z teskari-mantig'idan (o'chirish): mol +gramm, vozvrat -gramm, chiqim -jami.
-function ostatkaHisobla(t, zNom){
-  var g=0, d=0;
-  (t.tarix||[]).forEach(function(op){
-    if(op.tip==='mol'){ g += (op.gramm||0); d += (op.dona||0); }
-    else if(op.tip==='vozvrat'){ g -= (op.gramm||0); d += (op.dona||0); }
-    else { g -= (op.jami||0); d -= (op.dona||0); }
-  });
-  // KLIENT tarafidagi berish/sotuv/vozvrat ham zavod ostatkasiga ta'sir qiladi
-  // (berish/sotuv KLIENT tarixida yoziladi, zavod tarixida YO'Q — shuning uchun bu yerda qo'shamiz)
-  if(zNom){
-    (data.klientlar||[]).forEach(function(k){
-      (k.tarix||[]).forEach(function(op){
-        if(op.zavod!==zNom || op.tur!==t.nom) return;
-        if(op.tip==='berish'){
-          if(op.inventar==='boshlangich') return; // zavoddan chiqmagan — ta'sir qilmaydi
-          g -= (op.gramm||0);   // klientga berildi -> zavoddan kamayadi
-          d -= (op.dona||0);
-        } else if(op.tip==='vozvrat'){
-          g += (op.gramm||0);   // klientdan qaytdi -> zavodga qo'shiladi
-          d += (op.dona||0);
-        }
-      });
-    });
-  }
-  return { gramm: roundG(g), dona: Math.round(d) };
-}
-function ostatkaQaytaTiklaOch(){
-  // Oldindan qancha tur o'zgarishini hisoblab, tasdiq so'raymiz
-  var ozgarish=[], jami=0;
-  (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(t){
-    jami++;
-    var h=ostatkaHisobla(t, z.nom);
-    var eskiG=roundG(t.ostatka||0), eskiD=Math.round(t.donaOst||0);
-    if(Math.abs(eskiG-h.gramm)>=0.005 || eskiD!==h.dona){
-      ozgarish.push(z.nom+'·'+t.nom+': '+fmtG(eskiG)+'g→'+fmtG(h.gramm)+'g'+(eskiD!==h.dona?(' | '+eskiD+'→'+h.dona+' dona'):''));
-    }
-  }); });
-  if(!ozgarish.length){ alert('✓ Hammasi joyida — BIZDA raqamlari Hisobotga mos, tuzatish shart emas.'); return; }
-  var nechta=ozgarish.length;
-  var korsat = ozgarish.slice(0,15).join('\n') + (nechta>15 ? ('\n... va yana '+(nechta-15)+' ta') : '');
-  if(!confirm('🔧 '+nechta+' ta tur to\'g\'rilanadi (BIZDA raqami Hisobotdan qayta hisoblanadi):\n\n'+korsat+'\n\nAvval backup olinadi, keyin tuzatiladi. Davom etilsinmi?')) return;
-  // 1) Backup
-  try{ backupExport(); }catch(e){}
-  // 2) Qayta hisoblash
-  (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(t){
-    var h=ostatkaHisobla(t, z.nom);
-    t.ostatka=h.gramm; t.donaOst=h.dona;
-  }); });
-  save('Ostatka Hisobotdan qayta tiklandi ('+nechta+' tur)');
-  try{ if(typeof renderZavodlar==='function') renderZavodlar(); if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); if(typeof renderKlientlar==='function') renderKlientlar(); }catch(e){}
-  alert('✓ '+nechta+' ta tur to\'g\'rilandi. BIZDA raqamlari endi Hisobotga mos.');
-}
+// v172.26: ostatkaHisobla O'CHIRILDI — BIZDA tarixdan hisoblanadi, qayta tiklash kerak emas
+
+// v172.26: ostatkaQaytaTiklaOch O'CHIRILDI — BIZDA tarixdan hisoblanadi, qayta tiklash kerak emas
+
 
 function backupExport(){
   try{
@@ -10844,7 +10852,7 @@ function klientGunTahrir(ki, sana) {
 
     if(tip==='berish'||tip==='vozvrat'){
       var tOstatka = 0;
-      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) tOstatka=t.ostatka; }); });
+      data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) tOstatka=turOst(z.nom,t.nom); }); });
       var effOstatka = tip==='berish' ? tOstatka + op.gramm : tOstatka - op.gramm;
       body += '<div style="display:flex;align-items:center;gap:8px;">';
       body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" data-ostatka="'+effOstatka.toFixed(2)+'" value="'+op.gramm+'" oninput="kopGUpdate(this)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
@@ -11934,6 +11942,7 @@ function kberishKlientChange(){
 }
 
 function renderBerishTurlar(zavodlar){
+  var _omB = turOstMap();   // v172.26: ostatka tarixdan (BIZDA paneli bilan bir xil)
   var ki=parseInt(document.getElementById('kb-klient').value);
   var k=!isNaN(ki)&&ki>=0?data.klientlar[ki]:null;
   // klientda qarzlarni hisoblash
@@ -11951,7 +11960,7 @@ function renderBerishTurlar(zavodlar){
     out+='<div style="margin-bottom:10px;">';
     out+='<div onclick="toggleBerishZ(this)" style="background:var(--surf2);padding:10px 12px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
     out+='<div style="font-size:13px;font-weight:600;color:var(--gold);">'+z.nom+'</div>';
-    out+='<div style="font-size:11px;color:var(--muted);">'+fmtG(z.turlar.reduce(function(a,t){return a+t.ostatka;},0))+'g ›</div>';
+    out+='<div style="font-size:11px;color:var(--muted);">'+fmtG(z.turlar.reduce(function(a,t){return a+turOst(z.nom,t.nom);},0))+'g ›</div>';
     out+='</div>';
     out+='<div id="bz-'+idx+'" style="display:none;padding:0 4px;">';
     z.turlar.forEach(function(t,ti){
@@ -11965,13 +11974,13 @@ function renderBerishTurlar(zavodlar){
       out+='<button type="button" onclick="kbSkanToggle('+zi+','+ti+')" id="kbskan-btn-'+zi+'_'+ti+'" style="width:34px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:15px;cursor:pointer;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:block;margin:auto;"><rect x="2.5" y="4.5" width="19" height="15" rx="5"/><line x1="7" y1="9" x2="7" y2="15"/><line x1="10.3" y1="9" x2="10.3" y2="10.3"/><line x1="10.3" y1="12.6" x2="10.3" y2="15"/><line x1="13.6" y1="9" x2="13.6" y2="12.4"/><line x1="13.6" y1="14.9" x2="13.6" y2="15"/><line x1="17" y1="9" x2="17" y2="15"/></svg></button>';
       out+='<button type="button" class="sgn-btn" id="sgn-'+inputId+'" onclick="berishSignToggle(\''+inputId+'\')" style="width:34px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:17px;font-weight:600;cursor:pointer;flex-shrink:0;">±</button>';
       var turQarzHozir = k ? ostKlTurQarz(k, z.nom, t.nom) : 0;
-      out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" data-klientda="'+kdG+'" data-turqarz="'+turQarzHozir+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
+      out+='<input type="text" inputmode="decimal" autocomplete="off" autocorrect="off" id="'+inputId+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+(_omB[z.nom+'||'+t.nom]||0)+'" data-klientda="'+kdG+'" data-turqarz="'+turQarzHozir+'" placeholder="0" oninput="berishOstatkaUpdate(this)" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--text);text-align:right;">';
       out+='<span style="font-size:12px;color:var(--muted);">g</span>';
       out+='</div>';
       if(kdG>0.01){
-        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">bizda: +'+fmtG(kdG)+' | ostatka: '+fmtG(t.ostatka)+'g</div>';
+        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">bizda: +'+fmtG(kdG)+' | ostatka: '+fmtG(_omB[z.nom+'||'+t.nom]||0)+'g</div>';
       } else {
-        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">ostatka: '+fmtG(t.ostatka)+'g</div>';
+        out+='<div id="ost-'+inputId+'" style="font-size:10px;color:var(--green);">ostatka: '+fmtG(_omB[z.nom+'||'+t.nom]||0)+'g</div>';
       }
       if(k) out+='<div id="kd2-'+inputId+'" style="font-size:10px;color:var(--blue);">Klientda: '+fmtG(turQarzHozir)+'g</div>';
       out+='</div>';
@@ -12190,7 +12199,7 @@ function kVozvratKlientChange(){
     z.turlar.forEach(function(t,ti){
       var key=z.nom+'||'+t.nom;
       var qarz=Math.round((bal[key]||0)*100)/100;
-      var ostatka=Math.round((t.ostatka||0)*100)/100;
+      var ostatka=turOst(z.nom,t.nom);   // v172.26: tarixdan
       var lbl=balLblOf(qarz);
       rows+='<div style="display:flex;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);">';
       rows+='<div style="flex:1;padding-top:8px;">';
@@ -12803,7 +12812,7 @@ function ktVozvratAll(ki){
     z.turlar.forEach(function(t,ti){
       var key=z.nom+'||'+t.nom;
       var qarz=Math.round((bal[key]||0)*100)/100;
-      var ostatka=Math.round((t.ostatka||0)*100)/100;
+      var ostatka=turOst(z.nom,t.nom);   // v172.26: tarixdan
       var L=lblOf(qarz);
       rows+='<div style="background:var(--blue-bg);border-radius:10px;padding:8px 12px;margin-bottom:6px;border:1px solid var(--blue-bd);display:flex;align-items:center;gap:10px;">';
       rows+='<div style="flex:1;"><div style="font-size:12px;color:var(--blue);font-weight:500;">'+t.nom+'</div>';
@@ -13993,13 +14002,13 @@ function kSotuvRenderZavodlar() {
   var firstOpen = true;
   data.zavodlar.forEach(function(z, zi) {
     if (!z.turlar.length) return;
-    var hasStat = z.turlar.some(function(t){ return t.ostatka > 0.001; });
+    var hasStat = z.turlar.some(function(t){ return turOst(z.nom,t.nom) > 0.001; });
     if (!hasStat) return;
     var isOpen = firstOpen;
     if (firstOpen) firstOpen = false;
     var bodyDisplay = isOpen ? 'block' : 'none';
     var arrow = isOpen ? '⌄' : '›';
-    var zTot = z.turlar.reduce(function(a,t){ return a+(t.ostatka>0?t.ostatka:0); }, 0);
+    var zTot = z.turlar.reduce(function(a,t){ var _o=turOst(z.nom,t.nom); return a+(_o>0?_o:0); }, 0);
     out += '<div style="background:var(--surf2);border-radius:12px;margin-bottom:6px;overflow:hidden;">';
     out += '<div onclick="kSotuvToggleZ(this)" style="padding:9px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">';
     out += '<div style="font-size:12px;font-weight:600;color:var(--gold);">'+z.nom+'</div>';
@@ -14007,7 +14016,7 @@ function kSotuvRenderZavodlar() {
     out += '</div>';
     out += '<div style="display:'+bodyDisplay+';padding:0 12px 10px;" class="ks-zavod-body">';
     z.turlar.forEach(function(t, ti) {
-      if (t.ostatka <= 0.001) return;
+      if (turOst(z.nom,t.nom) <= 0.001) return;   // v172.26: tarixdan
       var iid = 'ksg-'+zi+'-'+ti;
       out += '<div style="padding:7px 0;border-top:1px solid var(--border);">';
       out += '<div style="display:flex;align-items:center;gap:8px;">';
@@ -14018,7 +14027,7 @@ function kSotuvRenderZavodlar() {
       out += '<input type="text" inputmode="decimal" id="'+iid+'" data-zi="'+zi+'" data-ti="'+ti+'" data-ostatka="'+t.ostatka+'" placeholder="0g" oninput="kSotuvGUpdate(this)" style="width:72px;padding:6px 8px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);font-size:14px;text-align:right;color:var(--green);font-weight:500;">';
       out += uniSkanBtn(iid);
       out += '</div>';
-      out += '<div id="ksg-ost-'+zi+'-'+ti+'" style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(t.ostatka)+'g</div>';
+      out += '<div id="ksg-ost-'+zi+'-'+ti+'" style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(turOst(z.nom,t.nom))+'g</div>';
       out += uniSkanPanel(iid);
       out += '</div>';
     });
@@ -14087,7 +14096,7 @@ function kSotuvRenderTolov() {
 
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
-      if (t.ostatka <= 0.001) return;
+      if (turOst(z.nom,t.nom) <= 0.001) return;   // v172.26: tarixdan
       var turQarz = qarzMap[z.nom+'||'+t.nom] || 0;
       var yangiG2 = parseNum((document.getElementById('ksg-'+zi+'-'+ti)||{}).value) || 0;
       // bizda qarz (turQarz manfiy) yoki klientda qarz yoki yangi sotuv bo'lsa ko'rsat
@@ -14301,7 +14310,7 @@ function kSotuvTolovCalc() {
 
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
-      if (t.ostatka <= 0.001) return;
+      if (turOst(z.nom,t.nom) <= 0.001) return;   // v172.26: tarixdan
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var gInp = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
@@ -15014,7 +15023,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
   var tolovBormi = false;
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
-      if (t.ostatka <= 0.001) return;
+      if (turOst(z.nom,t.nom) <= 0.001) return;   // v172.26: tarixdan
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       if (s > 0) tolovBormi = true;
     });
@@ -15051,7 +15060,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
   var offsetJami = 0;
   data.zavodlar.forEach(function(z, zi) {
     z.turlar.forEach(function(t, ti) {
-      if (t.ostatka <= 0.001) return;
+      if (turOst(z.nom,t.nom) <= 0.001) return;   // v172.26: tarixdan
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       var s = parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value) || 0;
       var g = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
@@ -15313,7 +15322,7 @@ function saqlashKlientSotuv() {
       var narx = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       if (g <= 0) return;
       var z = data.zavodlar[zi], t = z.turlar[ti];
-      if (g > t.ostatka + 0.001) { alert(z.nom+' · '+t.nom+': zavodda yetarli tilla yoq!'); throw new Error('stop'); }
+      if (g > turOst(z.nom,t.nom) + 0.001) { alert(z.nom+' · '+t.nom+': zavodda yetarli tilla yoq!'); throw new Error('stop'); }
       var _ds=uniSkanDona('ksg-'+zi+'-'+ti); // skan bilan sotilgan bolsa dona ham ayriladi
       var _bop={tip:'berish', sana:sana, soat:_soatSv, zavod:z.nom, tur:t.nom, gramm:g};
       if(_ds>0){ _bop.dona=_ds; t.donaOst=Math.max(0, turDona(t)-_ds); donaRegOlish(t, uniSkanArr('ksg-'+zi+'-'+ti)); }
@@ -16525,10 +16534,10 @@ function zvZavodChange() {
   data.zavodlar[zi].turlar.forEach(function(t,ti) {
     out += '<div style="display:flex;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);">'
       + '<div style="flex:1;padding-top:8px;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+t.nom+'</div>'
-      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(t.ostatka)+'g</div></div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">ostatka: '+fmtG(turOst(data.zavodlar[zi].nom,t.nom))+'g</div></div>'
       + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">'
       + '<div style="display:flex;align-items:center;gap:6px;">'
-      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+t.ostatka+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--blue);text-align:right;">'
+      + '<input type="number" id="zvg-'+ti+'" placeholder="0" oninput="zvCalc('+ti+','+turOst(data.zavodlar[zi].nom,t.nom)+')" style="width:90px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:16px;background:var(--surf2);color:var(--blue);text-align:right;">'
       + '<span style="font-size:12px;color:var(--muted);">g</span></div>'
       + '<div id="zvc-'+ti+'" style="font-size:10px;color:var(--green);display:none;">qoladi: <b id="zvr-'+ti+'">0</b>g</div>'
       + '</div></div>';
@@ -17702,6 +17711,7 @@ function cloudTanlovKeyin(){ // "Keyinroq hal qilaman" — hech narsa ozgarmaydi
   cloudStatus('yellow','cloudda yangiroq bor');
 }
 function cloudYuklab(meta, jim){
+  turOstKeshTozala();   // v172.26: butun data almashadi -> ombor hisobi qayta sanaladi
   cloudStatus('yellow','yuklanmoqda');
   var n = meta.bolak || 1;
   var reads = [];
@@ -17772,7 +17782,7 @@ function kassaSnapshotObj(vaqt){
     .map(function(z){ return {id:z.id, zavodNom:z.zavodNom, summa:z.summa, kurs:z.kurs, muddatTs:z.muddatTs, izoh:z.izoh||''}; });
   var zx = kassaOxirgiZ();
   var zavodQ = (data.zavodlar||[]).map(function(z){
-    var g=0; (z.turlar||[]).forEach(function(t){ g+=parseNum(t.ostatka); });
+    var g=0; (z.turlar||[]).forEach(function(t){ g+=turOst(z.nom,t.nom); });
     return {nom:z.nom, ostatka:roundG(g)};
   });
   return {

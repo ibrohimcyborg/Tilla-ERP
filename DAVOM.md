@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.25 · 2026-08-08
+**Oxirgi yangilanish:** v172.26 · 2026-08-09
 
 ---
 
@@ -12,12 +12,13 @@
 
 | | |
 |---|---|
-| Versiya | **v172.25** (`index.html` birinchi qatorida `<!-- v172.25 -->`, `APP_VER` da ham) |
+| Versiya | **v172.26** (`index.html` birinchi qatorida `<!-- v172.26 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | v172.24 gacha push qilingan — prod v172.24. **v172.25 hali push qilinmagan.** Push qarori faqat Ibrohimda. |
+| Git | v172.25 gacha push qilingan — prod v172.25. **v172.26 hali push qilinmagan** (Ibrohim ADMIN xonasida sinab ko'rgach). |
+| **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
 | **Dona baza** | **CHERNOVIK** — `DONA_BAZA_UI=false` (1966). Ko'rinmaydi, yozmaydi, muzlatilgan. To'liq o'tish rejasi: **PLAN.md** |
 
@@ -203,6 +204,7 @@ Qaror qabul qilinmagan.
 | v172.23 | Kurs avto-saqlanadi (Saqlash tugmasi o'rnida «Kunlik kurs» ko'rinadi) + kategoriya har amalda A dan boshlanadi, klientga yozilmaydi |
 | v172.24 | Offsetdan yopilgan to'lov tarixda va hisobotda «⇄ Offset» bo'lib ko'rinadi (ayirma bilan aniqlanadi, eski yozuvlarga ham ishlaydi) |
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
+| v172.26 | **BIZDA tarixdan** — «Jami qo'limizda» bilan 1:1, 18 joy o'tkazildi, 🔧 tugma o'chirildi. Qurilmalar orasidagi 199.49 g farq shu bilan yopiladi |
 
 To'liq tafsilot — `CHANGELOG.md` (o'qimang, kerak bo'lsa Ibrohimdan so'rang).
 

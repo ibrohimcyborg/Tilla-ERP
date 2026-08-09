@@ -3,6 +3,75 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.26: OMBOR RAQAMI TARIXDAN — BIZDA "Jami qo'limizda" bilan 1:1
+
+Ibrohim: "manga bir xil ko'rsatishi kerak, bu daftar-qog'oz degan narsalar
+ketmaydi, aniq-tiniq ishlasin — 50 ta qurilma bo'lsa ham". Ikki qurilmada
+BIZDA farq qilardi: 6,706.43 vs 6,506.94 (199.49 g), KLIENTDA esa ikkalasida
+bir xil (3,841.49).
+
+SABAB: BIZDA hisoblanmasdi — t.ostatka saqlangan yugurik raqam edi. Uni 44
+joy o'zgartiradi, sinxron esa unga ATAYLAB tegmaydi (amalRecAdd izohi:
+"Yozuvni joyiga qo'shish — ostatka'ga TEGMAYDI"). Shuning uchun telefonda
+qilingan chiqim kompyuterning BIZDA sidan ayirilmasdi va raqamlar har
+amalda uzoqlashardi. Xato o'zini hech qachon tuzatmasdi.
+
+### Yechim — bitta manba
+
+* _ostDelta(op, klientTomon) — bitta amalning omborga ta'siri. YAGONA qoida:
+    zavod tarixi:  mol +g · vozvrat −g · inventar(tuzatish) ±g
+    klient tarixi: berish −g · vozvrat +g  (faqat g>0, boshlangich KIRMAYDI)
+    to'lov/pul — 0 (omborga tegmaydi)
+* turOstMap() — bitta o'tishda hamma zavod·tur uchun hozirgi qoldiq.
+  Kalit: zavod+'||'+tur. Kesh bilan (_ostKesh) — bir renderda qayta sanamaydi.
+* turOst(zNom,tNom) — bitta tur uchun.
+* turOstKeshTozala() — 3 joyda chaqiriladi: save(), amal-sinxron listener
+  (masofadan yozuv kelganda), cloudYuklab (butun blob almashganda).
+* qoldData ("Qo'limizdagi ostatka") ham AYNAN _ostDelta ni chaqiradi —
+  shuning uchun 1:1 kafolati konstruksiyadan, kelishuvdan emas.
+
+### t.ostatka o'qishi TARIXGA o'tgan joylar (18 ta)
+
+renderHome jami (_om) · zavod ro'yxati · renderZavod sarlavhasi (_omZ) ·
+tur paneli BIZDA · zapros taqsimlash modali · tur birlashtirish dialogi
+(3 joy) · kop-edit (klientGunTahrir) · klient panelidagi zavod ro'yxati ·
+kassaSnapshotObj zavodQ · vozvrat modallari (kVozvratKlientChange,
+ktVozvratAll) · berish formasi (data-ostatka, _omB) · ostatka tekshiruv
+("Tizim hisobi", harakat sharti, ostSkRender farqi, ostFormSaqla farqi) ·
+skan vozvrat ogohlantirishi · chiqim ekrani balansi · SOTUV oqimi:
+hasStat, zTot, "ostatka:" yozuvi, ortiqcha sotish tekshiruvi va BESHTA
+"ostatka <= 0.001" filtri (beshtasi birga o'tdi — ular bir xil kst-*
+katakchalarni aylanadi, biri qolsa ro'yxat va yig'indi buzilardi).
+
+### O'chirilgan
+
+🔧 "Ostatkani Hisobotdan qayta tiklash" tugmasi (Sozlamalar > Tuzatish) +
+ostatkaQaytaTiklaOch + ostatkaHisobla. Ibrohim: "bu funksiya umuman kerak
+emas". Endi raqam doim tarixdan, tuzatishga hojat yo'q.
+DIQQAT: yangi hisob ostatkaHisobla dan OLINMADI — unda vozvrat donasi
+teskari ishorada edi (d += op.dona). Hisob qoldData qoidalaridan olindi.
+
+### Tegilmagan
+
+t.ostatka maydoni va uni yozadigan 44 joy — TEGILMADI, maydon fon rejimida
+qoladi (sinxron snapshot/seed hali uni o'qiydi). Klient tomoni (KLIENTDA,
+klientQarzSplit, qarz, kassa, cheklar), Abdulhamid roli — TEGILMADI.
+"Qo'limizdagi ostatka" ekranining ishi o'zgarmadi — u o'tgan haftalarni
+solishtirish uchun qoladi, joriy haftada BIZDA bilan teng.
+
+### Sinov
+
+* Node sintaksis toza (1 inline script, 0 xato)
+* Hisob birlik-sinovi: 400+200−20+50−85+5 = 550 ✓; t.ostatka=9999 ta'sir
+  qilmadi ✓; inventar:'boshlangich' chetlab o'tildi ✓; manfiy berish
+  kirmadi ✓; to'lov kirmadi ✓; mavjud bo'lmagan tur -> 0 ✓
+* 1:1 sinovi: turOstMap = 439.53, qoldData.ost = 439.53, qo'lda hisob
+  439.53 — uchalasi MOS ✓
+* modal-reset div balansi HEAD bilan solishtirildi (19/19, HEAD 22/22 —
+  farq faqat o'chirilgan 🔧 bloki) ✓
+
+Diff: 116+/106−
+
 ## v172.25: lom va offset o'z to'loviga bog'lanmay qolardi
 
 Ibrohim ikki holatni ko'rsatdi. Ikkalasining sababi bir xil — yozuv SOAT siz

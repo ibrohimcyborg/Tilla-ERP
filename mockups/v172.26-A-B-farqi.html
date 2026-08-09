@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<title>A va B — farqi nima</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;max-width:960px;margin:0 auto;padding:26px 18px 60px;
+       background:#12141a;color:#e9e7e1;line-height:1.55}
+  h1{font-size:21px;margin:0 0 6px}
+  .sub{color:#8b8f98;font-size:13.5px;margin-bottom:22px}
+  h2{font-size:15px;color:#c9a227;margin:28px 0 10px;font-weight:700}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:800px){.two{grid-template-columns:1fr}}
+  .hd{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+      padding:6px 13px;border-radius:20px;display:inline-block;margin-bottom:10px}
+  .hd.b{background:#3a1f1f;color:#ff9b9b;border:1px solid #6b3030}
+  .hd.a{background:#1c3326;color:#8fe0ab;border:1px solid #35664a}
+  .phone{background:#f7f4ec;border:1px solid #ddd8cc;border-radius:12px;padding:11px;color:#33302b;margin-bottom:9px}
+  .ttl{font-size:10px;color:#8a8578;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:700}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;background:#fff;
+       border:1px solid #e6e1d5;border-radius:8px;margin-bottom:5px;font-size:13px}
+  .row b{font-family:Roboto,monospace}
+  .rd{color:#c0392b}.gd{color:#a8842a}.gn{color:#2e7d32}
+  .bad{background:#fbe6e6;border-color:#e0a5a5}
+  .ok{background:#e4f2e7;border-color:#9ccfa9}
+  .hidden{opacity:.45;font-style:italic}
+  .stamp{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+  .stamp.x{background:#fbe6e6;color:#a13a3a;border:1px solid #e0a5a5}
+  .stamp.v{background:#e4f2e7;color:#1f6b35;border:1px solid #9ccfa9}
+  .story{background:#1a1d22;border:1px solid #2e3238;border-radius:10px;padding:13px 16px;margin:12px 0;font-size:14px}
+  .story .q{color:#e8c14f;font-weight:700;margin-bottom:6px}
+  .note{background:#1b1e24;border-left:3px solid #4ac97e;border-radius:0 8px 8px 0;padding:12px 16px;margin:14px 0;font-size:14px;color:#c5c9d1}
+  .note.warn{border-left-color:#e05050}
+  .note.info{border-left-color:#5b8dd6}
+  .note b{color:#e9e7e1}
+  .muted{color:#8b8f98;font-size:13px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+  th,td{border:1px solid #2c3038;padding:8px 11px;text-align:left}
+  th{background:#1b1e24;color:#a9adb6;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  .q2{background:#1b1e24;border:1px solid #2c3038;border-radius:10px;padding:14px 18px;margin:16px 0;font-size:14px}
+</style>
+</head>
+<body>
+
+<h1>A va B — oddiy tilda farqi</h1>
+<div class="sub">Bitta misol bilan. Aytaylik <b>Jilva · Oddiy</b> turida haqiqatda <b>5 g</b> bor
+(tarix shuni deydi), lekin eski saqlangan raqam <b>0</b> bo'lib qolgan.</div>
+
+<h2>Misol 1 · Sotmoqchisan</h2>
+<div class="two">
+  <div>
+    <span class="hd b">B — yarim to'g'irlangan</span>
+    <div class="phone">
+      <div class="ttl">Zavod ekrani — BIZDA</div>
+      <div class="row ok"><span>Jilva · Oddiy</span><b class="gn">5.00 g</b></div>
+    </div>
+    <div class="phone">
+      <div class="ttl">Sotuv oynasi</div>
+      <div class="row hidden"><span>Jilva · Oddiy</span><span class="stamp x">ro'yxatda YO'Q</span></div>
+      <div class="row"><span>Butterfly · Oddiy</span><b>120.00 g</b></div>
+    </div>
+    <p class="muted">Panelda 5 g turibdi, lekin sotuv oynasida <b>tur umuman chiqmaydi</b> —
+    sotolmaysan. «Bor-ku, nega yo'q?» degan savol tug'iladi.</p>
+  </div>
+  <div>
+    <span class="hd a">A — to'liq to'g'irlangan</span>
+    <div class="phone">
+      <div class="ttl">Zavod ekrani — BIZDA</div>
+      <div class="row ok"><span>Jilva · Oddiy</span><b class="gn">5.00 g</b></div>
+    </div>
+    <div class="phone">
+      <div class="ttl">Sotuv oynasi</div>
+      <div class="row ok"><span>Jilva · Oddiy</span><b class="gn">5.00 g</b></div>
+      <div class="row"><span>Butterfly · Oddiy</span><b>120.00 g</b></div>
+    </div>
+    <p class="muted">Ikkala joyda bir xil. Ko'ringan narsani sotasan.</p>
+  </div>
+</div>
+
+<h2>Misol 2 · Klientga berish oynasi</h2>
+<div class="two">
+  <div>
+    <span class="hd b">B</span>
+    <div class="phone">
+      <div class="ttl">Klientga berish</div>
+      <div class="row bad"><span><b>Butterfly</b> <span class="muted">zavod jami</span></span><b class="rd">2,290.67 g</b></div>
+      <div class="row"><span style="padding-left:14px">Oddiy</span><span class="muted">ostatka: 2,180.15g</span></div>
+      <div class="row"><span style="padding-left:14px">3D</span><span class="muted">ostatka: 98.40g</span></div>
+    </div>
+    <p class="muted">Yuqorida <b>2,290.67</b>, ichidagi turlar yig'indisi esa
+    <b>2,278.55</b>. Bitta oynada ikki xil raqam — qaysi biriga ishonasan?</p>
+  </div>
+  <div>
+    <span class="hd a">A</span>
+    <div class="phone">
+      <div class="ttl">Klientga berish</div>
+      <div class="row ok"><span><b>Butterfly</b> <span class="muted">zavod jami</span></span><b class="gn">2,278.55 g</b></div>
+      <div class="row"><span style="padding-left:14px">Oddiy</span><span class="muted">ostatka: 2,180.15g</span></div>
+      <div class="row"><span style="padding-left:14px">3D</span><span class="muted">ostatka: 98.40g</span></div>
+    </div>
+    <p class="muted">Yuqoridagi raqam ichidagilarning yig'indisi. Qo'shsang chiqadi.</p>
+  </div>
+</div>
+
+<h2>Misol 3 · Ortiqcha sotib qo'yish</h2>
+<div class="story">
+  <div class="q">Panelda 500 g deydi. 515 g sotmoqchisan.</div>
+  <table>
+    <tr><th></th><th>B</th><th>A</th></tr>
+    <tr><td>Tizim nima deydi</td>
+        <td><span class="stamp x">ruxsat beradi</span> <span class="muted">— eski raqam 520 g edi</span></td>
+        <td><span class="stamp v">to'xtatadi</span> <span class="muted">— «yetarli tilla yo'q»</span></td></tr>
+    <tr><td>Natija</td>
+        <td>omborda yo'q tillani sotgan bo'lasan, keyin minusga tushadi</td>
+        <td>xato darrov ushlanadi</td></tr>
+  </table>
+</div>
+
+<h2>Uch jumlada</h2>
+<div class="note warn">
+<b>B:</b> BIZDA to'g'ri bo'ladi, lekin <b>sotuv va vozvrat eski raqamdan ishlaydi</b>.
+Ekranda bir raqam, ish paytida boshqasi. Ba'zan bor turni sotolmaysan, ba'zan yo'q tillani sotasan.
+</div>
+<div class="note">
+<b>A:</b> hamma joy bitta raqamdan o'qiydi. Ko'rgan narsangni sotasan, yo'q narsani sotolmaysan.
+Ikki qurilma ham bir xil ko'rsatadi.
+</div>
+<div class="note info">
+<b>«Qo'limizdagi ostatka» ikkalasida ham o'zgarmaydi</b> — u o'tgan haftalarni solishtirish
+uchun qoladi. <code>‹ ›</code> bilan orqaga yurasan, o'sha haftada nechi bo'lganini ko'rasan.
+Joriy haftada esa BIZDA bilan teng bo'ladi — chunki ikkalasi bir xil savolga javob:
+«hozir qancha bor».
+</div>
+
+<h2>Nima qilaman</h2>
+<div class="q2">
+<b>A</b> — qolgan 16 joy ham tarixdan o'qiydi: sotuv oynasi (tur ro'yxati, «ostatka:» yozuvi,
+ortiqcha sotish tekshiruvi), zavodga vozvrat ekrani, berish oynasidagi zavod jami.
+<div style="height:8px"></div>
+<span class="muted">Sotuv oqimiga tegilgani uchun yozib bo'lgach <b>ADMIN xonasida</b> sinab
+ko'rishingni so'rayman — bitta sotuv qilib, raqamlar mos kelishini tekshirasan. Keyin push.</span>
+</div>
+
+</body>
+</html>
