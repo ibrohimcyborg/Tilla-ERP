@@ -113,6 +113,18 @@ Uch qadamli reja tuzildi:
   ⚠ 3-qadamni 1-qadam **sinovdan o'tmasdan** yoqmang — telefondagi yozuv PC ga
   yetmasa, avtomat kelgan blob uni o'chirib yuboradi.
 
+  ⚠⚠ **ABDULHAMID — CLAUDE.md §6.** Ibrohim (2026-08-11): «bu narsala abdulhamid
+  logiga tasir qimasin umuman». `qurilmaRoyxatgaQosh` (17776) hamid qurilmasini
+  ro'yxatga QO'SHMAYDI → `qurilmaRaqam()`=0 → `qurilmaAsosiy()`=**false**.
+  Demak oddiy `if(!qurilmaAsosiy()) return;` hamid qurilmasini cloudga
+  yozishdan BUTUNLAY to'xtatadi. Shart majburan shunday bo'lsin:
+  `if(!_qurilmaHamid() && !qurilmaAsosiy()) return;`
+  Xuddi shu `cloudListen` dagi avtomat yuklashga ham tegishli — u yerda
+  17825 (`cloudQurilma`) qolipidagidek hamid ESKI YO'LDA qolishi kerak.
+
+  Tekshirilgan (2026-08-11): v172.29/30/31 hamid kodiga **tegmagan** —
+  `git diff 9ddd144..HEAD -- index.html | grep -i hamid` bo'sh.
+
   Ochiq savollar (mockupda): ASOSIY = `qurilmaRaqam()===1` qoladimi yoki
   Sozlamalarda qo'lda belgilanadimi; ergashuvchi jim olsinmi yoki xabar
   chiqsinmi; ergashuvchida kassa tahriri bloklansinmi.
