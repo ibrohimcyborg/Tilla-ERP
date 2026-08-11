@@ -1,0 +1,123 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Eski vozvratlar nega tiriladi</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:28px 22px 80px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:26px}
+  h2{font-size:15px;margin:30px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:14px 16px;margin:10px 0}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  code,pre{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0}
+  .ln{color:#6b7787}.k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1b2129;color:#9fb0c2;font-weight:600}
+  ul{margin:6px 0 6px 18px;padding:0}li{margin:4px 0}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#7fc4ff;color:#12151a;border-radius:50%;font-weight:700;font-size:12px;margin-right:7px}
+  .fl{color:#8a93a0;font-size:12px}
+</style>
+<div class="wrap">
+
+<h1>«Eski vozvratlarni cloud chiqaraberib zavodni qarz qilib qo'ydi»</h1>
+<div class="sub">Tashxis · 2026-08-11 · joriy kod v172.31 · <b>KOD YOZILMAGAN</b></div>
+
+<h2>1. Mexanizm — uch narsa birlashdi</h2>
+
+<div class="card bad">
+<span class="num">1</span><b>Oplogda o'lik hujjatlar qolgan</b><br>
+Yozuv qurilmada o'chirilgan, lekin cloudda <code>deleted:true</code> belgisi
+<b>hech qachon qo'yilmagan</b> — chunki v172.30 gacha o'chirish belgisi tasdiqsiz
+qo'yilar edi va tarmoq uzilsa jim yo'qolardi. Ya'ni cloudda o'sha eski
+vozvrat hujjatlari <b>tirik holda</b> yotibdi.
+</div>
+
+<div class="card bad">
+<span class="num">2</span><b><code>syncFullFill</code> ularni QAYTA e'lon qiladi</b>
+<pre><span class="ln">8334</span>  amalWalk(function(r,loc){          <span class="ln">// faqat MAHALLIY yozuvlarni kezadi</span>
+<span class="ln">8340</span>    ref.doc(id).set({ ..., vaqt:<span class="y">Date.now()</span> })</pre>
+Va — <b>tekshirildi</b> — <code>syncFullFill</code> ichida <code>deleted</code> so'zi
+<b>0 marta</b> uchraydi. Ya'ni ⬆ tugmasi cloudga <b>faqat qo'shadi</b>,
+ortiqchasini <b>hech qachon olib tashlamaydi</b>.
+</div>
+
+<div class="card bad">
+<span class="num">3</span><b>Yangi vaqt tufayli hamma qurilma ularni QABUL QILADI</b>
+<pre><span class="ln">8160</span>  if(known!==undefined &amp;&amp; dv&lt;=known) return;   <span class="ln">// eski vaqt bo'lsa tashlanardi</span>
+<span class="ln">8172</span>  amalRecRemoveById(id); amalRecAdd(loc, rec);  <span class="ln">// yangi vaqt -> QAYTA QO'SHILADI</span></pre>
+<b>Buni men ochdim.</b> v172.30 da <code>vaqt</code> ni <code>Date.now()</code> ga
+o'zgartirdim — maqsad «⬆ tugmasi haqiqatan ishlasin» edi. Yon ta'siri:
+cloudda qolib ketgan <b>o'lik hujjatlar ham</b> «yangi» bo'lib hamma qurilmaga
+tarqaldi.
+</div>
+
+<div class="card warn">
+<b>Natija:</b> zavod tarixiga eski <code>tip:'vozvrat'</code> yozuvlari qaytdi.
+<code>_ostDelta</code> (7196) bo'yicha zavod vozvrati = <b>−g</b>.
+Ostatka 0 edi → minusga tushdi → <b>zavod qarz bo'lib ko'rindi</b>.
+</div>
+
+<h2>2. Nega aynan Abdulhamid logida ko'rindi</h2>
+<div class="card">
+Kod hamidga tegmagan — bu tekshirilgan
+(<code>git diff v172.28..HEAD | grep hamid</code> → bo'sh).
+Sabab boshqa: hamid ekrani <b>soddalashtirilgan</b> — kassa, lom, sherik
+yashirilgan (<code>rol-hamid</code> CSS, 261–271). Shuning uchun <b>zavod
+ostatkasi u yerda eng ko'zga tashlanadigan raqam</b>. Xato hamma logida bor,
+faqat hamid ekranida darhol ko'rinadi.
+<div style="margin-top:6px" class="fl">Ya'ni: hamid sababi emas — hamid <b>ko'rsatkichi</b>.</div>
+</div>
+
+<h2>3. HOZIR — nima qilmaslik kerak</h2>
+<div class="card bad">
+<b>⬆ «Bu qurilmanikini cloudga yuborish» ni BOSMANG.</b>
+Har bosishda o'lik hujjatlar yana yangi vaqt oladi va yana tarqaladi.
+<div style="margin-top:6px">⬇ ham hozircha bosmang — cloudda o'lik hujjatlar turibdi, u ularni qaytadan olib keladi.</div>
+</div>
+
+<h2>4. TAKLIF — ⬆ haqiqiy KO'ZGU bo'lsin</h2>
+<div class="card good">
+Hozir ⬆ = «bor narsani cloudga qo'sh». Kerak: <b>«cloud shu qurilmaga AYNAN o'xshasin»</b>.
+<pre>syncFullFill ichiga qo'shiladi:
+  1. ref.get()  — oplogdagi HAMMA hujjat id sini o'qish
+  2. mahalliy yozuvlar id larini to'plash
+  3. oplogda BOR, mahalliyda YO'Q  ->  deleted:true qo'yish
+  4. (mavjud qism o'zgarishsiz — hamma yozuvni yangi vaqt bilan yuborish)</pre>
+Shundan keyin ⬆ bosilgan qurilma <b>haqiqiy manba</b> bo'ladi: cloudda ortiqcha
+narsa qolmaydi, boshqa qurilmalar o'lik yozuvni qabul qilmaydi — aksincha
+<b>o'zidan ham o'chiradi</b> (<code>amalListen</code> 8161 <code>d.deleted</code> shoxi allaqachon bor).
+<div style="margin-top:8px" class="fl">Taxminan <b>12–16 qator</b>, faqat <code>syncFullFill</code> ichida.
+Boshqa funksiyaga tegilmaydi.</div>
+</div>
+
+<div class="card warn">
+<b>⚠ Bu KUCHLI amal.</b> ⬆ bosilgan qurilmada bo'lmagan har qanday yozuv
+<b>hamma joydan o'chadi</b>. Shuning uchun uni faqat <b>to'g'ri ma'lumotli</b>
+qurilmada bosish mumkin. Tugma matni va ogohlantirishi ham shunga moslanishi kerak.
+</div>
+
+<h2>5. TARTIB</h2>
+<table>
+<tr><th>#</th><th>Qadam</th><th>Qayerda</th></tr>
+<tr><td>1</td><td>Backup (⬇ Eksport)</td><td><b>Har</b> qurilmada</td></tr>
+<tr><td>2</td><td>To'g'ri qurilmani tanlash — zavod ostatkalari haqiqatga mos keladigani</td><td>—</td></tr>
+<tr><td>3</td><td>O'sha qurilmada qaytib kelgan eski vozvratlarni <b>o'chirish</b><br>
+    <span class="fl">v172.30 dan keyin o'chirish navbati bor — endi ishonchli ketadi</span></td><td>to'g'ri qurilma</td></tr>
+<tr><td>4</td><td>Yangi ⬆ (ko'zgu) bosish</td><td>to'g'ri qurilma</td></tr>
+<tr><td>5</td><td>Qolganlarida ⬇</td><td>boshqa qurilmalar</td></tr>
+</table>
+
+<h2>6. QAROR NUQTALARI</h2>
+<div class="q"><b>Q1.</b> ⬆ ni ko'zgu qilamizmi (12–16 qator), yoki avval
+<code>vaqt:Date.now()</code> ni <b>orqaga qaytarib</b> qon to'xtatamizmi?
+<span class="fl">Orqaga qaytarish 1 qator — o'lik hujjatlar tarqalishi darhol to'xtaydi, lekin ⬆ yana ishlamay qoladi.</span></div>
+<div class="q"><b>Q2.</b> Qaytib kelgan vozvratlarni <b>qo'lda</b> o'chirasizmi, yoki
+ularni topib ko'rsatadigan ro'yxat kerakmi? <span class="fl">Ro'yxat — alohida ish, avval mockup.</span></div>
+<div class="q"><b>Q3.</b> Qaysi qurilmada zavod ostatkalari <b>to'g'ri</b>? Bu javob 4-qadamni belgilaydi.</div>
+
+</div>

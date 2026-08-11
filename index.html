@@ -1,4 +1,4 @@
-<!-- v172.31 -->
+<!-- v172.32 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.31';
+var APP_VER = 'v172.32';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -8330,12 +8330,15 @@ function syncFullFill(){
   try{
     var ref=amalRef();
     if(ref){
-      var q=localStorage.getItem('tilla-qurilma')||'';
+      var q=localStorage.getItem('tilla-qurilma')||'', set=_amalSetOl();
       amalWalk(function(r,loc){
         if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-        // v172.30: ESKI vaqt bilan yozilardi -> qabul qiluvchida `dv<=known` sharti uni
-        // TASHLAB YUBORARDI. Ya'ni "majburan yuborish" tugmasi hech nima o'tkazmasdi.
-        var id=r._id, v=Date.now(), im=_amalPushImzo(r,loc);
+        // v172.32: v172.30 da bu yerga Date.now() qo'ygandim — u ESKI AXLATNI ham
+        // "yangi" qilib hamma qurilmaga tarqatdi (o'chirilgan vozvratlar qaytib keldi,
+        // zavod qarz bo'lib ko'rindi). Oplogdagi hujjat HECH QACHON o'chmaydi, faqat
+        // deleted:true bilan BELGILANADI — belgi yetib bormaganlari tirik yozuvdek
+        // ko'rinadi. Eski vaqt qaytarildi: ⬆ endi hech nima qayta e'lon qilmaydi.
+        var id=r._id, v=(set[id]!==undefined ? set[id] : Date.now()), im=_amalPushImzo(r,loc);
         try{
           ref.doc(id).set({ loc:loc, rec:JSON.stringify(r), qurilma:q, vaqt:v })
             .then(function(){ _amalPushTasdiq(id, im, v); })
