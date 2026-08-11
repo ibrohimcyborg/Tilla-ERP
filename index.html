@@ -1,4 +1,4 @@
-<!-- v172.28 -->
+<!-- v172.29 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.28';
+var APP_VER = 'v172.29';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2001,7 +2001,8 @@ function printerYoq(){ return localStorage.getItem('tilla-printer-yoq')==='1'; }
 // uchun maxsus istisno bor, LAN IP uchun yo'q).
 // Yechim: telefon Firestore ga topshiriq yozadi, PC tinglaydi va O'Z localhost iga
 // yuboradi — blok yo'q. Rules o'zgartirilmaydi: hujjat cloudKol() ichida.
-var CHEK_MUDDAT = 10*60*1000;      // 10 daqiqa — eskirgan topshiriq CHIQMAYDI
+var CHEK_MUDDAT = 90*1000;         // v172.29: 10 daqiqa -> 90 soniya. Kech ulangan
+                                   // qurilma eski topshiriqlarni to'kib yubormasin.
 var CHEK_TOZALA = 60*60*1000;      // 1 soatdan oshgan topshiriq o'chiriladi
 // Shu qurilma chek chiqaradimi. Sozlanmagan bo'lsa: printeri bor qurilma chiqaradi
 // (ya'ni PC da xatti-harakat AVVALGIDEK qoladi, telefon esa navbatga yozadi).
@@ -2033,29 +2034,69 @@ function _chekLokal(matn, logo){
   fetch('http://localhost:5000/print',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text:matn, logo:!!logo})}).catch(printXato);
 }
+// v172.29: LOKAL «chiqarildi» ro'yxati. Avval belgi FAQAT bulutda turardi — auth token
+// yangilanmasa Firestore yozuvni rad etadi va lokal keshni ORQAGA QAYTARADI, hujjat yana
+// 'kutilmoqda' bo'lib snapshot beradi -> bitta chek halqaga tushib qayta-qayta chiqadi
+// (2026-08-10: 1 marta bosilgan, 7 marta chiqqan). Bu ro'yxat bulutga umuman bog'liq emas.
+var CHEK_LOG_MUDDAT = 2*60*60*1000;   // 2 soatdan eskisi tozalanadi
+function _chekLogOqi(){
+  try{ return JSON.parse(localStorage.getItem('tilla-chek-chiqdi')||'{}'); }catch(e){ return {}; }
+}
+function _chekChiqqanmi(id){ return !!_chekLogOqi()[id]; }
+function _chekLogYoz(id){
+  try{
+    var m=_chekLogOqi(), now=Date.now();
+    m[id]=now;
+    for(var k in m){ if(now-m[k] > CHEK_LOG_MUDDAT) delete m[k]; }
+    localStorage.setItem('tilla-chek-chiqdi', JSON.stringify(m));
+  }catch(e){}
+}
 // YAGONA KIRISH NUQTASI — 11 joy shuni chaqiradi
 function chekYubor(matn, logo){
   if(chekBuQurilmadan()){ _chekLokal(matn, logo); return; }
   var ref = chekNavbatRef();
   if(!ref){ _chekLokal(matn, logo); return; }   // cloud yo'q — hech bo'lmasa urinib ko'ramiz
   try{
+    _chekXabar('Yuborilmoqda...','kut');
     ref.add({ matn:String(matn||''), logo:!!logo, vaqt:Date.now(),
               qurilma:(localStorage.getItem('tilla-qurilma')||''), holat:'kutilmoqda' })
-      .catch(cloudXato);
-    _chekXabar('PC ga yuborildi');
+      .then(_chekKuzat)
+      .catch(function(e){ cloudXato(e); _chekXabar('Yetib bormadi','xato'); });
   }catch(e){ _chekLokal(matn, logo); }
 }
-// Telefonda qisqa xabar (2.5 s)
-function _chekXabar(txt){
+// v172.29: yuborilgan topshiriqni kuzatadi — «yuborildi» endi TAXMIN emas, DALIL.
+// Avval xabar so'rov ketishi bilan chiqardi (internet yo'q bo'lsa ham) — Ibrohim chek
+// chiqqaniga ishonmay qayta bosardi.
+function _chekKuzat(dref){
+  var tugadi=false, un=null, t=null;
+  function yop(txt,tur){ if(tugadi) return; tugadi=true;
+    clearTimeout(t); if(un) try{ un(); }catch(e){} _chekXabar(txt,tur); }
+  t=setTimeout(function(){ yop('Yetib bormadi','xato'); }, 15000);
   try{
+    un=dref.onSnapshot(function(s){
+      var h=((s.data()||{}).holat)||'';
+      if(h==='bajarildi') yop('Chek chiqdi','ok');
+      else if(h==='eskirdi') yop('Muddati o‘tdi','xato');
+    }, function(){ yop('Yetib bormadi','xato'); });
+  }catch(e){ yop('Yetib bormadi','xato'); }
+}
+// Telefonda qisqa xabar. v172.29: tur qo'shildi — kut / ok / xato
+function _chekXabar(txt, tur){
+  try{
+    tur = tur || 'kut';
+    var rang={kut:'#2d6ea8', ok:'#2c7a45', xato:'#9a3b3b'};
+    var belgi={kut:'⏳', ok:'✓', xato:'✗'};
     var el=document.getElementById('chek-xabar');
     if(!el){ el=document.createElement('div'); el.id='chek-xabar';
       el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:64px;z-index:99999;'
-        +'background:#2d6ea8;color:#fff;font-size:12.5px;font-weight:600;padding:8px 16px;'
+        +'color:#fff;font-size:12.5px;font-weight:600;padding:8px 16px;'
         +'border-radius:20px;font-family:sans-serif;box-shadow:0 3px 12px rgba(0,0,0,.35);';
       document.body.appendChild(el); }
-    el.textContent='⏳ '+txt; el.style.display='block';
-    clearTimeout(el._t); el._t=setTimeout(function(){ el.style.display='none'; }, 2500);
+    el.style.background = rang[tur]||rang.kut;
+    el.textContent=(belgi[tur]||belgi.kut)+' '+txt; el.style.display='block';
+    // 'kut' uzoq turadi — 15 s kutish tugagunicha yo'qolmasin
+    clearTimeout(el._t);
+    el._t=setTimeout(function(){ el.style.display='none'; }, tur==='kut'?20000:3000);
   }catch(e){}
 }
 // PC tomoni: topshiriqlarni tinglaydi
@@ -2075,6 +2116,8 @@ function chekNavbatTingla(){
       if((now-(d.vaqt||0)) > CHEK_MUDDAT){      // eskirgan — chiqarmaymiz, yopamiz
         try{ doc.ref.set({holat:'eskirdi'},{merge:true}); }catch(e){} return; }
       // BELGI AVVAL, chiqarish KEYIN — ikki marta chiqmasligi uchun
+      if(_chekChiqqanmi(doc.id)) return;   // v172.29: shu qurilmada allaqachon chiqqan
+      _chekLogYoz(doc.id);                 // LOKAL belgi — bulut rad etsa ham qaytmaydi
       try{ doc.ref.set({holat:'bajarildi', bajarildiVaqt:now, bajardi:men},{merge:true}); }catch(e){}
       _chekLokal(d.matn||'', !!d.logo);
     });

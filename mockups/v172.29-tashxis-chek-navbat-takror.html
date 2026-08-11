@@ -1,0 +1,178 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>v172.29 tashxis — chek navbati 7 marta chiqdi</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:28px 22px 80px}
+  .wrap{max-width:940px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:26px}
+  h2{font-size:15px;margin:30px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:14px 16px;margin:10px 0}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  code,pre{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0}
+  .ln{color:#6b7787}
+  .k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}.c{color:#7fc4ff}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1b2129;color:#9fb0c2;font-weight:600}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-right:6px}
+  .t1{background:#3a2020;color:#ff9a9a}
+  .t2{background:#2a2a15;color:#ffd27a}
+  .t3{background:#16301f;color:#8fe0a0}
+  ul{margin:6px 0 6px 18px;padding:0}li{margin:4px 0}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#7fc4ff;color:#12151a;border-radius:50%;font-weight:700;font-size:12px;margin-right:7px}
+</style>
+<div class="wrap">
+
+<h1>Chek navbati — bitta chek bosildi, 7 ta chiqdi</h1>
+<div class="sub">v172.28 tashxisi · 2026-08-10 · <b>KOD YOZILMAGAN</b> — bu taklif, qaror Ibrohimdan</div>
+
+<h2>1. Nima bo'ldi</h2>
+<div class="card bad">
+Telefondan chek bosildi → PC dan <b>7 ta</b> chek chiqdi.<br>
+O'sha paytdagi konsolda internet uzilgani ko'rinib turibdi:
+<pre><span class="k">ERR_NAME_NOT_RESOLVED</span>   firestore.googleapis.com/...Listen/channel
+<span class="k">ERR_CONNECTION_CLOSED</span>  securetoken.googleapis.com/v1/token
+@firebase/firestore: WebChannelConnection RPC 'Listen' <span class="k">transport errored</span></pre>
+Bu tasodif emas — <b>ikkala mumkin bo'lgan sabab ham aynan shu uzilishdan kelib chiqadi.</b>
+</div>
+
+<h2>2. Hozirgi kod qanday ishlaydi</h2>
+<pre><span class="ln">2068</span>  _chekUnsub = ref.onSnapshot(function(snap){
+<span class="ln">2070</span>    snap.forEach(function(doc){
+<span class="ln">2071</span>      var d = doc.data()||{};
+<span class="ln">2073</span>      <span class="c">if(d.holat!=='kutilmoqda') return;</span>      <span class="ln">// ← YAGONA to'siq</span>
+<span class="ln">2075</span>      if((now-(d.vaqt||0)) > CHEK_MUDDAT) { ...'eskirdi'... return; }
+<span class="ln">2078</span>      <span class="y">doc.ref.set({holat:'bajarildi', ...},{merge:true});</span>   <span class="ln">// bulutga YOZADI</span>
+<span class="ln">2079</span>      _chekLokal(d.matn||'', !!d.logo);                <span class="ln">// keyin chiqaradi</span>
+<span class="ln">2080</span>    });
+<span class="ln">2081</span>  });</pre>
+<div class="card warn">
+<b>Muhim:</b> «bu chek chiqarilgan» belgisi <b>faqat bulutda</b> turadi (<code>holat</code> maydoni).
+Qurilmaning o'zida hech qanday xotira yo'q. Ya'ni <b>internet yo'qolsa — xotira ham yo'qoladi.</b>
+<br><br>
+Yana: <code>enablePersistence</code> butun faylda <b>yo'q</b> → Firestore keshi faqat operativ xotirada.
+Sahifa yangilansa kutilayotgan yozuvlar (jumladan <code>holat:'bajarildi'</code>) <b>yo'q bo'ladi</b>.
+</div>
+
+<h2>3. Ikki mumkin bo'lgan sabab</h2>
+
+<div class="card bad">
+<span class="tag t1">SABAB A</span><b>Belgi bulutga yetib bormadi → server hujjatni qayta yubordi</b>
+<ol style="margin:8px 0 0 20px">
+<li>PC hujjatni ko'rdi → <code>holat:'bajarildi'</code> yozdi (2078) → chek chiqdi (2079)</li>
+<li>Lekin internet uzuq — yozuv <b>serverga bormadi</b>, faqat lokal keshda</li>
+<li>Listen kanali xato berdi (<code>transport errored</code>) → SDK qayta ulandi</li>
+<li>Server hujjatni <b>yana <code>'kutilmoqda'</code> holatida</b> yubordi</li>
+<li>Shart 2073 dan o'tdi → <b>yana chiqdi</b></li>
+</ol>
+<div style="margin-top:8px;color:#ff9a9a">Har uzilib-ulanishda +1 chek. Konsolda kamida 5–6 ta «transport errored» bor.</div>
+</div>
+
+<div class="card" style="border-color:#3a3f48;opacity:.55">
+<span class="tag" style="background:#2b3038;color:#8a93a0">SABAB B — BEKOR</span><b>Navbatda eski topshiriqlar to'planib qolgan</b><br>
+<span style="color:#8a93a0">Ibrohim tasdiqladi: telefonda <b>1 marta</b> bosildi. Demak navbatda 7 ta topshiriq yo'q —
+bitta topshiriq 7 marta chiqarilgan. Bu variant o'chdi.</span>
+</div>
+
+<div class="card bad">
+<span class="tag t1">SABAB A — ANIQ</span><b>Halqa: belgi rad etildi → orqaga qaytdi → yana chiqdi</b>
+<div style="margin:8px 0">Konsolda <code>securetoken.googleapis.com</code> <b>12+ marta</b> xato bergan —
+bu Firebase <b>auth token yangilay olmagani</b>. Token bo'lmasa Firestore yozuvi rad etiladi:</div>
+<pre>PC hujjatni ko'rdi (holat = <span class="y">kutilmoqda</span>)
+   ↓ <span class="g">doc.ref.set({holat:'bajarildi'})</span>  — lokal keshga darhol tushdi
+   ↓ <span class="g">_chekLokal(...)</span>                  — <b>CHEK CHIQDI (1)</b>
+   ↓ server yozuvni <span class="k">rad etdi</span> (token yo'q)
+   ↓ Firestore SDK lokal o'zgarishni <span class="k">ORQAGA QAYTARDI</span>
+   ↓ kesh yana <span class="y">kutilmoqda</span> → yangi snapshot → 2073-shart o'tdi
+   ↓ <span class="g">_chekLokal(...)</span>                  — <b>CHEK CHIQDI (2)</b>
+   ↓ ... <b>×7</b>, to'xtamay, ketma-ket</pre>
+<div style="color:#ff9a9a">«Ketma-ket, to'xtamay» — aynan shu halqaning belgisi. Sekin qayta-ulanish
+bunday tez ketmas edi.</div>
+</div>
+
+<div class="card warn">
+<span class="tag t2">SABAB C</span><b>Tekshirish kerak: PC da nechta tab/oyna ochiq edi?</b><br>
+Har ochiq tab <b>alohida tinglaydi</b>. Snapshot hammasiga <b>bir vaqtda</b> keladi →
+hammasi <code>kutilmoqda</code> ni ko'radi → hammasi chiqaradi. 7 tab = 7 chek, ketma-ket.
+<div style="margin-top:6px;color:#8a93a0">Agar PC da 1 tab ochiq bo'lgan bo'lsa — bu variant ham o'chadi, sabab faqat A.</div>
+</div>
+
+<div class="card good" style="margin-top:14px">
+<b>Muhimi:</b> 1-taklif (lokal ro'yxat) <b>A ni ham, C ni ham</b> yopadi —
+<code>localStorage</code> bir domendagi hamma tab uchun <b>umumiy</b>,
+va u Firestore ga <b>umuman bog'liq emas</b>.
+</div>
+
+<h2>4. Dalil olish — PC da konsolga (F12) shuni qo'y</h2>
+<pre>chekNavbatRef().get().then(function(s){
+  var r=[]; s.forEach(function(d){ var x=d.data();
+    r.push({id:d.id, holat:x.holat, qurilma:x.qurilma,
+            vaqt:new Date(x.vaqt).toLocaleTimeString(),
+            bajardi:x.bajardi, matn:(x.matn||'').slice(0,40)}); });
+  console.log('NAVBATDA:', r.length); console.table(r);
+});</pre>
+<table>
+<tr><th>Natija</th><th>Ma'nosi</th></tr>
+<tr><td><b>7 ta hujjat</b>, hammasi <code>bajarildi</code></td><td>→ <b>SABAB B</b> — 7 marta yozilgan, har biri bir marta chiqqan</td></tr>
+<tr><td><b>1–2 ta hujjat</b>, <code>bajarildi</code></td><td>→ <b>SABAB A</b> — bitta topshiriq 7 marta chiqarilgan</td></tr>
+<tr><td>Aralash</td><td>→ ikkalasi</td></tr>
+</table>
+
+<h2>5. TAKLIF</h2>
+
+<div class="card good">
+<span class="num">1</span><b>Lokal «chiqarildi» ro'yxati</b> — SABAB A ga qarshi
+<pre>localStorage['tilla-chek-chiqdi'] = {docId: vaqt, ...}
+// chiqarishdan OLDIN tekshiriladi, chiqargandan KEYIN yoziladi
+// internet holatiga UMUMAN bog'liq emas
+// 2 soatdan eskilari tozalanadi</pre>
+Bulutdagi <code>holat</code> belgisi <b>qoladi</b> (boshqa qurilmalar uchun kerak),
+lekin endi <b>yagona to'siq emas</b>. Internet bo'lmasa ham bir chek ikki marta chiqmaydi.
+<div style="margin-top:6px;color:#8fe0a0">Taxminan <b>10–14 qator</b>.</div>
+</div>
+
+<div class="card good">
+<span class="num">2</span><b>Muddatni qisqartirish</b> — SABAB B ga qarshi
+<pre>CHEK_MUDDAT: 10 daqiqa → <b>90 soniya</b></pre>
+Telefondan bosilgan chek 90 soniya ichida chiqmasa — <b>umuman chiqmaydi</b>.
+PC keyinroq ulansa eski topshiriqlar to'kilib ketmaydi.
+<div style="margin-top:6px;color:#8fe0a0">Taxminan <b>1 qator</b>.</div>
+</div>
+
+<div class="card good">
+<span class="num">3</span><b>Telefonda haqiqiy javob</b> — takror bosishning oldini oladi
+<pre>Hozir:  ⏳ «PC ga yuborildi»   ← bu YOLG'ON bo'lishi mumkin,
+                                   internet yo'q bo'lsa ham chiqadi
+Taklif: ⏳ «Yuborilmoqda...»  → keyin
+        ✓ «PC dan chiqdi»     (PC holat:'bajarildi' qo'ygach)
+        ✗ «Yetib bormadi»     (15 soniyada javob bo'lmasa)</pre>
+Ibrohim chek chiqqanini ko'rmasa qayta bosadi — bosishning asosiy sababi shu.
+<div style="margin-top:6px;color:#8fe0a0">Taxminan <b>15–20 qator</b>.</div>
+</div>
+
+<h2>6. QAROR NUQTALARI — Ibrohim tanlaydi</h2>
+
+<div class="q"><b>Q1.</b> Uchalasi ham qilinsinmi, yoki faqat 1 va 2?<br>
+<span style="color:#8a93a0">3-band (telefonda javob) foydali, lekin kod ko'payadi va bir turda bitta o'zgarish qoidasiga zid bo'lishi mumkin.</span></div>
+
+<div class="q"><b>Q2.</b> <code>CHEK_MUDDAT</code> — <b>90 soniya</b> to'g'rimi?<br>
+<span style="color:#8a93a0">Kam bo'lsa: PC sekin ulansa chek chiqmay qoladi. Ko'p bo'lsa: to'planib qolish xavfi.</span></div>
+
+<div class="q"><b>Q3.</b> Nusxa cheklar (chek1 + chek2, va «×2 nusxa») navbat orqali ketsinmi?<br>
+<span style="color:#8a93a0">Hozir har nusxa alohida hujjat. Bitta hujjatda hammasini yuborish ham mumkin — u holda yarim chiqish bo'lmaydi.</span></div>
+
+<div class="q"><b>Q4.</b> Avval faqat <b>4-banddagi dalilni</b> olamizmi, keyin kod yozamizmi?<br>
+<span style="color:#8a93a0">Tavsiya: HA. Sabab A mi, B mi — bilmasdan tuzatish «tekshirilmagan fix ustiga tekshirilmagan fix» bo'ladi.</span></div>
+
+<h2>7. Shu orada</h2>
+<div class="card warn">
+PC da <b>Sozlamalar → Printer → «✓ Chek shu qurilmadan chiqsin»</b> ni <b>O'CHIRIB</b> qo'ying.<br>
+Navbat tinglash to'xtaydi. PC dan chek avvalgidek o'zidan chiqaveradi — faqat telefondan kelgani chiqmaydi.
+</div>
+
+</div>
