@@ -1,0 +1,136 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sotuv chekida ostatka to'langani ko'rinmaydi</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:26px 20px 80px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:24px}
+  h2{font-size:15px;margin:28px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:14px 16px;margin:10px 0}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  code,pre{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0}
+  .chek{background:#f7f5ef;color:#1a1a1a;border-radius:6px;padding:12px 14px;font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:pre;overflow-x:auto;margin:8px 0}
+  .ln{color:#6b7787}.k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}
+  .hi{background:#ffe9a8;font-weight:700}
+  .hi2{background:#b8e6c4;font-weight:700}
+  ul{margin:6px 0 6px 18px;padding:0}li{margin:4px 0}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#7fc4ff;color:#12151a;border-radius:50%;font-weight:700;font-size:12px;margin-right:7px}
+  .fl{color:#8a93a0;font-size:12px}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:6px 9px;text-align:left}
+  th{background:#1b2129;color:#9fb0c2}
+</style>
+<div class="wrap">
+
+<h1>Sotuv chekida «ostatka to'landi» ko'rinmaydi</h1>
+<div class="sub">Juma Aka TJK · 11.08.2026 · <b>KOD YOZILMAGAN</b> — qaror Ibrohimdan</div>
+
+<h2>1. Holat</h2>
+<div class="card">
+Klientda <b>1.17 g</b> eski ostatka bor edi · <b>4.00 g</b> yangi oldi ·
+<b>5.17 g</b> uchun to'lov qildi (448.76$) — ya'ni <b>eski 1.17 ham to'landi</b>.
+</div>
+
+<h2>2. HOZIR chek nima chiqaradi</h2>
+<div class="chek">Ostatka
+                  Ostatka     yangi      jami
+ Butterfly Oddiy    <span class="hi">1.17g</span>     0.00g     <span class="hi">1.17g</span>
+------------------------------------------------
+ JAMI               <span class="hi">1.17g</span>     0.00g     <span class="hi">1.17g</span></div>
+<div class="card bad">
+Klient buni <b>«hali 1.17 g qarzim bor»</b> deb o'qiydi. Aslida u <b>to'lagan</b>.
+</div>
+
+<h2>3. Sabab — koddan</h2>
+<div class="card bad">
+<pre><span class="ln">16101</span>  t+=padL('',18)+pad(<span class="y">'Ostatka'</span>,10)+pad(<span class="y">'yangi'</span>,10)+pad(<span class="y">'jami'</span>,10)
+<span class="ln">16104</span>  var e=o.eskiOstMap[k]||0, y=yangiOst[k]||0, j=<span class="k">e+y</span>;</pre>
+<code>eskiOstMap</code> = <b>sotuvdan OLDINGI</b> ostatka (izoh 15972). U <b>to'lovdan
+keyin kamaytirilmaydi</b>. Shuning uchun <code>jami = 1.17 + 0 = 1.17</code>.
+<div style="margin-top:8px">Ustunlar «<b>yangi</b>» (bu sotuvdan qolgan qarz) va «<b>jami</b>».
+<b>To'langan qism uchun ustun umuman yo'q.</b></div>
+</div>
+
+<div class="card warn">
+<b>Qizig'i:</b> to'lov chekida bu <b>allaqachon to'g'ri</b> ishlangan —
+<pre><span class="ln">10506</span>  t+=pL('',18)+pR('Ostatka',10)+pR(<span class="g">"to'landi"</span>,10)+pR(<span class="g">'qoldi'</span>,10)</pre>
+Ya'ni ikki chek <b>ikki xil jadval</b> ishlatadi. Sotuv chekida «to'landi» tushib qolgan.
+</div>
+
+<div class="card good">
+<b>Ma'lumot bor — hisoblash mumkin.</b> Chek generatoriga kelayotgan qiymatlar:
+<table>
+<tr><th>Nima</th><th>Qiymat</th><th>Manba</th></tr>
+<tr><td>eski ostatka</td><td>1.17 g</td><td><code>eskiOstMap</code></td></tr>
+<tr><td>berilgan</td><td>4.00 g</td><td><code>berildiMap</code></td></tr>
+<tr><td>to'lov qilingan</td><td>5.17 g</td><td><code>oldilar[].gramm</code></td></tr>
+<tr><td><b>eskidan to'langan</b></td><td><b>5.17 − 4.00 = 1.17 g</b></td><td>hisoblanadi</td></tr>
+</table>
+</div>
+
+<h2>4. TAKLIF — uch variant</h2>
+
+<div class="card good">
+<span class="num">A</span><b>To'lov cheki bilan bir xil jadval</b> — «yangi» o'rniga «to'landi»
+<div class="chek">Ostatka
+                  Ostatka  to'landi     qoldi
+ Butterfly Oddiy    1.17g    <span class="hi2">-1.17g</span>     <span class="hi2">0.00g</span>
+------------------------------------------------
+ JAMI               1.17g    <span class="hi2">-1.17g</span>     <span class="hi2">0.00g</span></div>
+<b>+</b> ikkala chek bir xil bo'ladi, klient o'rganib qoladi<br>
+<b>−</b> bu sotuvdan <b>qolgan yangi qarz</b> ustuni yo'qoladi
+<span class="fl">(u «Berildi» bo'limidagi «Qoldi» qatorida ko'rinadi)</span>
+<div class="fl" style="margin-top:6px">~10–14 qator</div>
+</div>
+
+<div class="card good">
+<span class="num">B</span><b>To'rtinchi ustun qo'shish</b>
+<div class="chek">Ostatka
+              Ostatka to'landi  yangi   qoldi
+ Butterfly Odd  1.17g  <span class="hi2">-1.17g</span>  0.00g  <span class="hi2">0.00g</span></div>
+<b>−</b> chek eni <b>48 belgi</b>. 18+10+10+10 = 48 — <b>hozir ham to'la</b>.
+To'rtinchi ustun uchun nom ustuni 18 → 8 belgiga tushadi:
+«Butterfly Oddiy» → «Butterfl». <b>O'qib bo'lmaydi.</b>
+<div class="fl" style="margin-top:6px">Tavsiya qilinmaydi — texnik cheklov</div>
+</div>
+
+<div class="card good">
+<span class="num">C</span><b>Jadval o'zgarmaydi, ostiga IZOH qatori</b> — siz aytgan variant
+<div class="chek">Ostatka
+                  Ostatka     yangi      jami
+ Butterfly Oddiy    1.17g     0.00g     <span class="hi2">0.00g</span>
+------------------------------------------------
+ JAMI               1.17g     0.00g     <span class="hi2">0.00g</span>
+<span class="hi2"> Butterfly Oddiy 1.17g ostatka ham to'landi ✓</span></div>
+<b>+</b> eng kam o'zgarish, «nechi gramm to'ladim» degan savolga to'g'ridan-to'g'ri javob<br>
+<b>+</b> jadval ustunlari o'zgarmaydi — boshqa hech narsa buzilmaydi<br>
+<b>−</b> to'liq to'lanmasa (masalan 1.17 dan 0.50 to'lansa) qator uzayadi
+<div class="fl" style="margin-top:6px">~8–12 qator</div>
+</div>
+
+<h2>5. Ikki holatni ham hisobga olish kerak</h2>
+<div class="card warn">
+<table>
+<tr><th>Holat</th><th>Chek nima demog'i kerak</th></tr>
+<tr><td>Eski ostatka <b>to'liq</b> to'landi <span class="fl">(hozirgi misol)</span></td>
+    <td>«1.17g ostatka ham to'landi ✓», qoldi 0.00</td></tr>
+<tr><td>Eski ostatka <b>qisman</b> to'landi <span class="fl">(1.17 dan 0.50)</span></td>
+    <td>«0.50g ostatkadan to'landi», qoldi 0.67</td></tr>
+<tr><td>Eski ostatka <b>tegilmadi</b></td>
+    <td>hozirgidek — qo'shimcha qator yo'q</td></tr>
+</table>
+</div>
+
+<h2>6. QAROR</h2>
+<div class="q"><b>Q1.</b> A, B yoki C? <span class="fl">Menimcha C — siz aytgan variant, eng kam xavf.</span></div>
+<div class="q"><b>Q2.</b> «jami» ustuni <b>to'langanini ayirsinmi</b> (1.17 → 0.00)?
+<span class="fl">C variantida ham buni qilish kerak, aks holda jadval hali ham 1.17 deb turadi.</span></div>
+<div class="q"><b>Q3.</b> Qisman to'langan holatda matn qanday bo'lsin?
+<span class="fl">«0.50g ostatkadan to'landi» — shu to'g'rimi?</span></div>
+
+</div>

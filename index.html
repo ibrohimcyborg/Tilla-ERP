@@ -1,4 +1,4 @@
-<!-- v172.32 -->
+<!-- v172.33 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.32';
+var APP_VER = 'v172.33';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16099,14 +16099,39 @@ function klientSotuvChekYangiGen(opts){
     if(keys.length || (o.offsetlar||[]).length){
       t+=LINE+'Ostatka\n';
       t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
-      var te=0,ty=0,tj=0;
+      // v172.33: eski ostatkadan SHU SOTUVDA to'langan qism. Avval "jami" ustuni
+      // e+y edi — to'lov hisobga olinmasdi va to'liq yopilgan qarz chekda hali
+      // ham turardi (Juma Aka: 1.17 eski + 4.00 yangi = 5.17 to'landi, chek esa
+      // "jami 1.17g" deb yozardi -> klient qarzim bor deb tushunardi).
+      // Hisob: to'lov grammi - berilgan gramm, [0 .. eski] oralig'iga qisiladi.
+      // eski<0 (BIZ qarzdormiz) bu yerda emas — pastdagi "Bizda (offset)" blokida.
+      var sotildiMap={};
+      (o.oldilar||[]).forEach(function(r){
+        var kk=r.zavod+'||'+r.tur;
+        sotildiMap[kk]=(sotildiMap[kk]||0)+(r.gramm||0);
+      });
+      function _eskiTolandi(k, e){
+        if(!(e>0.001)) return 0;
+        var v=Math.round(((sotildiMap[k]||0)-((o.berildiMap||{})[k]||0))*100)/100;
+        if(v<0.001) return 0;
+        return Math.min(v, e);
+      }
+      var te=0,ty=0,tj=0, ostIzoh=[];
       keys.forEach(function(k){
-        var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0, j=Math.round((e+y)*100)/100;
+        var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0;
+        var tl=_eskiTolandi(k,e), j=Math.round((e+y-tl)*100)/100;
         te+=e;ty+=y;tj+=j;
         var nom=k.split('||').join(' ');
+        if(tl>0.001){
+          if(tl>=e-0.001) ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatka ham to'landi ✓\n");
+          // qisman: qolgani ALOHIDA qatorda — bitta qatorga sig'maydi (chek eni 48)
+          else ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatkadan to'landi\n"
+                            +rjust('', 'qoldi '+fmtG(j)+'g')+'\n');
+        }
         t+=padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n';
       });
       t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
+      ostIzoh.forEach(function(s){ t+=s; });   // v172.33: "... ostatka ham to'landi ✓"
       // v172.5: offset manbai — BIZ qarzdor bo'lgan tur. JAMI ga qo'shilmaydi
       // (u klient qarzi, bu bizniki — bir ustunda qo'shilsa ma'nosi buziladi).
       // "(bizda)" nom ustuniga sig'maydi (18 belgi), shuning uchun guruh sarlavhasida.
