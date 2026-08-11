@@ -1,4 +1,4 @@
-<!-- v172.30 -->
+<!-- v172.31 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.30';
+var APP_VER = 'v172.31';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -7976,6 +7976,10 @@ function _amalPushTasdiq(id, imzo, vaqt){
 // KEYIN tahrir qilinsa imzo o'zgaradi va yozuv o'zi ketadi.
 function _amalPushInit(){
   if(localStorage.getItem('tilla-amal-push-init')==='1') return;
+  // v172.31: amalInit hali ishlamagan bo'lsa yozuvlarda _id yo'q — bu yerda
+  // urug'lasak ular urug'siz qolib, keyin HAMMASI qayta yuborilardi (kvota to'lqini).
+  // Yangi qurilmani amalInit o'zi urug'laydi.
+  if(localStorage.getItem('tilla-amal-init')!=='1') return;
   var set=_amalSetOl(), push=_amalPushOl();
   amalWalk(function(r,loc){
     if(r._id && set[r._id]!==undefined && push[r._id]===undefined) push[r._id]=_amalPushImzo(r,loc);
@@ -8117,9 +8121,12 @@ function obyektUnsub(){ if(_obyUnsub){ try{_obyUnsub();}catch(e){} _obyUnsub=nul
 // va hisob snap (ostatka/donaOst baseline) yoziladi. Shu tufayli eski yozuvlar dublikat bo'lmaydi.
 function amalInit(){
   if(localStorage.getItem('tilla-amal-init')==='1'){ _amalTayyor=true; return; }
-  var set=_amalSetOl();
+  var set=_amalSetOl(), push=_amalPushOl();   // v172.31: push ham shu yerda urug'lanadi
   amalWalk(function(r,loc,i){
     if(!r._id) r._id=_amalHash(loc.kind+'|'+(loc.zavod||'')+'|'+(loc.tur||'')+'|'+(loc.klient||'')+'|'+i+'|'+JSON.stringify(r));
+    // v172.31: yangi qurilma — _id berilishi bilan imzo ham yoziladi. Bu amalInit
+    // ichida bo'lgani uchun HAR DOIM yuklanishda, tahrirdan oldin ishlaydi.
+    if(push[r._id]===undefined) push[r._id]=_amalPushImzo(r,loc);
     // v163: MAVJUD versiyani 1 ga TUSHIRMAYMIZ. Avval har doim 1 yozilardi;
     // oplogdagi haqiqiy vaqt 1 dan katta bo'lgani uchun HAR yozuv "yangilangan"
     // deb qayta qo'shilardi -> ikkilanish (klient qarzi oshib ketardi).
@@ -8128,6 +8135,7 @@ function amalInit(){
   var snap={};
   (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(t){ snap[_turKey(z.nom,t.nom)]=roundG(t.ostatka||0); snap[_turKey(z.nom,t.nom)+'||d']=Math.round(t.donaOst||0); }); });
   _hisobSnapSaqla(snap); _amalSetSaqla();
+  _amalPushSaqla(); try{ localStorage.setItem('tilla-amal-push-init','1'); }catch(e){}   // v172.31
   try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
   localStorage.setItem('tilla-amal-init','1'); _amalTayyor=true;
 }
@@ -8138,7 +8146,10 @@ function amalSyncPush(){
   if(!cloudYozaOladi()) return;
   if(!_amalTayyor) amalInit();
   var ref=amalRef(); if(!ref) return;
-  _amalPushInit();                       // v172.30: bir martalik — eski yozuvlar "yuborilgan"
+  // v172.31: _amalPushInit() BU YERDAN OLINDI. U save() dan KEYIN ishlar edi —
+  // ya'ni endigina tahrirlangan yozuvni ham "yuborilgan" deb muhrlab qo'yardi va
+  // tahrir boshqa qurilmaga hech qachon yetmasdi. Endi urug'lash sahifa
+  // yuklanganda (skript oxirida) va amalInit ichida — tahrirdan OLDIN.
   var push=_amalPushOl(), qurilma=localStorage.getItem('tilla-qurilma')||'';
   amalWalk(function(r,loc){
     if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -18139,6 +18150,10 @@ setTimeout(function(){
   var q=document.getElementById('klient-search-val');
   if(q && q.value){ q.value=''; if(typeof renderKlientlar==='function') renderKlientlar(); }
 }, 600);
+// v172.31: yuborish ro'yxatini SAHIFA YUKLANGANDA urug'laymiz — hech qanday
+// tahrirdan oldin. Avval bu amalSyncPush ichida edi (save() dan keyin) va
+// endigina tahrirlangan yozuvni "yuborilgan" deb muhrlab qo'yardi.
+try{ _amalPushInit(); }catch(e){}
 cloudInit();
 
 </script>
