@@ -1,0 +1,168 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Tashxis — cloud nega 1:1 emas</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:28px 22px 80px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:26px}
+  h2{font-size:15px;margin:32px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:14px 16px;margin:10px 0}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  code,pre{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0}
+  .ln{color:#6b7787}.k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}.c{color:#7fc4ff}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1b2129;color:#9fb0c2;font-weight:600}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-right:6px;font-weight:600}
+  .t1{background:#3a2020;color:#ff9a9a}.t3{background:#16301f;color:#8fe0a0}
+  ul{margin:6px 0 6px 18px;padding:0}li{margin:4px 0}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#7fc4ff;color:#12151a;border-radius:50%;font-weight:700;font-size:12px;margin-right:7px}
+  .fl{color:#8a93a0;font-size:12px}
+</style>
+<div class="wrap">
+
+<h1>Cloud nega 1:1 emas</h1>
+<div class="sub">Tashxis · 2026-08-10 · joriy kod v172.29 · <b>KOD YOZILMAGAN</b> — qaror Ibrohimdan</div>
+
+<h2>1. Sinxron aslida IKKI qatlamda ishlaydi</h2>
+<table>
+<tr><th>Qatlam</th><th>Nima tashiydi</th><th>Holati</th></tr>
+<tr>
+  <td><b>Oplog</b><br><span class="fl">amalWalk 7956</span></td>
+  <td>zavod tarixi · klient tarixi · lomlar<br><span class="fl">(har yozuv alohida hujjat, <code>_id</code> bo'yicha)</span></td>
+  <td><span class="g">avtomat ishlaydi</span> — lekin teshiklari bor (2-bo'lim)</td>
+</tr>
+<tr>
+  <td><b>Obyekt</b><br><span class="fl">obyektRef, v164</span></td>
+  <td>yangi klient / zavod / tur</td>
+  <td><span class="g">avtomat ishlaydi</span></td>
+</tr>
+<tr>
+  <td><b>Blob</b><br><span class="fl">holat + holat_bN</span></td>
+  <td><b>KASSA</b> (zakazlar, Z, tuzatishlar) · zavod tartibi · kurs · sozlamalar · <code>t.ostatka</code></td>
+  <td><span class="k">yuklab OLINMAYDI</span> — faqat zaxira</td>
+</tr>
+</table>
+<div class="card warn">
+Koddagi izohning o'zi shuni aytadi (<span class="fl">7962</span>):
+<pre>// data.kassa — OBYEKT, oplogga kirmaydi, <b>blob orqali sinxron bo'ladi</b>.</pre>
+Lekin blob <b>yuklab olinmaydi</b>. Demak kassa amalda <b>umuman sinxron bo'lmaydi</b>.
+</div>
+
+<h2>2. Uchta teshik</h2>
+
+<div class="card bad">
+<span class="tag t1">TESHIK A</span><b>Tahrirlangan yozuv boshqa qurilmaga UMUMAN ketmaydi</b>
+<pre><span class="ln">8078</span>  <span class="k">if(set[r._id]) return;</span>          <span class="ln">// bir marta yuborilgan -> BOSHQA HECH QACHON</span>
+<span class="ln">8079</span>  ref.doc(r._id).set({...})</pre>
+<code>amalSyncPush</code> faqat <b>YANGI</b> yozuvni yuboradi. Mavjud yozuv tahrir qilinsa
+(sana o'zgardi, gramm to'g'irlandi, izoh qo'shildi) — uning <code>_id</code> si allaqachon
+ro'yxatda, demak <b>qayta yuborilmaydi</b>. Boshqa qurilmada eski qiymat qolaveradi.
+</div>
+
+<div class="card bad">
+<span class="tag t1">TESHIK B</span><b>«Yuborildi» belgisi TASDIQDAN OLDIN qo'yiladi</b>
+<pre><span class="ln">8079</span>  try{ ref.doc(r._id).set({...})<span class="y">.catch(cloudXato)</span>, cloudYozuvSana(1);
+        <span class="k">set[r._id]=Date.now();</span> pushed=true; }catch(e){}
+<span class="ln">           ↑ .set() PROMISE. Javob KUTILMAYDI. Xato faqat konsolga.</span></pre>
+Tarmoq uzilsa / token eskirsa / tab yopilsa — yozuv bulutga <b>yetmaydi</b>,
+lekin «yuborilgan» deb belgilanadi. 8078 endi uni abadiy o'tkazib yuboradi.
+<div style="margin-top:6px">Xuddi shu <span class="fl">8144 <code>amalMovePush</code></span> va
+<span class="fl">8149 <code>amalDeletePush</code></span> da ham bor — <b>o'chirish ham yo'qoladi</b>.</div>
+<div style="margin-top:6px;color:#ff9a9a">Bugungi konsolingizdagi <code>ERR_NAME_NOT_RESOLVED</code> va
+token xatolari — aynan shu holat. Ular payti yozilgan hamma narsa yo'qolgan.</div>
+</div>
+
+<div class="card bad">
+<span class="tag t1">TESHIK C</span><b>Kassa va sozlamalar hech qachon tenglashmaydi — lekin chiroq YASHIL</b>
+<pre><span class="ln">17829</span>  var bosh = (data.zavodlar.length===0 && data.klientlar.length===0);
+<span class="ln">17830</span>  if (bosh &amp;&amp; lokalVaqt===0) { cloudYuklab(m, true); }   <span class="ln">// faqat BO'SH qurilma</span>
+<span class="ln">17833</span>  else { cloudVaqtSet(m.vaqt);
+<span class="ln">17835</span>         cloudStatus(<span class="g">'green','sinxron'</span>); }              <span class="k">// HECH NIMA YUKLANMAYDI</span></pre>
+Ma'lumoti bor qurilma blobni <b>hech qachon olmaydi</b>, lekin holat <b>«sinxron» (yashil)</b> deb turadi.
+<div style="margin-top:6px;color:#ff9a9a">Eng chalg'ituvchi joy: <b>yashil chiroq ≠ ma'lumot bir xil</b>.</div>
+</div>
+
+<h2>3. «⬆ Cloudga yuborish» tugmasi nega yordam bermayapti</h2>
+<div class="card bad">
+<code>cloudToldir</code> → <code>syncFullFill</code> (8230) hamma yozuvni <b>majburan</b> qayta yuboradi. Lekin:
+<pre><span class="ln">8242</span>  var v = <span class="k">set[r._id]</span> || Date.now();       <span class="ln">// ESKI vaqtni oladi</span>
+<span class="ln">8243</span>  ref.doc(r._id).set({ ..., vaqt:<span class="k">v</span> });</pre>
+Qabul qiluvchi qurilmada esa:
+<pre><span class="ln">8160</span>  if(known!==undefined &amp;&amp; <span class="k">dv&lt;=known</span>) return;   <span class="ln">// eski vaqt -> TASHLAB YUBORILADI</span></pre>
+<div style="color:#ff9a9a;margin-top:6px">Ya'ni: hujjat <b>bulutga yozildi</b>, lekin qabul qiluvchi uni
+<b>«yangilanmagan»</b> deb o'tkazib yubordi. Tugma bosildi, «✓ Yuborildi» chiqdi — <b>lekin hech nima o'tmadi.</b>
+Teshik A va B ni bu tugma <b>tuzatmaydi</b>.</div>
+</div>
+
+<h2>4. Bugun 1:1 qilishning YAGONA ishonchli yo'li</h2>
+<div class="card good">
+<b>1.</b> To'g'ri ma'lumotli qurilmada: Cloud holati → <b>⬆ Bu qurilmanikini cloudga yuborish</b><br>
+<b>2.</b> Har boshqa qurilmada: Cloud holati → <b>⬇ Cloud'dan yuklab olish (ustidan yozadi)</b>
+<div style="margin-top:8px" class="fl">
+<code>cloudMajburanOl</code> (8262) blobni <b>to'liq</b> oladi va ustidan yozadi — kassa ham, tartib ham, hammasi.
+Yuklashdan oldin avtomat backup ham oladi (8271).</div>
+<div style="margin-top:8px;color:#ffd27a"><b>Narxi:</b> ⬇ bosilgan qurilmada <b>faqat o'sha qurilmada bo'lgan</b>
+o'zgarishlar <b>yo'qoladi</b>. Shuning uchun tartib muhim: avval hamma ⬆ qilmaydi — <b>bitta</b> to'g'ri qurilma ⬆,
+qolganlari ⬇.</div>
+</div>
+
+<h2>5. TAKLIF — avtomat 1:1 bo'lishi uchun</h2>
+
+<div class="card good">
+<span class="num">1</span><b>Belgini tasdiqdan KEYIN qo'yish</b> <span class="fl">— teshik B</span>
+<pre>eski:  ref.doc(id).set({...}).catch(cloudXato);  set[id]=Date.now();
+yangi: ref.doc(id).set({...}).then(function(){ set[id]=v; _amalSetSaqla(); })
+                             .catch(cloudXato);</pre>
+Yozuv <b>haqiqatan yetgach</b> belgilanadi. Yetmasa — keyingi <code>save()</code> da qayta urinadi.
+<div style="margin-top:6px" class="fl">3 joy: 8079, 8144, 8149. <b>~10–14 qator.</b> DAVOM.md dagi 0h masalasi shu.</div>
+</div>
+
+<div class="card good">
+<span class="num">2</span><b>O'zgargan yozuvni ham yuborish</b> <span class="fl">— teshik A</span>
+<pre>eski:  set[id] = vaqt          -> "yuborilganmi?" savoliga javob
+yangi: set[id] = {v:vaqt, h:_amalHash(_ostImzo(r))}
+       if(set[id] &amp;&amp; set[id].h === hozirgiHash) return;   // o'zgarmagan -> o'tkazamiz
+       aks holda QAYTA yuboriladi, vaqt:Date.now()</pre>
+<code>_amalHash</code> (7948) va <code>_ostImzo</code> (8093) <b>allaqachon bor</b> — yangi funksiya kerak emas.
+<div style="margin-top:6px" class="fl">Eski format (raqam) ni ham o'qiy olishi kerak — <code>_amalSetOl</code> da migratsiya bor (7941),
+o'sha yerga qo'shiladi. <b>~15–20 qator.</b></div>
+</div>
+
+<div class="card good">
+<span class="num">3</span><b><code>syncFullFill</code> yangi vaqt bilan yozsin</b> <span class="fl">— teshik C/tugma</span>
+<pre>eski:  var v = set[r._id] || Date.now();
+yangi: var v = Date.now();      // majburan yuborish = "buni QAYTA qabul qil"</pre>
+Shunda ⬆ tugmasi haqiqatan ishlaydi. Qayta qabul qilish <b>xavfsiz</b>: <code>_amalQosh</code> (8101)
+<code>_id</code> bo'yicha idempotent — dublikat qo'shmaydi.
+<div style="margin-top:6px" class="fl"><b>1 qator.</b></div>
+</div>
+
+<div class="card warn">
+<span class="num">4</span><b>Kassa masalasi</b> <span class="fl">— teshik C ning asosiy qismi</span>
+Kassa obyekt, oplogga kirmaydi. Ikki yo'l bor va bu <b>katta qaror</b>:
+<table style="margin-top:8px">
+<tr><th>Yo'l</th><th>Nima bo'ladi</th><th>Xavf</th></tr>
+<tr><td><b>K1.</b> Blobni davriy yuklash</td><td>boshqa qurilma yangiroq blob yozsa — olinadi</td>
+    <td class="k">yuqori — ikki qurilma bir vaqtda ishlasa biri ikkinchisini bosib ketadi (v93 da aynan shuning uchun o'chirilgan)</td></tr>
+<tr><td><b>K2.</b> Kassani oplogga chiqarish</td><td>kassa amallari ham yozuv-yozuv sinxron bo'ladi</td>
+    <td class="y">o'rtacha — ko'p kod, alohida versiya kerak</td></tr>
+</table>
+<div style="margin-top:6px;color:#ffd27a">Tavsiya: <b>hozir tegmaslik.</b> 1–3 bandlar tarix/klient/lom ni to'g'rilaydi —
+farqning katta qismi shu. Kassa uchun ⬆/⬇ qo'lda qoladi, keyin alohida versiyada hal qilinadi.</div>
+</div>
+
+<h2>6. QAROR NUQTALARI</h2>
+<div class="q"><b>Q1.</b> 1 + 2 + 3 bandlar yozilsinmi? <span class="fl">(~26–35 qator, v172.30)</span></div>
+<div class="q"><b>Q2.</b> Yoki bir turda bitta o'zgarish qoidasiga ko'ra <b>alohida-alohida</b> qilinsinmi?
+<span class="fl">Masalan avval 1 (eng xavfli teshik), sinaladi, keyin 2, keyin 3.</span></div>
+<div class="q"><b>Q3.</b> Kassa (4-band) hozir tegilmasinmi — tasdiqlaysizmi?</div>
+<div class="q"><b>Q4.</b> «Sinxron» yashil chirog'i chalg'ituvchi. Blob yuklanmagan bo'lsa boshqacha ko'rsatilsinmi?
+<span class="fl">Masalan «sinxron (tarix)» — kassa qo'lda ekanini eslatib turadi. Bu alohida, sof vizual o'zgarish.</span></div>
+
+</div>

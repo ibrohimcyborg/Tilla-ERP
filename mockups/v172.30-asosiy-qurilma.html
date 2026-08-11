@@ -1,0 +1,152 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ASOSIY qurilma — PC yozadi, qolganlari ergashadi</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:28px 22px 80px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:26px}
+  h2{font-size:15px;margin:32px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:14px 16px;margin:10px 0}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  code,pre{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0}
+  .ln{color:#6b7787}.k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1b2129;color:#9fb0c2;font-weight:600}
+  ul{margin:6px 0 6px 18px;padding:0}li{margin:4px 0}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  .num{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#7fc4ff;color:#12151a;border-radius:50%;font-weight:700;font-size:12px;margin-right:7px}
+  .fl{color:#8a93a0;font-size:12px}
+  .step{display:flex;gap:12px;align-items:flex-start;margin:9px 0}
+  .step b{min-width:78px;display:inline-block;color:#ffd27a}
+</style>
+<div class="wrap">
+
+<h1>PC ASOSIY bo'lsin — qolganlari ergashsin</h1>
+<div class="sub">Tashxis + taklif · 2026-08-10 · joriy kod v172.29 · <b>KOD YOZILMAGAN</b></div>
+
+<h2>1. Nega «boshqa qurilmalar tupurib qo'ygan» — ANIQ mexanizm</h2>
+
+<div class="card bad">
+<b>Har qurilma butun bazani cloud ustiga yozadi.</b> <code>save()</code> → <code>cloudSaqla</code> → <code>cloudSaqlaNow</code>:
+<pre><span class="ln">18019</span>  var json = localStorage.getItem('tilla-v2');   <span class="ln">// BUTUN baza</span>
+<span class="ln">18027</span>  bolaklar.forEach(function(b,i){
+<span class="ln">18028</span>    batch.set(...doc('holat_b'+i), { j:b });      <span class="k">// USTIDAN YOZADI</span>
+<span class="ln">18031</span>  batch.set(...doc('kassa_snapshot'), kassaSnapshotObj(vaqt));</pre>
+<b>Hech qanday to'siq yo'q</b> — <code>qurilmaAsosiy()</code> sharti bu yerda <b>umuman yo'q</b>.
+</div>
+
+<div class="card bad">
+<b>Lekin hech qaysi qurilma uni qaytarib olmaydi.</b> <code>cloudListen</code>:
+<pre><span class="ln">17829</span>  var bosh = (zavodlar.length===0 &amp;&amp; klientlar.length===0);
+<span class="ln">17830</span>  if (bosh &amp;&amp; lokalVaqt===0) cloudYuklab(m, true);   <span class="ln">// faqat BO'SH qurilma</span>
+<span class="ln">17833</span>  else cloudStatus('green','sinxron');                <span class="k">// olmaydi, lekin YASHIL</span></pre>
+</div>
+
+<div class="card bad">
+<b>Natija — halqa:</b>
+<pre>PC da kassa TO'G'RI  →  PC saqlaydi  →  cloudda to'g'ri
+Telefonda kassa ESKI (hech qachon yuklamagan)
+Telefonda biror amal  →  save()  →  <span class="k">telefon o'zining ESKI blobini cloud ustiga yozadi</span>
+                                     → cloudda PC ning to'g'ri kassasi <b>YO'Q BO'LDI</b>
+Kim ⬇ qilsa — telefonning eski nusxasini oladi</pre>
+</div>
+
+<h2>2. Aynan siz ko'rayotgan ikki alomat shundan chiqadi</h2>
+<table>
+<tr><th>Alomat</th><th>Mexanizm</th></tr>
+<tr><td><b>«Narsalar takror bo'p qolyapti»</b></td>
+    <td>PC da yozuv <b>o'chirildi</b> → oplogga <code>deleted</code> ketdi → telefon hali o'chirmagan
+    → telefon <code>save()</code> qildi → <b>o'chirilgan yozuv bilan birga</b> blob cloud ustiga yozildi
+    → kimdir ⬇ qildi → <b>o'chirilgan yozuv QAYTIB KELDI</b></td></tr>
+<tr><td><b>«Gramm ostatkalar noto'g'ri»</b></td>
+    <td>BIZDA v172.26 dan <b>tarixdan</b> hisoblanadi. Tarixda ortiqcha yoki yetishmayotgan
+    qator bo'lsa — gramm avtomatik noto'g'ri chiqadi. Ostatka aybdor emas, <b>tarix</b> aybdor.</td></tr>
+</table>
+
+<h2>3. «ASOSIY» belgisi hozir HECH NIMA qilmaydi</h2>
+<div class="card warn">
+<pre><span class="ln">17655</span>  function qurilmaAsosiy(){ return qurilmaRaqam()===1; }</pre>
+Butun faylda <b>bir joyda</b> ishlatiladi — <span class="fl">17776, Cloud holati oynasidagi ko'k yorliq</span>.
+<b>Sinxronga ta'siri nol.</b> Qurilma-1 ham, Qurilma-4 ham bir xil huquqda cloud ustiga yozaveradi.
+</div>
+
+<h2>4. TAKLIF — ASOSIY haqiqiy ma'no olsin</h2>
+
+<table>
+<tr><th></th><th>ASOSIY (PC · Qurilma-1)</th><th>Ergashuvchi (telefon va b.)</th></tr>
+<tr><td><b>Tarix yozuvi</b><br><span class="fl">berish, to'lov, vozvrat</span></td>
+    <td class="g">oplogga yozadi</td><td class="g">oplogga yozadi <span class="fl">— o'zgarishsiz</span></td></tr>
+<tr><td><b>Blob</b><br><span class="fl">kassa, tartib, sozlama</span></td>
+    <td class="g">YOZADI — yagona manba</td><td class="k">YOZMAYDI</td></tr>
+<tr><td><b>Blobni olish</b></td>
+    <td class="fl">kerak emas</td><td class="g">AVTOMAT oladi <span class="fl">ASOSIY yangiroq yozsa</span></td></tr>
+</table>
+
+<div class="card good">
+<span class="num">1</span><b>Ergashuvchi blob yozmasin</b>
+<pre><span class="ln">18009</span>  eski:  if(!cloudYozaOladi()) return;
+        yangi: if(!cloudYozaOladi()) return;
+               <span class="g">if(!qurilmaAsosiy()) return;</span>   // faqat ASOSIY blob yozadi</pre>
+<span class="fl"><b>1 qator.</b> Tarix oplogi tegilmaydi — telefondan berish/to'lov avvalgidek ishlayveradi.</span>
+</div>
+
+<div class="card good">
+<span class="num">2</span><b>Ergashuvchi blobni avtomat olsin</b>
+<pre><span class="ln">17830</span>  eski:  if (bosh &amp;&amp; lokalVaqt===0) cloudYuklab(m, true);
+        yangi: if (bosh &amp;&amp; lokalVaqt===0) cloudYuklab(m, true);
+               <span class="g">else if (!qurilmaAsosiy()) cloudYuklab(m, true);</span>  // ergashuvchi — jim oladi</pre>
+<span class="fl"><b>1–3 qator.</b> <code>cloudYuklab</code> oxirida <code>location.reload()</code> bor —
+ergashuvchida sahifa o'zi yangilanadi.</span>
+</div>
+
+<div class="card bad">
+<b>⚠ 1 va 2 ni YOLG'IZ yozib bo'lmaydi — ma'lumot YO'QOLADI.</b>
+<pre>Telefonda berish yozildi
+   → oplogga chiqishi kerak, LEKIN teshik A/B tufayli chiqmadi
+   → ASOSIY buni bilmaydi, o'z blobini yozdi
+   → telefon blobni AVTOMAT oldi  →  <span class="k">telefondagi berish YO'Q BO'LDI</span></pre>
+Hozir bu xavf yo'q, chunki blob <b>umuman yuklanmaydi</b>. Avtomat yuklashni yoqish
+oplog teshiklarini <b>oldin</b> yopishni talab qiladi.
+</div>
+
+<h2>5. TO'G'RI TARTIB</h2>
+<div class="card">
+<div class="step"><b>1-qadam</b><div>Oplog teshiklarini yopish — <span class="fl">avvalgi mockup ①②③:
+belgi <code>.then()</code> ga, o'zgargan yozuv hash bo'yicha qayta, <code>syncFullFill</code> yangi vaqt bilan.
+~26–35 qator.</span> <b>Shundan keyin telefondagi yozuv ASOSIY ga ishonchli yetadi.</b></div></div>
+<div class="step"><b>2-qadam</b><div>Bir martalik tozalash — PC da ⬆, qolganlarida ⬇ <span class="fl">(qo'lda)</span></div></div>
+<div class="step"><b>3-qadam</b><div>Shu mockup ①② — ASOSIY yagona blob yozuvchi, ergashuvchi avtomat oladi.
+<span class="fl">~2–4 qator.</span></div></div>
+</div>
+<div class="card warn">
+1-qadamsiz 3-qadamni yoqish — <b>ma'lumot yo'qotish</b>. Tartibni buzmaslik kerak.
+</div>
+
+<h2>6. Avval TEKSHIRING — 1 daqiqa</h2>
+<div class="card warn">
+Har qurilmada ☁ <b>Cloud holati</b> ni oching va solishtiring:
+<ul>
+<li><b>Login</b> — hamma qurilmada <b>bir xil</b> email bo'lishi shart
+(sizda <code>admin@tilla.com</code>). Boshqacha bo'lsa — u qurilma <b>butunlay boshqa bazada</b>,
+sinxron hech qachon bo'lmagan.</li>
+<li>Ekran tepasida <b>🧪 ADMIN/TEST XONASI</b> yozuvi bormi? Bo'lsa — u qurilma sinov xonasida,
+haqiqiy bazaga tegmaydi.</li>
+<li><b>Qurilma raqami</b> — faqat PC da <b>1</b> (ASOSIY) bo'lsin.</li>
+</ul>
+</div>
+
+<h2>7. QAROR NUQTALARI</h2>
+<div class="q"><b>Q1.</b> Tartib to'g'rimi — avval oplog (1-qadam), keyin tozalash, keyin ASOSIY?
+<span class="fl">Yoki darhol ASOSIY yoqilsinmi (tez, lekin telefonda yozilgan narsa yo'qolishi mumkin)?</span></div>
+<div class="q"><b>Q2.</b> Ergashuvchi blobni <b>jim</b> olsinmi, yoki «PC dan yangilandi» degan xabar chiqsinmi?</div>
+<div class="q"><b>Q3.</b> ASOSIY = <code>qurilmaRaqam()===1</code> qoladimi, yoki Sozlamalarda
+<b>qo'lda</b> belgilanadigan bo'lsinmi? <span class="fl">Raqam-1 qurilma almashsa nima bo'ladi degan savol bor.</span></div>
+<div class="q"><b>Q4.</b> Ergashuvchida kassa <b>tahrir qilinmasin</b> (faqat ko'rish) — kerakmi?
+<span class="fl">Aks holda telefonda kassaga kiritilgani blob kelganda yo'qoladi va sabab tushunarsiz bo'ladi.</span></div>
+
+</div>

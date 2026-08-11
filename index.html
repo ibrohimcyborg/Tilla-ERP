@@ -1,4 +1,4 @@
-<!-- v172.29 -->
+<!-- v172.30 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1971,7 +1971,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.29';
+var APP_VER = 'v172.30';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -7943,6 +7943,72 @@ function _amalSetOl(){
   return _amalSynced;
 }
 function _amalSetSaqla(){ try{ localStorage.setItem('tilla-amal-synced', JSON.stringify(_amalSetOl())); }catch(e){} }
+// ══════════ v172.30: YUBORISH RO'YXATI + O'CHIRISH NAVBATI ══════════
+// Muammo 1: amalSyncPush da `if(set[id]) return` — bir marta yuborilgan yozuv
+//   TAHRIR QILINSA HAM boshqa hech qachon yuborilmasdi.
+// Muammo 2: belgi `.set()` chaqirilishi bilan qo'yilardi, tasdiq kutilmasdi —
+//   tarmoq uzilsa yozuv jim yo'qolardi va qayta urinilmasdi.
+// Yechim: yuborish uchun ALOHIDA ro'yxat (id -> imzo). set[] tegilmaydi — u
+// qabul yo'nalishi uchun qoladi (amalListen dagi `dv<=known` shartini buzmaslik).
+var _amalPush=null;
+function _amalPushOl(){
+  if(_amalPush) return _amalPush;
+  try{ _amalPush=JSON.parse(localStorage.getItem('tilla-amal-push')||'{}'); }catch(e){ _amalPush={}; }
+  return _amalPush;
+}
+function _amalPushSaqla(){ try{ localStorage.setItem('tilla-amal-push', JSON.stringify(_amalPushOl())); }catch(e){} }
+// Yuborish imzosi: JOY ham kiradi -> yozuv ko'chirilsa imzo o'zgaradi va o'zi qayta ketadi.
+// _ostImzo ATAYLAB ishlatilmadi — u egizak topish uchun, hamma maydonni qamramaydi
+// (izoh, narx va b. yo'q) va o'sha maydonlar tahriri sezilmay qolardi. Butun yozuv olinadi.
+function _amalPushImzo(r, loc){
+  loc = loc || {};
+  var j=''; try{ j=JSON.stringify(r); }catch(e){ j=String(r); }
+  return _amalHash([loc.kind||'', loc.zavod||'', loc.tur||'', loc.klient||'', j].join('|'));
+}
+// Yozuv cloudga yetgach chaqiriladi — belgi FAQAT shu yerda qo'yiladi
+function _amalPushTasdiq(id, imzo, vaqt){
+  var p=_amalPushOl(); p[id]=imzo; _amalPushSaqla();
+  var s=_amalSetOl(); s[id]=vaqt; _amalSetSaqla();
+}
+// BIR MARTALIK: mavjud yozuvlar hozirgi imzosi bilan "yuborilgan" deb belgilanadi.
+// Ibrohim qarori (2026-08-10): eski yozuvlar QAYTA YUBORILMASIN — kvota to'lqini
+// bo'lmasin va boshqa qurilmadagi yangiroq tahrir bosilib ketmasin. Lekin BUNDAN
+// KEYIN tahrir qilinsa imzo o'zgaradi va yozuv o'zi ketadi.
+function _amalPushInit(){
+  if(localStorage.getItem('tilla-amal-push-init')==='1') return;
+  var set=_amalSetOl(), push=_amalPushOl();
+  amalWalk(function(r,loc){
+    if(r._id && set[r._id]!==undefined && push[r._id]===undefined) push[r._id]=_amalPushImzo(r,loc);
+  });
+  _amalPushSaqla();
+  try{ localStorage.setItem('tilla-amal-push-init','1'); }catch(e){}
+}
+// O'CHIRISH NAVBATI — tasdiq kelmaguncha saqlanadi, har save() da qayta urinadi.
+// Avval o'chirish ham tasdiqsiz belgilanardi: tarmoq uzilsa boshqa qurilma
+// o'chirilganini BILMASDI va yozuv keyin qaytib kelardi (takror sababi).
+var OCHIR_MUDDAT = 7*24*60*60*1000;
+function _ochirNavOl(){ try{ return JSON.parse(localStorage.getItem('tilla-amal-ochir-navbat')||'{}'); }catch(e){ return {}; } }
+function _ochirNavSaqla(o){ try{ localStorage.setItem('tilla-amal-ochir-navbat', JSON.stringify(o)); }catch(e){} }
+function _ochirNavQayta(){
+  if(!cloudYozaOladi()) return;
+  var ref=amalRef(); if(!ref) return;
+  var nav=_ochirNavOl(), now=Date.now(), q=localStorage.getItem('tilla-qurilma')||'', ozgardi=false;
+  Object.keys(nav).forEach(function(id){
+    if(now-nav[id] > OCHIR_MUDDAT){ delete nav[id]; ozgardi=true; return; }   // 7 kundan eski — tashlaymiz
+    try{
+      ref.doc(id).set({ deleted:true, vaqt:now, qurilma:q }, {merge:true})
+        .then(function(){
+          var n=_ochirNavOl(); delete n[id]; _ochirNavSaqla(n);
+          var s=_amalSetOl(); s[id]=now; _amalSetSaqla();
+          var p=_amalPushOl(); delete p[id]; _amalPushSaqla();
+        })
+        .catch(cloudXato);
+      cloudYozuvSana(1);
+    }catch(e){}
+  });
+  if(ozgardi) _ochirNavSaqla(nav);
+}
+// ══════════ /v172.30 ══════════
 function _hisobSnapOl(){ try{ return JSON.parse(localStorage.getItem('tilla-hisob-snap')||'{}'); }catch(e){ return {}; } }
 function _hisobSnapSaqla(s){ try{ localStorage.setItem('tilla-hisob-snap', JSON.stringify(s)); }catch(e){} }
 function _amalHash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))|0; } return 'a'+(h>>>0).toString(36); }
@@ -8072,13 +8138,21 @@ function amalSyncPush(){
   if(!cloudYozaOladi()) return;
   if(!_amalTayyor) amalInit();
   var ref=amalRef(); if(!ref) return;
-  var set=_amalSetOl(), qurilma=localStorage.getItem('tilla-qurilma')||'', pushed=false;
+  _amalPushInit();                       // v172.30: bir martalik — eski yozuvlar "yuborilgan"
+  var push=_amalPushOl(), qurilma=localStorage.getItem('tilla-qurilma')||'';
   amalWalk(function(r,loc){
     if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-    if(set[r._id]) return;
-    try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:qurilma, vaqt:Date.now() }).catch(cloudXato), cloudYozuvSana(1); set[r._id]=Date.now(); pushed=true; }catch(e){}
+    var id=r._id, im=_amalPushImzo(r,loc);
+    if(push[id]===im) return;            // o'zgarmagan — yuborilmaydi
+    var v=Date.now();                    // TAHRIR QILINGAN yozuv ham shu yerdan o'tadi
+    try{
+      ref.doc(id).set({ loc:loc, rec:JSON.stringify(r), qurilma:qurilma, vaqt:v })
+        .then(function(){ _amalPushTasdiq(id, im, v); })   // belgi FAQAT tasdiqdan keyin
+        .catch(cloudXato);
+      cloudYozuvSana(1);
+    }catch(e){}
   });
-  if(pushed) _amalSetSaqla();
+  _ochirNavQayta();                      // kutayotgan o'chirishlarni ham urinib ko'ramiz
   // OSTATKA increment O'CHIRILDI (v99): ostatka endi har qurilmada TARIXDAN hisoblanadi
   // (tarix sinxronlanadi -> ostatka o'z-o'zidan bir xil bo'ladi, chalkashlik yo'q).
 }
@@ -8140,13 +8214,19 @@ function amalRecRemoveById(id){
 // Ko'chirish/o'chirishni cloudga e'lon qilish (boshqa qurilmalar ham bajaradi)
 function amalMovePush(op, newLoc){
   var ref=amalRef(); if(!ref || !op || !op._id) return;
-  var set=_amalSetOl(), now=Date.now();
-  try{ ref.doc(op._id).set({ loc:newLoc, rec:JSON.stringify(op), qurilma:localStorage.getItem('tilla-qurilma')||'', vaqt:now, moved:true }).catch(cloudXato), cloudYozuvSana(1); set[op._id]=now; _amalSetSaqla(); }catch(e){}
+  var id=op._id, now=Date.now(), im=_amalPushImzo(op,newLoc);
+  // v172.30: belgi tasdiqdan keyin. Yetmasa — imzoda JOY borligi uchun keyingi
+  // amalSyncPush uni "o'zgargan" deb ko'radi va o'zi qayta yuboradi.
+  try{ ref.doc(id).set({ loc:newLoc, rec:JSON.stringify(op), qurilma:localStorage.getItem('tilla-qurilma')||'', vaqt:now, moved:true })
+        .then(function(){ _amalPushTasdiq(id, im, now); })
+        .catch(cloudXato);
+      cloudYozuvSana(1); }catch(e){}
 }
 function amalDeletePush(op){
-  var ref=amalRef(); if(!ref || !op || !op._id) return;
-  var set=_amalSetOl(), now=Date.now();
-  try{ ref.doc(op._id).set({ deleted:true, vaqt:now, qurilma:localStorage.getItem('tilla-qurilma')||'' }, {merge:true}).catch(cloudXato), cloudYozuvSana(1); set[op._id]=now; _amalSetSaqla(); }catch(e){}
+  if(!op || !op._id) return;
+  // v172.30: AVVAL navbatga yoziladi — tasdiq kelmasa keyingi save() da qayta urinadi
+  var nav=_ochirNavOl(); nav[op._id]=Date.now(); _ochirNavSaqla(nav);
+  _ochirNavQayta();
 }
 function amalListen(){
   var ref=amalRef(); if(!ref || _amalUnsub) return;
@@ -8161,7 +8241,7 @@ function amalListen(){
       if(d.deleted){
         // O'CHIRISH — faqat ilgari qo'shilgan bo'lsa olib tashlaymiz (ostatka hisob-increment orqali keladi)
         if(amalRecRemoveById(id)) changed=true; // v153: known sharti olindi (multi-qurilma o'chirish)
-        set[id]=dv; return;
+        set[id]=dv; delete _amalPushOl()[id]; return;   // v172.30
       }
       var loc=d.loc||{}, rec;
       try{ rec=JSON.parse(d.rec||'{}'); }catch(e){ set[id]=dv; return; }
@@ -8172,17 +8252,20 @@ function amalListen(){
         amalRecRemoveById(id); amalRecAdd(loc, rec); changed=true; // KO'CHIRILGAN — eski joydan olib, yangisiga
       }
       set[id]=dv;
+      // v172.30: clouddan kelgan yozuv "yuborilgan" deb belgilanadi — aks holda
+      // keyingi amalSyncPush uni darhol orqaga qaytarib eho hosil qiladi.
+      _amalPushOl()[id]=_amalPushImzo(rec, loc);
     });
     if(changed){
       // v104: AVTOMAT QAYTA-HISOBLASH O'CHIRILDI — u ostatkani buzardi (klient berishni ko'rmasdan
       // faqat zavod tarixidan hisoblab, berilgan tillani "zavodga qaytarardi"). Saqlangan running-total
       // to'g'ri; masofadan kelgan tarix qatori amalRecAdd bilan qo'shiladi. Ostatka kerak bo'lsa
       // Sozlamalar > "Ostatkani qayta tiklash" (endi klient bilan to'g'ri hisoblaydi) orqali tuziladi.
-      _amalSetSaqla();
+      _amalSetSaqla(); _amalPushSaqla();   // v172.30
       turOstKeshTozala();   // v172.26: masofadan yozuv keldi -> ombor qayta sanaladi
       try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
       try{ if(typeof renderHome==='function') renderHome(); if(typeof renderKassaCard==='function') renderKassaCard(); if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); if(typeof renderKlientlar==='function') renderKlientlar(); }catch(e){}   // v172.27: renderHome QO'SHILDI — avval yo'q edi (renderZavodlar esa mavjud emas), shuning uchun sinxrondan keyin BIZDA yangilanmasdi va qo'lda Update bosish kerak bo'lardi
-    } else { _amalSetSaqla(); }
+    } else { _amalSetSaqla(); _amalPushSaqla(); }   // v172.30
   }, function(err){ if(window.console) console.error('amalListen:', err); });
 }
 // LISTENER 2: ostatka hisoblagichlari — cloud qiymati barcha qurilmalar deltalari yig'indisi
@@ -8236,15 +8319,21 @@ function syncFullFill(){
   try{
     var ref=amalRef();
     if(ref){
-      var set=_amalSetOl(), q=localStorage.getItem('tilla-qurilma')||'';
+      var q=localStorage.getItem('tilla-qurilma')||'';
       amalWalk(function(r,loc){
         if(!r._id) r._id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-        var v = set[r._id] || Date.now();
-        try{ ref.doc(r._id).set({ loc:loc, rec:JSON.stringify(r), qurilma:q, vaqt:v }).catch(cloudXato), cloudYozuvSana(1); }catch(e){}
-        if(set[r._id]===undefined) set[r._id]=v;
+        // v172.30: ESKI vaqt bilan yozilardi -> qabul qiluvchida `dv<=known` sharti uni
+        // TASHLAB YUBORARDI. Ya'ni "majburan yuborish" tugmasi hech nima o'tkazmasdi.
+        var id=r._id, v=Date.now(), im=_amalPushImzo(r,loc);
+        try{
+          ref.doc(id).set({ loc:loc, rec:JSON.stringify(r), qurilma:q, vaqt:v })
+            .then(function(){ _amalPushTasdiq(id, im, v); })
+            .catch(cloudXato);
+          cloudYozuvSana(1);
+        }catch(e){}
         natija.tarix++;
       });
-      _amalSetSaqla();
+      _ochirNavQayta();
     }
   }catch(e){}
   // v104: OSTATKA AVTOMAT QAYTA-HISOBLASH O'CHIRILDI — buzilish sababi edi (yuqoriga qarang).
@@ -8268,7 +8357,8 @@ function cloudMajburanOl(){
   _cloudDb.collection(cloudKol()).doc('holat').get().then(function(d){
     if(!d.exists){ alert('Cloudda holat topilmadi'); if(btn){btn.disabled=false;btn.textContent='⬇ Cloud\'dan yuklab olish (ustidan yozadi)';} return; }
     // amal-init flaglarini tozalaymiz — yuklangach tarix qayta pushlanmasin
-    try{ localStorage.removeItem('tilla-amal-synced'); localStorage.removeItem('tilla-amal-init'); }catch(e){}
+    try{ localStorage.removeItem('tilla-amal-synced'); localStorage.removeItem('tilla-amal-init');
+         localStorage.removeItem('tilla-amal-push'); localStorage.removeItem('tilla-amal-push-init'); }catch(e){}  // v172.30
     cloudYuklab(d.data());
   }).catch(function(e){
     cloudXato(e);
@@ -17888,6 +17978,9 @@ function cloudYuklab(meta, jim){
     localStorage.removeItem('tilla-cloud-dirty');
     localStorage.removeItem('tilla-amal-init');
     localStorage.removeItem('tilla-hisob-snap');
+    // v172.30: butun baza almashdi -> yuborish ro'yxati ham qayta urug'lanishi kerak
+    localStorage.removeItem('tilla-amal-push'); localStorage.removeItem('tilla-amal-push-init');
+    _amalPush=null;
     _cloudRemoteNewer = false;
     // ══════════════════════════════════════════════════════════
     // v163: CLOUD YUKLASH QAT'IY — blob YAGONA HAQIQAT.
