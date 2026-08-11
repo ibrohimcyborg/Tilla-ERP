@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.30 · 2026-08-10
+**Oxirgi yangilanish:** v172.31 · 2026-08-11
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.30** (`index.html` birinchi qatorida `<!-- v172.30 -->`, `APP_VER` da ham) |
+| Versiya | **v172.31** (`index.html` birinchi qatorida `<!-- v172.31 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v172.30 gacha push qilingan** (2026-08-10, Ibrohim ruxsati bilan) — prod v172.30. |
+| Git | **v172.31 gacha push qilingan** (2026-08-11, Ibrohim ruxsati bilan) — prod v172.31. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -88,9 +88,16 @@ bo'lib belgilansin).
 bo'gani bilan **teldigi malumotlayam ishlatilvotganida** tori bo'ladi".
 
 Uch qadamli reja tuzildi:
-- **1-qadam — BAJARILDI (v172.30).** Oplog teshiklari yopildi: tahrirlangan
-  yozuv ham ketadi, belgi tasdiqdan keyin qo'yiladi, o'chirish navbati bor,
-  `syncFullFill` yangi vaqt bilan yozadi. ⚠ **SINOVDAN O'TMAGAN.**
+- **1-qadam — BAJARILDI (v172.30 + v172.31).** Oplog teshiklari yopildi:
+  tahrirlangan yozuv ham ketadi, belgi tasdiqdan keyin qo'yiladi, o'chirish
+  navbati bor, `syncFullFill` yangi vaqt bilan yozadi.
+  ⚠ **v172.30 da xato bor edi** — Ibrohim topdi (2026-08-11: «klient tarixiga
+  kirib grammi tahrirlasam telda almashmayapti»). `_amalPushInit` urug'lash
+  `amalSyncPush` ichida, ya'ni `save()` dan KEYIN ishlar edi va endigina
+  tahrirlangan yozuvni «yuborilgan» deb muhrlab qo'yardi. `tilla-amal-push-init`
+  bayrog'i ⬇ bosilganda o'chgani uchun har yuklanishdan keyin takrorlanardi.
+  **v172.31 da tuzatildi:** urug'lash skript oxirida (sahifa yuklanganda,
+  tahrirdan OLDIN) + `amalInit()` ichida. ⚠ **QAYTA SINALMAGAN.**
 - **2-qadam — BAJARILDI (qo'lda).** PC da ⬆, qolganlarida ⬇. Ibrohim
   2026-08-10 da tasdiqladi: "hozircha bir xil" — qurilmalarda ma'lumot mos.
 - **3-qadam — QOLDI.** ASOSIY qurilma rejimi, mockup tayyor:
@@ -311,6 +318,9 @@ Qaror qabul qilinmagan.
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
 | v172.30 | **Oplog teshiklari yopildi** — tahrirlangan yozuv ham ketadi (imzo bo'yicha), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan. Telefondagi yozuv PC ga ishonchli yetadi |
 | v172.29 | **Chek 1 bosilib 7 chiqardi** — sabab: belgi faqat bulutda edi, token rad etilib lokal kesh orqaga qaytardi (halqa). Lokal `tilla-chek-chiqdi` ro'yxati + muddat 90s + telefonda haqiqiy javob |
+| v172.31 | **v172.30 xatosi tuzatildi** — urug'lash `save()` dan keyin ishlab tahrirni «yuborilgan» deb muhrlardi; endi sahifa yuklanganda |
+| v172.30 | **Oplog teshiklari yopildi** — yuborish ro'yxati imzo bo'yicha (tahrir ham ketadi), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan |
+| v172.29 | **Chek takrori tuzatildi** — lokal «chiqarildi» ro'yxati (bulutga bog'liq emas), muddat 90s, telefonda haqiqiy javob |
 | v172.28 | **Telefondan chek → PC dan chiqadi** — Firestore chek navbati, Sozlamalarda printer kaliti |
 | v172.27 | **Takror yozuv tuzatildi** — `_id` saqlashdan oldin beriladi + cloud nusxasi `_id` siz egizakni topib unga id yopishtiradi; sinxrondan keyin `renderHome` chaqiriladi (Update bosish kerak emas) |
 | v172.26 | **BIZDA tarixdan** — «Jami qo'limizda» bilan 1:1, 18 joy o'tkazildi, 🔧 tugma o'chirildi. Qurilmalar orasidagi 199.49 g farq shu bilan yopiladi |

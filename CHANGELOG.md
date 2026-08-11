@@ -3,6 +3,36 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.31: v172.30 dagi xato — tahrir baribir sinxron bo'lmasdi
+
+Ibrohim: "klient tarixiga kirib grammi tahrirlasam telda almashmayapti,
+teldanam o'zgartirishga to'ri kkevotti".
+
+SABAB (v172.30 kodidagi xato, tashqi emas): `_amalPushInit` — bir martalik
+urug'lash — `amalSyncPush` ICHIDA chaqirilardi. `amalSyncPush` esa `save()`
+dan keyin ishlaydi, ya'ni yozuv ALLAQACHON tahrirlangandan keyin. Natijada
+urug'lash tahrirlangan holatning imzosini "yuborilgan" deb muhrlab qo'yardi
+va keyingi `if(push[id]===im) return` uni o'tkazib yuborardi.
+
+Ketma-ketlik: saqlashKlientTahrir 16328 `op.gramm=yangiG` -> save 16350 ->
+amalSyncPush 2346 -> _amalPushInit -> imzo muhrlandi -> yuborilmadi.
+
+Bir marta emas, TAKRORLANARDI: `tilla-amal-push-init` bayrog'i ikki joyda
+o'chiriladi — cloudMajburanOl (⬇ tugmasi) va cloudYuklab. Ibrohim tozalash
+paytida ⬇ ni ko'p bosgan, shuning uchun har yuklanishdan keyingi birinchi
+tahrir yutilib, "umuman ishlamayapti" bo'lib ko'ringan.
+
+QILINDI:
+* `_amalPushInit()` chaqiruvi `amalSyncPush` dan OLINDI.
+* Skript oxirida (cloudInit dan oldin) bir marta chaqiriladi — sahifa
+  yuklanganda, har qanday tahrirdan OLDIN.
+* `_amalPushInit` ga qo'riqchi: `tilla-amal-init!=='1'` bo'lsa chiqib ketadi
+  (yozuvlarda hali `_id` yo'q — urug'siz qolib hammasi qayta yuborilardi).
+* Yangi qurilma uchun urug'lash `amalInit()` ichidagi mavjud amalWalk ga
+  qo'shildi — u ham yuklanishda ishlaydi.
+
+Diff: 19 qo'shildi / 4 o'chdi.
+
 ## v172.30: oplog teshiklari yopildi — telefondagi yozuv PC ga ishonchli yetadi
 
 Ibrohim: "cloudga boshqa qurilmala tupurib qo'ygan", "narsala takror bo'p
