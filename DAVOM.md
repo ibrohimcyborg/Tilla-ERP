@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.28 · 2026-08-09
+**Oxirgi yangilanish:** v172.30 · 2026-08-10
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.28** (`index.html` birinchi qatorida `<!-- v172.28 -->`, `APP_VER` da ham) |
+| Versiya | **v172.30** (`index.html` birinchi qatorida `<!-- v172.30 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v172.28 gacha push qilingan** (2026-08-09) — prod v172.28. Ishchi katalog toza. |
+| Git | **v172.30 gacha push qilingan** (2026-08-10, Ibrohim ruxsati bilan) — prod v172.30. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -70,9 +70,58 @@ Hal qilinadigan nuqtalar:
 Firestore `_cheknavbat/items`, Sozlamalar > Printer kaliti. Sukut bo'yicha
 `!printerYoq()` — PC da avvalgidek lokal, telefonda navbat. Muddat 10 daqiqa,
 1 soatdan keyin o'chiriladi, `bajarildi` belgisi chiqarishdan OLDIN qo'yiladi.
-⚠ SINOVDAN O'TMAGAN — Ibrohim telefondan chek bosib tekshirishi kerak.
 Kalitni PC da YOQ, telefonda O'CHIQ qilish shart (faqat bitta qurilmada yoqilsin).
-«Chiqarildi» tasdig'i ataylab qilinmadi (kod kamroq bo'lsin) — kerak bo'lsa qo'shiladi.
+
+**2026-08-10: sinovda 1 marta bosilgan, 7 marta chiqqan** → v172.29 da tuzatildi
+(pastga qarang). ⚠ v172.29 dan keyin QAYTA SINALMAGAN.
+
+⚠ **Ochiq xavf (v172.29 da yopilmagan):** 3–4 qurilmada ilova ochiq.
+`chekBuQurilmadan()` sukut bo'yicha `!printerYoq()` — ya'ni **har qurilma
+navbatni tinglayveradi**. `tilla-chek-chiqdi` ro'yxati faqat **bitta qurilma
+ichida** ishlaydi. Ikki qurilmada printer bo'lsa chek ikki joydan chiqadi.
+Yopish uchun alohida qaror kerak (masalan «chiqaruvchi qurilma» bulutda bitta
+bo'lib belgilansin).
+
+### 0k. CLOUD 1:1 — 3-QADAM QOLDI (ASOSIY qurilma rejimi)
+
+2026-08-10 da Ibrohim: "cloudga boshqa qurilmala tupurib qo'ygan", "PC asosiy
+bo'gani bilan **teldigi malumotlayam ishlatilvotganida** tori bo'ladi".
+
+Uch qadamli reja tuzildi:
+- **1-qadam — BAJARILDI (v172.30).** Oplog teshiklari yopildi: tahrirlangan
+  yozuv ham ketadi, belgi tasdiqdan keyin qo'yiladi, o'chirish navbati bor,
+  `syncFullFill` yangi vaqt bilan yozadi. ⚠ **SINOVDAN O'TMAGAN.**
+- **2-qadam — BAJARILDI (qo'lda).** PC da ⬆, qolganlarida ⬇. Ibrohim
+  2026-08-10 da tasdiqladi: "hozircha bir xil" — qurilmalarda ma'lumot mos.
+- **3-qadam — QOLDI.** ASOSIY qurilma rejimi, mockup tayyor:
+  `mockups/v172.30-asosiy-qurilma.html`. Ikki kichik o'zgarish:
+  - `cloudSaqlaNow` (~18009): `if(!qurilmaAsosiy()) return;` — faqat ASOSIY
+    blob yozadi. **1 qator.**
+  - `cloudListen` (~17830): ergashuvchi blobni AVTOMAT oladi. **1–3 qator.**
+
+  Hozirgi holat: `qurilmaAsosiy()` (17655) butun faylda **bitta joyda** —
+  Cloud holati oynasidagi ko'k «ASOSIY» yorlig'ini chizishda (17776).
+  Sinxronga ta'siri **nol**.
+
+  ⚠ 3-qadamni 1-qadam **sinovdan o'tmasdan** yoqmang — telefondagi yozuv PC ga
+  yetmasa, avtomat kelgan blob uni o'chirib yuboradi.
+
+  Ochiq savollar (mockupda): ASOSIY = `qurilmaRaqam()===1` qoladimi yoki
+  Sozlamalarda qo'lda belgilanadimi; ergashuvchi jim olsinmi yoki xabar
+  chiqsinmi; ergashuvchida kassa tahriri bloklansinmi.
+
+### 0j. Kassa qurilmalar orasida SINXRON EMAS — hal qilinmagan
+
+`amalWalk` (7959-7962) izohi: «data.kassa — OBYEKT, oplogga kirmaydi, blob
+orqali sinxron bo'ladi». Lekin blob **yuklab olinmaydi** (`cloudListen` 17829:
+faqat bo'sh qurilma oladi). Demak kassa amalda **umuman sinxron bo'lmaydi**.
+
+Ikki yo'l bor, ikkalasi ham katta qaror:
+- **K1.** Blobni davriy yuklash — xavfi yuqori, ikki qurilma bir vaqtda
+  ishlasa biri ikkinchisini bosib ketadi (v93 da aynan shuning uchun o'chirilgan).
+- **K2.** Kassani oplogga chiqarish — ko'p kod, alohida versiya.
+
+Hozircha ⬆/⬇ qo'lda. 3-qadam (0k) bajarilsa K1 ning xavfsiz shakli chiqadi.
 
 ### 0g. MAVJUD takror yozuvlarni tozalash — SANASH KUTILMOQDA
 
@@ -88,13 +137,16 @@ Tartib: ro'yxat ko'rsatish → backup → o'chirish.
 
 Ibrohimga sanash uchun konsol buyrug'i berilgan, natija hali kelmagan.
 
-### 0h. Sinxron: "yuborildi" belgisi tasdiqdan OLDIN qo'yiladi
+### 0h. ~~Sinxron: "yuborildi" belgisi tasdiqdan OLDIN~~ — BAJARILDI (v172.30)
 
-`amalSyncPush` / `amalDeletePush` / `amalMovePush` — `.set()` chaqirilgach
-darhol `set[id]=vaqt` qilinadi, `.catch` faqat konsolga yozadi. Tarmoq yiqilsa
-yozuv/o'chirish **qaytadan urinilmaydi**. Ibrohimning o'chirishi PC ga shu
-sababli yetib bormagan (o'sha kuni `ERR_QUIC_PROTOCOL_ERROR` xatolari bor edi).
-Yechim: belgilashni `.then()` ga ko'chirish (~10 qator).
+`amalSyncPush` / `amalDeletePush` / `amalMovePush` da `.set()` chaqirilgach
+darhol `set[id]=vaqt` qilinardi, `.catch` faqat konsolga yozardi.
+
+**BAJARILDI v172.30 da.** Belgi endi faqat `.then()` da (`_amalPushTasdiq`).
+Yuborish uchun **alohida** ro'yxat `tilla-amal-push` = `{id: imzo}` — `set[]`
+formati tegilmadi (qabul yo'nalishi buzilmasin). O'chirish uchun navbat
+`tilla-amal-ochir-navbat`, har `save()` da qayta urinadi, 7 kunda tashlanadi.
+⚠ **SINOVDAN O'TMAGAN** — 0k dagi sinov rejasiga qarang.
 
 ### 0f. Eski (soatsiz) offset yozuvlarini o'z to'loviga qaytarish — MOCKUP KERAK
 
@@ -257,6 +309,8 @@ Qaror qabul qilinmagan.
 | v172.23 | Kurs avto-saqlanadi (Saqlash tugmasi o'rnida «Kunlik kurs» ko'rinadi) + kategoriya har amalda A dan boshlanadi, klientga yozilmaydi |
 | v172.24 | Offsetdan yopilgan to'lov tarixda va hisobotda «⇄ Offset» bo'lib ko'rinadi (ayirma bilan aniqlanadi, eski yozuvlarga ham ishlaydi) |
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
+| v172.30 | **Oplog teshiklari yopildi** — tahrirlangan yozuv ham ketadi (imzo bo'yicha), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan. Telefondagi yozuv PC ga ishonchli yetadi |
+| v172.29 | **Chek 1 bosilib 7 chiqardi** — sabab: belgi faqat bulutda edi, token rad etilib lokal kesh orqaga qaytardi (halqa). Lokal `tilla-chek-chiqdi` ro'yxati + muddat 90s + telefonda haqiqiy javob |
 | v172.28 | **Telefondan chek → PC dan chiqadi** — Firestore chek navbati, Sozlamalarda printer kaliti |
 | v172.27 | **Takror yozuv tuzatildi** — `_id` saqlashdan oldin beriladi + cloud nusxasi `_id` siz egizakni topib unga id yopishtiradi; sinxrondan keyin `renderHome` chaqiriladi (Update bosish kerak emas) |
 | v172.26 | **BIZDA tarixdan** — «Jami qo'limizda» bilan 1:1, 18 joy o'tkazildi, 🔧 tugma o'chirildi. Qurilmalar orasidagi 199.49 g farq shu bilan yopiladi |

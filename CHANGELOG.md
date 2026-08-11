@@ -3,6 +3,84 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.30: oplog teshiklari yopildi — telefondagi yozuv PC ga ishonchli yetadi
+
+Ibrohim: "cloudga boshqa qurilmala tupurib qo'ygan", "narsala takror bo'p
+qovotti, gramm ostatkala notori chiqvotti", "PC asosiy bo'gani bilan teldigi
+malumotlayam ishlatilvotganida tori bo'ladi". Mockuplar:
+mockups/v172.30-tashxis-cloud-1-1.html, mockups/v172.30-asosiy-qurilma.html.
+
+TASHXIS (kodda tasdiqlangan, taxmin emas):
+* amalSyncPush 8078 `if(set[id]) return` — bir marta yuborilgan yozuv TAHRIR
+  qilinsa ham boshqa hech qachon yuborilmasdi.
+* 8079 belgi `.set()` chaqirilishi bilan qo'yilardi, tasdiq kutilmasdi —
+  tarmoq uzilsa yozuv jim yo'qolardi va qayta urinilmasdi. Xuddi shu
+  amalMovePush (8144) va amalDeletePush (8149) da. O'chirish yo'qolgani
+  uchun yozuv boshqa qurilmada QAYTIB KELARDI (takror sababi).
+* syncFullFill 8242 hujjatni ESKI vaqt bilan yozardi -> qabul qiluvchida
+  amalListen 8160 `dv<=known` uni TASHLAB YUBORARDI. "⬆ Cloudga yuborish"
+  tugmasi "✓ Yuborildi" deb yozardi, lekin hech nima o'tmasdi.
+* cloudSaqlaNow (18019-18031) da qurilma sharti YO'Q — har qurilma butun
+  blobni cloud ustiga yozadi. cloudListen (17829) esa uni faqat BO'SH
+  qurilmaga yuklaydi. Ya'ni eski nusxali telefon PC ning to'g'ri kassasini
+  cloudda yo'q qilardi, holat esa "sinxron" (yashil) deb turardi.
+
+QILINDI:
+* YANGI yuborish ro'yxati `tilla-amal-push` = {id: imzo}. set[] TEGILMADI —
+  u qabul yo'nalishi uchun qoladi (amalListen dagi dv<=known buzilmasin).
+* _amalPushImzo(r,loc) — imzo BUTUN yozuv JSON idan + JOY dan. _ostImzo
+  ATAYLAB ishlatilmadi: u egizak topish uchun, izoh/narx kabi maydonlar
+  unda yo'q va o'sha tahrirlar sezilmay qolardi. Joy imzoda bo'lgani uchun
+  ko'chirilgan yozuv ham o'zi qayta ketadi (move uchun navbat kerak emas).
+* Belgi FAQAT `.then()` da — _amalPushTasdiq(id, imzo, vaqt).
+* _amalPushInit — BIR MARTALIK: mavjud yozuvlar hozirgi imzosi bilan
+  "yuborilgan" deb belgilanadi. Ibrohim qarori: eski yozuvlar QAYTA
+  YUBORILMASIN (kvota to'lqini bo'lmasin, boshqa qurilmadagi yangiroq
+  tahrir bosilmasin). Bundan keyingi tahrir imzoni o'zgartiradi va ketadi.
+* O'CHIRISH NAVBATI `tilla-amal-ochir-navbat` — amalDeletePush avval
+  navbatga yozadi, _ochirNavQayta har save() da qayta urinadi, tasdiq
+  kelgandagina navbatdan chiqadi. 7 kundan eskisi tashlanadi.
+* amalListen: clouddan kelgan yozuvga ham imzo yoziladi (eho bo'lmasin),
+  o'chirilganda imzo o'chiriladi.
+* syncFullFill: `vaqt: Date.now()` — endi haqiqatan o'tadi.
+* cloudYuklab / cloudMajburanOl: tilla-amal-push va -push-init tozalanadi.
+
+TEGILMAGAN (ataylab): cloudSaqlaNow dagi "faqat ASOSIY yozsin" sharti va
+ergashuvchining avtomat yuklashi — 3-qadam, alohida versiyada. Oldin shu
+versiya sinovdan o'tishi kerak, aks holda telefondagi yozuv blob kelganda
+yo'qoladi.
+
+Diff: 113 qo'shildi / 20 o'chdi (budjet ~38-46 edi — qamrov emas, izoh va
+`.then()` ga yoyilish hisobiga).
+
+## v172.29: chek navbati takror chiqarardi — 1 bosilgan, 7 chiqqan
+
+Ibrohim: "telefonda 1 marta bosildi, chek ketma-ket 7 ta chiqarvordi".
+Mockup: mockups/v172.29-tashxis-chek-navbat-takror.html.
+
+SABAB: "chiqarildi" belgisi FAQAT Firestore da turardi (2078). Konsolda
+securetoken.googleapis.com 12+ marta xato bergan — auth token yangilanmagan.
+Token yo'q -> Firestore yozuvni rad etadi -> SDK lokal o'zgarishni ORQAGA
+QAYTARADI -> hujjat yana 'kutilmoqda' -> yangi snapshot -> qayta chiqadi.
+Halqa. (enablePersistence butun faylda yo'q — kesh faqat operativ xotirada.)
+
+QILINDI:
+* Lokal `tilla-chek-chiqdi` ro'yxati — chiqarishdan OLDIN tekshiriladi,
+  chiqargandan KEYIN yoziladi. Bulutga UMUMAN bog'liq emas. 2 soatdan
+  eskisi tozalanadi. localStorage bir domendagi hamma tab uchun umumiy,
+  shuning uchun ko'p-tab holatini ham yopadi.
+* CHEK_MUDDAT 10 daqiqa -> 90 soniya — kech ulangan qurilma eski
+  topshiriqlarni to'kib yubormasin.
+* Telefonda HAQIQIY javob: "Yuborilmoqda..." -> _chekKuzat (15 s) ->
+  "✓ Chek chiqdi" / "✗ Yetib bormadi" / "✗ Muddati o'tdi". Avval xabar
+  so'rov ketishi bilan chiqardi (internet yo'q bo'lsa ham) — Ibrohim chek
+  chiqqaniga ishonmay qayta bosardi.
+
+OCHIQ XAVF: 3-4 qurilmada ilova ochiq. chekBuQurilmadan() sukut bo'yicha
+!printerYoq() — har qurilma navbatni tinglayveradi. localStorage faqat
+bitta qurilma ichida ishlaydi. Ikki qurilmada printer bo'lsa chek ikki
+joydan chiqadi — buni yopish uchun alohida qaror kerak.
+
 ## v172.28: telefondan chek bosilsa PC dagi printerdan chiqadi
 
 Ibrohim so'radi: telefondan chek bossa PC dan chiqsin. Mockup:
