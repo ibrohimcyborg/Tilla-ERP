@@ -351,8 +351,50 @@ def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0)
     doc.build(story); buf.seek(0); return buf.read()
 
 
+def _ost_blok(b, kw):
+    """v172.39: bitta zavod·tur bloki. Ibrohim so'ragan ko'rinish:
+    nom (o'rtada) -> boshlang'ich qoldiq -> kunlik amallar (sana+gramm+amal) ->
+    har kun oxiridagi qoldiq -> QOLDI. Qora fon YO'Q (Ibrohim: "yoqmadi")."""
+    W = [kw * 0.30, kw * 0.36, kw * 0.34]
+    d = [[P(f"{b.get('zavod','')} · {b.get('tur','')}", 'Helvetica-Bold', 7.5, C_DARK, 'CENTER'), '', '']]
+    st = [('SPAN', (0, 0), (2, 0)),
+          ('BACKGROUND', (0, 0), (2, 0), colors.HexColor('#FBF3E0')),
+          ('LINEBELOW', (0, 0), (2, 0), 0.9, C_GOLD)]
+    d.append([P('boshi', 'Helvetica-Oblique', 6.5, C_MUTED), '',
+              P(str(b.get('boshi', '')), 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
+    st.append(('SPAN', (0, 1), (1, 1)))
+    st.append(('BACKGROUND', (0, 1), (2, 1), colors.HexColor('#F4F4F4')))
+    r = 2
+    for kun in (b.get('kunlar') or []):
+        amal = kun.get('amallar') or []
+        for i, a in enumerate(amal):
+            nom = a.get('amal', '')
+            c = C_RED if nom == 'berildi' else (C_BLUE if nom == 'vozvrat' else C_GREEN)
+            d.append([P(kun.get('sana', '') if i == 0 else '', 'Helvetica', 6.5, C_MUTED),
+                      P(str(a.get('g', '')), 'Helvetica-Bold', 7, c, 'RIGHT'),
+                      P(' ' + nom, 'Helvetica', 6.5, C_MUTED)])
+            r += 1
+        d.append(['', '', P(str(kun.get('qoldi', '')), 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
+        st.append(('LINEABOVE', (0, r), (2, r), 0.5, colors.HexColor('#999999')))
+        st.append(('BACKGROUND', (0, r), (2, r), colors.HexColor('#FFFDF6')))
+        r += 1
+    d.append([P('QOLDI', 'Helvetica-Bold', 7, colors.HexColor('#5c4708')), '',
+              P(str(b.get('oxiri', '')), 'Helvetica-Bold', 7.5, C_DARK, 'RIGHT')])
+    st += [('SPAN', (0, r), (1, r)),
+           ('BACKGROUND', (0, r), (2, r), colors.HexColor('#FBF3E0')),
+           ('LINEABOVE', (0, r), (2, r), 0.9, C_GOLD)]
+    st += [('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#CCCCCC')),
+           ('TOPPADDING', (0, 0), (-1, -1), 1.4), ('BOTTOMPADDING', (0, 0), (-1, -1), 1.4),
+           ('LEFTPADDING', (0, 0), (-1, -1), 3), ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+           ('VALIGN', (0, 0), (-1, -1), 'TOP')]
+    t = Table(d, colWidths=W)
+    t.setStyle(TableStyle(st))
+    return t
+
+
 def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
-                        jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib):
+                        jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib,
+                        ost_bloklar=None):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=8*mm, rightMargin=8*mm, topMargin=8*mm, bottomMargin=8*mm)
     story = []; W_total = landscape(A4)[0] - 16*mm
@@ -433,6 +475,24 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         qt.setStyle(TableStyle([('GRID',(0,0),(-1,-1),0.4,colors.HexColor('#dddddd')),('TOPPADDING',(0,0),(-1,-1),4),
             ('BOTTOMPADDING',(0,0),(-1,-1),4),('LEFTPADDING',(0,0),(-1,-1),6),('RIGHTPADDING',(0,0),(-1,-1),6),
             ('ROWBACKGROUNDS',(0,0),(-1,-1),[C_WHITE,C_GRAY])])); story.append(qt)
+    # v172.39: ZAVOD·TUR BO'YICHA KUNLIK OSTATKA — yangi bo'lim.
+    # Yuqoridagi jadval TEGILMAYDI, bu uning ostiga tushadi.
+    ost = ost_bloklar or []
+    if ost:
+        story.append(Spacer(1, 6*mm))
+        story.append(sub_p("Zavod·tur bo'yicha kunlik ostatka"))
+        NUS = 5                                   # bir qatorga nechta blok
+        kw = (W_total - (NUS - 1) * 3*mm) / NUS
+        for i in range(0, len(ost), NUS):
+            qism = ost[i:i + NUS]
+            hujayra = [_ost_blok(b, kw) for b in qism]
+            while len(hujayra) < NUS:
+                hujayra.append('')                # oxirgi qator to'lmasa - bo'sh
+            qt2 = Table([hujayra], colWidths=[kw]*NUS)
+            qt2.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP'),
+                ('LEFTPADDING', (0,0), (-1,-1), 0), ('RIGHTPADDING', (0,0), (-1,-1), 3*mm),
+                ('TOPPADDING', (0,0), (-1,-1), 0), ('BOTTOMPADDING', (0,0), (-1,-1), 3*mm)]))
+            story.append(qt2)
     doc.build(story); return buf.getvalue()
 
 
@@ -547,7 +607,8 @@ class handler(BaseHTTPRequestHandler):
                     body.get("ops",[]), body.get("dan"), body.get("gacha"),
                     body.get("jami_berildi",0), body.get("jami_vozvrat",0),
                     body.get("jami_tolov_g",0), body.get("jami_tolov_pul",0),
-                    body.get("qarz_tarkib",[])); return self._send_pdf(pdf, "klient-hisobot.pdf")
+                    body.get("qarz_tarkib",[]),
+                    body.get("ost_bloklar",[])); return self._send_pdf(pdf, "klient-hisobot.pdf")
 
             if tip == "klientlar_tarix":
                 pdf = build_klientlar_tarix(body.get("ops",[]), body.get("dan"), body.get("gacha"),

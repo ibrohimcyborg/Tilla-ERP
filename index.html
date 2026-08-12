@@ -1,4 +1,4 @@
-<!-- v172.38 -->
+<!-- v172.39 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.38';
+var APP_VER = 'v172.39';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16815,10 +16815,53 @@ function klientPDFYukor(dan, gacha){
   }
   ops.sort(function(a,b){ return fdSanaTs(a.sana,a.soat)-fdSanaTs(b.sana,b.soat); });
 
+  // ── v172.39: ZAVOD·TUR BO'YICHA KUNLIK OSTATKA ─────────────────────────
+  // Har zavod·tur alohida blok: davr boshidagi qoldiq -> kunlik amallar
+  // (sana + gramm + amal nomi) -> har kun oxiridagi qoldiq -> QOLDI.
+  // Mavjud jadval, qarz_tarkib va statistika TEGILMAYDI — bu qo'shimcha bo'lim.
+  // Davrdan OLDINGI amallar qatorga chiqmaydi, ular boshlang'ich qoldiqqa yig'iladi.
+  var _ostB={}, _ostTartib=[];
+  k.tarix.forEach(function(op){
+    if(!op.zavod || !op.tur) return;
+    var d=0, nom='';
+    if(op.tip==='berish'){ d=parseNum(op.gramm); nom='berildi'; }
+    else if(op.tip==='vozvrat'){ d=-parseNum(op.gramm); nom='vozvrat'; }
+    else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+    else return;
+    var key=op.zavod+'||'+op.tur;
+    if(!_ostB[key]){ _ostB[key]={zavod:op.zavod, tur:op.tur, boshi:0, kunlar:[], _km:{}}; _ostTartib.push(key); }
+    var b=_ostB[key];
+    var s=op.sana?op.sana.split('.').reverse().join('-'):'';
+    if((dan && s<dan) || (gacha && s>gacha)){
+      if(!gacha || s<=gacha) b.boshi=Math.round((b.boshi+d)*100)/100;  // davrdan oldingi
+      return;
+    }
+    var kk=op.sana||'', ts=fdSanaTs(kk, op.soat||'');
+    if(!b._km[kk]){ b._km[kk]={sana:kk, amallar:[], _ts:ts}; b.kunlar.push(b._km[kk]); }
+    b._km[kk].amallar.push({ _d:d, amal:nom, _ts:ts });
+  });
+  var ost_bloklar=_ostTartib.map(function(key){
+    var b=_ostB[key], yur=b.boshi;
+    b.kunlar.sort(function(x,y){ return x._ts-y._ts; });
+    b.kunlar.forEach(function(kun){
+      kun.amallar.sort(function(x,y){ return x._ts-y._ts; });
+      kun.amallar.forEach(function(a){
+        yur=Math.round((yur+a._d)*100)/100;
+        a.g=(a._d>0?'+':'')+roundG(a._d).toFixed(2)+'g';
+        delete a._d; delete a._ts;
+      });
+      kun.qoldi=yur.toFixed(2)+'g';
+      delete kun._ts;
+    });
+    delete b._km;
+    return { zavod:b.zavod, tur:b.tur, boshi:b.boshi.toFixed(2)+'g',
+             kunlar:b.kunlar, oxiri:yur.toFixed(2)+'g' };
+  });
+
   var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});
   var payload={
     tip:'klient_tarix', klient_nom:k.nom, klient_tel:k.tel||'',
-    ops:ops, dan:null, gacha:null,
+    ops:ops, dan:null, gacha:null, ost_bloklar:ost_bloklar,
     jami_berildi:Math.round(jami_berildi*100)/100,
     jami_vozvrat:Math.round(jami_vozvrat*100)/100,
     jami_tolov_g:Math.round(jami_tolov_g*100)/100,
