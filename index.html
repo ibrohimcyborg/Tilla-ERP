@@ -1,4 +1,4 @@
-<!-- v172.41 -->
+<!-- v172.42 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.41';
+var APP_VER = 'v172.42';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11039,8 +11039,9 @@ function renderKlientHisobot() {
         var _t2 = _tolovTurAniq(sess.ops.map(function(x){return x.op;}));
         _sofOff = !!(_t2 && _t2.bor.length===1 && _t2.bor[0].t.k==='offset');
       }
-      var color=tip==='berish'?(jamiG<0?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':_sofOff?'var(--purple)':'var(--blue)';
-      var label=tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':(_sofOff?'⇄ Offset':'$ Tolov');
+      var _shk = (tip==='berish') && _shaklMi(sess.ops);   // v172.42
+      var color=_shk?'var(--muted)':tip==='berish'?(jamiG<0?'var(--green)':'var(--red)'):tip==='vozvrat'?'var(--gold)':_sofOff?'var(--purple)':'var(--blue)';
+      var label=_shk?'⊟ Ostatka':tip==='berish'?'↑ Berildi':tip==='vozvrat'?'↩ Vozvrat':(_sofOff?'⇄ Offset':'$ Tolov');
       var jamiG=0, jamiS=0;
       sess.ops.forEach(function(x){
         var op=x.op;
@@ -11125,6 +11126,16 @@ function renderKlientHisobot() {
   cont.innerHTML=html;
 }
 
+// v172.42: OSTATKA SHAKLLANTIRISH YORLIG'I.
+// Shakllantirish yozuvi tip:'berish' bo'lib yoziladi (6505), shuning uchun
+// hamma ekranda "Berildi" bo'lib chiqardi — go'yo klientga tilla berilgandek.
+// Ajratish belgisi: inventar:'boshlangich'. FAQAT yorliq va rang o'zgaradi,
+// hisob-kitobga TEGILMAYDI.
+// ops shakli ikki xil bo'lishi mumkin: [{op:...}] yoki [op] — ikkalasi ham qo'llanadi.
+function _shaklMi(ops){
+  if(!ops || !ops.length) return false;
+  return ops.every(function(x){ var o=(x && x.op)?x.op:x; return o && o.inventar==='boshlangich'; });
+}
 function klientGunTahrir(ki, sana) {
   var k = data.klientlar[ki];
   var gunOps = [];
@@ -11138,8 +11149,9 @@ function klientGunTahrir(ki, sana) {
   gunOps.forEach(function(item, idx){
     var op = item.op, oi = item.oi;
     var tip = op.tip;
-    var label = tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
-    var color = tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
+    var _shk = (tip==='berish') && op.inventar==='boshlangich';   // v172.42
+    var label = _shk?'Ostatka': tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
+    var color = _shk?'var(--muted)': tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
     var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
 
     body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
@@ -11710,8 +11722,9 @@ function openKlientDetail(ki) {
     // v172.24 (Ibrohim): butunlay offsetdan yopilgan bo'lsa — "To'lov" emas, "Offset".
     // Aralash bo'lsa (bir qismi naqd) "$ Tolov" qoladi, belgilar ikkalasini ko'rsatadi.
     var _sofOffset = !!(hasTolov && _tt && _tt.bor.length===1 && _tt.bor[0].t.k==='offset');
-    var bc=hasBerish?'var(--red)':_sofOffset?'var(--purple)':hasTolov?'var(--blue)':hasKlientda?'var(--green)':'var(--gold)';
-    var label=hasBerish?'↑ Berildi':hasTolov?(_sofOffset?'⇄ Offset':'$ Tolov'):hasKlientda?klientdaLabel:'↩ Vozvrat';
+    var _shk = hasBerish && _shaklMi(g.ops);   // v172.42
+    var bc=_shk?'var(--muted)':hasBerish?'var(--red)':_sofOffset?'var(--purple)':hasTolov?'var(--blue)':hasKlientda?'var(--green)':'var(--gold)';
+    var label=_shk?'⊟ Ostatka':hasBerish?'↑ Berildi':hasTolov?(_sofOffset?'⇄ Offset':'$ Tolov'):hasKlientda?klientdaLabel:'↩ Vozvrat';
     var lcolor=bc;
     if(_tt && _tt.bor.length) label += ' ' + _tolovPillHTML(_tt.bor);
 
@@ -11940,8 +11953,9 @@ function renderKdHisobot() {
     kdSessOrder.forEach(function(skk, si){
       var S=kdSess[skk];
       var sSkidka=Math.round(S.skidka*100)/100;
-      var hColor = S.tip==='berish'?'var(--red)': S.tip==='vozvrat'?'var(--gold)':'var(--blue)';
-      var hLabel = S.tip==='berish'?'Berildi': S.tip==='vozvrat'?'Vozvrat':'Tolov';
+      var _shk = (S.tip==='berish') && _shaklMi(S.ops);   // v172.42
+      var hColor = _shk?'var(--muted)': S.tip==='berish'?'var(--red)': S.tip==='vozvrat'?'var(--gold)':'var(--blue)';
+      var hLabel = _shk?'Ostatka': S.tip==='berish'?'Berildi': S.tip==='vozvrat'?'Vozvrat':'Tolov';
   // v161: to'lov turlari belgisi (klient tarixidagi bilan bir xil)
   if(S.tip==='tolov' && S.ops){
     var _hTT=_tolovTurAniq(S.ops);
