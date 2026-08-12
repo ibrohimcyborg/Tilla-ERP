@@ -1,4 +1,4 @@
-<!-- v172.33 -->
+<!-- v172.35 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1897,7 +1897,16 @@ body.rol-hamid .hamid-x { display: none !important; }
       <!-- Chek preview -->
       <div id="ks-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <!-- v172.35: 2-chi chek (ostatka jadvali). Sukut bo'yicha O'CHIQ. -->
+            <div onclick="ksOstToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <div id="ks-ost-sw" style="width:32px;height:19px;border-radius:999px;background:var(--border);position:relative;flex-shrink:0;transition:background .2s;">
+                <div id="ks-ost-sw-dot" style="width:15px;height:15px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+              </div>
+              <span style="font-size:11px;color:var(--muted);">ostatka</span>
+            </div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+          </div>
           <div onclick="ksChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
             <div id="ks-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
               <div id="ks-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
@@ -1971,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.33';
+var APP_VER = 'v172.35';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2051,6 +2060,24 @@ function _chekLogYoz(id){
     localStorage.setItem('tilla-chek-chiqdi', JSON.stringify(m));
   }catch(e){}
 }
+// v172.35: OSTATKA JADVALI (2-chi chek) — rasm qilib bosiladi.
+// Matnli chek yo'li (_chekLokal / chekYubor) BUTUNLAY TEGILMAYDI.
+function _chekJadvalLokal(payload){
+  fetch('http://localhost:5000/print-table',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)}).catch(printXato);
+}
+function chekJadvalYubor(payload){
+  if(chekBuQurilmadan()){ _chekJadvalLokal(payload); return; }
+  var ref = chekNavbatRef();
+  if(!ref){ _chekJadvalLokal(payload); return; }
+  try{
+    _chekXabar('Yuborilmoqda...','kut');
+    ref.add({ jadval:JSON.stringify(payload), vaqt:Date.now(),
+              qurilma:(localStorage.getItem('tilla-qurilma')||''), holat:'kutilmoqda' })
+      .then(_chekKuzat)
+      .catch(function(e){ cloudXato(e); _chekXabar('Yetib bormadi','xato'); });
+  }catch(e){ _chekJadvalLokal(payload); }
+}
 // YAGONA KIRISH NUQTASI — 11 joy shuni chaqiradi
 function chekYubor(matn, logo){
   if(chekBuQurilmadan()){ _chekLokal(matn, logo); return; }
@@ -2119,7 +2146,9 @@ function chekNavbatTingla(){
       if(_chekChiqqanmi(doc.id)) return;   // v172.29: shu qurilmada allaqachon chiqqan
       _chekLogYoz(doc.id);                 // LOKAL belgi — bulut rad etsa ham qaytmaydi
       try{ doc.ref.set({holat:'bajarildi', bajarildiVaqt:now, bajardi:men},{merge:true}); }catch(e){}
-      _chekLokal(d.matn||'', !!d.logo);
+      // v172.35: jadval topshirig'i bo'lsa rasm yo'liga, aks holda matn yo'liga
+      if(d.jadval){ try{ _chekJadvalLokal(JSON.parse(d.jadval)); }catch(e){} }
+      else _chekLokal(d.matn||'', !!d.logo);
     });
   }, function(err){ if(window.console) console.error('chekNavbatTingla:', err); });
 }
@@ -14128,6 +14157,9 @@ function openKlientSotuv() {
   _ksChekOn = true; // chek tugmasi DOIM yoqiq ochiladi
   var sw2=document.getElementById('ks-chek-sw'); if(sw2){sw2.style.background=_ksChekOn?'var(--green)':'var(--border)';}
   var dot2=document.getElementById('ks-chek-sw-dot'); if(dot2){dot2.style.left=_ksChekOn?'18px':'2px';}
+  _ksOstOn = false; // v172.35: ostatka cheki DOIM o'chiq ochiladi — so'ralganda yoqiladi
+  var swo=document.getElementById('ks-ost-sw'); if(swo){swo.style.background='var(--border)';}
+  var doto=document.getElementById('ks-ost-sw-dot'); if(doto){doto.style.left='2px';}
 }
 
 function ksSearFilter() {
@@ -14239,6 +14271,40 @@ function ksChekToggle() {
   var dot=document.getElementById('ks-chek-sw-dot');
   sw.style.background=_ksChekOn?'var(--green)':'var(--border)';
   if(dot) dot.style.left=_ksChekOn?'18px':'2px';
+}
+// v172.35: 2-chi chek (ostatka jadvali). Modal har ochilganda O'CHIQ boshlanadi —
+// klient so'raganda yoqiladi. Eslab qolinmaydi (Ibrohim: "so'rasa yoqib").
+var _ksOstOn = false;
+function ksOstToggle() {
+  _ksOstOn = !_ksOstOn;
+  var sw=document.getElementById('ks-ost-sw');
+  var dot=document.getElementById('ks-ost-sw-dot');
+  if(sw) sw.style.background=_ksOstOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_ksOstOn?'15px':'2px';
+}
+// Shu amalda k.tarix ga TUSHGAN yozuvlardan jadval ustunlarini quradi.
+// Qayta hisoblamaydi — saqlangan yozuvlarning o'zini oladi, shuning uchun
+// raqamlar chek va klient qarzi bilan aynan mos keladi.
+function _ostJadvalUstunlar(k, sana, soat, eskiMap){
+  var g={}, tartib=[];
+  (k.tarix||[]).forEach(function(op){
+    if(op.sana!==sana || (op.soat||'')!==soat) return;
+    if(!op.zavod || !op.tur) return;
+    var d=0, nom='';
+    if(op.tip==='berish'){ d=parseNum(op.gramm); nom='berildi'; }
+    else if(op.tip==='vozvrat'){ d=-parseNum(op.gramm); nom='vozvrat'; }
+    else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+    else return;
+    if(!d) return;
+    var kk=op.zavod+'||'+op.tur;
+    if(!g[kk]){ g[kk]={z:op.zavod, t:op.tur, amallar:[], delta:0}; tartib.push(kk); }
+    g[kk].amallar.push({ g:(d>0?'+':'')+fmtG(roundG(d))+'g', a:nom });
+    g[kk].delta+=d;
+  });
+  return tartib.map(function(kk){
+    var u=g[kk], b=roundG((eskiMap||{})[kk]||0);
+    return { z:u.z, t:u.t, boshi:fmtG(b), amallar:u.amallar, oxiri:fmtG(roundG(b+u.delta))+'g' };
+  });
 }
 
 var _ktChekOn = true;
@@ -15870,6 +15936,19 @@ function saqlashKlientSotuv() {
           chekYubor(_cheklar.chek2, false);
         },2500);
       })();
+    }
+  }
+  // v172.35: 2-CHI CHEK — ostatka jadvali (rasm). CHEK toggle'idan MUSTAQIL:
+  // chek o'chiq bo'lsa ham, ostatka yoqiq bo'lsa chiqadi. 1-chi chek 0 s,
+  // 2-chisi 2.5 s — bu 5 s dan boshlanadi, aralashib ketmasin.
+  if(_ksOstOn){
+    var _jUst = _ostJadvalUstunlar(k, sana, _soatSv, _eskiQarzMap);
+    if(_jUst.length){
+      for(var _oi=0;_oi<(_ksSotuvCnt||1);_oi++){
+        (function(idx){ setTimeout(function(){
+          chekJadvalYubor({ title:k.nom, sana:sana, ustunlar:_jUst });
+        }, 5000+idx*5000); })(_oi);
+      }
     }
   }
   closeModal('modal-ksotuv');

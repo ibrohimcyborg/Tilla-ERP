@@ -1,0 +1,113 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>v172.35 — chek 2 sanasiz</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:24px 20px 70px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:18px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:20px}
+  h2{font-size:14px;margin:28px 0 8px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:5px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:12px 15px;margin:10px 0}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  .fl{color:#8a93a0;font-size:12px}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:10px 0;border-radius:0 8px 8px 0}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  .roll{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .paper{background:#fbfaf6;color:#111;border-radius:3px;padding:13px 14px;
+         box-shadow:0 3px 16px rgba(0,0,0,.5);width:400px;box-sizing:border-box}
+  .mono{font-family:"DejaVu Sans Mono",Consolas,monospace;font-size:11.5px;line-height:1.42;white-space:pre}
+  .ctr{text-align:center;font-weight:700;font-size:13px}
+  .ctr2{text-align:center;font-size:11.5px;color:#444}
+  .ras{border-collapse:collapse;width:100%;font-family:"DejaVu Sans Mono",Consolas,monospace;font-size:12px}
+  .ras td{border:1.3px solid #111;padding:4px 6px;vertical-align:top}
+  .ras td.nm{text-align:center;font-weight:700;font-size:12.5px}
+  .ras td.tot{font-weight:700;border-top:2.6px solid #111}
+  .tag{display:inline-block;background:#7fc4ff;color:#12151a;border-radius:5px;padding:1px 9px;font-weight:700;font-size:12px;margin-right:8px}
+  table.cmp{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  table.cmp th,table.cmp td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  table.cmp th{background:#1b2129;color:#9fb0c2}
+</style>
+<div class="wrap">
+
+<h1>v172.35 — chek 2, sanasiz</h1>
+<div class="sub">2026-08-11 · <b>KOD YOZILMAGAN</b> · sana chek tepasida, qatorlarda takrorlanmaydi</div>
+
+<h2>Chek 2</h2>
+<div class="roll">
+
+<div>
+<div style="margin-bottom:6px"><span class="tag">A</span>Butunlay sanasiz <span class="fl">— eng sodda</span></div>
+<div class="paper">
+  <div class="mono ctr">JUMA AKA TJK</div>
+  <div class="mono ctr2">11.07.2026</div>
+  <div style="height:9px"></div>
+  <table class="ras">
+    <tr><td class="nm">Butterfly<br>oddiy</td><td class="nm">Zargar<br>585</td><td class="nm">Butterfly<br>585</td></tr>
+    <tr><td>150</td><td>0</td><td>30</td></tr>
+    <tr>
+      <td>-30g vozvrat<br>+10g berildi<br>-20g tolov</td>
+      <td>+40g berildi<br>-40g tolov</td>
+      <td>&nbsp;-8g vozvrat</td>
+    </tr>
+    <tr><td class="tot">110g</td><td class="tot">0g</td><td class="tot">22g</td></tr>
+  </table>
+</div>
+</div>
+
+<div>
+<div style="margin-bottom:6px"><span class="tag">B</span>Pastda sana qoladi</div>
+<div class="paper">
+  <div class="mono ctr">JUMA AKA TJK</div>
+  <div class="mono ctr2">11.07.2026</div>
+  <div style="height:9px"></div>
+  <table class="ras">
+    <tr><td class="nm">Butterfly<br>oddiy</td><td class="nm">Zargar<br>585</td><td class="nm">Butterfly<br>585</td></tr>
+    <tr><td>150</td><td>0</td><td>30</td></tr>
+    <tr>
+      <td>-30g vozvrat<br>+10g berildi<br>-20g tolov</td>
+      <td>+40g berildi<br>-40g tolov</td>
+      <td>&nbsp;-8g vozvrat</td>
+    </tr>
+    <tr><td class="tot">110g &nbsp;11.07</td><td class="tot">0g &nbsp;11.07</td><td class="tot">22g &nbsp;11.07</td></tr>
+  </table>
+</div>
+</div>
+
+</div>
+
+<div class="card good">
+<code>150 − 30 + 10 − 20 = 110</code> ✓ · <code>0 + 40 − 40 = 0</code> ✓ · <code>30 − 8 = 22</code> ✓<br>
+Sana olib tashlangach katak <b>ancha tor</b> bo'ldi — endi <b>4 ta zavod·tur</b> ham yonma-yon sig'adi.
+</div>
+
+<h2>Muhim mantiqiy natija</h2>
+<div class="card warn">
+Sana yo'q ekan — demak jadval <b>faqat SHU AMALDAGI</b> harakatlarni ko'rsatadi
+(«o'sha kundagi protsess»), eski kunlarni <b>emas</b>.
+<table class="cmp" style="margin-top:8px">
+<tr><th>Ustun</th><th>Nima</th></tr>
+<tr><td><b>boshi</b> <span class="fl">(150)</span></td><td>shu amaldan <b>oldingi</b> ostatka</td></tr>
+<tr><td><b>o'rtasi</b></td><td>shu amalda bo'lgan harakatlar (vozvrat / berildi / tolov)</td></tr>
+<tr><td><b>oxiri</b> <span class="fl">(110g)</span></td><td>shu amaldan <b>keyingi</b> ostatka</td></tr>
+</table>
+<div class="fl" style="margin-top:6px">Ya'ni bu <b>«nima bo'ldi va nima qoldi»</b> cheki — tarix emas.
+Tarix PDF da (v172.34) chiqadi, u yerda sanalar bor.</div>
+</div>
+
+<h2>Reja</h2>
+<div class="card good">
+<b>Chek 1</b> tegilmaydi · <b>Chek 2</b> toggle yoqilganda 2.5 s keyin chiqadi<br>
+<b>Toggle</b> — chek qatorining chap tarafida, sukut bo'yicha <b>o'chiq</b><br>
+<b>v172.35</b> = <code>print_server.py</code> (~70–90) + sotuv modali (~40–55)<br>
+<b>v172.36</b> = berish · vozvrat · to'lov modallari
+</div>
+<div class="card warn">
+<b>T1</b> toggle o'chiq · <b>T2</b> faqat shu amalda tegilgan zavod·turlar ·
+<b>T3</b> «boshi» = amaldan oldingi ostatka · <b>T4</b> «Nechta nusxa» ostatka chekiga ham ta'sir qiladi ·
+<b>T5</b> toggle holati eslab qolinmaydi — <span class="fl">beshtasi ham mendan</span>
+</div>
+
+<div class="q"><b>A yoki B?</b> Tanlasangiz va T1–T5 to'g'ri bo'lsa — yozishni boshlayman.</div>
+
+</div>

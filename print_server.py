@@ -451,10 +451,120 @@ def trim_logo_top(raw, trim_lines=8):
         print("Logo trim xatosi:", e)
         return raw
 
+# ============================================================
+# v172.35: OSTATKA JADVALI — rasm (raster) qilib bosiladi.
+# Sabab: matn rejimida uzluksiz chiziq chizib bo'lmaydi (tire belgisi katakni
+# to'ldirmaydi, oralarida bo'shliq qoladi) va 3 ustun x amal nomi 48 belgiga
+# sig'maydi. Rasmda 576 piksel bor — chiziq uzluksiz, katak eni erkin.
+# Mavjud /print matn yo'liga TEGILMAYDI.
+# ============================================================
+JADVAL_EN = 576          # 80 mm = 576 nuqta
+
+def _shrift(o):
+    """Bir kenglikli shrift topadi. Topilmasa PIL ning ichki shrifti."""
+    from PIL import ImageFont
+    for nom in ('consola.ttf', 'cour.ttf', 'DejaVuSansMono.ttf'):
+        try:
+            return ImageFont.truetype(nom, o)
+        except Exception:
+            pass
+    try:
+        return ImageFont.load_default(o)
+    except Exception:
+        return ImageFont.load_default()
+
+
+def jadval_rasm(body):
+    """{title, sana, ustunlar:[{z,t,boshi,amallar:[{g,a}],oxiri}]} -> PIL Image"""
+    from PIL import Image, ImageDraw
+    ust = body.get('ustunlar') or []
+    if not ust:
+        return None
+    f_b = _shrift(19)      # sarlavha
+    f_k = _shrift(15)      # katak matni
+    f_s = _shrift(13)      # sana
+
+    P, QAT = 6, 20         # katak ichki bo'shlig'i, qator balandligi
+    n = len(ust)
+    kw = (JADVAL_EN - 2) // n                  # ustun eni
+    nomq = 2                                   # nom uchun 2 qator
+    amax = max(len(u.get('amallar') or []) for u in ust)
+
+    y = 4
+    bal = [y]                                   # jadval bo'limlari y chegaralari
+    y += 30 + 22                                # title + sana
+    jad_y0 = y
+    y += nomq * QAT + P                         # nom
+    r1 = y
+    y += QAT + P                                # boshi
+    r2 = y
+    y += max(1, amax) * QAT + P                 # amallar
+    r3 = y
+    y += QAT + P                                # oxiri
+    jad_y1 = y
+    balandlik = y + 10
+
+    img = Image.new('1', (JADVAL_EN, balandlik), 1)   # 1 = oq
+    d = ImageDraw.Draw(img)
+
+    def mark(txt, fnt, yy):
+        try:
+            w = d.textlength(txt, font=fnt)
+        except Exception:
+            w = len(txt) * 10
+        d.text(((JADVAL_EN - w) / 2, yy), txt, font=fnt, fill=0)
+
+    mark(str(body.get('title') or ''), f_b, 4)
+    mark(str(body.get('sana') or ''), f_s, 34)
+
+    # tashqi ramka + gorizontal chiziqlar (uzluksiz)
+    for yy, qal in ((jad_y0, 2), (r1, 1), (r2, 1), (r3, 2), (jad_y1, 2)):
+        d.rectangle([0, yy, JADVAL_EN - 1, yy + qal - 1], fill=0)
+    # vertikal chiziqlar
+    for i in range(n + 1):
+        x = min(i * kw, JADVAL_EN - 2)
+        d.rectangle([x, jad_y0, x + 1, jad_y1 + 1], fill=0)
+
+    for i, u in enumerate(ust):
+        x0 = i * kw + P
+        # nom — MARKAZDA
+        for j, s in enumerate([u.get('z') or '', u.get('t') or '']):
+            s = to_ascii(str(s))
+            try:
+                w = d.textlength(s, font=f_k)
+            except Exception:
+                w = len(s) * 9
+            d.text((i * kw + (kw - w) / 2, jad_y0 + 4 + j * QAT), s, font=f_k, fill=0)
+        d.text((x0, r1 + 4), to_ascii(str(u.get('boshi') or '')), font=f_k, fill=0)
+        yy = r2 + 4
+        for a in (u.get('amallar') or []):
+            d.text((x0, yy), to_ascii((str(a.get('g') or '') + ' ' + str(a.get('a') or '')).strip()),
+                   font=f_k, fill=0)
+            yy += QAT
+        d.text((x0, r3 + 4), to_ascii(str(u.get('oxiri') or '')), font=f_k, fill=0)
+
+    return img
+
+
+def rasm_raster(img):
+    """PIL '1' rasmni ESC/POS GS v 0 ga o'raydi.
+    PIL '1' rejimida tobytes() bitlarni MSB-first joylaydi va har qatorni baytga
+    tekislaydi — ESC/POS aynan shu format. Farqi: PIL da 1=oq, ESC/POS da 1=qora,
+    shuning uchun teskari qilamiz."""
+    w, h = img.size
+    wb = (w + 7) // 8
+    xam = bytes((~b) & 0xFF for b in img.tobytes())
+    return bytes([0x1d, 0x76, 0x30, 0,
+                  wb & 0xFF, (wb >> 8) & 0xFF,
+                  h & 0xFF, (h >> 8) & 0xFF]) + xam
+
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(length))
+        if self.path.rstrip('/') == '/print-table':
+            return self._jadval(body)
         text = body.get('text', '')
         with_logo = body.get('logo', True)
 
@@ -498,6 +608,29 @@ class handler(BaseHTTPRequestHandler):
             win32print.ClosePrinter(hPrinter)
             self._ok('OK')
 
+        except Exception as e:
+            self._ok('ERROR: ' + str(e))
+
+    def _jadval(self, body):
+        """v172.35: ostatka jadvalini rasm qilib bosadi."""
+        try:
+            img = jadval_rasm(body)
+            if img is None:
+                return self._ok('ERROR: ustunlar bosh')
+            import win32print
+            printer = win32print.GetDefaultPrinter()
+            hPrinter = win32print.OpenPrinter(printer)
+            hJob = win32print.StartDocPrinter(hPrinter, 1, ('chek-jadval', None, 'RAW'))
+            win32print.StartPagePrinter(hPrinter)
+            data = ESC_INIT + CANCEL_KANJI + CODEPAGE_437
+            data += ALIGN_LEFT
+            data += rasm_raster(img)
+            data += PAPER_FEED + PARTIAL_CUT
+            win32print.WritePrinter(hPrinter, data)
+            win32print.EndPagePrinter(hPrinter)
+            win32print.EndDocPrinter(hPrinter)
+            win32print.ClosePrinter(hPrinter)
+            self._ok('OK')
         except Exception as e:
             self._ok('ERROR: ' + str(e))
 
