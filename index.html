@@ -1,4 +1,4 @@
-<!-- v172.35 -->
+<!-- v172.36 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.35';
+var APP_VER = 'v172.36';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2063,8 +2063,13 @@ function _chekLogYoz(id){
 // v172.35: OSTATKA JADVALI (2-chi chek) — rasm qilib bosiladi.
 // Matnli chek yo'li (_chekLokal / chekYubor) BUTUNLAY TEGILMAYDI.
 function _chekJadvalLokal(payload){
+  // logo:false — HIMOYA. Eski print-server yo'lni tekshirmaydi va har POST ni
+  // matnli chek deb oladi: text yo'q -> '', logo yo'q -> sukut bo'yicha True,
+  // natijada yolg'iz LOGO chiqadi. Bu maydon shuni to'xtatadi.
+  var p = {}; for(var k in payload) p[k]=payload[k];
+  p.logo = false; p.text = '';
   fetch('http://localhost:5000/print-table',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)}).catch(printXato);
+    body:JSON.stringify(p)}).catch(printXato);
 }
 function chekJadvalYubor(payload){
   if(chekBuQurilmadan()){ _chekJadvalLokal(payload); return; }
