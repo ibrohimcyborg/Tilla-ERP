@@ -1,4 +1,4 @@
-<!-- v172.42 -->
+<!-- v172.43 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.42';
+var APP_VER = 'v172.43';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16805,9 +16805,13 @@ function klientPDFYukor(dan, gacha){
     else runBal-=g;
     var sk=op.sana+'|'+(op.soat||'')+'|'+op.tip;
     if(!sessMap[sk]){
-      sessMap[sk]={sana:op.sana,soat:op.soat||'',tip:op.tip,turlar:[],gramm:0,summa:0,ostatka:Math.round(runBal*100)/100};
+      sessMap[sk]={sana:op.sana,soat:op.soat||'',tip:op.tip,turlar:[],gramm:0,summa:0,ostatka:Math.round(runBal*100)/100,shakl:true};
       sessOrder.push(sk);
     }
+    // v172.43: sessiyaning HAMMA yozuvi shakllantirish bo'lsagina PDF da
+    // "Ostatka" deyiladi. Sessiya KALITIGA tegilmadi — inventar qo'shilsa
+    // mavjud qatorlar bo'linib ketardi (so'ralmagan o'zgarish).
+    if(op.inventar!=='boshlangich') sessMap[sk].shakl=false;
     sessMap[sk].gramm=Math.round((sessMap[sk].gramm+g)*100)/100;
     sessMap[sk].summa=Math.round((sessMap[sk].summa+(op.summa||0))*100)/100;
     sessMap[sk].ostatka=Math.round(runBal*100)/100;

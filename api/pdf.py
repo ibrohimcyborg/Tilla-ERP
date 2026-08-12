@@ -360,11 +360,17 @@ def _ost_blok(b, kw):
     st = [('SPAN', (0, 0), (2, 0)),
           ('BACKGROUND', (0, 0), (2, 0), colors.HexColor('#FBF3E0')),
           ('LINEBELOW', (0, 0), (2, 0), 0.9, C_GOLD)]
-    d.append([P('boshi', 'Helvetica-Oblique', 6.5, C_MUTED), '',
-              P(str(b.get('boshi', '')), 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
-    st.append(('SPAN', (0, 1), (1, 1)))
-    st.append(('BACKGROUND', (0, 1), (2, 1), colors.HexColor('#F4F4F4')))
-    r = 2
+    # v172.43: boshi 0.00 bo'lsa qator CHIZILMAYDI (Ibrohim: "boshi 0 digan narsa yo'q,
+    # boshida ostatka qo'shiladi shu bilan davom etadi"). 0 dan boshqa bo'lsa QOLADI —
+    # aks holda `boshi + amallar = QOLDI` arifmetikasi ko'rinmay qoladi.
+    r = 1
+    _b = str(b.get('boshi', '') or '')
+    if _b.replace('g', '').strip() not in ('0.00', '-0.00', '0', ''):
+        d.append([P('boshi', 'Helvetica-Oblique', 6.5, C_MUTED), '',
+                  P(_b, 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
+        st.append(('SPAN', (0, r), (1, r)))
+        st.append(('BACKGROUND', (0, r), (2, r), colors.HexColor('#F4F4F4')))
+        r += 1
     for kun in (b.get('kunlar') or []):
         amal = kun.get('amallar') or []
         for i, a in enumerate(amal):
@@ -430,7 +436,12 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     tdata = [[P(h,'Helvetica-Bold',9,C_WHITE,'CENTER') for h in HDR]]; rstyles = []
     for si, row in enumerate(ops):
         tip=row.get('tip',''); ostatka=row.get('ostatka',0)
-        if tip=='berish': amal_txt='↑ Berildi'; ac=C_RED; gc=C_RED; gsign=''
+        # v172.43: shakllantirish ham tip:'berish' bo'lib yoziladi (index 6505).
+        # Sessiyaning HAMMA yozuvi shakllantirish bo'lsagina 'Ostatka' deyiladi.
+        # Belgi qo'yilmaydi — Helvetica da ⊟ qora kvadrat bo'lib chiqishi mumkin.
+        if tip=='berish' and row.get('shakl'):
+                             amal_txt='Ostatka';   ac=C_GOLD; gc=C_GOLD; gsign=''
+        elif tip=='berish':  amal_txt='↑ Berildi'; ac=C_RED;  gc=C_RED;  gsign=''
         elif tip=='vozvrat': amal_txt='↩ Vozvrat'; ac=C_BLUE; gc=C_GREEN; gsign='+'
         else: amal_txt='$ Tolov'; ac=C_GREEN; gc=C_GREEN; gsign='+'
         oc=C_RED if ostatka<-0.001 else C_GREEN
