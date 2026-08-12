@@ -3,6 +3,191 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.42: ilovada ham shakllantirish «Ostatka» bo'lib ko'rinadi
+
+v172.41 ning ilova tomoni. Ibrohim: "klient hisobotidayam shunaqa korsatsin".
+Tanladi: hisobot ekrani + klient tarixi ro'yxati. PDF ning TEPADAGI jadvali
+ataylab TEGILMADI (Ibrohim tanlamadi).
+
+Yangi `_shaklMi(ops)` (11135) — `[{op:...}]` va `[op]` shakllarini ham oladi,
+chunki to'rt joyda guruhlash har xil. 4 joy:
+* 11042 hisobot ekrani (`daySessions`) — `⊟ Ostatka`
+* 11152 kun tahriri (`gunOps`, bitta op) — `Ostatka`
+* 11725 klient tarixi (`g.ops`) — `⊟ Ostatka`
+* 11956 kun-sessiya (`S.ops`) — `Ostatka`
+
+RANG: ilovada `--gold` allaqachon VOZVRAT rangi, shuning uchun shakllantirishga
+`--muted` (kulrang) berildi. PDF da esa oltin qoldi — bu Claude qarori, Ibrohim
+tasdiqlamagan.
+
+Hisob-kitobga TEGILMADI — faqat yorliq va rang.
+
+## v172.41: PDF blokida shakllantirish «berildi» emas «ostatka»
+
+Ibrohim: "ostatka shakllantirishshi berildimas 03.08da shakllantirsek 03.08
+sanadagi ostatka holati dib korsatsa bolarkan".
+
+SABAB: shakllantirish `k.tarix` ga `tip:'berish'` bo'lib yoziladi (6505),
+shuning uchun blokda "berildi" bo'lib qizil chiqardi — go'yo klientga tilla
+berilgandek. Ajratish belgisi bor: `inventar:'boshlangich'`.
+
+* `index.html` — yorliq `berildi` -> `ostatka` (faqat `inventar==='boshlangich'`)
+* `api/pdf.py` — rang oltin (C_GOLD), berildi/vozvrat/tolovdan ajralib tursin
+* Arifmetika TEGILMADI — 150 g baribir qo'shiladi
+
+Yorliq to'liq "ostatka holati" emas, chunki ustun ~18 mm — sig'maydi. Sana
+o'sha qatorda turgani uchun `03.08 +150.00g ostatka` deb o'qiladi.
+
+## v172.40: PDF blokidagi oxirgi qoldiq rangi
+
+Ibrohim: "agar klient qarz bosa qizilda yoz, agar klient bizani qarz qisa
++qilib yashilda korsatishi kere". Nol uchun: "qorada turursin".
+
+`index.html` blok tuzuvchisiga `holat` maydoni qo'shildi:
+`qarz` (yur>0) / `bizda` (yur<0) / `nol`. Manfiy bo'lsa matn `+4.44g` bo'lib
+yoziladi. `api/pdf.py` `_ost_blok` rangni shu maydondan tanlaydi.
+
+## v172.39: klient PDF ga «Zavod·tur bo'yicha kunlik ostatka» bo'limi
+
+Ibrohim bir necha bosqichda aniqlashtirdi: har zavod·tur alohida blok, kun
+bo'yicha guruh, kun oxirida qoldiq. Mockup: mockups/v172.34-umumiy-shakl.html.
+
+DIQQAT — v172.34 raqami BO'SH QOLDI. Mockup tayyor edi, kod yozilmadi;
+Ibrohim buni PDF da ko'rmagach so'radi ("pdf ishlamayapti umuman"). Dalil:
+`git log 59f4281..HEAD -- api/pdf.py` o'sha paytda bo'sh edi.
+
+* `index.html` `klientPDFYukor` — `ost_bloklar` yig'iladi (16818+). Davrdan
+  OLDINGI amallar qatorga chiqmaydi, `boshi` ga yig'iladi.
+* `api/pdf.py` `_ost_blok(b, kw)` — bitta blok chizuvchi (354)
+* `api/pdf.py` — bo'lim, bir qatorga 5 blok (478+)
+* Mavjud jadval, `qarz_tarkib`, statistika TEGILMADI
+
+Ranglar: berildi qizil, vozvrat ko'k, tolov yashil. Qora fon YO'Q
+(Ibrohim: "qora oq yoqmadi"), UMUMIY QOLDI qatori ham yo'q ("keremas").
+
+Sinov: lokalda `reportlab` o'rnatildi, haqiqiy PDF chiqarildi va Ibrohimga
+yuborildi — mockup emas, kodning o'zidan.
+
+## v172.38: pdfOch — blob 10 daqiqa tirik qoladi
+
+Ibrohim: "internetga ulanmagan dib download qimayapti", "pdf chiqdi download
+bomadi man download qilib klientga jo'natomadim".
+
+SABAB: `URL.revokeObjectURL` 10-15 soniyada chaqirilardi. PDF ochilgan
+yorliqda ko'rinib turaveradi (allaqachon yuklangan), lekin Chrome PDF
+ko'ruvchisidagi "Download" tugmasi blob manzilini QAYTA so'raydi — u esa
+bekor qilingan. Natija: "internetga ulanmagan". Hamma qurilmada bir xil.
+
+* revoke 15 s -> 10 daqiqa
+* anchor darhol emas, 2 s dan keyin o'chiriladi
+
+Server tomoni tekshirildi: Vercel `/api/pdf.py` HTTP 200, haqiqiy %PDF
+qaytaradi — muammo faqat brauzer tomonida edi.
+
+## v172.37: klient PDF yuklab olinmasdi
+
+`window.open(blobUrl)` `fetch().then()` ICHIDA chaqirilardi — foydalanuvchi
+bosishidan keyin, shuning uchun brauzer uni POPUP deb bloklaydi; telefonda
+blob-yorliqni saqlab ham bo'lmaydi.
+
+Yangi `pdfOch(blob, nom)` — `<a download>` yo'li, faylga nom beradi
+(`klient-<nom>-<sana>.pdf`). Faqat klient PDF ga qo'llandi.
+
+QOLGAN 5 JOY TEGILMADI (Ibrohim so'ramadi): 9560 zavod/tur hisoboti,
+10879 kassa PDF, 10935 to'lov hisoboti, 16617 klient qarz cheki,
+17010 klientlar ro'yxati — hammasida xuddi shu muammo bor.
+
+## v172.36: jadval payloadiga logo:false himoyasi
+
+Ibrohim: "manda logo chiqti aslida logo keremas ostatka korsatishga".
+
+SABAB: eski print-server `do_POST` yo'lni UMUMAN tekshirmaydi — har POST ni
+matnli chek deb oladi. Jadval payloadida `text` yo'q -> `''`, `logo` yo'q ->
+sukut bo'yicha `True`. Natija: bo'sh matn + logo = yolg'iz logo chiqdi.
+
+Bu print-server QAYTA ISHGA TUSHIRILMAGANINING belgisi edi. Diagnostika:
+5000-portni PID 2276 (11:01 dan beri ishlaydigan eski python) ushlab turgan
+ekan — to'xtatildi, yangisi ko'tarildi, `/print-table` probe bilan
+tasdiqlandi (`{"status":"ERROR: ustunlar bosh"}` — faqat yangi kodda bor).
+
+Himoya: payloadga `logo:false` va `text:''` qo'shildi.
+
+## v172.35: 2-CHI CHEK — ostatka jadvali rasm (raster) qilib bosiladi
+
+Ibrohim uzoq iteratsiyadan keyin tanladi (mockups/v172.35-chek-jadval.html):
+V2 ko'rinish, sanasiz, 3 ustun yonma-yon, qora fon yo'q.
+
+NEGA RASM: matn rejimida uzluksiz chiziq chizib bo'lmaydi — tire belgisi
+katakni to'ldirmaydi, oralarida bo'shliq qoladi. CP437 da qutichali belgilar
+BOR (`┌`=0xDA, `─`=0xC4 ...) va printer ularni chiqara oladi, lekin
+`to_ascii()` (394) ularni `?` ga aylantiradi. Ibrohim rasm yo'lini tanladi.
+
+* `print_server.py` — YANGI `/print-table` yo'li: `jadval_rasm()` PIL bilan
+  576 px rasm chizadi, `rasm_raster()` uni `GS v 0` ga o'raydi.
+  PIL `'1'` rejimida `tobytes()` allaqachon MSB-first va qatorlar baytga
+  tekislangan — ESC/POS aynan shu format, faqat teskari (1=qora).
+  Mavjud `/print` matn yo'li TEGILMADI (yo'l bo'yicha ajratiladi).
+* `index.html` — `chekJadvalYubor` / `_chekJadvalLokal`, chek navbatiga
+  `jadval` maydoni (telefondan ham ishlaydi), sotuv modalida `ostatka`
+  toggle (chap tarafda, sukut bo'yicha O'CHIQ).
+* `_ostJadvalUstunlar` — jadval ustunlari `k.tarix` ga TUSHGAN yozuvlardan
+  quriladi, qayta hisoblanmaydi. Shuning uchun raqamlar chek va klient qarzi
+  bilan aynan mos keladi.
+
+Sinov: rasm lokalda chizildi va tekshirildi (576x230, header `1d7630 0048 00e6`).
+
+FAQAT SOTUV modalida. Berish/vozvrat/to'lov — keyingi versiyaga qoldirildi.
+
+## v172.33: sotuv chekida to'langan ostatka ko'rinadi
+
+Ibrohim (Juma Aka TJK misoli): klientda 1.17 g eski ostatka bor edi, 4.00 g
+yangi oldi, 5.17 g uchun to'lov qildi — ya'ni eski 1.17 ham to'landi. Chek
+esa "jami 1.17g" deb yozardi, klient "hali qarzim bor" deb tushunardi.
+
+SABAB: `klientSotuvChekYangiGen` da `jami = eski + yangi` edi (16104),
+`eskiOstMap` to'lovdan keyin kamaytirilmasdi. To'lov chekida bu allaqachon
+to'g'ri ishlangan (`Ostatka | to'landi | qoldi`, 10506) — sotuv chekida
+"to'landi" ustuni tushib qolgan edi.
+
+Ibrohim C variantni tanladi: jadval ustunlari o'zgarmaydi, `jami` to'langanini
+ayiradi (0.00), ostiga izoh qatori qo'shiladi:
+`Butterfly Oddiy 1.17g ostatka ham to'landi ✓` (qisman bo'lsa "dan to'landi").
+
+Hisob: `to'lov grammi − berilgan gramm`, `[0..eski]` oralig'iga qisiladi.
+`eski<0` (biz qarzdormiz) bu yerda emas — pastdagi "Bizda (offset)" blokida.
+
+## v172.32: syncFullFill eski vaqtga qaytarildi — axlat qayta chiqmaydi
+
+Ibrohim: "hozi abdulhamid logida muammo bopqoldi ... qanaqadur vozvratlari
+qoshilib zavodlani qarz qbqoydi", "eski vozvratlani cloud chiqarberib zavoddi
+qarz qibqoydi". Tashxis: mockups/v172.32-tashxis-eski-vozvrat-tiriladi.html.
+
+SABAB — uch narsa birlashdi:
+1. Oplogda O'LIK hujjatlar qolgan: yozuv qurilmada o'chirilgan, lekin cloudda
+   `deleted:true` belgisi hech qachon qo'yilmagan (v172.30 gacha o'chirish
+   belgisi tasdiqsiz qo'yilardi va tarmoq uzilsa yo'qolardi).
+2. `syncFullFill` ichida `deleted` so'zi 0 marta uchraydi — ⬆ tugmasi cloudga
+   FAQAT QO'SHADI, ortiqchasini hech qachon olib tashlamaydi.
+3. v172.30 da `vaqt: Date.now()` qilingan edi -> o'lik hujjatlar ham "yangi"
+   bo'lib hamma qurilmaga tarqaldi.
+
+Zavod vozvrati `_ostDelta` (7196) bo'yicha −g -> ostatka 0 dan minusga tushdi
+-> zavod qarzdor bo'lib ko'rindi.
+
+ABDULHAMID SABAB EMAS — KO'RSATKICH. Uning ekrani soddalashtirilgan
+(kassa/lom/sherik yashirin), shuning uchun zavod ostatkasi u yerda eng ko'zga
+tashlanadi. `amalListen` (17861) hamid uchun to'xtatilmagan — u hech narsa
+bosmasa ham qabul qiladi. v172.29/30/31 hamid kodiga TEGMAGAN
+(`git diff 9ddd144..HEAD | grep -i hamid` bo'sh).
+
+QILINDI: `vaqt` v172.29 gacha bo'lgan holatiga qaytarildi
+(`set[id] !== undefined ? set[id] : Date.now()`). Ibrohim: "manga chiqmasin
+boldi" — faqat chiqishini to'xtatish tanlandi, cloud axlatini tozalash
+(ko'zgu) qilinmadi.
+
+TEGILMADI: `amalSyncPush` (tahrir sinxroni) va o'chirish navbati — ular
+v172.30 dan ishlayveradi.
+
 ## v172.31: v172.30 dagi xato — tahrir baribir sinxron bo'lmasdi
 
 Ibrohim: "klient tarixiga kirib grammi tahrirlasam telda almashmayapti,

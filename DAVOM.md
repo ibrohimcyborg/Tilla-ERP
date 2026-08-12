@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.31 · 2026-08-11
+**Oxirgi yangilanish:** v172.42 · 2026-08-12
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.31** (`index.html` birinchi qatorida `<!-- v172.31 -->`, `APP_VER` da ham) |
+| Versiya | **v172.42** (`index.html` birinchi qatorida `<!-- v172.42 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v172.31 gacha push qilingan** (2026-08-11, Ibrohim ruxsati bilan) — prod v172.31. |
+| Git | **v172.42 gacha push qilingan** (2026-08-12) — prod v172.42. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -37,6 +37,25 @@ olib keldi.
 > **DIQQAT — faylni to'liq o'qib bo'lmaydi.** 311k token, kontekst oynasi 200k.
 > Har doim `grep` bilan qidiring, keyin kerakli 20–50 qatorni o'qing.
 > `CHANGELOG.md` (221 KB) — **hech qachon o'qilmaydi**, faqat yoziladi.
+
+---
+
+## ⚠ 2026-08-12 SEANSIDA QOIDA BUZILGAN — keyingi seans bilsin
+
+**CLAUDE.md §9 (hujjat).** v172.32–v172.42 (11 versiya) yozilgandan keyin
+CHANGELOG va DAVOM.md **yangilanmadi**. Ibrohim so'raganda, seans oxirida
+birdan yozildi. Sabab: har versiyada kod → commit → push qilinib, hujjat
+qadami tashlab ketildi.
+
+**CLAUDE.md §2 (TAXMIN BLOKI).** Uch versiyada berilmadi:
+* **v172.36** — logo sababi topilgach darhol tahrirga o'tildi
+* **v172.38** — blob muddati to'g'ridan-to'g'ri o'zgartirildi
+* **v172.39** — **eng kattasi** (109 qator, `index.html` + `api/pdf.py`).
+  Taxminlar (davr chegarasi, `lom` kirmasligi, soat tartibi) kodga **jim
+  singdi**, faqat yozilgandan KEYIN sanab berildi.
+
+Ibrohim (2026-08-12): «mani bulani yozmaganinga aybdor qimagin, bu sani
+vazifangdi». To'g'ri — tezlik so'ralgani bahona emas.
 
 ---
 
@@ -81,6 +100,63 @@ navbatni tinglayveradi**. `tilla-chek-chiqdi` ro'yxati faqat **bitta qurilma
 ichida** ishlaydi. Ikki qurilmada printer bo'lsa chek ikki joydan chiqadi.
 Yopish uchun alohida qaror kerak (masalan «chiqaruvchi qurilma» bulutda bitta
 bo'lib belgilansin).
+
+### 0n. CLOUD AXLATI TOZALANMAGAN — faqat «chiqmasligi» to'xtatildi (v172.32)
+
+2026-08-11: eski, allaqachon o'chirilgan vozvratlar qaytib keldi va zavodni
+qarzdor qilib ko'rsatdi. Sabab uchta narsaning birlashuvi (to'liq tashxis:
+`mockups/v172.32-tashxis-eski-vozvrat-tiriladi.html`):
+
+1. Oplogda **o'lik hujjatlar** qolgan — `deleted:true` belgisi hech qachon
+   qo'yilmagan (v172.30 gacha o'chirish belgisi tasdiqsiz edi).
+2. `syncFullFill` ichida `deleted` so'zi **0 marta** — ⬆ tugmasi cloudga faqat
+   QO'SHADI, ortiqchasini **hech qachon olib tashlamaydi**.
+3. v172.30 da `vaqt: Date.now()` qilingani uchun o'lik hujjatlar «yangi» bo'lib
+   hamma qurilmaga tarqaldi.
+
+**v172.32 da faqat 3-band qaytarildi** (Ibrohim: «manga chiqmasin boldi»).
+Ya'ni **axlat cloudda TURIBDI**, shunchaki qayta e'lon qilinmayapti.
+
+⚠ Xavf: **yangi/bo'sh qurilma** birinchi marta ulansa oplogni noldan o'qiydi
+va o'sha axlatni oladi. Bu v172.28 gacha ham shunday edi, yangi emas.
+
+Tozalash yo'li (yozilmagan): ⬆ ni **ko'zgu** qilish — `ref.get()` bilan
+oplogdagi hujjatlarni o'qib, mahalliyda YO'Q bo'lganlariga `deleted:true`
+qo'yish (~12–16 qator, faqat `syncFullFill` ichida). Ibrohim hozircha
+tanlamadi. ⚠ Kuchli amal: ⬆ bosilgan qurilmada bo'lmagan yozuv HAMMA joydan
+o'chadi — faqat to'g'ri ma'lumotli qurilmada bosish mumkin, tasdiq oynasi
+bilan qilish tavsiya etilgan.
+
+### 0m. 2-CHI CHEK (ostatka jadvali) — FAQAT SOTUVDA (v172.35)
+
+Rasm (raster) yo'li bilan bosiladi: `print_server.py` `/print-table` →
+PIL 576 px rasm → `GS v 0`. Sotuv modalida chap tarafda `ostatka` toggle,
+sukut bo'yicha **o'chiq**.
+
+**Qolgan 3 modal QILINMAGAN:** berish (`kb`), vozvrat (`kv`), to'lov (`kt`).
+Ularda ham `chekYubor` yonida `chekJadvalYubor` chaqirilishi va toggle
+qo'shilishi kerak — har biri ~12–15 qator.
+
+⚠ **print-server QAYTA ISHGA TUSHIRILISHI SHART.** Eski server yo'lni
+tekshirmaydi va jadval so'rovini matnli chek deb oladi → yolg'iz **logo**
+chiqadi. Bu belgini ko'rsangiz — server eski. Tekshirish:
+`POST /print-table` bo'sh `ustunlar` bilan → yangi server
+`{"status":"ERROR: ustunlar bosh"}` qaytaradi.
+
+⚠ Shakllantirish yorlig'i 2-chi chekda **tuzatilmagan** — `_ostJadvalUstunlar`
+da hali `berildi` deb chiqadi (PDF va ilovada v172.41/42 da tuzatilgan).
+
+### 0l. PDF DOWNLOAD — faqat KLIENT PDF tuzatilgan (v172.37/38)
+
+Sabab: `window.open(blobUrl)` `fetch().then()` ichida — brauzer popup deb
+bloklaydi; ustiga `revokeObjectURL` 10 s da chaqirilib, Chrome PDF
+ko'ruvchisidagi «Download» tugmasi «internetga ulanmagan» berardi.
+Yechim: `pdfOch(blob, nom)` — `<a download>`, blob 10 daqiqa tirik.
+
+**Qolgan 5 joy TEGILMAGAN** (Ibrohim so'ramadi), hammasida xuddi shu muammo:
+`9560` zavod/tur hisoboti · `10879` kassa PDF · `10935` to'lov hisoboti ·
+`16617` klient qarz cheki · `17010` klientlar ro'yxati.
+Har biri **1 qator** — `pdfOch(blob, '<nom>')` ga o'tkazish.
 
 ### 0k. CLOUD 1:1 — 3-QADAM QOLDI (ASOSIY qurilma rejimi)
 
@@ -330,6 +406,16 @@ Qaror qabul qilinmagan.
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
 | v172.30 | **Oplog teshiklari yopildi** — tahrirlangan yozuv ham ketadi (imzo bo'yicha), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan. Telefondagi yozuv PC ga ishonchli yetadi |
 | v172.29 | **Chek 1 bosilib 7 chiqardi** — sabab: belgi faqat bulutda edi, token rad etilib lokal kesh orqaga qaytardi (halqa). Lokal `tilla-chek-chiqdi` ro'yxati + muddat 90s + telefonda haqiqiy javob |
+| v172.42 | Ilovada ham shakllantirish «Berildi» emas **«Ostatka»** — 4 joy (hisobot ekrani, klient tarixi, kun-sessiya, kun tahriri), rangi kulrang |
+| v172.41 | PDF blokida shakllantirish «berildi» emas **«ostatka»** (oltin), `inventar:'boshlangich'` bo'yicha ajratiladi |
+| v172.40 | PDF blokida oxirgi qoldiq rangi — klient qarzdor **qizil**, biz qarzdor **`+` yashil**, nol qora |
+| v172.39 | **Klient PDF ga «Zavod·tur bo'yicha kunlik ostatka» bo'limi** — har tur alohida blok, kunlik amallar va kun oxiridagi qoldiq (v172.34 raqami bo'sh qoldi) |
+| v172.38 | `pdfOch` — blob 10 daqiqa tirik qoladi, aks holda Chrome «Download» tugmasi «internetga ulanmagan» berardi |
+| v172.37 | Klient PDF yuklab olinmasdi — `window.open(blob)` popup deb bloklanardi, `<a download>` ga o'tkazildi |
+| v172.36 | Jadval payloadiga `logo:false` himoyasi — eski print-server yo'lni tekshirmay yolg'iz logo chiqarardi |
+| v172.35 | **2-CHI CHEK — ostatka jadvali RASM (raster)** qilib bosiladi, sotuv modalida `ostatka` toggle (sukut bo'yicha o'chiq) |
+| v172.33 | Sotuv chekida to'langan ostatka ko'rinadi — «jami» to'lovni ayiradi, ostiga «ostatka ham to'landi ✓» |
+| v172.32 | `syncFullFill` eski vaqtga qaytarildi — cloudda qolgan **belgisiz axlat** qayta e'lon qilinmaydi |
 | v172.31 | **v172.30 xatosi tuzatildi** — urug'lash `save()` dan keyin ishlab tahrirni «yuborilgan» deb muhrlardi; endi sahifa yuklanganda |
 | v172.30 | **Oplog teshiklari yopildi** — yuborish ro'yxati imzo bo'yicha (tahrir ham ketadi), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan |
 | v172.29 | **Chek takrori tuzatildi** — lokal «chiqarildi» ro'yxati (bulutga bog'liq emas), muddat 90s, telefonda haqiqiy javob |
