@@ -369,7 +369,11 @@ def _ost_blok(b, kw):
         amal = kun.get('amallar') or []
         for i, a in enumerate(amal):
             nom = a.get('amal', '')
-            c = C_RED if nom == 'berildi' else (C_BLUE if nom == 'vozvrat' else C_GREEN)
+            # v172.41: 'ostatka' — shakllantirish yozuvi, oltin rangda (berildi/
+            # vozvrat/tolov dan ajralib tursin, u klientga berilgan tilla emas)
+            c = (C_RED if nom == 'berildi' else
+                 C_BLUE if nom == 'vozvrat' else
+                 C_GREEN if nom == 'tolov' else C_GOLD)
             d.append([P(kun.get('sana', '') if i == 0 else '', 'Helvetica', 6.5, C_MUTED),
                       P(str(a.get('g', '')), 'Helvetica-Bold', 7, c, 'RIGHT'),
                       P(' ' + nom, 'Helvetica', 6.5, C_MUTED)])

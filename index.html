@@ -1,4 +1,4 @@
-<!-- v172.40 -->
+<!-- v172.41 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.40';
+var APP_VER = 'v172.41';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16824,7 +16824,10 @@ function klientPDFYukor(dan, gacha){
   k.tarix.forEach(function(op){
     if(!op.zavod || !op.tur) return;
     var d=0, nom='';
-    if(op.tip==='berish'){ d=parseNum(op.gramm); nom='berildi'; }
+    // v172.41: shakllantirish yozuvi ham tip:'berish' bo'lib yoziladi (6505),
+    // shuning uchun "berildi" bo'lib chiqardi. inventar:'boshlangich' — bu
+    // ostatka HOLATI, klientga berilgan tilla emas. Arifmetika o'zgarmaydi.
+    if(op.tip==='berish'){ d=parseNum(op.gramm); nom=(op.inventar==='boshlangich'?'ostatka':'berildi'); }
     else if(op.tip==='vozvrat'){ d=-parseNum(op.gramm); nom='vozvrat'; }
     else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
     else return;
