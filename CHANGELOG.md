@@ -3,6 +3,40 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.43: «boshi 0.00g» qatori olib tashlandi + PDF tepadagi jadvalda «Ostatka»
+
+Mockup (before/after): mockups/v172.43-boshi-va-pdf-yorliq.html — Ibrohim
+tasdiqladi: "tori shunaqa togirla hamma narsasini".
+
+IKKI ALOHIDA O'ZGARISH:
+
+1) BLOKDAGI «boshi» QATORI. Ibrohim: "boshi 0 digan narsa yoq masalan boshida
+   ostatka qoshiladi shu bilan davom etadi", "boshi 0,00 digan joyi keremas".
+   `_ost_blok` da qator faqat qiymat 0.00 bo'lganda chizilmaydi. 0 dan boshqa
+   bo'lsa QOLADI — aks holda `boshi + amallar = QOLDI` arifmetikasi ko'rinmaydi
+   (bu Claude taklifi, Ibrohim mockupda tasdiqladi).
+   Qator indeksi `r` endi 1 dan boshlanadi va shartli oshadi.
+
+2) PDF NING TEPADAGI JADVALI. Ibrohim: "pdfdayam berildi dib chiqvotti".
+   Ilovada v172.42 da tuzatilgan edi, PDF ning asosiy jadvalida qolib ketgan.
+   * `index.html` `sessMap` (16793) ga `shakl:true` qo'shildi, keyin har op da
+     `if(op.inventar!=='boshlangich') sessMap[sk].shakl=false;`
+   * `api/pdf.py:433` — `tip=='berish' and row.get('shakl')` bo'lsa
+     `amal_txt='Ostatka'`, rang C_GOLD.
+
+   SESSIYA KALITIGA ATAYLAB TEGILMADI. Kalitga `inventar` qo'shilsa mavjud
+   qatorlar bo'linib ketardi — bu so'ralmagan o'zgarish bo'lardi. O'rniga
+   bayroq: sessiyaning HAMMA yozuvi shakllantirish bo'lsagina true.
+
+   PDF da belgi (`⊟`) QO'YILMADI — Helvetica da qora kvadrat bo'lib chiqishi
+   mumkin. Ilovada `⊟ Ostatka` qoladi (brauzer shrifti, ishlaydi).
+
+`build_klientlar_tarix` (klientlar_tarix PDF) `shakl` ni bilmaydi va e'tiborsiz
+qoldiradi — buziladigan joyi yo'q.
+
+Sinov: lokalda haqiqiy PDF chiqarildi — boshi=0 (Simay, Premium) va boshi=150
+(Butterfly) bloklari, `shakl=True` va `False` sessiyalari bilan.
+
 ## v172.42: ilovada ham shakllantirish «Ostatka» bo'lib ko'rinadi
 
 v172.41 ning ilova tomoni. Ibrohim: "klient hisobotidayam shunaqa korsatsin".

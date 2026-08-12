@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v172.42 · 2026-08-12
+**Oxirgi yangilanish:** v172.43 · 2026-08-12
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v172.42** (`index.html` birinchi qatorida `<!-- v172.42 -->`, `APP_VER` da ham) |
+| Versiya | **v172.43** (`index.html` birinchi qatorida `<!-- v172.43 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v172.42 gacha push qilingan** (2026-08-12) — prod v172.42. |
+| Git | **v172.43 gacha push qilingan** (2026-08-12) — prod v172.43. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -54,8 +54,23 @@ qadami tashlab ketildi.
   Taxminlar (davr chegarasi, `lom` kirmasligi, soat tartibi) kodga **jim
   singdi**, faqat yozilgandan KEYIN sanab berildi.
 
+**CLAUDE.md §1 (mockup → tasdiq → kod).** O'n versiyadan faqat **uchtasi**
+(v172.32, v172.33, v172.35) to'liq siklni bosib o'tdi. Qolganlari
+to'g'ridan-to'g'ri kodga ketdi. **v172.41 esa qoidaning teskarisi** — kod
+yozilib bo'lgandan keyin, Ibrohim «mockupda ko'rsat» deb **ikki marta**
+aytganida mockup chizildi.
+
+Naqsh: «yangi funksiya» bo'lsa qoidaga amal qilinadi, «tuzatish» yoki «kichik
+o'zgarish» deb his qilinsa tashlab ketiladi. CLAUDE.md §1 aynan shuni
+taqiqlaydi — «Bu oddiy-ku» degan qarorni Claude o'zi qabul qilmaydi.
+
 Ibrohim (2026-08-12): «mani bulani yozmaganinga aybdor qimagin, bu sani
 vazifangdi». To'g'ri — tezlik so'ralgani bahona emas.
+
+**v172.43 dan boshlab tuzatildi:** TAXMIN BLOKI berildi, «mockup kerakmi yoki
+to'g'ridan yozayinmi?» deb SO'RALDI (Ibrohim: «mockupda before after qil»),
+before/after mockup chizildi, tasdiqlangandan keyin kod, keyin darhol
+CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 ---
 
@@ -406,6 +421,7 @@ Qaror qabul qilinmagan.
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
 | v172.30 | **Oplog teshiklari yopildi** — tahrirlangan yozuv ham ketadi (imzo bo'yicha), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan. Telefondagi yozuv PC ga ishonchli yetadi |
 | v172.29 | **Chek 1 bosilib 7 chiqardi** — sabab: belgi faqat bulutda edi, token rad etilib lokal kesh orqaga qaytardi (halqa). Lokal `tilla-chek-chiqdi` ro'yxati + muddat 90s + telefonda haqiqiy javob |
+| v172.43 | Blokda **«boshi 0.00g» qatori chizilmaydi** (0 dan boshqa bo'lsa qoladi) + PDF **tepadagi jadvalda** shakllantirish «Ostatka» (oltin) |
 | v172.42 | Ilovada ham shakllantirish «Berildi» emas **«Ostatka»** — 4 joy (hisobot ekrani, klient tarixi, kun-sessiya, kun tahriri), rangi kulrang |
 | v172.41 | PDF blokida shakllantirish «berildi» emas **«ostatka»** (oltin), `inventar:'boshlangich'` bo'yicha ajratiladi |
 | v172.40 | PDF blokida oxirgi qoldiq rangi — klient qarzdor **qizil**, biz qarzdor **`+` yashil**, nol qora |
