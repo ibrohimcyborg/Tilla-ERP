@@ -1,4 +1,4 @@
-<!-- v172.39 -->
+<!-- v172.40 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v172.39';
+var APP_VER = 'v172.40';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16854,8 +16854,14 @@ function klientPDFYukor(dan, gacha){
       delete kun._ts;
     });
     delete b._km;
+    // v172.40: oxirgi qoldiq belgisi va rangi.
+    // yur > 0  -> KLIENT bizga qarzdor  -> qizil
+    // yur < 0  -> BIZ klientga qarzdormiz -> "+" bilan yashil
+    // yur = 0  -> oddiy qora
+    var _oh = yur>0.001 ? 'qarz' : (yur<-0.001 ? 'bizda' : 'nol');
+    var _ot = (yur<-0.001 ? '+'+Math.abs(yur).toFixed(2) : yur.toFixed(2))+'g';
     return { zavod:b.zavod, tur:b.tur, boshi:b.boshi.toFixed(2)+'g',
-             kunlar:b.kunlar, oxiri:yur.toFixed(2)+'g' };
+             kunlar:b.kunlar, oxiri:_ot, holat:_oh };
   });
 
   var qarz_tarkib=Object.values(qarz_bd).filter(function(b){return Math.abs(b.qarz)>0.001;});

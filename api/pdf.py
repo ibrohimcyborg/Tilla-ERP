@@ -378,8 +378,12 @@ def _ost_blok(b, kw):
         st.append(('LINEABOVE', (0, r), (2, r), 0.5, colors.HexColor('#999999')))
         st.append(('BACKGROUND', (0, r), (2, r), colors.HexColor('#FFFDF6')))
         r += 1
+    # v172.40: qoldiq rangi — klient qarzdor bo'lsa QIZIL, biz qarzdor bo'lsak
+    # "+" bilan YASHIL (belgi index.html da qo'yiladi), nol bo'lsa oddiy qora.
+    _h = b.get('holat', 'nol')
+    _oc = C_RED if _h == 'qarz' else (C_GREEN if _h == 'bizda' else C_DARK)
     d.append([P('QOLDI', 'Helvetica-Bold', 7, colors.HexColor('#5c4708')), '',
-              P(str(b.get('oxiri', '')), 'Helvetica-Bold', 7.5, C_DARK, 'RIGHT')])
+              P(str(b.get('oxiri', '')), 'Helvetica-Bold', 7.5, _oc, 'RIGHT')])
     st += [('SPAN', (0, r), (1, r)),
            ('BACKGROUND', (0, r), (2, r), colors.HexColor('#FBF3E0')),
            ('LINEABOVE', (0, r), (2, r), 0.9, C_GOLD)]
