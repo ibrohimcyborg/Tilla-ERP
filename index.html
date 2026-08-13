@@ -1,4 +1,4 @@
-<!-- v174.2 -->
+<!-- v174.3 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.2';
+var APP_VER = 'v174.3';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -6090,7 +6090,13 @@ function renderZavodHisobot() {
           out += '<div style="font-size:13px;font-weight:600;color:var(--text);">' + item.tur + '</div>';
           out += '<button onclick="event.stopPropagation();openEditModal(' + curZ + ',' + gti + ',' + goi + ')" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;">✏ Tahrir</button>';
           out += '</div>';
+          // v174.3: VOZVRAT tafsiloti "−NaN g" chiqardi. Avval faqat ikki shox bor edi
+          // (mol / qolgani) va vozvrat chiqim shoxiga tushib `op.jami` ni o'qirdi —
+          // vozvrat yozuvida esa `jami` YO'Q, `gramm` bor -> fmtG(undefined) = NaN.
+          // Sarlavhadagi yig'indi to'g'ri edi (u `gramm` ni o'qiydi), faqat tafsilot buzuq.
+          // Bosh ekrandagi renderHisobot dagi bilan bir xil qilindi.
           if (isK) out += '<div style="font-size:12px;color:var(--green);">+' + fmtG(op.gramm) + ' g</div>';
+          else if (isV2) out += '<div style="font-size:12px;color:var(--blue);">−' + fmtG(op.gramm) + ' g</div>';
           else out += '<div style="font-size:12px;color:var(--red);font-weight:600;">jami: −' + fmtG(op.jami) + ' g</div>';
         });
         out += '</div>';
