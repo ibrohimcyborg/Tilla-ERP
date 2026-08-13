@@ -3,6 +3,37 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v172.44: zavod hisoboti kun bo'yicha + Kirim/Vozvrat/Chiqim filtri
+
+Ibrohim: "zavod hisobotidayam klient hisobotiga o'xshab sana qo'sh, bo'masam
+topib olish juda qiyinlashib ketti" va "1 Kirim/Vozvrat/Chiqim shuniyam qo'sh".
+Mockup (before/after): mockups/v172.44-zavod-hisobot-kun.html.
+
+MUAMMO: `renderZavodHisobot` (5981) guruh kaliti `tip|kimga|sana` edi — kun
+qatlami YO'Q. Ro'yxat tekis chiqardi, sana har qatorda takrorlanardi.
+
+QILINDI (faqat shu funksiya ichida):
+* Yangi holat: `_zhFiltr` / `_zhOchiq` / `_zhZavod`, yordamchi `_zhGuruh(tip)`
+  (`mol`->kirim, `vozvrat`->vozvrat, qolgani->chiqim)
+* Filtr chiplari — Hammasi / ↓ Kirim / ↩ Vozvrat / ↑ Chiqim, sanoq bilan.
+  Sanoq filtrdan QAT'I NAZAR to'liq bazadan olinadi.
+* Kun sarlavhasi — klient hisoboti (11024) qolipining AYNAN o'zi: ▶/▼ strelka,
+  sana, `bugun` yorlig'i, o'ngda «N ta» yumaloq belgisi
+* Faqat bugun ochiq (`_khBugun()` — klient bilan bir xil manba)
+* Amal qatoridan `g.sana` div i OLIB TASHLANDI — endi kun sarlavhasida
+* `zhFiltrTanla()` / `zhKunToggle()` — `renderZH()` ni qayta chaqiradi,
+  shuning uchun ochiq amal qatorlari (`zExp`) saqlanadi
+
+Zavod almashsa `_zhZavod!==curZ` bo'yicha ochiq-yopiq holat va filtr nolga
+tushadi (Ibrohim: "zavod almashsa muammo yoqku").
+
+TEGILMADI: guruh kaliti (`tip|kimga|sana` ichida qoldi — ustiga faqat kun
+qatlami qo'shildi, mavjud qatorlar buzilmadi), ma'lumot yozuvlari, hisob-kitob.
+
+Sinov: funksiya `vm` da soxta ma'lumot bilan ISHGA TUSHIRILDI — 4 chip,
+3 kun sarlavhasi, «bugun» yorlig'i, 12.08 ochiq, sana qatordan ketgan,
+filtr «vozvrat» -> 1 kun (11.08) qoldi.
+
 ## v172.43: «boshi 0.00g» qatori olib tashlandi + PDF tepadagi jadvalda «Ostatka»
 
 Mockup (before/after): mockups/v172.43-boshi-va-pdf-yorliq.html — Ibrohim
