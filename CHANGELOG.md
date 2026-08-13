@@ -3,6 +3,30 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.3: zavod ichidagi hisobotda vozvrat tafsiloti «-NaN g» chiqardi
+
+Ibrohim: "zavod ichidigi hisobotda vozvrat grami naN bopqovotti, umumiy
+hisobotda ko'rsatvotti, bu qattan disen skan vozvrat qisam shunaqa bopqovotti".
+
+SABAB (ESKI XATO, v174.x dan emas): `renderZavodHisobot` tafsilot qatorida
+faqat IKKI shox bor edi:
+    if (isK) ... '+' + fmtG(op.gramm)      // faqat tip:'mol'
+    else     ... 'jami: -' + fmtG(op.jami) // VOZVRAT HAM shu yerga tushardi
+Vozvrat yozuvida `jami` maydoni YO'Q, `gramm` bor -> fmtG(undefined) = NaN.
+
+Sarlavhadagi yig'indi TO'G'RI edi (211.50), chunki u alohida hisoblanadi va
+`op.gramm` ni o'qiydi — faqat ochilgandagi tur-tafsiloti buzuq edi.
+
+Bosh ekrandagi `renderHisobot` da bu xato YO'Q — u yerda `isV` alohida shox
+bilan ishlanadi. Shuning uchun bir xil amal ikki ekranda har xil ko'rinardi.
+
+QILINDI: `renderZavodHisobot` ga `else if (isV2)` shoxi qo'shildi —
+ko'k rangda `-<gramm> g`, bosh ekrandagi bilan AYNAN bir xil.
+`op.jami` endi faqat chiqimda o'qiladi.
+
+Sinov: funksiya `vm` da ishga tushirildi — vozvrat (126.67 va 84.83), kirim
+(+50.00), chiqim (jami -12.34). NaN YO'Q, to'rttasi ham to'g'ri chiqdi.
+
 ## v174.2: bosh ekran Hisoboti kun bo'yicha + Kirim/Vozvrat/Chiqim filtri
 
 Ibrohim: "hisobotti nega sanali qimadin, shunaqa qilish keregidi" — namuna
