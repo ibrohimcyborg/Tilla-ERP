@@ -82,8 +82,10 @@ chunki to'rt joyda guruhlash har xil. 4 joy:
 * 11956 kun-sessiya (`S.ops`) — `Ostatka`
 
 RANG: ilovada `--gold` allaqachon VOZVRAT rangi, shuning uchun shakllantirishga
-`--muted` (kulrang) berildi. PDF da esa oltin qoldi — bu Claude qarori, Ibrohim
-tasdiqlamagan.
+`--muted` (kulrang) berildi. PDF da esa oltin qoldi.
+Ibrohim (2026-08-12) TASDIQLADI: «qolursin shunaqa, shakllantirish rangi bu
+muammomas». Ya'ni ilovada kulrang / PDF da oltin — ATAYLAB shunday, qayta
+so'ralmasin.
 
 Hisob-kitobga TEGILMADI — faqat yorliq va rang.
 
