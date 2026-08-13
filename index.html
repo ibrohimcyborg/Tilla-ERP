@@ -1,4 +1,4 @@
-<!-- v174.1 -->
+<!-- v174.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.1';
+var APP_VER = 'v174.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -5114,6 +5114,13 @@ function renderHome() {
 }
 
 function openZavod(zi) { curZ = zi; openTurIdx = -1; curZTab = 'turlar'; goTo('s-zavod'); zTab('turlar'); renderZavod(); }
+// v174.2: BOSH EKRAN HISOBOTI kun bo'yicha guruhlanadi + filtr chiplari —
+// klient hisoboti (renderKlientHisobot) qolipida. Avval ro'yxat tekis edi va
+// sana har qatorda takrorlanardi (Ibrohim: "hisobotti nega sanali qimadin").
+// Qatorda ZAVOD NOMI qoladi, faqat sana kun sarlavhasiga chiqadi.
+// Ma'lumot yozuvlariga, guruh kalitiga va hisob-kitobga TEGILMAYDI.
+var _hFiltr='all', _hOchiq=null;
+function _hGuruh(tip){ return tip==='mol' ? 'kirim' : (tip==='vozvrat' ? 'vozvrat' : 'chiqim'); }
 function renderHisobot() {
   var cont = document.getElementById('home-hisobot');
   var allOps = [];
@@ -5132,9 +5139,48 @@ function renderHisobot() {
   });
   groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
   var expanded = {};
+  var _hBugun=_khBugun();
+  if(_hOchiq===null){ _hOchiq={}; _hOchiq[_hBugun]=true; }
   function render() {
     var out = '';
-    groupOrder.forEach(function(key, idx) {
+    // ── filtr chiplari — sanoq filtrdan QAT'I NAZAR to'liq bazadan ──
+    var _c={all:0,kirim:0,vozvrat:0,chiqim:0};
+    groupOrder.forEach(function(k){ _c.all++; _c[_hGuruh(groups[k].tip)]++; });
+    var _chips=[['all','Hammasi'],['kirim','&#8595; Kirim'],['vozvrat','&#8617; Vozvrat'],['chiqim','&#8593; Chiqim']];
+    out+='<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;">';
+    _chips.forEach(function(c){
+      var on=_hFiltr===c[0];
+      out+='<button onclick="hFiltrTanla(\''+c[0]+'\')" style="padding:8px 14px;border-radius:20px;'
+        +'border:1px solid '+(on?'var(--gold-bd)':'var(--border)')+';'
+        +'background:'+(on?'var(--gold-bg)':'var(--surf)')+';'
+        +'color:'+(on?'var(--gold)':'var(--muted)')+';font-weight:'+(on?'600':'500')+';'
+        +'font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;">'
+        +c[1]+' <span style="font-size:11px;opacity:.7;">'+_c[c[0]]+'</span></button>';
+    });
+    out+='</div>';
+    // ── kun bo'yicha guruh ──
+    var _kun={}, _kunT=[];
+    groupOrder.forEach(function(key, idx){
+      if(_hFiltr!=='all' && _hGuruh(groups[key].tip)!==_hFiltr) return;
+      var sn=groups[key].sana;
+      if(!_kun[sn]){ _kun[sn]=[]; _kunT.push(sn); }
+      _kun[sn].push({key:key, idx:idx});
+    });
+    if(!_kunT.length){ out+='<div class="empty">Bu filtrda yozuv yo\'q.</div>'; cont.innerHTML=out; return; }
+    _kunT.forEach(function(_sana){
+      var _och=!!_hOchiq[_sana], _list=_kun[_sana];
+      out+='<div onclick="hKunToggle(\''+_sana+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;background:var(--surf);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;">';
+      out+='<span style="display:flex;align-items:center;gap:7px;min-width:0;">';
+      out+='<span style="font-size:9px;color:var(--muted);display:inline-block;transform:rotate('+(_och?'90deg':'0deg')+');">&#9654;</span>';
+      out+='<span style="font-size:13px;font-weight:600;color:var(--text);">'+_sana+'</span>';
+      if(_sana===_hBugun) out+='<span style="font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px;">bugun</span>';
+      out+='</span>';
+      out+='<span style="font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:1px 8px;white-space:nowrap;">'+_list.length+' ta</span>';
+      out+='</div>';
+      if(!_och) return;
+      out+='<div style="margin-left:10px;">';
+      _list.forEach(function(_it){
+      var key=_it.key, idx=_it.idx;
       var g = groups[key], isK = g.tip === 'mol', isV = g.tip === 'vozvrat', isOpen = expanded[idx];
       var bc = isK ? 'var(--green)' : isV ? 'var(--blue)' : 'var(--red)';
       var jamiG = 0;
@@ -5144,7 +5190,7 @@ function renderHisobot() {
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleHrow(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK ? '↓ Kirim' : isV ? '↩ Vozvrat' : '↑ Chiqim') + '</div>';
-      out += '<div style="font-size:13px;font-weight:600;color:var(--text);margin-top:2px;">' + g.zavod + ' · ' + g.sana + '</div></div>';
+      out += '<div style="font-size:13px;font-weight:600;color:var(--text);margin-top:2px;">' + g.zavod + '</div></div>';   // v174.2: sana kun sarlavhasida
       out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + fmtG(jamiG) + ' g</div>';
       out += '</div>';
       if (isOpen) {
@@ -5173,9 +5219,13 @@ function renderHisobot() {
         out += '</div>';
       }
       out += '</div>';
-    });
+      });                 // v174.2: _list.forEach — kun ichidagi amallar
+      out += '</div>';    // v174.2: kun ichki o'ram (margin-left)
+    });                   // v174.2: _kunT.forEach — kunlar
     cont.innerHTML = out;
   }
+  window.hFiltrTanla = function(f){ _hFiltr=f; render(); };              // v174.2
+  window.hKunToggle  = function(sn){ _hOchiq[sn]=!_hOchiq[sn]; render(); }; // v174.2
   window.toggleHrow = function(idx) { expanded[idx] = !expanded[idx]; render(); };
   render();
 }
