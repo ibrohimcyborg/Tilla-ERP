@@ -1,4 +1,4 @@
-<!-- v173.2 -->
+<!-- v174.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v173.2';
+var APP_VER = 'v174.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -3291,6 +3291,28 @@ function sanaKey(s){ // 'dd.mm.yyyy' -> 'yyyymmdd' (taqqoslash uchun)
   var p = String(s).split('.');
   return p.length===3 ? p[2]+p[1]+p[0] : '';
 }
+// ══════════ v174.1: ARALASH SOTUVDA NAQT YO'QOLGAN ══════════
+// saqlashKlientSotuv (15852) da lom/karta/perech bo'lsa naqt FAQAT
+// `ks-naqt-berildi` maydonidan o'qilardi. Maydon bo'sh qolsa har yozuvga
+// naqtPul:0 tushgan va pul kassaga UMUMAN kirmagan
+// (Dilobar Opa $6,850 · Dilorom Opa $1,765 — lom ko'rinardi, naqt yo'q edi).
+//
+// Yozuvni O'ZGARTIRMASDAN, o'qishda qoldiqdan topamiz — ma'lumotga va cloudga
+// tegilmaydi, orqaga qaytarish shu funksiyani o'chirish (Ibrohim tanlovi).
+// op.summa = sNet, ya'ni skidka ALLAQACHON ayirilgan -> qayta ayirilmaydi.
+// FAQAT lom bor va naqt 0 bo'lgan holatda ishlaydi: sof karta/perech sotuvda
+// naqt haqiqatan 0, unga tegilmaydi.
+function _opNaqtPul(op){
+  if(!op) return 0;
+  if(op.naqtPul===undefined) return (op.kartaPul||op.perechPul) ? 0 : parseNum(op.summa||0);
+  var n = parseNum(op.naqtPul)||0;
+  if(n > 0.005) return n;                      // yozuvda haqiqiy naqt bor — U USTUN
+  var lom = parseNum(op.lomPul||0);
+  if(!(lom > 0.005)) return n;                 // lom yo'q — tegmaymiz
+  var q = Math.round((parseNum(op.summa||0) - lom
+        - parseNum(op.kartaPul||0) - parseNum(op.perechPul||0))*100)/100;
+  return q > 0.005 ? q : n;
+}
 function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu kun ham kiradi); bo'lmasa hammasi
   var t = limitSana || today();
   var lim = limitSana ? sanaKey(limitSana) : null;
@@ -3300,7 +3322,7 @@ function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu 
   (data.klientlar||[]).forEach(function(k){ (k.tarix||[]).forEach(function(op){
     if(op.tip!=='tolov' || op._kdYopish || !ichida(op.sana)) return;
     var _kp = parseNum(op.kartaPul||0);
-    var pul = (op.naqtPul!==undefined ? parseNum(op.naqtPul) : (op.kartaPul ? 0 : parseNum(op.summa||0)));
+    var pul = _opNaqtPul(op);   // v174.1
     if(pul){ o.naqd += pul; if(op.sana===t) o.bugunKirim += pul; }
     if(_kp){ o.karta += _kp; if(op.sana===t) o.bugunKirim += _kp; } // v120: KARTA alohida cho'ntak
     // v136: PERECH — bankdan to'g'ri zavodga ketadi. Kassada turmaydi, chiqimi ham yo'q;
@@ -4103,7 +4125,7 @@ function kassaHarakatlar(){
     if(op.tip!=='tolov'||op._kdYopish) return;
     // v136 XATO TUZATILDI: avval karta ham dN (naqd) ga qo'shilardi -> lenta yugurma qoldig'i
     // kassaOqim.naqd bilan mos kelmasdi (v120 dan beri karta alohida cho'ntak). Endi faqat NAQT.
-    var pul=parseNum(op.naqtPul!==undefined?op.naqtPul:((op.kartaPul||op.perechPul)?0:parseNum(op.summa||0)));
+    var pul=_opNaqtPul(op);   // v174.1
     if(pul>0.001) qo(op.sana,op.soat,op.ts,(k.nom||'Klient')+' · sotuv/to\'lov','avto',pul,0,0,'← klientdan naqd');
   });});
   // lom moduli — barcha lom harakatlari
@@ -4420,7 +4442,7 @@ function kassaAmalYopgan(){
     (k.tarix||[]).forEach(function(op){
       if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
       var ekv=parseNum(op.ekvivalent); if(!(ekv>0)) return;
-      var nq=parseNum(op.naqtPul!==undefined?op.naqtPul:(op.kartaPul?0:op.summa)); if(!(nq>0)) return;
+      var nq=_opNaqtPul(op); if(!(nq>0)) return;   // v174.1
       var key=ki+'|'+op.sana+'|'+(op.soat||'');
       if(!sess[key]){ sess[key]={ts:fdSanaTs(op.sana,op.soat)||0, knom:k.nom, sana:op.sana, soat:op.soat||'', ops:[], naqd:0, qoldi:0}; order.push(key); }
       sess[key].ops.push({op:op, ekv:ekv, nq:nq});
@@ -9698,7 +9720,7 @@ function kassaPulNavbati(){
         }
       }
 
-      var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : ((op.kartaPul||op.perechPul) ? 0 : op.summa));
+      var nq = _opNaqtPul(op);   // v174.1
       if(!(nq>0)) return; // lom/karta/perech bilan to'langan — navbatga kirmaydi
       var key = ki+'|'+op.sana+'|'+(op.soat||'');
       if(!sess[key]){ sess[key]={ts:fdSanaTs(op.sana, op.soat)||0, ops:[], naqd:0, qoldi:0}; order.push(key); }
@@ -10024,7 +10046,7 @@ function renderKassa() {
     sessions[sk].ops.push(o);
     sessions[sk].vzGramm+=(o.vzGramm||0);
     sessions[sk].offSumma+=(o.offSumma||0);
-    sessions[sk].naqtJami+=(o.naqtPul||0)+(o.kartaPul||0)+(o.lomPul||0)+(o.perechPul||0);
+    sessions[sk].naqtJami+=_opNaqtPul(o)+(o.kartaPul||0)+(o.lomPul||0)+(o.perechPul||0);   // v174.1
     sessions[sk].summa+=o.summa;
     sessions[sk].kassaSumma+=Math.max(0,(o.summa||0)-(o.lomPul||0)); // v121: kassaga tushgan pul (lomsiz)
     sessions[sk].gramm+=o.gramm;
@@ -10147,7 +10169,7 @@ function renderKassa() {
         // v113: TO'LOV BELGILARI — NAQT / LOM / KARTA (sotuvda nima bilan to'langani)
         if(!kg.vz){
           var _tN=0,_tK=0,_tL=0,_tP=0;
-          kg.ops.forEach(function(o){ _tN+=(o.naqtPul||0); _tK+=(o.kartaPul||0); _tL+=(o.lomPul||0); _tP+=(o.perechPul||0); });
+          kg.ops.forEach(function(o){ _tN+=_opNaqtPul(o); _tK+=(o.kartaPul||0); _tL+=(o.lomPul||0); _tP+=(o.perechPul||0); });   // v174.1
           function _tb(l,bg,c,bd){ return '<span style="font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;background:'+bg+';color:'+c+';border:0.5px solid '+bd+';">'+l+'</span>'; }
           if(_tN>0.005) out+=_tb('NAQT','var(--green-bg)','var(--green)','var(--green-bd)');
           if(_tL>0.005) out+=_tb('LOM','var(--yellow-bg)','var(--gold)','var(--gold-bd)');
@@ -10174,7 +10196,7 @@ function renderKassa() {
         // v118: tagida naqt · lom · karta
         if(!kg.vz){
           var _hN=0,_hK=0,_hL=0,_hLg=0,_hP=0;
-          kg.ops.forEach(function(o){ _hN+=(o.naqtPul||0); _hK+=(o.kartaPul||0); _hL+=(o.lomPul||0); _hLg+=(o.lomGramm||0); _hP+=(o.perechPul||0); });
+          kg.ops.forEach(function(o){ _hN+=_opNaqtPul(o); _hK+=(o.kartaPul||0); _hL+=(o.lomPul||0); _hLg+=(o.lomGramm||0); _hP+=(o.perechPul||0); });   // v174.1
           var _hp=[];
           if(_hN>0.005) _hp.push('<span style="color:var(--green);">naqt $'+fmtD(_hN)+'</span>');
           if(_hL>0.005) _hp.push('<span style="color:var(--gold);">lom '+(_hLg>0.005?fmtG(_hLg)+'g · ':'')+'$'+fmtD(_hL)+'</span>');
@@ -10273,22 +10295,14 @@ function renderKassa() {
           // Naqt / Karta / Lom breakdown
           var kNaqt=0,kKarta=0,kLom=0,kLomG=0,kLomKurs=0,kPerech=0;
           kg.ops.forEach(function(o){
-            kNaqt+=o.naqtPul||0;
+            kNaqt+=_opNaqtPul(o);   // v174.1
             kKarta+=o.kartaPul||0;
             kPerech+=o.perechPul||0;
             if(o.lomGramm||o.lomPul){kLom+=o.lomPul||0;kLomG+=o.lomGramm||0;kLomKurs=o.lomKurs||kLomKurs||0;}
           });
           kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;kPerech=Math.round(kPerech*100)/100;
-          // v173.2: ARALASH SOTUVDA NAQT KO'RINMASDI. saqlashKlientSotuv (15852) da
-          // lom/karta/perech bo'lsa naqt FAQAT `ks-naqt-berildi` maydonidan o'qiladi —
-          // maydon bo'sh bo'lsa har yozuvga naqtPul:0 tushadi va bu qator chizilmasdi
-          // (Dilobar Opa $9,190 / Dilorom Opa $3,208 — lom ko'rinardi, naqt yo'q edi).
-          // kSumma skidka AYIRILGAN summa (sNet), shuning uchun skidka qayta ayirilmaydi.
-          // Yozuvda haqiqiy naqtPul bo'lsa — U USTUN, hisob ishlatilmaydi.
-          if(kNaqt<=0.005){
-            var _kNaqtQold=Math.round((kSumma-kKarta-kPerech-kLom-(kg.offSumma||0))*100)/100;
-            if(_kNaqtQold>0.005) kNaqt=_kNaqtQold;
-          }
+          // v174.1: sessiya-darajasidagi v173.2 hisobi OLIB TASHLANDI — endi naqt
+          // har yozuv uchun _opNaqtPul() da topiladi, ikki xil qoida qolmasin.
           if(kNaqt>0||kKarta>0||kLom>0||kPerech>0||(kg.offSumma||0)>0.005){
             out+='<div style="background:var(--surf2);border-radius:7px;padding:4px 8px;margin-top:2px;">';
             if(kNaqt>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>$'+fmtD(kNaqt)+'</span></div>';
@@ -10802,7 +10816,7 @@ function tolovHisobotData(){
       if(!op || op.tip!=='tolov' || op._kdYopish || op._kdVoz) return;
       var pul = parseNum(op[may]||0);
       // eski yozuvlar: naqtPul umuman yo'q bo'lsa summa naqt deb qaraladi (kassaOqim bilan bir xil)
-      if(may==='naqtPul' && op.naqtPul===undefined && !op.kartaPul && !op.perechPul) pul = parseNum(op.summa||0);
+      if(may==='naqtPul') pul = _opNaqtPul(op);   // v174.1 — eski qoida shu ichida
       if(!(pul>0.005)) return;
       var sk = sanaKey(op.sana);
       if(start && (!sk || sk < start)) return;
@@ -10913,7 +10927,7 @@ function kassaPDFYukor(dan, gacha) {
         if(gacha && sanaD > gacha) return;
       }
       // v136: to'lov turlari alohida ustun (avval faqat jami summa bor edi)
-      var _pN = op.naqtPul!==undefined ? parseNum(op.naqtPul) : ((op.kartaPul||op.perechPul) ? 0 : parseNum(op.summa||0));
+      var _pN = _opNaqtPul(op);   // v174.1
       allOps.push({
         sana: op.sana, klient: k.nom,
         zavod: op.zavod||'', tur: op.tur||'',
@@ -15807,9 +15821,16 @@ function saqlashKlientSotuv() {
   // -> lomsiz sof karta sotuvi butunlay NAQT bo'lib yozilardi. Endi maydonlar har doim o'qiladi.
   var _kartaBerdiSave = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
   var _perechBerdiSave = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
-  var _naqtBerdiSave = (_lomPulJamiSave > 0 || _kartaBerdiSave > 0 || _perechBerdiSave > 0)
-    ? (parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0)
-    : _naqtTolovPulSave;
+  // v174.1: ARALASH SOTUVDA MAYDON BO'SH QOLSA NAQT 0 YOZILARDI va pul kassaga
+  // tushmasdi. Ibrohim A variantni tanladi: bo'sh bo'lsa ilova O'ZI to'ldiradi.
+  // Maydon to'ldirilgan bo'lsa — U USTUN (klient qarzga qoldirgan bo'lishi mumkin).
+  var _aralashSv = (_lomPulJamiSave > 0 || _kartaBerdiSave > 0 || _perechBerdiSave > 0);
+  var _nbInputSv = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
+  var _naqtBerdiSave;
+  if(!_aralashSv)            _naqtBerdiSave = _naqtTolovPulSave;
+  else if(_nbInputSv > 0.005) _naqtBerdiSave = _nbInputSv;
+  else _naqtBerdiSave = Math.max(0, Math.round((_jamiSummaRegular - _lomPulJamiSave
+        - _kartaBerdiSave - _perechBerdiSave - _skidka)*100)/100);
 
   // Offset kerakligidan ortiq ishlatilmasin — ortig'i "biz qarzdor"da qoladi, sdachaga chiqmaydi
   var _needBeforeOffsetSv = Math.max(0, Math.round((_jamiSummaRegular - _lomPulJamiSave - _skidka)*100)/100);

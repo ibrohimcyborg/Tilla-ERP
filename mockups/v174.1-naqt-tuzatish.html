@@ -1,0 +1,136 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>v174.1 — kassadagi naqtni tuzatish</title>
+<style>
+  :root{--surf:#191e26;--surf2:#232a34;--border:#2c3542;--text:#dfe4ea;--muted:#8a93a0;
+        --gold:#ffd27a;--gold-bg:#2a2415;--gold-bd:#5c4a1e;--green:#4ade80;--red:#ff6b6b;}
+  body{background:#12151a;color:#dfe4ea;font:14px/1.65 system-ui,sans-serif;margin:0;padding:24px 20px 70px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:22px}
+  h2{font-size:15px;margin:30px 0 10px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:6px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:13px 16px;margin:10px 0}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .fl{color:#8a93a0;font-size:12.5px}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:11px 15px;margin:12px 0;border-radius:0 8px 8px 0}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  .big{font-size:16px}
+  .num{font-family:ui-monospace,Consolas,monospace;font-weight:700}
+  .r{color:#ff6b6b}.g{color:#4ade80}.y{color:#ffd27a}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13.5px}
+  th,td{border:1px solid #26303c;padding:8px 10px;text-align:left}
+  th{background:#1b2129;color:#9fb0c2}
+  td.n{text-align:right;font-family:ui-monospace,Consolas,monospace}
+  .step{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+  .no{flex:none;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;
+      background:#7fc4ff;color:#12151a;font-weight:700;font-size:13px}
+  /* panel taqlidi */
+  .pan{background:#fff;color:#111;border-radius:10px;padding:12px 14px;width:330px;font-size:13px}
+  .pr{display:flex;justify-content:space-between;padding:3px 0}
+  .pr .lbl{color:#777}
+  .box{background:#f3f3f3;border-radius:6px;padding:5px 8px;margin:4px 0}
+  .miss{color:#c62828;font-weight:700}
+  .newl{background:#e8f5e9;border-radius:4px;padding:2px 6px;color:#1b5e20;font-weight:700}
+  /* dialog taqlidi */
+  .dlg{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:16px;width:300px}
+  .btn{display:inline-block;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600}
+  .b1{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold)}
+  .b2{background:var(--surf2);border:1px solid var(--border);color:var(--muted)}
+</style>
+<div class="wrap">
+
+<h1>Kassadagi naqtni tuzatish</h1>
+<div class="sub">v174.1 · 2026-08-13 · <b>KOD YOZILMAGAN</b></div>
+
+<h2>Muammo nima</h2>
+<div class="card bad big">
+Aralash savdo = <b>mol berildi</b> + klient <b>lom berdi</b> + qolganini <b>naqt to'ladi</b>.<br><br>
+Ilova <b>lomni o'zi hisoblaydi</b> (gramm × kurs).<br>
+Naqtni esa <b>siz «Naqt» katakchasiga yozishingiz</b> kutiladi.<br>
+Yozmasangiz — ilova naqtni <b class="r">0</b> deb saqlaydi.<br><br>
+<b>Natija:</b> pul cho'ntakka tushgan, lekin dasturda <b class="r">yo'q</b>.
+</div>
+
+<table>
+<tr><th>Sotuv</th><th class="n">Jami</th><th class="n">Lom</th><th class="n">Naqt (haqiqatda)</th><th class="n">Dasturda</th></tr>
+<tr><td>Dilobar Opa</td><td class="n">9,190.00</td><td class="n">2,340.00</td><td class="n g">6,850.00</td><td class="n r">0</td></tr>
+<tr><td>Dilorom Opa TJK</td><td class="n">3,208.05</td><td class="n">1,443.05</td><td class="n g">1,765.00</td><td class="n r">0</td></tr>
+<tr><td colspan="4"><b>Kassada yetishmayotgan pul</b></td><td class="n r"><b>8,615.00</b></td></tr>
+</table>
+
+<h2>1-qism · Eski sotuvlar <span class="fl">— siz tanladingiz: xavfsiz yo'l</span></h2>
+<div class="card good">
+<b>Saqlangan ma'lumotga TEGILMAYDI.</b> Hech nima qayta yozilmaydi, cloudga hech nima ketmaydi.<br><br>
+O'rniga kassa <b>hisoblaganda</b> shunday qaraydi:
+<div class="step"><span class="no">1</span><div>Yozuvda <code>naqt = 0</code> deb turibdi</div></div>
+<div class="step"><span class="no">2</span><div>Lekin <b>lom bor</b> va <b>jami summa</b> lomdan katta</div></div>
+<div class="step"><span class="no">3</span><div>Demak naqt aslida <b>jami − lom</b> bo'lgan → o'shani oladi</div></div>
+</div>
+<div class="card">
+<b>Kassa qoldig'i:</b>
+<div class="pr" style="max-width:330px"><span class="lbl">hozir</span><span class="num">$ … </span></div>
+<div class="pr" style="max-width:330px"><span class="lbl">tuzatilgandan keyin</span><span class="num g">$ … + 8,615.00</span></div>
+<div class="fl" style="margin-top:6px">Orqaga qaytarish — <b>bitta qator o'chirish</b>, chunki ma'lumot o'zgarmagan.</div>
+</div>
+
+<h2>2-qism · Yangi sotuvlar <span class="fl">— shu joyda tanlov kerak</span></h2>
+<div class="card">
+Bundan keyin aralash savdo qilganingizda, <b>«Naqt» katakchasini bo'sh qoldirsangiz</b>
+ilova nima qilsin?
+</div>
+
+<div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+
+<div>
+<div style="font-weight:700;font-size:13px;color:#8fe0a0;margin-bottom:8px">A — O'ZI TO'LDIRADI (jim)</div>
+<div class="pan">
+  <div class="pr"><span class="lbl">Kerakli summa</span><span class="num">1,765.00 $</span></div>
+  <div class="box" style="display:flex;gap:8px">
+    <div style="flex:1"><div class="fl" style="font-size:10px">NAQT</div>
+      <div class="num g newl">1,765.00</div></div>
+    <div style="flex:1"><div class="fl" style="font-size:10px">LOM</div>
+      <div class="num">1,443.05</div></div>
+  </div>
+  <div class="fl" style="font-size:11px;margin-top:4px">— saqlaganda o'zi yoziladi</div>
+</div>
+<div class="fl" style="max-width:330px;margin-top:8px">
+<b>+</b> hech narsa qilish shart emas, xato bo'lmaydi<br>
+<b>−</b> agar klient <b>qarzga</b> qoldirgan bo'lsa ham to'liq to'lagan deb yoziladi
+</div>
+</div>
+
+<div>
+<div style="font-weight:700;font-size:13px;color:#ffd27a;margin-bottom:8px">B — SO'RAYDI</div>
+<div class="dlg">
+  <div style="font-weight:700;margin-bottom:8px">Naqt katakchasi bo'sh</div>
+  <div style="font-size:13px;color:var(--muted);line-height:1.6">
+    Jami <b style="color:var(--text)">3,208.05$</b><br>
+    Lom &nbsp;<b style="color:var(--text)">1,443.05$</b><br>
+    Qolgani <b style="color:var(--green)">1,765.00$</b>
+  </div>
+  <div style="margin-top:12px;font-size:13px">Naqt sifatida yozilsinmi?</div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <span class="btn b1">Ha, yoz</span><span class="btn b2">Yo'q</span>
+  </div>
+</div>
+<div class="fl" style="max-width:330px;margin-top:8px">
+<b>+</b> qarzga qolganda «Yo'q» deb o'tkazasiz<br>
+<b>−</b> har aralash savdoda bitta qo'shimcha bosish
+</div>
+</div>
+
+</div>
+
+<h2>Nima o'zgarmaydi</h2>
+<div class="card warn">
+Klient qarzi · sotuv summasi · foyda · chek — <b>hech biri o'zgarmaydi</b>.
+Faqat <b>«bu pul naqtmi yoki lommi»</b> degan ajratma to'g'rilanadi, va shu tufayli
+kassadagi qoldiq to'g'ri chiqadi.
+</div>
+
+<div class="q"><b>A yoki B?</b> Tanlaganingizdan keyin v174.1 ni yozaman —
+eski sotuvlar (xavfsiz yo'l) va yangi sotuvlar birga.</div>
+
+</div>
