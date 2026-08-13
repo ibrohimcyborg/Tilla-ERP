@@ -3,6 +3,21 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v173: BOSQICH BELGISI — kod v172.44 bilan bir xil
+
+Ibrohim: "173versiya qlaqo". Faqat raqam ko'tarildi — `index.html` 1-qatori va
+`APP_VER`. **Kod mantiqiga tegilmadi**, tarkib v172.44 ning aynan o'zi.
+
+v172 shoxi 44 ta kichik versiyaga cho'zilgan edi (v172.1 ... v172.44), shuning
+uchun yangi bosqich ochildi. Keyingi o'zgarishlar **v173.1**, **v173.2** ...
+bo'lib ketadi.
+
+⚠ SHU PAYTDA OCHIQ TURGAN ISH: aralash sotuvda naqt yo'qolishi
+(`ks-naqt-berildi` bo'sh bo'lsa `naqtPul:0` yoziladi, 15852). Tashxis tayyor:
+`mockups/v172.45-tashxis-skidka-lom.html`. Ibrohimdan ikki javob kutilmoqda —
+qamrov (panel / saqlash / ikkalasi) va o'sha sotuvda maydon to'ldirilganmi.
+KOD YOZILMAGAN.
+
 ## v172.44: zavod hisoboti kun bo'yicha + Kirim/Vozvrat/Chiqim filtri
 
 Ibrohim: "zavod hisobotidayam klient hisobotiga o'xshab sana qo'sh, bo'masam

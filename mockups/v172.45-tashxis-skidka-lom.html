@@ -1,0 +1,111 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Aralash savdoda naqt yo'qoladi — tashxis</title>
+<style>
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:24px 20px 70px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:18px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:20px}
+  h2{font-size:14px;margin:28px 0 8px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:5px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:12px 15px;margin:10px 0}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  .bad{border-color:#6b2b2b;background:#1e1618}
+  .fl{color:#8a93a0;font-size:12px}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:11px 14px;margin:12px 0;border-radius:0 8px 8px 0}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  pre{background:#0e1116;border:1px solid #232b36;border-radius:8px;padding:11px 13px;overflow-x:auto;margin:8px 0;font-size:12.5px}
+  .ln{color:#6b7787}.k{color:#ff8f8f}.g{color:#8fe0a0}.y{color:#ffd27a}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+  th,td{border:1px solid #26303c;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#1b2129;color:#9fb0c2}
+  td.n{text-align:right;font-family:ui-monospace,Consolas,monospace}
+  .miss{background:#2a1618;color:#ff9a9a;font-weight:700}
+</style>
+<div class="wrap">
+
+<h1>Aralash savdoda NAQT yo'qolyapti</h1>
+<div class="sub">Dilobar Opa Qashqadaryo · 11:35 · <b>KOD YOZILMAGAN</b></div>
+
+<h2>1. Sizning holatingiz</h2>
+<table>
+<tr><th>Nima</th><th class="n">Panel ko'rsatdi</th><th class="n">Bo'lishi kerak</th></tr>
+<tr><td>Jami summa</td><td class="n">$9,190</td><td class="n">$9,190 ✓</td></tr>
+<tr><td>Lom 30.00 g × 78</td><td class="n">$2,340</td><td class="n">$2,340 ✓</td></tr>
+<tr><td>Skidka</td><td class="n">−$1.87</td><td class="n">−$1.87 ✓</td></tr>
+<tr class="miss"><td><b>Naqt</b></td><td class="n"><b>qator YO'Q</b></td><td class="n"><b>$6,848.13</b></td></tr>
+</table>
+<div class="fl"><code>9,190 − 2,340 − 1.87 = 6,848.13</code></div>
+
+<h2>2. Sabab — bitta shart</h2>
+<div class="card bad">
+<pre><span class="ln">15852</span>  var _naqtBerdiSave =
+<span class="ln">15852</span>    (_lomPulJamiSave &gt; 0 || _kartaBerdiSave &gt; 0 || _perechBerdiSave &gt; 0)
+<span class="ln">15853</span>      ? (parseNum(<span class="y">#ks-naqt-berildi</span>) || <span class="k">0</span>)   <span class="ln">// ARALASH: faqat maydondan</span>
+<span class="ln">15854</span>      : _naqtTolovPulSave;                <span class="ln">// SOF NAQT: qatorlar yig'indisi</span></pre>
+<b>Sof naqt sotuvda</b> pul qatorlar yig'indisidan olinadi — hech qachon yo'qolmaydi.<br>
+<b>Aralash sotuvda</b> (lom / karta / perech bo'lsa) pul <b>FAQAT</b>
+<code>ks-naqt-berildi</code> maydonidan o'qiladi. Maydon bo'sh bo'lsa — <b>0</b>.
+</div>
+<div class="card">
+Keyin har qatorga shu 0 tarqaladi <span class="fl">(15896)</span>:
+<pre>_opNaqt = _naqtBerdiSave * _naqtFrac   ->  0 * nima bo'lsa ham = <span class="k">0</span>
+k.tarix.push({ ..., <span class="k">naqtPul: 0</span>, lomPul: 2340 ... })</pre>
+</div>
+
+<h2>3. Bu faqat ko'rinish emas — PUL HISOBI</h2>
+<div class="card bad">
+Panelda «Naqt» qatori <b>bor</b> <span class="fl">(10336)</span>, lekin
+<code>if(kNaqt&gt;0)</code> sharti bilan — 0 bo'lgani uchun chizilmagan.
+<b>Lekin muammo undan kattaroq:</b> <code>naqtPul</code> ni kassa oqimi o'qiydi:
+<pre><span class="ln">3303</span>  var pul = (op.naqtPul!==undefined ? parseNum(op.naqtPul) : ...)
+<span class="ln">4106</span>  var pul = parseNum(op.naqtPul!==undefined ? op.naqtPul : ...)
+<span class="ln">4423</span>  var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : ...)
+<span class="ln">9753</span>  var nq = parseNum(op.naqtPul!==undefined ? op.naqtPul : ...)</pre>
+<code>naqtPul</code> <b>aniqlangan</b> (0 deb), shuning uchun «summani naqt deb ol»
+degan zaxira yo'l <b>ishlamaydi</b>. Natija: <b>$6,848.13 kassaga umuman tushmagan.</b>
+</div>
+
+<h2>4. Sizning gapingiz bilan bog'lanishi</h2>
+<div class="card good">
+«Skidkani naqt puldan minus qilishi kere» — aynan shu. To'g'ri formula:
+<pre>naqt = jami − lom − karta − perech − offset − <b>skidka</b></pre>
+Ya'ni naqt <b>qoldiq</b> bo'lib hisoblanishi kerak, va skidka aynan shu qoldiqdan
+tushishi kerak. Hozir esa naqt umuman hisoblanmayapti — maydondan o'qilyapti.
+</div>
+
+<h2>5. TAKLIF</h2>
+<div class="card good">
+<code>ks-naqt-berildi</code> <b>bo'sh</b> bo'lsa, naqtni qoldiqdan hisoblash:
+<pre>eski:  ? (parseNum(#ks-naqt-berildi) || <span class="k">0</span>)
+
+yangi: ? (maydon to'ldirilgan bo'lsa — maydon qiymati,
+          aks holda: jami − lom − karta − perech − offset − skidka)</pre>
+Maydon to'ldirilgan bo'lsa <b>u ustun</b> — siz ataylab kamroq naqt yozgan
+bo'lishingiz mumkin (qarzga qolgan qism). Faqat <b>bo'sh</b> bo'lgandagina
+qoldiq hisoblanadi.
+<div class="fl" style="margin-top:6px">Taxminan <b>6–10 qator</b>, faqat 15852.</div>
+</div>
+
+<h2>6. ESKI YOZUVLAR</h2>
+<div class="card warn">
+Bu tuzatish <b>faqat yangi sotuvlarga</b> ta'sir qiladi. Dilobar Opanikiga
+o'xshab <b>allaqachon saqlangan</b> yozuvlarda <code>naqtPul:0</code> turibdi —
+ular o'z-o'zidan tuzalmaydi va kassada pul kam ko'rinaveradi.
+<div class="fl" style="margin-top:6px">Ularni topib tuzatish — <b>alohida ish</b>,
+alohida mockup bilan. Avval qancha borligini sanash kerak.</div>
+</div>
+
+<h2>7. MENGA KERAK — bitta javob</h2>
+<div class="q">
+O'sha sotuvda <b>«Naqt» maydonini to'ldirganmisiz</b>?
+<ul style="margin:6px 0 0 18px">
+<li><b>Yo'q, bo'sh qoldirganman</b> — unda yuqoridagi taklif to'g'ri yechim</li>
+<li><b>Ha, to'ldirganman</b> — unda sabab boshqa joyda, qaytadan qarayman
+    (maydon saqlashdan oldin tozalanayotgan bo'lishi mumkin)</li>
+</ul>
+<div class="fl" style="margin-top:8px">Bu javob yechimni butunlay o'zgartiradi,
+shuning uchun taxmin qilmayman.</div>
+</div>
+
+</div>
