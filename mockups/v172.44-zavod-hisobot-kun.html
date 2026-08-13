@@ -1,0 +1,160 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>v172.44 — zavod hisoboti kun bo'yicha</title>
+<style>
+  :root{
+    --surf:#191e26; --surf2:#232a34; --border:#2c3542; --text:#dfe4ea; --muted:#8a93a0;
+    --gold:#ffd27a; --gold-bg:#2a2415; --gold-bd:#5c4a1e;
+    --red:#ff6b6b; --green:#4ade80; --blue:#60a5fa;
+  }
+  body{background:#12151a;color:#dfe4ea;font:14px/1.6 system-ui,sans-serif;margin:0;padding:24px 20px 70px}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:18px;margin:0 0 4px;color:#ffd27a}
+  .sub{color:#8a93a0;font-size:13px;margin-bottom:20px}
+  h2{font-size:14px;margin:26px 0 8px;color:#7fc4ff;border-bottom:1px solid #26303c;padding-bottom:5px}
+  .card{background:#191e26;border:1px solid #26303c;border-radius:10px;padding:12px 15px;margin:10px 0}
+  .good{border-color:#2c5c38;background:#161d18}
+  .warn{border-color:#6b5620;background:#1d1a13}
+  .fl{color:#8a93a0;font-size:12px}
+  .q{background:#1a2330;border-left:3px solid #7fc4ff;padding:10px 14px;margin:10px 0;border-radius:0 8px 8px 0}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+  .roll{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .lab{margin-bottom:8px;font-weight:700;font-size:12px}
+  .before{color:#ff9a9a}.after{color:#8fe0a0}
+  /* ilova ko'rinishi */
+  .app{width:330px;background:#12151a;border:1px solid #26303c;border-radius:12px;padding:12px}
+  .hrow{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:8px;
+        display:flex;justify-content:space-between;align-items:center}
+  .hrow .t1{font-size:15px;font-weight:700}
+  .hrow .t2{font-size:13px;color:var(--text);margin-top:2px}
+  .amt{font-size:16px;font-weight:600}
+  .kun{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;
+       background:var(--surf);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer}
+  .kunL{display:flex;align-items:center;gap:7px}
+  .arr{font-size:9px;color:var(--muted);display:inline-block}
+  .arrO{transform:rotate(90deg)}
+  .sana{font-size:13px;font-weight:600;color:var(--text)}
+  .bugun{font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);
+         border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px}
+  .pill{font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);
+        border-radius:12px;padding:1px 8px;white-space:nowrap}
+  .ichki{margin-left:10px}
+  .chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+  .chip{padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surf);
+        color:var(--muted);font-size:13px;white-space:nowrap}
+  .chip.on{border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:600}
+  .chip span{font-size:11px;opacity:.7}
+  .r{color:var(--red)}.g{color:var(--green)}.b{color:var(--blue)}
+</style>
+<div class="wrap">
+
+<h1>v172.44 — zavod hisoboti kun bo'yicha</h1>
+<div class="sub">2026-08-12 · <b>KOD YOZILMAGAN</b> · klient hisoboti qolipida</div>
+
+<div class="card">
+<b>Farq:</b> klient hisoboti kun bo'yicha guruhlangan (yopiladi/ochiladi, bugun ochiq)
+va filtr chiplari bor. Zavod hisobotida (<code>renderZavodHisobot</code> 5981) guruh kaliti
+<code>tip|kimga|sana</code> — kun qatlami <b>yo'q</b>, ro'yxat tekis, sana takrorlanadi.
+</div>
+
+<div class="roll">
+
+<div>
+<div class="lab before">BEFORE — hozir</div>
+<div class="app">
+  <div class="hrow" style="border-left:3px solid var(--red)">
+    <div><div class="t1 r">↓ Kirim</div><div class="t2">12.08.2026</div></div>
+    <div class="amt r">45.20 g</div></div>
+  <div class="hrow" style="border-left:3px solid var(--green)">
+    <div><div class="t1 g">↑ Chiqim</div><div class="t2">12.08.2026</div></div>
+    <div class="amt g">12.00 g</div></div>
+  <div class="hrow" style="border-left:3px solid var(--blue)">
+    <div><div class="t1 b">↩ Vozvrat</div><div class="t2">11.08.2026</div></div>
+    <div class="amt b">8.50 g</div></div>
+  <div class="hrow" style="border-left:3px solid var(--red)">
+    <div><div class="t1 r">↓ Kirim</div><div class="t2">11.08.2026</div></div>
+    <div class="amt r">30.00 g</div></div>
+  <div class="hrow" style="border-left:3px solid var(--red)">
+    <div><div class="t1 r">↓ Kirim</div><div class="t2">10.08.2026</div></div>
+    <div class="amt r">22.10 g</div></div>
+  <div class="hrow" style="border-left:3px solid var(--green)">
+    <div><div class="t1 g">↑ Chiqim</div><div class="t2">10.08.2026</div></div>
+    <div class="amt g">5.00 g</div></div>
+</div>
+<div class="fl" style="margin-top:8px;max-width:330px">Hamma amal bir tekis ro'yxatda.
+Sana har qatorda takrorlanadi. 200 ta yozuv bo'lsa kerakli kunni topish qiyin.</div>
+</div>
+
+<div>
+<div class="lab after">AFTER — taklif</div>
+<div class="app">
+  <div class="chips">
+    <div class="chip on">Hammasi <span>24</span></div>
+    <div class="chip">↓ Kirim <span>12</span></div>
+    <div class="chip">↩ Vozvrat <span>5</span></div>
+    <div class="chip">↑ Chiqim <span>7</span></div>
+  </div>
+
+  <div class="kun">
+    <span class="kunL"><span class="arr arrO">&#9654;</span>
+      <span class="sana">12.08.2026</span><span class="bugun">bugun</span></span>
+    <span class="pill">2 ta</span></div>
+  <div class="ichki">
+    <div class="hrow" style="border-left:3px solid var(--red)">
+      <div><div class="t1 r">↓ Kirim</div></div><div class="amt r">45.20 g</div></div>
+    <div class="hrow" style="border-left:3px solid var(--green)">
+      <div><div class="t1 g">↑ Chiqim</div></div><div class="amt g">12.00 g</div></div>
+  </div>
+
+  <div class="kun">
+    <span class="kunL"><span class="arr">&#9654;</span>
+      <span class="sana">11.08.2026</span></span>
+    <span class="pill">2 ta</span></div>
+
+  <div class="kun">
+    <span class="kunL"><span class="arr">&#9654;</span>
+      <span class="sana">10.08.2026</span></span>
+    <span class="pill">2 ta</span></div>
+
+  <div class="kun">
+    <span class="kunL"><span class="arr">&#9654;</span>
+      <span class="sana">09.08.2026</span></span>
+    <span class="pill">3 ta</span></div>
+</div>
+<div class="fl" style="margin-top:8px;max-width:330px">Kunlar yig'ilgan, <b>bugun ochiq</b>.
+Sana qatordan chiqib sarlavhaga ko'chdi. Filtr chiplari — Kirim/Vozvrat/Chiqim.</div>
+</div>
+
+</div>
+
+<h2>Nima o'zgaradi</h2>
+<div class="card good">
+<table style="border-collapse:collapse;font-size:13px;width:100%">
+<tr><td style="padding:4px 12px 4px 0;vertical-align:top"><b>Kun sarlavhasi</b></td>
+    <td>▶ / ▼ · sana · <span class="bugun">bugun</span> yorlig'i · o'ngda «N ta»
+    <span class="fl">— klient hisoboti bilan bayt-ma-bayt bir xil qolip</span></td></tr>
+<tr><td style="padding:4px 12px 4px 0;vertical-align:top"><b>Ochiq holat</b></td>
+    <td>faqat <b>bugun</b> ochiq, qolganlari yopiq</td></tr>
+<tr><td style="padding:4px 12px 4px 0;vertical-align:top"><b>Filtr chiplari</b></td>
+    <td>Hammasi · ↓ Kirim · ↩ Vozvrat · ↑ Chiqim — sanoq bilan</td></tr>
+<tr><td style="padding:4px 12px 4px 0;vertical-align:top"><b>Amal qatori</b></td>
+    <td>o'zgarmaydi, faqat <b>sana matni olib tashlanadi</b> (endi sarlavhada)</td></tr>
+</table>
+</div>
+
+<div class="card warn">
+<b>Tegilmaydi:</b> ma'lumot yozuvlari, <code>t.tarix</code>, hisob-kitob, guruh kaliti
+(<code>tip|kimga|sana</code> ichida qoladi — ustiga faqat kun qatlami qo'shiladi,
+shuning uchun mavjud qatorlar buzilmaydi).
+<div class="fl" style="margin-top:6px">Zavod almashsa ochiq-yopiq holat <b>nolga tushadi</b>
+(bugun ochiq) — Ibrohim: «zavod almashsa muammo yo'q-ku».</div>
+</div>
+
+<div class="card">
+<b>Diff budjeti:</b> ~40–55 qator, faqat <code>renderZavodHisobot</code> (5981) ichida.
+Yangi: <code>zhFiltrTanla()</code>, <code>zhKunToggle()</code>, ikkita holat o'zgaruvchisi.
+</div>
+
+<div class="q"><b>Shundaymi?</b> Tasdiqlasangiz yozaman.</div>
+
+</div>
