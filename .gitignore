@@ -1,2 +1,6 @@
 .claude/*
 !.claude/skills/
+
+# v172.44: sinov qoldiqlari
+__pycache__/
+mockups/_*
