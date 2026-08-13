@@ -3,6 +3,40 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.2: bosh ekran Hisoboti kun bo'yicha + Kirim/Vozvrat/Chiqim filtri
+
+Ibrohim: "hisobotti nega sanali qimadin, shunaqa qilish keregidi" — namuna
+sifatida klient hisobotini ko'rsatdi. Mockup: mockups/v173.1-bosh-hisobot-kun.html.
+
+MUHIM: v172.44 da NOTO'G'RI EKRAN o'zgartirilgan edi (renderZavodHisobot —
+zavod ICHIDAGI), v173.1 da bekor qilingan. Bu safar to'g'ri manzil:
+`renderHisobot` (5117) — bosh ekran, qatorda ZAVOD NOMI bor.
+
+QILINDI:
+* `_hFiltr` / `_hOchiq` holati + `_hGuruh(tip)` (mol->kirim, vozvrat->vozvrat,
+  qolgani->chiqim)
+* Filtr chiplari — Hammasi / Kirim / Vozvrat / Chiqim, sanoq bilan. Sanoq
+  filtrdan QAT'I NAZAR to'liq bazadan.
+* Kun sarlavhasi — klient hisoboti qolipining aynan o'zi (strelka, sana,
+  `bugun` yorlig'i, o'ngda «N ta»), faqat bugun ochiq (`_khBugun()`)
+* Qatordan `· sana` OLIB TASHLANDI, `g.zavod` QOLDI
+* `hFiltrTanla()` / `hKunToggle()` — `render()` ni qayta chaqiradi, ochiq
+  amal qatorlari (`expanded`) saqlanadi
+
+Bu ekranda zavod tanlanmaydi, shuning uchun v172.44 dagi «zavod almashsa nolga
+tushadi» qoidasi KERAK EMAS.
+
+TEGILMADI: guruh kaliti (`tip|kimga|zavod|sana`), ochilgan qatordagi tur
+ro'yxati, ✏ Tahrir tugmalari, ma'lumot yozuvlari, hisob-kitob.
+
+XATO VA TUZATISH: birinchi yozishda Python heredoc ichida `'` bitta `'`
+bo'lib qolib, uchta qatorda sintaksis buzildi (`hFiltrTanla('' + ...`).
+Node sintaksis-sinovi darhol tutdi, uchta qator qo'lda tuzatildi.
+
+Sinov: funksiya `vm` da soxta ma'lumot bilan ISHGA TUSHIRILDI — 4 chip,
+2 kun sarlavhasi, «bugun» yorlig'i, 13.08 ochiq, qatorda sana yo'q,
+filtr «vozvrat» -> 1 kun, 12.08 ochilganda Butterfly ko'rindi.
+
 ## v174.1: aralash sotuvda NAQT yo'qolgan — kassa puli tuzatildi
 
 Ibrohim: "kassadagi pulliyam togirlab 174.1 versiyani boshla".
