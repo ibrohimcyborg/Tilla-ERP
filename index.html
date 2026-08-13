@@ -1,4 +1,4 @@
-<!-- v173 -->
+<!-- v173.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v173';
+var APP_VER = 'v173.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -5978,12 +5978,6 @@ function renderZavodKassa() {
   zKassaRender();
 }
 
-// v172.44: zavod hisoboti KUN bo'yicha guruhlanadi + filtr chiplari — klient
-// hisoboti (10962) qolipida. Avval ro'yxat tekis edi va sana har qatorda
-// takrorlanardi, kerakli kunni topish qiyin edi (Ibrohim: "topib olish juda
-// qiyinlashib ketti"). Ma'lumot yozuvlariga va hisob-kitobga TEGILMAYDI.
-var _zhFiltr='all', _zhOchiq=null, _zhZavod=-1;
-function _zhGuruh(tip){ return tip==='mol' ? 'kirim' : (tip==='vozvrat' ? 'vozvrat' : 'chiqim'); }
 function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
   var cont = document.getElementById('zavod-hisobot-cont');
@@ -5998,52 +5992,10 @@ function renderZavodHisobot() {
     groups[key].turlar.push(item);
   });
   groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
-  // v172.44: zavod almashsa ochiq-yopiq holat va filtr nolga tushadi
-  // (Ibrohim: "zavod almashsa muammo yoqku")
-  if(_zhZavod!==curZ){ _zhZavod=curZ; _zhOchiq=null; _zhFiltr='all'; }
-  var _zhBugun=_khBugun();
-  if(_zhOchiq===null){ _zhOchiq={}; _zhOchiq[_zhBugun]=true; }
   var zExp = {};
   function renderZH() {
     var out = '';
-    // ── filtr chiplari — sanoq filtrdan QAT'I NAZAR to'liq bazadan ──
-    var _c={all:0,kirim:0,vozvrat:0,chiqim:0};
-    groupOrder.forEach(function(k){ _c.all++; _c[_zhGuruh(groups[k].tip)]++; });
-    var _chips=[['all','Hammasi'],['kirim','&#8595; Kirim'],['vozvrat','&#8617; Vozvrat'],['chiqim','&#8593; Chiqim']];
-    out+='<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;">';
-    _chips.forEach(function(c){
-      var on=_zhFiltr===c[0];
-      out+='<button onclick="zhFiltrTanla(\''+c[0]+'\')" style="padding:8px 14px;border-radius:20px;'
-        +'border:1px solid '+(on?'var(--gold-bd)':'var(--border)')+';'
-        +'background:'+(on?'var(--gold-bg)':'var(--surf)')+';'
-        +'color:'+(on?'var(--gold)':'var(--muted)')+';font-weight:'+(on?'600':'500')+';'
-        +'font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;">'
-        +c[1]+' <span style="font-size:11px;opacity:.7;">'+_c[c[0]]+'</span></button>';
-    });
-    out+='</div>';
-    // ── kun bo'yicha guruh (klient hisoboti qolipi) ──
-    var _kun={}, _kunT=[];
-    groupOrder.forEach(function(key, idx){
-      if(_zhFiltr!=='all' && _zhGuruh(groups[key].tip)!==_zhFiltr) return;
-      var s=groups[key].sana;
-      if(!_kun[s]){ _kun[s]=[]; _kunT.push(s); }
-      _kun[s].push({key:key, idx:idx});
-    });
-    if(!_kunT.length){ out+='<div class="empty">Bu filtrda yozuv yo\'q.</div>'; cont.innerHTML=out; return; }
-    _kunT.forEach(function(_sana){
-      var _och=!!_zhOchiq[_sana], _list=_kun[_sana];
-      out+='<div onclick="zhKunToggle(\''+_sana+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;background:var(--surf);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;cursor:pointer;">';
-      out+='<span style="display:flex;align-items:center;gap:7px;min-width:0;">';
-      out+='<span style="font-size:9px;color:var(--muted);display:inline-block;transform:rotate('+(_och?'90deg':'0deg')+');">&#9654;</span>';
-      out+='<span style="font-size:13px;font-weight:600;color:var(--text);">'+_sana+'</span>';
-      if(_sana===_zhBugun) out+='<span style="font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px;">bugun</span>';
-      out+='</span>';
-      out+='<span style="font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:1px 8px;white-space:nowrap;">'+_list.length+' ta</span>';
-      out+='</div>';
-      if(!_och) return;
-      out+='<div style="margin-left:10px;">';
-      _list.forEach(function(_it){
-      var key=_it.key, idx=_it.idx;
+    groupOrder.forEach(function(key, idx) {
       var g = groups[key], isK = g.tip === 'mol', isOpen = zExp[idx];
       var isK = g.tip === 'mol'; var isV2 = g.tip === 'vozvrat'; var bc = isK ? 'var(--red)' : 'var(--green)';
       var jamiG = 0;
@@ -6053,7 +6005,7 @@ function renderZavodHisobot() {
       out += '<div class="hrow" style="border-left:3px solid ' + bc + ';cursor:pointer;margin-bottom:8px;" onclick="toggleZH(' + idx + ')">';
       out += '<div style="display:flex;justify-content:space-between;align-items:center;">';
       out += '<div><div style="font-size:15px;font-weight:700;color:' + bc + ';">' + (isK?'↓ Kirim':g.tip==='vozvrat'?'↩ Vozvrat':'↑ Chiqim') + '</div>';
-      out += '</div>';   // v172.44: sana qatori OLIB TASHLANDI — endi kun sarlavhasida
+      out += '<div style="font-size:13px;color:var(--text);margin-top:2px;">' + g.sana + '</div></div>';
       out += '<div style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:' + bc + ';">' + fmtG(jamiG) + ' g</div></div>';
       if (isOpen) {
         out += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">';
@@ -6072,14 +6024,10 @@ function renderZavodHisobot() {
         out += '</div>';
       }
       out += '</div>';
-      });                 // _list.forEach — kun ichidagi amallar
-      out += '</div>';    // kun ichki o'ram (margin-left)
-    });                   // _kunT.forEach — kunlar
+    });
     cont.innerHTML = out;
   }
   window.toggleZH = function(idx){ zExp[idx]=!zExp[idx]; renderZH(); };
-  window.zhFiltrTanla = function(f){ _zhFiltr=f; renderZH(); };            // v172.44
-  window.zhKunToggle = function(s){ _zhOchiq[s]=!_zhOchiq[s]; renderZH(); }; // v172.44
   renderZH();
 }
 function initKirim() {
