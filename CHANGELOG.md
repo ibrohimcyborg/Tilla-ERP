@@ -3,6 +3,67 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.1: aralash sotuvda NAQT yo'qolgan — kassa puli tuzatildi
+
+Ibrohim: "kassadagi pulliyam togirlab 174.1 versiyani boshla".
+Mockup: mockups/v174.1-naqt-tuzatish.html.
+
+SABAB (15852): lom/karta/perech bo'lsa naqt FAQAT `ks-naqt-berildi` maydonidan
+o'qilardi. Maydon bo'sh qolsa har yozuvga `naqtPul:0` tushgan va pul kassaga
+UMUMAN kirmagan. Topilgan holatlar:
+* Dilobar Opa — jami 9,190.00, lom 2,340.00 -> naqt 6,850.00 kassada YO'Q
+* Dilorom Opa TJK — jami 3,208.05, lom 1,443.05 -> naqt 1,765.00 kassada YO'Q
+
+QILINDI — ikki qism:
+
+1) ESKI YOZUVLAR — Ibrohim XAVFSIZ yo'lni tanladi. Ma'lumot O'ZGARMAYDI,
+   cloudga hech nima ketmaydi. Yangi `_opNaqtPul(op)` (kassaOqim yonida)
+   o'qishda qoldiqdan topadi: `summa − lom − karta − perech`.
+   `op.summa` = sNet, skidka ALLAQACHON ayirilgan -> qayta ayirilmaydi.
+   Qo'riqchi: faqat LOM bor va naqt 0 bo'lganda ishlaydi — sof karta/perech
+   sotuvda naqt haqiqatan 0, unga tegilmaydi. Yozuvda haqiqiy naqt bo'lsa U USTUN.
+
+   9 o'qish joyi shu yordamchiga o'tkazildi: kassaOqim · kassaHarakatlar ·
+   kassaAmalYopgan · kassaPulNavbati · kassaPDFYukor · to'lov-turi hisoboti ·
+   sessiya paneli (naqtJami, _tN, _hN, kNaqt).
+
+   v173.2 dagi sessiya-darajasidagi vaqtinchalik hisob OLIB TASHLANDI — ikki
+   xil qoida qolmasin.
+
+2) YANGI SOTUVLAR — Ibrohim A variantni tanladi (o'zi to'ldiradi, so'ramaydi).
+   `_naqtBerdiSave` endi uch shoxli: sof naqt -> qatorlar yig'indisi; aralash va
+   maydon to'ldirilgan -> maydon (klient qarzga qoldirgan bo'lishi mumkin);
+   aralash va maydon bo'sh -> qoldiq
+   `_jamiSummaRegular − lom − karta − perech − skidka`
+   (bu `kerakliNaqt` 15138 formulasi bilan bir xil).
+
+Sinov: `_opNaqtPul` 8 holatda ishga tushirilib tekshirildi — Dilorom 1765,
+Dilobar 6850, naqt bor 4000 (o'zgarmaydi), sof lom 0, sof karta 0, lom+karta
+2000, eski yozuv (naqtPul yo'q) 1500, eski karta 0. Hammasi to'g'ri.
+
+TEGILMADI: klient qarzi, sotuv summasi, foyda, chek — hech biri o'zgarmaydi.
+Faqat "bu pul naqtmi yoki lommi" ajratmasi to'g'rilanadi.
+
+## v173.2: kassa panelida aralash sotuvda «Naqt» qatori ko'rinmasdi
+
+`kNaqt` yozuvlardagi `naqtPul` yig'indisi edi, u esa 0 bo'lgani uchun
+`if(kNaqt>0)` sharti qatorni chizmasdi. Sessiya darajasida qoldiqdan
+hisoblash qo'shildi. **v174.1 da bu olib tashlandi** — hisob endi har yozuv
+uchun `_opNaqtPul()` da, bitta joyda.
+
+## v173.1: v172.44 BEKOR — zavod ichidagi hisobot eski holatiga qaytarildi
+
+Ibrohim: "zavoddi ichidigi hisobot kamde shunga u eski holatida qovursin".
+`renderZavodHisobot` v172.43 (6288289) holatiga qaytarildi — funksiya
+bayt-ma-bayt solishtirib tekshirildi, AYNAN BIR XIL. `_zhFiltr` / `_zhOchiq` /
+`_zhZavod` / `_zhGuruh` / `zhFiltrTanla` / `zhKunToggle` — hammasi tozalandi.
+
+SABAB: v172.44 da NOTO'G'RI EKRAN o'zgartirilgan edi. Ibrohim bosh ekrandagi
+Hisobotni (`renderHisobot` 5095, qatorda zavod nomi bor) nazarda tutgan,
+Claude esa zavod ICHIDAGI Hisobotni (`renderZavodHisobot`) o'zgartirgan.
+Bosh ekrandagisi uchun mockup tayyor: mockups/v173.1-bosh-hisobot-kun.html —
+hali YOZILMAGAN.
+
 ## v173: BOSQICH BELGISI — kod v172.44 bilan bir xil
 
 Ibrohim: "173versiya qlaqo". Faqat raqam ko'tarildi — `index.html` 1-qatori va

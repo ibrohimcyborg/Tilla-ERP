@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v173 · 2026-08-12
+**Oxirgi yangilanish:** v174.1 · 2026-08-13
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v173** (`index.html` birinchi qatorida `<!-- v173 -->`, `APP_VER` da ham). Kod v172.44 bilan bir xil — faqat bosqich belgisi. Keyingilari v173.1, v173.2 ... |
+| Versiya | **v174.1** (`index.html` birinchi qatorida `<!-- v174.1 -->`, `APP_VER` da ham) |
 | Hajm | ~17,400 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v173 gacha push qilingan** (2026-08-12) — prod v173. |
+| Git | **v174.1 gacha push qilingan** (2026-08-13) — prod v174.1. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -115,6 +115,32 @@ navbatni tinglayveradi**. `tilla-chek-chiqdi` ro'yxati faqat **bitta qurilma
 ichida** ishlaydi. Ikki qurilmada printer bo'lsa chek ikki joydan chiqadi.
 Yopish uchun alohida qaror kerak (masalan «chiqaruvchi qurilma» bulutda bitta
 bo'lib belgilansin).
+
+### 0p. BOSH EKRAN HISOBOTI — mockup tayyor, KOD YOZILMAGAN
+
+Ibrohim so'radi (2026-08-13): bosh ekrandagi Hisobot ham klient hisobotiga
+o'xshab kun bo'yicha guruhlansin + Kirim/Vozvrat/Chiqim filtri bo'lsin.
+
+⚠ v172.44 da **noto'g'ri ekran** o'zgartirilgan edi (`renderZavodHisobot` —
+zavod ICHIDAGI). v173.1 da bekor qilindi. Kerak bo'lgani:
+**`renderHisobot` (5095)** — bosh ekran, qatorda **zavod nomi** bor
+(`Diamond · 13.08.2026`).
+
+Mockup TASDIQLANMAGAN: `mockups/v173.1-bosh-hisobot-kun.html`.
+Qatorda zavod nomi qoladi, sana kun sarlavhasiga chiqadi. ~40–55 qator.
+Bu ekranda zavod tanlanmaydi — «zavod almashsa nolga tushadi» qoidasi kerak emas.
+
+### 0o. ESKI YOZUVLARDA naqtPul:0 — ma'lumot hali TUZATILMAGAN (v174.1)
+
+v174.1 muammoni **o'qishda** hal qildi (`_opNaqtPul`) — kassa endi to'g'ri
+ko'rsatadi. Lekin `k.tarix` dagi yozuvlarda `naqtPul:0` **hali turibdi**.
+
+Ibrohim ataylab shu yo'lni tanladi (xavfsiz: ma'lumot va cloud tegilmaydi,
+orqaga qaytarish oson). Migratsiya — alohida ish, hali qilinmagan.
+
+⚠ Diqqat: `_opNaqtPul` qo'riqchisi — faqat **lom bor** va naqt 0 bo'lganda
+ishlaydi. Agar kelajakda **karta bilan** ham shunday holat chiqsa (naqt 0,
+karta bor, lom yo'q) — u tuzalmaydi, chunki sof karta sotuvda naqt haqiqatan 0.
 
 ### 0n. CLOUD AXLATI TOZALANMAGAN — faqat «chiqmasligi» to'xtatildi (v172.32)
 
@@ -421,6 +447,9 @@ Qaror qabul qilinmagan.
 | v172.25 | Lom hisobotda o'z to'lovida ko'rinadi (kalitga soat) + offset yozuviga soat qo'shildi |
 | v172.30 | **Oplog teshiklari yopildi** — tahrirlangan yozuv ham ketadi (imzo bo'yicha), belgi tasdiqdan keyin, o'chirish navbati, `syncFullFill` yangi vaqt bilan. Telefondagi yozuv PC ga ishonchli yetadi |
 | v172.29 | **Chek 1 bosilib 7 chiqardi** — sabab: belgi faqat bulutda edi, token rad etilib lokal kesh orqaga qaytardi (halqa). Lokal `tilla-chek-chiqdi` ro'yxati + muddat 90s + telefonda haqiqiy javob |
+| v174.1 | **Aralash sotuvda naqt yo'qolishi tuzatildi** — eski yozuvlar o'qishda qoldiqdan (`_opNaqtPul`), yangi sotuvda maydon bo'sh bo'lsa o'zi to'ldiriladi |
+| v173.2 | Kassa panelida «Naqt» qatori ko'rinmasdi (v174.1 da yagona joyga ko'chirildi) |
+| v173.1 | **v172.44 BEKOR** — zavod ichidagi hisobot v172.43 holatiga qaytarildi (noto'g'ri ekran o'zgartirilgan edi) |
 | v173 | **BOSQICH BELGISI** — kod v172.44 bilan bir xil, faqat raqam ko'tarildi |
 | v172.44 | **Zavod hisoboti kun bo'yicha** guruhlanadi + Kirim/Vozvrat/Chiqim filtr chiplari (klient hisoboti qolipi) |
 | v172.43 | Blokda **«boshi 0.00g» qatori chizilmaydi** (0 dan boshqa bo'lsa qoladi) + PDF **tepadagi jadvalda** shakllantirish «Ostatka» (oltin) |
