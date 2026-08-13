@@ -1,4 +1,4 @@
-<!-- v173.1 -->
+<!-- v173.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v173.1';
+var APP_VER = 'v173.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10279,6 +10279,16 @@ function renderKassa() {
             if(o.lomGramm||o.lomPul){kLom+=o.lomPul||0;kLomG+=o.lomGramm||0;kLomKurs=o.lomKurs||kLomKurs||0;}
           });
           kNaqt=Math.round(kNaqt*100)/100;kKarta=Math.round(kKarta*100)/100;kLom=Math.round(kLom*100)/100;kPerech=Math.round(kPerech*100)/100;
+          // v173.2: ARALASH SOTUVDA NAQT KO'RINMASDI. saqlashKlientSotuv (15852) da
+          // lom/karta/perech bo'lsa naqt FAQAT `ks-naqt-berildi` maydonidan o'qiladi —
+          // maydon bo'sh bo'lsa har yozuvga naqtPul:0 tushadi va bu qator chizilmasdi
+          // (Dilobar Opa $9,190 / Dilorom Opa $3,208 — lom ko'rinardi, naqt yo'q edi).
+          // kSumma skidka AYIRILGAN summa (sNet), shuning uchun skidka qayta ayirilmaydi.
+          // Yozuvda haqiqiy naqtPul bo'lsa — U USTUN, hisob ishlatilmaydi.
+          if(kNaqt<=0.005){
+            var _kNaqtQold=Math.round((kSumma-kKarta-kPerech-kLom-(kg.offSumma||0))*100)/100;
+            if(_kNaqtQold>0.005) kNaqt=_kNaqtQold;
+          }
           if(kNaqt>0||kKarta>0||kLom>0||kPerech>0||(kg.offSumma||0)>0.005){
             out+='<div style="background:var(--surf2);border-radius:7px;padding:4px 8px;margin-top:2px;">';
             if(kNaqt>0) out+='<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;"><span style="color:var(--muted);">Naqt</span><span>$'+fmtD(kNaqt)+'</span></div>';
