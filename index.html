@@ -1,4 +1,4 @@
-<!-- v174.8 -->
+<!-- v174.9 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.8';
+var APP_VER = 'v174.9';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16934,8 +16934,11 @@ function klientPDFYukor(dan, gacha){
     sessMap[sk].summa=Math.round((sessMap[sk].summa+(op.summa||0))*100)/100;
     sessMap[sk].ostatka=Math.round(runBal*100)/100;
     if(op.zavod&&op.tur){
+      // v174.9: _op — vaqtinchalik havola, offset belgisi va o'qi keyingi o'tishda
+      // qo'yiladi (_ofSes shu tsikldan KEYIN quriladi). Payloadga ketishdan oldin
+      // o'chiriladi.
       sessMap[sk].turlar.push({zavod:op.zavod,tur:op.tur,
-        gramm:g, summa:op.summa||0, kurs:op.kurs||0});
+        gramm:g, summa:op.summa||0, kurs:op.kurs||0, _op:op});
     }
   });
 
@@ -16987,6 +16990,26 @@ function klientPDFYukor(dan, gacha){
     if(_opOffUlush(op)>0.009){ t=_ofYorliq(s.manba, op.zavod); return t?'← '+t:''; }
     return '';
   }
+
+  // v174.9: TEPA JADVALGA HAM offset belgisi (Ibrohim: "shu tablitsadayam
+  // offsetligini korsatsin"). Guruh BUTUNLAY offsetdan yopilgan bo'lsagina
+  // sarlavha "Offset" bo'ladi — aralashda "$ Tolov" qoladi (ilovadagi
+  // _sofOffset qoidasi, 11816). O'q _ofOq() dan, v174.5 da yozilgan.
+  ops.forEach(function(s){
+    if(s.tip==='tolov'){
+      var offBor=false, sofOff=true;
+      (s.turlar||[]).forEach(function(x){
+        var op=x._op; if(!op) return;
+        if(op._kdYopish) offBor=true;
+        // manzil qatori TO'LIQ offsetdan yopilmagan bo'lsa guruh aralash
+        else if(Math.abs(_opOffUlush(op)-(op.summa||0))>0.01) sofOff=false;
+        if(op._kdYopish) x.off=true;
+        var oq=_ofOq(op); if(oq) x.ok=oq;
+      });
+      if(offBor && sofOff) s.off_ses=true;
+    }
+    (s.turlar||[]).forEach(function(x){ delete x._op; });   // payloadga ketmasin
+  });
 
   var _ostB={}, _ostTartib=[];
   k.tarix.forEach(function(op){

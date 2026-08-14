@@ -3,6 +3,72 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.9: PDF tepa jadvalida ham offset ko'rinadi
+
+Ibrohim (v174.8 dan keyin, rasm bilan): "o'zgarmadi 4572 to'lov dib
+korsatvotti ofsetku u 3D va 3DS uchun".
+
+Aslida ARIFMETIKA tushgan edi — o'sha rasmda Ostatka 87.73g (avval -18.23g).
+Gap KO'RINISHDA edi: sarlavha "$ Tolov", manba qatori oddiy to'lovdek turardi.
+v174.8 da ataylab qilinmagandi — mockupdagi 2-savolga javob yo'q edi.
+
+### index.html
+
+`turlar[]` ga vaqtinchalik `_op` havolasi qo'shildi (16937), chunki `_ofSes`
+xaritasi SHU tsikldan KEYIN quriladi. Keyin ikkinchi o'tish (16991):
+
+* `x.off`  — manba qatorimi (`_kdYopish`)
+* `x.ok`   — o'q matni, `_ofOq()` dan (v174.5 da yozilgan, O'ZGARMADI)
+* `s.off_ses` — guruh BUTUNLAY offsetdan yopilganmi
+* `_op` payloadga ketishdan oldin o'chiriladi
+
+`off_ses` sharti: manba yozuvi BOR va har manzil qatori TO'LIQ offsetdan
+yopilgan (`|_opOffUlush(op) - op.summa| <= 0.01`). Aralash guruhda (bir qismi
+naqd) sarlavha "$ Tolov" bo'lib QOLADI — ilovadagi `_sofOffset` (11816)
+qoidasi bilan bir xil. Qaror Claude'dan.
+
+### api/pdf.py
+
+```
+elif row.get('off_ses'): amal_txt='Offset'; ac=C_PURPLE; gc=C_GREEN; gsign='+'
+_tur = tur + '<br/><font size="6.5" color="#6b46c1">' + ok + '</font>'
+```
+
+Belgi (BIR-BIRIGA QARAMA-QARSHI O'Q) QO'YILMADI — 446-qatordagi izoh bilan bir
+sabab: standart Helvetica da qora kvadrat bo'lib chiqishi mumkin. Faqat
+"Offset" so'zi, binafsha (C_PURPLE, v174.5 da qo'shilgan).
+
+### Sinov
+
+1) Mantiq — index.html dan blok ajratib olinib, 14/14 OK:
+```
+sof offset: off_ses=true, Oddiy "-> 3D, 3DS", 3D/3DS "<- Oddiy", ostatka +2.58
+sof naqt:   off_ses yo'q, o'q yo'q                    (tegilmagan)
+ARALASH:    off_ses YO'Q ("$ Tolov" qoladi), o'qlar esa BOR
+payload:    _op hech qayerda qolmagan, JSON.stringify ishlaydi
+```
+
+2) PDF CHINDAN chizildi (reportlab 5.0.0, `pageCompression=0`), matn
+operatorlari o'qildi — 7/7 OK:
+```
+Offset | Butterfly | Oddiy | \256 |  3D, 3DS | +52.98g | 4,572$ | 86.3$/g | 2.58g
+       | Butterfly | 3D    | \254 |  Oddiy   | +23.31g | 2,075$ | 89.0$/g
+13.08.2026 | $ Tolov | Butterfly | 3DS | +0.17g | 16$ | 92.2$/g | 2.41g
+```
+`\256` = o'ng o'q, `\254` = chap o'q — haqiqiy glif, `\000` (notdef) YO'Q.
+
+### TEGILMADI (ataylab, hali ochiq)
+
+* `qarz_bd` (16910) — PDF ning "Qarz tarkibi" bo'limi. Ilovadagi `_qarzTarkib`
+  (16707) da offset qoidasi BOR, PDF nikida YO'Q -> bir klientga ilovada
+  -87.56g, PDF da -18.40g. Ibrohim javob bermagan.
+* `jami_tolov_g` (16904) — JAMI qatoridagi `qolgan`. `api/pdf.py:428` formulasi
+  tufayli NET bo'lishi kerak, lekin u statistika katagida ham chiqadi ->
+  "+-2.58g" bema'niligi. `qolgan` ni alohida yuborish kerak — ALOHIDA QAROR.
+* `bal` (16904) — grep: hech qayerda ishlatilmaydi, o'lik o'zgaruvchi.
+
+---
+
 ## v174.8: PDF tepa jadvalidagi Ostatka ustuni — offset qo'shiladi
 
 Ibrohim rasm yubordi: 13.08 dagi Butterfly guruhida Ostatka 85.15 dan

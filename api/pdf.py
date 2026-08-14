@@ -448,6 +448,10 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
                              amal_txt='Ostatka';   ac=C_GOLD; gc=C_GOLD; gsign=''
         elif tip=='berish':  amal_txt='↑ Berildi'; ac=C_RED;  gc=C_RED;  gsign=''
         elif tip=='vozvrat': amal_txt='↩ Vozvrat'; ac=C_BLUE; gc=C_GREEN; gsign='+'
+        # v174.9: guruh butunlay offsetdan yopilgan bo'lsa "Offset" (binafsha).
+        # Belgi (⇄) QO'YILMAYDI — yuqoridagi ⊟ izohi bilan bir sabab: standart
+        # Helvetica da qora kvadrat bo'lib chiqishi mumkin.
+        elif row.get('off_ses'): amal_txt='Offset'; ac=C_PURPLE; gc=C_GREEN; gsign='+'
         else: amal_txt='$ Tolov'; ac=C_GREEN; gc=C_GREEN; gsign='+'
         oc=C_RED if ostatka<-0.001 else C_GREEN
         bg=C_GRAY if si%2 else C_WHITE
@@ -456,11 +460,15 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         if turlar:
             for ti, t in enumerate(turlar):
                 tg=t.get('gramm',0); tsum=t.get('summa',0); tk=t.get('kurs',0)
+                # v174.9: offset o'qi tur ostida ikkinchi qatorda (-> manzil / <- manba).
+                _tok=t.get('ok') or ''
+                _tur=(t.get('tur','') + (
+                    '<br/><font size="6.5" color="#6b46c1">%s</font>' % _tok if _tok else ''))
                 tdata.append([
                     P(row.get('sana','') if ti==0 else '',size=9,color=C_MUTED),
                     P(amal_txt if ti==0 else '','Helvetica-Bold',9,ac,'CENTER'),
                     P(t.get('zavod',''),size=9,color=C_MUTED),
-                    P(t.get('tur',''),'Helvetica-Bold',9,C_DARK),
+                    P(_tur,'Helvetica-Bold',9,C_DARK),
                     P(f"{gsign}{abs(tg):,.2f}g",'Helvetica-Bold',9,gc,'RIGHT'),
                     P(f"{tsum:,.0f}$" if tsum else "—",size=9,align='RIGHT'),
                     P(f"{tk:,.1f}$/g" if tk else "—",size=9,color=C_MUTED,align='RIGHT'),
