@@ -1,4 +1,4 @@
-<!-- v174.7 -->
+<!-- v174.8 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.7';
+var APP_VER = 'v174.8';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16916,7 +16916,10 @@ function klientPDFYukor(dan, gacha){
   var runBal=0;
   k.tarix.forEach(function(op){
     var g = op.tip==='berish'?op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0));
-    if(op.tip==='berish') runBal+=g;
+    // v174.8: offset (_kdYopish) BIZNING qarzni yopadi — qoldiq ORTADI, kamaymaydi.
+    // Avval oddiy to'lovdek ayirilardi va Ostatka ustuni 2×offset ga past chiqardi
+    // (Dilfuza 13.08: 85.15 → −18.23, to'g'risi +87.73).
+    if(op.tip==='berish' || op._kdYopish) runBal+=g;
     else runBal-=g;
     var sk=op.sana+'|'+(op.soat||'')+'|'+op.tip;
     if(!sessMap[sk]){

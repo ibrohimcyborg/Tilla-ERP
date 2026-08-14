@@ -3,6 +3,54 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.8: PDF tepa jadvalidagi Ostatka ustuni — offset qo'shiladi
+
+Ibrohim rasm yubordi: 13.08 dagi Butterfly guruhida Ostatka 85.15 dan
+**-18.23g** ga tushgan. Tekshiruv: manba qatori (`_kdYopish`) oddiy to'lovdek
+AYIRILARDI.
+
+```
+85.15 - 52.98 (MANBA) - 23.31 - 27.09 = -18.23    <- eski
+85.15 + 52.98 (MANBA) - 23.31 - 27.09 = +87.73    <- to'g'ri
+```
+
+`klientPDFYukor` ning boshlanish qismida (16896-16950) `_kdYopish` **0 marta**
+uchraydi. Tuzatildi:
+
+```
+eski:  if(op.tip==='berish') runBal+=g; else runBal-=g;
+yangi: if(op.tip==='berish' || op._kdYopish) runBal+=g; else runBal-=g;
+```
+
+SINOV (mantiq index.html dan ajratib olinib):
+```
+                    ESKI   YANGI  KUTILGAN
+berish 100g          100    100     100
+tolov 30g (oddiy)     70     70      70
+tolov 20g (OFFSET)    50     90      90   <- qo'shiladi
+vozvrat 10g           40     80      80
+tolov 5g (oddiy)      35     75      75
+farq 40 = 2 x offset
+Chegara: ekvivalent=0 / maydonsiz / berish+_kdYopish / vozvrat  - 4/4 OK
+```
+
+Ibrohim rasmidagi AYNAN raqamlar qayta hosil qilinmadi — rasmdagi 7 qator
+orasida ko'rinmaydigan yozuvlar bor (JAMI 14,467$, ko'ringanlari ~12,968$).
+Haqiqiy tekshiruv Ibrohimning PDF ida.
+
+TEGILMADI (ataylab, tashxis mockupda: `mockups/v174.8-pdf-tepa-jadval-offset.html`):
+* `bal` (16904) — grep: HECH QAYERDA ishlatilmaydi, o'lik o'zgaruvchi
+* `qarz_bd` (16910) — PDF ning «Qarz tarkibi» bo'limi. Ilovadagi `_qarzTarkib`
+  (16707) da offset qoidasi BOR, PDF ning `qarz_bd` sida YO'Q -> bir klientga
+  ilovada -87.56g, PDF da -18.40g chiqadi. Ibrohim 3-savolga javob bermadi.
+* `jami_tolov_g` (16904) — JAMI qatoridagi `qolgan`. To'g'ri chiqishi uchun NET
+  bo'lishi kerak (50.40 - 52.98 = -2.58), lekin u statistika katagida `+{tolov_g}g`
+  deb ham chiqadi -> «+-2.58g» bema'niligi. To'g'ri yechim `qolgan` ni alohida
+  yuborish, bu `api/pdf.py` ni o'zgartiradi — ALOHIDA QAROR.
+* Ko'rinish belgisi («⇄ Offset», `→ / ←` o'qlar) — Ibrohim 2-savolga javob bermadi.
+
+---
+
 ## v174.7: Xato C — v.offset ikkilanishi yopildi
 
 Ibrohim: "C togirla". Uch variantdan **3-si (kattasini olish)** tanlandi —

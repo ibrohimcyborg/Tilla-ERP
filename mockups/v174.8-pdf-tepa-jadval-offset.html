@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF tepa jadvali — offset</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;
+        --pur:#a97bd6;--pur-bg:rgba(169,123,214,.12)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:8px}
+  h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{margin-top:16px;background:var(--red-bg);border:1px solid var(--red);
+          border-radius:10px;padding:14px 17px;font-size:14px}
+  .banner b{color:var(--red)}
+  .banner.gold{background:var(--gold-bg);border-color:var(--gold)}
+  .banner.gold b{color:var(--gold)}
+  .banner.grn{background:var(--grn-bg);border-color:var(--grn)}
+  .banner.grn b{color:var(--grn)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:42px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:7px 9px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+  .pur{color:var(--pur)}
+  tr.tot td{border-top:2px solid var(--line);font-weight:700;background:rgba(255,255,255,.03)}
+  .ba{display:grid;grid-template-columns:1fr;gap:14px;margin:12px 0}
+  .bx{border-radius:10px;padding:14px 16px;border:1px solid var(--line);background:var(--card2);
+      overflow-x:auto}
+  .bx.now{border-color:var(--red)} .bx.new{border-color:var(--grn)}
+  .bx .bh{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+          margin-bottom:10px}
+  .bx.now .bh{color:var(--red)} .bx.new .bh{color:var(--grn)}
+  .bx table{margin:0;font-size:12.5px;min-width:640px}
+  .bx th,.bx td{padding:5px 7px}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .qbox.red{background:var(--red-bg);border-color:var(--red)}
+  .qbox.red .lbl{color:var(--red)}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:14px;
+         border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>PDF ning tepa jadvalida offset</h1>
+  <div class="sub">v174.7 dan keyin · 2026-08-14 · <b>kod yozilmagan</b></div>
+  <div class="banner">
+    <b>So'raganingizdan kattaroq narsa chiqdi.</b> Siz «offsetligini ko'rsatsin»
+    dedingiz — bu <b>ko'rinish</b>. Lekin tekshirganda bu jadvalning
+    <b>arifmetikasi ham noto'g'ri</b> ekan. Rasmingizdagi raqamning o'zi buni
+    isbotlab turibdi. Ikkalasini ham ko'rsataman, qaysi birini qilishni siz aytasiz.
+  </div>
+</header>
+
+
+<!-- ═══════════ DALIL ═══════════ -->
+<h2 class="sec">1 · <b>Rasmingizdagi dalil</b></h2>
+
+<div class="card red">
+  <h3>Ostatka ustuni offsetni oddiy to'lovdek AYIRYAPTI</h3>
+
+  <p>Rasmda 13.08 dagi Butterfly guruhidan oldin <b>Ostatka = 85.15g</b> edi.
+  Guruhdan keyin <b>−18.23g</b> bo'ldi. Tekshiramiz:</p>
+
+  <table>
+    <thead><tr><th>Qator</th><th class="num">Gramm</th><th>Hozir nima qilinyapti</th><th class="num">Yugurib borayotgan qoldiq</th></tr></thead>
+    <tbody>
+      <tr><td class="dim">…oldingi holat</td><td class="num dim">—</td><td class="dim">—</td><td class="num">85.15</td></tr>
+      <tr style="background:var(--red-bg)"><td><b>Butterfly · Oddiy</b> <span class="dim">(MANBA)</span></td>
+          <td class="num">52.98</td><td class="bad">ayirilyapti  −52.98</td><td class="num">32.17</td></tr>
+      <tr><td>Butterfly · 3D</td><td class="num">23.31</td><td class="dim">ayirilyapti  −23.31</td><td class="num">8.86</td></tr>
+      <tr><td>Butterfly · 3DS</td><td class="num">27.09</td><td class="dim">ayirilyapti  −27.09</td><td class="num">−18.23</td></tr>
+      <tr class="tot"><td colspan="3">Rasmda ko'rinayotgan raqam</td><td class="num bad">−18.23g</td></tr>
+    </tbody>
+  </table>
+
+  <p>Ya'ni <b>manba qatori ham manzil qatorlari bilan bir xil ayirilyapti</b>.
+  Fayldagi qolgan <b>17 joyda</b> qoida boshqacha — manbaga <b>+</b>, manzilga <b>−</b>
+  (<span class="ln">13444/13445</span>, <span class="ln">14519/14520</span>,
+  <span class="ln">16659</span> …). v174.4 da PDF ning <b>pastki</b> bloklarini,
+  v174.6 da 2-chi chekni shu qoidaga keltirgan edik — <b>tepa jadval o'sha xatoda qolgan</b>.</p>
+
+  <div class="lbl">Koddan tasdiq</div>
+  <pre>grep "_kdYopish" — klientPDFYukor ning 16896–16950 qismida:
+<span class="del">natija: 0 ta</span>   <span class="cm">← butun boshlanish qismida umuman yo'q</span></pre>
+
+  <table>
+    <thead><tr><th style="width:80px">Qator</th><th>Nima</th><th>Hozir</th><th>Nimaga ta'sir qiladi</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ln">16904</span></td><td><code>bal</code>, <code>jami_tolov_g/pul</code></td>
+          <td class="bad">hamma tolov ayiriladi</td><td class="dim">pastdagi JAMI qatori</td></tr>
+      <tr><td><span class="ln">16910</span></td><td><code>qarz_bd</code></td>
+          <td class="bad">hamma tolov ayiriladi</td><td class="dim">PDF ning «Qarz tarkibi» bo'limi</td></tr>
+      <tr><td><span class="ln">16920</span></td><td><code>runBal</code></td>
+          <td class="bad">hamma tolov ayiriladi</td><td class="dim"><b>Ostatka ustuni</b> — rasmdagi −18.23</td></tr>
+      <tr><td><span class="ln">16934</span></td><td><code>turlar[]</code></td>
+          <td class="bad">offset belgisi saqlanmaydi</td><td class="dim">shuning uchun PDF uni <b>ko'rsata olmaydi</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Yana bittasi — ilova bilan PDF bir xil emas</div>
+    Ilovadagi «Qarz tarkibi» <b>to'g'ri</b> ishlaydi, chunki u <code>_qarzTarkib</code>
+    (<span class="ln">16707</span>) dan o'qiydi va u yerda offset qoidasi <b>bor</b>.
+    <br><br>
+    PDF esa <b>butunlay boshqa hisobdan</b> — <code>qarz_bd</code>
+    (<span class="ln">16905–16911</span>) dan o'qiydi va u yerda qoida <b>yo'q</b>.
+    <br><br>
+    Shuning uchun ilovada <b>−87.56 g</b>, PDF da <b>−18.40 g</b> chiqyapti.
+    Ikki xil raqam — bir xil klient.
+  </div>
+</div>
+
+
+<!-- ═══════════ HOZIRGI vs TAKLIF ═══════════ -->
+<h2 class="sec">2 · <b>Hozirgi vs Taklif</b></h2>
+
+<div class="card">
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Hozir</div>
+      <table>
+        <thead><tr><th>Sana</th><th>Amal</th><th>Zavod</th><th>Tur</th>
+          <th class="num">Gramm</th><th class="num">Summa</th><th class="num">Ostatka</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">13.08</td><td class="dim">$ Tolov</td><td class="dim">Simay</td><td>Oddiy</td>
+              <td class="num ok">+24.62g</td><td class="num">2,257$</td><td class="num">85.15g</td></tr>
+          <tr style="background:var(--red-bg)"><td rowspan="3" class="dim">13.08</td>
+              <td rowspan="3" class="bad">$ Tolov</td>
+              <td class="dim">Butterfly</td><td>Oddiy</td>
+              <td class="num ok">+52.98g</td><td class="num">4,572$</td>
+              <td rowspan="3" class="num bad">−18.23g</td></tr>
+          <tr style="background:var(--red-bg)"><td class="dim">Butterfly</td><td>3D</td>
+              <td class="num ok">+23.31g</td><td class="num">2,075$</td></tr>
+          <tr style="background:var(--red-bg)"><td class="dim">Butterfly</td><td>3DS</td>
+              <td class="num ok">+27.09g</td><td class="num">2,498$</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px;margin:10px 0 0;color:var(--muted)">
+        Uchala qator bir xil «$ Tolov». Manba qatori ayirilgani uchun qoldiq
+        <b class="bad">105.96 g ga past</b>.</p>
+    </div>
+
+    <div class="bx new">
+      <div class="bh">✓ Taklif</div>
+      <table>
+        <thead><tr><th>Sana</th><th>Amal</th><th>Zavod</th><th>Tur</th>
+          <th class="num">Gramm</th><th class="num">Summa</th><th class="num">Ostatka</th></tr></thead>
+        <tbody>
+          <tr><td class="dim">13.08</td><td class="dim">$ Tolov</td><td class="dim">Simay</td><td>Oddiy</td>
+              <td class="num ok">+24.62g</td><td class="num">2,257$</td><td class="num">85.15g</td></tr>
+          <tr style="background:var(--pur-bg)"><td rowspan="3" class="dim">13.08</td>
+              <td rowspan="3" class="pur"><b>⇄ Offset</b></td>
+              <td class="dim">Butterfly</td><td>Oddiy <span class="pur">→ 3D, 3DS</span></td>
+              <td class="num ok">+52.98g</td><td class="num">4,572$</td>
+              <td rowspan="3" class="num ok">+87.73g</td></tr>
+          <tr style="background:var(--pur-bg)"><td class="dim">Butterfly</td><td>3D <span class="pur">← Oddiy</span></td>
+              <td class="num ok">+23.31g</td><td class="num">2,075$</td></tr>
+          <tr style="background:var(--pur-bg)"><td class="dim">Butterfly</td><td>3DS <span class="pur">← Oddiy</span></td>
+              <td class="num ok">+27.09g</td><td class="num">2,498$</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px;margin:10px 0 0;color:var(--muted)">
+        <b>Amal</b> ustuni «⇄ Offset» · <b>Tur</b> ustunida <code>→ / ←</code> o'qlar
+        (v174.5 dagi pastki bloklar bilan bir xil) · qoldiq <b class="ok">+52.98 qo'shilib</b> hisoblanadi.</p>
+    </div>
+  </div>
+
+  <div class="banner gold">
+    <b>Gramm ustuni TEGILMAYDI.</b> U «qancha yopildi» degan o'lchov, belgisi
+    doim <b>+</b> va yashil. Faqat <b>Ostatka</b> ustuni to'g'irlanadi —
+    o'sha yugurib borayotgan qoldiq.
+  </div>
+</div>
+
+
+<!-- ═══════════ NIMA O'ZGARADI ═══════════ -->
+<h2 class="sec">3 · <b>Nima o'zgaradi</b></h2>
+
+<div class="card">
+  <div class="lbl">index.html — 4 joy</div>
+  <pre><span class="cm">16904 — bal / jami_tolov</span>
+<span class="del">- else if(op.tip==='tolov'){ bal-=(op.ekvivalent||0); ... }</span>
+<span class="add">+ else if(op.tip==='tolov'){ bal += op._kdYopish ? (op.ekvivalent||0) : -(op.ekvivalent||0); ... }</span>
+
+<span class="cm">16910 — qarz_bd (PDF ning «Qarz tarkibi»)</span>
+<span class="del">- else if(op.tip==='tolov') qarz_bd[key].qarz-=(op.ekvivalent||0);</span>
+<span class="add">+ else if(op.tip==='tolov' && !op._kdYopish) qarz_bd[key].qarz-=(op.ekvivalent||0);</span>
+<span class="add">+ else if(op.tip==='tolov' &&  op._kdYopish) qarz_bd[key].qarz+=(op.ekvivalent||0);</span>
+
+<span class="cm">16919 — runBal (Ostatka ustuni)</span>
+<span class="del">- if(op.tip==='berish') runBal+=g; else runBal-=g;</span>
+<span class="add">+ if(op.tip==='berish' || op._kdYopish) runBal+=g; else runBal-=g;</span>
+
+<span class="cm">16934 — turlar[] ga offset belgisi va o'q</span>
+<span class="add">+ off:!!op._kdYopish, ok:'→ 3D, 3DS' / '← Oddiy'</span>
+<span class="cm">  (o'q v174.5 dagi _ofSes xaritasidan olinadi — u ALLAQACHON quriladi, 16959)</span></pre>
+
+  <div class="lbl">api/pdf.py — 1 joy</div>
+  <pre><span class="cm">~445 — guruh sarlavhasi</span>
+<span class="del">- else: amal_txt='$ Tolov'; ac=C_GREEN; gc=C_GREEN; gsign='+'</span>
+<span class="add">+ elif tip=='tolov' and row.get('off_ses'): amal_txt='⇄ Offset'; ac=C_PURPLE; ...</span>
+<span class="add">+ else: amal_txt='$ Tolov'; ...</span>
+<span class="cm">  Tur ustuniga ok matnini qo'shish — 1 qator</span></pre>
+
+  <div class="chips">
+    <span class="chip"><b>index.html:</b> ~14 qator</span>
+    <span class="chip"><b>api/pdf.py:</b> ~5 qator</span>
+    <span class="chip"><b>Jami:</b> ~19 qator</span>
+  </div>
+</div>
+
+
+<!-- ═══════════ QARORLAR ═══════════ -->
+<h2 class="sec">4 · <b>Sizdan javob kerak</b></h2>
+
+<div class="card blu">
+  <div class="qbox red">
+    <div class="lbl">1 — Eng muhimi: arifmetikani ham tuzataymi?</div>
+    Siz faqat <b>«offsetligini ko'rsatsin»</b> dedingiz. Lekin belgi qo'yib,
+    raqamni eski holida qoldirsam — jadval <b>«⇄ Offset» deb yozib, baribir
+    noto'g'ri qoldiq</b> chiqaradi. Bu yomonroq.
+    <br><br>
+    <b>a)</b> Ikkalasi ham — belgi + arifmetika <span class="dim">(tavsiyam)</span><br>
+    <b>b)</b> Faqat belgi, raqamga tegmaslik<br>
+    <b>c)</b> Faqat arifmetika, belgi keyinroq
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — Ko'rinish qaysi darajada?</div>
+    <b>a)</b> Amal ustunida «⇄ Offset» + Tur ustunida <code>→ / ←</code> o'qlar
+    <span class="dim">(tavsiyam — v174.5 bilan bir xil til)</span><br>
+    <b>b)</b> Faqat «⇄ Offset», o'qsiz<br>
+    <b>c)</b> Faqat o'qlar, guruh sarlavhasi «$ Tolov» qolsin
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">3 — «Qarz tarkibi» ham to'g'irlansinmi?</div>
+    PDF va ilova hozir <b>ikki xil raqam</b> ko'rsatyapti (−18.40 va −87.56),
+    chunki ikki xil kod. Tuzatilsa <b>PDF dagi «Qarz tarkibi» raqamlari
+    o'zgaradi</b> — ilovadagiga yaqinlashadi.
+    <br><br>
+    Bu <b>alohida versiya</b> bo'lishi ham mumkin. Hozir qilaymi?
+  </div>
+
+  <div class="banner grn" style="margin-top:16px">
+    <b>Aytganingizdan keyin</b> yozaman, sinovdan o'tkazaman (haqiqiy kod +
+    sizning raqamlaringiz bilan), TEKSHIRUV blokini chiqaraman va push qilaman.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

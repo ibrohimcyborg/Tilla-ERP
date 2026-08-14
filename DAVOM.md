@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v174.7 · 2026-08-14
+**Oxirgi yangilanish:** v174.8 · 2026-08-14
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v174.7** (`index.html` birinchi qatorida `<!-- v174.7 -->`, `APP_VER` da ham) |
+| Versiya | **v174.8** (`index.html` birinchi qatorida `<!-- v174.8 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.7 gacha push qilingan** (2026-08-14) — prod v174.7. |
+| Git | **v174.8 gacha push qilingan** (2026-08-14) — prod v174.8. ⏳ Ibrohim PDF chiqarib tekshiradi. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -78,7 +78,7 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
-### ⭐ 0q. OFFSET — HAMMASI TUZATILDI (v174.4–v174.7), SINOV KUTILMOQDA
+### ⭐ 0q. OFFSET — v174.4–v174.8, PDF DA 3 JOY QOLDI
 
 2026-08-14: Ibrohim rasm bilan ko'rsatdi — offset **ikki marta** hisoblanardi.
 Sabab: offset BITTA pul, IKKI tomondan yozilgan yozuv (manba `_kdYopish:true`,
@@ -112,6 +112,37 @@ blok ajratib olinib ma'lumot o'tkazildi). v174.7 uchun **6 holat**: sof offset �
 aralash · manba yo'q · eski format · `naqtPul:0`+lom · sof naqt — 6/6 to'g'ri,
 `jami` o'zgarmadi. PDF chizuvchisi ham tekshirildi (binafsha rang + Symbol
 shrifti). Lekin **ilovada Ibrohim hali ko'rmagan** — prodda tekshirilishi kerak.
+
+**v174.8 — PDF tepa jadvali.** Ibrohim rasm yubordi: Ostatka ustuni 85.15 dan
+**−18.23g** ga tushgan. Sabab yana o'sha — manba qatori oddiy to'lovdek
+ayirilardi. `klientPDFYukor` ning boshlanish qismida (16896–16950) `_kdYopish`
+**0 marta** uchraydi. `runBal` (16922) tuzatildi:
+`if(op.tip==='berish' || op._kdYopish) runBal+=g;`
+Sinov: `berish 100 → tolov 30 → OFFSET 20 → vozvrat 10 → tolov 5`,
+eski `100·70·50·40·35` → yangi `100·70·90·80·75`, farq 40 = 2×offset.
+⏳ **Ibrohim PDF chiqarib tekshiradi.**
+
+⚠⚠ **PDF DA 3 JOY HALI ESKI — Ibrohim javob bermagan savollar:**
+
+1. **`qarz_bd` (16910)** — PDF ning «Qarz tarkibi» bo'limi. Ilovadagi
+   `_qarzTarkib` (16707) da offset qoidasi **BOR**, PDF ning `qarz_bd` sida
+   **YO'Q** → bir xil klientga ilovada **−87.56 g**, PDF da **−18.40 g**
+   chiqadi. Ikki xil kod, ikki xil raqam.
+2. **`jami_tolov_g` (16904)** — JAMI qatoridagi `qolgan`
+   (`api/pdf.py:428`: `berildi − vozvrat − tolov_g`). To'g'ri chiqishi uchun
+   `jami_tolov_g` **net** bo'lishi kerak (Dilfuza: `50.40 − 52.98 = −2.58`),
+   lekin u statistika katagida `+{tolov_g}g` deb ham chiqadi → **«+−2.58g»**
+   bema'niligi. To'g'ri yechim `qolgan` ni alohida yuborish — `api/pdf.py`
+   o'zgaradi, **alohida qaror**.
+3. **Ko'rinish belgisi** — «⇄ Offset» sarlavhasi va Tur ustunidagi `→ / ←`
+   o'qlar. Ibrohim so'ragan edi («shu tablitsadayam offsetligini korsatsin»),
+   lekin avval arifmetikani tekshirmoqchi. `turlar[]` (16934) ga `_kdYopish`
+   belgisi ham saqlanishi kerak — hozir saqlanmaydi.
+
+`bal` (16904) — grep bilan tekshirildi, **hech qayerda ishlatilmaydi**
+(o'lik o'zgaruvchi), tegilmadi.
+
+Tashxis mockupi: `mockups/v174.8-pdf-tepa-jadval-offset.html`
 
 ⚠ **TEGILMAGAN, o'sha joyda turibdi:** `_ostJadvalUstunlar` (14408) da
 `nom='berildi'` bor, `inventar==='boshlangich'` tekshiruvi YO'Q — shuning uchun
@@ -537,6 +568,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v174.8 | **PDF tepa jadvali Ostatka ustuni** — offset ayirilardi, endi qo'shiladi (`runBal` 16922) |
 | v174.7 | **Xato C** — `v.offset` ikki yo'ldan qo'shilardi, endi `max(manba, ayirma)`; ayirma `_opOffUlush` ga o'tdi; `ofNom` manbadan |
 | v174.6 | **2-chi chek jadvalida ham offset xatosi** tuzatildi (`_ostJadvalUstunlar` 14410) |
 | v174.5 | **Offsetning ikki tomoni bir-birini ko'rsatadi** — klient tarixida manba qatori (avval `false &&` bilan o'chirilgan edi) + manzilga `←`; PDF da `offset → 3D, 3DS` va `tolov ← Oddiy`; `pdf.py` da binafsha rang |
