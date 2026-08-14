@@ -3,6 +3,102 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.5: offsetning ikki tomoni bir-birini ko'rsatadi
+
+Ibrohim: "pdfda offset dib nimadan yopganini korsatsa klient tarixidayam qaysi
+turga to'lov qivorganini ko'rsatsa yaxshi bo'lardi".
+
+Mockup: `mockups/v174.4-offset-sistema.html` — tasdiqlangan 5 qaror:
+(1) ikkita versiya, (2) zavod bir xil bo'lsa faqat tur nomi, (3) PDF da binafsha,
+(4) manba matni qisqa, (5) soatsiz noaniq yozuvda o'q chizilmaydi.
+
+SISTEMA: `→` manba qatorida (pul qayerga ketdi) · `←` manzil qatorida (qayerdan keldi).
+
+YANGI YORDAMCHI — `_opOffUlush(op)` (11594). Qatorning offsetdan kelgan ulushi.
+Yozuvda saqlanmaydi, `summa − naqd` ayirmasidan topiladi (v172.24 qoidasi).
+Naqt `_opNaqtPul` orqali o'qiladi — eski `naqtPul:0` xatosi (v174.1) yolg'on
+offset ko'rsatmasin. `_tolovTurAniq` dagi ichki nusxa TEGILMADI (refactor emas).
+
+KLIENT TARIXI (11869, 11876):
+- MANBA qatori qaytarildi va TEPAGA chiqdi. Avval `filter(function(o){return
+  false && o._kdYopish;})` edi — ya'ni yozilgan, lekin HECH QACHON chizilmagan.
+  Yangi matn: `↳ Butterfly · Oddiy dan olindi — $4,572.17 (52.98g)`
+- MANZIL qatoriga `←` — faqat `_opOffUlush(op)>0.009` bo'lganda.
+
+PDF (16943 pre-pass, 16965 `_ofOq`, 17002 push):
+- `_ofSes[sana|soat]` = {manba:[], manzil:[]} — sessiya xaritasi butun tarixdan.
+- `_ofKun[sana]` = sessiya kalitlari. Soat yo'q va o'sha kunda >1 sessiya bo'lsa
+  o'q CHIZILMAYDI (0f masalasi: v172.25 gacha offsetda soat yo'q).
+- Yorliq: zavod bir xil bo'lsa faqat tur, boshqa bo'lsa `zavod·tur`. Ustun tor —
+  blok kengligining 34%, shrift 6.5.
+- `amal` (nom) TEGILMADI — pdf.py rangni aynan shu satr bo'yicha tanlaydi.
+  O'q alohida `ok` maydonida boradi.
+
+`api/pdf.py` (40, 384, 390): `C_PURPLE=#6b46c1`; `nom=='offset'` binafsha;
+`ok` bo'lsa nom yoniga qo'shiladi. `ok` siz eski payload avvalgidek ishlaydi.
+
+SINOV — `index.html` dan HAQIQIY kod ajratib olinib Dilfuza ma'lumoti o'tkazildi:
+```
+Butterfly·Oddiy  +52.98g  offset → 3D, 3DS   QOLDI 0.00g   (avval +105.96g)
+Butterfly·3D     -23.31g  tolov ← Oddiy      QOLDI 0.00g
+Butterfly·3DS    -27.09g  tolov ← Oddiy
+                 -0.17g   tolov              ← naqd, o'q YO'Q ✓
+```
+pdf.py render: `.419608 .27451 .756863 rg` (binafsha) ✓ · F3=Symbol (o'q) ✓
+Arrow renderlanishi tekshirildi: reportlab Type1 Helvetica da bo'lmagan `→ ←`
+uchun avtomat **Symbol** shriftiga o'tadi — shuning uchun mavjud `↑ Berildi`
+ham ishlab turgan ekan.
+
+⚠ DIFF BUDJETI OSHDI: taxmin 26–34, haqiqiy 64+/12−. Qamrov kengaymagan,
+oshiqchasi izohlar. Ibrohimga xabar berildi.
+
+---
+
+## v174.4: OFFSET IKKI MARTA hisoblanardi — pul va qoldiq ikkilanardi
+
+Ibrohim (rasm bilan): "klient umumiy hisobotida offsetdan divotti lekin klientni
+o'ziga kirib tarixiga qaraganda usha hisobbi 2 marta qivorvotti to'lov qilib...
+klient +52.98g qarzidi, uni offset qilib Butterfly 3D / 3DS dan yoptik, lekin
+klient ostatkasida +105.96g bo'pqoldi".
+
+Mockup: `mockups/v174.4-offset-ikki-marta-va-javoblar.html`
+
+SABAB. Offset — BITTA pul, IKKI tomondan yozilgan yozuv:
+```
+Butterfly · Oddiy   4,572.17$  52.98g  _kdYopish ✓   MANBA  (biz qarzdor edik)
+Butterfly · 3D      2,074.59$  23.31g                MANZIL (klient qarzi yopildi)
+Butterfly · 3DS     2,497.58$  27.09g                MANZIL
+```
+2,074.59 + 2,497.58 = 4,572.17 — manba bilan AYNAN bir xil. Ikkala tomon
+qo'shilsa pul ikkilanadi.
+
+XATO A — `_tolovTurAniq` (11594 dan ko'chirildi). `jami += (op.summa||0)`
+`_kdYopish` tekshiruvidan OLDIN turardi → manba ham qo'shilardi.
+Klient tarixi sarlavhasi: **$9,144.34** o'rniga **$4,572.17**.
+Gramm allaqachon to'g'ri edi (50.40g) — `isMixedTolovOffset` uni ajratardi.
+
+XATO B — `klientPDFYukor` kunlik bloki (16939). `_kdYopish` UMUMAN
+tekshirilmasdi, manba oddiy to'lovdek AYIRILARDI:
+```
+eski: else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+```
+Butterfly·Oddiy: −52.98 (ostatka) + −52.98 (offset) = −105.96 → QOLDI +105.96g.
+To'g'risi: −52.98 + **+52.98** = 0.00 → QOLDI 0.00g.
+Bu shox v172.39 da yangi yozilgan, fayldagi 17 joydagi qoidadan chetda qolgan
+(13444/13445, 14519/14520, 16651/16659 ...).
+
+TEKSHIRILDI: `_tolovTurAniq` 4 joydan chaqiriladi (11119, 11803, 12043 + 11804),
+lekin `.jami` faqat 11845/11846 da chiziladi — qolgan uchtasi `.bor` ni oladi,
+ta'sir yo'q. `ost_bloklar` faqat `klientPDFYukor` da quriladi.
+
+TEGILMADI (so'ralmagan, alohida qaror kutilmoqda):
+- **`_ostJadvalUstunlar` (14397)** — 2-chi chek jadvalida AYNAN shu xato bor
+  (`_kdYopish` tekshirilmaydi). Ibrohimga xabar berildi.
+- **Xato C** — `v.offset` ham ikkilanadi (11596 belgidan + 11617 ayirmadan).
+  Faqat ARALASH to'lovda ko'rinadi (`_tolovPulQator` `bor.length<2` da chizmaydi).
+
+---
+
 ## v174.3: zavod ichidagi hisobotda vozvrat tafsiloti «-NaN g» chiqardi
 
 Ibrohim: "zavod ichidigi hisobotda vozvrat grami naN bopqovotti, umumiy

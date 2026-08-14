@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v174.3 · 2026-08-13
+**Oxirgi yangilanish:** v174.5 · 2026-08-14
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v174.3** (`index.html` birinchi qatorida `<!-- v174.3 -->`, `APP_VER` da ham) |
-| Hajm | ~17,400 qator · ~1 MB · **~311k token** |
+| Versiya | **v174.5** (`index.html` birinchi qatorida `<!-- v174.5 -->`, `APP_VER` da ham) |
+| Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.3 gacha push qilingan** (2026-08-13) — prod v174.3. |
+| Git | **v174.3 gacha push qilingan** (2026-08-13) — prod v174.3. ⚠ **v174.4 va v174.5 commit qilingan, PUSH QILINMAGAN** — Ibrohim ko'rib tasdiqlashi kerak. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -78,6 +78,38 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
+### ⭐ 0q. OFFSET — 2 ta joy TUZATILDI, 2 ta joy QOLDI (v174.4/v174.5)
+
+2026-08-14: Ibrohim rasm bilan ko'rsatdi — offset **ikki marta** hisoblanardi.
+Sabab: offset BITTA pul, IKKI tomondan yozilgan yozuv (manba `_kdYopish:true`,
+manzil belgisiz). Ba'zi ekranlar ikkala tomonni qo'shib yuborardi.
+
+**Tuzatildi:** klient tarixi sarlavhasidagi pul (11594) · PDF kunlik bloki (16939).
+**Ko'rinish qo'shildi (v174.5):** manba qatori + `→ / ←` o'qlari, PDF da binafsha.
+
+**⚠ QOLGAN IKKITASI — Ibrohim qaroriga qarab:**
+
+1. **`_ostJadvalUstunlar` (14397)** — **2-chi chek jadvalida AYNAN shu xato**:
+   ```js
+   else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+   ```
+   `_kdYopish` tekshirilmaydi → offset oddiy to'lovdek ayiriladi → chekdagi
+   ostatka jadvali ikkilangan qoldiq ko'rsatadi. Tuzatish 16939 dagi bilan
+   **bir xil, ~5 qator**. So'ralmagani uchun tegilmadi.
+   ⚠ Bu yerda yana bir eskilik bor: `nom='berildi'` da `inventar==='boshlangich'`
+   tekshiruvi YO'Q (16937 da bor) — 0m dagi «shakllantirish berildi deb chiqadi»
+   masalasi shu.
+
+2. **Xato C — `v.offset` ikkilanadi** (`_tolovTurAniq`: 11596 belgidan +
+   11617 ayirmadan, ikkalasi ham ishlaydi). Faqat **ARALASH** to'lovda ko'rinadi
+   — `_tolovPulQator` (11648) `bor.length<2` bo'lsa chizmaydi, sof offsetda
+   bitta tur bo'lgani uchun ko'rinmaydi. Uch variant mockupda:
+   `mockups/v174.4-offset-sistema.html` emas, `...-ikki-marta-va-javoblar.html` da.
+
+**Sinov holati:** v174.4/v174.5 **haqiqiy kod bilan** sinaldi (index.html dan blok
+ajratib olinib Dilfuza ma'lumoti o'tkazildi) — natija to'g'ri. Lekin **ilovada
+Ibrohim ko'rmagan**. Prodga chiqmagan.
+
 ### 0i. ~~Telefondan chek bosilsa PC dan chiqishi~~ — BAJARILDI (v172.28)
 
 Ibrohim so'radi (2026-08-09): telefondan chek bossa, PC ga ulangan termal
@@ -109,6 +141,18 @@ Kalitni PC da YOQ, telefonda O'CHIQ qilish shart (faqat bitta qurilmada yoqilsin
 **2026-08-10: sinovda 1 marta bosilgan, 7 marta chiqqan** → v172.29 da tuzatildi
 (pastga qarang). ⚠ v172.29 dan keyin QAYTA SINALMAGAN.
 
+⚠ **2026-08-14 — Ibrohim yangi yechim so'radi:** «ba'zida 2 ta 3 ta qurilma
+bo'lib qolishi mumkin, bunga boshqa yechim qilish kerak — qaysi qurilmadan
+kelsa ham 1 ta chiqarishi kerak».
+
+Taklif (mockup: `mockups/v174.4-offset-ikki-marta-va-javoblar.html`):
+chiqaruvchi qurilma **bulutda bitta** bo'lib belgilansin — `_chekprinter`
+hujjati, qurilma o'z nomini yozadi, boshqalar ko'rib o'z kalitini avtomat
+o'chiradi. ~25–35 qator. **Uch savolga javob kutilmoqda:**
+1. Chiqaruvchi hech kim bo'lmasa — navbatda kutsinmi yoki bosgan qurilma chiqarsinmi?
+2. Chiqaruvchi ilovani yopgan bo'lsa — hozirgi 10 daqiqa muddat qolsinmi?
+3. ⚠ Abdulhamid bu ro'yxatga kirsinmi? (taxminim: **tegilmasin**)
+
 ⚠ **Ochiq xavf (v172.29 da yopilmagan):** 3–4 qurilmada ilova ochiq.
 `chekBuQurilmadan()` sukut bo'yicha `!printerYoq()` — ya'ni **har qurilma
 navbatni tinglayveradi**. `tilla-chek-chiqdi` ro'yxati faqat **bitta qurilma
@@ -125,7 +169,20 @@ Eslatma: v172.44 da noto'g'ri ekran (`renderZavodHisobot`) o'zgartirilgan edi,
 v173.1 da bekor qilindi. Zavod ICHIDAGI hisobot ataylab eski holatida
 (Ibrohim: "kam ishlatiladi").
 
-### 0o. ESKI YOZUVLARDA naqtPul:0 — ma'lumot hali TUZATILMAGAN (v174.1)
+### 0o. ESKI YOZUVLARDA naqtPul:0 — yopqich YETARLI (Ibrohim, 2026-08-14)
+
+Ibrohim so'radi: «eski versiyalarda bo'lmaganini hisobiga ko'rinmaydi
+demoqchimisan?» — **qisman ha, lekin ikki xil holat bor:**
+1. **Maydon umuman yo'q edi** (juda eski format) — `_opNaqtPul` 3307 yopadi
+2. **Maydon bor, ichiga 0 yozilgan** (aralash sotuvdagi YOZUV XATOSI, Dilobar
+   Opa $6,850 / Dilorom Opa $1,765) — 3310–3314 qoldiqdan hisoblaydi
+
+Ya'ni asosiy sabab versiya emas, **yozuv xatosi**. Migratsiya **qilinmaydi**.
+
+⚠ Yopqich `_opOffUlush` (v174.5) da ham ishlatiladi — eski `naqtPul:0` yolg'on
+offset ko'rsatmasin uchun.
+
+<details><summary>Eski yozuv (arxiv)</summary>
 
 v174.1 muammoni **o'qishda** hal qildi (`_opNaqtPul`) — kassa endi to'g'ri
 ko'rsatadi. Lekin `k.tarix` dagi yozuvlarda `naqtPul:0` **hali turibdi**.
@@ -136,6 +193,7 @@ orqaga qaytarish oson). Migratsiya — alohida ish, hali qilinmagan.
 ⚠ Diqqat: `_opNaqtPul` qo'riqchisi — faqat **lom bor** va naqt 0 bo'lganda
 ishlaydi. Agar kelajakda **karta bilan** ham shunday holat chiqsa (naqt 0,
 karta bor, lom yo'q) — u tuzalmaydi, chunki sof karta sotuvda naqt haqiqatan 0.
+</details>
 
 ### 0n. CLOUD AXLATI TOZALANMAGAN — faqat «chiqmasligi» to'xtatildi (v172.32)
 
@@ -169,6 +227,15 @@ Rasm (raster) yo'li bilan bosiladi: `print_server.py` `/print-table` →
 PIL 576 px rasm → `GS v 0`. Sotuv modalida chap tarafda `ostatka` toggle,
 sukut bo'yicha **o'chiq**.
 
+⚠ **2026-08-14 — Ibrohim: «ishimiz ko'p, hali men aytgandek holatga kelmadi,
+uniyam qayerga kelganini ko'rsatishi kerak».** Bu jumla **TUSHUNILMADI** —
+taxmin qilib kod yozilmadi. Uch variant so'raldi, javob kutilmoqda:
+**A** har qator qaysi turdan kelganini · **B** grammning sababi (berildi/vozvrat/
+to'lov/ostatka) · **C** ostatka qayerga ketgani (klientda/zavodga/sotildi).
+
+⚠ Shuningdek `_ostJadvalUstunlar` (14397) da **0q dagi offset xatosi bor** —
+0q bo'limiga qara.
+
 **Qolgan 3 modal QILINMAGAN:** berish (`kb`), vozvrat (`kv`), to'lov (`kt`).
 Ularda ham `chekYubor` yonida `chekJadvalYubor` chaqirilishi va toggle
 qo'shilishi kerak — har biri ~12–15 qator.
@@ -182,7 +249,18 @@ chiqadi. Bu belgini ko'rsangiz — server eski. Tekshirish:
 ⚠ Shakllantirish yorlig'i 2-chi chekda **tuzatilmagan** — `_ostJadvalUstunlar`
 da hali `berildi` deb chiqadi (PDF va ilovada v172.41/42 da tuzatilgan).
 
-### 0l. PDF DOWNLOAD — faqat KLIENT PDF tuzatilgan (v172.37/38)
+### 0l. ~~PDF DOWNLOAD~~ — ISHLAYAPTI (Ibrohim tasdiqladi 2026-08-14)
+
+Ibrohim: «pdf yuklavotti... hozir yuklavotti, ishlavotti bu funksiya».
+Qolgan 6 joy hali eski yo'lda (`window.open(blobUrl)`) — **2934** kurs tarixi ·
+**9640** zavod/tur · **10961** kassa · **11017** to'lov hisoboti ·
+**16720** qarz cheki · **17174** klientlar ro'yxati. Muammo ko'rinmagani uchun
+**tegilmadi**. Kerak bo'lsa har biri 1 qator (`pdfOch(blob,'<nom>')`).
+
+Ibrohim aytgan «pdf offset nimaligini tushunmayapti» — bu 0l EMAS,
+**0q dagi Xato B** edi, v174.4 da tuzatildi.
+
+<details><summary>Eski yozuv (arxiv)</summary>
 
 Sabab: `window.open(blobUrl)` `fetch().then()` ichida — brauzer popup deb
 bloklaydi; ustiga `revokeObjectURL` 10 s da chaqirilib, Chrome PDF
@@ -193,11 +271,25 @@ Yechim: `pdfOch(blob, nom)` — `<a download>`, blob 10 daqiqa tirik.
 `9560` zavod/tur hisoboti · `10879` kassa PDF · `10935` to'lov hisoboti ·
 `16617` klient qarz cheki · `17010` klientlar ro'yxati.
 Har biri **1 qator** — `pdfOch(blob, '<nom>')` ga o'tkazish.
+</details>
 
 ### 0k. CLOUD 1:1 — 3-QADAM QOLDI (ASOSIY qurilma rejimi)
 
 2026-08-10 da Ibrohim: "cloudga boshqa qurilmala tupurib qo'ygan", "PC asosiy
 bo'gani bilan **teldigi malumotlayam ishlatilvotganida** tori bo'ladi".
+
+**2026-08-14 tasdiq:** «asosiy qurilma haliyam PC, lekin cloudda hammada bir xil
+bo'lishi kerak, mobile qurilmalar ham asosiy qurilmadek ishlashi kerak minus
+plyuslar qilinganda. Abdulhamid logiga umuman ta'sir qilishi kerak emas.»
+
+✅ **Bu talab bajarilishi mumkin** — chunki ikki xil sinxron bor:
+- **Yozuvlar (oplog)** — har berish/to'lov/vozvrat bittalab, HAR qurilmadan.
+  ASOSIY rejimi bunga **TEGMAYDI**. Telefondagi +/− avvalgidek hamma joyga yetadi.
+- **Blob (butun nusxa)** — kim oxirgi yozsa o'shaniki. ASOSIY rejimi **FAQAT shunga**.
+
+Ochiq savol qoldi: ASOSIY = 1-raqamli qurilma avtomatmi yoki Sozlamalarda
+qo'lda belgilanadimi (qo'lda ishonchliroq — raqam almashib qolishi mumkin);
+ergashuvchi jim olsinmi yoki xabar chiqsinmi.
 
 Uch qadamli reja tuzildi:
 - **1-qadam — BAJARILDI (v172.30 + v172.31).** Oplog teshiklari yopildi:
@@ -254,7 +346,25 @@ Ikki yo'l bor, ikkalasi ham katta qaror:
 
 Hozircha ⬆/⬇ qo'lda. 3-qadam (0k) bajarilsa K1 ning xavfsiz shakli chiqadi.
 
-### 0g. MAVJUD takror yozuvlarni tozalash — SANASH KUTILMOQDA
+**2026-08-14 — Ibrohim: «asosiy qurilma baribir PC».** Demak **K1** tanlandi.
+⚠ Buning narxi ochiq aytilgan: kassa oplogdan o'tmaydi (8144 — obyekt, massiv
+emas), shuning uchun **telefonda kiritilgan kassa tuzatishi PC ga yetmaydi va
+PC dan nusxa kelganda yo'qoladi**. Ya'ni kassa tuzatishlari / zakazlar /
+chiqimlar **faqat PC dan** kiritilishi kerak bo'ladi. Ibrohim buni tasdiqlashi
+kerak — agar telefondan ham kerak bo'lsa, K2 (kassani oplogga chiqarish) zarur.
+
+### 0g. ~~MAVJUD takror yozuvlarni tozalash~~ — YOPILDI (Ibrohim qo'lda tuzatdi)
+
+**2026-08-14, Ibrohim:** «takror yozuvlarni men to'g'irlab qo'ydim, grammlarni
+tekshirib. Bundan keyin bo'lmasa bo'ldi.»
+
+Tozalash kodi va sanash buyrug'i **kerak emas**. Paydo bo'lishi v172.27 da
+to'xtatilgan (`_id` saqlashdan oldin beriladi, cloud nusxasi `_ostImzo` (8290)
+bo'yicha egizakni topib unga id yopishtiradi).
+
+⚠ Kuzatilsin: yana takror ko'rinsa — sabab boshqa joyda, qaytadan qidirish kerak.
+
+<details><summary>Eski yozuv (arxiv)</summary>
 
 v172.27 da takror **paydo bo'lishi** to'xtatildi, lekin allaqachon yozilganlari
 ma'lumotda turibdi. Ular klient qarzi, hisobot, foyda va kassani buzadi
@@ -267,6 +377,7 @@ o'z `_id` si bor yozuvlarga TEGILMAYDI (haqiqiy ikki amal bo'lishi mumkin).
 Tartib: ro'yxat ko'rsatish → backup → o'chirish.
 
 Ibrohimga sanash uchun konsol buyrug'i berilgan, natija hali kelmagan.
+</details>
 
 ### 0h. ~~Sinxron: "yuborildi" belgisi tasdiqdan OLDIN~~ — BAJARILDI (v172.30)
 
@@ -279,7 +390,15 @@ formati tegilmadi (qabul yo'nalishi buzilmasin). O'chirish uchun navbat
 `tilla-amal-ochir-navbat`, har `save()` da qayta urinadi, 7 kunda tashlanadi.
 ⚠ **SINOVDAN O'TMAGAN** — 0k dagi sinov rejasiga qarang.
 
-### 0f. Eski (soatsiz) offset yozuvlarini o'z to'loviga qaytarish — MOCKUP KERAK
+### 0f. Eski (soatsiz) offset yozuvlari — KICHRAYDI, lekin qoldi
+
+⚠ **2026-08-14 aniqlik:** Ibrohim «offsetda muammo bor» deganda **bu emas**,
+**0q** (ikki marta hisoblanishi) nazarda tutilgan edi — u v174.4 da tuzatildi.
+
+Soat masalasi **hali turibdi** va endi yana bir joyda chiqadi: v174.5 dagi PDF
+o'qlari `sana|soat` bo'yicha bog'lanadi. Soati yo'q yozuvda o'sha kunda bir
+nechta to'lov bo'lsa — bog'lash ishonchsiz, shuning uchun **o'q chizilmaydi**
+(`_ofOq`, 16965). Raqamlarga ta'siri YO'Q, faqat yorliq ko'rinmaydi.
 
 v172.25 da offset yozuviga `soat` qo'shildi, lekin faqat **yangi** yozuvlarga.
 Undan oldin saqlangan `_kdYopish` yozuvlarida soat **umuman yo'q** — sessiya
@@ -405,6 +524,8 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v174.5 | **Offsetning ikki tomoni bir-birini ko'rsatadi** — klient tarixida manba qatori (avval `false &&` bilan o'chirilgan edi) + manzilga `←`; PDF da `offset → 3D, 3DS` va `tolov ← Oddiy`; `pdf.py` da binafsha rang |
+| v174.4 | **OFFSET IKKI MARTA hisoblanardi** — klient tarixida pul $9,144.34 (to'g'risi $4,572.17), PDF kunlik blokida QOLDI +105.96g (to'g'risi 0.00g) |
 | v171 | "Qo'limizdagi ostatka" ekrani — zavod→tur→gramm, hafta bo'yicha |
 | v171.1 | Hafta zanjiri tuzatildi (hafta oxiri = bugungi ostatka − keyingi harakatlar) |
 | v171.2 | Sdacha `soat` ga Date obyekti yozilardi → tuzatildi + bir martalik migratsiya (`data._soatFix1`) |
