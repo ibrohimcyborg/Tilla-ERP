@@ -1,4 +1,4 @@
-<!-- v174.4 -->
+<!-- v174.5 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.4';
+var APP_VER = 'v174.5';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11587,6 +11587,17 @@ var TOLOV_TURLARI = [
   {k:'perech',h:'P', nom:'Perech', pill:'PERECH', rang:'var(--purple)',bd:'var(--purple-bd)',bg:'var(--purple-bg)'},
   {k:'offset',h:'O', nom:'Offset', pill:'OFFSET', rang:'var(--purple)',bd:'var(--purple-bd)',bg:'var(--purple-bg)'}
 ];
+// v174.5: shu to'lov qatorining OFFSETDAN kelgan ulushi. Yozuvda alohida
+// saqlanmaydi — summa dan naqd qismi ayirilib topiladi (v172.24 qoidasi).
+// Naqt _opNaqtPul orqali o'qiladi — eski yozuvdagi naqtPul:0 xatosi yolg'on
+// offset ko'rsatmasin (v174.1).
+function _opOffUlush(op){
+  if(!op || op.tip!=='tolov' || op._kdYopish) return 0;
+  var pulBor=(op.naqtPul!==undefined)||(op.kartaPul!==undefined)||(op.perechPul!==undefined)||(op.lomPul!==undefined);
+  if(!pulBor) return 0;
+  var naqd=_opNaqtPul(op)+(op.kartaPul||0)+(op.perechPul||0)+(op.lomPul||0);
+  return Math.round(((op.summa||0)-naqd)*100)/100;
+}
 function _tolovTurAniq(ops){
   var v={naqt:0,karta:0,lom:0,perech:0,offset:0}, lomG=0, lomK=0, ofNom='', jami=0;
   (ops||[]).forEach(function(op){
@@ -11855,17 +11866,19 @@ function openKlientDetail(ki) {
     if(g.ops.length>1){
       tHTML+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
       if(isMixedTolovOffset){
+        // v174.5: MANBA qatori TEPADA — pul qayerdan kelgani (avval chizilmasdi).
+        g.ops.filter(function(o){return o._kdYopish;}).forEach(function(op){
+          var os='↳ '+(op.zavod&&op.tur?op.zavod+' · '+op.tur+' dan olindi — ':'')+'$'+fmtD(op.summa)+' ('+fmtG(op.ekvivalent||0)+'g)';
+          tHTML+='<div style="padding:5px 8px;margin-bottom:6px;background:var(--green-bg);border-radius:8px;">';
+          tHTML+='<div style="font-size:11px;color:var(--green);">'+os+'</div>';
+          tHTML+='</div>';
+        });
+        // MANZIL qatorlari — offset ulushi bor bo'lganida "←" belgisi.
         g.ops.filter(function(o){return !o._kdYopish;}).forEach(function(op){
-          var os=(op.zavod&&op.tur?op.zavod+' · '+op.tur+' — ':'')+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
+          var os=(_opOffUlush(op)>0.009?'← ':'')+(op.zavod&&op.tur?op.zavod+' · '+op.tur+' — ':'')+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g';
           tHTML+='<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;">';
           tHTML+='<div style="font-size:11px;color:var(--muted);">'+os+'</div>';
           tHTML+='<div style="font-size:12px;font-weight:600;color:var(--blue);">'+fmtG(op.ekvivalent||0)+'g</div>';
-          tHTML+='</div>';
-        });
-        g.ops.filter(function(o){return false && o._kdYopish;}).forEach(function(op){
-          var os='↳ pul offsetdan berildi — '+(op.zavod&&op.tur?op.zavod+' · '+op.tur+', ':'')+fmtD(op.summa)+'$ / '+(op.kurs||'')+'$/g ('+fmtG(op.ekvivalent||0)+'g ishlatildi)';
-          tHTML+='<div style="padding:5px 8px;margin-top:4px;background:var(--green-bg);border-radius:8px;">';
-          tHTML+='<div style="font-size:11px;color:var(--green);">'+os+'</div>';
           tHTML+='</div>';
         });
       } else {
@@ -16927,6 +16940,38 @@ function klientPDFYukor(dan, gacha){
   // (sana + gramm + amal nomi) -> har kun oxiridagi qoldiq -> QOLDI.
   // Mavjud jadval, qarz_tarkib va statistika TEGILMAYDI — bu qo'shimcha bo'lim.
   // Davrdan OLDINGI amallar qatorga chiqmaydi, ular boshlang'ich qoldiqqa yig'iladi.
+  // v174.5: OFFSET O'QLARI. Yozuvda "qayerga / qayerdan" SAQLANMAYDI — bir amaldagi
+  // (sana|soat) manba va manzil turlaridan topiladi. Soati yo'q eski yozuvda (v172.25
+  // gacha) o'sha kunda bir nechta to'lov bo'lsa bog'lash ishonchsiz — o'q chizilmaydi.
+  var _ofSes={}, _ofKun={};
+  k.tarix.forEach(function(op){
+    if(op.tip!=='tolov' || !op.zavod || !op.tur) return;
+    var sn=op.sana||'', sk=sn+'|'+(op.soat||'');
+    if(!_ofKun[sn]) _ofKun[sn]={};
+    _ofKun[sn][sk]=1;
+    if(!_ofSes[sk]) _ofSes[sk]={manba:[], manzil:[]};
+    var yon = op._kdYopish ? _ofSes[sk].manba
+            : (_opOffUlush(op)>0.009 ? _ofSes[sk].manzil : null);
+    if(!yon) return;
+    for(var i=0;i<yon.length;i++) if(yon[i].zavod===op.zavod && yon[i].tur===op.tur) return;
+    yon.push({zavod:op.zavod, tur:op.tur});
+  });
+  // Yorliq: zavod bir xil bo'lsa faqat tur, boshqa bo'lsa zavod·tur (Ibrohim tanlovi).
+  // PDF ustuni tor (blok kengligining 34%, shrift 6.5) — matn qisqa bo'lishi shart.
+  function _ofYorliq(list, zavod){
+    if(!list || !list.length) return '';
+    return list.map(function(x){ return x.zavod===zavod ? x.tur : (x.zavod+'·'+x.tur); }).join(', ');
+  }
+  function _ofOq(op){
+    var sn=op.sana||'';
+    if(!op.soat && Object.keys(_ofKun[sn]||{}).length>1) return '';   // bog'lash ishonchsiz
+    var s=_ofSes[sn+'|'+(op.soat||'')]; if(!s) return '';
+    var t;
+    if(op._kdYopish){ t=_ofYorliq(s.manzil, op.zavod); return t?'→ '+t:''; }
+    if(_opOffUlush(op)>0.009){ t=_ofYorliq(s.manba, op.zavod); return t?'← '+t:''; }
+    return '';
+  }
+
   var _ostB={}, _ostTartib=[];
   k.tarix.forEach(function(op){
     if(!op.zavod || !op.tur) return;
@@ -16953,7 +16998,9 @@ function klientPDFYukor(dan, gacha){
     }
     var kk=op.sana||'', ts=fdSanaTs(kk, op.soat||'');
     if(!b._km[kk]){ b._km[kk]={sana:kk, amallar:[], _ts:ts}; b.kunlar.push(b._km[kk]); }
-    b._km[kk].amallar.push({ _d:d, amal:nom, _ts:ts });
+    var _a={ _d:d, amal:nom, _ts:ts };
+    if(op.tip==='tolov'){ var _ok=_ofOq(op); if(_ok) _a.ok=_ok; }   // v174.5
+    b._km[kk].amallar.push(_a);
   });
   var ost_bloklar=_ostTartib.map(function(key){
     var b=_ostB[key], yur=b.boshi;

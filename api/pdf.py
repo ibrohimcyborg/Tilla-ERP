@@ -37,6 +37,7 @@ C_BLUE    = colors.HexColor('#1565c0')
 C_ORANGE  = colors.HexColor('#C05621')
 C_MUTED   = colors.HexColor('#718096')
 C_AMBER   = colors.HexColor('#b8860b')
+C_PURPLE  = colors.HexColor('#6b46c1')   # v174.5: offset (ilovadagi "⇄ Offset" rangi)
 
 def P(text, font='Helvetica', size=10, color=colors.black, align='LEFT'):
     a = {'LEFT': TA_LEFT, 'CENTER': TA_CENTER, 'RIGHT': TA_RIGHT}
@@ -377,12 +378,16 @@ def _ost_blok(b, kw):
             nom = a.get('amal', '')
             # v172.41: 'ostatka' — shakllantirish yozuvi, oltin rangda (berildi/
             # vozvrat/tolov dan ajralib tursin, u klientga berilgan tilla emas)
+            # v174.5: offset — bizning qarzimiz yopilishi, to'lovdan ajralib tursin.
             c = (C_RED if nom == 'berildi' else
                  C_BLUE if nom == 'vozvrat' else
-                 C_GREEN if nom == 'tolov' else C_GOLD)
+                 C_GREEN if nom == 'tolov' else
+                 C_PURPLE if nom == 'offset' else C_GOLD)
+            # v174.5: 'ok' — offset o'qi (-> manzil / <- manba), index.html da quriladi.
+            _ok = a.get('ok') or ''
             d.append([P(kun.get('sana', '') if i == 0 else '', 'Helvetica', 6.5, C_MUTED),
                       P(str(a.get('g', '')), 'Helvetica-Bold', 7, c, 'RIGHT'),
-                      P(' ' + nom, 'Helvetica', 6.5, C_MUTED)])
+                      P(' ' + nom + ((' ' + _ok) if _ok else ''), 'Helvetica', 6.5, C_MUTED)])
             r += 1
         d.append(['', '', P(str(kun.get('qoldi', '')), 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
         st.append(('LINEABOVE', (0, r), (2, r), 0.5, colors.HexColor('#999999')))
