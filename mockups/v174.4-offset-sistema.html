@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Offset — ko'rsatish sistemasi</title>
+<style>
+  :root{
+    --bg:#0e1015; --card:#171a21; --card2:#1e222b; --line:#2a2f3a;
+    --txt:#e8eaef; --muted:#8d95a5;
+    --gold:#d4af37; --gold-bg:rgba(212,175,55,.10);
+    --red:#e5555f; --red-bg:rgba(229,85,95,.10);
+    --org:#e08a3c; --org-bg:rgba(224,138,60,.10);
+    --grn:#48b881; --grn-bg:rgba(72,184,129,.10);
+    --blu:#5b9bd5; --blu-bg:rgba(91,155,213,.10);
+    --pur:#a97bd6; --pur-bg:rgba(169,123,214,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+       font-size:15px;line-height:1.65;padding:0 0 90px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:27px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+
+  .banner{margin-top:16px;border-radius:10px;padding:14px 17px;font-size:14px;
+          background:var(--gold-bg);border:1px solid var(--gold)}
+  .banner b{color:var(--gold)}
+  .banner.red{background:var(--red-bg);border-color:var(--red)} .banner.red b{color:var(--red)}
+  .banner.grn{background:var(--grn-bg);border-color:var(--grn)} .banner.grn b{color:var(--grn)}
+  .banner.pur{background:var(--pur-bg);border-color:var(--pur)} .banner.pur b{color:var(--pur)}
+
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:48px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card h3{margin:0 0 6px;font-size:18.5px}
+  .card h4{margin:22px 0 8px;font-size:15px;color:var(--gold)}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:17px 0 6px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+
+  table.t{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  .t th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 10px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  .t td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .t tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+
+  /* ── EKRAN NUSXALARI (yorug' — haqiqiy ilova kabi) ── */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  @media(max-width:820px){.ba{grid-template-columns:1fr}}
+  .pane{border-radius:11px;overflow:hidden;border:1px solid var(--line)}
+  .pane .ph{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+            padding:8px 13px}
+  .pane.now .ph{background:var(--red-bg);color:var(--red);border-bottom:1px solid var(--red)}
+  .pane.new .ph{background:var(--grn-bg);color:var(--grn);border-bottom:1px solid var(--grn)}
+  .screen{background:#f7f7f5;color:#2b2b2b;padding:13px;font-size:12.5px}
+
+  /* klient tarixi qatori */
+  .hrow{background:#fff;border-radius:10px;border-left:3px solid #4a90d9;
+        padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .hrow.pur{border-left-color:#8e5fc4}
+  .hr-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .hr-lab{font-size:12px;font-weight:700;color:#4a90d9}
+  .hr-lab.pur{color:#8e5fc4}
+  .hr-sub{font-size:10.5px;color:#9a9a95;margin-top:2px}
+  .hr-g{font-family:ui-monospace,Consolas,monospace;font-size:14px;font-weight:700;
+        color:#2e9e63;text-align:right}
+  .hr-d{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;font-weight:700;
+        color:#2b2b2b;text-align:right}
+  .hr-d.bad{color:#d33} .hr-d.ok{color:#1c7a48}
+  .hr-det{margin-top:9px;padding-top:8px;border-top:1px solid #e6e6e2}
+  .drow{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;gap:10px}
+  .drow .l{color:#8d8d88} .drow .r{color:#4a90d9;font-weight:700;
+       font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+  .srcline{background:#eaf7f0;border-radius:7px;padding:6px 9px;margin-bottom:7px;
+           font-size:11px;color:#1c7a48;font-weight:600}
+  .pill{display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.05em;
+        padding:2px 7px;border-radius:20px;border:1.2px solid #8e5fc4;color:#8e5fc4;
+        background:#f3ecfa;margin-left:5px;vertical-align:middle}
+
+  /* PDF blok nusxasi */
+  .pdfg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+  .pb{border:1px solid #ccc;font-size:9.5px;background:#fff}
+  .pb .pbh{background:#FBF3E0;border-bottom:1.4px solid #d4af37;text-align:center;
+           font-weight:700;padding:3px 2px;font-size:9.5px;color:#2b2b2b}
+  .pb table{width:100%;border-collapse:collapse}
+  .pb td{padding:1.5px 4px;vertical-align:top}
+  .pb .c1{width:30%;color:#9a9a95;font-size:8.5px}
+  .pb .c2{width:36%;text-align:right;font-family:ui-monospace,Consolas,monospace;
+          font-weight:700;font-size:9px}
+  .pb .c3{width:34%;color:#9a9a95;font-size:8.5px}
+  .pb .qd{background:#FFFDF6;border-top:1px solid #999;text-align:right;
+          font-weight:700;font-family:ui-monospace,Consolas,monospace}
+  .pb .qf{background:#FBF3E0;border-top:1.4px solid #d4af37;font-weight:700;
+          font-size:9.5px}
+  .pb .qf .lft{color:#5c4708}
+  .g-red{color:#c0392b} .g-blu{color:#2b6cb0} .g-grn{color:#1c7a48}
+  .g-gld{color:#a8861f} .g-pur{color:#7a4fb0} .g-dark{color:#2b2b2b}
+
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;
+      padding:11px 13px;overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .qbox.red{background:var(--red-bg);border-color:var(--red)}
+  .qbox.red .lbl{color:var(--red)}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px;
+         padding-top:14px;border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+  .rule{background:var(--card2);border-radius:10px;padding:15px 18px;margin:12px 0;
+        border-left:3px solid var(--pur);font-size:14px}
+  .rule b{color:var(--pur)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Offset — ko'rsatish sistemasi</h1>
+  <div class="sub">v174.3 → v174.4 taklifi · Dilfuza Opa Sadaf · 13.08.2026 18:46 · <b>kod yozilmagan</b></div>
+  <div class="banner grn">
+    <b>Tasdiqlaganingiz:</b> Xato A va B tuzatiladi.
+    <b>Yangi so'rovingiz:</b> «PDF da offset nimadan yopganini ko'rsatsa,
+    klient tarixida ham qaysi turga to'lov qilganini ko'rsatsa».
+    <br>Quyida — shu ikkalasini <b>bitta sistema</b> qilib qo'ygan taklif.
+  </div>
+</header>
+
+
+<!-- ═══════════ SISTEMA QOIDASI ═══════════ -->
+<h2 class="sec">1 · <b>Sistema — bitta qoida, hamma ekranda bir xil</b></h2>
+
+<div class="card">
+  <div class="rule">
+    Offsetning <b>ikki tomoni</b> bor va ular doim <b>bir-birini ko'rsatib turadi</b>:
+    <br><br>
+    <b>→</b> &nbsp;MANBA qatorida — pul <b>qayerga ketdi</b><br>
+    <b>←</b> &nbsp;MANZIL qatorida — pul <b>qayerdan keldi</b>
+    <br><br>
+    Bitta o'q ko'rsangiz — ikkinchisi boshqa blokda turibdi. Hech qachon
+    yolg'iz qolmaydi.
+  </div>
+
+  <div class="lbl">Hodisa — nima bo'lgan</div>
+  <table class="t">
+    <thead><tr><th>Tur</th><th>Roli</th><th class="num">Pul</th><th class="num">Gramm</th><th>Yangi ko'rinishi</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Butterfly · Oddiy</b></td>
+        <td style="color:var(--pur)"><b>MANBA</b><br><span class="dim">biz qarzdor edik</span></td>
+        <td class="num">4,572.17 $</td><td class="num">52.98 g</td>
+        <td><code>offset → 3D·3DS</code></td>
+      </tr>
+      <tr>
+        <td>Butterfly · 3D</td><td class="dim">manzil</td>
+        <td class="num">2,074.59 $</td><td class="num">23.31 g</td>
+        <td><code>tolov ← Oddiy</code></td>
+      </tr>
+      <tr>
+        <td>Butterfly · 3DS</td><td class="dim">manzil</td>
+        <td class="num">2,497.58 $</td><td class="num">27.09 g</td>
+        <td><code>tolov ← Oddiy</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="banner">
+    <b>Bitta nozik joy — gramm mos kelmaydi, pul mos keladi.</b><br>
+    Manba <b>52.98 g</b>, manzillar yig'indisi <b>50.40 g</b>. Farqi <b>2.58 g</b>.<br>
+    Xato emas: offset <b>pulni</b> ko'chiradi, grammni emas. Oddiy turdagi kurs
+    (~86.3 $/g) 3D va 3DS kursidan (89 va 92.2 $/g) arzon — shuning uchun
+    o'sha pul kamroq grammni yopadi.
+    <br><br>
+    Pul tomonida esa aniq: 2,074.59 + 2,497.58 = <b>4,572.17</b> ✓
+  </div>
+</div>
+
+
+<!-- ═══════════ EKRAN 1 ═══════════ -->
+<h2 class="sec">2 · <b>Klient tarixi</b> — 1-rasm</h2>
+
+<div class="card">
+  <div class="ba">
+    <div class="pane now">
+      <div class="ph">✗ Hozir</div>
+      <div class="screen">
+        <div class="hrow">
+          <div class="hr-top">
+            <div>
+              <div class="hr-lab">$ Tolov</div>
+              <div class="hr-sub">13.08.2026 · 18:46</div>
+            </div>
+            <div>
+              <div class="hr-g">+50.40g</div>
+              <div class="hr-d bad">$9,144.34</div>
+            </div>
+          </div>
+          <div class="hr-det">
+            <div class="drow"><span class="l">Butterfly · 3D — 2,074.59$ / 89$/g</span><span class="r">23.31g</span></div>
+            <div class="drow"><span class="l">Butterfly · 3DS — 2,497.58$ / 92.2$/g</span><span class="r">27.09g</span></div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:#c0392b;margin-top:9px;line-height:1.5">
+          ✗ Pul ikkilangan (4,572.17 × 2)<br>
+          ✗ Bu pul <b>qayerdan</b> kelgani ko'rinmaydi — «$ Tolov» deb turibdi,
+          go'yo klient naqd to'lagandek
+        </div>
+      </div>
+    </div>
+
+    <div class="pane new">
+      <div class="ph">✓ Taklif</div>
+      <div class="screen">
+        <div class="hrow pur">
+          <div class="hr-top">
+            <div>
+              <div class="hr-lab pur">⇄ Offset <span class="pill">OFFSET</span></div>
+              <div class="hr-sub">13.08.2026 · 18:46</div>
+            </div>
+            <div>
+              <div class="hr-g">+50.40g</div>
+              <div class="hr-d ok">$4,572.17</div>
+            </div>
+          </div>
+          <div class="hr-det">
+            <div class="srcline">↳ Butterfly · Oddiy dan olindi — $4,572.17 (52.98g)</div>
+            <div class="drow"><span class="l">← Butterfly · 3D — 2,074.59$ / 89$/g</span><span class="r">23.31g</span></div>
+            <div class="drow"><span class="l">← Butterfly · 3DS — 2,497.58$ / 92.2$/g</span><span class="r">27.09g</span></div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:#1c7a48;margin-top:9px;line-height:1.5">
+          ✓ Pul to'g'ri<br>
+          ✓ Yashil qator — pul <b>qayerdan</b> kelgani<br>
+          ✓ <b>←</b> belgisi — pul <b>qaysi turga</b> ketgani
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lbl">Nima o'zgaradi — uchta narsa</div>
+  <table class="t">
+    <thead><tr><th style="width:34px"></th><th>O'zgarish</th><th style="width:90px">Qator</th><th style="width:60px">Diff</th></tr></thead>
+    <tbody>
+      <tr><td><b>1</b></td><td>Pul ikkilanmaydi <span class="dim">— Xato A, siz tasdiqladingiz</span></td>
+          <td><span class="ln">11594</span></td><td class="num">2</td></tr>
+      <tr><td><b>2</b></td><td>Manba qatori qaytariladi <span class="dim">— hozir
+          <code>false &amp;&amp;</code> bilan o'chirilgan</span></td>
+          <td><span class="ln">11863</span></td><td class="num">1–3</td></tr>
+      <tr><td><b>3</b></td><td>Manzil qatoriga <b>←</b> belgisi</td>
+          <td><span class="ln">11857</span></td><td class="num">1–2</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner">
+    <b>2-band haqida — bu qadimgi savol.</b> Manba qatori kodda <b>yozilgan</b>,
+    lekin <code>false &amp;&amp;</code> bilan o'chirib qo'yilgan
+    (<span class="ln">11863</span>). Kim va nima uchun o'chirganini bilmayman —
+    ehtimol o'shanda pul ikkilanayotgani uchun chalkash ko'ringan.
+    <br><br>
+    Endi pul to'g'rilangandan keyin uni <b>qaytarish mantiqli</b> — chunki aynan
+    siz so'ragan «qayerdan kelgani» shu qatorda.
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Qaror — matn qanday bo'lsin?</div>
+    Hozirgi (o'chirilgan) matn uzun:
+    <code>↳ pul offsetdan berildi — Butterfly · Oddiy, 4,572.17$ / 86.3$/g (52.98g ishlatildi)</code>
+    <br><br>Mening taklifim qisqaroq:
+    <code>↳ Butterfly · Oddiy dan olindi — $4,572.17 (52.98g)</code>
+    <br><br>Qaysi biri? Yoki boshqacha yozilsinmi?
+  </div>
+</div>
+
+
+<!-- ═══════════ EKRAN 2 ═══════════ -->
+<h2 class="sec">3 · <b>PDF — kunlik ostatka bloklari</b> — 3-rasm</h2>
+
+<div class="card">
+  <div class="lbl">✗ Hozir — uchala blok</div>
+  <div class="screen" style="border-radius:9px">
+    <div class="pdfg">
+      <div class="pb">
+        <div class="pbh">Butterfly · Oddiy</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">−52.98</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">−52.98</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-grn">−52.98</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">−105.96</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-grn">+105.96g</td></tr>
+        </table>
+      </div>
+      <div class="pb">
+        <div class="pbh">Butterfly · 3D</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">−0.19</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">−0.19</td></tr>
+          <tr><td class="c1">06.08.2026</td><td class="c2 g-red">+31.94</td><td class="c3">berildi</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-blu">−20.58</td><td class="c3">vozvrat</td></tr>
+          <tr><td colspan="3" class="qd">11.17</td></tr>
+          <tr><td class="c1">09.08.2026</td><td class="c2 g-grn">−5.56</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">5.61</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-red">+17.70</td><td class="c3">berildi</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-grn">−23.31</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">0.00</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-dark">0.00g</td></tr>
+        </table>
+      </div>
+      <div class="pb">
+        <div class="pbh">Butterfly · 3DS</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">+23.82</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">23.82</td></tr>
+          <tr><td class="c1">04.08.2026</td><td class="c2 g-grn">−5.62</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">18.20</td></tr>
+          <tr><td class="c1">06.08.2026</td><td class="c2 g-red">+9.06</td><td class="c3">berildi</td></tr>
+          <tr><td colspan="3" class="qd">27.26</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-grn">−27.09</td><td class="c3">tolov</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-grn">−0.17</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">0.00</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-dark">0.00g</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;color:var(--red);margin-top:8px">
+    ✗ Oddiy blokida qoldiq <b>+105.96 g</b> — bo'lishi kerak <b>0.00 g</b><br>
+    ✗ Uchala blokda ham bu <b>bir hodisa</b> ekani ko'rinmaydi — uchta alohida
+    «tolov» bo'lib turibdi
+  </div>
+
+  <div class="lbl" style="margin-top:22px">✓ Taklif — uchala blok</div>
+  <div class="screen" style="border-radius:9px">
+    <div class="pdfg">
+      <div class="pb">
+        <div class="pbh">Butterfly · Oddiy</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">−52.98</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">−52.98</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-pur">+52.98</td><td class="c3" style="color:#7a4fb0">offset →<br>3D·3DS</td></tr>
+          <tr><td colspan="3" class="qd">0.00</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-dark">0.00g</td></tr>
+        </table>
+      </div>
+      <div class="pb">
+        <div class="pbh">Butterfly · 3D</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">−0.19</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">−0.19</td></tr>
+          <tr><td class="c1">06.08.2026</td><td class="c2 g-red">+31.94</td><td class="c3">berildi</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-blu">−20.58</td><td class="c3">vozvrat</td></tr>
+          <tr><td colspan="3" class="qd">11.17</td></tr>
+          <tr><td class="c1">09.08.2026</td><td class="c2 g-grn">−5.56</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">5.61</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-red">+17.70</td><td class="c3">berildi</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-grn">−23.31</td><td class="c3" style="color:#7a4fb0">tolov ←<br>Oddiy</td></tr>
+          <tr><td colspan="3" class="qd">0.00</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-dark">0.00g</td></tr>
+        </table>
+      </div>
+      <div class="pb">
+        <div class="pbh">Butterfly · 3DS</div>
+        <table>
+          <tr><td class="c1">03.08.2026</td><td class="c2 g-gld">+23.82</td><td class="c3">ostatka</td></tr>
+          <tr><td colspan="3" class="qd">23.82</td></tr>
+          <tr><td class="c1">04.08.2026</td><td class="c2 g-grn">−5.62</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">18.20</td></tr>
+          <tr><td class="c1">06.08.2026</td><td class="c2 g-red">+9.06</td><td class="c3">berildi</td></tr>
+          <tr><td colspan="3" class="qd">27.26</td></tr>
+          <tr><td class="c1">13.08.2026</td><td class="c2 g-grn">−27.09</td><td class="c3" style="color:#7a4fb0">tolov ←<br>Oddiy</td></tr>
+          <tr><td class="c1"></td><td class="c2 g-grn">−0.17</td><td class="c3">tolov</td></tr>
+          <tr><td colspan="3" class="qd">0.00</td></tr>
+          <tr class="qf"><td colspan="2" class="lft">&nbsp;QOLDI</td><td class="c2 g-dark">0.00g</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;color:var(--grn);margin-top:8px">
+    ✓ Oddiy blokida qoldiq <b>0.00 g</b> — to'g'ri<br>
+    ✓ Uchala blok bir-birini ko'rsatadi: <b>offset → 3D·3DS</b> va <b>tolov ← Oddiy</b><br>
+    ✓ 3DS dagi <b>−0.17</b> oddiy «tolov» bo'lib qoladi — u offsetdan emas
+  </div>
+
+  <div class="banner">
+    <b>−0.17 qatoriga diqqat qiling.</b> U ham 13.08 da, ham «tolov», lekin
+    o'q <b>yo'q</b>. Chunki o'sha qator naqd puldan to'langan.
+    <br><br>
+    Ya'ni belgi <b>kunga emas, har qatorga</b> alohida qo'yiladi. Qoida:
+    qatorda offset ulushi bo'lsa (<code>summa − naqd pul &gt; 0</code>) — o'q chiqadi.
+    Bu <b>yangi mantiq emas</b>, v172.24 da yozilgan qoidaning o'zi
+    (<span class="ln">11615</span>).
+  </div>
+</div>
+
+
+<!-- ═══════════ TEXNIK ═══════════ -->
+<h2 class="sec">4 · <b>Buni qilish uchun nima kerak</b></h2>
+
+<div class="card">
+  <h4 style="margin-top:0">Ma'lumot bormi — tekshirdim</h4>
+  <table class="t">
+    <thead><tr><th>Savol</th><th style="width:90px">Javob</th><th>Izoh</th></tr></thead>
+    <tbody>
+      <tr><td>Manba yozuvi qaysi turdan ekanini biladimi?</td><td class="ok"><b>HA</b></td>
+          <td class="dim"><code>zavod</code> + <code>tur</code> yozuvda bor</td></tr>
+      <tr><td>Manba yozuvi <b>qayerga</b> ketganini biladimi?</td><td class="bad"><b>YO'Q</b></td>
+          <td class="dim">saqlanmaydi — <b>sessiyadan topiladi</b></td></tr>
+      <tr><td>Manzil yozuvi <b>qayerdan</b> kelganini biladimi?</td><td class="bad"><b>YO'Q</b></td>
+          <td class="dim">saqlanmaydi — <b>sessiyadan topiladi</b></td></tr>
+      <tr><td>Sessiya bo'yicha bog'lash mumkinmi?</td><td class="ok"><b>HA</b></td>
+          <td class="dim">bir <code>sana</code> + <code>soat</code> = bir amal</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner grn">
+    <b>Ya'ni ma'lumotga tegilmaydi.</b> Yangi maydon qo'shilmaydi, eski yozuvlar
+    o'zgartirilmaydi. Bog'lanish <b>ko'rsatish paytida</b> topiladi — xuddi
+    klient tarixi allaqachon qilayotgani kabi (<span class="ln">11597</span>,
+    o'sha yerda <code>ofNom</code> shunday topiladi).
+  </div>
+
+  <h4>PDF tomonida qo'shimcha ish bor</h4>
+  <p>Klient tarixida yozuvlar <b>allaqachon guruhlangan</b> — bog'lash tekin.
+  PDF da esa yozuvlar <b>bittalab</b> o'qiladi (<span class="ln">16929</span>),
+  guruh yo'q. Shuning uchun <b>oldindan bir o'tish</b> kerak:</p>
+  <ol>
+    <li>Butun tarixni <code>sana|soat</code> bo'yicha guruhlash</li>
+    <li>Har guruhda: manba turlarini va manzil turlarini ajratish</li>
+    <li>Qator chizilayotganda shu ro'yxatdan o'qish</li>
+  </ol>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Ustun tor — matn qisqa bo'lishi shart</div>
+    PDF blokidagi amal ustuni <b>blok kengligining 34%</b> ≈ <b>56 punkt</b>,
+    shrift 6.5 (<code>api/pdf.py</code>, <span class="ln">358, 385</span>).
+    Bir sahifada 3 ta blok yonma-yon turadi.
+    <br><br>
+    Shuning uchun taklifda <b>zavod nomi tashlab yuborildi</b>:
+    <code>offset → 3D·3DS</code>, <code>tolov ← Oddiy</code> — faqat tur nomi.
+    <br><br>
+    <b>Savol:</b> zavod boshqa bo'lsa nima qilamiz? Masalan offset
+    <b>Butterfly · Oddiy</b> dan <b>Diamond · 3D</b> ga ketsa —
+    <code>tolov ← Oddiy</code> chalkash bo'ladi.
+    <ul style="margin-bottom:0">
+      <li><b>A.</b> Zavod bir xil bo'lsa faqat tur, boshqa bo'lsa
+          <code>Butterfly·Oddiy</code> to'liq <span class="dim">(taklifim)</span></li>
+      <li><b>B.</b> Doim faqat tur nomi — qisqa, lekin ba'zan noaniq</li>
+      <li><b>C.</b> Doim to'liq — aniq, lekin 2–3 qatorga o'raladi</li>
+    </ul>
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Rang — <code>api/pdf.py</code> ga tegamizmi?</div>
+    Hozir ranglar shunday: <code>berildi</code> qizil · <code>vozvrat</code> ko'k ·
+    <code>tolov</code> yashil · <b>qolgani oltin</b>
+    (<code>api/pdf.py</code>, <span class="ln">380–382</span>).
+    <br><br>
+    Ya'ni <code>offset</code> deb nomlansa — u <b>oltin</b> chiqadi,
+    <code>ostatka</code> bilan <b>bir xil rangda</b>. Chalkash bo'lishi mumkin.
+    <br><br>
+    <b>Ikki yo'l:</b>
+    <ul style="margin-bottom:0">
+      <li>Oltin bo'lib qolsin — <code>api/pdf.py</code> ga <b>tegilmaydi</b></li>
+      <li>Binafsha bo'lsin (ilovadagi «⇄ Offset» rangi) —
+          <code>api/pdf.py</code> da <b>1 qator</b> <span class="dim">(taklifim)</span></li>
+    </ul>
+  </div>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Eski yozuvlar — bu yerda 0f masalasi qaytadi</div>
+    Bog'lash <code>sana + soat</code> ga tayanadi. v172.25 dan <b>oldingi</b>
+    offset yozuvlarida <b>soat yo'q</b>.
+    <br><br>
+    Shunday yozuvda faqat <code>sana</code> qoladi. O'sha kuni <b>bitta</b> to'lov
+    bo'lsa — muammo yo'q, to'g'ri bog'lanadi. <b>Ikki</b> to'lov bo'lsa —
+    noto'g'ri turga bog'lanishi mumkin (Marhabo Opa TJK, 06.08 · 15:20 va 15:22).
+    <br><br>
+    <b>Muhim:</b> bu faqat <b>yorliqqa</b> ta'sir qiladi — raqamlar
+    (gramm, qoldiq, pul) <b>to'g'ri qoladi</b>, chunki ular yozuvning o'zidan
+    hisoblanadi.
+    <br><br>
+    <b>Taklifim:</b> soat yo'q va o'sha kunda bir nechta to'lov bo'lsa —
+    o'q <b>umuman chizilmasin</b> (yolg'on ko'rsatgandan ko'ra hech nima
+    ko'rsatmagan yaxshi). Rozimisiz?
+  </div>
+</div>
+
+
+<!-- ═══════════ TAXMIN BLOKI ═══════════ -->
+<h2 class="sec">5 · <b>Taxmin bloki</b> (CLAUDE.md §2)</h2>
+
+<div class="card" style="border-left:3px solid var(--gold)">
+  <h4 style="margin-top:0">1 · Aniq bilmayotgan joylarim</h4>
+  <ul>
+    <li>Zavod boshqa bo'lganda yorliq qanday yozilsin (A / B / C)</li>
+    <li>PDF da offset rangi oltin qolsinmi yoki binafsha bo'lsinmi</li>
+    <li>Klient tarixidagi manba qatorining matni</li>
+    <li><span class="ln">11863</span> dagi <code>false &amp;&amp;</code> <b>nima uchun</b>
+        qo'yilgan — CHANGELOG ni o'qimayman (§0), sabab noma'lum</li>
+    <li>Soatsiz eski yozuvlarda o'q chizilmasin degan taklifim to'g'rimi</li>
+  </ul>
+
+  <h4>2 · Taxminlarim</h4>
+  <table class="t">
+    <thead><tr><th>Taxmin</th><th style="width:140px">Kim qaror qildi</th></tr></thead>
+    <tbody>
+      <tr><td>Manba qatori <b>tepada</b>, manzillar pastda — «qayerdan → qayerga» tartibi</td>
+          <td style="color:var(--org)"><b>Mendan</b></td></tr>
+      <tr><td>O'q <b>har qatorga</b> alohida (kunga emas) — chunki bir kunda
+          offset va naqd aralash bo'lishi mumkin</td>
+          <td class="dim">Koddan — 3DS dagi −0.17 dalil</td></tr>
+      <tr><td>Offset ulushi <code>summa − naqd</code> ayirmasidan topiladi</td>
+          <td class="dim">Koddan — v172.24 qoidasi</td></tr>
+      <tr><td>Ma'lumotga yangi maydon <b>qo'shilmaydi</b></td>
+          <td style="color:var(--org)"><b>Mendan</b> — sizga xavfsizroq</td></tr>
+      <tr><td>Xato C (yashirin) bu ishga <b>kirmaydi</b></td>
+          <td class="dim">Siz «qolgan takliflar to'g'ri» dedingiz</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3 · Ta'sir qiladigan joylar</h4>
+  <table class="t">
+    <thead><tr><th>Joy</th><th style="width:100px">Qator</th><th>Ta'sir</th></tr></thead>
+    <tbody>
+      <tr><td><code>_tolovTurAniq</code> — <code>jami</code></td><td><span class="ln">11594</span></td>
+          <td class="dim">faqat <span class="ln">11844</span> da chiziladi — boshqa 3 chaqiruv <code>bor</code> ni oladi, tegilmaydi</td></tr>
+      <tr><td>Klient tarixi tafsiloti</td><td><span class="ln">11855–11868</span></td>
+          <td class="dim">faqat <code>isMixedTolovOffset</code> shoxi</td></tr>
+      <tr><td>PDF blok quruvchi</td><td><span class="ln">16929–16950</span></td>
+          <td class="dim">yangi guruhlash o'tishi qo'shiladi</td></tr>
+      <tr><td><code>api/pdf.py</code> rang</td><td><span class="ln">380–382</span></td>
+          <td class="dim">faqat rang tanlansa</td></tr>
+    </tbody>
+  </table>
+  <p class="dim">Tekshirildi: <code>ost_bloklar</code> boshqa hech qayerdan o'qilmaydi —
+  faqat <code>klientPDFYukor</code> quradi va PDF ga yuboradi.</p>
+
+  <div class="banner">
+    <b>Diff budjeti</b>
+    <table class="t" style="margin-top:8px">
+      <tbody>
+        <tr><td>Xato A — pul ikkilanmaydi</td><td class="num">2</td></tr>
+        <tr><td>Xato B — PDF belgisi va nomi</td><td class="num">4–5</td></tr>
+        <tr><td>Klient tarixi — manba qatori + <b>←</b></td><td class="num">4–6</td></tr>
+        <tr><td>PDF — sessiya guruhlash + <b>→ ←</b></td><td class="num">15–20</td></tr>
+        <tr><td><code>api/pdf.py</code> — rang (agar tanlansa)</td><td class="num">1</td></tr>
+        <tr style="border-top:2px solid var(--line);font-weight:700">
+            <td>JAMI</td><td class="num" style="color:var(--gold)">~26–34</td></tr>
+      </tbody>
+    </table>
+    Haqiqiy diff <b>60 qatordan</b> oshsa — to'xtatib xabar beraman (CLAUDE.md §1).
+  </div>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Bitta versiyami yoki ikkitami?</div>
+    Bu <b>ikki xil ish</b>: (1) <b>xato tuzatish</b> — raqamlar noto'g'ri chiqyapti;
+    (2) <b>yangi ko'rsatish</b> — o'qlar, manba qatori.
+    <br><br>
+    <b>Taklifim: ikkita versiya.</b>
+    <ul style="margin-bottom:0">
+      <li><b>v174.4</b> — faqat xato A va B (~7 qator). Raqamlar darhol to'g'rilanadi,
+          siz ko'rib tekshirasiz.</li>
+      <li><b>v174.5</b> — o'qlar va manba qatori (~20–27 qator). Ko'rinish ishi.</li>
+    </ul>
+    <br>
+    Nima uchun: agar hammasi bitta diffga tushsa va biror joyda muammo chiqsa —
+    qaysi o'zgarish sabab bo'lganini topib bo'lmaydi. Ikkiga bo'linsa
+    <code>git diff</code> aniq ko'rsatadi.
+    <br><br>
+    Bitta versiyada bo'lsin desangiz — shunday qilaman.
+  </div>
+</div>
+
+
+<!-- ═══════════ YAKUN ═══════════ -->
+<h2 class="sec">Yakun · <b>Sizdan 5 ta javob</b></h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <table class="t">
+    <thead><tr><th style="width:34px"></th><th>Savol</th><th>Taklifim</th></tr></thead>
+    <tbody>
+      <tr><td><b>1</b></td><td>Bitta versiyami yoki ikkita?</td>
+          <td class="ok"><b>Ikkita</b> — avval xato, keyin ko'rinish</td></tr>
+      <tr><td><b>2</b></td><td>Zavod boshqa bo'lsa yorliq qanday?</td>
+          <td class="ok"><b>A</b> — bir xil bo'lsa tur, boshqa bo'lsa to'liq</td></tr>
+      <tr><td><b>3</b></td><td>PDF da offset rangi?</td>
+          <td class="ok"><b>Binafsha</b> — <code>api/pdf.py</code> da 1 qator</td></tr>
+      <tr><td><b>4</b></td><td>Klient tarixidagi manba qatori matni?</td>
+          <td class="ok"><code>↳ Butterfly · Oddiy dan olindi — $4,572.17 (52.98g)</code></td></tr>
+      <tr><td><b>5</b></td><td>Soatsiz eski yozuvda o'q?</td>
+          <td class="ok"><b>Chizilmasin</b> — yolg'ondan yaxshi</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner grn" style="margin-top:18px">
+    <b>«Hammasi to'g'ri, boshla»</b> desangiz — shu 5 ta taklif bo'yicha yozaman.
+    Bittasini o'zgartirmoqchi bo'lsangiz — faqat o'sha raqamni ayting.
+    <br><br>
+    Kod yozilgandan keyin <b>TEKSHIRUV bloki</b> chiqaraman: haqiqiy qator raqamlari
+    bilan eski → yangi, va grep natijasi.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

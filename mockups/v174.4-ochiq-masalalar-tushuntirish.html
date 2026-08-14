@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ochiq masalalar — oddiy tilda tushuntirish</title>
+<style>
+  :root{
+    --bg:#0e1015; --card:#171a21; --card2:#1e222b; --line:#2a2f3a;
+    --txt:#e8eaef; --muted:#8d95a5;
+    --gold:#d4af37; --gold-bg:rgba(212,175,55,.10);
+    --red:#e5555f; --red-bg:rgba(229,85,95,.10);
+    --orange:#e08a3c; --orange-bg:rgba(224,138,60,.10);
+    --green:#48b881; --green-bg:rgba(72,184,129,.10);
+    --blue:#5b9bd5; --blue-bg:rgba(91,155,213,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+       font-size:15px;line-height:1.65;padding:0 0 80px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:28px}
+  h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .warn{margin-top:18px;background:var(--gold-bg);border:1px solid var(--gold);
+        border-radius:10px;padding:13px 16px;font-size:13.5px}
+  .warn b{color:var(--gold)}
+
+  h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
+         margin:44px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+
+  /* ── umumiy jadval ── */
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:10px}
+  .tbl th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;
+          text-transform:uppercase;letter-spacing:.07em;padding:8px 10px;
+          border-bottom:1px solid var(--line)}
+  .tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl a{color:var(--txt);text-decoration:none;border-bottom:1px dotted var(--muted)}
+  .tbl a:hover{color:var(--gold);border-color:var(--gold)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;
+       vertical-align:middle}
+  .d-red{background:var(--red)} .d-org{background:var(--orange)}
+  .d-blu{background:var(--blue)} .d-grn{background:var(--green)}
+
+  /* ── karta ── */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.org{border-left:3px solid var(--orange)}
+  .card.blu{border-left:3px solid var(--blue)}
+  .card h3{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}
+  .code-id{font-family:ui-monospace,Consolas,monospace;font-size:13px;
+           color:var(--gold);background:var(--gold-bg);padding:1px 7px;
+           border-radius:5px;margin-right:9px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+       text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-left:6px}
+  .t-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  .t-org{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange)}
+  .t-blu{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue)}
+  .t-grn{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 5px}
+  .lbl:first-of-type{margin-top:14px}
+  p{margin:0 0 9px}
+  ul{margin:0 0 9px;padding-left:20px}
+  li{margin-bottom:5px}
+
+  .misol{background:var(--card2);border-radius:9px;padding:13px 15px;margin:8px 0 4px;
+         font-size:14px;border-left:2px solid var(--muted)}
+  .misol b{color:var(--gold)}
+
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+
+  .footer-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;
+              padding-top:14px;border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+
+  .qaror{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+         padding:12px 15px;margin-top:14px;font-size:13.5px}
+  .qaror .lbl{color:var(--gold);margin-top:0}
+
+  .final{background:var(--card);border:1px solid var(--gold);border-radius:12px;
+         padding:22px;margin-top:20px}
+  .final ol{padding-left:22px;margin:10px 0 0}
+  .final li{margin-bottom:10px}
+  .nb{color:var(--muted);font-size:13px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ochiq masalalar — oddiy tilda</h1>
+  <div class="sub">v174.3 holati · 2026-08-14 · <b>bu tushuntirish, kod emas</b></div>
+  <div class="warn">
+    <b>Bu faylda kod yozilmagan.</b> Har masala nima ekanligi, nega muhimligi va
+    nima qilish kerakligi tushuntirilgan. O'qib chiqing, qaysi birini birinchi
+    qilishni ayting — kod shundan keyin yoziladi.
+  </div>
+</header>
+
+<!-- ══════════ UMUMIY JADVAL ══════════ -->
+<h2 class="sec">Bir qarashda</h2>
+<table class="tbl">
+  <thead><tr>
+    <th style="width:52px">Belgi</th><th>Masala</th><th style="width:150px">Turi</th><th style="width:110px">Ish hajmi</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><span class="dot d-red"></span>0o</td><td><a href="#i0o">Eski yozuvlarda naqt puli 0 yozilgan</a></td><td>Ma'lumot buzuq</td><td>Migratsiya</td></tr>
+    <tr><td><span class="dot d-red"></span>0n</td><td><a href="#i0n">Bulutda o'chirilgan yozuvlar axlati turibdi</a></td><td>Ma'lumot buzuq</td><td>~12–16 qator</td></tr>
+    <tr><td><span class="dot d-red"></span>0g</td><td><a href="#i0g">Takror yozuvlar (bir amal ikki marta)</a></td><td>Ma'lumot buzuq</td><td>Sanash kutilmoqda</td></tr>
+    <tr><td><span class="dot d-red"></span>0i</td><td><a href="#i0i">Chek ikki qurilmadan chiqishi mumkin</a></td><td>Ish xavfi</td><td>Kichik</td></tr>
+    <tr><td><span class="dot d-org"></span>0m</td><td><a href="#i0m">2-chi chek faqat sotuvda bor</a></td><td>Yarim qolgan</td><td>~12–15 q × 3</td></tr>
+    <tr><td><span class="dot d-org"></span>0l</td><td><a href="#i0l">PDF yuklab olinmaydi — 6 joyda</a></td><td>Yarim qolgan</td><td>1 qator × 6</td></tr>
+    <tr><td><span class="dot d-blu"></span>0k</td><td><a href="#i0k">ASOSIY qurilma rejimi</a></td><td>Katta qaror</td><td>2–4 qator</td></tr>
+    <tr><td><span class="dot d-blu"></span>0j</td><td><a href="#i0j">Kassa qurilmalar orasida sinxron emas</a></td><td>Katta qaror</td><td>Katta</td></tr>
+    <tr><td><span class="dot d-blu"></span>0f</td><td><a href="#i0f">Eski offset yozuvlarida soat yo'q</a></td><td>Katta qaror</td><td>O'rtacha</td></tr>
+    <tr><td><span class="dot d-blu"></span>4</td><td><a href="#i4">Sotuv va berish farqlanmaydi</a></td><td>Katta qaror</td><td>Katta</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="sec">A · Ma'lumot buzuq — raqam yolg'on chiqishi mumkin</h2>
+
+<!-- ── 0o ── -->
+<div class="card red" id="i0o">
+  <h3><span class="code-id">0o</span>Eski yozuvlarda naqt puli 0 bo'lib qolgan<span class="tag t-org">Yarim yopilgan</span></h3>
+
+  <div class="lbl">Nima bo'lgan</div>
+  <p>Aralash sotuvda (bir qismi naqt, bir qismi lom oltin) dastur naqt qismini
+  yozuvga <b>0</b> deb yozib qo'ygan. Ya'ni pul kelgan, lekin daftarda «naqt: 0» turibdi.</p>
+
+  <div class="misol">
+    <b>Misol.</b> Klient 1000 $ to'ladi: 600 $ naqt + 400 $ lik lom oltin.<br>
+    Yozuvda: <code>lomPul: 400</code> ✓ &nbsp;·&nbsp; <code>naqtPul: 0</code> ✗ — 600 $ yo'qolgan.
+  </div>
+
+  <div class="lbl">Bugun nima holat</div>
+  <p>v174.1 da <b>o'qish tomonini</b> tuzatdik. Dastur endi shunday yozuvni ko'rsa
+  «bu xato bo'lsa kerak» deb qolgan summadan naqtni o'zi hisoblab beradi
+  (<code>_opNaqtPul</code>, index.html:3305). Kassa endi to'g'ri raqam ko'rsatadi.</p>
+  <p>Lekin <b>ma'lumotning o'zi hali buzuq</b> — yozuvlarda <code>naqtPul:0</code> turibdi.
+  Ustidan yopqich qo'yilgan, tagi tuzatilmagan.</p>
+
+  <div class="lbl">Nima uchun bu muhim</div>
+  <ul>
+    <li>Yopqich <b>faqat lom bor</b> holatda ishlaydi. Agar kelajakda karta bilan
+        shunday holat chiqsa (naqt 0, karta bor, lom yo'q) — u tuzalmaydi,
+        chunki sof karta sotuvda naqt haqiqatan ham 0 bo'ladi.</li>
+    <li>Ma'lumotni tashqariga chiqarsak (Excel, PDF, backup) — u yerda hali eski
+        raqam bo'lishi mumkin.</li>
+  </ul>
+
+  <div class="lbl">Nima qilish kerak</div>
+  <p>Bir martalik <b>migratsiya</b>: hamma eski yozuvlarni bir marta ko'rib chiqib,
+  buzuq bo'lganlarining <code>naqtPul</code> ini haqiqiy qiymatga yozib qo'yish.
+  Dastur bir marta ishlaydi, belgi qo'yadi, ikkinchi marta takrorlamaydi
+  (v171.2 dagi <code>_soatFix1</code> qolipida).</p>
+
+  <div class="qaror">
+    <div class="lbl">Sizning qaroringiz</div>
+    Hozircha yopqich yetarlimi, yoki ma'lumotni ham tuzataylikmi?
+    <b>Xavf:</b> migratsiya ma'lumotni o'zgartiradi — oldin backup shart.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Xavf:</b> o'rtacha</span>
+    <span class="chip"><b>Bugun ko'rinadimi:</b> yo'q, yopilgan</span>
+    <span class="chip"><b>Backup:</b> shart</span>
+  </div>
+</div>
+
+<!-- ── 0n ── -->
+<div class="card red" id="i0n">
+  <h3><span class="code-id">0n</span>Bulutda o'chirilgan yozuvlarning axlati turibdi<span class="tag t-red">Ochiq</span></h3>
+
+  <div class="lbl">Nima bo'lgan</div>
+  <p>11-avgustda allaqachon o'chirilgan eski vozvratlar <b>qaytib keldi</b> va zavodni
+  qarzdor qilib ko'rsatdi.</p>
+
+  <div class="misol">
+    <b>Nima uchun.</b> Bulutdagi ro'yxatdan yozuv <b>hech qachon o'chmaydi</b> —
+    faqat ustiga «o'chirilgan» degan belgi qo'yiladi. Eski versiyalarda bu belgi
+    qo'yilmay qolgan → bulutda <b>belgisiz o'lik yozuvlar</b> to'planib qolgan.
+    Keyin bir o'zgarish ularni «yangi» deb hisoblab, hamma qurilmaga tarqatib yubordi.
+  </div>
+
+  <div class="lbl">Bugun nima holat</div>
+  <p>v172.32 da faqat <b>tarqalish to'xtatildi</b> — «⬆ Hammani cloud bilan to'ldirish»
+  endi eski yozuvlarni qayta e'lon qilmaydi (index.html:8436 dagi izohga qarang).
+  Siz aytgandingiz: «manga chiqmasin, boldi».</p>
+  <p>Ya'ni <b>axlat bulutda hali turibdi</b>, shunchaki jim yotibdi.</p>
+
+  <div class="lbl">Qachon yana chiqadi</div>
+  <ul>
+    <li><b>Yangi yoki bo'sh qurilma</b> birinchi marta ulansa — u bulutni noldan
+        o'qiydi va o'sha axlatni ham oladi.</li>
+    <li>Bu yangi xavf emas — ilgari ham shunday edi. Lekin yopilmagan.</li>
+  </ul>
+
+  <div class="lbl">Nima qilish kerak</div>
+  <p>«⬆» tugmasini <b>ko'zgu</b> qilish: bulutdagi ro'yxatni o'qib chiqib,
+  bu qurilmada <b>yo'q</b> bo'lgan yozuvlarga «o'chirilgan» belgisini qo'yish.
+  Taxminan <b>12–16 qator</b>, faqat <code>syncFullFill</code> ichida.</p>
+
+  <div class="qaror">
+    <div class="lbl">⚠ Bu kuchli amal</div>
+    ⬆ bosilgan qurilmada bo'lmagan yozuv <b>hamma joydan</b> o'chadi.
+    Faqat ma'lumoti to'g'ri qurilmada bosish mumkin. Tasdiq oynasi bilan qilish tavsiya etiladi.
+    <br><br><b>Qaror:</b> qilamizmi? Qaysi qurilma «to'g'ri» deb hisoblanadi?
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Xavf:</b> yuqori</span>
+    <span class="chip"><b>Bugun ko'rinadimi:</b> yo'q, uxlab yotibdi</span>
+    <span class="chip"><b>Backup:</b> shart</span>
+  </div>
+</div>
+
+<!-- ── 0g ── -->
+<div class="card red" id="i0g">
+  <h3><span class="code-id">0g</span>Takror yozuvlar — bir amal ikki marta yozilgan<span class="tag t-red">Sanash kutilmoqda</span></h3>
+
+  <div class="lbl">Nima bo'lgan</div>
+  <p>Bir amal saqlanganda ba'zan <b>ikki nusxa</b> yozilgan. Natijada gramm ikki barobar,
+  pul ikki barobar ko'rinadi.</p>
+
+  <div class="misol">
+    <b>Asror Aka 23 · 09.08 14:55</b><br>
+    Berish: <b>41.56 g</b> o'rniga <b>83.12 g</b> ko'rinadi<br>
+    To'lov: <b>$3,714</b> o'rniga <b>$7,428</b><br>
+    Skidka: <b>0.78</b> o'rniga <b>1.56</b>
+  </div>
+
+  <div class="lbl">Bugun nima holat</div>
+  <p>v172.27 da <b>yangi takror paydo bo'lishi</b> to'xtatildi. Lekin allaqachon
+  yozilganlari <b>ma'lumotda turibdi</b> va klient qarzini, hisobotni, foydani,
+  kassani buzadi.</p>
+
+  <div class="lbl">Qanday topiladi</div>
+  <p>Dasturda har yozuvning <b>«barmoq izi»</b> bor — <code>_ostImzo</code>
+  (index.html:8290). Bir xil sana, gramm, tur, zavod bo'lsa iz ham bir xil bo'ladi.</p>
+  <p>Tozalash qoidasi tayyor:</p>
+  <ul>
+    <li>Bir joyda ikkita yozuv, izlari bir xil, <b>bittasida id bor, ikkinchisida yo'q</b>
+        → id-siz nusxa o'chiriladi.</li>
+    <li>Ikkalasida ham o'z id si bo'lsa — <b>TEGILMAYDI</b>. Ular haqiqatan ikki
+        alohida amal bo'lishi mumkin (bir kunda bir xil grammda ikki marta berilgan bo'lsa).</li>
+  </ul>
+
+  <div class="qaror">
+    <div class="lbl">Nima kutilmoqda</div>
+    Sizga sanash uchun konsol buyrug'i berilgan edi — <b>natija hali kelmagan</b>.
+    Nechta takror borligini bilmasak, tozalash kodini yozish erta.
+    <br><br>Buyruqni qayta beraymi?
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Xavf:</b> yuqori — pul raqami buzuq</span>
+    <span class="chip"><b>Bugun ko'rinadimi:</b> HA</span>
+    <span class="chip"><b>Tartib:</b> ro'yxat → backup → o'chirish</span>
+  </div>
+</div>
+
+<!-- ── 0i ── -->
+<div class="card red" id="i0i">
+  <h3><span class="code-id">0i</span>Chek ikki qurilmadan chiqib ketishi mumkin<span class="tag t-org">Yarim yopilgan</span></h3>
+
+  <div class="lbl">Qanday ishlaydi</div>
+  <p>Telefondan chek bosilganda u to'g'ridan-to'g'ri chiqmaydi — bulutga
+  <b>topshiriq</b> bo'lib yoziladi. Kompyuter uni tinglaydi va o'ziga ulangan
+  printerdan chiqaradi.</p>
+
+  <div class="lbl">Muammo</div>
+  <p>«Chek shu qurilmadan chiqsin» kaliti <b>sukut bo'yicha YOQILGAN</b>
+  (<code>chekBuQurilmadan()</code>, index.html:2018 — printer xatosi chiqmagan har
+  qurilmada yoqiq hisoblanadi). Ya'ni <b>har bir qurilma</b> topshiriqni tinglayveradi.</p>
+
+  <div class="misol">
+    <b>Misol.</b> Sizda 3–4 qurilmada ilova ochiq. Ikkitasiga printer ulangan bo'lsa —
+    telefondan bitta chek bossangiz, <b>ikkita chek</b> chiqadi.
+  </div>
+
+  <div class="lbl">Nima uchun himoya yordam bermaydi</div>
+  <p>Ikki marta chiqmasligi uchun «bu chek chiqarildi» ro'yxati bor
+  (<code>tilla-chek-chiqdi</code>, index.html:2052). Lekin bu ro'yxat
+  <b>har qurilmaning o'z ichida</b> saqlanadi. A kompyuteri «men chiqardim» deb
+  belgilaydi, B kompyuteri buni ko'rmaydi va o'zi ham chiqaradi.</p>
+
+  <div class="lbl">Hozircha nima qilish kerak (koddan tashqari)</div>
+  <p>Kalitni <b>faqat bitta qurilmada</b> yoqiq qoldirish — printer ulangan
+  kompyuterda YOQ, qolganlarida O'CHIQ. Sozlamalar &gt; Printer.</p>
+
+  <div class="qaror">
+    <div class="lbl">To'liq yechim uchun qaror kerak</div>
+    «Chiqaruvchi qurilma» <b>bulutda bitta</b> bo'lib belgilansin — bitta qurilma
+    o'zini «men printerman» deb yozadi, qolganlari avtomat o'chadi.
+    <br><br>Shu yo'lni tanlaymizmi, yoki qo'lda boshqarish yetarlimi?
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Xavf:</b> qog'oz isrofi, chalkashlik</span>
+    <span class="chip"><b>Bugun ko'rinadimi:</b> sozlamaga bog'liq</span>
+    <span class="chip"><b>⚠ v172.29 dan keyin sinalmagan</b></span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="sec">B · Yarim qolgan ishlar — boshlangan, tugatilmagan</h2>
+
+<!-- ── 0m ── -->
+<div class="card org" id="i0m">
+  <h3><span class="code-id">0m</span>2-chi chek (ostatka jadvali) faqat sotuvda bor<span class="tag t-org">3 modal qolgan</span></h3>
+
+  <div class="lbl">Nima qilingan</div>
+  <p>v172.35 da chek yoniga <b>ikkinchi chek</b> qo'shildi — ostatka jadvali.
+  U rasm qilib bosiladi (matn emas), shuning uchun jadval chiroyli chiqadi.
+  Sotuv oynasida chapda <b>«ostatka»</b> kaliti bor, sukut bo'yicha o'chiq.</p>
+
+  <div class="lbl">Nima qolgan</div>
+  <p>Faqat <b>sotuv</b> oynasida ishlaydi (index.html:16055 — butun faylda
+  <code>chekJadvalYubor</code> shu bitta joyda chaqiriladi). Qolgan uch oynada yo'q:</p>
+  <ul>
+    <li><b>Berish</b> oynasi</li>
+    <li><b>Vozvrat</b> oynasi</li>
+    <li><b>To'lov</b> oynasi</li>
+  </ul>
+  <p>Har biriga chek yuborilayotgan joyga bitta qo'shimcha chaqiruv va oynaga
+  kalit qo'shiladi — <b>har biri ~12–15 qator</b>.</p>
+
+  <div class="qaror">
+    <div class="lbl">⚠ Ikki eslatma</div>
+    <b>1.</b> Print-server <b>qayta ishga tushirilishi shart</b>. Eski server jadval
+    so'rovini oddiy chek deb oladi va <b>yolg'iz logo</b> chiqaradi. Shu belgini
+    ko'rsangiz — server eski.<br>
+    <b>2.</b> Shakllantirish yozuvi 2-chi chekda hali <b>«berildi»</b> deb chiqadi —
+    PDF va ilovada v172.41/42 da «Ostatka» ga o'zgartirilgan, 2-chi chekda qolib ketgan.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> ~40 qator, 3 ta modal</span>
+    <span class="chip"><b>Xavf:</b> past</span>
+    <span class="chip"><b>Qaror:</b> uchalasi kerakmi yoki bittasi?</span>
+  </div>
+</div>
+
+<!-- ── 0l ── -->
+<div class="card org" id="i0l">
+  <h3><span class="code-id">0l</span>PDF yuklab olinmaydi — 6 joyda<span class="tag t-org">Eng oson ish</span></h3>
+
+  <div class="lbl">Muammo</div>
+  <p>PDF ochilganda Chrome ning <b>«Download»</b> tugmasi bosilsa
+  <b>«internetga ulanmagan»</b> deb xato beradi. Ba'zan PDF umuman ochilmaydi —
+  brauzer uni <b>reklama oynasi</b> deb bloklaydi.</p>
+
+  <div class="misol">
+    <b>Nima uchun.</b> PDF serverdan kelib bo'lgach ochilyapti — brauzer uchun bu
+    «foydalanuvchi bosmagan, o'zi ochildi» degani, shuning uchun bloklanadi.
+    Ustiga PDF ning vaqtinchalik havolasi <b>10 soniyada</b> o'chirib
+    tashlanardi — Download bosganda fayl allaqachon yo'q bo'lgan.
+  </div>
+
+  <div class="lbl">Yechim tayyor</div>
+  <p><code>pdfOch(blob, nom)</code> funksiyasi yozilgan (index.html:16851) —
+  haqiqiy yuklash havolasi qiladi va faylni <b>10 daqiqa</b> tirik qoldiradi.</p>
+
+  <div class="lbl">Qayerda ishlaydi / ishlamaydi</div>
+  <table class="tbl" style="margin-top:6px">
+    <tbody>
+      <tr><td style="color:var(--green)">✓ ishlaydi</td><td>Klient PDF</td><td><code>16987</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>Kurs tarixi hisoboti</td><td><code>2934</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>Zavod / tur hisoboti</td><td><code>9638</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>Kassa PDF</td><td><code>10959</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>To'lov hisoboti</td><td><code>11015</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>Klient qarz cheki</td><td><code>16718</code></td></tr>
+      <tr><td style="color:var(--red)">✗ eski yo'l</td><td>Klientlar ro'yxati</td><td><code>17172</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="qaror">
+    <div class="lbl">Eslatma</div>
+    DAVOM.md da <b>5 joy</b> deb yozilgan edi — bugungi tekshiruvda <b>6 ta</b> chiqdi
+    (<b>kurs tarixi hisoboti</b> ro'yxatda yo'q edi). Har biri <b>tom ma'noda 1 qator</b>.
+    Bu ro'yxatdagi eng arzon ish.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> 6 qator</span>
+    <span class="chip"><b>Xavf:</b> juda past</span>
+    <span class="chip"><b>Bugun ko'rinadimi:</b> HA — har PDF da</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="sec">C · Katta qarorlar — sizdan javob kutilmoqda</h2>
+
+<!-- ── 0k ── -->
+<div class="card blu" id="i0k">
+  <h3><span class="code-id">0k</span>ASOSIY qurilma rejimi<span class="tag t-blu">3-qadam qoldi</span></h3>
+
+  <div class="lbl">Muammo — siz aytgan gap</div>
+  <p>10-avgustda: <i>«cloudga boshqa qurilmala tupurib qo'ygan»</i>,
+  <i>«PC asosiy bo'gani bilan teldigi malumotlayam ishlatilvotganida tori bo'ladi»</i>.</p>
+  <p>Ya'ni: har qurilma bulutga <b>o'zining to'liq nusxasini</b> yozadi.
+  Kim oxirgi yozsa — o'shaniki qoladi, boshqasining ishi bosilib ketadi.</p>
+
+  <div class="lbl">Reja — uch qadam</div>
+  <ul>
+    <li><b>1-qadam ✓ bajarildi</b> (v172.30/31) — yozuvlar ishonchli yetadigan bo'ldi.
+        Tahrirlangan yozuv ham ketadi, «yuborildi» belgisi <b>tasdiqdan keyin</b> qo'yiladi.
+        <span style="color:var(--orange)">⚠ Lekin QAYTA SINALMAGAN.</span></li>
+    <li><b>2-qadam ✓ bajarildi</b> — qo'lda: PC da ⬆, qolganlarida ⬇.
+        Siz tasdiqladingiz: «hozircha bir xil».</li>
+    <li><b>3-qadam — QOLDI.</b> Faqat <b>ASOSIY</b> qurilma bulutga to'liq nusxa yozadi,
+        qolganlari o'qiydi.</li>
+  </ul>
+
+  <div class="lbl">3-qadam qancha ish</div>
+  <p>Juda kam — <b>2–4 qator</b>:</p>
+  <ul>
+    <li><code>cloudSaqlaNow</code> (index.html:18398) — «asosiy emassan, yozma» sharti</li>
+    <li><code>cloudListen</code> (index.html:18201) — ergashuvchi yangi nusxani avtomat oladi</li>
+  </ul>
+  <p>Hozir <code>qurilmaAsosiy()</code> (index.html:18042) faqat <b>bitta joyda</b>
+  ishlatiladi — Cloud oynasidagi ko'k «ASOSIY» yorlig'ini chizishda (18163).
+  Sinxronga ta'siri <b>nol</b>.</p>
+
+  <div class="qaror">
+    <div class="lbl">⚠⚠ Ikki jiddiy ogohlantirish</div>
+    <b>1. Sinovsiz yoqilmasin.</b> 1-qadam sinovdan o'tmagan. Agar telefondagi yozuv
+    PC ga yetmagan bo'lsa, avtomat kelgan nusxa uni <b>o'chirib yuboradi</b>.<br><br>
+    <b>2. Abdulhamid.</b> Siz aytgansiz: «bu narsala abdulhamid logiga tasir qimasin
+    umuman». Hamid qurilmasi ro'yxatga qo'shilmaydi → uning raqami 0 → «asosiy emas»
+    chiqadi. Oddiy shart yozilsa <b>hamid butunlay bulutga yoza olmay qoladi</b>.
+    Shart majburan hamidni chetlab o'tishi kerak.
+  </div>
+
+  <div class="qaror">
+    <div class="lbl">Javob kutilayotgan savollar</div>
+    <b>1.</b> ASOSIY = 1-raqamli qurilma qoladimi, yoki Sozlamalarda qo'lda belgilanadimi?<br>
+    <b>2.</b> Ergashuvchi qurilma yangi nusxani <b>jim</b> olsinmi, yoki xabar chiqsinmi?<br>
+    <b>3.</b> Ergashuvchida kassa tahriri <b>bloklansinmi</b>?
+    <br><br>Mockup tayyor: <code>mockups/v172.30-asosiy-qurilma.html</code>
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> 2–4 qator</span>
+    <span class="chip"><b>Xavf:</b> YUQORI — noto'g'ri yoqilsa ma'lumot yo'qoladi</span>
+    <span class="chip"><b>Oldin:</b> 1-qadam sinovi</span>
+  </div>
+</div>
+
+<!-- ── 0j ── -->
+<div class="card blu" id="i0j">
+  <h3><span class="code-id">0j</span>Kassa qurilmalar orasida umuman sinxron emas<span class="tag t-blu">Ikki yo'l</span></h3>
+
+  <div class="lbl">Nima bo'layapti</div>
+  <p>Ilovada ikki xil sinxron bor:</p>
+  <ul>
+    <li><b>Yozuvlar</b> (tarix, berish, vozvrat, to'lov) — har biri alohida ketadi,
+        to'qnashmaydi. Ishlaydi.</li>
+    <li><b>Kassa</b> — u ro'yxat emas, <b>bitta katta qop</b> (zlar, tuzatishlar,
+        zakazlar hammasi ichida). Shuning uchun bitta-bitta yubora olmaydi
+        (index.html:8144 dagi izoh).</li>
+  </ul>
+
+  <div class="lbl">Muammo</div>
+  <p>Kod izohida «kassa <b>blob orqali</b> sinxron bo'ladi» deb yozilgan.
+  Lekin blob <b>yuklab olinmaydi</b> — <code>cloudListen</code> (index.html:18216)
+  faqat <b>butunlay bo'sh</b> qurilmagagina yuklaydi.</p>
+  <p>Demak kassa amalda <b>hech qachon sinxron bo'lmaydi</b>. Har qurilmada o'z kassasi.</p>
+
+  <div class="lbl">Ikki yo'l bor — ikkalasi ham katta qaror</div>
+  <ul>
+    <li><b>K1 — blobni davriy yuklash.</b> Oson, lekin <b>xavfli</b>: ikki qurilmada
+        bir vaqtda ishlansa biri ikkinchisini bosib ketadi. v93 da aynan shuning
+        uchun o'chirilgan edi.</li>
+    <li><b>K2 — kassani yozuvlarga chiqarish.</b> Xavfsiz, lekin <b>ko'p kod</b> —
+        alohida versiya bo'ladi.</li>
+  </ul>
+
+  <div class="qaror">
+    <div class="lbl">Bog'liqlik</div>
+    <b>0k ning 3-qadami bajarilsa</b> — ya'ni bitta ASOSIY qurilma bo'lsa —
+    K1 xavfsiz shaklga keladi (chunki faqat bitta qurilma yozadi, to'qnashuv yo'q).
+    <br><br><b>Tavsiya:</b> bu masalani 0k dan keyin ko'rish. Hozircha ⬆/⬇ qo'lda.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> K1 kichik / K2 katta</span>
+    <span class="chip"><b>Xavf:</b> K1 da yuqori</span>
+    <span class="chip"><b>Bog'liq:</b> 0k</span>
+  </div>
+</div>
+
+<!-- ── 0f ── -->
+<div class="card blu" id="i0f">
+  <h3><span class="code-id">0f</span>Eski offset yozuvlarida soat yo'q — noto'g'ri to'lovga yopishadi<span class="tag t-blu">Mockup kerak</span></h3>
+
+  <div class="lbl">Nima bo'layapti</div>
+  <p>Offset (bir turdagi qarzni boshqasidan yopish) yozuvi to'lovga
+  <b>sana + soat</b> bilan bog'lanadi. v172.25 da soat qo'shildi — lekin faqat
+  <b>yangi</b> yozuvlarga. Undan oldingi yozuvlarda soat <b>umuman yo'q</b>.</p>
+
+  <div class="misol">
+    <b>Marhabo Opa TJK · 06.08</b><br>
+    Shu kuni ikki to'lov bo'lgan: <b>15:20</b> va <b>15:22</b>.<br>
+    Soatsiz offset ikkalasiga ham teng darajada mos keladi → <b>noto'g'ri to'lovga</b>
+    yopishib ko'rinadi.
+  </div>
+
+  <div class="lbl">Yechim yo'nalishi</div>
+  <p>O'qish paytida (ma'lumotni o'zgartirmasdan): soati yo'q offsetni <b>o'sha sana +
+  o'sha zavod·tur</b> bo'yicha to'lov qatoriga bog'lash. Offset yozuvida zavod va tur
+  saqlangan, shuning uchun bu ma'lumot bor.</p>
+
+  <div class="qaror">
+    <div class="lbl">Nozik joyi — hal qilinmagan</div>
+    <b>Bir kunda bir xil turga ikki to'lov</b> bo'lsa, offset qaysi biriga bog'lanadi?
+    Birinchisigami? Summasi mos kelganigami? Yoki ikkiga bo'linadimi?
+    <br><br>Siz aytgansiz: <b>«alohida mockup bilan qil»</b>. Shu masala uchun
+    alohida mockup kerak — bu fayl faqat tushuntirish.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> o'rtacha</span>
+    <span class="chip"><b>Xavf:</b> past — o'qishda hal bo'ladi</span>
+    <span class="chip"><b>Keyingi qadam:</b> alohida mockup</span>
+  </div>
+</div>
+
+<!-- ── 4 ── -->
+<div class="card blu" id="i4">
+  <h3><span class="code-id">4</span>Sotuv va berish yozuvlari umuman farqlanmaydi<span class="tag t-blu">Eng chuqur masala</span></h3>
+
+  <div class="lbl">Nima bo'layapti</div>
+  <p>Klientga <b>sotish</b> ham, <b>berish</b> ham daftarga <b>bir xil</b> yoziladi:
+  <code>tip:'berish'</code>. Maydon-maydon <b>hech qanday farq yo'q</b>.</p>
+
+  <div class="lbl">Bu nima uchun g'alati</div>
+  <p>Kodda sotuvni ajratish uchun <b>o'quvchi tayyor turibdi</b>, lekin
+  <b>yozuvchi hech qachon belgi qo'ymaydi</b>:</p>
+  <table class="tbl" style="margin-top:6px">
+    <thead><tr><th>Belgi</th><th style="width:120px">Yoziladi</th><th style="width:120px">O'qiladi</th><th>Natija</th></tr></thead>
+    <tbody>
+      <tr><td><code>manba:'sotuv'</code></td><td style="color:var(--red)">0 marta</td><td style="color:var(--green)">2 joyda</td><td>doim <b>false</b></td></tr>
+      <tr><td><code>_sotuv:true</code></td><td style="color:var(--red)">0 marta</td><td style="color:var(--green)">2 joyda</td><td>doim <b>false</b></td></tr>
+      <tr><td><code>holat:'sotilgan'</code></td><td style="color:var(--red)">0 marta</td><td>—</td><td>hech qachon</td></tr>
+    </tbody>
+  </table>
+  <p>O'quvchi: index.html:6633 va 6640 —
+  <code>sotuv:(op.manba==='sotuv'||op._sotuv===true)</code>. Ikkala shart ham
+  hech qachon rost bo'lmaydi.</p>
+
+  <div class="misol">
+    <b>Oddiy tilda.</b> Daftarda «sotuv» degan ustun chizilgan, ammo unga
+    <b>hech kim hech nima yozmaydi</b>. Hisobot o'sha bo'sh ustunni o'qiydi va
+    «sotuv yo'q ekan» degan xulosaga keladi.
+  </div>
+
+  <div class="lbl">Bu nimaga to'sqinlik qiladi</div>
+  <ul>
+    <li>Sotuvni alohida qator qiladigan <b>har qanday hisobot</b> yozib bo'lmaydi</li>
+    <li>Dona bazada «sotilgan» holati hech qachon qo'yilmaydi — <b>PLAN.md dagi X7</b></li>
+    <li>Foyda hisobini sotuv bo'yicha ajratish mumkin emas</li>
+  </ul>
+
+  <div class="qaror">
+    <div class="lbl">Qaror kerak — ikki savol</div>
+    <b>1.</b> Sotuvga belgi qo'yaylikmi? (Yangi sotuvlarga — bu oson, bir necha qator.)<br>
+    <b>2.</b> <b>Eski</b> yozuvlarni nima qilamiz? Ular allaqachon belgisiz.
+    Ularni ajratishning yo'li yo'q — chunki farqi hech qayerda yozilmagan.
+    <br><br><b>Ya'ni:</b> belgi qo'yilsa ham, u faqat <b>bugundan keyingi</b>
+    sotuvlarga tegishli bo'ladi. Eski tarix aralash qoladi.
+  </div>
+
+  <div class="footer-row">
+    <span class="chip"><b>Ish:</b> yangi belgi kichik, eski tarix hal emas</span>
+    <span class="chip"><b>Bog'liq:</b> dona baza X7, foyda modeli</span>
+    <span class="chip"><b>Eski mockuplar yo'q</b> — tahlil qaytadan</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="sec">Tavsiya — qaysi tartibda</h2>
+
+<div class="final">
+  <p style="margin-top:0"><b>Menimcha shunday tartib mantiqli</b> — lekin qaror sizniki:</p>
+  <ol>
+    <li><b>0l — PDF (6 qator).</b> Eng arzon, xavfi yo'q, har kuni ko'rinadigan
+        bezovtalik. Bir versiyada tugaydi.</li>
+    <li><b>0g — takror yozuvlar.</b> Bu <b>pul raqamini bugun buzayotgan</b> yagona
+        masala. Avval <b>nechta borligini sanash</b> kerak — konsol buyrug'i.
+        Ish emas, javob kutilmoqda.</li>
+    <li><b>0i — printer kaliti.</b> Kodsiz ham hal bo'ladi: qurilmalarni ko'rib chiqib,
+        faqat bittasida yoqiq qoldirish. 5 daqiqalik ish.</li>
+    <li><b>0m — 2-chi chek.</b> Aniq, tushunarli, xavfsiz. Lekin print-server
+        qayta ishga tushirilishi shart.</li>
+    <li><b>0o / 0n — ma'lumot migratsiyasi.</b> Ikkalasi ham ma'lumotni o'zgartiradi.
+        Backup shart. Shoshilinch emas — ikkalasi ham hozir «uxlab yotibdi».</li>
+    <li><b>0k → 0j.</b> Katta sinxron ishi. <b>Oldin 1-qadam sinovi.</b>
+        0k bajarilsa 0j o'zi osonlashadi.</li>
+    <li><b>0f va 4.</b> Ikkalasi ham alohida mockup talab qiladi — tayyor javob yo'q.</li>
+  </ol>
+  <p class="nb">Bu ro'yxatda <b>dona baza</b> (PLAN.md) yo'q — u alohida, kattaroq ish
+  va hozir chernovikda muzlatilgan.</p>
+</div>
+
+<div class="warn" style="margin-top:24px">
+  <b>Keyingi qadam.</b> Qaysi birini boshlaymiz? Aytganingizdan keyin o'sha masala
+  uchun <b>alohida mockup</b> (HOZIRGI vs TAKLIF) chizaman, tasdiqlaganingizdan
+  keyin kod yozaman.
+</div>
+
+</div>
+</body>
+</html>

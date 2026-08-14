@@ -1,4 +1,4 @@
-<!-- v174.3 -->
+<!-- v174.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.3';
+var APP_VER = 'v174.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11591,12 +11591,14 @@ function _tolovTurAniq(ops){
   var v={naqt:0,karta:0,lom:0,perech:0,offset:0}, lomG=0, lomK=0, ofNom='', jami=0;
   (ops||[]).forEach(function(op){
     if(op.tip!=='tolov') return;
-    jami += (op.summa||0);                       // sNet — skidka allaqachon ayirilgan
     if(op._kdYopish){
       v.offset += (op.summa||0);
       if(!ofNom && op.zavod) ofNom = op.zavod+' \u00b7 '+op.tur;
       return;
     }
+    // v174.4: MANBA yozuvi jami ga QO'SHILMAYDI — manba va manzil bir pulning
+    // ikki tomoni, ikkalasi qo'shilsa summa ikkilanadi.
+    jami += (op.summa||0);                       // sNet — skidka allaqachon ayirilgan
     v.naqt   += (op.naqtPul||0);
     v.karta  += (op.kartaPul||0);
     v.perech += (op.perechPul||0);
@@ -16934,7 +16936,12 @@ function klientPDFYukor(dan, gacha){
     // ostatka HOLATI, klientga berilgan tilla emas. Arifmetika o'zgarmaydi.
     if(op.tip==='berish'){ d=parseNum(op.gramm); nom=(op.inventar==='boshlangich'?'ostatka':'berildi'); }
     else if(op.tip==='vozvrat'){ d=-parseNum(op.gramm); nom='vozvrat'; }
-    else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+    // v174.4: offset (_kdYopish) BIZNING qarzni yopadi — qoldiq ortadi, kamaymaydi.
+    // Belgisiz qoldirilgani uchun oddiy to'lovdek ayirilib qoldiq ikkilanardi.
+    else if(op.tip==='tolov'){
+      if(op._kdYopish){ d=parseNum(op.ekvivalent||0);  nom='offset'; }
+      else            { d=-parseNum(op.ekvivalent||0); nom='tolov';  }
+    }
     else return;
     var key=op.zavod+'||'+op.tur;
     if(!_ostB[key]){ _ostB[key]={zavod:op.zavod, tur:op.tur, boshi:0, kunlar:[], _km:{}}; _ostTartib.push(key); }

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Offset ikki marta — tashxis + javoblar</title>
+<style>
+  :root{
+    --bg:#0e1015; --card:#171a21; --card2:#1e222b; --line:#2a2f3a;
+    --txt:#e8eaef; --muted:#8d95a5;
+    --gold:#d4af37; --gold-bg:rgba(212,175,55,.10);
+    --red:#e5555f; --red-bg:rgba(229,85,95,.10);
+    --org:#e08a3c; --org-bg:rgba(224,138,60,.10);
+    --grn:#48b881; --grn-bg:rgba(72,184,129,.10);
+    --blu:#5b9bd5; --blu-bg:rgba(91,155,213,.10);
+    --pur:#a97bd6; --pur-bg:rgba(169,123,214,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+       font-size:15px;line-height:1.65;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:27px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+
+  .banner{margin-top:18px;background:var(--red-bg);border:1px solid var(--red);
+          border-radius:10px;padding:14px 17px;font-size:14px}
+  .banner b{color:var(--red)}
+  .banner.gold{background:var(--gold-bg);border-color:var(--gold)}
+  .banner.gold b{color:var(--gold)}
+  .banner.grn{background:var(--grn-bg);border-color:var(--grn)}
+  .banner.grn b{color:var(--grn)}
+
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:46px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.org{border-left:3px solid var(--org)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card h3{margin:0 0 6px;font-size:18.5px;letter-spacing:-.01em}
+  .card h4{margin:20px 0 8px;font-size:15px;color:var(--gold)}
+  .cid{font-family:ui-monospace,Consolas,monospace;font-size:13px;
+       color:var(--gold);background:var(--gold-bg);padding:1px 8px;
+       border-radius:5px;margin-right:9px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+       text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-left:6px;
+       vertical-align:middle}
+  .t-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  .t-org{background:var(--org-bg);color:var(--org);border:1px solid var(--org)}
+  .t-blu{background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu)}
+  .t-grn{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn)}
+
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:17px 0 6px}
+  p{margin:0 0 9px}
+  ul,ol{margin:0 0 9px;padding-left:20px}
+  li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 10px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+  tr.tot td{border-top:2px solid var(--line);font-weight:700;background:rgba(255,255,255,.02)}
+
+  /* HOZIRGI vs TAKLIF */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+  @media(max-width:720px){.ba{grid-template-columns:1fr}}
+  .bx{border-radius:10px;padding:14px 16px;border:1px solid var(--line);background:var(--card2)}
+  .bx.now{border-color:var(--red)}
+  .bx.new{border-color:var(--grn)}
+  .bx .bh{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+          margin-bottom:9px}
+  .bx.now .bh{color:var(--red)} .bx.new .bh{color:var(--grn)}
+  .bx table{margin:0;font-size:12.5px}
+  .bx th,.bx td{padding:5px 6px}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;
+      padding:11px 13px;overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .qbox.red{background:var(--red-bg);border-color:var(--red)}
+  .qbox.red .lbl{color:var(--red)}
+
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px;
+         padding-top:14px;border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+
+  .flow{background:var(--card2);border-radius:9px;padding:14px 16px;margin:10px 0;
+        font-size:13.5px;border-left:2px solid var(--muted)}
+  .flow b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Offset ikki marta hisoblanishi — to'liq tashxis</h1>
+  <div class="sub">v174.3 · 2026-08-14 · Dilfuza Opa Sadaf misolida · <b>kod yozilmagan</b></div>
+  <div class="banner">
+    <b>Siz yuborgan 4 ta rasm bo'yicha koddan tekshirdim — muammo tasdiqlandi.</b>
+    Bitta sabab, lekin <b>uchta alohida joyda</b> chiqadi. Ikkitasi siz ko'rgan
+    rasmlarda, uchinchisi hozircha yashirin.
+  </div>
+</header>
+
+
+<!-- ═══════════════════ 1-QISM ═══════════════════ -->
+<h2 class="sec">1-qism · <b>Offset nima va nima uchun ikkilanadi</b></h2>
+
+<div class="card">
+  <h3>Avval — offset nima qilyapti</h3>
+  <div class="flow">
+    Klient bir turda sizga <b>qarzdor</b>, boshqa turda <b>siz unga qarzdorsiz</b>.<br>
+    Offset — <b>ikkalasini bir-biri bilan yopish</b>. Pul qo'ldan qo'lga o'tmaydi,
+    faqat daftarda ko'chiriladi.
+  </div>
+
+  <div class="lbl">Dilfuza Opa Sadaf · 13.08.2026 · 18:46 — haqiqiy hodisa</div>
+  <p>Butterfly · Oddiy turida <b>siz</b> unga qarzdor edingiz (52.98 g = $4,572.17).
+  Shu pul bilan uning ikki turdagi qarzi yopildi:</p>
+
+  <table>
+    <thead><tr><th>Yozuv</th><th class="num">Pul</th><th class="num">Gramm</th><th>Belgi</th><th>Ma'nosi</th></tr></thead>
+    <tbody>
+      <tr><td><b>Butterfly · Oddiy</b></td><td class="num">4,572.17 $</td><td class="num">52.98 g</td>
+          <td><code>_kdYopish</code> <span class="ok">✓</span></td><td class="dim">MANBA — bizning qarzimiz yopildi</td></tr>
+      <tr><td>Butterfly · 3D</td><td class="num">2,074.59 $</td><td class="num">23.31 g</td>
+          <td class="dim">yo'q</td><td class="dim">MANZIL — klient qarzi yopildi</td></tr>
+      <tr><td>Butterfly · 3DS</td><td class="num">2,497.58 $</td><td class="num">27.09 g</td>
+          <td class="dim">yo'q</td><td class="dim">MANZIL — klient qarzi yopildi</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner gold" style="margin-top:4px">
+    <b>Diqqat qiling:</b> 2,074.59 + 2,497.58 = <b>4,572.17</b> — bu <b>manba bilan aynan bir xil</b>.
+    Chunki bu <b>bitta pul</b>, ikki tomondan yozilgan. Buxgalteriyada shunday bo'ladi:
+    bir yozuv chiqim, ikkinchisi kirim.
+    <br><br>
+    <b>Xato shundan kelib chiqadi:</b> ba'zi ekranlar ikkala tomonni <b>qo'shib yuboradi</b> —
+    natijada bitta pul <b>ikki marta</b> sanaladi.
+  </div>
+</div>
+
+
+<!-- ═══════════════════ QAYERDA TO'G'RI / NOTO'G'RI ═══════════════════ -->
+<h2 class="sec">2-qism · <b>Qaysi ekran to'g'ri, qaysi biri yolg'on</b></h2>
+
+<div class="card">
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Ekran</th><th>Natija</th><th style="width:88px">Kod</th><th>Nima uchun</th></tr></thead>
+    <tbody>
+      <tr>
+        <td style="font-size:19px">2️⃣</td>
+        <td><b>Umumiy hisobot</b><br><span class="dim">(bosh ekran, klient nomi bilan)</span></td>
+        <td class="ok"><b>$4,572.17 ✓</b></td>
+        <td><span class="ln">11130</span></td>
+        <td class="dim">Manba yozuvini <b>tashlab ketadi</b> — <code>if(!op._kdYopish)</code></td>
+      </tr>
+      <tr>
+        <td style="font-size:19px">4️⃣</td>
+        <td><b>Klient ekrani — Qarz tarkibi</b></td>
+        <td class="ok"><b>−87.56 ✓</b></td>
+        <td><span class="ln">16651<br>16659</span></td>
+        <td class="dim">Manbaga <b>+</b>, manzilga <b>−</b> — ikkalasi bir-birini yo'q qiladi</td>
+      </tr>
+      <tr style="background:var(--red-bg)">
+        <td style="font-size:19px">1️⃣</td>
+        <td><b>Klient tarixi</b><br><span class="dim">(klient ichiga kirganda)</span></td>
+        <td class="bad"><b>$9,144.34 ✗</b><br><span class="dim">= 2 × to'g'ri</span></td>
+        <td><span class="ln">11594</span></td>
+        <td class="bad">Manba yozuvi ham <b>qo'shib yuboriladi</b></td>
+      </tr>
+      <tr style="background:var(--red-bg)">
+        <td style="font-size:19px">3️⃣</td>
+        <td><b>PDF — kunlik ostatka bo'limi</b></td>
+        <td class="bad"><b>+105.96 g ✗</b><br><span class="dim">= 2 × to'g'ri</span></td>
+        <td><span class="ln">16937</span></td>
+        <td class="bad">Manba yozuvi <b>oddiy to'lov</b> deb ayiriladi</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="banner grn" style="margin-top:14px">
+    <b>Yaxshi xabar:</b> to'g'ri qilish qanday bo'lishini kod <b>o'zi allaqachon biladi</b> —
+    ikki ekranda to'g'ri yozilgan. Xato joylarga <b>o'sha qolipni</b> ko'chirish kifoya.
+    Yangi mantiq o'ylab topish shart emas.
+  </div>
+</div>
+
+
+<!-- ═══════════════════ XATO A ═══════════════════ -->
+<h2 class="sec">3-qism · <b>Xato A — klient tarixida pul ikkilanadi</b> (1-rasm)</h2>
+
+<div class="card red">
+  <h3>$4,572.17 o'rniga $9,144.34<span class="tag t-red">Tasdiqlangan</span></h3>
+
+  <div class="lbl">Qayerda</div>
+  <p><code>_tolovTurAniq</code> funksiyasi, <span class="ln">index.html:11594</span>.
+  U bir kundagi to'lov yozuvlarini yig'ib, sarlavhadagi pulni beradi
+  (chiziladigan joyi — <span class="ln">11844</span>).</p>
+
+  <pre><span class="cm">// 11592–11599 — HOZIRGI</span>
+(ops||[]).forEach(function(op){
+  if(op.tip!=='tolov') return;
+  <span class="del">jami += (op.summa||0);        ← manba ham, manzil ham qo'shiladi</span>
+  if(op._kdYopish){
+    v.offset += (op.summa||0);
+    ...
+    return;                      <span class="cm">← belgi shu yerda TEKSHIRILADI,</span>
+  }                              <span class="cm">   lekin jami undan OLDIN qo'shilgan</span></pre>
+
+  <p>Ya'ni <code>jami</code> ga qo'shish <b>belgi tekshirilishidan oldin</b> turibdi.
+  Shuning uchun manba yozuvi ham tushib ketadi.</p>
+
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Hozir</div>
+      <table>
+        <tr><td>Butterfly · Oddiy <span class="dim">(manba)</span></td><td class="num">4,572.17</td></tr>
+        <tr><td>Butterfly · 3D</td><td class="num">2,074.59</td></tr>
+        <tr><td>Butterfly · 3DS</td><td class="num">2,497.58</td></tr>
+        <tr class="tot"><td>Sarlavhada</td><td class="num bad">9,144.34 $</td></tr>
+      </table>
+    </div>
+    <div class="bx new">
+      <div class="bh">✓ Taklif</div>
+      <table>
+        <tr><td class="dim">Butterfly · Oddiy <span class="dim">(manba — o'tkazib yuboriladi)</span></td><td class="num dim">—</td></tr>
+        <tr><td>Butterfly · 3D</td><td class="num">2,074.59</td></tr>
+        <tr><td>Butterfly · 3DS</td><td class="num">2,497.58</td></tr>
+        <tr class="tot"><td>Sarlavhada</td><td class="num ok">4,572.17 $</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="lbl">Nima o'zgaradi</div>
+  <pre><span class="del">-  jami += (op.summa||0);</span>
+<span class="cm">   if(op._kdYopish){</span>
+<span class="cm">     v.offset += (op.summa||0);  ...  return;</span>
+<span class="cm">   }</span>
+<span class="add">+  jami += (op.summa||0);   // faqat manzil yozuvlaridan</span></pre>
+  <p class="dim">Bitta qatorni <b>to'rt qator pastga</b> ko'chirish. Boshqa hech nima tegilmaydi.</p>
+
+  <div class="chips">
+    <span class="chip"><b>Diff:</b> 2 qator</span>
+    <span class="chip"><b>Gramm:</b> tegilmaydi — 50.40 g allaqachon to'g'ri</span>
+    <span class="chip"><b>Ta'sir:</b> faqat klient tarixi sarlavhasi</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ XATO B ═══════════════════ -->
+<h2 class="sec">4-qism · <b>Xato B — PDF da qoldiq ikkilanadi</b> (3-rasm)</h2>
+
+<div class="card red">
+  <h3>QOLDI 0.00 g o'rniga +105.96 g<span class="tag t-red">Tasdiqlangan</span></h3>
+
+  <div class="lbl">Qayerda</div>
+  <p>PDF ning «Zavod·tur bo'yicha kunlik ostatka» bo'limi,
+  <span class="ln">index.html:16937</span>:</p>
+
+  <pre>if(op.tip==='berish'){ d=parseNum(op.gramm); nom=... }
+else if(op.tip==='vozvrat'){ d=-parseNum(op.gramm); nom='vozvrat'; }
+<span class="del">else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }</span>
+                          <span class="cm">↑ _kdYopish umuman tekshirilmaydi</span></pre>
+
+  <p>Butun faylda offset <b>17 joyda</b> to'g'ri ajratiladi
+  (<span class="ln">13444, 13912, 14519, 14664, 14889, 15108, 15624, 16082, 16659</span> …).
+  Bu bitta joy — <b>v172.39 da yangi yozilgan bo'lim</b> — o'sha qoidadan chetda qolgan.</p>
+
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Hozir — Butterfly · Oddiy</div>
+      <table>
+        <tr><td class="dim">03.08.2026</td><td class="dim">ostatka</td><td class="num">−52.98</td><td class="num dim">−52.98</td></tr>
+        <tr><td class="dim">13.08.2026</td><td class="bad">tolov</td><td class="num bad">−52.98</td><td class="num dim">−105.96</td></tr>
+        <tr class="tot"><td colspan="3">QOLDI</td><td class="num bad">+105.96 g</td></tr>
+      </table>
+    </div>
+    <div class="bx new">
+      <div class="bh">✓ Taklif — Butterfly · Oddiy</div>
+      <table>
+        <tr><td class="dim">03.08.2026</td><td class="dim">ostatka</td><td class="num">−52.98</td><td class="num dim">−52.98</td></tr>
+        <tr><td class="dim">13.08.2026</td><td style="color:var(--pur)">offset</td><td class="num ok">+52.98</td><td class="num dim">0.00</td></tr>
+        <tr class="tot"><td colspan="3">QOLDI</td><td class="num ok">0.00 g</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <p>Siz aytganingizdek: <i>«+52.98 yana +52.98 qilib klient ostatkasida +105.96 g bo'lib qoldi»</i> —
+  aynan shu. Belgi <b>−</b> emas, <b>+</b> bo'lishi kerak edi.</p>
+
+  <div class="lbl">Nima o'zgaradi</div>
+  <pre><span class="del">- else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }</span>
+<span class="add">+ else if(op.tip==='tolov'){</span>
+<span class="add">+   if(op._kdYopish){ d=+parseNum(op.ekvivalent||0); nom='offset'; }</span>
+<span class="add">+   else            { d=-parseNum(op.ekvivalent||0); nom='tolov';  }</span>
+<span class="add">+ }</span></pre>
+
+  <div class="qbox">
+    <div class="lbl">Sizdan bitta qaror</div>
+    PDF da bu qator <b>qanday nomlansin?</b>
+    <ul style="margin-bottom:0">
+      <li><b>«offset»</b> — ilovadagi «⇄ Offset» bilan bir xil <span class="dim">(mening taklifim)</span></li>
+      <li><b>«tolov»</b> qolsin — faqat belgisi tuzalsin</li>
+      <li><b>«offsetdan»</b> yoki boshqa so'z</li>
+    </ul>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Diff:</b> 4–5 qator</span>
+    <span class="chip"><b>Fayl:</b> faqat index.html — <code>api/pdf.py</code> tegilmaydi</span>
+    <span class="chip"><b>Ta'sir:</b> faqat PDF ning kunlik bo'limi</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ XATO C ═══════════════════ -->
+<h2 class="sec">5-qism · <b>Xato C — hali ko'rmagan uchinchisi</b></h2>
+
+<div class="card org">
+  <h3>«OFFSET» yorlig'idagi summa ham ikkilanadi<span class="tag t-org">Yashirin</span></h3>
+
+  <div class="lbl">Nima bo'layapti</div>
+  <p>Xuddi shu funksiyada offset <b>ikki xil yo'l bilan</b> topiladi va
+  <b>ikkalasi ham ishlaydi</b>:</p>
+  <ul>
+    <li><span class="ln">11596</span> — manba yozuvidagi <code>_kdYopish</code> belgisidan → <b>+4,572.17</b></li>
+    <li><span class="ln">11617</span> — manzil yozuvlarida «summa minus naqd pul» ayirmasidan → <b>+4,572.17</b></li>
+  </ul>
+  <p>Natijada <code>v.offset</code> = <b>9,144.34</b>. Ikkinchi yo'l v172.24 da
+  qo'shilgan edi — o'shanda boshqa turga to'langan offset <b>belgisiz</b> qolardi.
+  Endi ikkalasi bir vaqtda ishlab, ustma-ust tushyapti.</p>
+
+  <div class="lbl">Nima uchun siz buni hali ko'rmadingiz</div>
+  <p>Bu summa faqat <code>_tolovPulQator</code> (<span class="ln">11640</span>) da chiziladi,
+  u esa <b>ikki xil to'lov turi bo'lganda</b> ochiladi
+  (<code>if(d.bor.length&lt;2) return;</code>).</p>
+  <ul>
+    <li><b>Sof offset</b> (sizning holatingiz) — bitta tur, qator umuman chizilmaydi → ko'rinmaydi</li>
+    <li><b>Aralash</b> (naqt + offset) — ikki tur → qator chiziladi va <b>ikkilangan raqam chiqadi</b></li>
+  </ul>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Bu yerda taxmin qilmayman — qaror sizniki</div>
+    Ikki yo'lni qanday birlashtiramiz? Uchta variant bor, har birining o'z xavfi:
+    <ol style="margin-bottom:0">
+      <li><b>Manbani ustun qilish</b> — belgi bo'lsa, ayirma yo'lini o'chirish.
+          <span class="dim">Xavf: belgisi yo'q eski yozuvlarda offset ko'rinmay qoladi.</span></li>
+      <li><b>Ayirmani ustun qilish</b> — manba yozuvini butunlay hisobga olmaslik.
+          <span class="dim">Xavf: manzil yozuvida pul maydonlari bo'lmasa (juda eski format) topilmaydi.</span></li>
+      <li><b>Kattasini olish</b> — ikkitasidan biri, qo'shilmaydi.
+          <span class="dim">Xavf: ikkalasi ham to'g'ri bo'lgan noyob holatda kamaytirib yuborishi mumkin.</span></li>
+    </ol>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Diff:</b> variantga qarab 3–8 qator</span>
+    <span class="chip"><b>Shoshilinch emas</b> — hozir ko'rinmaydi</span>
+    <span class="chip"><b>Tavsiya:</b> A va B dan keyin alohida qilinsin</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ TAXMIN BLOKI ═══════════════════ -->
+<h2 class="sec">6-qism · <b>Taxmin bloki</b> (CLAUDE.md §2)</h2>
+
+<div class="card gold" style="border-left:3px solid var(--gold)">
+  <h4 style="margin-top:0">1 · Aniq bilmayotgan joylarim</h4>
+  <ul>
+    <li>PDF da offset qatorining <b>nomi</b> — «offset» / «tolov» / boshqa</li>
+    <li>Xato C ni qaysi variant bilan yopamiz</li>
+    <li>Bu <b>uchtasi bitta versiyada</b> bo'lsinmi yoki alohida-alohida</li>
+    <li>Klient tarixida offset manbasi <b>qator bo'lib ko'rinsinmi</b>?
+        Hozir u <code>false &amp;&amp;</code> bilan o'chirilgan (<span class="ln">11863</span>) —
+        bu ataylabmi yoki qolib ketganmi, bilmayman</li>
+  </ul>
+
+  <h4>2 · Taxminlarim</h4>
+  <table>
+    <thead><tr><th>Taxmin</th><th style="width:130px">Kim qaror qildi</th></tr></thead>
+    <tbody>
+      <tr><td>Xato A: gramm (50.40 g) <b>to'g'ri</b>, faqat pul tuzatiladi</td><td class="dim">Rasmdan — dalil bor</td></tr>
+      <tr><td>Xato B: belgi <b>+</b> bo'ladi, chunki fayldagi 17 joyda shunday</td><td class="dim">Koddan — dalil bor</td></tr>
+      <tr><td>PDF qatori «offset» deb nomlanadi</td><td style="color:var(--org)"><b>Mendan</b> — tasdiq kerak</td></tr>
+      <tr><td>Xato C hozircha tegilmaydi</td><td style="color:var(--org)"><b>Mendan</b> — tasdiq kerak</td></tr>
+      <tr><td><code>api/pdf.py</code> ga tegilmaydi — u tayyor qatorni chizadi xolos</td><td class="dim">Koddan</td></tr>
+    </tbody>
+  </table>
+
+  <h4>3 · Ta'sir qiladigan joylar</h4>
+  <p><code>_tolovTurAniq</code> <b>4 joydan</b> chaqiriladi — hammasini tekshirdim:</p>
+  <table>
+    <thead><tr><th>Qator</th><th>Qayerda</th><th>Nimani oladi</th><th>A tuzatilsa</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ln">11119</span></td><td>Umumiy hisobot</td><td><code>bor</code> — faqat yorliq</td><td class="ok">o'zgarmaydi</td></tr>
+      <tr><td><span class="ln">11801</span></td><td><b>Klient tarixi</b></td><td><code>bor</code> + <code>jami</code></td><td class="ok"><b>tuzaladi</b></td></tr>
+      <tr><td><span class="ln">12041</span></td><td>Kun sessiyasi</td><td><code>bor</code> — faqat yorliq</td><td class="ok">o'zgarmaydi</td></tr>
+      <tr><td><span class="ln">11804</span></td><td>«⇄ Offset» sarlavhasi</td><td><code>bor</code> — faqat yorliq</td><td class="ok">o'zgarmaydi</td></tr>
+    </tbody>
+  </table>
+  <p class="dim"><code>jami</code> butun faylda faqat <b>bitta joyda</b> chiziladi —
+  <span class="ln">11844</span>. Demak A tuzatilsa boshqa hech qayerga tegmaydi.</p>
+
+  <p><b>Xato B:</b> <code>ost_bloklar</code> faqat <code>klientPDFYukor</code> ichida
+  quriladi (<span class="ln">16951</span>) va faqat PDF ga yuboriladi. Boshqa o'quvchi yo'q.</p>
+
+  <div class="banner gold" style="margin-top:16px">
+    <b>Diff budjeti:</b> Xato A — 2 qator · Xato B — 4–5 qator ·
+    Xato C — 3–8 qator (qaror bo'lsa). Jami <b>~10 qator</b>.
+    Agar haqiqiy diff 20 qatordan oshsa — to'xtatib xabar beraman.
+  </div>
+</div>
+
+
+<!-- ═══════════════════ JAVOBLAR ═══════════════════ -->
+<h2 class="sec">7-qism · <b>Qolgan masalalar — sizning javoblaringiz bo'yicha</b></h2>
+
+<!-- 0o -->
+<div class="card blu">
+  <h3><span class="cid">0o</span>Savolingizga javob<span class="tag t-blu">Savol</span></h3>
+  <p><i>«eski yozuvlarda deganingda eski versiyalarda bo'lmaganini hisobiga
+  ko'rinmaydi demoqchimisan?»</i></p>
+
+  <div class="banner gold">
+    <b>Qisman ha, lekin asosiy sabab boshqa.</b> Ikki xil holat bor va ular
+    aralashib ketgan — koddan ajratib ko'rsataman.
+  </div>
+
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Holat</th><th>Nima bo'lgan</th><th>Yopqich</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>1</b></td>
+        <td><b>Maydon umuman yo'q edi</b><br><span class="dim">siz aytgan holat</span></td>
+        <td class="dim">Juda eski versiyalarda <code>naqtPul</code> degan maydon
+            yozilmagan — yozuvda u <b>umuman yo'q</b></td>
+        <td class="ok"><span class="ln">3307</span> — butun summani naqt deb oladi</td>
+      </tr>
+      <tr>
+        <td><b>2</b></td>
+        <td><b>Maydon bor, lekin 0 yozilgan</b><br><span class="dim">asosiy sabab</span></td>
+        <td class="bad">Aralash sotuvda (naqt + lom) dastur naqt qismini
+            <b>hisoblamay 0 yozib qo'ygan</b> — bu <b>yozuv xatosi</b>, versiya masalasi emas</td>
+        <td class="ok"><span class="ln">3310–3314</span> — qoldiqdan hisoblaydi</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><b>Ya'ni:</b> «eski versiyada maydon yo'q edi» — bu <b>birinchi</b> holat, u
+  chindan bor. Lekin Dilobar Opa ($6,850) va Dilorom Opa ($1,765) da bo'lgani —
+  <b>ikkinchi</b> holat: maydon bor edi, ichiga noto'g'ri raqam yozilgan.</p>
+
+  <p>Ikkalasi ham v174.1 da <b>o'qishda</b> yopilgan. Yozuvning o'zi hali eski holatda —
+  migratsiya qilinmagan.</p>
+
+  <div class="qbox">
+    <div class="lbl">Qaror</div>
+    Yopqich ishlab turibdi, kassa to'g'ri ko'rsatyapti. Migratsiya <b>shart emas</b>.
+    Faqat bitta teshik qoladi: agar kelajakda <b>karta bilan</b> shunday holat chiqsa
+    (naqt 0, karta bor, lom yo'q) — yopqich uni tuzatmaydi.
+    <br><br>Hozircha shunday qoldiraymizmi?
+  </div>
+</div>
+
+<!-- 0n -->
+<div class="card red">
+  <h3><span class="cid">0n</span>Cloud axlatini qanday o'chirish mumkin<span class="tag t-red">Javob</span></h3>
+  <p>Siz so'radingiz: <i>«axlatlarni o'chirib tashlash uchun nima qilish kerak»</i>.</p>
+
+  <div class="lbl">Avval — nima uchun oddiy «o'chirish» ishlamaydi</div>
+  <p>Bulutdagi ro'yxatdan yozuv <b>jismonan o'chmaydi</b>. Uning ustiga
+  <code>deleted:true</code> degan belgi qo'yiladi. Belgisi yo'q eski yozuvlar
+  <b>tirik</b> ko'rinadi.</p>
+  <p>Bugungi holat: <code>syncFullFill</code> (<span class="ln">8436</span>) ichida
+  <code>deleted</code> so'zi <b>umuman yo'q</b> — «⬆» tugmasi bulutga faqat
+  <b>qo'shadi</b>, ortiqchasini hech qachon olib tashlamaydi.</p>
+
+  <div class="lbl">Yechim — «⬆» ni ko'zgu qilish</div>
+  <div class="flow">
+    <b>1.</b> Bulutdagi hamma yozuvni o'qib chiqamiz<br>
+    <b>2.</b> Har birini bu qurilmadagi ma'lumot bilan solishtiramiz<br>
+    <b>3.</b> Bu qurilmada <b>yo'q</b> bo'lganlariga <code>deleted:true</code> qo'yamiz<br>
+    <b>4.</b> Boshqa qurilmalar belgini ko'radi va o'zidan ham o'chiradi
+  </div>
+  <p>Taxminan <b>12–16 qator</b>, faqat <code>syncFullFill</code> ichida. Boshqa hech
+  qayerga tegilmaydi.</p>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Bosishdan oldin bilishingiz kerak</div>
+    Bu tugma bosilgan qurilma <b>haqiqat manbai</b> bo'lib qoladi. Unda bo'lmagan
+    har qanday yozuv <b>hamma qurilmadan</b> o'chadi.
+    <br><br>
+    <b>Xavfsiz tartib:</b>
+    <ol style="margin-bottom:0">
+      <li>PC da <b>backup eksport</b> qiling (Sozlamalar → Zaxira)</li>
+      <li>PC da barcha ma'lumot to'g'riligiga ishonch hosil qiling</li>
+      <li>Tugmani <b>faqat PC da</b> bosing</li>
+      <li>Tasdiq oynasi chiqadi: «N ta yozuv o'chiriladi — davom etamizmi?»</li>
+    </ol>
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Qaror kerak</div>
+    <b>1.</b> Shu yo'lni yozamizmi?<br>
+    <b>2.</b> Tasdiq oynasi <b>nechta</b> yozuv o'chishini ko'rsatsinmi, yoki
+    <b>ro'yxatini</b> ham chiqarsinmi? <span class="dim">(ro'yxat xavfsizroq, lekin ko'proq kod)</span><br>
+    <b>3.</b> Alohida tugma bo'lsinmi, yoki hozirgi «⬆» ning o'zi shunday ishlasinmi?
+  </div>
+</div>
+
+<!-- 0g -->
+<div class="card grn">
+  <h3><span class="cid">0g</span>Takror yozuvlar — YOPILDI<span class="tag t-grn">Siz hal qildingiz</span></h3>
+  <p>Siz aytdingiz: <i>«takror yozuvlarni men to'g'irlab qo'ydim, grammlarni tekshirib.
+  Bundan keyin bo'lmasa bo'ldi.»</i></p>
+  <p>Demak <b>tozalash kodi kerak emas</b> — sanash buyrug'i ham. Bu masala yopiladi.</p>
+
+  <div class="lbl">Qaytmasligi uchun nima bor</div>
+  <p>v172.27 da sabab tuzatilgan: yozuvga <code>_id</code> <b>saqlashdan oldin</b>
+  beriladi, va bulutdan kelgan nusxa <code>_ostImzo</code> (<span class="ln">8290</span>)
+  bo'yicha egizakni topib, unga id yopishtiradi — yangi nusxa yaratmaydi.</p>
+
+  <div class="qbox">
+    <div class="lbl">Bitta iltimos</div>
+    Bu tuzatish <b>ishlayotganini kuzatib boring</b>. Agar yana takror ko'rsangiz —
+    darhol ayting, chunki u holda sabab boshqa joyda bo'ladi va qaytadan qidirish kerak.
+    <br><br>DAVOM.md ga «Ibrohim qo'lda tuzatdi, 14.08.2026» deb yozib qo'yaman.
+  </div>
+</div>
+
+<!-- 0i -->
+<div class="card red">
+  <h3><span class="cid">0i</span>Chek — qaysi qurilmadan bosilsa ham bittasidan chiqsin<span class="tag t-red">Yangi yechim kerak</span></h3>
+  <p>Siz aytdingiz: <i>«ba'zida 2 ta 3 ta qurilma bo'lib qolishi mumkin, bunga boshqa
+  yechim qilish kerak — qaysi qurilmadan kelsa ham 1 ta chiqarishi kerak»</i>.</p>
+
+  <div class="lbl">Bugungi holat nima uchun yetarli emas</div>
+  <p>Kalit <b>har qurilmada alohida</b> saqlanadi (<code>tilla-printer-yoq</code>,
+  <span class="ln">2005</span>) va sukut bo'yicha <b>yoqilgan</b>
+  (<span class="ln">2022</span>: <code>return !printerYoq();</code>).</p>
+  <p>«Men chiqardim» ro'yxati ham <b>har qurilmaning o'z ichida</b>
+  (<span class="ln">2052</span>). A kompyuteri belgilaydi — B kompyuteri buni ko'rmaydi.</p>
+  <p>Ya'ni bugungi himoya <b>bir qurilma ichida</b> ishlaydi, <b>qurilmalar orasida</b> emas.</p>
+
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Hozir</div>
+      <p style="font-size:13px;margin:0">Har qurilma o'zi qaror qiladi:<br>
+      «printerim bormi? Ha → men chiqaraman»<br><br>
+      3 qurilma yoqiq = <b>3 chek</b></p>
+    </div>
+    <div class="bx new">
+      <div class="bh">✓ Taklif</div>
+      <p style="font-size:13px;margin:0">Bulutda <b>bitta yozuv</b>:<br>
+      «chiqaruvchi = PC-1»<br><br>
+      Har qurilma shuni o'qiydi.<br>
+      Faqat PC-1 chiqaradi = <b>1 chek</b></p>
+    </div>
+  </div>
+
+  <div class="lbl">Qanday ishlaydi</div>
+  <div class="flow">
+    <b>1.</b> Sozlamalarda «Bu qurilma chek chiqarsin» bosiladi<br>
+    <b>2.</b> Qurilma o'z nomini <b>bulutga</b> yozadi — <code>_chekprinter</code><br>
+    <b>3.</b> Boshqa qurilmalar buni ko'radi va o'z kalitini <b>avtomat o'chiradi</b><br>
+    <b>4.</b> Sozlamalarda ko'rinadi: «Hozir chiqaruvchi: <b>PC-1</b>»<br>
+    <b>5.</b> Boshqasiga o'tkazish — o'sha qurilmada tugmani bosish kifoya
+  </div>
+  <p>Bu — 0i ning haqiqiy yopilishi. Taxminan <b>25–35 qator</b>.</p>
+
+  <div class="qbox">
+    <div class="lbl">Qaror kerak</div>
+    <b>1.</b> Chiqaruvchi <b>hech kim</b> bo'lmasa nima bo'lsin? Chek navbatda kutsinmi,
+    yoki bosgan qurilmaning o'zi chiqarsinmi?<br>
+    <b>2.</b> Chiqaruvchi qurilma <b>ilovani yopgan</b> bo'lsa? Hozir chek navbatda
+    10 daqiqa kutadi, keyin «eskirdi» bo'ladi. Shu qolsinmi?<br>
+    <b>3.</b> ⚠ <b>Abdulhamid</b> — bu ro'yxatga kirsinmi yoki umuman tegilmasinmi?
+    <span class="dim">(mening taxminim: tegilmasin)</span>
+  </div>
+</div>
+
+<!-- 0m -->
+<div class="card org">
+  <h3><span class="cid">0m</span>2-chi chek jadvali<span class="tag t-org">Savolim bor</span></h3>
+  <p>Siz aytdingiz: <i>«ishimiz ko'p chunki hali men aytgandek holatga kelmadi,
+  uniyam qayerga kelganini ko'rsatishi kerak»</i>.</p>
+
+  <div class="banner gold">
+    <b>Bu joyni to'liq tushunmadim — taxmin qilib kod yozmayman.</b>
+    «Qayerga kelganini ko'rsatishi kerak» degani nimani anglatadi?
+  </div>
+
+  <div class="lbl">Mening uchta taxminim — qaysi biri to'g'ri?</div>
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Taxmin</th><th>Ya'ni</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b></td><td>Har qator <b>qaysi turdan</b> kelganini ko'rsatsin</td>
+          <td class="dim">jadvalda zavod · tur ustuni bo'lsin</td></tr>
+      <tr><td><b>B</b></td><td>Gramm <b>qayerdan</b> paydo bo'lganini ko'rsatsin</td>
+          <td class="dim">berildi / vozvrat / to'lov / ostatka — har qatorning sababi</td></tr>
+      <tr><td><b>C</b></td><td>Ostatka <b>qayerga ketganini</b> ko'rsatsin</td>
+          <td class="dim">klientda qoldi / zavodga qaytdi / sotildi</td></tr>
+    </tbody>
+  </table>
+  <p>Yoki butunlay boshqa narsami? Aytsangiz — <b>shu masala uchun alohida mockup</b>
+  chizaman, hozirgi chek qanday chiqayotganini va taklifni yonma-yon qo'yib.</p>
+
+  <div class="qbox">
+    <div class="lbl">Ikki eslatma (o'zgarmadi)</div>
+    <b>1.</b> Print-server <b>qayta ishga tushirilishi shart</b> — aks holda yolg'iz logo chiqadi<br>
+    <b>2.</b> Shakllantirish 2-chi chekda hali «berildi» deb chiqadi (PDF da tuzatilgan)
+  </div>
+</div>
+
+<!-- 0l -->
+<div class="card grn">
+  <h3><span class="cid">0l</span>PDF yuklash — ISHLAYAPTI<span class="tag t-grn">Yopildi</span></h3>
+  <p>Siz aytdingiz: <i>«pdf yuklayotti, oldin pdf yuklamasdi ochardi, keyin download'ni
+  bossam yuklardi, hozir yuklayotti — ishlayotti bu funksiya»</i>.</p>
+  <p><b>Demak <code>pdfOch</code> vazifasini bajaryapti.</b> Qolgan 6 joy hali eski
+  yo'lda, lekin siz muammo ko'rmayapsiz — shuning uchun ularga <b>tegmayman</b>.
+  Kerak bo'lsa aytasiz, har biri 1 qator.</p>
+
+  <div class="banner gold">
+    <b>PDF dagi offset muammosi — bu 0l emas.</b> Siz aytgan
+    <i>«pdf offset nimaligini tushunmayapti, offset hisobini to'lov deb 2 marta
+    to'lov qivoryapti»</i> — bu yuqoridagi <b>Xato B</b>
+    (<span class="ln">16937</span>). Alohida masala emas, o'sha bitta sabab.
+  </div>
+</div>
+
+<!-- 0k -->
+<div class="card blu">
+  <h3><span class="cid">0k</span>ASOSIY qurilma — talabingiz bajarilishi mumkin<span class="tag t-blu">Muhim farq</span></h3>
+  <p>Siz aytdingiz: <i>«asosiy qurilma hali ham PC, lekin menga kirganda cloudda
+  hammada bir xil bo'lishi kerak, lekin mobile qurilmalar ham ishlaganda buni asosiy
+  qurilmadek bir xil ishlashi kerak, minus plyuslar qilinganda»</i>.</p>
+
+  <div class="banner grn">
+    <b>Bu ikkalasi bir-biriga zid emas.</b> Chunki ilovada <b>ikki xil sinxron</b> bor
+    va ular butunlay boshqacha ishlaydi. «ASOSIY qurilma» rejimi ulardan
+    <b>faqat bittasiga</b> tegadi.
+  </div>
+
+  <table>
+    <thead><tr><th style="width:120px">Kanal</th><th>Nima yuboriladi</th><th>Qanday</th><th>ASOSIY rejimi tegadimi</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Yozuvlar</b><br><span class="dim">(oplog)</span></td>
+        <td>Har bir berish, vozvrat, to'lov, tahrir — <b>bittalab</b></td>
+        <td class="dim">Har qurilma o'zinikini yuboradi, boshqalar qabul qiladi.
+            To'qnashuv yo'q — har yozuvning o'z <code>_id</code> si bor</td>
+        <td class="ok"><b>YO'Q — tegmaydi</b></td>
+      </tr>
+      <tr>
+        <td><b>Blob</b><br><span class="dim">(butun nusxa)</span></td>
+        <td>Butun bazaning <b>bir paytdagi surati</b></td>
+        <td class="bad">Kim oxirgi yozsa — o'shaniki qoladi.
+            Ikkinchisining ishi bosilib ketadi</td>
+        <td class="bad"><b>HA — faqat shunga</b></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="banner grn">
+    <b>Ya'ni sizning talabingiz aynan shu:</b><br>
+    · Telefondan qilingan <b>+/−</b> (berish, to'lov, vozvrat) — <b>yozuvlar</b> kanalidan
+    ketadi, hamma qurilmaga yetadi. <b>Bu o'zgarmaydi.</b><br>
+    · Faqat <b>butun nusxa</b> yozishni PC ga qoldiramiz — shunda telefon
+    tasodifan butun bazani bosib ketmaydi.
+  </div>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Bitta jiddiy shart</div>
+    <b>1-qadam hali sinovdan o'tmagan.</b> Agar telefondagi yozuv PC ga yetmayotgan
+    bo'lsa va biz avtomat nusxa olishni yoqsak — <b>telefondagi ish yo'qoladi</b>.
+    <br><br>
+    <b>Shuning uchun avval sinov:</b> telefonda bitta berish yozing → PC ni yangilang →
+    ko'rinadimi? Keyin PC da tahrirlang → telefonda ko'rinadimi? Ikkalasi ishlasa —
+    3-qadamni yoqamiz.
+  </div>
+
+  <div class="qbox red">
+    <div class="lbl">⚠⚠ Abdulhamid — siz aytdingiz «umuman ta'sir qilishi kerak emas»</div>
+    Bu <b>oddiy shart bilan buziladi</b>, shuning uchun aniq yozib qo'yaman:
+    <br><br>
+    Hamid qurilmasi ro'yxatga <b>qo'shilmaydi</b>
+    (<code>qurilmaRoyxatgaQosh</code>, <span class="ln">18061</span>) →
+    uning raqami <b>0</b> → <code>qurilmaAsosiy()</code> (<span class="ln">18042</span>)
+    <b>false</b> qaytaradi.
+    <br><br>
+    <b>Demak</b> oddiy <code>if(!qurilmaAsosiy()) return;</code> yozilsa —
+    hamid qurilmasi bulutga <b>butunlay yoza olmay qoladi</b>. Shart majburan shunday
+    bo'lishi kerak:
+    <pre style="margin:8px 0 0"><span class="add">if(!_qurilmaHamid() &amp;&amp; !qurilmaAsosiy()) return;</span></pre>
+    Xuddi shu avtomat yuklashga ham tegishli — hamid <b>eski yo'lda</b> qolishi kerak.
+    <br><br>
+    <span class="dim">Tekshirilgan: v172.29/30/31 hamid kodiga tegmagan.</span>
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Javob kutilayotgan savollar</div>
+    <b>1.</b> ASOSIY = 1-raqamli qurilma <b>avtomat</b> bo'lsinmi, yoki Sozlamalarda
+    <b>«bu PC asosiy»</b> deb qo'lda belgilansinmi? <span class="dim">(qo'lda ishonchliroq —
+    qurilma raqami almashib qolishi mumkin)</span><br>
+    <b>2.</b> Telefon yangi nusxani <b>jim</b> olsinmi, yoki «PC dan yangilandi» degan
+    xabar chiqsinmi?
+  </div>
+</div>
+
+<!-- 0j -->
+<div class="card blu">
+  <h3><span class="cid">0j</span>Kassa — PC haqiqat manbai<span class="tag t-blu">Qaror qabul qilindi</span></h3>
+  <p>Siz aytdingiz: <i>«asosiy qurilma baribir PC»</i>.</p>
+  <p>Demak kassa uchun <b>K1 yo'li</b> tanlanadi — butun nusxa PC dan keladi,
+  telefonlar uni oladi. Bu <b>faqat 0k bajarilgandan keyin</b> xavfsiz bo'ladi,
+  chunki o'sha paytda faqat bitta qurilma yozadi va bosib ketish xavfi yo'qoladi.</p>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Buning narxi — ochiq aytaman</div>
+    Kassa <b>yozuvlar kanalidan o'tmaydi</b> (u ro'yxat emas, bitta katta qop —
+    <span class="ln">8144</span>). Demak <b>telefonda kassaga kiritilgan tuzatish
+    PC ga yetmaydi</b> va PC dan nusxa kelganda <b>yo'qoladi</b>.
+    <br><br>
+    <b>Ya'ni:</b> kassa tuzatishlari, zakazlar, chiqimlar — <b>faqat PC da</b>
+    kiritilishi kerak bo'ladi.
+    <br><br>
+    Shu shart sizga to'g'ri keladimi? Agar telefondan ham kassa kiritmoqchi bo'lsangiz —
+    K2 (kassani yozuvlarga chiqarish) kerak, u ancha katta ish.
+  </div>
+</div>
+
+<!-- 0f -->
+<div class="card grn">
+  <h3><span class="cid">0f</span>Offset — sabab topildi<span class="tag t-grn">Yuqorida</span></h3>
+  <p>Siz yuborgan rasmlar bu masalani <b>hal qildi</b>. Avval «soatsiz eski offset
+  yozuvlari noto'g'ri to'lovga yopishadi» deb o'ylagandim — bu <b>boshqa</b> muammo edi.</p>
+  <p>Siz ko'rsatgan haqiqiy muammo — <b>offsetning ikki marta hisoblanishi</b>
+  (Xato A va B, yuqorida). Soat masalasi emas.</p>
+
+  <div class="qbox">
+    <div class="lbl">Eski soat masalasi — hali turibdi</div>
+    v172.25 dan <b>oldingi</b> offset yozuvlarida soat yo'q. Marhabo Opa TJK misolida
+    (06.08, 15:20 va 15:22) offset qaysi to'lovga tegishli ekani noaniq qoladi.
+    <br><br>
+    Bu <b>alohida, kichikroq</b> masala. Avval A va B ni tuzatamiz — ehtimol
+    undan keyin bu ham boshqacha ko'rinadi. Keyin qaraymizmi?
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="card blu">
+  <h3><span class="cid">4</span>Sotuv va berish farqlanmaydi — batafsil<span class="tag t-blu">Qaror kutilmoqda</span></h3>
+
+  <div class="lbl">Eng oddiy tilda</div>
+  <div class="flow">
+    Daftarda <b>«sotuv»</b> degan ustun chizilgan.<br>
+    Hisobotlar shu ustunni <b>o'qiydi</b>.<br>
+    Lekin unga <b>hech kim hech qachon hech narsa yozmaydi</b>.<br><br>
+    Natija: hisobot har safar «sotuv yo'q ekan» deb xulosa chiqaradi.
+  </div>
+
+  <div class="lbl">Koddan aniq holat</div>
+  <table>
+    <thead><tr><th>Belgi</th><th style="width:110px">Yoziladi</th><th style="width:110px">O'qiladi</th><th>Natija</th></tr></thead>
+    <tbody>
+      <tr><td><code>manba:'sotuv'</code></td><td class="bad"><b>0 marta</b></td>
+          <td class="ok">2 joyda<br><span class="ln">6633, 6640</span></td><td class="bad">doim <b>false</b></td></tr>
+      <tr><td><code>_sotuv:true</code></td><td class="bad"><b>0 marta</b></td>
+          <td class="ok">2 joyda<br><span class="ln">6633, 6640</span></td><td class="bad">doim <b>false</b></td></tr>
+      <tr><td><code>holat:'sotilgan'</code></td><td class="bad"><b>0 marta</b></td>
+          <td class="dim">—</td><td class="bad">hech qachon qo'yilmaydi</td></tr>
+    </tbody>
+  </table>
+  <p>O'qiydigan qator: <code>sotuv:(op.manba==='sotuv' || op._sotuv===true)</code>.
+  Ikkala shart ham hech qachon rost bo'lmaydi.</p>
+
+  <div class="lbl">Bu nimaga to'sqinlik qilyapti</div>
+  <ul>
+    <li>Sotuvni alohida qator qiladigan <b>har qanday hisobot</b> yozib bo'lmaydi</li>
+    <li>Foydani sotuv bo'yicha ajratish mumkin emas — <b>«Yangi foyda modeli»</b> shunga qaraydi</li>
+    <li>Dona bazada «sotilgan» holati qo'yilmaydi — <b>PLAN.md dagi X7</b></li>
+  </ul>
+
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Hozir</div>
+      <p style="font-size:13px;margin:0">Berish yozuvi:<br>
+      <code>tip:'berish'</code><br><br>
+      Sotuv yozuvi:<br>
+      <code>tip:'berish'</code><br><br>
+      <b>Farqi yo'q.</b></p>
+    </div>
+    <div class="bx new">
+      <div class="bh">✓ Taklif</div>
+      <p style="font-size:13px;margin:0">Berish yozuvi:<br>
+      <code>tip:'berish'</code><br><br>
+      Sotuv yozuvi:<br>
+      <code>tip:'berish', manba:'sotuv'</code><br><br>
+      <b>O'quvchi allaqachon tayyor.</b></p>
+    </div>
+  </div>
+
+  <div class="qbox red">
+    <div class="lbl">⚠ Eng muhim savol — eski tarix</div>
+    Belgi qo'yilsa, u faqat <b>bugundan keyingi</b> sotuvlarga tegishli bo'ladi.
+    <br><br>
+    <b>Eski yozuvlarni ajratishning yo'li yo'q</b> — chunki farqi hech qayerda,
+    hech qanday shaklda saqlanmagan. Ular abadiy «berish» bo'lib qoladi.
+    <br><br>
+    Demak hisobot shunday ko'rinadi: «14.08.2026 gacha — aralash, undan keyin —
+    ajratilgan». Bu sizga to'g'ri keladimi?
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Qaror kerak</div>
+    <b>1.</b> Yangi sotuvlarga belgi qo'yamizmi? <span class="dim">(bir necha qator —
+    <code>_sotuvDavomEt</code>, <span class="ln">15744</span>)</span><br>
+    <b>2.</b> Eski tarix aralash qolishi qabul qilinadimi?<br>
+    <b>3.</b> Belgi qo'yilgandan keyin <b>qaysi ekranda</b> sotuv alohida ko'rinsin?
+    <span class="dim">(bu alohida ish — belgi o'zi hech nimani o'zgartirmaydi,
+    faqat imkon beradi)</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ YAKUN ═══════════════════ -->
+<h2 class="sec">Yakun · <b>Nima qilamiz</b></h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <h4 style="margin-top:0">Darhol qilinadigan — offset (bugungi asosiy topilma)</h4>
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Xato</th><th style="width:88px">Qator</th><th style="width:70px">Diff</th><th>Holat</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b></td><td>Klient tarixida pul ikkilanadi</td><td><span class="ln">11594</span></td>
+          <td class="num">2</td><td class="ok">tayyor — tasdiq kerak</td></tr>
+      <tr><td><b>B</b></td><td>PDF da qoldiq ikkilanadi</td><td><span class="ln">16937</span></td>
+          <td class="num">4–5</td><td class="org">nom tanlanishi kerak</td></tr>
+      <tr><td><b>C</b></td><td>OFFSET yorlig'idagi summa</td><td><span class="ln">11596<br>11617</span></td>
+          <td class="num">3–8</td><td class="bad">variant tanlanishi kerak</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Keyingi navbatda — sizning javoblaringizdan</h4>
+  <ol>
+    <li><b>0i — chek chiqaruvchi qurilma</b> (25–35 qator). Siz aniq so'radingiz,
+        yechim tushunarli. 3 ta savolga javob kerak.</li>
+    <li><b>0n — cloud axlati</b> (12–16 qator). Yechim tayyor, lekin backup va
+        tasdiq oynasi bilan.</li>
+    <li><b>0k → 0j — sinxron.</b> Avval <b>sinov</b>, keyin kod. Hamid sharti majburiy.</li>
+    <li><b>0m — 2-chi chek.</b> Savolimga javob kutilmoqda.</li>
+    <li><b>4 — sotuv belgisi.</b> Eski tarix haqidagi savolga javob kutilmoqda.</li>
+  </ol>
+
+  <h4>Yopilgan</h4>
+  <p><b>0g</b> — siz qo'lda tuzatdingiz · <b>0l</b> — PDF yuklash ishlayapti ·
+  <b>0f</b> — sababi topildi, Xato A/B ga qo'shildi · <b>0o</b> — yopqich yetarli</p>
+
+  <div class="banner gold" style="margin-top:18px">
+    <b>Keyingi qadam sizda.</b> «Offsetni tuzat» desangiz — Xato A va B ni yozaman
+    (PDF qatori nomini ayting), C ni alohida qoldiramiz. Boshqa masalani tanlasangiz —
+    o'sha uchun alohida mockup chizaman.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
