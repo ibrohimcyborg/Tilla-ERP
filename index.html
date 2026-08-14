@@ -1,4 +1,4 @@
-<!-- v174.6 -->
+<!-- v174.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v174.6';
+var APP_VER = 'v174.7';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11600,11 +11600,16 @@ function _opOffUlush(op){
 }
 function _tolovTurAniq(ops){
   var v={naqt:0,karta:0,lom:0,perech:0,offset:0}, lomG=0, lomK=0, ofNom='', jami=0;
+  // v174.7: offset IKKI yo'l bilan topilardi va ikkalasi ham ishlardi \u2014 natija
+  // qo'shilib IKKILANARDI (Dilfuza 13.08: 4,572.17 + 4,572.17 = 9,144.34).
+  // Manba yozuvi va manzillardagi ayirma \u2014 bir pulning ikki o'lchovi. Endi
+  // alohida yig'iladi, oxirida KATTASI olinadi: chala yozilgan tomon yutqazadi.
+  var offManba=0, offAyirma=0, ofNomManba='', ofNomAyirma='';
   (ops||[]).forEach(function(op){
     if(op.tip!=='tolov') return;
     if(op._kdYopish){
-      v.offset += (op.summa||0);
-      if(!ofNom && op.zavod) ofNom = op.zavod+' \u00b7 '+op.tur;
+      offManba += (op.summa||0);
+      if(!ofNomManba && op.zavod) ofNomManba = op.zavod+' \u00b7 '+op.tur;
       return;
     }
     // v174.4: MANBA yozuvi jami ga QO'SHILMAYDI — manba va manzil bir pulning
@@ -11622,16 +11627,19 @@ function _tolovTurAniq(ops){
     // to'langan offset esa belgisiz qolardi — Ibrohim ko'rgan holat shu.
     // ESKI yozuvlar himoyasi: pul maydonlari umuman bo'lmasa (eski format) tegilmaydi,
     // aks holda butun summa "offset" bo'lib ketardi.
-    var _pulBor = (op.naqtPul!==undefined)||(op.kartaPul!==undefined)||(op.perechPul!==undefined)||(op.lomPul!==undefined);
-    if(_pulBor){
-      var _naqdQism = (op.naqtPul||0)+(op.kartaPul||0)+(op.perechPul||0)+(op.lomPul||0);
-      var _off = Math.round(((op.summa||0) - _naqdQism)*100)/100;
-      if(_off > 0.009){
-        v.offset += _off;
-        if(!ofNom && op.zavod) ofNom = op.zavod+' · '+op.tur;
-      }
+    // v174.7: hisob _opOffUlush ga o'tkazildi — u naqtni _opNaqtPul orqali o'qiydi.
+    // Xom op.naqtPul bilan eski naqtPul:0 xatosi YOLG'ON katta offset berardi va
+    // quyidagi max() da to'g'ri manbani bosib ketardi.
+    var _off = _opOffUlush(op);
+    if(_off > 0.009){
+      offAyirma += _off;
+      if(!ofNomAyirma && op.zavod) ofNomAyirma = op.zavod+' · '+op.tur;
     }
   });
+  // v174.7: qo'shilmaydi — kattasi olinadi. Nom MANBAdan, chunki "Offset — X dan"
+  // pul QAYERDAN kelganini bildiradi; manba yozuvi bo'lmasa manzil zaxira qoladi.
+  v.offset = Math.round(Math.max(offManba, offAyirma)*100)/100;
+  ofNom = ofNomManba || ofNomAyirma;
   var bor=[];
   TOLOV_TURLARI.forEach(function(t){
     if(v[t.k] > 0.009) bor.push({t:t, summa:Math.round(v[t.k]*100)/100});

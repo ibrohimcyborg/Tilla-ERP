@@ -3,6 +3,57 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.7: Xato C — v.offset ikkilanishi yopildi
+
+Ibrohim: "C togirla". Uch variantdan **3-si (kattasini olish)** tanlandi —
+qaror Claude'dan, sababi quyida.
+
+`_tolovTurAniq` da offset IKKI yo'l bilan topilardi va **ikkalasi ham ishlardi**:
+* 11606 — manba yozuvidagi `_kdYopish` belgisidan
+* 11630 — manzil yozuvlarida `summa - naqd` ayirmasidan (v172.24 da qo'shilgan)
+
+Natija qo'shilardi: Dilfuza 13.08 da `v.offset` = 4,572.17 + 4,572.17 = **9,144.34**.
+Faqat ARALASH to'lovda ko'rinardi (`_tolovPulQator` `bor.length<2` bo'lsa chizmaydi).
+
+```
+eski:  v.offset += (op.summa||0);        // manba
+       v.offset += _off;                 // ayirma
+yangi: offManba += (op.summa||0);
+       offAyirma += _opOffUlush(op);
+       v.offset = Math.max(offManba, offAyirma);
+```
+
+**Nega 3-variant.** 1 va 2 har biri bir tomonni butunlay o'chiradi -> belgisiz
+eski yozuvlarda (v172.24 holati) yoki pul maydonsiz juda eski formatda offset
+KO'RINMAY QOLARDI. `max()` ikkalasini saqlaydi, faqat qo'shmaydi. Manba va manzil
+bir hodisaning ikki tomoni, teng bo'lishi kerak; teng bo'lmasa biri CHALA
+yozilgan va `max()` to'liqrog'ini oladi.
+
+**Nega `_opOffUlush` ga o'tkazildi.** `max()` kattasini oladi. Ichki formula xom
+`op.naqtPul` ni o'qirdi — eski `naqtPul:0` xatosi (v174.1) YOLG'ON katta offset
+berardi va to'g'ri manbani bosib ketardi. `_opOffUlush` (11594) naqtni
+`_opNaqtPul` orqali o'qiydi — v174.5 da aynan shu uchun yozilgan.
+
+**`ofNom`** endi MANBAdan olinadi (`ofNomManba || ofNomAyirma`) — "Offset - X dan"
+pul QAYERDAN kelganini bildiradi. Avval qaysi yozuv birinchi kelsa o'shanikini
+olardi, ya'ni manba bor bo'lsa ham MANZIL nomini yozib qo'yishi mumkin edi.
+
+SINOV (index.html dan haqiqiy kod ajratib olinib, 6 holat):
+```
+1 sof offset (manba+2 manzil)  4,572.17   avval 9,144.34
+2 aralash naqt+offset            500.00   avval 1,000.00
+3 manba YO'Q (v172.24)           500.00   saqlandi
+4 eski format, pul maydonsiz     800.00   saqlandi
+5 naqtPul:0 + lom (v174.1)         0.00   yolg'on offset chiqmadi
+6 sof naqt                         0.00
+```
+`jami` 6/6 da o'zgarmadi — v174.4 tuzatishi buzilmagan.
+
+TOPILDI, TEGILMADI: `TOLOV_TURLARI` butun faylda IKKI marta e'lon qilingan
+(11583 va 15389) — v171.8 dagi `kh*` to'qnashuviga o'xshash. Tekshirilmagan.
+
+---
+
 ## v174.6: 2-chi chek jadvalida ham offset xatosi tuzatildi
 
 Ibrohim: "tuzatib push qil".
