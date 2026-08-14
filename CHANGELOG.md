@@ -3,6 +3,37 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v174.6: 2-chi chek jadvalida ham offset xatosi tuzatildi
+
+Ibrohim: "tuzatib push qil".
+
+v174.4 da `klientPDFYukor` (16939) tuzatilgan edi, lekin AYNAN shu xato
+`_ostJadvalUstunlar` (14410) da ham bor edi — 2-chi chek (ostatka jadvali)
+rasm qilib bosilganda offset oddiy to'lovdek AYIRILARDI.
+
+```
+eski: else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
+yangi: if(op._kdYopish){ d=parseNum(...); nom='offset'; }
+       else            { d=-parseNum(...); nom='tolov';  }
+```
+
+SINOV (index.html dan haqiqiy kod ajratib olinib):
+```
+Butterfly·Oddiy  boshi -52.98  ->  +52.98g offset  ->  OXIRI 0.00g   (avval -105.96g)
+Butterfly·3D     boshi  5.61   ->  +17.70 berildi, -23.31 tolov  ->  0.00g
+Butterfly·3DS    boshi 27.26   ->  -27.09 tolov, -0.17 tolov     ->  0.00g
+```
+
+`print_server.py` TEGILMADI — 541 da matn lug'atsiz chiziladi
+(`str(a['g']) + ' ' + str(a['a'])`), `'offset'` xavfsiz.
+
+TEGILMADI (so'ralmagan): shu funksiyada `nom='berildi'` da
+`inventar==='boshlangich'` tekshiruvi yo'q — 0m dagi «shakllantirish 2-chi
+chekda berildi deb chiqadi» masalasi. v174.5 dagi `→ / ←` o'qlari ham
+2-chi chekka kengaytirilmadi.
+
+---
+
 ## v174.5: offsetning ikki tomoni bir-birini ko'rsatadi
 
 Ibrohim: "pdfda offset dib nimadan yopganini korsatsa klient tarixidayam qaysi

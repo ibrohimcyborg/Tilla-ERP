@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v174.5 · 2026-08-14
+**Oxirgi yangilanish:** v174.6 · 2026-08-14
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v174.5** (`index.html` birinchi qatorida `<!-- v174.5 -->`, `APP_VER` da ham) |
+| Versiya | **v174.6** (`index.html` birinchi qatorida `<!-- v174.6 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.3 gacha push qilingan** (2026-08-13) — prod v174.3. ⚠ **v174.4 va v174.5 commit qilingan, PUSH QILINMAGAN** — Ibrohim ko'rib tasdiqlashi kerak. |
+| Git | **v174.6 gacha push qilingan** (2026-08-14) — prod v174.6. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -78,37 +78,43 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
-### ⭐ 0q. OFFSET — 2 ta joy TUZATILDI, 2 ta joy QOLDI (v174.4/v174.5)
+### ⭐ 0q. OFFSET — 3 ta joy TUZATILDI, 1 ta QOLDI (v174.4/v174.5/v174.6)
 
 2026-08-14: Ibrohim rasm bilan ko'rsatdi — offset **ikki marta** hisoblanardi.
 Sabab: offset BITTA pul, IKKI tomondan yozilgan yozuv (manba `_kdYopish:true`,
 manzil belgisiz). Ba'zi ekranlar ikkala tomonni qo'shib yuborardi.
 
-**Tuzatildi:** klient tarixi sarlavhasidagi pul (11594) · PDF kunlik bloki (16939).
+**Tuzatildi:** klient tarixi sarlavhasidagi pul (11594) · PDF kunlik bloki (16939)
+· **2-chi chek jadvali (14410, v174.6)**.
 **Ko'rinish qo'shildi (v174.5):** manba qatori + `→ / ←` o'qlari, PDF da binafsha.
 
-**⚠ QOLGAN IKKITASI — Ibrohim qaroriga qarab:**
+**⚠ QOLGAN BITTASI — Ibrohim qaroriga qarab:**
 
-1. **`_ostJadvalUstunlar` (14397)** — **2-chi chek jadvalida AYNAN shu xato**:
-   ```js
-   else if(op.tip==='tolov'){ d=-parseNum(op.ekvivalent||0); nom='tolov'; }
-   ```
-   `_kdYopish` tekshirilmaydi → offset oddiy to'lovdek ayiriladi → chekdagi
-   ostatka jadvali ikkilangan qoldiq ko'rsatadi. Tuzatish 16939 dagi bilan
-   **bir xil, ~5 qator**. So'ralmagani uchun tegilmadi.
-   ⚠ Bu yerda yana bir eskilik bor: `nom='berildi'` da `inventar==='boshlangich'`
-   tekshiruvi YO'Q (16937 da bor) — 0m dagi «shakllantirish berildi deb chiqadi»
-   masalasi shu.
+**Xato C — `v.offset` ikkilanadi.** `_tolovTurAniq` da offset IKKI yo'l bilan
+topiladi va ikkalasi ham ishlaydi: **11596** (manba yozuvidagi `_kdYopish`
+belgisidan) + **11617** (manzil yozuvlarida `summa − naqd` ayirmasidan).
+Dilfuza misolida `v.offset` = 4,572.17 + 4,572.17 = **9,144.34**.
 
-2. **Xato C — `v.offset` ikkilanadi** (`_tolovTurAniq`: 11596 belgidan +
-   11617 ayirmadan, ikkalasi ham ishlaydi). Faqat **ARALASH** to'lovda ko'rinadi
-   — `_tolovPulQator` (11648) `bor.length<2` bo'lsa chizmaydi, sof offsetda
-   bitta tur bo'lgani uchun ko'rinmaydi. Uch variant mockupda:
-   `mockups/v174.4-offset-sistema.html` emas, `...-ikki-marta-va-javoblar.html` da.
+Faqat **ARALASH** to'lovda ko'rinadi — `_tolovPulQator` (11648) `bor.length<2`
+bo'lsa umuman chizmaydi, sof offsetda bitta tur bo'lgani uchun ko'rinmaydi.
 
-**Sinov holati:** v174.4/v174.5 **haqiqiy kod bilan** sinaldi (index.html dan blok
-ajratib olinib Dilfuza ma'lumoti o'tkazildi) — natija to'g'ri. Lekin **ilovada
-Ibrohim ko'rmagan**. Prodga chiqmagan.
+Uch variant (mockup: `mockups/v174.4-offset-ikki-marta-va-javoblar.html`):
+1. **Manbani ustun qilish** — belgi bo'lsa ayirma yo'lini o'chirish.
+   Xavfi: belgisiz eski yozuvlarda offset ko'rinmay qoladi.
+2. **Ayirmani ustun qilish** — manba yozuvini hisobga olmaslik.
+   Xavfi: juda eski formatda pul maydonlari yo'q, topilmaydi.
+3. **Kattasini olish** — qo'shilmaydi.
+   Xavfi: ikkalasi to'g'ri bo'lgan noyob holatda kamaytiradi.
+
+**Sinov holati:** v174.4/v174.5/v174.6 **haqiqiy kod bilan** sinaldi (`index.html`
+dan blok ajratib olinib Dilfuza ma'lumoti o'tkazildi) — natija to'g'ri. PDF
+chizuvchisi ham tekshirildi (binafsha rang + Symbol shrifti). Lekin **ilovada
+Ibrohim hali ko'rmagan** — prodda tekshirilishi kerak.
+
+⚠ **TEGILMAGAN, o'sha joyda turibdi:** `_ostJadvalUstunlar` (14408) da
+`nom='berildi'` bor, `inventar==='boshlangich'` tekshiruvi YO'Q — shuning uchun
+2-chi chekda shakllantirish hali «berildi» deb chiqadi (0m masalasi).
+v174.5 dagi `→ / ←` o'qlari ham 2-chi chekka kengaytirilmagan.
 
 ### 0i. ~~Telefondan chek bosilsa PC dan chiqishi~~ — BAJARILDI (v172.28)
 
@@ -524,6 +530,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v174.6 | **2-chi chek jadvalida ham offset xatosi** tuzatildi (`_ostJadvalUstunlar` 14410) |
 | v174.5 | **Offsetning ikki tomoni bir-birini ko'rsatadi** — klient tarixida manba qatori (avval `false &&` bilan o'chirilgan edi) + manzilga `←`; PDF da `offset → 3D, 3DS` va `tolov ← Oddiy`; `pdf.py` da binafsha rang |
 | v174.4 | **OFFSET IKKI MARTA hisoblanardi** — klient tarixida pul $9,144.34 (to'g'risi $4,572.17), PDF kunlik blokida QOLDI +105.96g (to'g'risi 0.00g) |
 | v171 | "Qo'limizdagi ostatka" ekrani — zavod→tur→gramm, hafta bo'yicha |
