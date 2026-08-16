@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v175 · 2026-08-16
+**Oxirgi yangilanish:** v175.1 · 2026-08-16
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v175** (`index.html` birinchi qatorida `<!-- v175 -->`, `APP_VER` da ham) |
+| Versiya | **v175.1** (`index.html` birinchi qatorida `<!-- v175.1 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.9 gacha push qilingan** — prod v174.9. ⚠ **v175 commit qilingan, PUSH QILINMAGAN.** |
+| Git | **v175.1 gacha push qilingan** — prod v175.1. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -574,6 +574,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v175.1 | **Qarz chekida zavod ostidagi «Jami:» qatori olib tashlandi** (`pdf.py` 333) |
 | v175 | **PDF «Qarz tarkibi» va JAMI qatori ilovadagi bilan bir xil** — `qarz_bd` olib tashlandi, `_qarzTarkib` chaqiriladi |
 | v174.9 | **PDF tepa jadvalida offset ko'rinadi** — «Offset» sarlavhasi (binafsha) + Tur ustunida `→ / ←` o'qlar |
 | v174.8 | **PDF tepa jadvali Ostatka ustuni** — offset ayirilardi, endi qo'shiladi (`runBal` 16922) |

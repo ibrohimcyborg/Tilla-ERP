@@ -319,10 +319,11 @@ def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0)
         if z not in by_zavod: by_zavod[z] = []
         by_zavod[z].append(item)
     # v172.12: biz qarzdor bo'lgan turlar avval BUTUNLAY tashlab yuborilardi
-    # (qarz < 0.01 -> continue), lekin z_total ga qo'shilardi. Endi ular
-    # "(biz qarz)" bo'lib ko'rinadi, zavod jamisi esa faqat klient qarzidan.
+    # (qarz < 0.01 -> continue). Endi ular "(biz qarz)" bo'lib ko'rinadi.
+    # v175.1 (Ibrohim): zavod ostidagi "Jami:" qatori OLIB TASHLANDI. Uni
+    # hisoblagan z_total ham keraksiz qoldi. Pastdagi "KLIENT OSTATKASI"
+    # boshqa manbadan keladi (jami_qarz) - unga TEGILMADI.
     for znom, turs in by_zavod.items():
-        z_total = sum(t.get('qarz', 0) for t in turs if t.get('qarz', 0) > 0)
         story.append(CP(znom, 'Helvetica-Bold', 9, C_GOLD, 'LEFT'))
         for t in turs:
             q = t.get('qarz', 0)
@@ -330,7 +331,6 @@ def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0)
                 story.append(row2('  ' + t.get('tur',''), f"-{q:.2f}g", cb=C_RED))
             elif q < -0.01:
                 story.append(row2('  ' + t.get('tur','') + ' (biz qarz)', f"+{abs(q):.2f}g", cb=C_GREEN))
-        story.append(row2('  Jami:', f'-{z_total:.2f}g', fb='Helvetica-Bold', cb=C_RED))
         story.append(Spacer(1, 1*mm))
     story.append(dline2()); story.append(Spacer(1, 1*mm))
     # v172.12: "UMUMIY QARZ" o'rniga ikkita qator — klient ostatkasi va bizning

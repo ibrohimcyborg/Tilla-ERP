@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Klient ostatkasi — sof emas</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:8px}
+  h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:42px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:14px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 8px;font-size:18px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+  tr.tot td{border-top:2px solid var(--line);font-weight:700;background:rgba(255,255,255,.03)}
+  .banner{border-radius:10px;padding:14px 17px;font-size:14px;margin:14px 0}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+  @media(max-width:760px){.ba{grid-template-columns:1fr}}
+  .bx{border-radius:10px;padding:14px 16px;border:1px solid var(--line);background:var(--card2)}
+  .bx.now{border-color:var(--red)} .bx.new{border-color:var(--grn)}
+  .bx .bh{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px}
+  .bx.now .bh{color:var(--red)} .bx.new .bh{color:var(--grn)}
+  .bx table{margin:0;font-size:12.5px}
+  .bx th,.bx td{padding:5px 6px}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+             font-weight:700;color:var(--gold);margin-bottom:6px}
+  /* PDF statistika katagi */
+  .stat{display:grid;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0}
+  .stat .hd{background:#2a2f3a;padding:6px 8px;font-size:9.5px;font-weight:700;
+            text-align:center;color:#fff;letter-spacing:.05em}
+  .stat .vl{background:#1e222b;padding:9px 8px;text-align:center;font-weight:700;
+            font-size:15px;font-family:ui-monospace,Consolas,monospace}
+  .s4{grid-template-columns:repeat(4,1fr)} .s5{grid-template-columns:repeat(5,1fr)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>«Klient ostatkasi» sof qoldiq bo'lmasin</h1>
+  <div class="sub">v175 dagi xatoni tuzatish · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-red">
+    <b>Siz haqsiz, bu mening xatoyim.</b> v175 da klient PDF iga <b>sof qoldiq</b>
+    (klient qarzi minus bizning qarz) yuborgandim. Siz aytgan qoida boshqa:
+    ikkalasi <b>alohida</b> ko'rsatilishi kerak.
+  </div>
+</header>
+
+
+<!-- ═══════ QOIDA ═══════ -->
+<h2 class="sec">1 · <b>Sizning qoidangiz</b></h2>
+
+<div class="card">
+  <p>Siz aytdingiz:</p>
+  <div class="banner b-gold">
+    <b>«klient umumiy 100g qarz · bizning qarzimiz 5g · Jami 95g EMAS ·
+    jami 100g klient ostatkasi · bizning qarz 5g qilib ko'rsatgani yaxshi»</b>
+  </div>
+
+  <div class="ba">
+    <div class="bx now">
+      <div class="bh">✗ Sof qoldiq (v175 da shunday)</div>
+      <table>
+        <tr><td>Klient qarzi</td><td class="num">100.00g</td></tr>
+        <tr><td>Bizning qarz</td><td class="num">−5.00g</td></tr>
+        <tr class="tot"><td>KLIENT OSTATKASI</td><td class="num bad">95.00g</td></tr>
+      </table>
+      <p style="font-size:12.5px;margin:10px 0 0;color:var(--muted)">
+        Bizning qarzimiz <b>yo'qolib ketadi</b> — u alohida ko'rinmaydi.</p>
+    </div>
+    <div class="bx new">
+      <div class="bh">✓ Ajratilgan (siz xohlagan)</div>
+      <table>
+        <tr class="tot"><td>KLIENT OSTATKASI</td><td class="num bad">100.00g</td></tr>
+        <tr class="tot"><td>BIZNING QARZ</td><td class="num ok">+5.00g</td></tr>
+      </table>
+      <p style="font-size:12.5px;margin:10px 0 0;color:var(--muted)">
+        Ikkala raqam <b>ko'rinadi</b>, hech nima yashirilmaydi.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════ HOZIRGI HOLAT ═══════ -->
+<h2 class="sec">2 · <b>Uch joyda uch xil</b></h2>
+
+<div class="card">
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Qayerda</th><th>Hozir</th><th style="width:80px">Kod</th></tr></thead>
+    <tbody>
+      <tr>
+        <td style="font-size:18px">🧾</td>
+        <td><b>Qarz cheki</b> (siz bugun ko'rgan PDF)</td>
+        <td class="ok"><b>Allaqachon to'g'ri</b> — <code>ostatka</code> va <code>bizQarz</code> alohida yuboriladi</td>
+        <td><span class="ln">16741</span></td>
+      </tr>
+      <tr>
+        <td style="font-size:18px">📱</td>
+        <td><b>Ilova ekrani</b> — «Qarz tarkibi» paneli</td>
+        <td class="ok"><b>Allaqachon to'g'ri</b> — o'sha funksiyadan o'qiydi</td>
+        <td><span class="ln">16659</span></td>
+      </tr>
+      <tr style="background:var(--red-bg)">
+        <td style="font-size:18px">📄</td>
+        <td><b>Klient PDF</b> — JAMI qatoridagi «QOLGAN QARZ»</td>
+        <td class="bad"><b>SOF qoldiq</b> yuboriladi (v175 da men shunday yozdim)</td>
+        <td><span class="ln">16913</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="lbl"></div>
+  <p><b>Mavjud funksiya allaqachon bor</b> va aynan sizning qoidangiz bo'yicha ishlaydi —
+  <code>_qarzJamiRows</code> (<span class="ln">16659</span>):</p>
+  <pre><span class="cm">// musbat qatorlar -> klient qarzi, manfiylar -> bizning qarz. Qo'shilmaydi.</span>
+(qarz_tarkib||[]).forEach(function(b){
+  if(b.qarz&gt;0) ost += b.qarz;   <span class="cm">// KLIENT OSTATKASI</span>
+  else           biz += -b.qarz;  <span class="cm">// BIZNING QARZ</span>
+});
+return {ostatka: ost, bizQarz: biz};</pre>
+
+  <p>Men v175 da buni ishlatmasdan, o'zim yig'indi hisoblagandim:</p>
+  <pre><span class="del">var jami_qolgan = qarz_tarkib.reduce(function(a,b){ return a+b.qarz; }, 0);</span>
+                                              <span class="cm">↑ musbat va manfiy QO'SHILADI = sof qoldiq</span></pre>
+</div>
+
+
+<!-- ═══════ TAKLIF ═══════ -->
+<h2 class="sec">3 · <b>Taklif — klient PDF ning statistika katagi</b></h2>
+
+<div class="card">
+  <p>Hozir tepada to'rt ustunli katak bor:</p>
+
+  <div class="stat s4">
+    <div class="hd">JAMI BERILDI</div><div class="hd">VOZVRAT</div>
+    <div class="hd">TOLOV (PUL)</div><div class="hd">QOLGAN QARZ</div>
+    <div class="vl" style="color:#e5555f">−108.99g</div>
+    <div class="vl" style="color:#48b881">+0.00g</div>
+    <div class="vl" style="color:#48b881">+103.55g<br><span style="font-size:11px">9,160$</span></div>
+    <div class="vl" style="color:#48b881">+87.56g</div>
+  </div>
+  <p class="dim" style="font-size:12.5px">Dilfuza misolida hozir shunday chiqadi — sof qoldiq.</p>
+
+  <div class="banner b-gold">Uch variant bor. Qaysi birini xohlaysiz?</div>
+
+  <h3 style="margin-top:22px">A · Beshinchi ustun qo'shish <span style="font-size:12px;color:var(--grn)">(tavsiyam)</span></h3>
+  <div class="stat s5">
+    <div class="hd">JAMI BERILDI</div><div class="hd">VOZVRAT</div><div class="hd">TOLOV (PUL)</div>
+    <div class="hd" style="background:#5a2a2a">KLIENT OSTATKASI</div>
+    <div class="hd" style="background:#1f4433">BIZNING QARZ</div>
+    <div class="vl" style="color:#e5555f">−108.99g</div>
+    <div class="vl" style="color:#48b881">+0.00g</div>
+    <div class="vl" style="color:#48b881">+103.55g<br><span style="font-size:11px">9,160$</span></div>
+    <div class="vl" style="color:#e5555f">−0.00g</div>
+    <div class="vl" style="color:#48b881">+87.56g</div>
+  </div>
+  <p style="font-size:13px">Qarz cheki bilan <b>bir xil til</b>. Ustunlar biroz torayadi
+  (28mm → 22mm), lekin sahifa albom formatida, joy yetadi.</p>
+
+  <h3 style="margin-top:22px">B · Bitta katakda ikki qator</h3>
+  <div class="stat s4">
+    <div class="hd">JAMI BERILDI</div><div class="hd">VOZVRAT</div>
+    <div class="hd">TOLOV (PUL)</div><div class="hd">QARZ HOLATI</div>
+    <div class="vl" style="color:#e5555f">−108.99g</div>
+    <div class="vl" style="color:#48b881">+0.00g</div>
+    <div class="vl" style="color:#48b881">+103.55g<br><span style="font-size:11px">9,160$</span></div>
+    <div class="vl" style="font-size:12px;line-height:1.5">
+      <span style="color:#e5555f">klient −0.00g</span><br>
+      <span style="color:#48b881">biz +87.56g</span></div>
+  </div>
+  <p style="font-size:13px">Ustunlar kengligi <b>o'zgarmaydi</b>, lekin raqamlar kichrayadi.</p>
+
+  <h3 style="margin-top:22px">C · Faqat klient qarzini ko'rsatish</h3>
+  <div class="stat s4">
+    <div class="hd">JAMI BERILDI</div><div class="hd">VOZVRAT</div>
+    <div class="hd">TOLOV (PUL)</div><div class="hd">KLIENT OSTATKASI</div>
+    <div class="vl" style="color:#e5555f">−108.99g</div>
+    <div class="vl" style="color:#48b881">+0.00g</div>
+    <div class="vl" style="color:#48b881">+103.55g<br><span style="font-size:11px">9,160$</span></div>
+    <div class="vl" style="color:#e5555f">−0.00g</div>
+  </div>
+  <p style="font-size:13px">Eng oz o'zgarish. Lekin <b>bizning qarzimiz tepada ko'rinmaydi</b> —
+  faqat pastdagi «Joriy qarz tarkibi» bo'limida yashil qator bo'lib qoladi.</p>
+</div>
+
+
+<!-- ═══════ NIMA O'ZGARADI ═══════ -->
+<h2 class="sec">4 · <b>Nima o'zgaradi</b></h2>
+
+<div class="card blu">
+  <p><b>A variant tanlansa:</b></p>
+  <pre><span class="cm">index.html:16913 — sof yig'indi o'rniga mavjud funksiya</span>
+<span class="del">- var jami_qolgan = qarz_tarkib.reduce(function(a,b){ return a+b.qarz; }, 0);</span>
+<span class="add">+ var _jr = _qarzJamiRows(qarz_tarkib);        // 16659 — allaqachon bor</span>
+<span class="add">+ payload.jami_klient_qarz = _jr.ostatka;      // 100</span>
+<span class="add">+ payload.jami_biz_qarz    = _jr.bizQarz;      // 5</span>
+
+<span class="cm">api/pdf.py — statistika katagi 4 -> 5 ustun, JAMI qatori ham</span></pre>
+
+  <div class="chips" style="display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;
+       padding-top:14px;border-top:1px solid var(--line)">
+    <span style="font-size:12px;background:var(--card2);border:1px solid var(--line);
+          border-radius:20px;padding:5px 13px;color:var(--muted)"><b style="color:var(--txt)">index.html:</b> ~4 qator</span>
+    <span style="font-size:12px;background:var(--card2);border:1px solid var(--line);
+          border-radius:20px;padding:5px 13px;color:var(--muted)"><b style="color:var(--txt)">api/pdf.py:</b> ~10 qator</span>
+    <span style="font-size:12px;background:var(--card2);border:1px solid var(--line);
+          border-radius:20px;padding:5px 13px;color:var(--muted)"><b style="color:var(--txt)">Qarz cheki:</b> TEGILMAYDI</span>
+    <span style="font-size:12px;background:var(--card2);border:1px solid var(--line);
+          border-radius:20px;padding:5px 13px;color:var(--muted)"><b style="color:var(--txt)">Ilova ekrani:</b> TEGILMAYDI</span>
+  </div>
+</div>
+
+
+<!-- ═══════ QARORLAR ═══════ -->
+<h2 class="sec">Sizdan javob</h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <div class="qbox">
+    <div class="lbl">1 — Qaysi variant?</div>
+    <b>A</b> beshinchi ustun (tavsiyam — qarz cheki bilan bir xil) ·
+    <b>B</b> bitta katakda ikki qator · <b>C</b> faqat klient qarzi
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — Nol bo'lsa ko'rinsinmi?</div>
+    Qarz chekida «BIZNING QARZ» <b>0 bo'lsa umuman chizilmaydi</b>. Klient PDF da ham
+    shunday bo'lsinmi, yoki <code>0.00g</code> deb tursinmi?
+    <span class="dim">(katak jadval bo'lgani uchun ustunni yashirish qiyinroq —
+    men <b>0.00g qolsin</b> deb o'ylayman)</span>
+  </div>
+
+  <div class="banner b-gold" style="margin-top:16px">
+    <b>Eslatma:</b> <code>v175.1</code> (zavod ostidagi «Jami:» qatorini olib tashlash)
+    yozildi va sinovdan o'tdi, lekin <b>hali commit qilinmadi</b> — siz «oldin mockupda
+    ko'rsat» dedingiz. Aytsangiz ikkalasini birga chiqaraman.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

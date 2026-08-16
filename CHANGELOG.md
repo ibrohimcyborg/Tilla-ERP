@@ -3,6 +3,35 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175.1: qarz chekida zavod ostidagi "Jami:" qatori olib tashlandi
+
+Ibrohim rasm bilan: "Jami Butterfly 240.06 shunaqala chiqmasin".
+
+Rasmda (Himoyat Opa Qo'qon) bema'ni holat ham ko'rindi -- `Sepochka` zavodida
+faqat BIZ qarzdor tur bor edi, shuning uchun `z_total = 0` chiqib
+**"Jami: -0.00g"** deb yozilardi.
+
+`api/pdf.py:333` o'chirildi:
+```
+- story.append(row2('  Jami:', f'-{z_total:.2f}g', fb='Helvetica-Bold', cb=C_RED))
+```
+Uni hisoblagan `z_total` (325) ham keraksiz qoldi, u ham o'chirildi.
+Izoh (321-323) yangilandi.
+
+TEGILMADI: "KLIENT OSTATKASI" va "BIZNING QARZ" qatorlari boshqa manbadan
+keladi (`_qarzJamiRows` -> `jami_qarz` / `biz_qarz`), ularga tegilmadi.
+`biz_qarz` 0 bo'lsa "BIZNING QARZ" qatori allaqachon CHIZILMAYDI (343:
+`if abs(biz_qarz) > 0.001`) -- Ibrohim so'ragan xulq mavjud edi.
+
+SINOV: PDF chindan chizildi (Ibrohim rasmidagi Abdulaziz ma'lumoti bilan) --
+"Jami:" YO'Q, zavod jamilarining raqamlari (223.51 / 16.87) YO'Q, tur
+qatorlari va KLIENT OSTATKASI (-357.35g) JOYIDA.
+
+`est_h` (298) balandlik taxminiga tegilmadi -- qatorlar kamaygani uchun pastda
+biroz ortiqcha bo'sh joy qolishi mumkin, lekin kesilib qolmaydi.
+
+---
+
 ## v175: PDF «Qarz tarkibi» va JAMI qatori ilovadagi bilan bir xil bo'ldi
 
 Ibrohim: "darhol qilinadigani 1 2 sini togirla".
