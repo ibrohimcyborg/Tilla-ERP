@@ -413,7 +413,8 @@ def _ost_blok(b, kw):
 
 def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
                         jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib,
-                        ost_bloklar=None, jami_qolgan=None):
+                        ost_bloklar=None, jami_qolgan=None,
+                        klient_ostatka=None, biz_qarz=0):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=8*mm, rightMargin=8*mm, topMargin=8*mm, bottomMargin=8*mm)
     story = []; W_total = landscape(A4)[0] - 16*mm
@@ -434,12 +435,28 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     # uchun "--87.56g" bo'lib chiqardi.
     qolgan_txt = f"+{abs(qolgan):,.2f}g" if qolgan < -0.001 else f"-{qolgan:,.2f}g"
     qolgan_col = C_RED if qolgan > 0.001 else (C_GREEN if qolgan < -0.001 else C_DARK)
+    # v175.3 (Ibrohim, A varianti): tepadagi katak qarz cheki bilan BIR XIL bo'lsin —
+    # "KLIENT OSTATKASI" va "BIZNING QARZ" alohida ustunda, aralashtirilmaydi.
+    # Biz qarzdor bo'lmasak beshinchi ustun UMUMAN chizilmaydi (Ibrohim qoidasi).
+    # Eski hujjatlar uchun: klient_ostatka kelmasa avvalgidek yagona "QOLGAN QARZ".
+    _ost = round(klient_ostatka, 2) if klient_ostatka is not None else None
+    _biz = round(biz_qarz or 0, 2)
+    if _ost is None:
+        sarlavha = [P("QOLGAN QARZ",'Helvetica-Bold',8,C_WHITE,'CENTER')]
+        qiymat   = [P(qolgan_txt,'Helvetica-Bold',13,qolgan_col,'CENTER')]
+    else:
+        sarlavha = [P("KLIENT OSTATKASI",'Helvetica-Bold',8,C_WHITE,'CENTER')]
+        qiymat   = [P(f"-{_ost:,.2f}g",'Helvetica-Bold',13,
+                      C_RED if _ost > 0.001 else C_DARK,'CENTER')]
+        if _biz > 0.001:
+            sarlavha.append(P("BIZNING QARZ",'Helvetica-Bold',8,C_WHITE,'CENTER'))
+            qiymat.append(P(f"+{_biz:,.2f}g",'Helvetica-Bold',13,C_GREEN,'CENTER'))
     stat_data = [[P("JAMI BERILDI",'Helvetica-Bold',8,C_WHITE,'CENTER'),P("VOZVRAT",'Helvetica-Bold',8,C_WHITE,'CENTER'),
-                  P("TOLOV (PUL)",'Helvetica-Bold',8,C_WHITE,'CENTER'),P("QOLGAN QARZ",'Helvetica-Bold',8,C_WHITE,'CENTER')],
+                  P("TOLOV (PUL)",'Helvetica-Bold',8,C_WHITE,'CENTER')] + sarlavha,
                  [P(f"-{jami_berildi:,.2f}g",'Helvetica-Bold',13,C_RED,'CENTER'),P(f"+{jami_vozvrat:,.2f}g",'Helvetica-Bold',13,C_GREEN,'CENTER'),
-                  P(f"+{jami_tolov_g:,.2f}g\n{jami_tolov_pul:,.0f}$",'Helvetica-Bold',13,C_GREEN,'CENTER'),
-                  P(qolgan_txt,'Helvetica-Bold',13,qolgan_col,'CENTER')]]
-    st = Table(stat_data, colWidths=[W_total/4]*4)
+                  P(f"+{jami_tolov_g:,.2f}g\n{jami_tolov_pul:,.0f}$",'Helvetica-Bold',13,C_GREEN,'CENTER')] + qiymat]
+    _n = len(stat_data[0])
+    st = Table(stat_data, colWidths=[W_total/_n]*_n)
     st.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),C_HDR),('BACKGROUND',(0,1),(-1,1),colors.HexColor('#F8F6F0')),
         ('GRID',(0,0),(-1,-1),0.4,colors.HexColor('#dddddd')),('TOPPADDING',(0,0),(-1,-1),6),
         ('BOTTOMPADDING',(0,0),(-1,-1),6),('ALIGN',(0,0),(-1,-1),'CENTER'),('VALIGN',(0,0),(-1,-1),'MIDDLE')]))
@@ -649,7 +666,9 @@ class handler(BaseHTTPRequestHandler):
                     body.get("jami_tolov_g",0), body.get("jami_tolov_pul",0),
                     body.get("qarz_tarkib",[]),
                     body.get("ost_bloklar",[]),
-                    body.get("jami_qolgan")); return self._send_pdf(pdf, "klient-hisobot.pdf")
+                    body.get("jami_qolgan"),
+                    body.get("klient_ostatka"),
+                    body.get("biz_qarz",0)); return self._send_pdf(pdf, "klient-hisobot.pdf")
 
             if tip == "klientlar_tarix":
                 pdf = build_klientlar_tarix(body.get("ops",[]), body.get("dan"), body.get("gacha"),

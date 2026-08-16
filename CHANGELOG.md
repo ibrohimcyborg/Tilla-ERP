@@ -3,6 +3,50 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175.3: klient hisoboti PDF tepa katagi -- A varianti
+
+Ibrohim mockupdan **A** ni tanladi (`mockups/v175.2-variantlar-A-B-C.html`).
+
+Muammo: tepadagi katakning "QOLGAN QARZ" ustuni SOF QOLDIQ ko'rsatardi --
+klient qarzi va bizning qarz bir-biridan ayirilib bitta raqamga aylanardi
+(287.38 - 7.33 = 280.05). Qarz chekida esa ular ALOHIDA. Ikki hujjat bir
+klientga boshqa-boshqa raqam berardi.
+
+### index.html
+
+```
+var _jr = _qarzJamiRows(qarz_tarkib);
+payload: klient_ostatka:_jr.ostatka, biz_qarz:_jr.bizQarz
+```
+`jami_qolgan` (sof qoldiq) O'Z MA'NOSIDA QOLDI -- u jadval pastidagi JAMI
+qatoriga ketadi. Unga tegilmadi, chunki u Ostatka USTUNI ostida turadi va
+o'sha ustun yugurib borayotgan sof qoldiqni (`runBal`) ko'rsatadi.
+
+### api/pdf.py
+
+Sarlavha va qiymat qatorlari endi DINAMIK quriladi, `colWidths` ham ustun
+soniga qarab hisoblanadi:
+
+* `klient_ostatka` kelsa -> "KLIENT OSTATKASI" (qizil)
+* `biz_qarz > 0.001` bo'lsa -> yana "BIZNING QARZ" (yashil) ustuni
+* `biz_qarz` nol bo'lsa -> beshinchi ustun UMUMAN chizilmaydi (Ibrohim qoidasi:
+  "bizning qarzimiz bo'lmasa bizning qarzni ko'rsatmasin")
+* `klient_ostatka` KELMASA -> avvalgidek yagona "QOLGAN QARZ" (eski moslik)
+
+### SINOV -- PDF chindan chizildi, matn operatorlari o'qildi (9/9 OK)
+
+```
+1) biz_qarz 7.33  -> KLIENT OSTATKASI -287.38g | BIZNING QARZ +7.33g   (5 ustun)
+2) biz_qarz 0     -> KLIENT OSTATKASI -287.38g                          (4 ustun)
+3) eski payload   -> QOLGAN QARZ -280.05g                               (buzilmadi)
+notdef (qora kvadrat) yo'q
+```
+
+TEGILMADI: `build_klientlar_tarix` (klientlar ro'yxati PDF si) -- boshqa ekran,
+so'ralmagan. Unda hali eski `qolgan` formulasi.
+
+---
+
 ## v175.2: klient qarzi hamma joyda BIR XIL
 
 Ibrohim rasm bilan: "nega -0.66 qarz ko'rsatvotti klientti ostatkasi 0ku".
