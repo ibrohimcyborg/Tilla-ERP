@@ -3,6 +3,70 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175.2: klient qarzi hamma joyda BIR XIL
+
+Ibrohim rasm bilan: "nega -0.66 qarz ko'rsatvotti klientti ostatkasi 0ku".
+Madina Opa Gold Sentr -- bir klientga UCH xil raqam:
+
+```
+Klientlar ro'yxati        -0.66g qarz     klientJamiQarz
+"Klientga berish" qidiruv  qarz: 0.66g    klientJamiQarz
+Klient ekrani + tarkibi    0.00g          _qarzTarkib   <- to'g'risi
+                           biz qarz 8.42g
+```
+
+### Sabab
+
+Klient qarzini hisoblaydigan IKKI funksiya bor edi va ular TO'RT joyda
+boshqacha ishlardi:
+
+| Amal | klientQarzSplit (9662) | _qarzTarkib (16676) |
+|---|---|---|
+| berish (manfiy) | UMUMIY "biz qarz" ga | o'sha TUR hisobiga |
+| offset to'lovi | UMUMIY "biz qarz" dan | o'sha TUR hisobiga |
+| sdacha (klientda) | UMUMIY "biz qarz" ga | o'sha TUR hisobidan |
+| turi yo'q to'lov | umumiy qarzdan | turlarga PROPORSIONAL |
+
+Biri ba'zi narsalarni "umumiy qopga" tashlaydi, ikkinchisi har turga alohida
+yozadi. Turlar bo'yicha plyus-minus boshqacha yig'ilgani uchun natija farq
+qiladi.
+
+### Yechim (v175 dagi bilan bir xil naqsh)
+
+`_qarzTarkib` ning hisob-kitobi `_qarzTarkibRows(k)` ga chiqarildi.
+`klientJamiQarz` endi shundan o'qiydi:
+
+```
+eski:  var d = klientQarzSplit(k); return d.klientQarzi;
+yangi: return _qarzJamiRows(_qarzTarkibRows(k)).ostatka;
+```
+
+⚠ AYLANMA HALQA: `_qarzTarkib` oxirida `klientJamiQarz` ni chaqiradi. Shuning
+uchun `klientJamiQarz` `_qarzTarkib` ni EMAS, `_qarzTarkibRows` ni chaqiradi.
+Sinovda tekshirildi.
+
+### SINOV (mantiq index.html dan ajratib olinib)
+
+```
+Sdacha 5.42/2.77/0.23 uch turda + Diamond ga berish 0.66:
+   ESKI klientJamiQarz  0.66      <- muammo
+   YANGI klientJamiQarz 0.00      <- ekran bilan mos
+Nazorat (50 berildi, 20 to'landi):  30.00 -> 30.00  o'zgarmadi
+Aylanma halqa: _qarzTarkib(0) ishladi, jamiQarz 0.00
+```
+
+Sinov ma'lumoti QO'LDA tuzilgan -- Ibrohimning haqiqiy yozuvlari ko'rilmagan.
+Mexanizm to'g'ri (0.66 -> 0.00), lekin "biz qarz" 7.76 chiqdi, Ibrohimda 8.42.
+
+### TEGILMADI (Ibrohim: "ishshi kottalashtirmi")
+
+`klientQarzSplit` O'CHIRILMADI -- u 5063 (bosh ekran) va 5352 (zavod ekrani,
+`zavodFilter` bilan) da ishlatiladi. `_qarzTarkib` da zavod filtri yo'q.
+Demak bosh ekran va zavod ekrani HALI ESKI usulda hisoblaydi -- u yerlarda ham
+nomuvofiqlik qolishi mumkin. Alohida qaror.
+
+---
+
 ## v175.1: qarz chekida zavod ostidagi "Jami:" qatori olib tashlandi
 
 Ibrohim rasm bilan: "Jami Butterfly 240.06 shunaqala chiqmasin".

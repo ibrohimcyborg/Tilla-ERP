@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bir klient, uch raqam — tashxis</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:42px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.org{border-left:3px solid var(--org)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .org{color:var(--org)}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:13px;
+         border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+  .flow{background:var(--card2);border-radius:9px;padding:13px 16px;margin:10px 0;
+        font-size:13.5px;border-left:2px solid var(--muted)}
+  .flow b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Bir klient — uch xil raqam</h1>
+  <div class="sub">Madina Opa Gold Sentr · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-red">
+    <b>Siz haqsiz.</b> Klient ostatkasi 0 bo'lsa, ro'yxatda «−0.66g qarz» chiqmasligi
+    kerak. Sabab: ilovada klient qarzini hisoblaydigan <b>ikkita alohida funksiya</b>
+    bor va ular <b>to'rt joyda</b> boshqacha ishlaydi.
+  </div>
+</header>
+
+
+<!-- ═══════ HOLAT ═══════ -->
+<h2 class="sec">1 · <b>Nima ko'rinyapti</b></h2>
+
+<div class="card red">
+  <table>
+    <thead><tr><th>Qayerda</th><th class="num">Ko'rsatadi</th><th style="width:230px">Qaysi funksiya</th></tr></thead>
+    <tbody>
+      <tr><td>Klientlar ro'yxati</td><td class="num bad"><b>−0.66g qarz</b></td>
+          <td><code>klientJamiQarz</code> <span class="ln">9652</span></td></tr>
+      <tr><td>«Klientga berish» qidiruvi</td><td class="num bad"><b>qarz: 0.66g</b></td>
+          <td><code>klientJamiQarz</code> <span class="ln">14300</span></td></tr>
+      <tr style="background:var(--grn-bg)"><td><b>Klient ekrani + Qarz tarkibi</b></td>
+          <td class="num ok"><b>0.00g</b><br><span class="dim">biz qarz +8.42g</span></td>
+          <td><code>_qarzTarkib</code> <span class="ln">16666</span></td></tr>
+    </tbody>
+  </table>
+
+  <p>Klient ekranidagi uchta qator qo'shilsa aynan chiqadi:
+  <b>5.42 + 2.77 + 0.23 = 8.42</b> — hammasi «biz qarzdor». Ya'ni klient
+  <b>hech narsa qarzdor emas</b>. Lekin ro'yxat <b>0.66g</b> deb turibdi.</p>
+</div>
+
+
+<!-- ═══════ SABAB ═══════ -->
+<h2 class="sec">2 · <b>Sabab — ikki funksiya, to'rt farq</b></h2>
+
+<div class="card">
+  <p>Ikkalasi ham bir xil savolga javob beradi: «klient qancha qarzdor?». Lekin
+  <b>boshqacha hisoblaydi</b>:</p>
+
+  <table>
+    <thead><tr><th>Amal</th><th><code>klientQarzSplit</code> <span class="ln">9658</span></th>
+      <th><code>_qarzTarkib</code> <span class="ln">16666</span></th></tr></thead>
+    <tbody>
+      <tr><td class="dim">berish (musbat)</td><td class="dim">tur hisobiga qo'shadi</td><td class="dim">tur hisobiga qo'shadi</td></tr>
+      <tr><td class="dim">vozvrat</td><td class="dim">tur hisobidan ayiradi</td><td class="dim">tur hisobidan ayiradi</td></tr>
+      <tr><td class="dim">to'lov (oddiy, turi bor)</td><td class="dim">tur hisobidan ayiradi</td><td class="dim">tur hisobidan ayiradi</td></tr>
+
+      <tr style="background:var(--red-bg)"><td><b>1. berish (manfiy)</b></td>
+        <td class="bad">UMUMIY «biz qarz» ga</td><td class="ok">o'sha TUR hisobiga</td></tr>
+      <tr style="background:var(--red-bg)"><td><b>2. offset to'lovi</b></td>
+        <td class="bad">UMUMIY «biz qarz» dan ayiradi</td><td class="ok">o'sha TUR hisobiga qo'shadi</td></tr>
+      <tr style="background:var(--red-bg)"><td><b>3. sdacha (klientda)</b></td>
+        <td class="bad">UMUMIY «biz qarz» ga</td><td class="ok">o'sha TUR hisobidan ayiradi</td></tr>
+      <tr style="background:var(--red-bg)"><td><b>4. turi yo'q to'lov</b></td>
+        <td class="bad">umumiy qarzdan ayiradi</td><td class="ok">turlarga <b>proporsional</b> taqsimlaydi</td></tr>
+    </tbody>
+  </table>
+
+  <div class="flow">
+    <b>Oddiy tilda:</b> birinchi funksiya ba'zi narsalarni <b>«umumiy qopga»</b>
+    tashlaydi, ikkinchisi esa <b>har turga alohida</b> yozadi. Turlar bo'yicha
+    plyus-minus boshqacha yig'ilgani uchun natija farq qiladi.
+  </div>
+
+  <div class="banner b-gold">
+    <b>Aynan qaysi farq 0.66 ni chiqarayotganini ayta olmayman</b> — buning uchun
+    sizning yozuvlaringizni ko'rish kerak. Lekin <b>farq qaysi biri bo'lsa ham</b>,
+    quyidagi yechim uni yopadi.
+  </div>
+</div>
+
+
+<!-- ═══════ YECHIM ═══════ -->
+<h2 class="sec">3 · <b>Yechim</b> — v175 dagi bilan bir xil</h2>
+
+<div class="card grn">
+  <h3>Bitta manba qoldiriladi</h3>
+
+  <p>Bu <b>aynan o'sha muammo</b> — v175 da PDF bilan ilova mos kelmagan edi, chunki
+  PDF o'zining alohida hisobini yuritardi. Uni <code>_qarzTarkib</code> ga
+  o'tkazdik va tuzaldi.</p>
+
+  <p>Hozir xuddi shuni <code>klientJamiQarz</code> bilan qilamiz:</p>
+
+  <pre><span class="cm">// 9652 — HOZIRGI</span>
+function klientJamiQarz(k) {
+  <span class="del">var d = klientQarzSplit(k);</span>
+  <span class="del">return d.klientQarzi;</span>
+}
+
+<span class="cm">// TAKLIF</span>
+function klientJamiQarz(k) {
+  <span class="add">var rows = _qarzTarkibRows(k);          // ekran bilan bir xil manba</span>
+  <span class="add">var q = 0;</span>
+  <span class="add">rows.forEach(function(b){ if(b.qarz > 0) q += b.qarz; });</span>
+  <span class="add">return Math.round(q*100)/100;</span>
+}</pre>
+
+  <p><code>_qarzTarkib</code> hozir <b>indeks</b> qabul qiladi
+  (<code>data.klientlar[ki]</code>). Uni klient obyektini ham qabul qiladigan qilish
+  kerak — kichik o'zgarish.</p>
+
+  <div class="lbl">Natija</div>
+  <table>
+    <thead><tr><th>Qayerda</th><th class="num">Hozir</th><th class="num">Keyin</th></tr></thead>
+    <tbody>
+      <tr><td>Klientlar ro'yxati</td><td class="num bad">−0.66g</td><td class="num ok">0.00g</td></tr>
+      <tr><td>«Klientga berish» qidiruvi</td><td class="num bad">0.66g</td><td class="num ok">0.00g</td></tr>
+      <tr><td>Klient ekrani</td><td class="num ok">0.00g</td><td class="num ok">0.00g <span class="dim">(o'zgarmaydi)</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════ TA'SIR ═══════ -->
+<h2 class="sec">4 · <b>Nimalarga tegadi</b></h2>
+
+<div class="card org">
+  <h3>⚠ Bu 8 ta joyni o'zgartiradi</h3>
+  <p><code>klientJamiQarz</code> butun faylda <b>8 joydan</b> chaqiriladi. Hammasining
+  raqami o'zgaradi — <b>to'g'ri tomonga</b>, lekin siz ko'rgan raqamlar boshqacha
+  bo'ladi:</p>
+
+  <table>
+    <thead><tr><th style="width:70px">Qator</th><th>Qayerda</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ln">11440</span></td><td>Klientlar ro'yxati — saralash</td></tr>
+      <tr><td><span class="ln">11454</span></td><td>Klientlar ro'yxati — qator matni</td></tr>
+      <tr><td><span class="ln">11469</span></td><td>«Qizil» ro'yxat (qarzdorlar filtri)</td></tr>
+      <tr><td><span class="ln">12122</span></td><td>Klient kartasi</td></tr>
+      <tr><td><span class="ln">14300</span></td><td>«Klientga berish» qidiruvi</td></tr>
+      <tr><td><span class="ln">14318</span></td><td>Berish modali</td></tr>
+      <tr><td><span class="ln">15042</span></td><td>Sotuv — joriy qarz</td></tr>
+      <tr><td><span class="ln">16727</span></td><td><code>_qarzTarkib</code> ning o'zi qaytaradigan <code>jamiQarz</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="qbox">
+    <div class="lbl">⚠ 16727 — aylanma xavfi</div>
+    <code>_qarzTarkib</code> oxirida <code>klientJamiQarz(k)</code> ni chaqiradi.
+    Agar <code>klientJamiQarz</code> ham <code>_qarzTarkib</code> ni chaqirsa —
+    <b>cheksiz halqa</b> bo'ladi. Buni ajratish kerak: ichki hisob alohida
+    funksiyaga chiqariladi (<code>_qarzTarkibRows</code>), ikkalasi ham o'shani
+    chaqiradi.
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Diff:</b> ~15 qator</span>
+    <span class="chip"><b>Fayl:</b> faqat <code>index.html</code></span>
+    <span class="chip"><b>Sinov:</b> haqiqiy kod + Madina raqamlari</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Tegilmaydigan joylar</h3>
+  <p><code>klientQarzSplit</code> yana <b>ikki joyda</b> ishlatiladi:</p>
+  <table>
+    <tbody>
+      <tr><td><span class="ln">5063</span></td><td>Bosh ekran — umumiy «klientda bor» hisobi</td></tr>
+      <tr><td><span class="ln">5352</span></td><td>Zavod ekrani — zavod bo'yicha filtr (<code>zavodFilter</code>)</td></tr>
+    </tbody>
+  </table>
+  <p>Ular <b>zavod bo'yicha filtrlash</b> imkoniyatini ishlatadi, <code>_qarzTarkib</code>
+  da bunday filtr yo'q. Shuning uchun <b>ularga tegmayman</b> — so'ralmagan va
+  alohida ish.</p>
+
+  <div class="banner b-red" style="margin-bottom:0">
+    <b>Ochiq aytaman:</b> shundan keyin ham bosh ekran va zavod ekrani
+    <b>eski usulda</b> hisoblayveradi. Ya'ni u yerlarda ham nomuvofiqlik
+    qolishi mumkin. Ularni ham birlashtirish kerakmi — <b>alohida qaror</b>.
+  </div>
+</div>
+
+
+<!-- ═══════ QAROR ═══════ -->
+<h2 class="sec">Sizdan javob</h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <div class="qbox" style="margin-top:0">
+    <div class="lbl">1 — Shu yo'l bilan qilaymi?</div>
+    <code>klientJamiQarz</code> ni <code>_qarzTarkib</code> ga bog'lash. Ro'yxat va
+    qidiruv klient ekrani bilan bir xil raqam beradi.
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — Bosh ekran va zavod ekrani ham kirsinmi?</div>
+    <code>klientQarzSplit</code> (5063, 5352) hali eski usulda qoladi. Ularni ham
+    birlashtirsak, ish kattaroq (zavod filtri kerak). <b>Hozir</b> qilamizmi yoki
+    <b>keyinroq</b>?
+  </div>
+
+  <div class="banner b-gold" style="margin-bottom:0">
+    Javobingizdan keyin TAXMIN BLOKI beraman, kodni yozaman, haqiqiy kod bilan
+    sinayman (Madina raqamlari), TEKSHIRUV chiqaraman va push qilaman.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

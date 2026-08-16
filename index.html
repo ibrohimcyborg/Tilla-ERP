@@ -1,4 +1,4 @@
-<!-- v175.1 -->
+<!-- v175.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v175.1';
+var APP_VER = 'v175.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -9649,9 +9649,13 @@ function klientQarzHolat(k) {
   var kun=Math.floor((new Date()-last)/86400000);
   return {kun:kun, rang:kun<=3?'green':kun<=7?'yellow':'red'};
 }
+// v175.2 (Ibrohim: "manga to'g'ri ko'rsatsin"): ro'yxat/qidiruv endi klient ekrani
+// bilan BIR XIL manbadan o'qiydi — _qarzTarkibRows. Avval klientQarzSplit dan
+// o'qirdi, natijada bir klientga uch xil raqam chiqardi (Madina Opa: ro'yxat
+// 0.66g / berish qidiruvi 0.66g / klient ekrani 0.00g).
+// klientQarzSplit O'CHIRILMADI — u 5063 va 5352 da zavod filtri bilan ishlatiladi.
 function klientJamiQarz(k) {
-  var d = klientQarzSplit(k);
-  return d.klientQarzi;
+  return _qarzJamiRows(_qarzTarkibRows(k)).ostatka;
 }
 
 // Klient qarzi va bizning qarzimizni alohida hisoblaydi
@@ -16663,8 +16667,13 @@ function _qarzJamiRows(qarz_tarkib){
   });
   return {ostatka:Math.round(ost*100)/100, bizQarz:Math.round(biz*100)/100};
 }
-function _qarzTarkib(ki) {
-  var k=data.klientlar[ki];
+// v175.2: hisob-kitob ALOHIDA funksiyaga chiqarildi — klientJamiQarz ham SHUNDAN
+// o'qiydi. Avval u klientQarzSplit (9658) dan o'qirdi va u to'rt joyda boshqacha
+// hisoblardi (manfiy berish, offset, sdacha, turi yo'q to'lov umumiy qopga ketardi).
+// Natijada Madina Opa: ro'yxatda 0.66g, klient ekranida 0.00g chiqardi.
+// ⚠ _qarzTarkib oxirida klientJamiQarz ni chaqiradi — shuning uchun klientJamiQarz
+// _qarzTarkib ni EMAS, shu funksiyani chaqirishi shart (aks holda cheksiz halqa).
+function _qarzTarkibRows(k) {
   var qbd={};
   var naqtTolov=0; // zavod/tur siz to'lovlar yig'indisi
   k.tarix.forEach(function(op){
@@ -16724,7 +16733,11 @@ function _qarzTarkib(ki) {
     if(Math.abs(b.qarz)>0.01) qarz_tarkib.push(b);
   });
   qarz_tarkib.sort(function(a,b){ return Math.abs(b.qarz)-Math.abs(a.qarz); });
-  return {k:k, qarz_tarkib:qarz_tarkib, jamiQarz:klientJamiQarz(k)};
+  return qarz_tarkib;
+}
+function _qarzTarkib(ki) {
+  var k=data.klientlar[ki];
+  return {k:k, qarz_tarkib:_qarzTarkibRows(k), jamiQarz:klientJamiQarz(k)};
 }
 function chekCntChange(ki, delta) {
   var el=document.getElementById('chek-cnt-'+ki);

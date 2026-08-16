@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Klient PDF — A / B / C</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:40px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.now{border-left:3px solid var(--red)}
+  .card.a{border-left:3px solid var(--grn)}
+  .card.b{border-left:3px solid var(--blu)}
+  .card.c{border-left:3px solid var(--org)}
+  .card h3{margin:0 0 4px;font-size:18px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+       text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-left:8px;
+       vertical-align:middle}
+  .t-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  .t-grn{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn)}
+  p{margin:0 0 9px} ul{margin:0 0 9px;padding-left:20px} li{margin-bottom:5px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+
+  /* ── PDF katak taqlidi ── */
+  .pdf{background:#fff;border-radius:8px;padding:0;margin:12px 0;overflow:hidden;
+       border:1px solid #ddd}
+  .pdf table{width:100%;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif}
+  .pdf th{background:#3E3A35;color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;
+          padding:7px 4px;text-align:center;border:0.5px solid #ddd;white-space:nowrap}
+  .pdf td{background:#F8F6F0;padding:11px 4px;text-align:center;border:0.5px solid #ddd;
+          font-size:17px;font-weight:700;font-family:Roboto,Helvetica,sans-serif}
+  .pdf td .sm{font-size:11px;font-weight:700;display:block;margin-top:1px}
+  .pdf td .lbl2{font-size:9px;color:#8a8a8a;font-weight:700;letter-spacing:.03em;
+                display:block;text-transform:uppercase}
+  .r{color:#C53030} .g{color:#2F855A} .d{color:#3E3A35}
+  .yangi{outline:2px solid #48b881;outline-offset:-2px}
+
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:13px;
+         border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  table.cmp{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  table.cmp th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;
+     border-bottom:1px solid var(--line)}
+  table.cmp td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.cmp tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Klient hisoboti PDF — tepadagi katak</h1>
+  <div class="sub">v175.2 taklifi · Himoyat Opa Qo'qon raqamlari bilan · <b>kod yozilmagan</b></div>
+  <div class="banner b-red">
+    <b>Muammo:</b> «QOLGAN QARZ» katagi <b>sof qoldiq</b> ko'rsatadi — klient qarzi
+    va bizning qarz bir-biridan ayirilib, bitta raqamga aylanadi. Qarz chekida esa
+    siz ularni <b>alohida</b> qilgansiz. Ikki hujjat bir xil klientga boshqa-boshqa
+    raqam beradi.
+  </div>
+</header>
+
+<!-- ═══════ MISOL ═══════ -->
+<h2 class="sec">Misol · <b>Himoyat Opa Qo'qon</b></h2>
+<div class="card">
+  <table class="cmp">
+    <tbody>
+      <tr><td>Klient bizga qarzdor</td><td class="num bad"><b>287.38 g</b></td></tr>
+      <tr><td>Biz klientga qarzdormiz</td><td class="num ok"><b>7.33 g</b></td></tr>
+      <tr style="background:rgba(255,255,255,.03)"><td><b>Sof qoldiq</b> <span class="dim">(287.38 − 7.33)</span></td><td class="num"><b>280.05 g</b></td></tr>
+    </tbody>
+  </table>
+  <p><b>Qarz chekida</b> siz ikkita alohida qator ko'rasiz: <span class="bad">−287.38g</span>
+  va <span class="ok">+7.33g</span>. <b>Klient hisobotida</b> esa bitta:
+  <span class="dim">−280.05g</span>. Shu farqni yopamiz.</p>
+</div>
+
+
+<!-- ═══════ HOZIRGI ═══════ -->
+<h2 class="sec">Hozir qanday</h2>
+<div class="card now">
+  <h3>4 ustun — oxirgisi aralash<span class="tag t-red">Hozirgi</span></h3>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th><th>QOLGAN QARZ</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="d">-280.05g</td>
+      </tr>
+    </table>
+  </div>
+  <p class="dim" style="font-size:13px">Bu raqam ichida <b>7.33 g bizning qarzimiz
+  yashiringan</b> — ko'rinmaydi, faqat ayirilgan.</p>
+</div>
+
+
+<!-- ═══════ A ═══════ -->
+<h2 class="sec">Variant <b>A</b> — beshinchi ustun</h2>
+<div class="card a">
+  <h3>Ikkalasi alohida ustunda<span class="tag t-grn">Tavsiyam</span></h3>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th>
+          <th>KLIENT OSTATKASI</th><th class="yangi">BIZNING QARZ</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="r">-287.38g</td>
+        <td class="g yangi">+7.33g</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="lbl">Bizning qarz nol bo'lsa — ustun umuman chizilmaydi</div>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th><th>KLIENT OSTATKASI</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="r">-287.38g</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Qarz cheki bilan:</b> <span class="ok">1:1 mos</span></span>
+    <span class="chip"><b>Ustun eni:</b> 5 ta bo'lsa torroq</span>
+    <span class="chip"><b>Diff:</b> ~10 qator</span>
+  </div>
+  <p style="margin-top:10px"><b>Nega tavsiya qilaman:</b> qarz cheki bilan <b>aynan bir xil</b>
+  bo'ladi — o'sha ikki nom, o'sha ikki rang. Va siz aytgan qoida
+  («bizning qarz bo'lmasa ko'rsatmasin») shu yerda ham ishlaydi.</p>
+</div>
+
+
+<!-- ═══════ B ═══════ -->
+<h2 class="sec">Variant <b>B</b> — bitta katakda ikki qator</h2>
+<div class="card b">
+  <h3>4 ustun qoladi, oxirgisi ikkiga bo'linadi</h3>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th><th>QOLGAN</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="yangi" style="padding:8px 4px">
+          <span class="lbl2">Klient</span>
+          <span class="r" style="font-size:15px">-287.38g</span>
+          <span class="lbl2" style="margin-top:4px">Bizning</span>
+          <span class="g" style="font-size:15px">+7.33g</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="lbl">Nol bo'lsa — faqat yuqorigi qator qoladi</div>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th><th>QOLGAN</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="r">-287.38g</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Ustun eni:</b> <span class="ok">o'zgarmaydi</span></span>
+    <span class="chip"><b>Raqam o'lchami:</b> kichrayadi</span>
+    <span class="chip"><b>Diff:</b> ~10 qator</span>
+  </div>
+  <p style="margin-top:10px" class="dim" style="font-size:13px">Jadval kengligi
+  o'zgarmagani yaxshi, lekin raqamlar mayda bo'lib qoladi va katak siqiq ko'rinadi.</p>
+</div>
+
+
+<!-- ═══════ C ═══════ -->
+<h2 class="sec">Variant <b>C</b> — faqat klient qarzi</h2>
+<div class="card c">
+  <h3>Bizning qarz bu katakda umuman ko'rsatilmaydi</h3>
+  <div class="pdf">
+    <table>
+      <tr><th>JAMI BERILDI</th><th>VOZVRAT</th><th>TOLOV (PUL)</th><th class="yangi">KLIENT OSTATKASI</th></tr>
+      <tr>
+        <td class="r">-1,204.50g</td>
+        <td class="g">+86.20g</td>
+        <td class="g">+831.07g<span class="sm">74,120$</span></td>
+        <td class="r yangi">-287.38g</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Eng oddiy:</b> <span class="ok">ha</span></span>
+    <span class="chip"><b>Diff:</b> ~4 qator</span>
+    <span class="chip"><b>Xavf:</b> <span class="bad">7.33 g yo'qoladi</span></span>
+  </div>
+
+  <div class="banner b-red" style="margin-bottom:0">
+    <b>Diqqat:</b> bizning qarzimiz bu hujjatda <b>umuman ko'rinmaydi</b>.
+    Pastdagi «Joriy qarz tarkibi» bo'limida `(biz qarz)` qatorlari qoladi,
+    lekin tepadagi katakda yo'q. Klient hisobotini o'qigan odam
+    <b>7.33 g ni bilmaydi</b>.
+  </div>
+</div>
+
+
+<!-- ═══════ SOLISHTIRISH ═══════ -->
+<h2 class="sec">Yonma-yon</h2>
+<div class="card">
+  <table class="cmp">
+    <thead><tr><th style="width:34px"></th><th>Nima ko'rinadi</th><th style="width:110px">Qarz cheki bilan</th><th style="width:80px">Diff</th></tr></thead>
+    <tbody>
+      <tr><td class="dim"><b>Hozir</b></td><td>Bitta aralash raqam <code>-280.05g</code></td><td class="bad">mos emas</td><td class="dim">—</td></tr>
+      <tr style="background:var(--grn-bg)"><td class="ok"><b>A</b></td><td>Ikki alohida ustun, nol bo'lsa yashiriladi</td><td class="ok"><b>1:1 mos</b></td><td class="dim">~10</td></tr>
+      <tr><td class="dim"><b>B</b></td><td>Bitta katakda ikki mayda qator</td><td class="ok">mos</td><td class="dim">~10</td></tr>
+      <tr><td class="dim"><b>C</b></td><td>Faqat klient qarzi</td><td class="bad">yarim mos</td><td class="dim">~4</td></tr>
+    </tbody>
+  </table>
+
+  <div class="qbox">
+    <div class="lbl">Nima qilinadi</div>
+    Qaysi birini aytsangiz — <code>api/pdf.py</code> da <b>stat katagi</b> o'zgaradi
+    (~430–445 qatorlar) va <code>index.html</code> payloadiga <code>biz_qarz</code>
+    qo'shiladi. <b>Hisob-kitobga tegilmaydi</b> — raqamlar allaqachon
+    <code>_qarzTarkib</code> dan keladi (v175), faqat ko'rsatish o'zgaradi.
+    <br><br>
+    <b>A / B / C — qaysi biri?</b>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
