@@ -4,3 +4,7 @@
 # v172.44: sinov qoldiqlari
 __pycache__/
 mockups/_*
+
+# 2026-08-16: Claude ruxsat rejimini tuzatadigan vosita — loyiha kodi emas
+rejim-auto.bat
+rejim-auto.ps1

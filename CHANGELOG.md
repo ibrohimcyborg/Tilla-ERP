@@ -3,6 +3,65 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175: PDF «Qarz tarkibi» va JAMI qatori ilovadagi bilan bir xil bo'ldi
+
+Ibrohim: "darhol qilinadigani 1 2 sini togirla".
+
+MUAMMO: bir xil klientga ilovada **-87.56g**, PDF da **-18.40g** chiqardi.
+Sabab: `klientPDFYukor` PDF uchun O'ZINING alohida `qarz_bd` hisobini yuritardi
+va u ilovaning `_qarzTarkib` (16666) idan UCH joyda farq qilardi:
+
+1. offset (`_kdYopish`) qoidasi YO'Q edi -- manba ham ayirilardi
+2. `klientda` (sdacha) yozuvlari UMUMAN o'qilmasdi
+3. zavod/tursiz to'lovlar turlarga taqsimlanmasdi
+
+Faqat offsetni tuzatish yetarli emas edi -- raqamlar baribir mos kelmasdi.
+Shuning uchun `qarz_bd` BUTUNLAY olib tashlandi, PDF endi ilovaning
+`_qarzTarkib` ini chaqiradi. Yagona manba.
+
+```
+eski: var qarz_bd={}; ... qarz_tarkib=Object.values(qarz_bd).filter(...)
+yangi: var _qt = _qarzTarkib(curKlientIdx);
+       var qarz_tarkib = _qt.qarz_tarkib;
+       var jami_qolgan = qarz_tarkib qatorlari yig'indisi
+```
+
+### JAMI qatoridagi «QOLGAN QARZ»
+
+`api/pdf.py:428` da `qolgan = berildi - vozvrat - tolov_g` deb hisoblanardi --
+u ham offsetni, sdachani, taqsimotni bilmasdi. Endi `jami_qolgan` payloadda
+keladi. Berilmasa eski formula ZAXIRA sifatida ishlaydi (orqaga moslik).
+
+Ko'rinish xatosi ham tuzatildi: `-` qattiq yozilgani uchun manfiy qiymatda
+**«--87.56g»** chiqardi. Endi biz qarzdor bo'lsak **«+87.56g» yashil**
+(v172.40 dagi blok qolipi bilan bir xil).
+
+### SINOV
+
+pdf.py CHINDAN chizildi (reportlab, siqishsiz), matn operatorlari o'qildi -- 5/5:
+```
+-87.56 -> "+87.56g" yashil,  "--87.56" YO'Q
+ 18.40 -> "-18.40g"
+     0 -> "-0.00g"
+  None -> eski formula (-5.44g) ishlaydi     <- zaxira yo'l
+"Joriy qarz tarkibi" bolimi hali chiziladi
+```
+
+`_qarzTarkib` index.html dan ajratib olinib sinaldi (63 qator) -- 3/3:
+```
+Butterfly*Oddiy   +72.98g   offset QO'SHILDI (berildi 20 + offset 52.98)
+Butterfly*3D      -23.31g   tolov ayirildi
+Premium*Oddiy     -14.18g   sdacha o'qildi (eski kod buni KO'RMASDI)
+eski qarz_bd jami: -46.29g   yangi: +45.49g   farq 91.78g
+```
+
+### TEGILMADI (ataylab)
+
+`build_klientlar_tarix` (pdf.py:528) da ham xuddi shu eski `qolgan` formulasi bor
+-- u **klientlar ro'yxati** PDF si, boshqa ekran, so'ralmagan.
+
+---
+
 ## v174.9: PDF tepa jadvalida ham offset ko'rinadi
 
 Ibrohim (v174.8 dan keyin, rasm bilan): "o'zgarmadi 4572 to'lov dib

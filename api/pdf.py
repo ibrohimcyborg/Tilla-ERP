@@ -413,7 +413,7 @@ def _ost_blok(b, kw):
 
 def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
                         jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib,
-                        ost_bloklar=None):
+                        ost_bloklar=None, jami_qolgan=None):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=8*mm, rightMargin=8*mm, topMargin=8*mm, bottomMargin=8*mm)
     story = []; W_total = landscape(A4)[0] - 16*mm
@@ -425,12 +425,20 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     tt.setStyle(TableStyle([('TOPPADDING',(0,0),(-1,-1),2),('BOTTOMPADDING',(0,0),(-1,-1),2),
         ('LINEBELOW',(0,1),(-1,1),0.5,colors.HexColor('#dddddd'))]))
     story.append(tt); story.append(Spacer(1, 4*mm))
-    qolgan = round(jami_berildi - jami_vozvrat - jami_tolov_g, 2)
+    # v175: qolgan endi index.html dan keladi (qarz_tarkib qatorlarining yig'indisi,
+    # ilovadagi ekran bilan bir xil manba). Eski formula offsetni ham, sdachani ham,
+    # zavod/tursiz to'lovlarni ham hisobga olmasdi. Zaxira sifatida saqlanadi.
+    qolgan = round(jami_qolgan, 2) if jami_qolgan is not None \
+             else round(jami_berildi - jami_vozvrat - jami_tolov_g, 2)
+    # Biz qarzdor bo'lsak (manfiy) "+87.56g" yashil. Avval "-" qattiq yozilgani
+    # uchun "--87.56g" bo'lib chiqardi.
+    qolgan_txt = f"+{abs(qolgan):,.2f}g" if qolgan < -0.001 else f"-{qolgan:,.2f}g"
+    qolgan_col = C_RED if qolgan > 0.001 else (C_GREEN if qolgan < -0.001 else C_DARK)
     stat_data = [[P("JAMI BERILDI",'Helvetica-Bold',8,C_WHITE,'CENTER'),P("VOZVRAT",'Helvetica-Bold',8,C_WHITE,'CENTER'),
                   P("TOLOV (PUL)",'Helvetica-Bold',8,C_WHITE,'CENTER'),P("QOLGAN QARZ",'Helvetica-Bold',8,C_WHITE,'CENTER')],
                  [P(f"-{jami_berildi:,.2f}g",'Helvetica-Bold',13,C_RED,'CENTER'),P(f"+{jami_vozvrat:,.2f}g",'Helvetica-Bold',13,C_GREEN,'CENTER'),
                   P(f"+{jami_tolov_g:,.2f}g\n{jami_tolov_pul:,.0f}$",'Helvetica-Bold',13,C_GREEN,'CENTER'),
-                  P(f"-{qolgan:,.2f}g",'Helvetica-Bold',13,C_RED if qolgan>0 else C_GREEN,'CENTER')]]
+                  P(qolgan_txt,'Helvetica-Bold',13,qolgan_col,'CENTER')]]
     st = Table(stat_data, colWidths=[W_total/4]*4)
     st.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),C_HDR),('BACKGROUND',(0,1),(-1,1),colors.HexColor('#F8F6F0')),
         ('GRID',(0,0),(-1,-1),0.4,colors.HexColor('#dddddd')),('TOPPADDING',(0,0),(-1,-1),6),
@@ -493,7 +501,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     tdata.append([P('JAMI','Helvetica-Bold',9,C_WHITE,'CENTER'),'','','',
         P(f"-{jami_berildi:,.2f}g",'Helvetica-Bold',9,colors.HexColor('#E05A5A'),'RIGHT'),
         P(f"{jami_tolov_pul:,.0f}$",'Helvetica-Bold',9,colors.HexColor('#F6E05E'),'RIGHT'),'',
-        P(f"-{qolgan:,.2f}g",'Helvetica-Bold',9,colors.HexColor('#E05A5A') if qolgan>0 else colors.HexColor('#68D391'),'RIGHT')])
+        P(qolgan_txt,'Helvetica-Bold',9,colors.HexColor('#E05A5A') if qolgan>0.001 else colors.HexColor('#68D391'),'RIGHT')])
     rstyles+=[('BACKGROUND',(0,jr),(-1,jr),C_DARK),('SPAN',(0,jr),(3,jr))]
     mt=Table(tdata,colWidths=CW,repeatRows=1); mt.setStyle(TableStyle(base_style()+rstyles)); story.append(mt)
     if qarz_tarkib:
@@ -640,7 +648,8 @@ class handler(BaseHTTPRequestHandler):
                     body.get("jami_berildi",0), body.get("jami_vozvrat",0),
                     body.get("jami_tolov_g",0), body.get("jami_tolov_pul",0),
                     body.get("qarz_tarkib",[]),
-                    body.get("ost_bloklar",[])); return self._send_pdf(pdf, "klient-hisobot.pdf")
+                    body.get("ost_bloklar",[]),
+                    body.get("jami_qolgan")); return self._send_pdf(pdf, "klient-hisobot.pdf")
 
             if tip == "klientlar_tarix":
                 pdf = build_klientlar_tarix(body.get("ops",[]), body.get("dan"), body.get("gacha"),

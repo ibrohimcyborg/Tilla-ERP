@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v174.9 · 2026-08-16
+**Oxirgi yangilanish:** v175 · 2026-08-16
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v174.9** (`index.html` birinchi qatorida `<!-- v174.9 -->`, `APP_VER` da ham) |
+| Versiya | **v175** (`index.html` birinchi qatorida `<!-- v175 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.9 gacha push qilingan** — prod v174.9. ✅ Ibrohim PDF da tasdiqladi (2026-08-16). |
+| Git | **v174.9 gacha push qilingan** — prod v174.9. ⚠ **v175 commit qilingan, PUSH QILINMAGAN.** |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -78,7 +78,7 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
-### ⭐ 0q. OFFSET — v174.4–v174.9, PDF DA 2 JOY QOLDI
+### ⭐ 0q. OFFSET — YOPILDI (v174.4–v175)
 
 2026-08-14: Ibrohim rasm bilan ko'rsatdi — offset **ikki marta** hisoblanardi.
 Sabab: offset BITTA pul, IKKI tomondan yozilgan yozuv (manba `_kdYopish:true`,
@@ -126,18 +126,19 @@ Sinov: `berish 100 → tolov 30 → OFFSET 20 → vozvrat 10 → tolov 5`,
 eski `100·70·50·40·35` → yangi `100·70·90·80·75`, farq 40 = 2×offset.
 ✅ **Prodda tasdiqlandi (2026-08-16).**
 
-⚠⚠ **PDF DA 2 JOY HALI ESKI — Ibrohim javob bermagan savollar:**
+✅ **PDF DAGI OXIRGI IKKI JOY HAM YOPILDI (v175):**
 
-1. **`qarz_bd` (16910)** — PDF ning «Qarz tarkibi» bo'limi. Ilovadagi
-   `_qarzTarkib` (16707) da offset qoidasi **BOR**, PDF ning `qarz_bd` sida
-   **YO'Q** → bir xil klientga ilovada **−87.56 g**, PDF da **−18.40 g**
-   chiqadi. Ikki xil kod, ikki xil raqam.
-2. **`jami_tolov_g` (16904)** — JAMI qatoridagi `qolgan`
-   (`api/pdf.py:428`: `berildi − vozvrat − tolov_g`). To'g'ri chiqishi uchun
-   `jami_tolov_g` **net** bo'lishi kerak (Dilfuza: `50.40 − 52.98 = −2.58`),
-   lekin u statistika katagida `+{tolov_g}g` deb ham chiqadi → **«+−2.58g»**
-   bema'niligi. To'g'ri yechim `qolgan` ni alohida yuborish — `api/pdf.py`
-   o'zgaradi, **alohida qaror**.
+1. ~~**`qarz_bd`**~~ — **BAJARILDI.** PDF o'zining alohida hisobini yuritardi va u
+   `_qarzTarkib` (16666) dan **uch joyda** farq qilardi: offset qoidasi yo'q,
+   `klientda` (sdacha) o'qilmaydi, zavod/tursiz to'lovlar taqsimlanmaydi. Faqat
+   offsetni tuzatish yetmasdi. `qarz_bd` **butunlay olib tashlandi** — PDF endi
+   `_qarzTarkib(curKlientIdx)` ni chaqiradi. Yagona manba.
+   Sinov: eski `-46.29g` → yangi `+45.49g`, farq **91.78g**.
+2. ~~**JAMI qatoridagi `qolgan`**~~ — **BAJARILDI.** `jami_qolgan` payloadda
+   keladi (`qarz_tarkib` qatorlarining yig'indisi). Berilmasa eski formula
+   zaxira bo'lib qoladi (orqaga moslik). Ko'rinish xatosi ham tuzatildi:
+   manfiy qiymatda **«--87.56g»** chiqardi, endi **«+87.56g» yashil**.
+   ⏳ **Ibrohim hali PDF da ko'rmagan.**
 3. ~~**Ko'rinish belgisi**~~ — **BAJARILDI (v174.9).** Sarlavha «Offset»
    (binafsha, belgisiz — `⇄` Helvetica da qora kvadrat bo'lishi mumkin),
    Tur ustunida `→ 3D, 3DS` / `← Oddiy`. Guruh **butunlay** offsetdan
@@ -573,6 +574,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v175 | **PDF «Qarz tarkibi» va JAMI qatori ilovadagi bilan bir xil** — `qarz_bd` olib tashlandi, `_qarzTarkib` chaqiriladi |
 | v174.9 | **PDF tepa jadvalida offset ko'rinadi** — «Offset» sarlavhasi (binafsha) + Tur ustunida `→ / ←` o'qlar |
 | v174.8 | **PDF tepa jadvali Ostatka ustuni** — offset ayirilardi, endi qo'shiladi (`runBal` 16922) |
 | v174.7 | **Xato C** — `v.offset` ikki yo'ldan qo'shilardi, endi `max(manba, ayirma)`; ayirma `_opOffUlush` ga o'tdi; `ofNom` manbadan |

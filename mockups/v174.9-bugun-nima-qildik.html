@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bugun nima qildik</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10);
+        --pur:#a97bd6;--pur-bg:rgba(169,123,214,.12)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:8px}
+  h1{margin:0 0 8px;font-size:27px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:44px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:14px}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.red{border-left:3px solid var(--red)}
+  .card.org{border-left:3px solid var(--org)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 8px;font-size:18px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:ui-monospace,Consolas,monospace;text-align:right;white-space:nowrap}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .pur{color:var(--pur)}
+  .banner{border-radius:10px;padding:14px 17px;font-size:14px;margin:14px 0}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+  .num-b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--card2);
+         border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+         font-size:13px;font-weight:700;color:var(--gold)}
+  .step .txt{flex:1}
+  .step .txt b{display:block;margin-bottom:2px}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;
+         text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-left:6px;
+         vertical-align:middle}
+  .g-grn{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn)}
+  .g-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  .g-org{background:var(--org-bg);color:var(--org);border:1px solid var(--org)}
+  .g-blu{background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu)}
+  .flow{background:var(--card2);border-radius:9px;padding:13px 16px;margin:10px 0;
+        font-size:13.5px;border-left:2px solid var(--muted)}
+  .flow b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Bugun nima qildik</h1>
+  <div class="sub">2026-08-14 → 08-16 · v174.3 dan <b>v174.9</b> gacha · oddiy tilda</div>
+  <div class="banner b-grn">
+    <b>Ikki katta ish bitdi.</b> Birinchisi — pul hisobidagi xato (offset ikki marta
+    sanalardi). Ikkinchisi — har buyruqda chiqadigan «ruxsat bering» oynasi.
+    Ikkalasi ham yopildi va sinovdan o'tdi.
+  </div>
+</header>
+
+
+<!-- ══════════ 1 ══════════ -->
+<h2 class="sec">1 · <b>Offset xatosi</b> — pul ikki marta sanalardi</h2>
+
+<div class="card grn">
+  <h3>Muammo nima edi<span class="badge g-grn">Yopildi</span></h3>
+
+  <div class="flow">
+    Offset — klient bir turda sizga qarzdor, boshqa turda siz unga qarzdorsiz.
+    Ikkalasini bir-biri bilan yopish. <b>Pul qo'ldan qo'lga o'tmaydi</b>, faqat
+    daftarda ko'chiriladi.
+  </div>
+
+  <p>Bunda <b>ikkita yozuv</b> paydo bo'ladi: bittasi «qayerdan olindi», ikkinchisi
+  «qayerga ketdi». Bu <b>bitta pul</b>, ikki tomondan yozilgan.</p>
+
+  <p><b>Xato:</b> ba'zi ekranlar ikkala tomonni qo'shib yuborardi — natijada bitta pul
+  ikki marta sanalardi.</p>
+
+  <table>
+    <thead><tr><th>Dilfuza Opa Sadaf · 13.08</th><th class="num">Ko'rsatardi</th><th class="num">To'g'risi</th></tr></thead>
+    <tbody>
+      <tr><td>Klient tarixidagi pul</td><td class="num bad">9,144.34 $</td><td class="num ok">4,572.17 $</td></tr>
+      <tr><td>PDF · Butterfly·Oddiy qoldig'i</td><td class="num bad">+105.96 g</td><td class="num ok">0.00 g</td></tr>
+      <tr><td>PDF · tepa jadval Ostatka</td><td class="num bad">−18.23 g</td><td class="num ok">+87.73 g</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-gold">
+    <b>Siz topdingiz.</b> Rasm yuborib «offset-ku u, nega to'lov deb ko'rsatyapti»
+    dedingiz. Men kodni tekshirib sababni topdim — <b>beshta joyda</b> bir xil
+    xato bor edi.
+  </div>
+</div>
+
+<div class="card">
+  <h3>Beshta tuzatish</h3>
+  <table>
+    <thead><tr><th style="width:70px">Versiya</th><th>Qayerda</th><th style="width:90px">Kod</th></tr></thead>
+    <tbody>
+      <tr><td><b>v174.4</b></td><td>Klient tarixi sarlavhasidagi pul · PDF ning kunlik bloklari</td><td><span class="ln">11594<br>16939</span></td></tr>
+      <tr><td><b>v174.5</b></td><td>Offsetning ikki tomoni bir-birini ko'rsatadi — <span class="pur">→ / ←</span> o'qlar, binafsha rang</td><td><span class="ln">pdf.py</span></td></tr>
+      <tr><td><b>v174.6</b></td><td>2-chi chek jadvali (ostatka rasmi)</td><td><span class="ln">14410</span></td></tr>
+      <tr><td><b>v174.7</b></td><td>Yashirin xato — offset ikki yo'ldan topilib qo'shilardi</td><td><span class="ln">11601</span></td></tr>
+      <tr><td><b>v174.8</b></td><td>PDF tepa jadvalidagi Ostatka ustuni</td><td><span class="ln">16922</span></td></tr>
+      <tr><td><b>v174.9</b></td><td>PDF tepa jadvalida «Offset» yozuvi va o'qlar</td><td><span class="ln">16991</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl"></div>
+  <p><b>PDF endi shunday ko'rsatadi:</b></p>
+  <table>
+    <thead><tr><th>Amal</th><th>Zavod</th><th>Tur</th><th class="num">Gramm</th><th class="num">Ostatka</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--pur-bg)">
+        <td rowspan="3" class="pur"><b>Offset</b></td>
+        <td class="dim">Butterfly</td><td>Oddiy <span class="pur">→ 3D, 3DS</span></td>
+        <td class="num ok">+52.98g</td><td rowspan="3" class="num ok">+87.73g</td></tr>
+      <tr style="background:var(--pur-bg)"><td class="dim">Butterfly</td><td>3D <span class="pur">← Oddiy</span></td><td class="num ok">+23.31g</td></tr>
+      <tr style="background:var(--pur-bg)"><td class="dim">Butterfly</td><td>3DS <span class="pur">← Oddiy</span></td><td class="num ok">+27.09g</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-grn">
+    <b>Siz prodda tekshirdingiz:</b> «pdf tori ishladi». Masala yopildi.
+  </div>
+</div>
+
+
+<!-- ══════════ 2 ══════════ -->
+<h2 class="sec">2 · <b>«Ruxsat bering» oynasi</b> — endi chiqmaydi</h2>
+
+<div class="card grn">
+  <h3>Muammo<span class="badge g-grn">Yopildi</span></h3>
+  <p>Har buyruqda oyna chiqib, sizdan ruxsat so'rardi. Ikki oyda <b>204 ta</b> ruxsat
+  yig'ilib qolgan edi.</p>
+
+  <p>Sozlamada «so'rama» yozilgan edi, lekin ishlamasdi. Sabab: <b>ilova sozlama
+  faylini emas, o'zining ichki qiymatini</b> ishlatarkan.</p>
+
+  <div class="lbl"></div>
+  <p><b>To'rt rejim sinaldi:</b></p>
+  <table>
+    <thead><tr><th>Rejim</th><th>Natija</th></tr></thead>
+    <tbody>
+      <tr><td><code>acceptEdits</code></td><td class="dim">Fayl tahririga ruxsat, <b>buyruqlarni so'raydi</b> — eski holat</td></tr>
+      <tr><td><code>dontAsk</code></td><td class="bad">Nomi aldadi — «so'ramaydi va <b>RAD ETADI</b>». Hammasi bloklandi</td></tr>
+      <tr><td><code>bypassPermissions</code></td><td class="bad">Ilova <b>qabul qilmadi</b>, orqaga qaytardi</td></tr>
+      <tr><td><code>auto</code></td><td class="ok"><b>Ishladi</b> — xavfsizini o'zi hal qiladi</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-red">
+    <b>Bu yerda men xato qildim.</b> <code>dontAsk</code> nomiga qarab «so'ramaydi =
+    ruxsat beradi» deb o'yladim, oldindan sinamadim. Natijada Claude o'zini ham
+    blokladi va siz qo'lda tuzatishga majbur bo'ldingiz. Xotiraga yozib qo'ydim,
+    keyingi seans takrorlamaydi.
+  </div>
+
+  <p>Bundan tashqari:</p>
+  <ul>
+    <li><b>Auto rejimi sozlandi</b> — loyihani va terminal tarixingizni o'rganib,
+        qaysi buyruq xavfsizligini yaxshiroq taniydi</li>
+    <li><b>Push himoyasi</b> — auto rejimi o'zi tushunibdi: <code>git push</code> ochiq
+        repoga chiqadi va darhol prod deploy qiladi, shuning uchun <b>sizning
+        tasdig'ingizsiz qilinmaydi</b> (CLAUDE.md §8 bilan aynan mos)</li>
+    <li><b>Fikrlash yozuvlari yashirildi</b> — <code>viewMode: default</code></li>
+  </ul>
+</div>
+
+
+<!-- ══════════ 3 ══════════ -->
+<h2 class="sec">3 · <b>Yo'l-yo'lakay topilgan narsa</b></h2>
+
+<div class="card org">
+  <h3>Repo ochiq, parollar kodda<span class="badge g-org">Qaror sizniki</span></h3>
+
+  <p>Auto rejimini sozlashda tekshirildi:</p>
+  <div class="flow">
+    <b>github.com/ibrohimcyborg/Tilla-ERP</b> — <b>PUBLIC</b> (hamma ko'radi)<br>
+    Va <code>index.html:2176</code> da parollar ochiq yozilgan:
+    <br><br>
+    <code>tilla / tilla9999</code> · <code>zavod / zavod9999</code> ·
+    <code>abdulhamid_7777 / Scoplon2003</code>
+  </div>
+
+  <div class="banner b-grn">
+    <b>Ma'lumotingiz xavfsiz</b> — buni tekshirdim. Firebase'ga kirish alohida va
+    paroli kodda yo'q, qo'lda kiritiladi. Begona odam ilovaga kirsa <b>bo'sh ekran</b>
+    ko'radi, klientlaringizni emas.
+  </div>
+
+  <p>Lekin <b>Scoplon2003</b> haqiqiy shaxsiy parolga o'xshaydi. Abdulhamid uni boshqa
+  joyda ham ishlatsa — u uchun xavf.</p>
+
+  <p><b>Uch variant:</b> hech narsa qilmaslik · reponi private qilish (bir buyruq) ·
+  parollarni almashtirish. Shoshilinch emas, siz hal qilasiz.</p>
+</div>
+
+
+<!-- ══════════ 4 ══════════ -->
+<h2 class="sec">4 · <b>Nima qolgan</b></h2>
+
+<div class="card red">
+  <h3>PDF da ikki joy hali eski</h3>
+  <p>Bularni ataylab qilmadim — <b>siz javob bermagan savollar</b> edi.</p>
+
+  <div class="step">
+    <div class="num-b">1</div>
+    <div class="txt">
+      <b>«Qarz tarkibi» bo'limi</b>
+      Ilovada <b class="ok">−87.56 g</b>, PDF da <b class="bad">−18.40 g</b> chiqadi.
+      Bir xil klient, ikki xil raqam — chunki ikki xil kod hisoblaydi
+      (<span class="ln">16707</span> va <span class="ln">16910</span>).
+      PDF nikida offset qoidasi yo'q.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num-b">2</div>
+    <div class="txt">
+      <b>JAMI qatoridagi Ostatka</b>
+      Buni tuzatish <code>api/pdf.py</code> ni o'zgartirishni talab qiladi — u yerda
+      bitta raqam bir vaqtda ikki narsaga ishlatiladi. Alohida qaror kerak.
+    </div>
+  </div>
+</div>
+
+<div class="card blu">
+  <h3>Javobingiz kutilayotgan savol</h3>
+  <div class="step">
+    <div class="num-b">?</div>
+    <div class="txt">
+      <b>2-chi chek (0m)</b>
+      Siz aytgandingiz: «uniyam qayerga kelganini ko'rsatishi kerak». Bu gapni
+      hali tushunmadim — uch xil ma'noda tushunish mumkin. Aytsangiz, o'sha
+      masala uchun alohida mockup chizaman.
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Uzoqroqdagi ishlar <span class="dim">(o'zgarmadi)</span></h3>
+  <table>
+    <tbody>
+      <tr><td><b>0i</b></td><td>Chek — qaysi qurilma chiqarishini bulutda belgilash</td><td class="dim">~30 qator</td></tr>
+      <tr><td><b>0n</b></td><td>Bulutdagi eski axlatni tozalash</td><td class="dim">~15 qator</td></tr>
+      <tr><td><b>0k / 0j</b></td><td>ASOSIY qurilma rejimi va kassa sinxroni</td><td class="dim">sinov kerak</td></tr>
+      <tr><td><b>4</b></td><td>Sotuv va berish farqlanmaydi</td><td class="dim">katta qaror</td></tr>
+      <tr><td><b>Dona baza</b></td><td>Chernovikda muzlatilgan — reja PLAN.md da</td><td class="dim">katta ish</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════ YAKUN ══════════ -->
+<h2 class="sec">Qisqasi</h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <table>
+    <tbody>
+      <tr><td style="width:30px">✅</td><td><b>Offset xatosi</b> — 5 joyda tuzatildi, prodda tasdiqladingiz</td></tr>
+      <tr><td>✅</td><td><b>Ruxsat oynasi</b> — <code>auto</code> rejimi, endi so'ramaydi</td></tr>
+      <tr><td>✅</td><td><b>Fikrlash yozuvlari</b> — yashirildi</td></tr>
+      <tr><td>⚠️</td><td><b>Repo ochiq + parollar</b> — ma'lumot xavfsiz, qaror sizniki</td></tr>
+      <tr><td>⏳</td><td><b>PDF da 2 joy</b> — javobingiz kutilmoqda</td></tr>
+      <tr><td>❓</td><td><b>2-chi chek (0m)</b> — gapingizni tushunmadim</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-gold" style="margin-bottom:0">
+    <b>Prod holati:</b> v174.9 · tilla-erp.vercel.app · hammasi push qilingan.
+    <br>Keyingi ish sizning tanlovingiz.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
