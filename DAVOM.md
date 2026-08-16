@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v174.9 · 2026-08-14
+**Oxirgi yangilanish:** v174.9 · 2026-08-16
 
 ---
 
@@ -17,7 +17,7 @@
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v174.9 gacha push qilingan** (2026-08-14) — prod v174.9. ⏳ Ibrohim PDF chiqarib tekshiradi. |
+| Git | **v174.9 gacha push qilingan** — prod v174.9. ✅ Ibrohim PDF da tasdiqladi (2026-08-16). |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -111,7 +111,11 @@ olardi, ya'ni manba bor bo'lsa ham manzil nomini yozib qo'yishi mumkin edi.
 blok ajratib olinib ma'lumot o'tkazildi). v174.7 uchun **6 holat**: sof offset ·
 aralash · manba yo'q · eski format · `naqtPul:0`+lom · sof naqt — 6/6 to'g'ri,
 `jami` o'zgarmadi. PDF chizuvchisi ham tekshirildi (binafsha rang + Symbol
-shrifti). Lekin **ilovada Ibrohim hali ko'rmagan** — prodda tekshirilishi kerak.
+shrifti).
+
+✅ **2026-08-16: IBROHIM PRODDA TASDIQLADI** — «pdf tori ishladi». v174.4–v174.9
+ning hammasi haqiqiy PDF da ko'rildi: offset qatori, `→ / ←` o'qlar, Ostatka
+ustuni. Offset masalasi **yopildi**.
 
 **v174.8 — PDF tepa jadvali.** Ibrohim rasm yubordi: Ostatka ustuni 85.15 dan
 **−18.23g** ga tushgan. Sabab yana o'sha — manba qatori oddiy to'lovdek
@@ -120,7 +124,7 @@ ayirilardi. `klientPDFYukor` ning boshlanish qismida (16896–16950) `_kdYopish`
 `if(op.tip==='berish' || op._kdYopish) runBal+=g;`
 Sinov: `berish 100 → tolov 30 → OFFSET 20 → vozvrat 10 → tolov 5`,
 eski `100·70·50·40·35` → yangi `100·70·90·80·75`, farq 40 = 2×offset.
-⏳ **Ibrohim PDF chiqarib tekshiradi.**
+✅ **Prodda tasdiqlandi (2026-08-16).**
 
 ⚠⚠ **PDF DA 2 JOY HALI ESKI — Ibrohim javob bermagan savollar:**
 
