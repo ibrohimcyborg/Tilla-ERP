@@ -1,4 +1,4 @@
-<!-- v175.3 -->
+<!-- v175.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v175.3';
+var APP_VER = 'v175.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -5126,7 +5126,14 @@ function renderHisobot() {
   var allOps = [];
   data.zavodlar.forEach(function(z) {
     z.turlar.forEach(function(t) {
-      t.tarix.forEach(function(op) { allOps.push({zavod:z.nom, tur:t.nom, op:op}); });
+      t.tarix.forEach(function(op) {
+        // v175.4 (Ibrohim): ostatka TEKSHIRUVI hisobotda ko'rinmasin — u zavoddan
+        // kelgan kirim emas, o'z sanog'imiz. Ombor hisobiga avvalgidek ta'sir qiladi
+        // (_ostDelta 7320 tegilmadi), izi «Ostatka tarixi» da (7658) qoladi.
+        // ⚠ Shakllantirish ('boshlangich') ATAYLAB qolmoqda — u haqiqiy qoldiq kiritish.
+        if(op.inventar==='tekshiruv') return;
+        allOps.push({zavod:z.nom, tur:t.nom, op:op});
+      });
     });
   });
   if (!allOps.length) { cont.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Hali kirim yoki chiqim yoq.</div>'; return; }
@@ -6054,7 +6061,11 @@ function renderZavodHisobot() {
   var z = data.zavodlar[curZ];
   var cont = document.getElementById('zavod-hisobot-cont');
   var allOps = [];
-  z.turlar.forEach(function(t){ t.tarix.forEach(function(op){ allOps.push({tur:t.nom, op:op}); }); });
+  // v175.4: tekshiruv yozuvlari bu yerda ham ko'rinmaydi (renderHisobot 5129 bilan bir xil)
+  z.turlar.forEach(function(t){ t.tarix.forEach(function(op){
+    if(op.inventar==='tekshiruv') return;
+    allOps.push({tur:t.nom, op:op});
+  }); });
   if (!allOps.length) { cont.innerHTML = '<div class="empty">Hali tarix yoq.</div>'; return; }
   var groups = {}, groupOrder = [];
   allOps.forEach(function(item) {

@@ -3,6 +3,53 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175.4: ostatka tekshiruvi hisobotda ko'rinmaydi
+
+Ibrohim rasm bilan: "ostatkani tekshirishda grammga urib tekshirsam shunaqa
+0 gramm qilib kirgizib qo'yvotti", keyin "keremas qo'shimcha gramm qo'shish
+ayirish hisobotda", va "bu narsa umuman hisobotda ko'rinmasin shunchaki ostatka
+shakllantirgandaka o'zgarsin".
+
+Hisobotda shunaqa chiqardi:
+```
+| Kirim  Jilva                    0.00 g
+| Kirim  Dorika                  -5.87 g
+|    Oddiy                      +10.43 g
+|    Dor S                      +-16.30 g     <- buzuq belgi ham
+```
+
+Sabab: `renderHisobot` (5129) va `renderZavodHisobot` (6057) `t.tarix` ni
+FILTRSIZ o'qirdi, shuning uchun `inventar:'tekshiruv'` yozuvlari oddiy
+"Kirim" bo'lib chiqardi. Bu CLAUDE.md §10 da yozib qo'yilgan tuzoq edi:
+"haftaOstData 'boshlangich' ni tashlaydi, lekin 'tekshiruv' ni EMAS".
+
+Ikkala chizuvchiga bitta shart:
+```
+if(op.inventar==='tekshiruv') return;
+```
+
+TEGILMADI (ataylab):
+* `_ostDelta` (7320), `turOstMap` -- ombor hisobi. Tekshiruv tuzatishi ostatkaga
+  AVVALGIDEK ta'sir qiladi, faqat ro'yxatdan yashirindi.
+* Yozish (8701) -- `gramm:0, mos:true` yozuvi saqlanaveradi, u "Ostatka tarixi"
+  (7658) da "qachon tekshirdim" izi bo'lib qoladi.
+* SHAKLLANTIRISH (`inventar:'boshlangich'`) -- `if(op.inventar) return;` deb
+  yozilsa u ham yo'qolardi. Ibrohimning katta "Kirim" qatorlari shakllantirish
+  bo'lishi mumkin edi, shuning uchun ANIQ shart qo'yildi. Qaror Claude'dan.
+* `+-16.30 g` belgi xatosi -- qator butunlay chizilmagani uchun o'zi yo'qoldi.
+
+SINOV (mantiq va _ostDelta index.html dan ajratib olinib, 9 yozuvli tarix):
+```
+hisobotga kiradi   5 ta (4 ta tekshiruv tashlandi)
+0.00g qatorlar     yo'qoldi
+417.60 / 189.79 / 219.75 / vozvrat 12.00 / shakllantirish 998.12   joyida
+OSTATKA hamma yozuv bilan : 1807.39g   <- ombor shuni ishlatadi
+faqat hisobot qatorlari   : 1813.26g
+farq -5.87 = 10.43 - 16.30 -> tekshiruv omborga TA'SIR QILAYAPTI
+```
+
+---
+
 ## v175.3: klient hisoboti PDF tepa katagi -- A varianti
 
 Ibrohim mockupdan **A** ni tanladi (`mockups/v175.2-variantlar-A-B-C.html`).

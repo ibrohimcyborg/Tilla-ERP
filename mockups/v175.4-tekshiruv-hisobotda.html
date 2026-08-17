@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tekshiruv yozuvlari hisobotda</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:940px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:40px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  p{margin:0 0 9px} ul{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;
+     border-bottom:1px solid var(--line)}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .del{color:var(--red)} pre .add{color:var(--grn)} pre .cm{color:var(--muted)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  /* ilova qatori taqlidi */
+  .app{background:#fff;border-radius:10px;padding:10px;margin:10px 0}
+  .row{background:#fff;border:1px solid #eee;border-left:3px solid #C53030;border-radius:8px;
+       padding:9px 12px;margin-bottom:7px;display:flex;justify-content:space-between;
+       align-items:flex-start;font-family:-apple-system,"Segoe UI",sans-serif}
+  .row.g{border-left-color:#2F855A}
+  .row .l{font-size:12.5px;font-weight:700;color:#C53030}
+  .row.g .l{color:#2F855A}
+  .row .z{font-size:12.5px;color:#333;font-weight:600}
+  .row .v{font-size:14px;font-weight:700;color:#C53030;font-family:Roboto,sans-serif}
+  .row.g .v{color:#2F855A}
+  .sub2{font-size:11.5px;color:#555;padding:5px 12px 0;border-top:1px solid #f0f0f0;
+        margin-top:7px;display:flex;justify-content:space-between}
+  .sub2 .n{color:#2F855A;font-weight:600}
+  .ochir{opacity:.32;text-decoration:line-through}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Tekshiruv yozuvlari hisobotda</h1>
+  <div class="sub">v175.4 taklifi · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-red">
+    <b>Siz aytdingiz:</b> «ostatkani tekshirishda grammga urib tekshirsam 0 gramm
+    qilib kirgizib qo'yvotti» va «keremas — qo'shimcha gramm qo'shish/ayirish
+    hisobotda».
+  </div>
+</header>
+
+
+<!-- ═══════ HOZIR ═══════ -->
+<h2 class="sec">1 · <b>Hozir nima bo'lyapti</b></h2>
+
+<div class="card red">
+  <h3>Ostatka tekshiruvi hisobotga «Kirim» bo'lib tushyapti</h3>
+
+  <div class="app">
+    <div class="row"><div><div class="l">&#8595; Kirim</div><div class="z">Jilva</div></div>
+      <div class="v">0.00 g</div></div>
+    <div class="row g"><div><div class="l">&#8595; Kirim</div><div class="z">Dorika</div></div>
+      <div class="v">-5.87 g</div>
+      </div>
+    <div style="padding:0 12px 8px">
+      <div class="sub2"><span>Oddiy</span><span class="n">+10.43 g</span></div>
+      <div class="sub2"><span>Dor S</span><span class="n">+-16.30 g</span></div>
+    </div>
+  </div>
+
+  <p>Bu qatorlar <b>zavoddan kelgan tilla emas</b> — bular ostatka tekshiruvida
+  chiqqan farq. Lekin hisobot ularni oddiy <b>«Kirim»</b> deb ko'rsatyapti.</p>
+
+  <div class="lbl">Ikki xil yozuv chiqadi</div>
+  <table>
+    <thead><tr><th style="width:120px">Holat</th><th>Nima yoziladi</th><th style="width:90px">Kod</th></tr></thead>
+    <tbody>
+      <tr><td><b>Farq YO'Q</b></td>
+        <td><code>gramm:0, dona:0, mos:true</code> — «tekshirilgani hisobotda qolsin»
+            uchun ataylab yoziladi (eski qaror)</td>
+        <td><span class="ln">8701</span></td></tr>
+      <tr><td><b>Farq BOR</b></td>
+        <td><code>inventar:'tekshiruv'</code> — ostatkani to'g'rilaydigan tuzatish</td>
+        <td><span class="ln">~8710</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-gold">
+    <b>Bu allaqachon ma'lum tuzoq edi.</b> `CLAUDE.md` §10 da yozilgan:
+    «<i>haftaOstData `'boshlangich'` ni tashlaydi, lekin `'tekshiruv'` ni <b>emas</b>.
+    Ajratmasa "Zavoddan kirim" ga qo'shilib ketadi va hisobot yolg'on chiqadi</i>».
+    Aynan shu bo'ldi — ikkala hisobotda ham.
+  </div>
+
+  <div class="lbl">Yana bir kichik xato</div>
+  <p><code>+-16.30 g</code> — manfiy son oldiga <code>+</code> qo'shilib qolgan.
+  Boshqa joyda buning himoyasi bor (<span class="ln">6576</span>:
+  <code>x.gramm>0?'+':''</code>), bu yerda yo'q. Qatorlar olib tashlansa
+  bu ham <b>o'zi yo'qoladi</b>.</p>
+</div>
+
+
+<!-- ═══════ TAKLIF ═══════ -->
+<h2 class="sec">2 · <b>Taklif</b> — hisobotdan olib tashlash</h2>
+
+<div class="card grn">
+  <h3>Tekshiruv yozuvlari hisobotda ko'rinmaydi</h3>
+
+  <div class="app">
+    <div class="row ochir"><div><div class="l">&#8595; Kirim</div><div class="z">Jilva</div></div>
+      <div class="v">0.00 g</div></div>
+    <div class="row g ochir"><div><div class="l">&#8595; Kirim</div><div class="z">Dorika</div></div>
+      <div class="v">-5.87 g</div></div>
+    <div style="text-align:center;color:#999;font-size:12px;padding:6px">
+      ↑ ikkalasi ham chizilmaydi</div>
+    <div class="row"><div><div class="l">&#8595; Kirim</div><div class="z">Jilva</div></div>
+      <div class="v">219.75 g</div></div>
+    <div class="row"><div><div class="l">&#8595; Kirim</div><div class="z">Jilva</div></div>
+      <div class="v">189.79 g</div></div>
+  </div>
+
+  <p>Haqiqiy zavod kirimlari (219.75, 189.79, 417.60) <b>joyida qoladi</b>.
+  Faqat <code>inventar</code> belgisi borlari chiqmaydi.</p>
+
+  <pre><span class="cm">// renderHisobot (5129) va renderZavodHisobot (6053)</span>
+t.tarix.forEach(function(op) {
+<span class="add">  if(op.inventar) return;   // shakllantirish va tekshiruv - hisobot yozuvi emas</span>
+  allOps.push({zavod:z.nom, tur:t.nom, op:op});
+});</pre>
+
+  <div class="banner b-grn">
+    <b>Ostatka o'zgarmaydi.</b> Tekshiruv tuzatishi ombor hisobiga avvalgidek
+    ta'sir qiladi — biz faqat <b>hisobot ro'yxatidan</b> yashiryapmiz. Raqamlar
+    hech qayerda buzilmaydi.
+  </div>
+
+  <div class="lbl">Qayerda ko'rinib qoladi</div>
+  <p>Tekshiruv izi butunlay yo'qolmaydi — u <b>tur panelida</b> «Ostatka tuzatish»
+  deb ko'rinadi (<span class="ln">7386</span> da shu nom allaqachon bor) va
+  <b>Ostatka tarixi</b> ro'yxatida qoladi (<span class="ln">7658</span>).</p>
+</div>
+
+
+<!-- ═══════ QARORLAR ═══════ -->
+<h2 class="sec">3 · <b>Sizdan uch javob</b></h2>
+
+<div class="card blu">
+  <div class="qbox" style="margin-top:0">
+    <div class="lbl">1 — Qaysi hisobotdan?</div>
+    <b>a)</b> Ikkalasidan — bosh ekran <b>va</b> zavod ichidagi hisobot
+    <span class="dim">(tavsiyam — ikkalasida ham chiqyapti)</span><br>
+    <b>b)</b> Faqat bosh ekran hisobotidan
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — «Farq yo'q» yozuvi umuman yozilmasinmi?</div>
+    Hozir farq nol bo'lsa ham <code>gramm:0</code> yozuv saqlanadi
+    (<span class="ln">8701</span>) — «tekshirilgani bilinsin» degan eski qaror.
+    <br><br>
+    <b>a)</b> Yozilaversin, faqat hisobotda ko'rinmasin
+    <span class="dim">(tavsiyam — «qachon tekshirdim?» degan savolga javob qoladi)</span><br>
+    <b>b)</b> Umuman yozilmasin — nol farq hech qanday iz qoldirmasin
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">3 — Shakllantirish ham yashirilsinmi?</div>
+    Yuqoridagi bitta qator (<code>if(op.inventar) return;</code>)
+    <b>shakllantirish</b> yozuvlarini ham yashiradi
+    (<code>inventar:'boshlangich'</code>).
+    <br><br>
+    <b>a)</b> Ha, ikkalasi ham yashirilsin — ikkalasi ham «kirim» emas
+    <span class="dim">(tavsiyam)</span><br>
+    <b>b)</b> Yo'q, faqat <b>tekshiruv</b> yashirilsin, shakllantirish qolsin
+    <span class="dim">(u holda shart: <code>op.inventar==='tekshiruv'</code>)</span>
+  </div>
+
+  <div class="banner b-gold" style="margin-bottom:0">
+    Javobingizdan keyin TAXMIN BLOKI beraman, kodni yozaman, haqiqiy kod bilan
+    sinayman, TEKSHIRUV chiqaraman va push qilaman. Diff ~4 qator.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
