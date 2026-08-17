@@ -3,6 +3,40 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v175.5: nol farqda tarixga yozuv yozilmaydi
+
+Ibrohim: "bunaqa mayda xatola orqa fondayam qomasin chunki vaqt o'tib kotta bug
+beradi shunchaki donasi i grami o'zgaradi bizani qo'lda bo'ldi".
+
+Farq YO'Q bo'lganda `gramm:0, dona:0, mos:true` yozuvi tarixga tushardi
+("Variant B" eski qarori — "tekshirilgani hisobotda qolsin"). U:
+* ombor raqamiga ta'sir qilmasdi (sof nol)
+* dona registriga ta'sir qilmasdi (u ALOHIDA yoziladi, 8713)
+* v175.4 dan keyin hisobotda ham ko'rinmasdi
+
+Ya'ni hech qanday vazifasi qolmagan edi. `c.t.tarix.push(...)` (8712) o'chirildi.
+
+QOLDI: `c.t.donalar = p1.slice()` -- tekshiruv "hozirgi haqiqat", registr yangi
+skan bilan almashadi. `save()` va `return` ham joyida.
+
+TEGILMADI: farq BOR yo'li (8721 dan keyin) -- u `inventar:'tekshiruv'` yozuvini
+yozadi va OMBOR RAQAMINI o'zgartiradi. v172.26 dan beri ombor `t.tarix` dan
+hisoblanadi, shuning uchun o'sha yozuv "axlat" emas -- u tuzatishning O'ZI.
+Ibrohimga shu tushuntirildi va u faqat (a) variantni tanladi.
+
+MAVJUD eski nol-yozuvlar TEGILMADI -- Ibrohim (b) tozalashni tanlamadi.
+
+SINOV (shox index.html dan ajratib olinib ISHGA TUSHIRILDI, 12/12):
+```
+tarix uzunligi        1 -> 1                        (yozuv qo'shilmadi)
+dona registri  [1,2,3] -> [2.59, 2.61, 2.58]        (almashdi)
+save() chaqirildi, xabar chiqdi
+'mos:true' butun faylda 0 marta
+farq BOR yo'lida inventar:'tekshiruv' va push hali joyida
+```
+
+---
+
 ## v175.4: ostatka tekshiruvi hisobotda ko'rinmaydi
 
 Ibrohim rasm bilan: "ostatkani tekshirishda grammga urib tekshirsam shunaqa
