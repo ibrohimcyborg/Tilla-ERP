@@ -3,6 +3,53 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176.1: sotuvda offset tugmasi O'ZI yonadi
+
+Ibrohim rasm bilan: klientda Diamond bo'yicha BIZ qarzdormiz (offset +5.42g),
+10 g mol berilgach "4.58 chiqishi kere", "ptichka qo'shilishi kere automat",
+"shunaqa ptichkaga aylanib qolishi kere".
+
+TOPILMA: hisobning YARMI allaqachon ishlardi --
+* `bizda: +5.42g + yangi: 10.00g = 4.58g` yorlig'i (14847) -- ISHLAYDI
+* `4.58g x 91$/g = 416.78$` (14868) -- ISHLAYDI
+* chekda "5.42 minus" (15982) -- Ibrohim aytganidek ALLAQACHON BOR
+
+Yetishmayotgani: yashil `$` tugmasi (`kso-btn-`, 14669) chizilardi, lekin
+QO'LDA bosish kerak edi.
+
+A/B ikkilanishi Ibrohimga mockupda ko'rsatildi
+(`mockups/v176.1-ptichka-A-B.html`), u **A** ni tanladi:
+* **A** -- biz qarzdor bo'lsak DOIM avtomat yonadi (10 g berilsa ham) -> 4.58 g
+* B -- faqat berish <= offset bo'lganda -> 10 g holatida yonmasdi, 10.00 chiqardi
+
+`kSotuvRenderTolov` (14569) oxiriga, `innerHTML = out` dan KEYIN:
+```
+document.querySelectorAll('[id^="kso-btn-"]').forEach(function(b){
+  if(b.style.display==='none') return;              // biz qarzdor emasmiz
+  var blok = document.getElementById('kso-blok-'+b.id.slice(8));
+  if(!blok || blok.style.display!=='none') return;  // allaqachon ochiq
+  var m = b.id.slice(8).split('-');
+  ksOffsetToggle(parseInt(m[0],10), parseInt(m[1],10), b);
+});
+```
+
+YANGI MANTIQ YOZILMADI -- mavjud `ksOffsetToggle` (17360) bir marta chaqiriladi,
+ya'ni natija qo'lda bosish bilan AYNAN bir xil (gramm to'ldiriladi +
+`kSotuvTolovUpd` chaqiriladi).
+
+TEGILMADI: `ksOffsetToggle` ning o'zi, saqlash yo'li (`_svRowUsed` 15978), chek,
+`ktOffsetToggle` (to'lov modali -- Ibrohim faqat sotuvni so'radi).
+
+SINOV (soxta DOM, ikkala blok index.html dan ajratib olinib, 13/13):
+```
+biz qarzdor 5.42 -> blok ochildi, tugma "$ v", gramm 5.42, kSotuvTolovUpd chaqirildi
+klient qarzdor   -> TEGILMADI (tugma yashirin, gramm bo'sh)
+qo'lda ochilgan  -> o'chib ketmadi
+ikkinchi chizish -> qayta toggle chaqirilmadi
+```
+
+---
+
 ## v176: skan oynasi bir vaqtda faqat BITTA ochiq turadi
 
 Ibrohim rasm bilan: "skanni bossa tepadigi o'chsin skan oyna faqat 1tada tursin

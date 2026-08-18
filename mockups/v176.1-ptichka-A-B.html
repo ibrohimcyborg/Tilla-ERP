@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ptichka — A yoki B</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 80px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:30px 0 22px;margin-bottom:8px}
+  h1{margin:0 0 8px;font-size:24px}
+  .sub{color:var(--muted);font-size:13.5px}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:38px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+  .card h3{margin:0 0 8px;font-size:17px}
+  .banner{border-radius:10px;padding:12px 15px;font-size:13.5px;margin:12px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:15px 0 6px}
+  p{margin:0 0 8px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:#0a0c10;
+       padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .dim{color:var(--muted)} .ok{color:var(--grn)} .bad{color:var(--red)}
+
+  /* ── ilova qatori (rasmingizdagi ko'rinish) ── */
+  .row{background:#eef7f0;border:1px solid #cfe6d8;border-radius:11px;padding:10px 12px;margin-bottom:9px}
+  .row.plain{background:#f3f2ef;border-color:#e5e2db}
+  .rtop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+  .rnom{font-size:13.5px;font-weight:700;color:#222}
+  .rinfo{font-size:12px;font-weight:600}
+  .rinfo.g{color:#2f855a} .rinfo.r{color:#c53030}
+  .flds{display:flex;gap:7px}
+  .f1{flex:1;background:#fff;border:1px solid #e5e2db;border-radius:8px;padding:8px 10px;
+      font-size:13px;color:#bbb;text-align:right}
+  .f2{width:80px;background:#f0d9a0;border-radius:8px;padding:8px 10px;font-size:13px;
+      color:#7a6222;text-align:right;font-weight:600}
+  .f3{width:74px;background:#d7f0e0;border-radius:8px;padding:8px 10px;font-size:13px;
+      color:#2f855a;text-align:right}
+  .bt{width:38px;background:#fff;border:1px solid #9ed3b3;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#2f855a}
+  .bt.on{background:#2f855a;color:#fff;border-color:#2f855a}
+  .calc{font-size:12px;color:#7a7568;margin-top:7px}
+
+  .ab{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  @media(max-width:720px){.ab{grid-template-columns:1fr}}
+  .abx{border-radius:11px;padding:14px;border:1px solid var(--line);background:var(--card2)}
+  .abx.a{border-color:var(--grn)} .abx.b{border-color:var(--org)}
+  .abh{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .abx.a .abh{color:var(--grn)} .abx.b .abh{color:var(--org)}
+  .res{font-size:13px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+  .big{font-family:ui-monospace,Consolas,monospace;font-size:19px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ptichka avtomat — A yoki B</h1>
+  <div class="sub">v176.1 · 2026-08-16 · <b>kod yozilmagan</b></div>
+</header>
+
+
+<h2 class="sec">1 · <b>Siz ko'rsatgan holat</b></h2>
+<div class="card">
+  <p>Rasmingizda ikki qator bor. Farqi — <b>tugmasida</b>:</p>
+
+  <div class="row plain">
+    <div class="rtop"><span class="rnom">Butterfly · 3D</span>
+      <span class="rinfo r">−64.20g</span></div>
+    <div class="flds">
+      <div class="f1">0 $</div><div class="f2">90,2 $/g</div>
+      <div class="f3">0 g</div><div class="bt on">✓</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="rtop"><span class="rnom">Sepochka · Sep</span>
+      <span class="rinfo g">+7.33g ↩ biz qarzdor</span></div>
+    <div class="flds">
+      <div class="f1">0 $</div><div class="f2">91,8 $/g</div>
+      <div class="f3">0 g</div><div class="bt">$</div>
+    </div>
+  </div>
+
+  <div class="banner b-gold">
+    Yuqorigi qator — klient qarzdor, tugma <b>✓ yonib turibdi</b>.<br>
+    Pastdagi qator — <b>biz qarzdormiz</b> (offset), tugma <b><code>$</code> o'chiq</b>.
+    <br><br>
+    Siz shuni aytyapsiz: <b>pastdagi ham o'zi ✓ ga aylansin</b>.
+  </div>
+</div>
+
+
+<h2 class="sec">2 · <b>Sepochka qatori — hozir vs taklif</b></h2>
+<div class="card">
+  <div class="lbl">Hozir</div>
+  <div class="row">
+    <div class="rtop"><span class="rnom">Sepochka · Sep</span>
+      <span class="rinfo g">+7.33g ↩ biz qarzdor</span></div>
+    <div class="flds">
+      <div class="f1">0 $</div><div class="f2">91,8 $/g</div>
+      <div class="f3">0 g</div><div class="bt">$</div>
+    </div>
+    <div class="calc">offset ishlatilmagan — qo'lda bosish kerak</div>
+  </div>
+
+  <div class="lbl">Taklif</div>
+  <div class="row">
+    <div class="rtop"><span class="rnom">Sepochka · Sep</span>
+      <span class="rinfo g">+7.33g ↩ biz qarzdor</span></div>
+    <div class="flds">
+      <div class="f1">0 $</div><div class="f2">91,8 $/g</div>
+      <div class="f3">7.33 g</div><div class="bt on">$ ✓</div>
+    </div>
+    <div class="calc">offset 7.33g avtomat ishlatildi · 672.89$ boshqa to'lovdan ayiriladi</div>
+  </div>
+</div>
+
+
+<h2 class="sec">3 · <b>Bitta savol — A yoki B</b></h2>
+<div class="card">
+  <p>Ikkalasi ham «avtomat yonadi». Farqi faqat <b>bitta holatda</b> chiqadi:
+  <b>berish grammi offsetdan ko'p bo'lsa</b>.</p>
+
+  <div class="banner b-red">
+    <b>Sizning misolingiz:</b> Diamond · Oddiy — bizda <b>+5.42 g</b>,
+    siz <b>10 g</b> mol berdingiz. 10 &gt; 5.42.
+  </div>
+
+  <div class="ab">
+    <div class="abx a">
+      <div class="abh">A — doim yonadi</div>
+      <div class="row" style="margin:0">
+        <div class="rtop"><span class="rnom">Diamond · Oddiy</span>
+          <span class="rinfo g">bizda +5.42g + yangi 10.00g</span></div>
+        <div class="flds">
+          <div class="f1">0 $</div><div class="f2">91 $/g</div>
+          <div class="f3">5.42 g</div><div class="bt on">$ ✓</div>
+        </div>
+      </div>
+      <div class="res">
+        offset <b>to'liq</b> ishlatiladi<br>
+        klient qarzi: <span class="big ok">4.58 g</span><br>
+        <span class="dim">4.58 × 91 = 416.78$</span>
+      </div>
+    </div>
+
+    <div class="abx b">
+      <div class="abh">B — faqat berish ≤ offset</div>
+      <div class="row" style="margin:0">
+        <div class="rtop"><span class="rnom">Diamond · Oddiy</span>
+          <span class="rinfo g">bizda +5.42g + yangi 10.00g</span></div>
+        <div class="flds">
+          <div class="f1">0 $</div><div class="f2">91 $/g</div>
+          <div class="f3">0 g</div><div class="bt">$</div>
+        </div>
+      </div>
+      <div class="res">
+        10 &gt; 5.42 → tugma <b>yonmaydi</b><br>
+        klient qarzi: <span class="big bad">10.00 g</span><br>
+        <span class="dim">offset o'z joyida qoladi</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lbl">3 g berilganda — ikkalasi bir xil</div>
+  <div class="ab">
+    <div class="abx a"><div class="abh">A</div>
+      <div class="res" style="border:0;padding:0;margin:0">
+        ✓ yonadi · 3.00 ishlatiladi<br>
+        <span class="dim">bizda <b class="ok">2.42 g</b> qoladi</span></div></div>
+    <div class="abx b"><div class="abh">B</div>
+      <div class="res" style="border:0;padding:0;margin:0">
+        ✓ yonadi · 3.00 ishlatiladi<br>
+        <span class="dim">bizda <b class="ok">2.42 g</b> qoladi</span></div></div>
+  </div>
+
+  <div class="banner b-grn">
+    <b>Siz «4.58 chiqishi kere» dedingiz</b> — bu faqat <b>A</b> da chiqadi.
+    B da 10.00 chiqadi.
+  </div>
+</div>
+
+
+<h2 class="sec">Javob</h2>
+<div class="card" style="border:1px solid var(--gold)">
+  <p style="margin:0"><b>A</b> yoki <b>B</b> deb yozing — darhol yozaman, sinayman
+  va <b>v176 bilan birga push qilaman</b>. Diff ~8 qator, chekka tegilmaydi.</p>
+</div>
+
+</div>
+</body>
+</html>

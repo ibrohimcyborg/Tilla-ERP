@@ -1,4 +1,4 @@
-<!-- v176 -->
+<!-- v176.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176';
+var APP_VER = 'v176.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -14678,6 +14678,20 @@ function kSotuvRenderTolov() {
     });
   });
   document.getElementById('ks-tolov-list').innerHTML = out;
+  // v176.1 (Ibrohim, A varianti): BIZ QARZDOR bo'lgan turlarda offset tugmasi
+  // O'ZI yonadi — qo'lda bosish shart emas. Yangi mantiq YOZILMADI: mavjud
+  // ksOffsetToggle bir marta chaqiriladi, ya'ni natija qo'lda bosish bilan
+  // AYNAN bir xil (gramm to'ldiriladi + kSotuvTolovUpd chaqiriladi).
+  // Tugma ko'rinmasa (biz qarzdor emasmiz) yoki blok allaqachon ochiq bo'lsa —
+  // tegilmaydi, ya'ni qo'lda o'chirganingiz qayta yonib ketmaydi.
+  document.querySelectorAll('[id^="kso-btn-"]').forEach(function(b){
+    if(b.style.display==='none') return;
+    var kalit = b.id.slice(8);                       // "{zi}-{ti}"
+    var blok = document.getElementById('kso-blok-'+kalit);
+    if(!blok || blok.style.display!=='none') return;
+    var m = kalit.split('-');
+    ksOffsetToggle(parseInt(m[0],10), parseInt(m[1],10), b);
+  });
   // C kategoriya ustama qiymatlarini tiklash
   Object.keys(savedUst).forEach(function(id){ var el=document.getElementById(id); if(el){ el.value=savedUst[id]; el.dispatchEvent(new Event('input')); } });
   // kst-s va kst-g qiymatlarini tiklash

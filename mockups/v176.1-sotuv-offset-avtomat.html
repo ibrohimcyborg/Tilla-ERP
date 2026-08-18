@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sotuvda offset avtomat</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:40px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:16px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  p{margin:0 0 9px} ul{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:#0a0c10;
+       padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;
+     letter-spacing:.07em;padding:8px 9px;border-bottom:1px solid var(--line)}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .org{color:var(--org)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;padding:13px 16px;
+        margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);border-radius:20px;
+        padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt)}
+  .app{background:#f3f2ef;border-radius:12px;padding:13px;margin:10px 0;max-width:430px}
+  .zn{font-size:12px;color:#9a8f7a;margin-bottom:7px}
+  .trow{background:#fff;border-radius:9px;padding:10px 12px}
+  .tn{font-size:14px;font-weight:700;color:#222;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .tinfo{font-size:11.5px;color:#8a8578;text-align:right;font-weight:400}
+  .tinfo b{color:#2f855a}
+  .flds{display:flex;gap:7px;margin-top:8px}
+  .f1{flex:1;background:#fff;border:1px solid #e5e2db;border-radius:8px;padding:8px 10px;font-size:13px;color:#bbb;text-align:right}
+  .f2{width:78px;background:#f0d9a0;border-radius:8px;padding:8px 10px;font-size:13px;color:#7a6222;text-align:right;font-weight:600}
+  .f3{width:100px;background:#cdebd8;border-radius:8px;padding:8px 10px;font-size:13px;color:#2f855a;
+      text-align:right;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .obtn{background:#fff;border:1px solid #9ed3b3;border-radius:5px;font-size:10px;font-weight:700;color:#2f855a;padding:1px 5px}
+  .obtn.on{background:#2f855a;color:#fff;border-color:#2f855a}
+  .calc{font-size:12px;color:#8a8578;margin-top:7px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Sotuvda offset avtomat qo'shilsin</h1>
+  <div class="sub">v176.1 taklifi · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-grn">
+    <b>Yarmi allaqachon ishlaydi.</b> 2-rasmingizdagi
+    <code>bizda: +5.42g + yangi: 10.00g = 4.58g</code> va
+    <code>4.58g × 91$/g = 416.78$</code> — bular <b>hozir ham to'g'ri chiqadi</b>.
+    Yetishmayotgani — yashil <code>$</code> tugmasi o'zi yonmaydi.
+  </div>
+</header>
+
+
+<h2 class="sec">1 · <b>Nima bor, nima yo'q</b></h2>
+<div class="card">
+  <table>
+    <thead><tr><th style="width:230px">Nima</th><th>Holat</th><th style="width:70px">Kod</th></tr></thead>
+    <tbody>
+      <tr><td><b>«bizda + yangi = natija»</b></td>
+        <td class="ok">✅ ishlaydi — rasmingizda ko'rinib turibdi</td><td><span class="ln">14847</span></td></tr>
+      <tr><td><b>Narx hisobi (4.58 × 91)</b></td>
+        <td class="ok">✅ ishlaydi</td><td><span class="ln">14868</span></td></tr>
+      <tr><td><b>Yashil <code>$</code> tugmasi</b></td>
+        <td class="org">⚠ chiziladi, lekin <b>qo'lda bosiladi</b></td><td><span class="ln">14669</span></td></tr>
+      <tr><td><b>Chekda «5.42 minus»</b></td>
+        <td class="ok">✅ siz aytganingizdek allaqachon bor</td><td><span class="ln">15982</span></td></tr>
+    </tbody>
+  </table>
+  <p>Ya'ni <b>bitta narsa</b> qo'shiladi: tugma o'zi yonsin.</p>
+</div>
+
+
+<h2 class="sec">2 · <b>Hozir vs Taklif</b></h2>
+<div class="card">
+  <div class="lbl">Hozir — 10 g kiritilgach</div>
+  <div class="app">
+    <div class="zn">Diamond</div>
+    <div class="trow">
+      <div class="tn"><span>Oddiy</span>
+        <span class="tinfo">bizda: <b>+5.42g</b> + yangi: 10.00g = <b>4.58g</b></span></div>
+      <div class="flds">
+        <div class="f1">0$</div><div class="f2">91 $/g</div>
+        <div class="f3"><span class="obtn">$</span><span>0g</span></div>
+      </div>
+      <div class="calc">4.58g × 91$/g = 416.78$</div>
+    </div>
+  </div>
+  <p class="dim" style="font-size:13px">Raqamlar to'g'ri, lekin <b>tugma o'chiq</b> —
+  offset hali ishlatilmagan, uni qo'lda bosasiz.</p>
+
+  <div class="lbl">Taklif — tugma o'zi yonadi</div>
+  <div class="app">
+    <div class="zn">Diamond</div>
+    <div class="trow">
+      <div class="tn"><span>Oddiy</span>
+        <span class="tinfo">bizda: <b>+5.42g</b> + yangi: 10.00g = <b>4.58g</b></span></div>
+      <div class="flds">
+        <div class="f1">0$</div><div class="f2">91 $/g</div>
+        <div class="f3"><span class="obtn on">$ ✓</span><span>5.42g</span></div>
+      </div>
+      <div class="calc">4.58g × 91$/g = 416.78$ &nbsp;·&nbsp; offset 5.42g ishlatildi</div>
+    </div>
+  </div>
+</div>
+
+
+<h2 class="sec">3 · <b>Gapingizni ikki xil tushunish mumkin</b></h2>
+<div class="card red">
+  <h3>«toki offset gramidan berish grammi ko'paymaguncha»</h3>
+  <p>Bu jumla ikki ma'no beradi. <b>Pul hisobi</b> bo'lgani uchun taxmin qilmayman.</p>
+
+  <table>
+    <thead><tr><th style="width:34px"></th><th>O'qilishi</th><th style="width:180px">10 g berilsa</th><th style="width:180px">3 g berilsa</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--blu-bg)"><td><b>A</b></td>
+        <td><b>Doim avtomat yonadi</b> — biz qarzdor bo'lsak bas. Berish offsetdan
+            ko'p bo'lsa ham offset to'liq ishlatiladi.</td>
+        <td class="ok">✓ yonadi<br><span class="dim">5.42 ishlatiladi<br>4.58 klient qarzi</span></td>
+        <td class="ok">✓ yonadi<br><span class="dim">3.00 ishlatiladi<br>2.42 bizda qoladi</span></td></tr>
+      <tr style="background:var(--org-bg)"><td><b>B</b></td>
+        <td><b>Faqat berish ≤ offset bo'lganda yonadi.</b> Berish offsetdan oshsa
+            tugma o'chadi, siz qo'lda hal qilasiz.</td>
+        <td class="bad">✗ yonmaydi<br><span class="dim">10 &gt; 5.42</span></td>
+        <td class="ok">✓ yonadi</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-gold">
+    <b>Menimcha A.</b> Sababi: siz misolni <b>10 gramm</b> bilan berdingiz va
+    <b>«4.58 chiqishi kere»</b> dedingiz. B da 10 g holatida tugma yonmasdi va
+    4.58 ham chiqmasdi. Lekin jumlangiz B ga o'xshab turibdi — shuning uchun so'rayapman.
+  </div>
+</div>
+
+
+<h2 class="sec">4 · <b>Nima o'zgaradi</b></h2>
+<div class="card blu">
+  <p>Yangi mantiq yozilmaydi — mavjud <code>ksOffsetToggle</code> ning o'zi
+  chizilish paytida bir marta chaqiriladi.</p>
+  <div class="chips">
+    <span class="chip"><b>Diff:</b> ~8 qator</span>
+    <span class="chip"><b>Fayl:</b> faqat index.html</span>
+    <span class="chip"><b>Chek:</b> tegilmaydi — allaqachon to'g'ri</span>
+  </div>
+  <div class="banner b-red" style="margin-top:14px">
+    <b>⚠ Bilib turing:</b> tugma avtomat yonsa, offset <b>siz e'tibor bermasangiz
+    ham</b> ishlatiladi. Ilgari har safar qo'lda bosardingiz — ya'ni ongli qaror edi.
+    Endi sukut bo'yicha yoqiladi.
+  </div>
+</div>
+
+
+<h2 class="sec">Sizdan bitta javob</h2>
+<div class="card" style="border:1px solid var(--gold)">
+  <div class="qbox" style="margin-top:0">
+    <div class="lbl">A yoki B?</div>
+    <b>A</b> — biz qarzdor bo'lsak <b>doim</b> avtomat yonadi
+    <span class="dim">(menimcha shu)</span><br>
+    <b>B</b> — faqat <b>berish ≤ offset</b> bo'lganda yonadi
+    <br><br>
+    Javobingizdan keyin yozaman, sinayman va <b>v176 bilan birga push qilaman</b>.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
