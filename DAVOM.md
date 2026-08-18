@@ -98,7 +98,10 @@ TO'LIQ mavjud**, faqat u hozir **ortiqcha to'lov** uchun ishlaydi:
 Ya'ni Ibrohim so'ragani — **offset summasini xuddi ortiqcha to'lovdek** shu
 mexanizmga uzatish. Bu «noldan dizayn» emas, **mavjud yo'lga ulash**.
 
-⚠ **Baribir yozilmadi** — bu **kassadan pul chiqadigan** amal. Avval
+✅ **UCHALA SAVOLGA HAM JAVOB BOR** (2026-08-16). Kod yozish uchun spetsifikatsiya
+to'liq — faqat mexanizmni o'qib chiqish qoldi.
+
+⚠ **Yozilmadi** — bu **kassadan pul chiqadigan** amal. Avval
 `sdachaTaqsimSaqla` (13431) ning kassaga NIMA yozishini o'qib chiqish shart,
 aks holda pul hisobida xato bo'ladi. Uch qaror kerak:
 1. **Qaysi ekrandan?** Sotuv modalidagi `$ ✓` tugmasi yonidami, yoki alohida
@@ -109,8 +112,17 @@ aks holda pul hisobida xato bo'ladi. Uch qaror kerak:
    yoziladi. Qolgan aniqlik: **qaysi chiqim tipi** (mavjud tiplardan birimi
    yoki yangi «Sdacha» tipimi) — buni `sdachaTaqsimSaqla` (13431) va mavjud
    chiqim mexanizmini o'qib aniqlash kerak.
-3. **Chekda qanday ko'rinadi?** Alohida qator («Sdacha −477.24$») yoki
-   mavjud «Ortiqcha/Sdacha» blokiga qo'shiladimi?
+3. ✅ **IBROHIM JAVOB BERDI (2026-08-16):** «offsettan klient nomini yozib
+   shu klientga sdacha bervorildi offset qilib summasnin nimadanligin yozasan»
+
+   Ya'ni **chiqim yozuvida** shular bo'lishi kerak:
+   * **klient nomi** (offset qaysi klientniki bo'lsa)
+   * izoh: «sdacha berildi — offset qilib»
+   * **summa qaysi zavod·turdan** kelgani (offset manbai)
+   * summaning o'zi
+
+   ⚠ Chekda qanday ko'rinishi — hali aytilmagan (alohida qatormi yoki mavjud
+   «Sdacha» blokigami).
 
 Eslatma: ilovada **gramm sdacha** (`tip:'klientda'`) allaqachon bor — u klient
 tarixida `↩ Butterfly · Oddiy` bo'lib chiqadi. Ibrohim so'ragani esa **pul**.
