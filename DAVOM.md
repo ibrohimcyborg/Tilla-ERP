@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v176.1 · 2026-08-16
+**Oxirgi yangilanish:** v176.2 · 2026-08-16
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v176.1** (`index.html` birinchi qatorida `<!-- v176.1 -->`, `APP_VER` da ham) |
+| Versiya | **v176.2** (`index.html` birinchi qatorida `<!-- v176.2 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -77,6 +77,38 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
+
+### ⭐ 0r. SDACHA — pul qaytarish (v176.2 da YOZILMADI)
+
+2026-08-16: Ibrohim sotuv modalida offsetni **sdacha qilib pul bilan qaytarish**
+imkonini so'radi. Mockupdagi to'rt variantdan **B — pul qaytarish** ni tanladi
+(`mockups/v176.2-uzun-son-va-sdacha.html`).
+
+⚠ **Yozilmadi** — bu **kassadan pul chiqadigan** amal, taxmin bilan yozilmaydi.
+Uch qaror kerak:
+1. **Qaysi ekrandan?** Sotuv modalidagi `$ ✓` tugmasi yonidami, yoki alohida
+   «sdacha bilan qaytarish» tugmasimi?
+2. **Kassaga qanday yoziladi?** Bu chiqim — qaysi tipda? Mavjud chiqim
+   mexanizmi ishlatiladimi yoki yangi tip kerakmi?
+3. **Chekda qanday ko'rinadi?** Alohida qator («Sdacha −477.24$») yoki
+   mavjud «Ortiqcha/Sdacha» blokiga qo'shiladimi?
+
+Eslatma: ilovada **gramm sdacha** (`tip:'klientda'`) allaqachon bor — u klient
+tarixida `↩ Butterfly · Oddiy` bo'lib chiqadi. Ibrohim so'ragani esa **pul**.
+
+### ⚠ 0s. UZUN SON — ILDIZ TUZATILMAGAN (v176.2)
+
+`_qarzTarkibRows` da qarz **besh joyda** yaxlitlanmasdan yig'iladi:
+**16735, 16739, 16744, 16751, 16762**. Natijada `qarz` maydoni
+`5.209999999999999` kabi bo'lib yuradi.
+
+v176.2 da **A darajasi** qilindi — maydonga yozishda `roundG` (4 joy). Ibrohim:
+«ildizzi kegin qilamiz».
+
+⚠ Ildizni tuzatish `_qarzTarkibRows` ni o'zgartiradi, u esa v175.2 dan beri
+**hamma joyda** yagona manba (klient ekrani, ro'yxat, qidiruv, berish modali,
+sotuv, PDF, chek). Raqamlar 0.01 g darajasida siljishi mumkin — alohida versiya
+va diqqatli tekshiruv kerak.
 
 ### ⭐ 0q. OFFSET — YOPILDI (v174.4–v175)
 
@@ -574,7 +606,9 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v176.2 | **Uzun son yaxlitlandi** (4 joy) + **to'lov chekida naqt ko'rinadi** (13950) |
 | v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
+| v176.2 | **Uzun son yaxlitlandi** (4 joy) + **to'lov chekida naqt ko'rinadi** (13950) |
 | v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
 | v176 | **Skan oynasi bir vaqtda bitta** — vozvrat/sotuvda ham (`_skanUniYop` 12745) |
 | v175.5 | **Nol farqda tarixga yozuv yozilmaydi** (`ostFormSaqla` 8712) |

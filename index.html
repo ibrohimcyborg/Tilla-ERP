@@ -1,4 +1,4 @@
-<!-- v176.1 -->
+<!-- v176.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.1';
+var APP_VER = 'v176.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13947,9 +13947,22 @@ function kTolovChekUpd() {
     if (us > 0.001) _ktOffsetlar.push({nom:r.zavod+' '+r.tur, gramm:(r.n>0?roundG(us/r.n):0),
                                        kurs:r.n, summa:us, eskiQarz:r.qarz});
   });
-  var nb = parseNum((document.getElementById('kt-naqt-berildi')||{}).value)||0;
+  var _ktNbEl = document.getElementById('kt-naqt-berildi');
+  var nb = parseNum((_ktNbEl||{}).value)||0;
   var kb = parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
   var pb = parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
+  // v176.2 (Ibrohim: "lom bersa naqt qolgan pulini korsatmayapti chekda"):
+  // nb faqat maydondan o'qilardi. Foydalanuvchi unga TEGMASA nb=0 bo'lib,
+  // "N" qatori chekka umuman tushmasdi — lom bor sotuvda naqt yo'qolib ketardi.
+  // Endi maydon bo'sh VA qo'lda tahrirlanmagan bo'lsa, hisoblangan kerakli
+  // naqtdan (kt-kerakli-naqt: jami − lom − skidka − offset) karta va perech
+  // ayirilib olinadi. Qo'lda yozilgan qiymat DOIM ustun turadi.
+  if (nb <= 0.001 && !(_ktNbEl && _ktNbEl.dataset.userEdited)) {
+    var _knEl = document.getElementById('kt-kerakli-naqt');
+    var _kerakli = _knEl ? (parseNum(_knEl.dataset.val)||0) : 0;
+    var _qoldiN = Math.round((_kerakli - kb - pb)*100)/100;
+    if (_qoldiN > 0.001) nb = _qoldiN;
+  }
   if (nb > 0.001) tolovlar.push({harf:'N', matn:'', summa:nb});
   if (kb > 0.001) tolovlar.push({harf:'K', matn:'', summa:kb});
   if (pb > 0.001) tolovlar.push({harf:'P', matn:'', summa:pb});
@@ -15053,7 +15066,7 @@ function kSotuvVozUpd(el, zi, ti) {
     if(oBtn&&oBlok){
       var baseOq=parseFloat(oBtn.dataset.baseoq)||0; // saqlangan biz-qarzdan kelgan qiymat
       var effOq=bizQ>0.001?bizQ:baseOq;
-      oBtn.dataset.oqarz=effOq;
+      oBtn.dataset.oqarz=roundG(effOq);   // v176.2: xom son dataset ga tushmasin
       oBtn.style.display=effOq>0.001?'':'none';
       var oNarx=parseFloat(oBlok.dataset.narx)||0;
       var oLbl=document.getElementById('kso-lbl-'+zi+'-'+ti);
@@ -15063,7 +15076,7 @@ function kSotuvVozUpd(el, zi, ti) {
       // Agar offset yoqilgan (blok ochiq) bo'lsa — to'ldirilgan grammni ham yangilaymiz
       if(oBlok.style.display!=='none'){
         var gElO=document.getElementById('kst-g-'+zi+'-'+ti);
-        if(gElO){ gElO.value=effOq>0.001?effOq:''; kSotuvTolovUpd('g', zi, ti); }
+        if(gElO){ gElO.value=effOq>0.001?roundG(effOq):''; kSotuvTolovUpd('g', zi, ti); }   // v176.2
       }
       if(effOq<=0.001&&oBlok.style.display!=='none'){ oBlok.style.display='none'; oBtn.textContent='$'; oBtn.style.background='var(--surf)'; }
     }
@@ -17368,7 +17381,9 @@ function ksOffsetToggle(zi, ti, btn) {
   btn.textContent = active ? '$' : '$ ✓';
   // gramm inputga qarz grammini to'ldirish
   var gEl = document.getElementById('kst-g-'+zi+'-'+ti);
-  if(gEl) { gEl.value = active ? '' : qarzG; kSotuvTolovUpd('g', zi, ti); }
+  // v176.2: roundG — qarzG yig'indidan keladi va yaxlitlanmagan bo'lishi mumkin
+  // (5.209999999999999). Himoya bor edi, lekin faqat KO'RSATISHDA (fmtG) ishlardi.
+  if(gEl) { gEl.value = active ? '' : roundG(qarzG); kSotuvTolovUpd('g', zi, ti); }
 }
 
 function ktOffsetToggle(idx, qarzG, btn) {
@@ -17382,7 +17397,7 @@ function ktOffsetToggle(idx, qarzG, btn) {
   var gEl = document.getElementById('kt-g-'+idx);
   var nEl = document.getElementById('kt-k-'+idx);
   var sEl = document.getElementById('kt-s-'+idx);
-  if(gEl) { gEl.value = active ? '' : qarzG; }
+  if(gEl) { gEl.value = active ? '' : roundG(qarzG); }   // v176.2
   if(!active && nEl && sEl) {
     var narx = parseFloat(nEl.value)||0;
     if(narx > 0) sEl.value = Math.round(qarzG * narx * 100) / 100;

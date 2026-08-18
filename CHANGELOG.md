@@ -3,6 +3,54 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176.2: uzun son yaxlitlandi + to'lov chekida naqt ko'rinadi
+
+Ibrohim ikki narsa aytdi.
+
+### 1) 5,209999999999999
+
+Himoya (`roundG` 2390, `fmtG` 2386) BOR edi, lekin faqat KO'RSATISHDA
+ishlardi. Ichkaridagi xom son maydonga tushardi. Ildiz: `_qarzTarkibRows`
+da qarz besh joyda yaxlitlanmasdan yig'iladi (16735, 16739, 16744, 16751,
+16762) -> 10.00 - 4.79 = 5.209999999999999.
+
+A DARAJASI qilindi (maydonga yozishda), ildiz Ibrohim qaroriga ko'ra KEYINGA:
+```
+15056  oBtn.dataset.oqarz = roundG(effOq)
+15066  gElO.value = effOq>0.001 ? roundG(effOq) : ''
+17373  gEl.value = active ? '' : roundG(qarzG)    (ksOffsetToggle)
+17387  gEl.value = active ? '' : roundG(qarzG)    (ktOffsetToggle)
+```
+Bug ESKI edi, v176.1 uni ko'rinadigan qildi (tugma endi o'zi yonadi).
+
+### 2) To'lov chekida naqt yo'qolishi
+
+`nb` FAQAT `kt-naqt-berildi` maydonidan o'qilardi (13950). Ibrohim unga
+tegmasa nb=0 bo'lib, "N" qatori chekka UMUMAN tushmasdi -- lom bor to'lovda
+naqt ko'rinmasdi. Sotuv chekida bu muammo yo'q edi.
+
+Endi: maydon bo'sh VA `dataset.userEdited` yo'q bo'lsa, hisoblangan kerakli
+naqtdan (`kt-kerakli-naqt` = jami - lom - skidka - offset) karta va perech
+ayirilib olinadi. Qo'lda yozilgan qiymat DOIM ustun.
+
+SINOV (blok index.html dan ajratib olinib, 7/7):
+```
+lom bor, maydon bo'sh   -> N = 477.24   (avval umuman chiqmasdi)
+qo'lda 300              -> 300
+qo'lda 0 (ataylab)      -> 0
+karta 200               -> N = 277.24   (ikki marta sanalmadi)
+karta hammasini yopgan  -> N chiqmaydi
+kerakli 0               -> N chiqmaydi
+```
+
+### YOZILMADI: sdacha B (pul qaytarish)
+
+Ibrohim "B - pul qaytarish" dedi, lekin bu KASSADAN PUL CHIQADIGAN amal va
+uch qaror kerak: qaysi ekrandan chaqiriladi, kassaga qanday yoziladi
+(chiqim tipi?), chekda qanday ko'rinadi. Taxmin bilan yozilmadi.
+
+---
+
 ## v176.1: sotuvda offset tugmasi O'ZI yonadi
 
 Ibrohim rasm bilan: klientda Diamond bo'yicha BIZ qarzdormiz (offset +5.42g),
