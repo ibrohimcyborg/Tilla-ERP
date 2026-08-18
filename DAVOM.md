@@ -104,8 +104,11 @@ aks holda pul hisobida xato bo'ladi. Uch qaror kerak:
 1. **Qaysi ekrandan?** Sotuv modalidagi `$ ✓` tugmasi yonidami, yoki alohida
    «sdacha bilan qaytarish» tugmasimi? (To'lov modalida sdacha allaqachon bor —
    sotuvga ham o'shani ulash kerakmi?)
-2. **Kassaga qanday yoziladi?** Bu chiqim — qaysi tipda? Mavjud chiqim
-   mexanizmi ishlatiladimi yoki yangi tip kerakmi?
+2. ~~**Kassaga qanday yoziladi?**~~ ✅ **IBROHIM JAVOB BERDI (2026-08-16):**
+   «chiqim qivorasan sdachani shunda» — ya'ni kassaga **CHIQIM** sifatida
+   yoziladi. Qolgan aniqlik: **qaysi chiqim tipi** (mavjud tiplardan birimi
+   yoki yangi «Sdacha» tipimi) — buni `sdachaTaqsimSaqla` (13431) va mavjud
+   chiqim mexanizmini o'qib aniqlash kerak.
 3. **Chekda qanday ko'rinadi?** Alohida qator («Sdacha −477.24$») yoki
    mavjud «Ortiqcha/Sdacha» blokiga qo'shiladimi?
 
