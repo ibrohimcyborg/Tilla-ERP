@@ -84,10 +84,26 @@ Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 imkonini so'radi. Mockupdagi to'rt variantdan **B — pul qaytarish** ni tanladi
 (`mockups/v176.2-uzun-son-va-sdacha.html`).
 
-⚠ **Yozilmadi** — bu **kassadan pul chiqadigan** amal, taxmin bilan yozilmaydi.
-Uch qaror kerak:
+**2026-08-16 TOPILMA — noldan yozilmaydi.** Ilovada **pul sdachasi mexanizmi
+TO'LIQ mavjud**, faqat u hozir **ortiqcha to'lov** uchun ishlaydi:
+
+| Nima | Qator |
+|---|---|
+| `sdachaTaqsimRender` — tanlash oynasi | **13528** |
+| `sdachaTaqsimSaqla` — saqlash + kassaga yozish | **13431** |
+| `window._ktSdachaTanlov = {tip:'sdacha'}` | **13629** |
+| `_ktSdachaPul` — chekka ketadigan summa | **13972–13977** |
+| `kt-sdacha-val` — ekrandagi ko'rsatkich | 1694 |
+
+Ya'ni Ibrohim so'ragani — **offset summasini xuddi ortiqcha to'lovdek** shu
+mexanizmga uzatish. Bu «noldan dizayn» emas, **mavjud yo'lga ulash**.
+
+⚠ **Baribir yozilmadi** — bu **kassadan pul chiqadigan** amal. Avval
+`sdachaTaqsimSaqla` (13431) ning kassaga NIMA yozishini o'qib chiqish shart,
+aks holda pul hisobida xato bo'ladi. Uch qaror kerak:
 1. **Qaysi ekrandan?** Sotuv modalidagi `$ ✓` tugmasi yonidami, yoki alohida
-   «sdacha bilan qaytarish» tugmasimi?
+   «sdacha bilan qaytarish» tugmasimi? (To'lov modalida sdacha allaqachon bor —
+   sotuvga ham o'shani ulash kerakmi?)
 2. **Kassaga qanday yoziladi?** Bu chiqim — qaysi tipda? Mavjud chiqim
    mexanizmi ishlatiladimi yoki yangi tip kerakmi?
 3. **Chekda qanday ko'rinadi?** Alohida qator («Sdacha −477.24$») yoki
