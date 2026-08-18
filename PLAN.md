@@ -144,8 +144,11 @@ Bulut orqali bo'lgani uchun **telefondan ham** ishga tushiriladi.
 - [ ] Yangi ekran: «Qarz eslatmalari» — 10+ kun, qarzi bor klientlar ro'yxati
 - [ ] Har qatorda: nom, kun, qarz, telefon, «suhbat bor/yo'q» belgisi
 - [ ] Telefoni yo'q / suhbati yo'q / yaqinda eslatilgan — kulrang, yuborilmaydi
-- [ ] Belgilash (checkbox) + «N ta eslatma yuborish» tugmasi
-- [ ] Tasdiqlangach `_tgnavbat/items` ga topshiriq yozish (matn tayyor holda)
+- [ ] ~~Belgilash + tugma~~ — Ibrohim **avtomat** yuborishni tanladi (javob 2).
+      Ro'yxat ekrani baribir kerak: **ko'rish va nazorat** uchun, lekin yuborish
+      uchun tugma bosilmaydi.
+- [ ] Nomzodlar ro'yxatini bulutga yozish (ilova har ochilganda) — arxitektura
+      savoli javobidan keyin («IBROHIM JAVOBLARI» 2-bandiga qara)
 - [ ] Xabar matni sozlamada tahrirlanadigan qolip bo'lsin
 
 ### 2-BOSQICH — PC dasturi (~180 qator)
@@ -162,13 +165,48 @@ Bulut orqali bo'lgani uchun **telefondan ham** ishga tushiriladi.
 4. [ ] **Bir klientga 7 kunda bir marta** — takror yo'q
 5. [ ] **Faqat 09:00–19:00** — kechasi yuborilgan xabar shubha uyg'otadi
 
-### IBROHIM JAVOB BERMAGAN SAVOLLAR (kod yozishdan OLDIN kerak)
+### IBROHIM JAVOBLARI (2026-08-16)
 
-1. **«10 kun» qaysi kundan?** Hozirgi `klientQarzHolat` **oxirgi to'lov/vozvratdan**
-   sanaydi. Shu to'g'rimi yoki **tilla berilgan kundan**mi?
-2. **Yuborish qanday boshlanadi?** (a) Ibrohim ro'yxatni ko'rib tugma bosadi
-   [tavsiya] yoki (b) har kuni belgilangan soatda o'zi yuboradi?
-3. **Xabar matni** — mockupdagi namuna to'g'rimi? Taqsimot bilanmi yoki qisqami?
+**1. «10 kun» — OXIRGI JARAYONDAN.** Ibrohim: «10kun oxirgi jarayondan kegin
+pul berishi ostatkaga yoki mol ogandan kegin ostatkaga». Ya'ni sanoq
+**har qanday amaldan** qayta boshlanadi: **to'lov** ham, **mol olish (berish)**
+ham hisoblanadi.
+
+⚠ **Bu mavjud kodni O'ZGARTIRADI.** `klientQarzHolat` (9656) hozir faqat
+`vozvrat`/`tolov` ni qaraydi, `berish` esa **faqat zaxira** sifatida ishlatiladi
+(agar umuman to'lov bo'lmagan bo'lsa):
+
+```
+hozir:  if(op.tip==='vozvrat' || op.tip==='tolov')     <- berish HISOBLANMAYDI
+kerak:  if(op.tip==='vozvrat' || op.tip==='tolov' || op.tip==='berish')
+```
+
+⚠⚠ **Bu Telegramdan tashqari joylarga ham tegadi.** `klientQarzHolat` uch
+joyda ishlatiladi va hammasida «N kun» yorlig'i va rangi (yashil/sariq/qizil)
+o'zgaradi:
+* **11471** — klientlar ro'yxatidagi yorliq
+* **11486** — «qizil» (qarzdorlar) ro'yxati va uning tartibi
+* **11722** — klient kartasi
+
+Kod yozishdan oldin Ibrohimga **ko'rsatib tasdiqlatish** kerak: mol olgan kun
+sanoqni qayta boshlagani uchun ko'p klient birdan «yashil» bo'lib qolishi mumkin.
+
+**2. O'ZI YUBORADI.** Ibrohim tugma bosmaydi — belgilangan soatda avtomat.
+
+⚠ **Bu arxitekturaga ta'sir qiladi — HAL QILINMAGAN.** Kim «kim 10 kun
+o'tgan» ro'yxatini hisoblaydi?
+* Ilova hisoblasa — ilova **yopiq** bo'lsa ro'yxat eskirib qoladi
+* PC dasturi hisoblasa — butun qarz mantiqini **Pythonda qaytadan yozish**
+  kerak bo'ladi. Bu v175 da endigina yopgan «yagona manba» qoidasini buzadi
+  (bir hisob ikki tilda → ikki xil raqam).
+
+Taklif (tasdiqlanmagan): **ilova har ochilganda/saqlanganda** nomzodlar
+ro'yxatini `_tgnavbat` yoniga yozib qo'yadi, PC dasturi esa faqat **yuboradi**
+va hisoblamaydi. Ibrohim ilovani har kuni ochgani uchun ro'yxat yangi qoladi.
+⚠ Ilova bir necha kun ochilmasa eslatma ham yuborilmaydi — bu qabul qilinadimi?
+
+**3. Xabar matni** — Ibrohim: «matnni ko'ramiz». Keyinroq hal qilinadi,
+mockupdagi namuna boshlang'ich nuqta.
 
 ### Sozlash — Ibrohim bir marta qiladi (~10 daqiqa)
 
