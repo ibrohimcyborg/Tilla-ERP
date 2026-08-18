@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Telegram orqali qarz ogohlantirish</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10);
+        --tg:#2AABEE}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-blu{background:var(--blu-bg);border:1px solid var(--blu)} .b-blu b{color:var(--blu)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:42px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.red{border-left:3px solid var(--red)}
+  .card.org{border-left:3px solid var(--org)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+       text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  .t-grn{background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn)}
+  .t-org{background:var(--org-bg);color:var(--org);border:1px solid var(--org)}
+  .t-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;border-bottom:1px solid var(--line)}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .org{color:var(--org)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+
+  /* Telegram xabar taqlidi */
+  .tgwrap{background:#17212b;border-radius:14px;padding:16px;margin:12px 0;
+          max-width:420px;border:1px solid #223}
+  .tghead{display:flex;align-items:center;gap:9px;margin-bottom:12px;
+          padding-bottom:10px;border-bottom:1px solid #223}
+  .tgav{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#b8942d);
+        display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1a1a1a}
+  .tgnom{font-size:14px;font-weight:600;color:#fff}
+  .tgsub{font-size:11px;color:#6d8199}
+  .msg{background:#2b5278;border-radius:12px;border-top-right-radius:4px;padding:11px 13px;
+       font-size:13.5px;color:#fff;line-height:1.55;white-space:pre-wrap;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif}
+  .msg b{color:#fff}
+  .msg .g{color:#7ee2a8} .msg .r{color:#ff9b9b} .msg .y{color:#ffd97d}
+  .tgtime{text-align:right;font-size:10.5px;color:#8aa;margin-top:5px}
+
+  /* ilova ekrani taqlidi */
+  .app{background:#faf9f7;border-radius:12px;padding:14px;margin:12px 0;max-width:430px}
+  .arow{background:#fff;border:1px solid #eee;border-radius:10px;padding:11px 13px;
+        margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .aleft .n{font-size:13.5px;font-weight:600;color:#222}
+  .aleft .d{font-size:11.5px;color:#888;margin-top:2px}
+  .abtn{background:var(--tg);color:#fff;border:0;border-radius:8px;padding:7px 13px;
+        font-size:12px;font-weight:600;white-space:nowrap}
+  .abtn.gray{background:#e8e6e1;color:#999}
+  .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+         margin-left:6px}
+  .b-r{background:#ffe8e8;color:#c53030} .b-y{background:#fff6e0;color:#b7791f}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Telegram orqali qarz ogohlantirish</h1>
+  <div class="sub">v176 taklifi · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-grn">
+    <b>Yaxshi xabar:</b> kerakli ikki narsa <b>allaqachon kodda bor</b> —
+    klient telefoni (<code>k.tel</code>) va «necha kun» hisoblagichi
+    (<code>klientQarzHolat</code>). Ya'ni noldan boshlanmaydi.
+  </div>
+</header>
+
+
+<!-- ═══════ 1 · KODDA NIMA BOR ═══════ -->
+<h2 class="sec">1 · <b>Kodda allaqachon bor</b></h2>
+
+<div class="card grn">
+  <table>
+    <thead><tr><th style="width:190px">Nima</th><th>Holat</th><th style="width:80px">Kod</th></tr></thead>
+    <tbody>
+      <tr><td><b>Klient telefoni</b></td>
+        <td>«📞 + Tel qo'shish» tugmasi ishlaydi, raqam <code>k.tel</code> da saqlanadi</td>
+        <td><span class="ln">11969</span></td></tr>
+      <tr><td><b>«Necha kun» hisobi</b></td>
+        <td>Oxirgi to'lov/vozvratdan beri o'tgan kun. Rangi ham bor:
+            ≤3 yashil · ≤7 sariq · &gt;7 qizil</td>
+        <td><span class="ln">9656</span></td></tr>
+      <tr><td><b>Qarz raqami</b></td>
+        <td>v175.2 dan beri hamma joyda bir xil — <code>klientJamiQarz</code></td>
+        <td><span class="ln">9670</span></td></tr>
+      <tr><td><b>Qarz tarkibi</b></td>
+        <td>Zavod·tur bo'yicha taqsimot — xabarga qo'shsa bo'ladi</td>
+        <td><span class="ln">16676</span></td></tr>
+    </tbody>
+  </table>
+  <p><b>«10 kun» sharti</b> to'g'ridan-to'g'ri yoziladi:
+  <code>klientQarzHolat(k).kun >= 10 && klientJamiQarz(k) > 0</code></p>
+</div>
+
+
+<!-- ═══════ 2 · TELEGRAM QOIDASI ═══════ -->
+<h2 class="sec">2 · <b>Telegramning qattiq qoidasi</b> — buni bilish shart</h2>
+
+<div class="card red">
+  <h3>Bot telefon raqamga xabar yubora olmaydi</h3>
+
+  <div class="banner b-red">
+    <b>Telegram botlari faqat o'zi bilan suhbat boshlagan odamga yoza oladi.</b>
+    Ya'ni klient <b>bir marta</b> botni ochib «Start» bosishi shart. Undan oldin
+    bot uning raqamini bilsa ham hech narsa yubora olmaydi.
+    <br><br>
+    Bu Telegramning o'z qoidasi — chetlab o'tish yo'li <b>yo'q</b>.
+  </div>
+
+  <p>Sizning «Butterfly Optom» raqamingiz — bu <b>oddiy Telegram hisobi</b>, bot emas.
+  Oddiy hisobdan dastur orqali avtomatik xabar yuborish ham mumkin, lekin:</p>
+
+  <ul>
+    <li>Telegram qoidasiga <b>zid</b> (ommaviy avtomat xabar)</li>
+    <li>Hisob <b>bloklanishi</b> mumkin — «Butterfly Optom» ni yo'qotasiz</li>
+    <li>Men buni <b>tavsiya qilmayman</b></li>
+  </ul>
+</div>
+
+
+<!-- ═══════ 3 · XABAR KO'RINISHI ═══════ -->
+<h2 class="sec">3 · <b>Xabar qanday ko'rinadi</b></h2>
+
+<div class="card">
+  <p>«Chiroyli qilib» degan qismi — mana shu. Uchala variantda ham xabar shunday bo'ladi:</p>
+
+  <div class="tgwrap">
+    <div class="tghead">
+      <div class="tgav">BO</div>
+      <div><div class="tgnom">Butterfly Optom</div>
+           <div class="tgsub">tilla ulgurji savdo</div></div>
+    </div>
+    <div class="msg"><b>Assalomu alaykum, Madina Opa!</b>
+
+Butterfly Optom hisobingiz bo'yicha eslatma.
+
+💰 <b>Qarz:</b> <span class="r">87.56 g</span>
+📅 <b>Oxirgi to'lov:</b> 06.08.2026 (<span class="y">10 kun</span> oldin)
+
+<b>Taqsimot:</b>
+  • Diamond · Oddiy — 43.80 g
+  • Premium · Oddiy — 14.18 g
+  • Simay · Oddiy — 12.03 g
+  • Merrit · Oddiy — 6.09 g
+  • Jilva · Oddiy — 5.22 g
+
+Iltimos, imkoniyat topib bog'laning.
+Rahmat! 🙏</div>
+    <div class="tgtime">14:32 ✓✓</div>
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Bu yerda ham tanlov bor</div>
+    <b>a)</b> Yuqoridagidek — <b>to'liq taqsimot bilan</b><br>
+    <b>b)</b> Qisqa — faqat umumiy qarz va kun, taqsimotsiz<br>
+    <b>c)</b> PDF ilova qilib — chek/hisobot fayl sifatida
+    <span class="dim">(faqat bot yo'lida mumkin)</span>
+  </div>
+</div>
+
+
+<!-- ═══════ 4 · UCH YO'L ═══════ -->
+<h2 class="sec">4 · <b>Uch yo'l</b></h2>
+
+<!-- A -->
+<div class="card grn">
+  <h3>A · Qo'lda yuborish — ilova matnni tayyorlaydi<span class="tag t-grn">Bugun ishlaydi</span></h3>
+
+  <p>Ilova ro'yxat chiqaradi, siz tugmani bosasiz — <b>Telegram ochiladi, matn
+  tayyor turadi</b>, siz klientni tanlab «Yuborish» bosasiz.</p>
+
+  <div class="app">
+    <div style="font-size:11px;color:#999;font-weight:700;letter-spacing:.06em;margin-bottom:9px">
+      MUDDATI O'TGAN KLIENTLAR · 10+ KUN</div>
+    <div class="arow">
+      <div class="aleft"><div class="n">Madina Opa Gold Sentr <span class="badge b-r">12 kun</span></div>
+        <div class="d">87.56 g · 📞 +998 90 123 45 67</div></div>
+      <button class="abtn">Telegram</button>
+    </div>
+    <div class="arow">
+      <div class="aleft"><div class="n">Asror Aka 23 <span class="badge b-y">10 kun</span></div>
+        <div class="d">41.56 g · 📞 +998 91 234 56 78</div></div>
+      <button class="abtn">Telegram</button>
+    </div>
+    <div class="arow">
+      <div class="aleft"><div class="n">Zulfiya Opa Andijon <span class="badge b-r">15 kun</span></div>
+        <div class="d">108.93 g · <span style="color:#c53030">raqam yo'q</span></div></div>
+      <button class="abtn gray">Tel qo'shish</button>
+    </div>
+  </div>
+
+  <table>
+    <tbody>
+      <tr><td class="ok"><b>Yaxshisi</b></td><td>Bot kerak emas · klient hech narsa qilmaydi · bloklanish xavfi yo'q · <b>bugun ishlaydi</b></td></tr>
+      <tr><td class="org"><b>Kamchiligi</b></td><td>Har klientga <b>o'zingiz</b> bosasiz (10 klient = 10 bosish)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chips">
+    <span class="chip"><b>Ish:</b> ~60–80 qator</span>
+    <span class="chip"><b>Server:</b> kerak emas</span>
+    <span class="chip"><b>Xavf:</b> yo'q</span>
+  </div>
+</div>
+
+<!-- B -->
+<div class="card blu">
+  <h3>B · Bot — to'liq avtomat<span class="tag t-org">Klient bir marta ruxsat beradi</span></h3>
+
+  <p>Yangi bot ochiladi (masalan <code>@ButterflyOptomBot</code>). Har klient
+  <b>bir marta</b> uni ochib «Start» bosadi — shundan keyin bot unga o'zi yozaveradi.</p>
+
+  <div class="lbl">Klientni qanday ulaymiz</div>
+  <ol>
+    <li>Ilova har klient uchun <b>havola</b> yoki <b>QR</b> chiqaradi</li>
+    <li>Siz uni klientga bir marta yuborasiz (yoki do'konda QR ko'rsatasiz)</li>
+    <li>Klient bosadi → bot «Assalomu alaykum, siz ulandingiz» deydi</li>
+    <li>Ilova o'sha klientga <code>chat_id</code> ni bog'lab qo'yadi</li>
+  </ol>
+
+  <p>Shundan keyin <b>har kuni avtomat</b> tekshiriladi va 10 kun bo'lganlarga
+  o'zi yuboriladi. Siz hech narsa bosmaysiz.</p>
+
+  <div class="banner b-red">
+    <b>⚠ Muhim xavfsizlik gapi.</b> Bot kaliti (token) <b>hech qachon</b> kodga
+    yozilmasligi kerak — sizning repongiz <b>ochiq</b> (buni oldin tekshirgan
+    edik). Kalit Vercel'ning yashirin sozlamasiga qo'yiladi, kodda faqat nomi turadi.
+  </div>
+
+  <table>
+    <tbody>
+      <tr><td class="ok"><b>Yaxshisi</b></td><td>To'liq avtomat · PDF ham yubora oladi · siz hech narsa qilmaysiz</td></tr>
+      <tr><td class="org"><b>Kamchiligi</b></td><td>Har klient bir marta «Start» bosishi kerak · server qismi kerak</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chips">
+    <span class="chip"><b>Ish:</b> ~250–350 qator</span>
+    <span class="chip"><b>Server:</b> yangi <code>api/telegram.py</code></span>
+    <span class="chip"><b>Kunlik tekshiruv:</b> Vercel cron</span>
+  </div>
+</div>
+
+<!-- C -->
+<div class="card red">
+  <h3>C · O'z hisobingizdan avtomat<span class="tag t-red">Tavsiya qilmayman</span></h3>
+  <p>«Butterfly Optom» hisobingizdan dastur orqali avtomat yuborish. Texnik jihatdan
+  mumkin, lekin Telegram qoidasiga zid va <b>hisob bloklanishi</b> mumkin.</p>
+  <p>Siz uchun bu — mijozlaringiz biladigan raqamni yo'qotish xavfi. Shuning uchun
+  batafsil yozmayman. Xohlasangiz alohida gaplashamiz.</p>
+</div>
+
+
+<!-- ═══════ 5 · TAVSIYA ═══════ -->
+<h2 class="sec">5 · <b>Mening tavsiyam</b></h2>
+
+<div class="card" style="border:1px solid var(--gold)">
+  <h3>Avval A, keyin kerak bo'lsa B</h3>
+
+  <p><b>Sababi:</b> A ni bir kunda qilish mumkin, hech qanday xavfi yo'q va
+  <b>darhol foyda beradi</b> — kimga yozish kerakligini ilova o'zi aytadi,
+  matnni o'zi tayyorlaydi. Siz faqat bosasiz.</p>
+
+  <p>Bir-ikki hafta ishlatib ko'rasiz. Agar «har kuni 10 ta bosish zerikarli»
+  desangiz — <b>o'shanda B</b> ga o'tamiz, va A da yig'ilgan telefon raqamlar
+  ham asqotadi.</p>
+
+  <div class="banner b-gold">
+    <b>Yana bir foyda:</b> A ni qilganda ilova qaysi klientda <b>telefon yo'qligini</b>
+    ham ko'rsatadi. Hozir raqamlar to'liq emas bo'lishi mumkin — shu ro'yxat
+    ularni to'ldirishga majbur qiladi. B uchun ham raqam kerak bo'ladi.
+  </div>
+</div>
+
+
+<!-- ═══════ QARORLAR ═══════ -->
+<h2 class="sec">Sizdan javob</h2>
+
+<div class="card blu">
+  <div class="qbox" style="margin-top:0">
+    <div class="lbl">1 — Qaysi yo'l?</div>
+    <b>A</b> (qo'lda, bugun) · <b>B</b> (bot, avtomat) · <b>avval A keyin B</b>
+    <span class="dim">(tavsiyam)</span>
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — Necha kundan boshlab?</div>
+    Siz «10 kun» dedingiz. Bu <b>oxirgi to'lovdan beri</b> o'tgan kun
+    (<code>klientQarzHolat</code> shuni hisoblaydi). To'g'rimi, yoki
+    <b>berilgan kundan</b> hisoblansinmi?
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">3 — Xabar matni</div>
+    Yuqoridagi namuna to'g'rimi? <b>Taqsimot bilan</b> (a) yoki <b>qisqa</b> (b)?
+    Matnni o'zgartirmoqchi bo'lsangiz — yozib bering, aynan shunday qilaman.
+  </div>
+
+  <div class="banner b-gold" style="margin-bottom:0">
+    Javobingizdan keyin TAXMIN BLOKI beraman, kod yozaman, sinayman va push qilaman.
+  </div>
+</div>
+
+</div>
+</body>
+</html>

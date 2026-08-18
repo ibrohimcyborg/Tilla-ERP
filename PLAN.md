@@ -1,9 +1,15 @@
-# PLAN.md — Dona bazaga to'liq o'tish rejasi
+# PLAN.md — kelajak ishlar rejasi
 
 > Bu fayl — **kelajak ish ro'yxati**. Ertaga ochib o'qiganda nima qilish
 > kerakligi shu yerdan ko'rinadi. Joriy holat esa DAVOM.md da.
 
 **Yozilgan:** v172.13 · 2026-08-05
+**Oxirgi qo'shimcha:** v176 Telegram rejasi · 2026-08-16
+
+Ichida uchta mustaqil reja bor:
+1. **Dona bazaga to'liq o'tish** — X1–X7, qaytadan shakllantirish, bayroq
+2. **«Qo'limizdagi ostatka» C bosqichi** — dushanba skan langari
+3. **Telegram qarz eslatmasi** — v176, ikki bosqich
 
 ---
 
@@ -84,6 +90,94 @@ C uchun qilinadigan ishlar:
 - [ ] Langar bilan tarix orasida farq chiqsa — farqni ko'rsatish
       (qayerda yozuv yetishmasligini topish vositasi)
 - [ ] Cloud sinxron: langar yozuvlari boshqa qurilmalarga ham borishi
+
+---
+
+## TELEGRAM — qarz eslatmasi (v176, KELAJAK)
+
+**Yozilgan:** 2026-08-16 · mockup: `mockups/v176-telegram-C-avtomat.html`
+(uch variant solishtiruvi: `mockups/v176-telegram-ogohlantirish.html`)
+
+Ibrohim: klient telefonini qo'shib, **muddati 10 kun** bo'lgan klientga
+Telegramdan chiroyli ogohlantirish yuborilsin.
+
+### Tanlangan yo'l: **C — o'z hisobidan avtomat (botsiz)**
+
+Ibrohim **A** (qo'lda) va **B** (bot) ni rad etdi, **C** ni tanladi.
+Sababi: bot uchun klient bir marta «Start» bosishi kerak, u kerak emas.
+
+⚠ **Xavf ochiq aytilgan va Ibrohim qabul qilgan:** Telegram o'z hisobidan
+avtomat xabar yuborishni taqiqlaydi, hisob bloklanishi mumkin. Ibrohim:
+«Block bo'maydi chunki profil Premium keyin klient bilan gaplashib turamiz».
+Premium himoya EMAS (limitni oshiradi, avtomatga ruxsat bermaydi) — bu
+aytilgan. Haqiqiy himoya — **mavjud suhbat**, u 1-qoidaga aylantirildi.
+
+### Kodda ALLAQACHON bor (noldan boshlanmaydi)
+
+| Nima | Qayerda |
+|---|---|
+| Klient telefoni `k.tel` | 11969 («+ Tel qo'shish») |
+| «Necha kun» `klientQarzHolat` | 9656 — oxirgi to'lov/vozvratdan beri |
+| Qarz raqami `klientJamiQarz` | 9670 (v175.2 dan yagona manba) |
+| Qarz tarkibi `_qarzTarkibRows` | 16676 |
+| **Navbat qolipi** | `_cheknavbat` (2036, 2136) — AYNAN shu nusxalanadi |
+| **PC dasturi qolipi** | `print_server.py` (stdlib `http.server`) |
+
+Shart: `klientQarzHolat(k).kun >= 10 && klientJamiQarz(k) > 0`
+
+### Arxitektura — chek printeri bilan bir xil
+
+```
+Ilova  ->  bulut navbati  ->  PC dasturi  ->  Telegram
+         (_tgnavbat)        (tg_server.py)
+```
+
+Bulut orqali bo'lgani uchun **telefondan ham** ishga tushiriladi.
+
+### Yangi fayllar
+
+- `tg_server.py` — PC da, `print_server.py` yonida. Telethon (MTProto).
+- `tg_session.dat` — Telegram kaliti. ⚠ **`.gitignore` ga SHART** — repo OCHIQ.
+
+### 1-BOSQICH — ilova tomoni (~120 qator)
+
+- [ ] Yangi ekran: «Qarz eslatmalari» — 10+ kun, qarzi bor klientlar ro'yxati
+- [ ] Har qatorda: nom, kun, qarz, telefon, «suhbat bor/yo'q» belgisi
+- [ ] Telefoni yo'q / suhbati yo'q / yaqinda eslatilgan — kulrang, yuborilmaydi
+- [ ] Belgilash (checkbox) + «N ta eslatma yuborish» tugmasi
+- [ ] Tasdiqlangach `_tgnavbat/items` ga topshiriq yozish (matn tayyor holda)
+- [ ] Xabar matni sozlamada tahrirlanadigan qolip bo'lsin
+
+### 2-BOSQICH — PC dasturi (~180 qator)
+
+- [ ] `tg_server.py`: Firestore `_tgnavbat` ni tinglaydi
+- [ ] Telethon bilan yuboradi, natijani navbatga qaytaradi (bajarildi/xato)
+- [ ] Bir martalik login oqimi (telefon + kod -> `tg_session.dat`)
+
+### XAVFSIZLIK QOIDALARI — kodga yoziladi, beshtasi ham
+
+1. [ ] **Faqat suhbati bor klientga** — eng muhimi, `get_dialogs` bilan tekshiriladi
+2. [ ] **40–60 soniyada bitta** — ketma-ket tez yuborish robotni bildiradi
+3. [ ] **Kuniga 20 ta** chegara — oshsa ertaga davom etadi
+4. [ ] **Bir klientga 7 kunda bir marta** — takror yo'q
+5. [ ] **Faqat 09:00–19:00** — kechasi yuborilgan xabar shubha uyg'otadi
+
+### IBROHIM JAVOB BERMAGAN SAVOLLAR (kod yozishdan OLDIN kerak)
+
+1. **«10 kun» qaysi kundan?** Hozirgi `klientQarzHolat` **oxirgi to'lov/vozvratdan**
+   sanaydi. Shu to'g'rimi yoki **tilla berilgan kundan**mi?
+2. **Yuborish qanday boshlanadi?** (a) Ibrohim ro'yxatni ko'rib tugma bosadi
+   [tavsiya] yoki (b) har kuni belgilangan soatda o'zi yuboradi?
+3. **Xabar matni** — mockupdagi namuna to'g'rimi? Taqsimot bilanmi yoki qisqami?
+
+### Sozlash — Ibrohim bir marta qiladi (~10 daqiqa)
+
+1. `my.telegram.org` dan API kaliti (bepul)
+2. `pip install telethon`
+3. Skriptni ishga tushirib telefon + Telegram kodi bilan kirish
+4. `tg_server.py` ni `print_server.py` kabi yoqib qo'yish
+
+⚠ PC yoqiq bo'lmasa ishlamaydi — chek printeri bilan bir xil cheklov.
 
 ---
 

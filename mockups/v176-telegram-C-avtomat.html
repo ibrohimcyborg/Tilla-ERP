@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Telegram C — o'z hisobingizdan avtomat</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10);
+        --tg:#2AABEE}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.65;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 90px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:32px 0 24px;margin-bottom:10px}
+  h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px}
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;margin:14px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-blu{background:var(--blu-bg);border:1px solid var(--blu)} .b-blu b{color:var(--blu)}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:42px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin-bottom:16px}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.red{border-left:3px solid var(--red)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card.gold{border-left:3px solid var(--gold)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  p{margin:0 0 9px} ul,ol{margin:0 0 9px;padding-left:20px} li{margin-bottom:6px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;
+       background:#0a0c10;padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;
+     text-transform:uppercase;letter-spacing:.07em;padding:8px 9px;border-bottom:1px solid var(--line)}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .org{color:var(--org)}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;
+      font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .add{color:var(--grn)} pre .cm{color:var(--muted)} pre .k{color:var(--gold)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;
+        padding:13px 16px;margin-top:15px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:16px 0 6px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}
+  .chip{font-size:12px;background:var(--card2);border:1px solid var(--line);
+        border-radius:20px;padding:5px 13px;color:var(--muted)}
+  .chip b{color:var(--txt);font-weight:600}
+
+  /* oqim sxemasi */
+  .flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .fbox{flex:1;min-width:150px;background:var(--card2);border:1px solid var(--line);
+        border-radius:10px;padding:13px 14px}
+  .fbox .t{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+           color:var(--gold);margin-bottom:5px}
+  .fbox .d{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .farr{display:flex;align-items:center;color:var(--gold);font-size:20px;flex:none}
+  @media(max-width:700px){.farr{transform:rotate(90deg);width:100%;justify-content:center}}
+
+  /* telegram xabar */
+  .tgwrap{background:#17212b;border-radius:14px;padding:16px;margin:12px 0;max-width:400px;border:1px solid #223}
+  .msg{background:#2b5278;border-radius:12px;border-top-right-radius:4px;padding:11px 13px;
+       font-size:13.5px;color:#fff;line-height:1.55;white-space:pre-wrap}
+  .msg .r{color:#ff9b9b} .msg .y{color:#ffd97d}
+  .tgtime{text-align:right;font-size:10.5px;color:#8aa;margin-top:5px}
+
+  /* ilova ekrani */
+  .app{background:#faf9f7;border-radius:12px;padding:14px;margin:12px 0;max-width:440px}
+  .arow{background:#fff;border:1px solid #eee;border-radius:10px;padding:11px 13px;
+        margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .aleft .n{font-size:13.5px;font-weight:600;color:#222}
+  .aleft .d{font-size:11.5px;color:#888;margin-top:2px}
+  .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px}
+  .b-r{background:#ffe8e8;color:#c53030} .b-y{background:#fff6e0;color:#b7791f}
+  .b-g{background:#e6f7ee;color:#2f855a}
+  .sendbtn{background:var(--tg);color:#fff;border:0;border-radius:9px;padding:11px;
+           width:100%;font-size:13.5px;font-weight:600;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Telegram C — o'z hisobingizdan avtomat</h1>
+  <div class="sub">v176 taklifi · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-grn">
+    <b>Sizning qaroringiz qabul qilindi.</b> Asosiy himoya —
+    <b>faqat suhbati bor klientga yuborish</b>. Siz aytganingizdek, mijozlar
+    bilan allaqachon yozishasiz; Telegram spam-himoyasi asosan notanish odamga
+    yuborilganda ishlaydi.
+  </div>
+</header>
+
+
+<!-- ═══════ 1 · SXEMA ═══════ -->
+<h2 class="sec">1 · <b>Qanday ishlaydi</b></h2>
+
+<div class="card">
+  <p>Bu <b>allaqachon ishlab turgan qolip</b> — chek printeri xuddi shunday ishlaydi
+  (v172.28). Ya'ni yangi narsa o'ylab topilmaydi.</p>
+
+  <div class="flow">
+    <div class="fbox"><div class="t">1 · Ilova</div>
+      <div class="d">Har kuni tekshiradi: kimda qarz bor va 10 kun o'tgan.
+        Ro'yxat chiqaradi, siz ko'rasiz.</div></div>
+    <div class="farr">→</div>
+    <div class="fbox"><div class="t">2 · Navbat</div>
+      <div class="d">Siz tasdiqlagach topshiriq bulutga yoziladi —
+        <code>_tgnavbat</code>. Chek navbati bilan bir xil.</div></div>
+    <div class="farr">→</div>
+    <div class="fbox"><div class="t">3 · PC</div>
+      <div class="d">Kompyuteringizdagi dastur navbatni tinglaydi va sizning
+        Telegram hisobingizdan yuboradi.</div></div>
+  </div>
+
+  <div class="banner b-blu">
+    <b>Nega bulut orqali?</b> Shunda <b>telefondan ham</b> ishga tushirasiz —
+    ilova telefonda, yuboruvchi PC da. Chek printeri aynan shu sababdan
+    shunday qilingan edi.
+  </div>
+
+  <div class="lbl">Yangi fayl — bitta</div>
+  <table>
+    <thead><tr><th style="width:170px">Fayl</th><th>Nima qiladi</th></tr></thead>
+    <tbody>
+      <tr><td><code>tg_server.py</code></td>
+        <td>PC da turadi, <code>print_server.py</code> yonida. Navbatni tinglaydi,
+            Telegramga yuboradi.</td></tr>
+      <tr><td><code>tg_session.dat</code></td>
+        <td class="dim">Sizning Telegram kalitingiz. <b>Faqat PC da</b>,
+            <code>.gitignore</code> ga yoziladi, repoga hech qachon tushmaydi.</td></tr>
+      <tr><td><code>index.html</code></td>
+        <td>Yangi ekran: «Qarz eslatmalari» + navbatga yozish. <span class="dim">~120 qator</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════ 2 · ILOVADA ═══════ -->
+<h2 class="sec">2 · <b>Ilovada nima ko'rasiz</b></h2>
+
+<div class="card blu">
+  <h3>Yuborishdan oldin ro'yxat va tasdiq</h3>
+  <p>Avtomat degani «ko'r-ko'rona» degani emas. Ilova ro'yxatni ko'rsatadi,
+  siz bir marta tasdiqlaysiz — keyin PC o'zi yuboradi.</p>
+
+  <div class="app">
+    <div style="font-size:11px;color:#999;font-weight:700;letter-spacing:.06em;margin-bottom:9px">
+      QARZ ESLATMALARI · 10+ KUN</div>
+
+    <div class="arow">
+      <div class="aleft"><div class="n">Madina Opa Gold Sentr <span class="badge b-r">12 kun</span></div>
+        <div class="d">87.56 g · 📞 +998 90 123 45 67 · <span style="color:#2f855a">suhbat bor ✓</span></div></div>
+      <input type="checkbox" checked style="width:19px;height:19px;accent-color:#2AABEE">
+    </div>
+
+    <div class="arow">
+      <div class="aleft"><div class="n">Asror Aka 23 <span class="badge b-y">10 kun</span></div>
+        <div class="d">41.56 g · 📞 +998 91 234 56 78 · <span style="color:#2f855a">suhbat bor ✓</span></div></div>
+      <input type="checkbox" checked style="width:19px;height:19px;accent-color:#2AABEE">
+    </div>
+
+    <div class="arow" style="opacity:.55">
+      <div class="aleft"><div class="n">Zulfiya Opa Andijon <span class="badge b-r">15 kun</span></div>
+        <div class="d">108.93 g · <span style="color:#c53030">raqam yo'q</span></div></div>
+      <span style="font-size:11px;color:#999">yuborilmaydi</span>
+    </div>
+
+    <div class="arow" style="opacity:.55">
+      <div class="aleft"><div class="n">Dilfuza Opa Sadaf <span class="badge b-y">11 kun</span></div>
+        <div class="d">50.40 g · 📞 +998 93 000 00 00 · <span style="color:#b7791f">suhbat yo'q</span></div></div>
+      <span style="font-size:11px;color:#999">yuborilmaydi</span>
+    </div>
+
+    <div class="arow" style="opacity:.55">
+      <div class="aleft"><div class="n">Marhabo Opa TJK <span class="badge b-g">3 kun oldin</span></div>
+        <div class="d">22.10 g · yaqinda eslatilgan</div></div>
+      <span style="font-size:11px;color:#999">takror emas</span>
+    </div>
+
+    <button class="sendbtn">📨 2 ta eslatma yuborish</button>
+    <div style="font-size:11px;color:#888;text-align:center;margin-top:7px">
+      har 45 soniyada bittadan · taxminan 1 daqiqa</div>
+  </div>
+</div>
+
+
+<!-- ═══════ 3 · XAVFSIZLIK ═══════ -->
+<h2 class="sec">3 · <b>Xavfni kamaytiradigan qoidalar</b></h2>
+
+<div class="card red">
+  <h3>Beshta qoida — hammasi kodga yoziladi</h3>
+  <table>
+    <thead><tr><th style="width:34px">#</th><th>Qoida</th><th>Nima uchun</th></tr></thead>
+    <tbody>
+      <tr><td><b>1</b></td><td><b>Faqat suhbati bor klientga</b></td>
+        <td class="dim">Eng muhimi. Notanish odamga yuborish — bloklanishning
+            asosiy sababi. Suhbat yo'q bo'lsa ro'yxatda kulrang turadi.</td></tr>
+      <tr><td><b>2</b></td><td><b>Sekin yuborish</b> — 40–60 soniyada bitta</td>
+        <td class="dim">Ketma-ket tez yuborish robot ekanini bildiradi.</td></tr>
+      <tr><td><b>3</b></td><td><b>Kunlik chegara</b> — masalan 20 ta</td>
+        <td class="dim">Ko'p bo'lsa ertaga davom etadi.</td></tr>
+      <tr><td><b>4</b></td><td><b>Takror yo'q</b> — bir klientga 7 kunda bir marta</td>
+        <td class="dim">Klientni ham bezdirmaydi, xavfni ham kamaytiradi.</td></tr>
+      <tr><td><b>5</b></td><td><b>Ish vaqtida</b> — 09:00–19:00</td>
+        <td class="dim">Kechasi yuborilgan xabar shubha uyg'otadi.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-red">
+    <b>Ochiq aytaman:</b> bu qoidalar xavfni <b>ancha</b> kamaytiradi, lekin
+    <b>nolga tushirmaydi</b>. Premium ham himoya emas — u limitlarni oshiradi,
+    avtomat yuborishga ruxsat bermaydi. Qaror sizniki, men bajaraman.
+  </div>
+</div>
+
+
+<!-- ═══════ 4 · XABAR ═══════ -->
+<h2 class="sec">4 · <b>Xabar</b></h2>
+
+<div class="card">
+  <div class="tgwrap">
+    <div class="msg"><b>Assalomu alaykum, Madina Opa!</b>
+
+Butterfly Optom hisobingiz bo'yicha eslatma.
+
+💰 <b>Qarz:</b> <span class="r">87.56 g</span>
+📅 <b>Oxirgi to'lov:</b> 06.08.2026 (<span class="y">12 kun</span> oldin)
+
+<b>Taqsimot:</b>
+  • Diamond · Oddiy — 43.80 g
+  • Premium · Oddiy — 14.18 g
+  • Simay · Oddiy — 12.03 g
+
+Iltimos, imkoniyat topib bog'laning.
+Rahmat! 🙏</div>
+    <div class="tgtime">14:32 ✓✓</div>
+  </div>
+  <p class="dim" style="font-size:13px">Matn <b>sozlamada tahrirlanadi</b> —
+  o'zgartirmoqchi bo'lsangiz kodga tegmasdan yozasiz. Ism, qarz, kun va
+  taqsimot avtomat qo'yiladi.</p>
+</div>
+
+
+<!-- ═══════ 5 · SOZLASH ═══════ -->
+<h2 class="sec">5 · <b>Bir martalik sozlash</b> — siz qilasiz</h2>
+
+<div class="card gold">
+  <ol>
+    <li><b>Telegram API kaliti</b> — <code>my.telegram.org</code> saytiga kirib
+        olasiz (bepul, 2 daqiqa)</li>
+    <li><b>Kutubxona</b> — <code>pip install telethon</code></li>
+    <li><b>Bir marta kirish</b> — skriptni ishga tushirasiz, telefon raqam va
+        Telegram yuborgan kodni kiritasiz. <code>tg_session.dat</code> yaratiladi.</li>
+    <li>Tamom — keyin <code>tg_server.py</code> ni <code>print_server.py</code>
+        kabi yoqib qo'yasiz</li>
+  </ol>
+
+  <div class="banner b-red">
+    <b>⚠ Kalit hech qachon repoga tushmaydi.</b> Repongiz ochiq — buni oldin
+    tekshirgan edik. <code>tg_session.dat</code> va API kaliti
+    <code>.gitignore</code> ga yoziladi. Men ularni ko'rmayman.
+  </div>
+
+  <div class="chips">
+    <span class="chip"><b>Sizdan:</b> ~10 daqiqa, bir marta</span>
+    <span class="chip"><b>PC yoqiq bo'lishi shart</b></span>
+    <span class="chip"><b>Kod:</b> ~120 (ilova) + ~180 (PC dasturi)</span>
+  </div>
+</div>
+
+
+<!-- ═══════ QARORLAR ═══════ -->
+<h2 class="sec">Sizdan javob</h2>
+
+<div class="card blu">
+  <div class="qbox" style="margin-top:0">
+    <div class="lbl">1 — «10 kun» qaysi kundan?</div>
+    Hozirgi hisoblagich (<code>klientQarzHolat</code>) <b>oxirgi to'lov yoki
+    vozvratdan</b> beri sanaydi. Shu to'g'rimi, yoki <b>tilla berilgan kundan</b>
+    sanalsinmi?
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">2 — Yuborish qanday boshlanadi?</div>
+    <b>a)</b> Siz ro'yxatni ko'rib «Yuborish» bosasiz
+    <span class="dim">(tavsiyam — nazorat sizda qoladi)</span><br>
+    <b>b)</b> Har kuni belgilangan soatda <b>o'zi</b> yuboradi, siz aralashmaysiz
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">3 — Xabar matni</div>
+    Yuqoridagi namuna to'g'rimi? Taqsimot bilanmi yoki qisqami?
+    O'zgartirmoqchi bo'lsangiz — yozib bering, aynan shunday qilaman.
+  </div>
+
+  <div class="banner b-gold" style="margin-bottom:0">
+    Javobingizdan keyin TAXMIN BLOKI beraman va boshlaymiz. Ish katta —
+    <b>ikki bosqichga</b> bo'laman: avval ilova tomoni (ro'yxat + navbat),
+    keyin PC dasturi. Har bosqich alohida sinaladi.
+  </div>
+</div>
+
+</div>
+</body>
+</html>
