@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uzun son va sdacha</title>
+<style>
+  :root{--bg:#0e1015;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaef;
+        --muted:#8d95a5;--gold:#d4af37;--gold-bg:rgba(212,175,55,.10);
+        --red:#e5555f;--red-bg:rgba(229,85,95,.10);--org:#e08a3c;--org-bg:rgba(224,138,60,.10);
+        --grn:#48b881;--grn-bg:rgba(72,184,129,.10);--blu:#5b9bd5;--blu-bg:rgba(91,155,213,.10)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;
+       font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 80px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);padding:30px 0 22px;margin-bottom:8px}
+  h1{margin:0 0 8px;font-size:24px}
+  .sub{color:var(--muted);font-size:13.5px}
+  h2.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
+         margin:38px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h2.sec b{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+  .card.red{border-left:3px solid var(--red)}
+  .card.grn{border-left:3px solid var(--grn)}
+  .card.blu{border-left:3px solid var(--blu)}
+  .card h3{margin:0 0 8px;font-size:17px}
+  .banner{border-radius:10px;padding:12px 15px;font-size:13.5px;margin:12px 0}
+  .b-gold{background:var(--gold-bg);border:1px solid var(--gold)} .b-gold b{color:var(--gold)}
+  .b-grn{background:var(--grn-bg);border:1px solid var(--grn)} .b-grn b{color:var(--grn)}
+  .b-red{background:var(--red-bg);border:1px solid var(--red)} .b-red b{color:var(--red)}
+  p{margin:0 0 8px} ul,ol{margin:0 0 8px;padding-left:20px} li{margin-bottom:5px}
+  code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:#0a0c10;
+       padding:1.5px 6px;border-radius:4px;color:#c9d1d9}
+  .ln{color:var(--gold);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;
+     letter-spacing:.07em;padding:8px 9px;border-bottom:1px solid var(--line)}
+  td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .ok{color:var(--grn)} .bad{color:var(--red)} .dim{color:var(--muted)} .org{color:var(--org)}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+      overflow-x:auto;font-size:12.5px;margin:8px 0;font-family:ui-monospace,Consolas,monospace;line-height:1.55}
+  pre .add{color:var(--grn)} pre .del{color:var(--red)} pre .cm{color:var(--muted)}
+  .qbox{background:var(--gold-bg);border:1px solid var(--gold);border-radius:9px;padding:13px 16px;
+        margin-top:14px;font-size:13.5px}
+  .qbox .lbl{color:var(--gold);margin-top:0}
+  .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+       font-weight:700;margin:15px 0 6px}
+  .big{font-family:ui-monospace,Consolas,monospace;font-size:17px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Uzun son va sdacha</h1>
+  <div class="sub">v176.2 tashxisi · 2026-08-16 · <b>kod yozilmagan</b></div>
+  <div class="banner b-red">
+    Ikki alohida narsa: <b>1)</b> <code>5,209999999999999</code> bug'i —
+    tashxis tayyor · <b>2)</b> offsetni sdacha qilib berish — savol bor.
+  </div>
+</header>
+
+
+<h2 class="sec">1 · <b>5,209999999999999 — sabab topildi</b></h2>
+
+<div class="card red">
+  <h3>Himoya bor, lekin noto'g'ri joyda</h3>
+
+  <p>Siz haqsiz — himoya <b>bor</b>:</p>
+  <pre>roundG(v) = Math.round(v * 100) / 100     <span class="cm">// 2390</span>
+fmtG(g)   = Math.abs(v).toFixed(2)        <span class="cm">// 2386</span></pre>
+
+  <div class="banner b-gold">
+    <b>Lekin u faqat KO'RSATISHDA ishlatiladi, SAQLASHDA emas.</b>
+    Shuning uchun ekranda <code>+5.21g</code> deb chiroyli chiqadi, lekin
+    ichkarida raqam <code>5.209999999999999</code> bo'lib yuradi. Maydonga
+    o'sha xom raqam tushgan.
+  </div>
+
+  <div class="lbl">Ildiz — qarz yig'indisi hech qayerda yaxlitlanmaydi</div>
+  <p><code>_qarzTarkibRows</code> ichida qarz <b>beshta joyda</b> qo'shiladi va
+  ayiriladi, <b>birortasi ham</b> yaxlitlanmaydi:</p>
+  <pre><span class="ln">16735</span>  qbd[key].qarz += op.gramm;
+<span class="ln">16739</span>  qbd[key].qarz -= op.gramm;
+<span class="ln">16744</span>  qbd[key].qarz -= (op.ekvivalent||0);
+<span class="ln">16751</span>  qbd[key].qarz += (op.ekvivalent||0);
+<span class="ln">16762</span>  qbd[key].qarz -= op.gramm;</pre>
+
+  <p>Har qo'shuvda kichik xato yig'iladi. Masalan:</p>
+  <pre>  2.77 + 2.44        = 5.210000000000001
+  10.00 - 4.79       = 5.209999999999999   <span class="cm">&lt;- sizdagi holat</span></pre>
+
+  <div class="banner b-red">
+    <b>Nega hozir ko'rindi:</b> v176.1 gacha bu raqam maydonga faqat siz
+    <code>$</code> tugmasini <b>qo'lda bosganingizda</b> tushardi. Endi tugma
+    o'zi yonadi — shuning uchun <b>har safar</b> ko'rinadi.
+    <br><br>
+    Ya'ni <b>bug eski</b>, v176.1 uni ko'rinadigan qildi.
+  </div>
+</div>
+
+<div class="card grn">
+  <h3>Ikki darajali tuzatish</h3>
+
+  <div class="lbl">A daraja — maydonga yozishda (tez, xavfsiz)</div>
+  <pre><span class="del">- gEl.value = active ? '' : qarzG;</span>
+<span class="add">+ gEl.value = active ? '' : roundG(qarzG);</span>
+<span class="cm">  17371 (ksOffsetToggle) · 17385 (ktOffsetToggle) · 15066 · 14766</span></pre>
+  <p class="dim" style="font-size:13px">Simptomni darhol yopadi. <b>~4 qator.</b>
+  Hisobga tegmaydi, faqat maydonga toza son yoziladi.</p>
+
+  <div class="lbl">B daraja — ildizda (to'g'riroq, lekin kengroq)</div>
+  <pre><span class="add">qbd[key].qarz = roundG(qbd[key].qarz + op.gramm);</span>
+<span class="cm">  16735, 16739, 16744, 16751, 16762 — beshta joy</span></pre>
+  <p class="dim" style="font-size:13px"><b>~5 qator</b>, lekin <code>_qarzTarkibRows</code>
+  hozir <b>hamma joyda</b> ishlatiladi (klient ekrani, ro'yxat, qidiruv, PDF, chek —
+  v175.2 dan beri yagona manba). Raqamlar 0.01 g darajasida siljishi mumkin.</p>
+
+  <div class="banner b-gold">
+    <b>Tavsiyam: A ni hozir, B ni alohida versiyada.</b> A darhol ko'rinadigan
+    muammoni yopadi va hech nimani buzmaydi. B esa butun ilovaga tegadi —
+    uni alohida qilib, keyin diqqat bilan tekshirish kerak.
+  </div>
+</div>
+
+
+<h2 class="sec">2 · <b>Offsetni sdacha qilib berish</b></h2>
+
+<div class="card blu">
+  <h3>Bu joyni tushunmadim — savolim bor</h3>
+  <p>Siz: «offset qilib sdachi qilib bervorishshi qo'shish kere, sdacha chiqsin».</p>
+
+  <p>Hozir biz qarzdor bo'lsak, <code>$ ✓</code> bosilganda offset
+  <b>qarzni kamaytirishga</b> ketadi. Siz esa uni <b>sdacha qilib qaytarish</b>
+  imkonini so'rayapsiz shekilli. Lekin qaysi ma'noda — aniq emas.</p>
+
+  <table>
+    <thead><tr><th style="width:34px"></th><th>Tushunish</th><th>Misol: bizda +5.21g</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b></td>
+        <td><b>Tilla qaytarish.</b> Offsetni qarzga hisoblamay, klientga
+            5.21 g tilla berib yuborish. Qarz o'zgarmaydi.</td>
+        <td class="dim">klient 5.21 g oladi<br>offset yopiladi</td></tr>
+      <tr><td><b>B</b></td>
+        <td><b>Pul qaytarish.</b> 5.21 × 91.6 = 477.24$ naqd berish.</td>
+        <td class="dim">klient 477.24$ oladi<br>offset yopiladi</td></tr>
+      <tr><td><b>C</b></td>
+        <td><b>«Klientda qolsin».</b> Mavjud sdacha yozuvi
+            (<code>tip:'klientda'</code>) bilan bir xil — keyingi safarga qoladi.</td>
+        <td class="dim">yozuv yoziladi<br>keyin ishlatiladi</td></tr>
+      <tr><td><b>D</b></td>
+        <td><b>Qisman.</b> Bir qismi qarzga, qolgani sdachaga — siz taqsimlaysiz.</td>
+        <td class="dim">masalan 3 g qarzga<br>2.21 g sdachaga</td></tr>
+    </tbody>
+  </table>
+
+  <div class="banner b-gold">
+    Ilovada <b>sdacha allaqachon bor</b> — <code>tip:'klientda'</code> yozuvi,
+    klient tarixida <code>↩ Butterfly · Oddiy</code> bo'lib chiqadi va qarz
+    tarkibida «biz qarzdor» qatoriga tushadi. Ya'ni <b>C</b> bo'lsa mexanizm
+    tayyor, faqat sotuv modalidan chaqirish kerak.
+  </div>
+
+  <div class="qbox">
+    <div class="lbl">Savolim</div>
+    <b>A / B / C / D</b> — qaysi biri? Yoki boshqacha tushuntirib bering,
+    misol bilan: «bizda 5.21 bor, men shuni qilaman, natijada shu bo'lishi kerak».
+  </div>
+</div>
+
+
+<h2 class="sec">Xulosa</h2>
+<div class="card" style="border:1px solid var(--gold)">
+  <table>
+    <tbody>
+      <tr><td style="width:30px">1</td>
+        <td><b>Uzun son</b> — tashxis tayyor. <b>A darajani hozir qilaymi?</b>
+            (~4 qator, xavfsiz)</td></tr>
+      <tr><td>2</td>
+        <td><b>Ildiz tuzatish (B)</b> — alohida versiyada, tekshiruv bilan.
+            Hozir kerakmi yoki keyinroqmi?</td></tr>
+      <tr><td>3</td>
+        <td><b>Sdacha</b> — A/B/C/D dan qaysi biri?</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

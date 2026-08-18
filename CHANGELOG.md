@@ -50,6 +50,31 @@ ikkinchi chizish -> qayta toggle chaqirilmadi
 
 ---
 
+## v176.1: sotuvda offset tugmasi o'zi yonadi (A varianti)
+
+Ibrohim: "ptichka qo'shilishi kere automat", mockupdan **A** tanlandi
+(`mockups/v176.1-ptichka-A-B.html`).
+
+`kSotuvRenderTolov` (14680) oxirida bir marta o'tish: biz qarzdor bo'lgan
+turlarda `ksOffsetToggle` chaqiriladi. Yangi mantiq YOZILMADI -- natija qo'lda
+bosish bilan AYNAN bir xil (gramm to'ldiriladi + kSotuvTolovUpd).
+
+Tugma ko'rinmasa (biz qarzdor emasmiz) yoki blok allaqachon ochiq bo'lsa
+tegilmaydi -- qo'lda o'chirilgani qayta yonib ketmaydi.
+
+SINOV (soxta DOM, ksOffsetToggle va avtomat blok index.html dan olinib, 13/13):
+```
+[0-0] biz qarzdor 5.42 -> blok ochildi, "$ ✓", gramm 5.42, kSotuvTolovUpd chaqirildi
+[0-1] klient qarzdor  -> TEGILMADI (blok yopiq, gramm bo'sh)
+[1-0] allaqachon ochiq -> qayta o'chmadi, gramm 7.33 saqlandi
+ikkinchi marta chizilsa -> 0-0 ochiqligicha qoldi, toggle qayta chaqirilmadi
+```
+
+TEGILMADI: chek va saqlash yo'li (`_svRowUsed` 15978) -- Ibrohim "chekda
+allaqachon bor" dedi. `ktOffsetToggle` (to'lov modali) ham tegilmadi.
+
+---
+
 ## v176: skan oynasi bir vaqtda faqat BITTA ochiq turadi
 
 Ibrohim rasm bilan: "skanni bossa tepadigi o'chsin skan oyna faqat 1tada tursin

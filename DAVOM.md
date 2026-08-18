@@ -575,6 +575,7 @@ Qaror qabul qilinmagan.
 | Versiya | Nima qilindi |
 |---|---|
 | v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
+| v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
 | v176 | **Skan oynasi bir vaqtda bitta** — vozvrat/sotuvda ham (`_skanUniYop` 12745) |
 | v175.5 | **Nol farqda tarixga yozuv yozilmaydi** (`ostFormSaqla` 8712) |
 | v175.4 | **Ostatka tekshiruvi hisobotda ko'rinmaydi** (`renderHisobot` 5134, `renderZavodHisobot` 6066) |
