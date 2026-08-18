@@ -3,6 +3,42 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176: skan oynasi bir vaqtda faqat BITTA ochiq turadi
+
+Ibrohim rasm bilan: "skanni bossa tepadigi o'chsin skan oyna faqat 1tada tursin
+berish sotuv vozvrat modalida".
+
+TOPILMA: **berish modalida bu ALLAQACHON ishlardi** -- `kbSkanToggle` (12239)
+ochishdan oldin hamma `kbskan-*` panelni yopardi. Vozvrat / sotuv / to'lov /
+ostatka modallarida (`uniSkanToggle`) bu YO'Q edi, shuning uchun bir nechta
+skan oynasi bir vaqtda ochiq turardi.
+
+Ikki yordamchi qo'shildi:
+```
+_skanUniYop(saqlaFid)  -> usp-* panellarni yopadi, usb-* tugma rangini tiklaydi
+_skanKbYop()           -> kbskan panellarni yopadi (aka-uka idlarga tegmaydi)
+```
+Chaqiruvlar:
+* `uniSkanToggle` (12767) -- OCHISHDAN oldin ikkalasini chaqiradi
+* `kbSkanToggle` (12244) -- `_skanUniYop(null)` qo'shildi, o'z sikli TEGILMADI
+
+TEGILMADI: `pass1` / `pass2`, `uniSkanAdd`, `uniSkanDona`, `uniSkanArr`, dona
+registri, `_skanChipHTML` -- faqat KO'RINISH yopiladi. Panel qayta ochilganda
+skan qilingan grammlar joyida turadi.
+
+Yopish (ochiq panelni ikkinchi marta bosish) boshqa panellarga TEGMAYDI -- faqat
+OCHISH qolganini yopadi.
+
+SINOV (soxta DOM, mantiq index.html dan ajratib olinib, 12/12):
+```
+a ochildi -> b ochildi -> a yopildi, usb-a rangi tiklandi
+c ochildi -> b yopildi, BERISH paneli (kbskan-0_0) ham yopildi
+kbskan-btn- TEGILMADI (tugma korinib turibdi)
+c YOPILGANDA a ochiqligicha qoldi
+```
+
+---
+
 ## v175.5: nol farqda tarixga yozuv yozilmaydi
 
 Ibrohim: "bunaqa mayda xatola orqa fondayam qomasin chunki vaqt o'tib kotta bug

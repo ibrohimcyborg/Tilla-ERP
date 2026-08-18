@@ -1,4 +1,4 @@
-<!-- v175.5 -->
+<!-- v176 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v175.5';
+var APP_VER = 'v176';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -12241,6 +12241,7 @@ function kbSkanToggle(zi,ti){
       && p.id.indexOf('kbskan-rec-')!==0 && p.id.indexOf('kbskan-cnt-')!==0 && p.id.indexOf('kbskan-sum-')!==0
       && p.id.indexOf('kbskan-m1-')!==0 && p.id.indexOf('kbskan-m2-')!==0) p.style.display = 'none';
   });
+  _skanUniYop(null);   // v176: vozvrat/sotuv panellari ham yopilsin
   if (willOpen) {
     if (!_kbSkanState[key]) _kbSkanState[key] = { mode:1, pass1:[], pass2:[] };
     panel.style.display = 'block';
@@ -12736,10 +12737,34 @@ function uniSkanPanel(fid){
     +'<div id="usrec-'+fid+'" style="display:none;"></div>'
     +'</div>';
 }
+// v176 (Ibrohim: "skanni bossa tepadigi o'chsin, skan oyna faqat 1tada tursin"):
+// bir vaqtda faqat BITTA skan paneli ochiq turadi. Berish modalida bu ALLAQACHON
+// bor edi (kbSkanToggle), vozvrat/sotuv/to'lov modallarida YO'Q edi.
+// ⚠ Skan MA'LUMOTIGA tegilmaydi — pass1/pass2 joyida qoladi, panel qayta
+// ochilganda hammasi o'rnida turadi. Faqat ko'rinish yopiladi.
+function _skanUniYop(saqlaFid){
+  document.querySelectorAll('[id^="usp-"]').forEach(function(el){
+    var fid = el.id.slice(4);
+    if(fid===saqlaFid || el.style.display==='none') return;
+    el.style.display='none';
+    var b=document.getElementById('usb-'+fid);
+    if(b){ b.style.background='var(--surf2)'; b.style.color='var(--muted)'; }
+  });
+}
+function _skanKbYop(){
+  document.querySelectorAll('[id^="kbskan-"]').forEach(function(el){
+    if (el.id.indexOf('kbskan-btn-')===0 || el.id.indexOf('kbskan-inp-')===0
+      || el.id.indexOf('kbskan-rows-')===0 || el.id.indexOf('kbskan-rec-')===0
+      || el.id.indexOf('kbskan-cnt-')===0 || el.id.indexOf('kbskan-sum-')===0
+      || el.id.indexOf('kbskan-m1-')===0 || el.id.indexOf('kbskan-m2-')===0) return;
+    el.style.display='none';
+  });
+}
 function uniSkanToggle(fid){
   var p=document.getElementById('usp-'+fid), b=document.getElementById('usb-'+fid);
   if(!p) return;
   var ochiq = p.style.display!=='none';
+  if(!ochiq){ _skanUniYop(fid); _skanKbYop(); }   // v176: ochishdan oldin qolganini yop
   p.style.display = ochiq?'none':'block';
   if(b){ b.style.background=ochiq?'var(--surf2)':'var(--gold)'; b.style.color=ochiq?'var(--muted)':'var(--on-gold)'; }
   if(!ochiq){
