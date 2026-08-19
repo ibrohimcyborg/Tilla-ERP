@@ -1,4 +1,4 @@
-<!-- v176.4 -->
+<!-- v176.5 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.4';
+var APP_VER = 'v176.5';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10616,6 +10616,10 @@ function kTolovChekGen(d){
   // (_ktSdachaPul faqat tanlov.tip==='sdacha' bo'lganda to'ldiriladi)
   if(d.sdacha) t+=DOTS+rj(' Qolgan summa -> '+d.sdacha.qayerga,'+'+fmtG(d.sdacha.g)+'g')+'\n';
   else if(d.sdachaPul>0.01) t+=DOTS+rj(' SDACHA', fmtD(d.sdachaPul)+'#')+'\n';
+  // v176.5 (Ibrohim): offset naqt qilib qaytarilgan bo'lsa — qaysi turdan qaytgani
+  (d.sdachaNaqt||[]).forEach(function(x){
+    t+=rj(' Naqt qaytarildi -> '+x.nom, fmtG(x.g||0)+'g')+'\n';
+  });
 
   // v172.6: offset turlari asosiy jadvaldan chiqarildi — ular "Bizda (offset)"
   // guruhida, JAMI ga qo'shilmaydi (u klient qarzi, bu bizniki).
@@ -10629,7 +10633,9 @@ function kTolovChekGen(d){
   (d.ostatkalar||[]).forEach(function(b){
     var n=b.zavod+' '+b.tur;
     if(offNom[n]) return;
-    if(!seen[n]){ seen[n]=1; keys.push(n); mp[n]={eski:b.g, tol:0, qoldi:b.g}; }
+    // v176.5: naqt qaytarilgan tur uchun uch ustun ham to'ldiriladi (eski / to'landi / qoldi)
+    if(!seen[n]){ seen[n]=1; keys.push(n);
+      mp[n]={eski:(b.eski!==undefined?b.eski:b.g), tol:(b.tol||0), qoldi:b.g}; }
     else mp[n].qoldi=b.g;
   });
   if(keys.length || (d.offsetlar||[]).length){
@@ -14009,6 +14015,19 @@ function kTolovChekUpd() {
     if (tanlov.tip === 'tur' && tanlov.narx > 0) sd = {qayerga: tanlov.zavod+' \u00b7 '+tanlov.tur, g: roundG(sdSum/tanlov.narx)};
     else if (tanlov.tip === 'sdacha') _ktSdachaPul = sdSum;
   }
+  // v176.5 (Ibrohim: "chekdayam o'chib ketsin, sdacha qilib naqt bervordik chiqsin"):
+  // naqt qaytarilgan offset ulushi qaysi turdan kelgani. Saqlashda qator TO'LIQ
+  // yoziladi (v176.3, 14176) — chek bashorati ham shuni ko'rsatsin.
+  var _ktSdNaqt = [];
+  if (tanlov && tanlov.tip === 'sdacha' && offOrt > 0.01) {
+    qatorlar.forEach(function(r){
+      if (!r.off) return;
+      var _f5 = offJami > 0 ? r.summa/offJami : 0;
+      var _back5 = Math.round(offOrt*_f5*100)/100;
+      if (_back5 > 0.001) _ktSdNaqt.push({zavod:r.zavod, tur:r.tur, nom:r.zavod+' '+r.tur,
+                                          g:(r.n>0?roundG(_back5/r.n):0)});
+    });
+  }
 
   // ── 6-QADAM: QOLGAN OSTATKA — sovdadan KEYINGI holat (bashorat)
   var ostatkalar = [];
@@ -14033,8 +14052,17 @@ function kTolovChekUpd() {
       if (!qbd[sk]) qbd[sk] = {zavod:tanlov.zavod, tur:tanlov.tur, qarz:0};
       qbd[sk].qarz = Math.round((qbd[sk].qarz - sd.g)*100)/100;
     }
-    ostatkalar = Object.values(qbd).filter(function(b){ return Math.abs(b.qarz) > 0.01; })
-      .map(function(b){ return {zavod:b.zavod, tur:b.tur, g:b.qarz}; });
+    // v176.5: naqt qaytarilgan offset — manba turining qarzi shu yerda ham yopiladi,
+    // aks holda chek "biz qarzdormiz" deb turaveradi (baza esa yopilgan bo'ladi).
+    _ktSdNaqt.forEach(function(x){
+      var _k5 = x.zavod+'||'+x.tur;
+      if (!qbd[_k5]) qbd[_k5] = {zavod:x.zavod, tur:x.tur, qarz:0};
+      qbd[_k5]._eski = qbd[_k5].qarz;
+      qbd[_k5]._tol  = x.g;
+      qbd[_k5].qarz  = Math.round((qbd[_k5].qarz + x.g)*100)/100;
+    });
+    ostatkalar = Object.values(qbd).filter(function(b){ return Math.abs(b.qarz) > 0.01 || b._tol; })
+      .map(function(b){ return {zavod:b.zavod, tur:b.tur, g:b.qarz, eski:b._eski, tol:b._tol}; });
   }
 
   _ktChekBody = kTolovChekGen({
@@ -14042,7 +14070,7 @@ function kTolovChekUpd() {
     turlar: turlar, jamiSumma: Math.round(jamiPul*100)/100, skidka: skidka,
     jamiGramm: Math.round(jamiG*100)/100,
     tolovlar: tolovlar, jamiTolandi: Math.round(jamiTolandi*100)/100,
-    sdacha: sd, sdachaPul: _ktSdachaPul,
+    sdacha: sd, sdachaPul: _ktSdachaPul, sdachaNaqt: _ktSdNaqt,
     ostatkalar: ostatkalar, offsetlar: _ktOffsetlar
   });
   document.getElementById('kt-chek-body').textContent = chekYakun(_ktChekBody).ekran;
@@ -15698,6 +15726,14 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
       } else if(taqsimTanlov && taqsimTanlov.tip==='bizda'){
         var bizdaG2=taqsimTanlov.narx>0?roundG(ortiqcha/taqsimTanlov.narx):0;
         lines2.push(rjust('Bizda qoldi', '+'+fmtG(bizdaG2)));
+      } else if(taqsimTanlov && taqsimTanlov.tip==='sdacha'){
+        // v176.5 (Ibrohim): naqt qaytarilgan offset — qaysi turdan qaytgani
+        var _ksOo5=window._ksOffsetOrtiqcha||0, _ksOr5=window._ksOffsetRows||[], _ksRaw5=0;
+        _ksOr5.forEach(function(r){ _ksRaw5 += r.s||0; });
+        _ksOr5.forEach(function(r){
+          var _b5 = _ksRaw5>0 ? Math.round(_ksOo5*(r.s/_ksRaw5)*100)/100 : 0;
+          if(_b5>0.001 && r.kurs>0) lines2.push(rjust('Naqt qaytarildi → '+r.tur, fmtG(roundG(_b5/r.kurs))));
+        });
       }
     }
     lines2.push(LINE);
@@ -15783,6 +15819,12 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
             var rowFracQ = offsetJami>0?s/offsetJami:0;
             var rowUsedQ = Math.round((typeof ksOffsetUsedChek!=='undefined'?ksOffsetUsedChek:0)*rowFracQ*100)/100;
             var rowUsedGQ = n>0?roundG(rowUsedQ/n):0;
+            // v176.5 (Ibrohim): naqt qaytarilgan ulush ham yopiladi — saqlashda
+            // qator TO'LIQ yoziladi (v176.3, 16042), chek bashorati ham shunday bo'lsin.
+            if (taqsimTanlov && taqsimTanlov.tip === 'sdacha') {
+              var _backQ = Math.round((window._ksOffsetOrtiqcha||0)*rowFracQ*100)/100;
+              if (_backQ > 0.001 && n > 0) rowUsedGQ = Math.round((rowUsedGQ + roundG(_backQ/n))*100)/100;
+            }
             qbd2[key].qarz = Math.round((qbd2[key].qarz + rowUsedGQ)*100)/100;
           } else {
             qbd2[key].qarz=Math.max(0,Math.round((qbd2[key].qarz-g)*100)/100);

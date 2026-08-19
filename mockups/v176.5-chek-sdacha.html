@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v176.5 — Chekda offset sdachasi</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+.opt{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:7px 0}
+.opt .tag{display:inline-block;background:var(--surf2);color:var(--muted);font-size:11px;
+padding:1px 7px;border-radius:5px;margin-right:7px;font-weight:700}
+.rec{border-color:var(--green-bd)}
+.rec .tag{background:var(--green-bg);color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px}
+.lbl.now{color:var(--red)}
+.lbl.new{color:var(--green)}
+/* chek taqlidi */
+.chek{background:#f7f6f1;color:#25282c;border-radius:8px;padding:14px 12px;
+font-family:Consolas,"Courier New",monospace;font-size:11.5px;line-height:1.5;
+white-space:pre;overflow-x:auto}
+.chek .hi{background:#ffe08a;font-weight:700}
+.chek .hn{background:#ffc4c4;font-weight:700}
+.chek .hg{background:#b9edcd;font-weight:700}
+</style></head><body><div class="wrap">
+
+<h1>v176.5 — Chekda offset sdachasi</h1>
+<div class="sub">Mockup · 2026-08-19 · <b>KOD YOZILMAGAN</b></div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «chekdayam o&#39;chib ketsin, sdacha qilib naqt
+bervordik chiqsin»
+</div>
+
+<h2>1. Tashxis</h2>
+
+<p>Chekdagi ostatka jadvali <code>k.tarix</code> dan qayta hisoblanadi
+(<span class="ln">14015–14036</span>), keyin shu seansdagi o&#39;zgarishlar ayiriladi.
+Sdacha tuzatishi <b>faqat bitta holatda</b> qo&#39;llanadi (<span class="ln">14031</span>):</p>
+
+<div class="card" style="font-family:Consolas,monospace;font-size:12px;color:var(--muted)">
+if (sd &amp;&amp; tanlov &amp;&amp; tanlov.tip === <b style="color:var(--gold)">&#39;tur&#39;</b>) {<br>
+&nbsp;&nbsp;qbd[sk].qarz = qbd[sk].qarz − sd.g;&nbsp;&nbsp;<span style="color:var(--green)">// sdacha turga ketsa — qarz kamayadi</span><br>
+}
+</div>
+
+<div class="warn">
+<code>tanlov.tip === &#39;sdacha&#39;</code> (naqt qaytardim) uchun tarmoq <b>YO&#39;Q</b>.
+Shuning uchun naqt qaytarilgan bo&#39;lsa ham manba turining qarzi chekda
+<b>eski holicha</b> qoladi — rasmdagi <code>Simay Oddiy −5.21g</code>.<br><br>
+Diqqat: <b>saqlangandan keyin baza to&#39;g&#39;ri</b> (v176.3 da qator to&#39;liq yoziladi,
+14176). Xato faqat <b>chek ko&#39;rinishida</b> — chek saqlashdan oldingi bashoratni chizadi.
+</div>
+
+<h2>2. HOZIRGI vs TAKLIF</h2>
+
+<div class="grid2">
+
+<div class="card">
+<div class="lbl now">✗ HOZIRGI</div>
+<div class="chek">        Klient
+   16.08.2026 - 10:53
+==========================
+To'lov
+==========================
+Jami to'landi
+==========================
+ Umumiy Summa         0.00#
+ Umumiy g             0.00g
+..........................
+ SDACHA             465.04#
+==========================
+Ostatka
+              Ostatka  to'landi   qoldi
+ Simay Oddiy   <span class="hn">-5.21g</span>    0.00g  <span class="hn">-5.21g</span>
+--------------------------
+ JAMI          <span class="hn">-5.21g</span>    0.00g  <span class="hn">-5.21g</span>
+--------------------------
+          Rahmat</div>
+<div style="font-size:12.5px;color:#ffb0b0;margin-top:9px">
+Naqt qaytarilgan, lekin chek hali «biz 5.21g qarzdormiz» deb turibdi.</div>
+</div>
+
+<div class="card" style="border-color:var(--green-bd)">
+<div class="lbl new">✓ TAKLIF</div>
+<div class="chek">        Klient
+   16.08.2026 - 10:53
+==========================
+To'lov
+==========================
+Jami to'landi
+==========================
+ Umumiy Summa         0.00#
+ Umumiy g             0.00g
+..........................
+ SDACHA             465.04#
+ <span class="hi">Naqt qaytarildi -> Simay Oddiy</span>
+ <span class="hi">                        5.21g</span>
+==========================
+Ostatka
+              Ostatka  to'landi   qoldi
+ Simay Oddiy   -5.21g   <span class="hg">+5.21g</span>   <span class="hg">0.00g</span>
+--------------------------
+ JAMI          -5.21g   <span class="hg">+5.21g</span>   <span class="hg">0.00g</span>
+--------------------------
+          Rahmat</div>
+<div style="font-size:12.5px;color:#a8e9c4;margin-top:9px">
+Qarz yopilgani ko&#39;rinadi va <b>nima uchun</b> yopilgani yozilgan.</div>
+</div>
+</div>
+
+<h2>3. Kodda nima o&#39;zgaradi — 2 joy</h2>
+
+<table>
+<tr><th>Qator</th><th>Hozir</th><th>Bo&#39;ladi</th></tr>
+<tr>
+  <td class="ln">14031</td>
+  <td>Faqat <code>tanlov.tip==='tur'</code> qarzni kamaytiradi</td>
+  <td><code>'sdacha'</code> uchun ham tarmoq: manba turining qarzi yopiladi</td>
+</tr>
+<tr>
+  <td class="ln">10618</td>
+  <td><span style="font-family:Consolas,monospace">SDACHA&nbsp;&nbsp;465.04#</span></td>
+  <td>Ostiga <span style="font-family:Consolas,monospace">Naqt qaytarildi -&gt; &lt;tur&gt; &nbsp;X.XXg</span></td>
+</tr>
+</table>
+
+<p style="font-size:12.5px;color:var(--muted)">
+Manba turi va grammi allaqachon qo&#39;lda — <code>window._ktOffsetRows</code> /
+<code>window._ksOffsetRows</code> v176.3 da yozilgan (<span class="ln">13768</span> · <span class="ln">15285</span>).
+Yangi ma&#39;lumot yig&#39;ilmaydi.</p>
+
+<h2>4. Qaror nuqtalari</h2>
+
+<div class="q">
+<div class="qh">A. Ostatka qatori qanday ko&#39;rinsin?</div>
+<div class="opt rec"><span class="tag">A1 · TAKLIF</span><b>Qator qoladi, «qoldi» 0.00g bo&#39;ladi</b> —
+<span style="font-family:Consolas,monospace;font-size:12px">Simay Oddiy &nbsp;-5.21g &nbsp;+5.21g &nbsp;0.00g</span>.
+Nima bo&#39;lganini ko&#39;rsatadi.</div>
+<div class="opt"><span class="tag">A2</span><b>Qator butunlay yo&#39;qoladi</b> —
+mavjud filtr (<span class="ln">14036</span>) <code>Math.abs(qarz) &gt; 0.01</code> o&#39;zi tashlaydi.
+Chek qisqaroq, lekin «bor edi, yopildi» ko&#39;rinmaydi.</div>
+</div>
+
+<div class="q">
+<div class="qh">B. Yozuv qayerda tursin?</div>
+<div class="opt rec"><span class="tag">B1 · TAKLIF</span><b>SDACHA qatori ostida</b> —
+<span style="font-family:Consolas,monospace;font-size:12px">Naqt qaytarildi -&gt; Simay Oddiy&nbsp;&nbsp;5.21g</span></div>
+<div class="opt"><span class="tag">B2</span><b>Faqat ostatka jadvalida</b> —
+«to&#39;landi» ustunidagi +5.21g yetarli, alohida qator yozilmasin.</div>
+<div class="opt"><span class="tag">B3</span><b>Ikkalasi ham</b> — mockupdagidek.</div>
+</div>
+
+<div class="q">
+<div class="qh">C. Matn qanday bo&#39;lsin?</div>
+<div class="opt rec"><span class="tag">C1 · TAKLIF</span><span style="font-family:Consolas,monospace">Naqt qaytarildi -&gt; Simay Oddiy</span></div>
+<div class="opt"><span class="tag">C2</span><span style="font-family:Consolas,monospace">Sdacha naqt berildi -&gt; Simay Oddiy</span></div>
+<div class="opt"><span class="tag">C3</span><span style="font-family:Consolas,monospace">Offset sdachasi -&gt; Simay Oddiy</span></div>
+</div>
+
+<div class="ok">
+<b>Sotuv cheki ham shu tuzatishni oladimi?</b> Sotuvda ham xuddi shunday holat bor.
+Aytmasangiz — <b>ikkalasiga ham</b> qilaman (avvalgi A1 qaroringizga mos).
+</div>
+
+<div class="warn" style="margin-top:24px">
+<b>Diff budjeti: ~20–35 qator</b> (ikkala chek). KOD YOZILMAGAN.
+</div>
+
+</div></body></html>

@@ -3,6 +3,63 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
+
+Ibrohim (rasm bilan): "chekdayam o'chib ketsin, sdacha qilib naqt bervordik chiqsin"
+
+### Sabab
+
+Chekdagi ostatka `k.tarix` dan qayta hisoblanadi, keyin seansdagi o'zgarishlar
+ayiriladi. Sdacha tuzatishi FAQAT bitta holatda qo'llanardi (14031):
+
+```
+if (sd && tanlov && tanlov.tip === 'tur') { qbd[sk].qarz -= sd.g; }
+```
+
+`tanlov.tip === 'sdacha'` (naqt qaytardim) uchun tarmoq yo'q edi -> naqt
+qaytarilgan bo'lsa ham manba turi chekda eski holicha ("Simay Oddiy -5.21g")
+qolardi. Sotuv chekida ham xuddi shu: offset qatori faqat KESILGAN ulushi
+bilan yopilardi (15786).
+
+MUHIM: baza to'g'ri edi - v176.3 da qator TO'LIQ yoziladi (14176 kt, 16042 ks).
+Xato faqat CHEK BASHORATIDA edi.
+
+### O'zgarish
+
+To'lov cheki (kt):
+```
+14014  _ktSdNaqt[] - naqt qaytarilgan ulush qaysi turdan (proportsional)
+14044  qbd ga qo'shiladi -> qarz yopiladi, _eski/_tol saqlanadi
+14053  filtr: || b._tol  (0.00g bo'lgan qator ham ko'rinsin - Ibrohim A1)
+14058  chekGen ga sdachaNaqt uzatiladi
+```
+
+Chek generatori (umumiy):
+```
+10619  SDACHA ostiga " Naqt qaytarildi -> <zavod tur>   X.XXg"
+10635  ostatka qatorida uch ustun: eski / to'landi / qoldi
+```
+
+Sotuv cheki (ks):
+```
+15786  taqsimTanlov.tip==='sdacha' bo'lsa qaytarilgan ulush ham yopiladi
+15730  "Naqt qaytarildi -> <tur>" qatori
+```
+
+### Ibrohim tanlovlari
+
+A1 qator qoladi, "qoldi" 0.00g | B1 yozuv SDACHA ostida | C1 matn
+"Naqt qaytarildi -> ..." | ikkala chek.
+
+### Tegilmagani
+
+`tanlov.tip === 'tur'` holatida ham offsetning ortig'i endi manbadan chiqadi
+(v176.3), lekin chek bashoratida bu tuzatilmadi - Ibrohim faqat sdacha
+holatini so'radi. Ochiq qoldi.
+
+Diff: 48 qo'shildi, 6 o'chdi (budjet 25-40 edi, 54 chiqdi).
+Node sintaksis-sinov: xatosiz.
+
 ## v176.4: sdacha ro'yxatida faqat klientda turgan turlar
 
 Ibrohim (rasm bilan): "nega dorika simay 3D la chiqvotti sdachada?" ...
