@@ -1,4 +1,4 @@
-<!-- v176.3 -->
+<!-- v176.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.3';
+var APP_VER = 'v176.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13581,7 +13581,13 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   var out = '';
   // v137: TARTIB — klient olgan turlar tepada (qarzi borlar birinchi), Sdacha OXIRIDA.
   // "Bizda qolsin" varianti YO'Q (Ibrohim: "bizda qolsinmas, turga o'tishi kere").
-  var _rows = Object.values(allTurlarMap).filter(function(b){ return getKatNarx(b.zi, b.ti, ki) > 0; });
+  // v176.4 (Ibrohim): faqat KLIENTDA turgan turlar chiqadi. «klientda masalan boshqa
+  // turladan qarzi bo'lishi mn, usha turla bo'sa chiqsin; bu klientda yo'q demak
+  // faqat sdacha naqt qaytardim chiqishi kerak». Qarzi yo'q turlar ham, biz qarzdor
+  // turlar ham (qarz manfiy) endi ro'yxatga tushmaydi.
+  var _rows = Object.values(allTurlarMap).filter(function(b){
+    return getKatNarx(b.zi, b.ti, ki) > 0 && (b.qarz || 0) > 0.001;
+  });
   _rows.sort(function(a,b){
     var qa = (a.qarz||0) > 0.001 ? 0 : 1, qb = (b.qarz||0) > 0.001 ? 0 : 1;
     if(qa !== qb) return qa - qb;                       // qarzi borlar tepaga
@@ -13602,7 +13608,7 @@ function sdachaTaqsimRender(modal, sdacha, allTurlarMap, ki) {
   });
   out += radioRow('sdacha', 'Sdacha \u2014 naqt qaytardim',
     'Klientga naqt berdim \u2014 kassadan chiqim bo\'ladi', fmtD(sdacha) + '$', curSelected === 'sdacha');
-  if(!_rows.length) out += '<div style="font-size:10.5px;color:var(--muted);padding:2px 4px;">Bu klient hali hech qanday tur olmagan \u2014 faqat naqt qaytarish mumkin.</div>';
+  if(!_rows.length) out += '<div style="font-size:10.5px;color:var(--muted);padding:2px 4px;">Klientda qarzli tur yo\'q \u2014 faqat naqt qaytarish mumkin.</div>';
 
   document.getElementById(optsId).innerHTML = out;
 }

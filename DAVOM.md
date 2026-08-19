@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v176.3 · 2026-08-18
+**Oxirgi yangilanish:** v176.4 · 2026-08-19
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v176.3** (`index.html` birinchi qatorida `<!-- v176.3 -->`, `APP_VER` da ham) |
+| Versiya | **v176.4** (`index.html` birinchi qatorida `<!-- v176.4 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -662,6 +662,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
+| v176.4 | **Sdacha ro'yxatida faqat klientda turgan turlar** — qarzi yo'q va biz qarzdor turlar chiqmaydi (`sdachaTaqsimRender` 13584) |
 | v176.3 | **Offset ortig'i sdacha panelidan o'tadi** → «naqt qaytardim» kassaga `Offset sdacha` chiqimi (kim + nimadan) |
 | v176.2 | **Uzun son yaxlitlandi** (4 joy) + **to'lov chekida naqt ko'rinadi** (13950) |
 | v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |

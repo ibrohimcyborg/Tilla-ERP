@@ -3,6 +3,46 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176.4: sdacha ro'yxatida faqat klientda turgan turlar
+
+Ibrohim (rasm bilan): "nega dorika simay 3D la chiqvotti sdachada?" ...
+"klientda masalan boshqa turladan qarzi bo'lishi mn usha turla bo'sa chiqsin,
+bu masalan bu klientda yoq demak faqat sdacha naqt qaytardim chiqishi kerak"
+
+### Sabab
+
+Ro'yxat v137 dan beri klientning `k.tarix` idagi HAR bir zavod-turdan
+qurilardi (13829-13841 kt, 15431-15442 ks). Yagona filtr narx edi (13584):
+
+```
+var _rows = Object.values(allTurlarMap).filter(function(b){ return getKatNarx(b.zi,b.ti,ki) > 0; });
+```
+
+Qarz bo'yicha filtr YO'Q edi - faqat saralash (qarzlilar tepaga). Shuning
+uchun qarzi tugagan turlar ham "QARZI YO'Q -> biz klientga qarzdor (+)"
+bo'lib chiqardi. v176.3 da panel offset holatida ham ochiladigan bo'lgani
+uchun bu ko'zga tashlandi.
+
+### O'zgarish
+
+```
+13584  filtrga && (b.qarz||0) > 0.001 qo'shildi
+13611  bo'sh ro'yxat matni: "Bu klient hali hech qanday tur olmagan" ->
+       "Klientda qarzli tur yo'q - faqat naqt qaytarish mumkin"
+```
+
+Bitta funksiya - ikkala modal ham shu yerdan o'tadi (13894 kt, 15477 ks).
+
+Endi qarzi yo'q turlar ham, BIZ qarzdor turlar ham (qarz manfiy) ro'yxatga
+tushmaydi. Klientda hech narsa bo'lmasa faqat "Sdacha - naqt qaytardim"
+qoladi.
+
+Avto-tanlov (13856-13878) allaqachon faqat `qarz > 0` turni tanlaydi -
+qisqargan ro'yxatga mos, buzilmadi.
+
+Diff: 10 qo'shildi, 4 o'chdi (2 tasi versiya qatori, 4 tasi izoh).
+Node sintaksis-sinov: xatosiz.
+
 ## v176.3: offset ortig'i sdacha panelidan o'tadi -> kassadan chiqim
 
 Ibrohim: "$ tongle bosaman, ortiqcha pul shunaqa ko'rsatadi, bo'ldi.
