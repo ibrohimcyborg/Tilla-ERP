@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v176.3 — Offset sdachasi</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:760px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.mono{font-family:Consolas,Monaco,monospace;font-size:12px}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.step{display:flex;gap:12px;margin:14px 0;align-items:flex-start}
+.num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold-bd);
+color:var(--gold);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.step .body{flex:1}
+.step .t{font-weight:700;font-size:14px;margin-bottom:5px}
+
+/* ilova taqlidi */
+.kerak{background:#eef0f2;border-radius:10px;padding:11px 12px;color:#3a3f47;max-width:430px}
+.kerak .kh{display:flex;justify-content:space-between;font-size:12px;color:#78808c;margin-bottom:8px}
+.kerak .kh b{color:#2a2f36;font-size:13px}
+.flds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.f{background:#fff;border:1px solid #cfd5dc;border-radius:8px;padding:4px 7px}
+.f .fl{font-size:8.5px;font-weight:800;letter-spacing:.05em;color:#8b93a7;text-transform:uppercase}
+.f .fv{text-align:right;font-size:13.5px;font-weight:700;color:#2a2f36}
+.f .fv.dim{color:#a0a7b2}
+.sd{display:flex;justify-content:space-between;margin-top:8px;padding-top:7px;
+border-top:1px solid #d5dae0;font-size:12.5px;color:#78808c}
+.sd b{color:#1f8a52;font-size:13px}
+.sd b.no{color:#a0a7b2}
+.panel{background:#f5e9c8;border:1px solid #d9c48a;border-radius:12px;padding:11px 12px;color:#5a4a20;max-width:430px}
+.panel .ph{font-size:12px;font-weight:600;color:#8a7430;margin-bottom:8px}
+.orow{display:flex;align-items:flex-start;gap:9px;background:#fbf5e4;border:1px solid #e2d3a8;
+border-radius:9px;padding:8px 10px;margin:5px 0}
+.orow.sel{background:#f7ecd0;border-color:#c9a63c;border-width:2px}
+.radio{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-top:2px;
+border:2px solid #b9a670;background:transparent}
+.radio.on{border-color:#8a6d1a;background:radial-gradient(circle,#5a4a20 0 45%,transparent 46%)}
+.orow .nm{font-size:13px;font-weight:700;color:#3f341a}
+.orow .ds{font-size:11.5px;color:#8a7a4a;margin-top:2px}
+.amt{margin-left:auto;font-size:13px;font-weight:700;color:#7a5c10;white-space:nowrap}
+.badge{display:inline-block;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:5px;
+margin-left:5px;background:#f0d9a0;color:#7a5c10}
+.kassa{background:#fff;border:1px solid #d8dde3;border-radius:10px;padding:11px 13px;color:#2a2f36;max-width:470px}
+.kassa .kt{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.kassa .kcat{font-size:13.5px;font-weight:700}
+.kassa .ksum{font-size:15px;font-weight:800;color:#c0392b}
+.kassa .kiz{font-size:12px;color:#6b7480;line-height:1.5}
+.kassa .kdt{font-size:11px;color:#9aa2ad;margin-top:4px}
+</style></head><body><div class="wrap">
+
+<h1>v176.3 — Offset sdachasi</h1>
+<div class="sub">Mockup · 2026-08-18 · <b>KOD YOZILMAGAN</b></div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim aytgani:</b> «<code>$</code> tongle bosaman —
+ortiqcha pul shunaqa ko&#39;rsatadi, bo&#39;ldi. Biz «sdacha — naqt qaytardim» qilamiz,
+kassadan chiqim qilib ko&#39;rsatadi — kimga, nimadan chiqim bo&#39;lganini. Bo&#39;ldi.»
+</div>
+
+<h2>Uch qadam</h2>
+
+<div class="step"><div class="num">1</div><div class="body">
+<div class="t"><code>$</code> tongle bosiladi</div>
+<div style="color:var(--muted);font-size:13px;margin-bottom:8px">
+Hech narsa o&#39;zgarmaydi — hozirgidek ishlaydi. Ortiqcha pul <b>Sdacha</b> qatorida chiqadi.</div>
+<div class="kerak">
+  <div class="kh"><span>Kerakli summa</span><b>0.00$</b></div>
+  <div class="flds">
+    <div class="f"><div class="fl">Naqt</div><div class="fv">0</div></div>
+    <div class="f"><div class="fl">Perech</div><div class="fv">0</div></div>
+    <div class="f"><div class="fl">Karta</div><div class="fv">0</div></div>
+    <div class="f"><div class="fl">Lom</div><div class="fv dim">—</div></div>
+  </div>
+  <div class="sd"><span>Sdacha</span><b>375.00$</b></div>
+</div>
+<div style="font-size:12px;color:var(--muted);margin-top:6px">
+Hozir bu yerda <b style="color:var(--red)">yo&#39;q</b> yozilib turadi — o&#39;zgarish shu.
+Yangi maydon <b>qo&#39;shilmaydi</b>.</div>
+</div></div>
+
+<div class="step"><div class="num">2</div><div class="body">
+<div class="t">Mavjud panel o&#39;zi ochiladi</div>
+<div style="color:var(--muted);font-size:13px;margin-bottom:8px">
+Ro&#39;yxat, radiolar — hammasi hozirgidek. «Sdacha — naqt qaytardim» tanlanadi.</div>
+<div class="panel">
+  <div class="ph">375.00$ — NIMA QILISH?</div>
+  <div class="orow"><div class="radio"></div><div>
+    <div class="nm">Butterfly · 3D <span class="badge">QARZI BOR</span></div>
+    <div class="ds">375.00$ ÷ 90.2$/g = 4.16g → qarzdan yechiladi</div></div></div>
+  <div class="orow"><div class="radio"></div><div>
+    <div class="nm">Jilva · Oddiy <span class="badge">QARZI BOR</span></div>
+    <div class="ds">375.00$ ÷ 91$/g = 4.12g → qarzdan yechiladi</div></div></div>
+  <div class="orow sel"><div class="radio on"></div><div style="flex:1">
+    <div class="nm">Sdacha — naqt qaytardim</div>
+    <div class="ds">Klientga naqt berdim — kassadan chiqim bo&#39;ladi</div></div>
+    <div class="amt">375.00$</div></div>
+</div>
+</div></div>
+
+<div class="step"><div class="num">3</div><div class="body">
+<div class="t">Kassaga chiqim yoziladi</div>
+<div style="color:var(--muted);font-size:13px;margin-bottom:8px">
+Kassa → Qo&#39;lda ro&#39;yxatida shunday ko&#39;rinadi:</div>
+<div class="kassa">
+  <div class="kt"><span class="kcat">Offset sdacha</span><span class="ksum">−375.00$</span></div>
+  <div class="kiz"><b>Madina Opa</b> · offset qilib sdacha berildi<br>
+  manba: <b>Butterfly · Oddiy</b> — 4.29g × 87.3$/g</div>
+  <div class="kdt">18.08.2026 · 14:32</div>
+</div>
+<div style="font-size:12px;color:var(--muted);margin-top:6px">
+<b>Kimga</b> = klient nomi · <b>nimadan</b> = zavod·tur + gramm × narx · <b>necha pul</b> = summa</div>
+</div></div>
+
+<h2>Kodda nima o&#39;zgaradi — 3 joy</h2>
+
+<table>
+<tr><th>Qator</th><th>Hozir</th><th>Bo&#39;ladi</th></tr>
+<tr>
+  <td class="ln">13742</td>
+  <td>Ortiqcha offset kesiladi va <b>tashlanadi</b></td>
+  <td>Kesiladi, ayirmasi <code>ktOffsetOrtiqcha</code> ga olinadi</td>
+</tr>
+<tr>
+  <td class="ln">13778</td>
+  <td><span class="mono">ktSdacha = lom + gramm + naqtOrtiq</span></td>
+  <td><span class="mono">... + <b style="color:var(--green)">ktOffsetOrtiqcha</b></span></td>
+</tr>
+<tr>
+  <td class="ln">13478</td>
+  <td>Chiqim faqat <code>&#39;lom&#39;</code> manbaida yoziladi</td>
+  <td><code>&#39;offset&#39;</code> manbaida ham yoziladi</td>
+</tr>
+</table>
+
+<div class="ok">
+<b>Panel, ro&#39;yxat, radio, avto-tanlov — tegilmaydi.</b>
+Ular allaqachon <code>ktSdacha &gt; 0.01</code> shartiga bog&#39;langan
+(<span class="ln">13867</span>). Yig&#39;indi kattalashsa o&#39;zi ishlaydi.
+Sotuv modalida ham ayni shu uch joy: <span class="ln">15249 · 15291 · 13478</span>.
+</div>
+
+<h2>Bitta jim ta&#39;sir — bilib qo&#39;ying</h2>
+<p style="font-size:13px">Biz qarzdor bo&#39;lgan turda hozir <b>faqat ishlatilgan qismi</b>
+<code>k.tarix</code> ga yoziladi (<span class="ln">14144–14152</span>):</p>
+<div class="card mono" style="color:var(--muted)">
+if(_ktRowUsed &gt; 0.001) k.tarix.push({tip:&#39;tolov&#39;, ..., _kdYopish:true})
+</div>
+<p style="font-size:13px">Naqt qaytarilgan qism ham <b>shu yerga</b> yoziladi — shunda
+Butterfly·Oddiy dagi «biz qarzdormiz» yopiladi. Aks holda pul ham chiqadi,
+qarz ham qolib ketadi. Yangi shakl o&#39;ylab topilmaydi — <b>mavjud yozuvning o&#39;zi</b>.</p>
+
+<div class="warn">
+<b>Diff budjeti: ~35–50 qator.</b> KOD YOZILMAGAN — «boshla» degandan keyin yoziladi.
+</div>
+
+</div></body></html>

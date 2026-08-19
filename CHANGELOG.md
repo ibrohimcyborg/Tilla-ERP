@@ -3,6 +3,86 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v176.3: offset ortig'i sdacha panelidan o'tadi -> kassadan chiqim
+
+Ibrohim: "$ tongle bosaman, ortiqcha pul shunaqa ko'rsatadi, bo'ldi.
+Biz sdacha - naqt qaytardim qilamiz, kassadan chiqim qilib ko'rsatadi -
+kimga, nimadan chiqim bo'lganini."
+
+### Muammo
+
+Offset kerakligidan ortiq bo'lsa, ortig'i ATAYLAB tashlanardi. Kodning
+o'z izohi (13763 / 15275):
+
+```
+// Offset kerakligidan ortiq ishlatilmasin - ortig'i "biz qarzdor"da qoladi, sdachaga chiqmaydi
+var ktOffsetPul = Math.min(ktOffsetPulRaw, ktNeedBeforeOffset);
+```
+
+Natija: sotuv/to'lov bo'lmasa offset butunlay ishlamasdi - pul ham
+qaytmasdi, klientdagi "biz qarzdormiz" ham yopilmasdi.
+
+Sdacha esa uch manbadan yig'ilardi (13778) - lom, gramm, naqt ortiqchasi.
+Offset ularning ichida YO'Q edi, shuning uchun panel ochilmasdi.
+
+### Yechim - yangi panel YOZILMADI, mavjudi ishlatildi
+
+Panel allaqachon `ktSdacha > 0.01` shartiga bog'langan (13867), shuning
+uchun yig'indi kattalashishi kifoya qildi.
+
+To'lov modali (kt):
+```
+13738  ktOffsetRowsKt.push({... zavod:b.zavod, tur:b.tur ...})
+13766  window._ktOffsetOrtiqcha = ktOffsetPulRaw - ktOffsetPul
+13806  ktSdacha = ... + (window._ktOffsetOrtiqcha||0)
+13949  offOrt = offJami - offIsh          (chek)
+14001  sdSum = (... ) + offOrt            (chek)
+14173  _ktRowUsed = s                     (avval _ktOffsetPulUsed ulushi)
+```
+
+Sotuv modali (ks):
+```
+15278  window._ksOffsetOrtiqcha / window._ksOffsetRows
+15327  ortiqcha = ortiqcha + _ksOffsetOrtiqcha
+16039  _svRowUsed = s                     (avval _offsetPulUsedSv ulushi)
+16117  _ortiqcha = _ortiqcha + _ksOffsetOrtiqcha   (chek)
+```
+
+Umumiy (`sdachaTaqsimSaqla`):
+```
+13463  sdacha = sdacha + (window._ktOffsetOrtiqcha||0)
+13486  selected==='sdacha' -> _offOrt > 0.01 bo'lsa kassaga CHIQIM
+```
+
+### Kassa yozuvi
+
+```
+tip:'chiqim', kategoriya:'Offset sdacha', summa:<offset ortig'i>
+izoh: "<klient> - offset qilib sdacha berildi - manba: Zavod·Tur - Xg x N$/g"
+```
+
+`'Lom sdacha'` (13481) naqshining nusxasi. `kc-kat` ro'yxatiga (1041)
+tegilmadi - `'Lom sdacha'` ham u yerda yo'q, faqat koddan yoziladi.
+Kassa oqimi (4164) va hisobot (4509) kategoriyani umumiy o'qiydi, yangi
+nom o'zi ko'rinadi.
+
+### Ibrohim tanlovlari
+
+| | Savol | Tanlov |
+|---|---|---|
+| A1 | Qaysi modal | Ikkalasi - to'lov va sotuv |
+| B1 | Manba turining qarzi | Yopiladi (qator to'liq yoziladi) |
+| C1 | Aralash holat | Chiqim faqat offset ulushiga |
+| D1 | "Bekor qilish" qatori | Kerak emas - `$ ✓` ni qayta bossa bo'ladi |
+| E2 | Kassada naqd tekshiruvi | Yo'q - lom sdachasi ham shunday |
+
+### Bilib qo'yish kerak
+
+`_ktOffsetPulUsed` (14151) endi hech qayerda o'qilmaydi - shu o'zgarish
+uni yetim qoldirdi. O'CHIRILMADI (bir turda bitta o'zgarish qoidasi).
+
+Diff: 50 qo'shildi, 11 o'chdi. Node sintaksis-sinov: xatosiz.
+
 ## v176.2: uzun son yaxlitlandi + to'lov chekida naqt ko'rinadi
 
 Ibrohim ikki narsa aytdi.

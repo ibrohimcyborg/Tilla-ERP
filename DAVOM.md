@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v176.2 · 2026-08-16
+**Oxirgi yangilanish:** v176.3 · 2026-08-18
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v176.2** (`index.html` birinchi qatorida `<!-- v176.2 -->`, `APP_VER` da ham) |
+| Versiya | **v176.3** (`index.html` birinchi qatorida `<!-- v176.3 -->`, `APP_VER` da ham) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v176.1 gacha push qilingan** — prod v176.1. ⏳ Tekshiruv kutilmoqda: v175.3 PDF · v175.4 hisobot · v175.5 nol-yozuv · v176 skan oynasi · v176.1 offset ptichkasi. |
+| Git | **v176.3 gacha push qilingan** (2026-08-18) — prod v176.3. ⏳ Tekshiruv kutilmoqda: v175.3 PDF · v175.4 hisobot · v175.5 nol-yozuv · v176 skan oynasi · v176.1 offset ptichkasi · v176.2 yaxlitlash · **v176.3 offset sdachasi**. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -78,7 +78,30 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
 
-### ⭐ 0r. SDACHA — pul qaytarish (v176.2 da YOZILMADI)
+### ✅ 0r. SDACHA — offset ortig'ini naqt qaytarish — BAJARILDI (v176.3)
+
+**2026-08-18 — v176.3 da yozildi.** Ibrohim spetsifikatsiyasi: «$ tongle bosaman,
+ortiqcha pul shunaqa ko'rsatadi, bo'ldi. Biz sdacha — naqt qaytardim qilamiz,
+kassadan chiqim qilib ko'rsatadi — kimga, nimadan chiqim bo'lganini.»
+
+Ildiz: offsetning ortig'i **ataylab** tashlanardi (13763 / 15275 dagi izohning
+o'zi shuni yozgan). Sdacha esa uch manbadan yig'ilardi (13778) — offset ularda
+yo'q edi, shuning uchun panel ochilmasdi.
+
+Yechim: yangi panel **yozilmadi**. Ortiqcha `ktSdacha` / `ortiqcha` yig'indisiga
+qo'shildi → mavjud panel o'zi ochildi (13867 dagi shart allaqachon bor edi).
+«Sdacha — naqt qaytardim» tanlansa `sdachaTaqsimSaqla` (13486) kassaga
+`kategoriya:'Offset sdacha'` chiqimini yozadi: klient nomi + manba zavod·tur +
+gramm × narx. Manba turining qarzi ham yopiladi — offset qatori endi TO'LIQ
+yoziladi (14173 kt, 16039 ks).
+
+Tanlovlar: **A1** ikkala modal · **B1** qarz yopiladi · **C1** chiqim faqat offset
+ulushiga · **D1** bekor qilish qatori yo'q · **E2** naqd tekshirilmaydi.
+
+⚠ **Tekshirilmagan** — Ibrohim hali ilovada sinamagan.
+⚠ `_ktOffsetPulUsed` (14151) yetim qoldi, o'chirilmadi.
+
+<details><summary>Eski yozuv (v176.2 gacha bo'lgan tahlil)</summary>
 
 2026-08-16: Ibrohim sotuv modalida offsetni **sdacha qilib pul bilan qaytarish**
 imkonini so'radi. Mockupdagi to'rt variantdan **B — pul qaytarish** ni tanladi
@@ -126,6 +149,8 @@ aks holda pul hisobida xato bo'ladi. Uch qaror kerak:
 
 Eslatma: ilovada **gramm sdacha** (`tip:'klientda'`) allaqachon bor — u klient
 tarixida `↩ Butterfly · Oddiy` bo'lib chiqadi. Ibrohim so'ragani esa **pul**.
+
+</details>
 
 ### ⚠ 0s. UZUN SON — ILDIZ TUZATILMAGAN (v176.2)
 
@@ -637,8 +662,7 @@ Qaror qabul qilinmagan.
 
 | Versiya | Nima qilindi |
 |---|---|
-| v176.2 | **Uzun son yaxlitlandi** (4 joy) + **to'lov chekida naqt ko'rinadi** (13950) |
-| v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
+| v176.3 | **Offset ortig'i sdacha panelidan o'tadi** → «naqt qaytardim» kassaga `Offset sdacha` chiqimi (kim + nimadan) |
 | v176.2 | **Uzun son yaxlitlandi** (4 joy) + **to'lov chekida naqt ko'rinadi** (13950) |
 | v176.1 | **Sotuvda offset tugmasi o'zi yonadi** (A varianti, `kSotuvRenderTolov` 14687) |
 | v176 | **Skan oynasi bir vaqtda bitta** — vozvrat/sotuvda ham (`_skanUniYop` 12745) |

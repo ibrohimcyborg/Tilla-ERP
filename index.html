@@ -1,4 +1,4 @@
-<!-- v176.2 -->
+<!-- v176.3 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.2';
+var APP_VER = 'v176.3';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13460,6 +13460,8 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
     var manSk = parseNum((document.getElementById('kt-skidka') || {}).value) || 0;
     var lomOrtiqcha = Math.max(0, Math.round((ktLomPul - ktJamiS + manSk) * 100) / 100);
     if (lomOrtiqcha > 0.01) { sdacha = lomOrtiqcha; _manba = 'lom'; }
+    // v176.3: offset ortig'i USTIGA qo'shiladi ('ks' da _ksSotuvOrtiqchaVal ichida allaqachon bor)
+    sdacha = Math.round((sdacha + (window._ktOffsetOrtiqcha || 0)) * 100) / 100;
   }
 
   if (sdacha <= 0.01) return;
@@ -13479,6 +13481,27 @@ function sdachaTaqsimSaqla(modal, k, sana, soat) {
         id: 'ksd' + _sts, ts: _sts, sana: sana, soat: soat,
         tip: 'chiqim', summa: Math.round(sdacha * 100) / 100,
         kategoriya: 'Lom sdacha', izoh: (k && k.nom) ? k.nom : ''
+      });
+    }
+    // v176.3 (Ibrohim): OFFSET ulushi — klient pul bermagan, biz naqt berdik ->
+    // kassadan haqiqiy naqt chiqadi. Naqt ortiqchasi ('pul') bunga qo'shilmaydi.
+    var _offOrt = Math.round((window['_' + modal + 'OffsetOrtiqcha'] || 0) * 100) / 100;
+    if (_offOrt > 0.01) {
+      var _offRows = window['_' + modal + 'OffsetRows'] || [];
+      var _mt = _offRows.map(function(r){ return (r.zavod || '') + '·' + (r.tur || ''); })
+                        .filter(function(x){ return x.length > 1; }).join(', ');
+      if (_offRows.length === 1 && _offRows[0].kurs > 0) {
+        _mt += ' — ' + roundG(_offOrt / _offRows[0].kurs) + 'g × ' + _offRows[0].kurs + '$/g';
+      }
+      if (!data.kassa) data.kassa = {};
+      if (!Array.isArray(data.kassa.qolda)) data.kassa.qolda = [];
+      var _ots = Date.now();
+      data.kassa.qolda.push({
+        id: 'kos' + _ots, ts: _ots, sana: sana, soat: soat,
+        tip: 'chiqim', summa: _offOrt,
+        kategoriya: 'Offset sdacha',
+        izoh: ((k && k.nom) ? k.nom : '') + " · offset qilib sdacha berildi"
+              + (_mt ? ' · manba: ' + _mt : '')
       });
     }
     return;
@@ -13715,7 +13738,7 @@ function kTolovCalc(){
     var s=parseNum((document.getElementById('kt-s-'+idx2)||{}).value||0);
     var ktoBlok=document.getElementById('kto-blok-'+idx2);
     var isKtOffset=ktoBlok && ktoBlok.style.display !== 'none';
-    if(isKtOffset) { ktOffsetPulRaw+=s; ktOffsetRowsKt.push({idx:idx2, s:s, kurs:parseNum((document.getElementById('kt-k-'+idx2)||{}).value||0)}); } else { jamiSummaKt+=s; }
+    if(isKtOffset) { ktOffsetPulRaw+=s; ktOffsetRowsKt.push({idx:idx2, s:s, zavod:b.zavod, tur:b.tur, kurs:parseNum((document.getElementById('kt-k-'+idx2)||{}).value||0)}); } else { jamiSummaKt+=s; }
     idx2++;
   });
   var autoSkKt=0;
@@ -13740,6 +13763,9 @@ function kTolovCalc(){
   // Offset kerakligidan ortiq ishlatilmasin — ortig'i "biz qarzdor"da qoladi, sdachaga chiqmaydi
   var ktNeedBeforeOffset=Math.max(0,Math.round((jamiSummaKt-ktLomPulJami-manSkKt)*100)/100);
   var ktOffsetPul=Math.min(ktOffsetPulRaw, ktNeedBeforeOffset);
+  // v176.3 (Ibrohim): ortig'i endi TASHLANMAYDI — sdachaga qo'shiladi, panel o'zi ochiladi
+  window._ktOffsetOrtiqcha=Math.max(0,Math.round((ktOffsetPulRaw-ktOffsetPul)*100)/100);
+  window._ktOffsetRows=ktOffsetRowsKt;
   ktOffsetRowsKt.forEach(function(row){
     var rowFrac=ktOffsetPulRaw>0?row.s/ktOffsetPulRaw:0;
     var rowUsed=Math.round(ktOffsetPul*rowFrac*100)/100;
@@ -13777,7 +13803,7 @@ function kTolovCalc(){
   var _ktA=_tolovAvto('kt', ktKerakli);
   var ktBerdiN=_ktA.naqt, ktBerdiK=_ktA.karta, ktBerdiP=_ktA.perech;
   var ktBerdi=_ktA.jami;
-  var ktSdacha=Math.round((ktLomOrtiqcha+totalGramOrtiqcha+Math.max(0,ktBerdi-ktKerakli))*100)/100;
+  var ktSdacha=Math.round((ktLomOrtiqcha+totalGramOrtiqcha+Math.max(0,ktBerdi-ktKerakli)+(window._ktOffsetOrtiqcha||0))*100)/100;
   var ktSdEl=document.getElementById('kt-sdacha-val');
   if(ktSdEl){
     if(ktSdacha>0.01){
@@ -13920,6 +13946,7 @@ function kTolovChekUpd() {
   var skidka = parseNum((document.getElementById('kt-skidka')||{}).value)||0;
   var kerak = Math.max(0, Math.round((jamiPul - lomJami - skidka)*100)/100);
   var offIsh = Math.min(offJami, kerak);          // offsetdan faqat KERAKLIGICHA olinadi
+  var offOrt = Math.max(0, Math.round((offJami - offIsh)*100)/100);  // v176.3: ortig'i sdachaga
 
   // ── 3-QADAM: tur bloklari (zanjir)
   var turlar = [];
@@ -13971,7 +13998,7 @@ function kTolovChekUpd() {
   // ── 5-QADAM: SDACHA (ortiqcha qayerga ketdi)
   var sd = null, tanlov = window._ktSdachaTanlov || null, _ktSdachaPul = 0;
   var lomOrt = Math.max(0, Math.round((lomJami - jamiPul + skidka + offIsh)*100)/100);
-  var sdSum = lomOrt > 0.01 ? lomOrt : Math.max(0, Math.round((nb+kb+pb - kerak + offIsh)*100)/100);
+  var sdSum = Math.round(((lomOrt > 0.01 ? lomOrt : Math.max(0, Math.round((nb+kb+pb - kerak + offIsh)*100)/100)) + offOrt)*100)/100;
   if (sdSum > 0.01 && tanlov) {
     if (tanlov.tip === 'tur' && tanlov.narx > 0) sd = {qayerga: tanlov.zavod+' \u00b7 '+tanlov.tur, g: roundG(sdSum/tanlov.narx)};
     else if (tanlov.tip === 'sdacha') _ktSdachaPul = sdSum;
@@ -14143,9 +14170,10 @@ function saqlashKlientTolov(){
     if(sNet>0&&kurs>0){
       eq=roundG(s/kurs);
       if(bizQarzdorSave){
-        // Biz qarzdormiz — offset kerakligidan oshmasin, ortig'i yozilmaydi (biz qarzdor balansida qoladi)
-        var _ktRowFrac=_ktOffsetPulSave>0?s/_ktOffsetPulSave:0;
-        var _ktRowUsed=Math.round(_ktOffsetPulUsed*_ktRowFrac*100)/100;
+        // v176.3 (Ibrohim, B1): ortig'i endi QOLMAYDI — sdacha panelidan chiqadi
+        // (naqtga yoki boshqa turga). Shuning uchun qator TO'LIQ yoziladi va
+        // shu turdagi "biz qarzdormiz" yopiladi. Avval faqat _ktOffsetPulUsed ulushi yozilardi.
+        var _ktRowUsed=s;
         var _ktRowUsedEq=kurs>0?roundG(_ktRowUsed/kurs):0;
         if(_ktRowUsed>0.001){
           // v172.25: soat QO'SHILDI — avval yozilmasdi, shuning uchun sessiya kaliti
@@ -15247,6 +15275,13 @@ function kSotuvCalc() {
   // Offset kerakligidan ortiq ishlatilmasin — ortig'i "biz qarzdor"da qoladi, sdachaga chiqmaydi
   var needBeforeOffsetSc = Math.max(0, Math.round((kerakliNarxi - lomPulJami - skidka) * 100) / 100);
   var offsetPul = Math.min(offsetPulRaw, needBeforeOffsetSc);
+  // v176.3 (Ibrohim): ortig'i endi TASHLANMAYDI — sdachaga qo'shiladi, panel o'zi ochiladi
+  window._ksOffsetOrtiqcha = Math.max(0, Math.round((offsetPulRaw - offsetPul) * 100) / 100);
+  window._ksOffsetRows = offsetRowsSc.map(function(r){
+    var _z = data.zavodlar[r.zi] || {};
+    var _t = (_z.turlar || [])[r.ti] || {};
+    return { zavod: _z.nom || '', tur: _t.nom || '', s: r.s, kurs: r.n };
+  });
   offsetRowsSc.forEach(function(row){
     var rowFrac = offsetPulRaw > 0 ? row.s / offsetPulRaw : 0;
     var rowUsed = Math.round(offsetPul * rowFrac * 100) / 100;
@@ -15289,6 +15324,8 @@ function kSotuvCalc() {
     : gramOrtiqchaPul > 0.01
       ? gramOrtiqchaPul
       : (naqtBerildi > kerakliNaqt + 0.001 ? Math.round((naqtBerildi - kerakliNaqt) * 100) / 100 : 0);
+  // v176.3: offset ortig'i ham sdachaga qo'shiladi (qo'shimcha, almashtirmaydi)
+  ortiqcha = Math.round((ortiqcha + (window._ksOffsetOrtiqcha || 0)) * 100) / 100;
   // v137: ortiqcha QAYERDAN kelgani — "Sdacha" tanlansa kassaga chiqim yozilishini shu hal qiladi
   window._ksSotuvOrtiqchaManba = lomOrtiqchaPul > 0.01 ? 'lom' : (gramOrtiqchaPul > 0.01 ? 'gramm' : 'pul');
 
@@ -15999,10 +16036,10 @@ function saqlashKlientSotuv() {
       var n = parseNum((document.getElementById('kst-n-'+zi+'-'+ti)||{}).value) || 0;
       var gInp = parseNum((document.getElementById('kst-g-'+zi+'-'+ti)||{}).value) || 0;
       if (isOffsetSv2) {
-        // Offset — kerakligidan oshmasin, ortig'i yozilmaydi (biz qarzdor balansida qoladi)
+        // v176.3 (Ibrohim, B1): ortig'i endi QOLMAYDI — sdacha panelidan chiqadi,
+        // shuning uchun qator TO'LIQ yoziladi va "biz qarzdormiz" yopiladi.
         if (s > 0 && n > 0 && gInp > 0) {
-          var _svRowFrac = _offsetPulSave > 0 ? s / _offsetPulSave : 0;
-          var _svRowUsed = Math.round(_offsetPulUsedSv * _svRowFrac * 100)/100;
+          var _svRowUsed = s;
           var _svRowUsedG = n > 0 ? roundG(_svRowUsed / n) : 0;
           if (_svRowUsed > 0.001) {
             var kirimNOff = getZavodNarx(zi,ti)||0;
@@ -16077,6 +16114,8 @@ function saqlashKlientSotuv() {
   var _ortiqcha = _lomOrtiqchaSave > 0.01
     ? _lomOrtiqchaSave
     : (_naqtBerildi > _kerakliNaqt ? Math.round((_naqtBerildi - _kerakliNaqt)*100)/100 : 0);
+  // v176.3: chekdagi sdacha ekrandagi bilan bir xil bo'lsin — offset ortig'i ham kiradi
+  _ortiqcha = Math.round((_ortiqcha + (window._ksOffsetOrtiqcha || 0)) * 100) / 100;
 
   // Sdacha taqsimlash — yangi inputlardan o'qib saqlash
   var _now_ks2 = new Date();
