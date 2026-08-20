@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POS ekrani</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:1080px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+.opt{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:7px 0}
+.opt .tag{display:inline-block;background:var(--surf2);color:var(--muted);font-size:11px;
+padding:1px 7px;border-radius:5px;margin-right:7px;font-weight:700}
+.rec{border-color:var(--green-bd)} .rec .tag{background:var(--green-bg);color:var(--green)}
+
+/* planshet maketi (landshaft) */
+.tablet{background:#000;border:10px solid #1c1c1e;border-radius:20px;padding:0;margin:14px 0;overflow:hidden}
+.tbar{background:#141418;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;
+font-size:11px;color:var(--muted);border-bottom:1px solid #2a2a2e}
+.tgrid{display:grid;grid-template-columns:1fr 300px;min-height:430px}
+@media(max-width:800px){.tgrid{grid-template-columns:1fr}}
+.pos{padding:11px;background:#101014}
+.calc{background:#000;border-left:1px solid #2a2a2e;padding:10px;display:flex;flex-direction:column}
+
+.blk{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:9px 10px;margin-bottom:9px}
+.bh{font-size:9.5px;color:var(--muted);letter-spacing:.09em;font-weight:700;margin-bottom:7px}
+.kli{display:flex;justify-content:space-between;align-items:center;background:var(--surf2);
+border:1.5px solid var(--gold-bd);border-radius:9px;padding:9px 11px}
+.kli .n{font-size:15px;font-weight:700;color:var(--gold)}
+.kli .o{font-size:12px;color:var(--muted);text-align:right}
+.kli .o b{color:var(--red);font-size:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tb{background:var(--surf2);border:1.5px solid var(--border);border-radius:9px;padding:10px 4px;
+text-align:center;font-size:12.5px;font-weight:600}
+.tb.sel{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
+.tb small{display:block;font-size:9.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.row{display:flex;gap:6px;align-items:stretch}
+.inp{flex:1;background:var(--surf2);border:1.5px solid var(--border);border-radius:9px;padding:8px 11px}
+.inp .l{font-size:9.5px;color:var(--muted)}
+.inp .v{font-size:19px;font-weight:700;font-family:Consolas,monospace;color:var(--gold)}
+.addb{background:var(--green-bg);border:1.5px solid var(--green-bd);color:var(--green);
+border-radius:9px;padding:0 18px;font-size:13px;font-weight:800;display:flex;align-items:center}
+.sv{display:flex;justify-content:space-between;font-size:12px;padding:6px 2px;border-bottom:1px solid var(--border)}
+.sv .x{color:var(--red);font-weight:700;padding-left:8px}
+.tot{display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:9px 2px;color:var(--green)}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:5px}
+.pb{border-radius:9px;padding:12px;text-align:center;font-size:14px;font-weight:800}
+.pb.g{background:var(--green-bg);border:1.5px solid var(--green-bd);color:var(--green)}
+.pb.r{background:var(--red-bg);border:1.5px solid var(--red-bd);color:var(--red)}
+
+/* iPhone kalkulyator */
+.cdisp{color:#fff;font-size:38px;font-weight:300;text-align:right;padding:8px 6px 10px;
+font-family:-apple-system,Helvetica,sans-serif;letter-spacing:-1px}
+.ctape{flex:1;overflow-y:auto;margin-bottom:8px;border-top:1px solid #2a2a2e;padding-top:7px}
+.ct{display:flex;justify-content:space-between;font-size:11px;color:#8e8e93;padding:3px 4px}
+.ct b{color:#fff;font-weight:600}
+.cpad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ck{border-radius:50%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+font-size:19px;font-weight:400;background:#333;color:#fff}
+.ck.gr{background:#a5a5a5;color:#000;font-weight:500}
+.ck.or{background:#ff9f0a;color:#fff}
+.ck.z{grid-column:span 2;aspect-ratio:auto;border-radius:28px}
+</style></head><body><div class="wrap">
+
+<h1>POS ekrani — maket</h1>
+<div class="sub">Mockup · 2026-08-19 · <b>KOD YOZILMAGAN</b> · planshet, landshaft</div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «ekranni oldin sozlab olaylik, keyin yonidagi
+kalkulyator bo&#39;lsin — 1:1 iPhone dagidek ishlashi, yozilishi, tarixlari hammasi.»
+</div>
+
+<h2>Maket</h2>
+
+<div class="tablet">
+  <div class="tbar">
+    <span>&#9679; kassatest &nbsp;·&nbsp; 19.08.2026</span>
+    <span>&#129514; TEST XONASI</span>
+  </div>
+  <div class="tgrid">
+
+    <div class="pos">
+      <div class="blk">
+        <div class="bh">KLIENT</div>
+        <div class="kli">
+          <span class="n">Madina Opa &nbsp;<span style="font-size:11px;color:var(--muted);">&#9662;</span></span>
+          <span class="o">Ostatka<br><b>+15.78 g</b></span>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="bh">ZAVOD</div>
+        <div class="g4" style="margin-bottom:7px;">
+          <div class="tb sel">Butterfly<small>89.26 $/g</small></div>
+          <div class="tb">Jilva<small>91.00</small></div>
+          <div class="tb">Simay<small>91.60</small></div>
+          <div class="tb">Dorika<small>90.60</small></div>
+        </div>
+        <div class="bh">TUR</div>
+        <div class="g4">
+          <div class="tb sel">Oddiy</div>
+          <div class="tb">3D</div>
+          <div class="tb">3DS</div>
+          <div class="tb">Lom</div>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="row">
+          <div class="inp"><div class="l">Gramm</div><div class="v">12.40</div></div>
+          <div class="inp"><div class="l">Narx $/g</div><div class="v">89.26</div></div>
+          <div class="inp"><div class="l">Summa</div><div class="v" style="color:var(--green)">1,106.82</div></div>
+          <div class="addb">+ Qo&#39;shish</div>
+        </div>
+      </div>
+
+      <div class="blk" style="margin-bottom:0;">
+        <div class="bh">SAVAT</div>
+        <div class="sv"><span>Butterfly &#183; Oddiy &nbsp;12.40 g &#215; 89.26</span><span>$1,106.82 <span class="x">&#215;</span></span></div>
+        <div class="sv"><span>Jilva &#183; 3D &nbsp;5.00 g &#215; 91.00</span><span>$455.00 <span class="x">&#215;</span></span></div>
+        <div class="tot"><span>JAMI &nbsp;<span style="font-size:12px;color:var(--muted);font-weight:400;">17.40 g</span></span><span>$1,561.82</span></div>
+        <div class="pay">
+          <div class="pb g">To&#39;lov &#8594;</div>
+          <div class="pb r">Tozalash</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc">
+      <div class="cdisp">1,106.82</div>
+      <div class="ctape">
+        <div class="ct"><span>12.4 &#215; 89.26</span><b>1 106.82</b></div>
+        <div class="ct"><span>5 &#215; 91</span><b>455</b></div>
+        <div class="ct"><span>1106.82 + 455</span><b>1 561.82</b></div>
+        <div class="ct"><span>2000 &#8722; 1561.82</span><b>438.18</b></div>
+      </div>
+      <div class="cpad">
+        <div class="ck gr">AC</div><div class="ck gr">+/&#8722;</div><div class="ck gr">%</div><div class="ck or">&#247;</div>
+        <div class="ck">7</div><div class="ck">8</div><div class="ck">9</div><div class="ck or">&#215;</div>
+        <div class="ck">4</div><div class="ck">5</div><div class="ck">6</div><div class="ck or">&#8722;</div>
+        <div class="ck">1</div><div class="ck">2</div><div class="ck">3</div><div class="ck or">+</div>
+        <div class="ck z">0</div><div class="ck">,</div><div class="ck or">=</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<h2>Chap taraf — POS</h2>
+<table style="width:100%;border-collapse:collapse;font-size:13px">
+<tr><td style="padding:6px 9px;border-bottom:1px solid var(--border);width:110px"><b>Klient</b></td>
+  <td style="padding:6px 9px;border-bottom:1px solid var(--border)">Bosilsa ro&#39;yxat. Yonida <b>ostatkasi</b> darhol ko&#39;rinadi — siz shuni so&#39;radingiz</td></tr>
+<tr><td style="padding:6px 9px;border-bottom:1px solid var(--border)"><b>Zavod / Tur</b></td>
+  <td style="padding:6px 9px;border-bottom:1px solid var(--border)">Katta tugmalar. Narx <code>getKatNarx</code> dan o&#39;zi tushadi</td></tr>
+<tr><td style="padding:6px 9px;border-bottom:1px solid var(--border)"><b>Gramm</b></td>
+  <td style="padding:6px 9px;border-bottom:1px solid var(--border)">Yoziladi &#8594; Summa o&#39;zi hisoblanadi</td></tr>
+<tr><td style="padding:6px 9px;border-bottom:1px solid var(--border)"><b>Savat</b></td>
+  <td style="padding:6px 9px;border-bottom:1px solid var(--border)">Bir nechta qator. &#215; bilan o&#39;chiriladi</td></tr>
+<tr><td style="padding:6px 9px"><b>To&#39;lov</b></td>
+  <td style="padding:6px 9px">Mavjud sotuv modalini ochadi (naqt/karta/perech/lom, chek)</td></tr>
+</table>
+
+<h2>O&#39;ng taraf — kalkulyator</h2>
+<p style="font-size:13px">iPhone bilan bir xil: qora fon, dumaloq tugmalar, kulrang yuqori qator,
+to&#39;q sariq amallar, keng «0». <b>Tarix lentasi</b> tepada — har hisob yozilib boradi
+(iOS 18 dagidek).</p>
+
+<div class="ok">
+Kalkulyator <b>mustaqil</b> — POS ga hech narsa yozmaydi, shunchaki hisoblash uchun.
+Shunday bo&#39;lsin degan tushunish bilan chizdim.
+</div>
+
+<h2>Savollar</h2>
+
+<div class="q">
+<div class="qh">A. Kalkulyator natijasi POS ga o&#39;tadimi?</div>
+<div class="opt rec"><span class="tag">A1 · TAKLIF</span><b>Yo&#39;q, mustaqil</b> —
+faqat hisoblash uchun, xuddi stol ustidagi kalkulyatordek</div>
+<div class="opt"><span class="tag">A2</span><b>Ha</b> — natijani bosib Gramm yoki
+Summa maydoniga tashlash mumkin</div>
+</div>
+
+<div class="q">
+<div class="qh">B. «To&#39;lov» bosilganda nima bo&#39;ladi?</div>
+<div class="opt rec"><span class="tag">B1 · TAKLIF</span><b>Mavjud sotuv modali ochiladi</b> —
+naqt/karta/perech/lom, sdacha, chek. Yangi to&#39;lov ekrani yozilmaydi, bori ishlatiladi.</div>
+<div class="opt"><span class="tag">B2</span><b>Planshet uchun yangi to&#39;lov ekrani</b> —
+katta tugmalar bilan. Ko&#39;proq kod, ikki nusxa mantiq xavfi.</div>
+</div>
+
+<div class="q">
+<div class="qh">C. POS qayerda turadi?</div>
+<div class="opt rec"><span class="tag">C1 · TAKLIF</span><b>Yangi tab</b> — Klientlar
+yonida «POS». <code>kassatest</code> kirsa o&#39;zi ochiladi.</div>
+<div class="opt"><span class="tag">C2</span><b>Butun ekranni egallaydi</b> — boshqa
+hech narsa ko&#39;rinmaydi</div>
+</div>
+
+<div class="warn" style="margin-top:22px">
+<b>KOD YOZILMAGAN.</b> Maket ma&#39;qul bo&#39;lsa ayting — nima o&#39;zgartirishni ham
+ayting. A · B · C javoblaridan keyin diff budjeti beraman.<br>
+Ish ikkiga bo&#39;linadi: <b>1) POS ekrani</b>, <b>2) kalkulyator</b> — ketma-ket,
+har birini alohida sinaysiz.
+</div>
+
+</div></body></html>
