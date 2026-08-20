@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zavod ERP — cloud chiqish + sanalik hisobot</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:17px;margin:34px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--gold-bd);color:var(--gold)}
+h3{font-size:14px;margin:20px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+.opt{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:7px 0}
+.opt .tag{display:inline-block;background:var(--surf2);color:var(--muted);font-size:11px;
+padding:1px 7px;border-radius:5px;margin-right:7px;font-weight:700}
+.rec{border-color:var(--green-bd)} .rec .tag{background:var(--green-bg);color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px}
+.lbl.now{color:var(--red)} .lbl.new{color:var(--green)}
+/* ilova taqlidi */
+.panel{background:var(--surf);border:1px solid var(--gold);border-top:2px solid var(--gold);
+border-radius:12px;padding:10px 12px}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ph .t{font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600}
+.ph .r{font-size:10px;color:var(--muted)}
+.acct{display:flex;justify-content:space-between;align-items:center;background:var(--surf2);
+border-radius:8px;padding:6px 9px;margin-bottom:8px}
+.acct .em{font-size:11.5px;color:var(--text)}
+.btn-out{background:transparent;border:1px solid var(--red-bd);color:var(--red);
+border-radius:7px;padding:3px 11px;font-size:11px;font-weight:600}
+.cho{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.c{background:var(--surf2);border-radius:8px;padding:7px 2px;text-align:center}
+.c .cl{font-size:10px;color:var(--muted)} .c .cv{font-size:14px;color:var(--gold);font-weight:500}
+.chips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.chip{padding:7px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surf);
+color:var(--muted);font-size:12.5px}
+.chip.on{border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:600}
+.chip .n{font-size:11px;opacity:.7}
+.kun{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--surf);
+border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.kun .l{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.kun .ar{font-size:9px;color:var(--muted)}
+.bugun{font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);
+border:1px solid var(--gold-bd);border-radius:5px;padding:1px 6px}
+.cnt{font-size:10px;color:var(--muted);background:var(--surf2);border:1px solid var(--border);
+border-radius:12px;padding:1px 8px}
+.hrow{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;
+margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hrow.k{border-left:3px solid var(--red)} .hrow.v{border-left:3px solid var(--blue)}
+.hrow.c{border-left:3px solid var(--green)}
+.hrow .tt{font-size:14px;font-weight:700} .hrow .zz{font-size:12.5px;color:var(--text);margin-top:2px}
+.hrow .gg{font-family:Consolas,monospace;font-size:15px;font-weight:600}
+.ind{margin-left:10px}
+</style></head><body><div class="wrap">
+
+<h1>Zavod ERP — ikkita ish</h1>
+<div class="sub">Mockup · 2026-08-19 · <b>KOD YOZILMAGAN</b> · fayl: <code>D:\Claude\Zavod ERP\index.html</code> (1785 qator)</div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «zavod erpda kassa modalida chiqish yo&#39;q-ku, mockupda
+ko&#39;rsat nima qilishimizni. keyin zavod erpda hisobotni tilla erpdagi hisobotga o&#39;xshab
+sanalik qilish kerak — tartibli turadi shunda.»
+</div>
+
+<h2>A · Kassa modalida cloud chiqish</h2>
+
+<h3>Tashxis</h3>
+<table>
+<tr><th>Holat</th><th>Hozir nima bor</th><th>Qator</th></tr>
+<tr><td><b>Ulanmagan</b></td><td style="color:var(--green)">✓ Email + parol + «Ulanish»</td><td class="ln">580–587</td></tr>
+<tr><td><b>Ulangan</b></td><td style="color:var(--red)">✗ Faqat raqamlar. Qaysi akkaunt — noma&#39;lum. Chiqish — yo&#39;q</td><td class="ln">594–...</td></tr>
+</table>
+
+<div class="warn">
+Tilla clouddan chiqish faqat <b>butun Zavod ERP dan chiqqanda</b> bo&#39;ladi —
+<code>doLogout</code> <span class="ln">480</span> da <code>tilla-fb-signout</code> bayrog&#39;i
+qo&#39;yiladi, keyin <code>tillaKassaInit</code> <span class="ln">535</span> uni ko&#39;rib
+<code>signOut()</code> qiladi.<br><br>
+Ya&#39;ni noto&#39;g&#39;ri akkaunt bilan ulansangiz — almashtirish uchun <b>butun ilovadan chiqish</b> kerak.
+</div>
+
+<h3>HOZIRGI vs TAKLIF</h3>
+<div class="grid2">
+
+<div class="card">
+<div class="lbl now">✗ HOZIRGI</div>
+<div class="panel">
+  <div class="ph"><span class="t">TILLA KASSA — jonli</span>
+    <span class="r"><span style="color:var(--green)">●</span> 15:42 · 2 daqiqa oldin</span></div>
+  <div class="cho">
+    <div class="c"><div class="cl">Naqd</div><div class="cv">$12 480</div></div>
+    <div class="c"><div class="cl">Lom 583</div><div class="cv">148.20 g</div></div>
+    <div class="c"><div class="cl">999</div><div class="cv" style="color:#5ab4e8">32.10 g</div></div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);text-align:center;padding:6px 0">
+    ... berish / sotib olish tugmalari ...</div>
+</div>
+<div style="font-size:12.5px;color:#ffb0b0;margin-top:9px">
+Kim bilan ulangan — ko&#39;rinmaydi. Uzish yo&#39;li — yo&#39;q.</div>
+</div>
+
+<div class="card" style="border-color:var(--green-bd)">
+<div class="lbl new">✓ TAKLIF</div>
+<div class="panel">
+  <div class="ph"><span class="t">TILLA KASSA — jonli</span>
+    <span class="r"><span style="color:var(--green)">●</span> 15:42 · 2 daqiqa oldin</span></div>
+  <div class="acct">
+    <span class="em">☁ <b>admin@tilla.com</b></span>
+    <span class="btn-out">Chiqish</span>
+  </div>
+  <div class="cho">
+    <div class="c"><div class="cl">Naqd</div><div class="cv">$12 480</div></div>
+    <div class="c"><div class="cl">Lom 583</div><div class="cv">148.20 g</div></div>
+    <div class="c"><div class="cl">999</div><div class="cv" style="color:#5ab4e8">32.10 g</div></div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);text-align:center;padding:6px 0">
+    ... berish / sotib olish tugmalari ...</div>
+</div>
+<div style="font-size:12.5px;color:#a8e9c4;margin-top:9px">
+Bitta qator qo&#39;shiladi. «Chiqish» → forma qaytadi, boshqa akkaunt bilan ulanasiz.</div>
+</div>
+</div>
+
+<div class="ok">
+<b>Xavfsizmi — ha.</b> <code>_tApp</code> alohida nomlangan Firebase ilova
+(<code>'tilla'</code>, <span class="ln">533</span>). Undan <code>signOut()</code> qilish
+Zavod ERP ning <b>o&#39;z</b> loginiga ham, <code>zavod-erp-88cd6</code> bazasiga ham tegmaydi —
+faqat Tilla kassasi ulanishini uzadi. Mavjud <code>onAuthStateChanged</code>
+(<span class="ln">536</span>) o&#39;zi listenerlarni to&#39;xtatib formani qaytaradi.
+</div>
+
+<p style="font-size:12.5px;color:var(--muted)">
+<b>Diff:</b> ~12–18 qator, faqat <code>renderTillaKassa</code> ichida + bitta yangi funksiya
+(<code>tillaKassaChiq()</code>).</p>
+
+<h2>B · Hisobot sanalik bo&#39;lsin</h2>
+
+<h3>Tashxis — ikkalasi bir xil koddan</h3>
+<p>Zavod ERP ning <code>renderHisobot</code> (<span class="ln">1161</span>) — Tilla ERP niki bilan
+<b>bir xil asosda</b>: <code>groups</code> + <code>groupOrder</code> + <code>expanded</code> +
+<code>toggleHrow</code>. Farqi — Tilla ERP da v174.2 da <b>kun sarlavhasi va filtr chiplari</b>
+qo&#39;shilgan, Zavod ERP eski holatda qolgan.</p>
+
+<table>
+<tr><th></th><th>Zavod ERP (hozir)</th><th>Tilla ERP (namuna)</th></tr>
+<tr><td>Guruh kaliti</td><td class="ln">1173 <code>tip|zavod|sana</code></td><td class="ln">5140 bir xil</td></tr>
+<tr><td>Saralash</td><td class="ln">1177 sana bo&#39;yicha ↓</td><td>bir xil</td></tr>
+<tr><td>Filtr chiplari</td><td style="color:var(--red)">✗ yo&#39;q</td><td class="ln">5156–5166</td></tr>
+<tr><td>Kun sarlavhasi</td><td style="color:var(--red)">✗ yo&#39;q</td><td class="ln">5178–5185</td></tr>
+<tr><td>Sana qayerda</td><td>har kartada takrorlanadi</td><td>kun sarlavhasida, bir marta</td></tr>
+</table>
+
+<h3>HOZIRGI vs TAKLIF</h3>
+<div class="grid2">
+
+<div class="card">
+<div class="lbl now">✗ HOZIRGI</div>
+<div class="hrow k"><div><div class="tt" style="color:var(--red)">↓ Kirim</div>
+  <div class="zz">Butterfly · 19.08.2026</div></div>
+  <div class="gg" style="color:var(--red)">+42.50 g</div></div>
+<div class="hrow c"><div><div class="tt" style="color:var(--green)">↑ Chiqim</div>
+  <div class="zz">Butterfly · 19.08.2026</div></div>
+  <div class="gg" style="color:var(--green)">−18.20 g</div></div>
+<div class="hrow v"><div><div class="tt" style="color:var(--blue)">↩ Vozvrat</div>
+  <div class="zz">Jilva · 18.08.2026</div></div>
+  <div class="gg" style="color:var(--blue)">−5.00 g</div></div>
+<div class="hrow k"><div><div class="tt" style="color:var(--red)">↓ Kirim</div>
+  <div class="zz">Jilva · 18.08.2026</div></div>
+  <div class="gg" style="color:var(--red)">+31.00 g</div></div>
+<div style="font-size:12.5px;color:#ffb0b0;margin-top:9px">
+Sana har kartada takrorlanadi. Kunlar aralash oqadi, filtr yo&#39;q.</div>
+</div>
+
+<div class="card" style="border-color:var(--green-bd)">
+<div class="lbl new">✓ TAKLIF</div>
+<div class="chips">
+  <span class="chip on">Hammasi <span class="n">14</span></span>
+  <span class="chip">↓ Kirim <span class="n">6</span></span>
+  <span class="chip">↩ Vozvrat <span class="n">3</span></span>
+  <span class="chip">↑ Chiqim <span class="n">5</span></span>
+</div>
+<div class="kun"><span class="l"><span class="ar">▶</span>19.08.2026
+  <span class="bugun">bugun</span></span><span class="cnt">2 ta</span></div>
+<div class="ind">
+  <div class="hrow k"><div><div class="tt" style="color:var(--red)">↓ Kirim</div>
+    <div class="zz">Butterfly</div></div><div class="gg" style="color:var(--red)">+42.50 g</div></div>
+  <div class="hrow c"><div><div class="tt" style="color:var(--green)">↑ Chiqim</div>
+    <div class="zz">Butterfly</div></div><div class="gg" style="color:var(--green)">−18.20 g</div></div>
+</div>
+<div class="kun"><span class="l"><span class="ar" style="transform:rotate(0)">▶</span>18.08.2026</span>
+  <span class="cnt">2 ta</span></div>
+<div class="kun"><span class="l"><span class="ar">▶</span>17.08.2026</span><span class="cnt">4 ta</span></div>
+<div style="font-size:12.5px;color:#a8e9c4;margin-top:9px">
+Kun sarlavhasi bosilsa ochiladi/yopiladi. Bugun o&#39;zi ochiq. Sana kartadan olib tashlanadi.</div>
+</div>
+</div>
+
+<p style="font-size:12.5px;color:var(--muted)">
+<b>Diff:</b> ~45–65 qator — Tilla ERP <span class="ln">5153–5190</span> naqshi ko&#39;chiriladi
+(<code>_hFiltr</code> / <code>_hOchiq</code> / <code>hFiltrTanla</code> / <code>hKunToggle</code>).
+Yangi mantiq o&#39;ylab topilmaydi.</p>
+
+<h2>Qaror nuqtalari</h2>
+
+<div class="q">
+<div class="qh">1. Zavod ichidagi hisobot ham shundaymi?</div>
+<p style="font-size:13px;margin:6px 0">Zavod ERP da <b>ikkita</b> hisobot bor:
+<code>renderHisobot</code> (umumiy, <span class="ln">1161</span>) va
+<code>renderZavodHisobot</code> (bitta zavod ichida, <span class="ln">1306</span>).</p>
+<div class="opt rec"><span class="tag">1a · TAKLIF</span><b>Faqat umumiysi</b> —
+siz «hisobot» deganda odatda shu ko&#39;rinadi. Kamroq o&#39;zgarish, kamroq xavf.</div>
+<div class="opt"><span class="tag">1b</span><b>Ikkalasi ham</b> — diff ~2 barobar oshadi.</div>
+</div>
+
+<div class="q">
+<div class="qh">2. Ikkalasini birga qilaymi yoki alohida?</div>
+<div class="opt rec"><span class="tag">2a · TAKLIF</span><b>Alohida, ketma-ket</b> —
+avval A (chiqish, kichik), sinaysiz; keyin B (hisobot). Xato chiqsa qaysi biridan
+kelgani aniq bo&#39;ladi.</div>
+<div class="opt"><span class="tag">2b</span><b>Bitta o&#39;zgarishda ikkalasi</b> — tezroq,
+lekin buzilsa sabab noaniq.</div>
+</div>
+
+<div class="q">
+<div class="qh">3. Zavod-ERP repositoriysiga commit / push?</div>
+<p style="font-size:13px;margin:6px 0">Zavod ERP <b>alohida repo</b> —
+<code>ibrohimcyborg/Zavod-ERP</code>. Tilla ERP qoidalari u yerda avtomatik ishlamaydi.</p>
+<div class="opt rec"><span class="tag">3a · TAKLIF</span><b>Commit qilaman, push — faqat aytsangiz</b>
+(Tilla ERP dagi qoida bilan bir xil)</div>
+<div class="opt"><span class="tag">3b</span><b>Commit ham qilmayman</b> — faqat fayl o&#39;zgaradi</div>
+<div class="opt"><span class="tag">3c</span><b>Commit + push</b> — darhol prodga chiqsin</div>
+</div>
+
+<div class="warn" style="margin-top:24px">
+<b>KOD YOZILMAGAN.</b> 1 · 2 · 3 tanlangandan keyin TAXMIN BLOKI, keyin kod.<br>
+Va aytgan edingiz — «chala ishlar» ko&#39;plikda. Qolganlarini ham sanab bering,
+ro&#39;yxat qilib qo&#39;yamiz.
+</div>
+
+</div></body></html>

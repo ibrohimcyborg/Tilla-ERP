@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zavod ERP — kassani clouddan o'zi hisoblasin</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.mono{font-family:Consolas,Monaco,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.stop{background:#3a1f00;border:2px solid var(--gold);border-radius:10px;padding:14px 16px;margin:16px 0}
+.stop .sh{color:var(--gold);font-weight:800;font-size:14px;margin-bottom:8px}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+.opt{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:7px 0}
+.opt .tag{display:inline-block;background:var(--surf2);color:var(--muted);font-size:11px;
+padding:1px 7px;border-radius:5px;margin-right:7px;font-weight:700}
+.rec{border-color:var(--green-bd)} .rec .tag{background:var(--green-bg);color:var(--green)}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.box{background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:12.5px}
+.box.g{border-color:var(--green-bd);color:var(--green)}
+.box.b{border-color:#2a5a7a;color:var(--blue)}
+.ar{color:var(--muted);font-size:16px}
+</style></head><body><div class="wrap">
+
+<h1>Zavod ERP — kassani clouddan o&#39;zi hisoblasin</h1>
+<div class="sub">Reja · 2026-08-19 · <b>KOD YOZILMAGAN</b></div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «yo&#39;q ishlamadi. zavod o&#39;zi hisoblasin —
+qurilma 1 dan / asosiy qurilmaning cloudidan o&#39;qisa bo&#39;ladigan qilishimiz kerak»
+</div>
+
+<div class="stop">
+<div class="sh">⚠ AVVAL BITTA TEKSHIRUV — 1 daqiqa, kod yozilmasdan</div>
+<p style="font-size:13px;margin:6px 0">
+Yangi yo&#39;l ham <b>xuddi shu kolleksiyadan</b> o&#39;qiydi:
+<code>tilla_&lt;uid&gt;</code>. Agar u yerda <code>kassa_snapshot</code> yo&#39;q bo&#39;lsa,
+katta ehtimol <code>holat</code> ham yo&#39;q — ya&#39;ni <b>kolleksiya bo&#39;sh</b>.
+Unda 130+ qator kod yozilib ham hech narsa chiqmaydi.</p>
+<p style="font-size:13px;margin:6px 0"><b>Tekshirish:</b> Tilla ERP ni oching →
+<b>Cloud holati</b> paneli. U yerda yozilgan bo&#39;ladi:</p>
+<div class="card mono" style="margin:8px 0">
+Login: <b style="color:var(--gold)">?????@tilla.com</b><br>
+Qurilma: <b>Qurilma-1</b> <span style="color:var(--blue)">ASOSIY</span><br>
+Oxirgi sinxron: <b>19.08.2026 15:40</b>
+</div>
+<p style="font-size:13px;margin:6px 0">
+Shu <b>Login</b> qatoridagi email <b>aynan</b> Zavod ERP da ulanganingiz bilan
+(<code>admin@tilla.com</code>) bir xilmi? Har xil bo&#39;lsa — muammo koddayam emas,
+shunchaki <b>ikkalasi boshqa-boshqa bazaga qarayapti</b>
+(<code>cloudKol()</code> <span class="ln">18286</span> uid dan quriladi).</p>
+</div>
+
+<h2>Cloudda nima bor</h2>
+<table>
+<tr><th>Hujjat</th><th>Ichida</th><th>Kim yozadi</th></tr>
+<tr><td><code>kassa_snapshot</code></td><td>Tayyor raqamlar (naqd, lom, 999, harakatlar)</td>
+  <td>Tilla ERP — <span class="ln">18688</span> saqlaganda, <span class="ln">18414</span> ulanganda</td></tr>
+<tr style="background:var(--green-bg)"><td><code>holat</code></td><td><span class="mono">{vaqt, qurilma, bolak, hajm}</span></td>
+  <td>Tilla ERP — har saqlashda <span class="ln">18684</span></td></tr>
+<tr style="background:var(--green-bg)"><td><code>holat_b0 … bN</code></td><td><b>Butun <code>tilla-v2</code> JSON</b>, 800KB bo&#39;laklarda</td>
+  <td>Tilla ERP — <span class="ln">18685</span></td></tr>
+</table>
+
+<div class="ok">
+<b>Yaxshi xabar:</b> kassa ma&#39;lumoti clouddа <b>allaqachon bor</b> — butun baza
+<code>holat_b*</code> bo&#39;laklarida yotibdi. Snapshot kutish shart emas.
+</div>
+
+<h2>Yangi yo&#39;l</h2>
+<div class="flow">
+  <span class="box b">holat o&#39;qiladi<br><span style="font-size:10px;color:var(--muted)">bolak = nechta</span></span>
+  <span class="ar">→</span>
+  <span class="box b">holat_b0…bN<br><span style="font-size:10px;color:var(--muted)">birlashtiriladi</span></span>
+  <span class="ar">→</span>
+  <span class="box b">JSON.parse<br><span style="font-size:10px;color:var(--muted)">data.kassa</span></span>
+  <span class="ar">→</span>
+  <span class="box g">kassaOqim()<br><span style="font-size:10px;color:var(--muted)">naqd · lom · 999</span></span>
+</div>
+<p style="font-size:13px"><code>holat</code> ga <code>onSnapshot</code> qo&#39;yiladi —
+Tilla ERP saqlagan zahoti Zavod ERP qayta o&#39;qib hisoblaydi. <b>Tilla ERP ochiq
+bo&#39;lishi shart emas</b>, oxirgi saqlangan holat baribir cloudda turadi.</p>
+
+<h2>Nima ko&#39;chiriladi — aniq o&#39;lchov</h2>
+<table>
+<tr><th>Funksiya</th><th>Tilla ERP da</th><th>Hajmi</th><th>Nima uchun</th></tr>
+<tr><td><code>kassaOqim</code></td><td class="ln">3316</td><td>68 qator</td><td>naqd / lom / 999 — asosiy hisob</td></tr>
+<tr><td><code>_opNaqtPul</code></td><td class="ln">3305</td><td>11 qator</td><td><code>kassaOqim</code> ichida</td></tr>
+<tr><td><code>kassaEkv</code></td><td class="ln">3286</td><td>8 qator</td><td><code>kassaOqim</code> ichida</td></tr>
+<tr><td><code>sanaKey</code></td><td class="ln">3289</td><td>5 qator</td><td><code>kassaOqim</code> ichida</td></tr>
+<tr><td colspan="2"><b>Cloud o&#39;qish + parse (yangi kod)</b></td><td>~35–45</td><td>holat → bo&#39;laklar → JSON</td></tr>
+<tr style="background:var(--surf2)"><td colspan="2"><b>JAMI (uch raqam uchun)</b></td><td><b>~130–140 qator</b></td><td></td></tr>
+<tr><td><code>kassaHarakatlar</code></td><td class="ln">4118</td><td>60 qator</td><td>faqat harakatlar ro&#39;yxati kerak bo&#39;lsa</td></tr>
+<tr><td><code>kassaMuzlatilgan</code></td><td class="ln">4777</td><td>5 qator</td><td>faqat «band / erkin» kerak bo&#39;lsa</td></tr>
+</table>
+<p style="font-size:12.5px;color:var(--muted)">
+Zavod ERP da <code>roundG</code> · <code>parseNum</code> · <code>today</code> ·
+<code>fmtD</code> · <code>fmtG</code> <b>allaqachon bor</b> — ular ko&#39;chirilmaydi
+(tekshirildi). <code>sanaKey</code> yo&#39;q.</p>
+
+<div class="warn">
+<b>Asosiy xavf — ikki nusxa mantiq.</b> Bugundan keyin kassa hisobi Tilla ERP da
+o&#39;zgarsa (masalan yangi chiqim turi qo&#39;shilsa), Zavod ERP dagi nusxa <b>eskirib
+qoladi</b> va ikkala ilova <b>boshqa-boshqa raqam</b> ko&#39;rsatadi. Bu jim bo&#39;ladi —
+xato chiqmaydi, shunchaki raqam farq qiladi.<br><br>
+Buni yo&#39;qotib bo&#39;lmaydi, faqat kamaytirsa bo&#39;ladi: <code>kassaOqim</code> ni
+<b>o&#39;zgartirmasdan, aynan nusxa</b> ko&#39;chirish va tepasiga izoh yozish —
+«Tilla ERP 3316 dan nusxa, u yerda o&#39;zgarsa BU YERDA HAM o&#39;zgartirilsin».
+</div>
+
+<h2>Qaror nuqtalari</h2>
+
+<div class="q">
+<div class="qh">A. Nima ko&#39;rsatilsin?</div>
+<div class="opt rec"><span class="tag">A1 · TAKLIF</span><b>Faqat uch raqam</b> —
+naqd, lom 583, 999. ~130–140 qator. Siz «nechpulligini» dedingiz — shu yetadi.</div>
+<div class="opt"><span class="tag">A2</span><b>Harakatlar ro&#39;yxati ham</b> —
++60 qator (<code>kassaHarakatlar</code>), jami ~200</div>
+<div class="opt"><span class="tag">A3</span><b>Hammasi</b> — band/erkin, zakazlar ham</div>
+</div>
+
+<div class="q">
+<div class="qh">B. Snapshot bilan qanday yashaydi?</div>
+<div class="opt rec"><span class="tag">B1 · TAKLIF</span><b>Snapshot birinchi, hisob zaxira</b> —
+snapshot bo&#39;lsa o&#39;shani ko&#39;rsatadi (tez, arzon); bo&#39;lmasa yoki eskirgan bo&#39;lsa
+<code>holat</code> dan o&#39;zi hisoblaydi. Ikkalasi ham ishlaydi.</div>
+<div class="opt"><span class="tag">B2</span><b>Faqat o&#39;z hisobi</b> — snapshot butunlay
+tashlanadi. Soddaroq, lekin har ochilganda 2–3 ta katta hujjat o&#39;qiladi
+(Firestore kvotasi).</div>
+</div>
+
+<div class="q">
+<div class="qh">C. «Asosiy qurilma» filtri kerakmi?</div>
+<p style="font-size:13px;margin:6px 0"><code>holat</code> hujjatida
+<code>qurilma</code> maydoni bor (<span class="ln">18684</span>) — oxirgi kim
+saqlagani. Tilla ERP da ASOSIY qurilma belgisi ham bor
+(<code>qurilmaAsosiy()</code>, <span class="ln">18430</span>).</p>
+<div class="opt rec"><span class="tag">C1 · TAKLIF</span><b>Filtr kerak emas</b> —
+<code>holat</code> baribir bitta, oxirgi saqlagan qurilmaniki. Qaysi qurilma
+saqlagani ko&#39;rsatiladi, xolos («Qurilma-1 · 15:40»).</div>
+<div class="opt"><span class="tag">C2</span><b>Faqat ASOSIY qurilmadan</b> —
+boshqa qurilma saqlagan bo&#39;lsa ko&#39;rsatilmasin. Lekin unda ma&#39;lumot
+umuman ko&#39;rinmay qolishi mumkin.</div>
+</div>
+
+<div class="warn" style="margin-top:24px">
+<b>KOD YOZILMAGAN.</b> Avval yuqoridagi tekshiruv (Tilla ERP → Cloud holati → Login),
+keyin A · B · C tanlovlari, keyin TAXMIN BLOKI, keyin kod.
+</div>
+
+</div></body></html>

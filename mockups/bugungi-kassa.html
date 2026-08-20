@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bugungi kassa</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:820px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+/* panel taqlidi */
+.zona{background:#fdf8e8;border-radius:12px;padding:12px;margin:8px 0}
+.zt{font-size:11px;color:#8a7430;letter-spacing:.08em;font-weight:700;margin-bottom:9px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:9px}
+.k{background:#f7f6f3;border:1.5px solid #d8b84c;border-radius:10px;padding:9px 6px;text-align:center}
+.k .kl{font-size:11px;color:#8a8a86}
+.k .kv{font-size:17px;font-weight:700;margin-top:2px}
+.pos{color:#2e8f56} .neg{color:#c0392b} .zero{color:#a0a7b2} .bl{color:#2a7ab8}
+.ochir{opacity:.35;position:relative}
+.ochir::after{content:'O\'CHADI';position:absolute;inset:0;display:flex;align-items:center;
+justify-content:center;color:#c0392b;font-weight:800;font-size:15px;letter-spacing:.1em}
+</style></head><body><div class="wrap">
+
+<h1>Tilla ERP — bugungi kassa</h1>
+<div class="sub">Mockup · 2026-08-19 · <b>KOD YOZILMAGAN</b></div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «tepadagi qoldiq o&#39;chsin-de.
+Keyin lomni oldiga lom, 999, chiqim qo&#39;shsang — chiqimda rasxodlarni ko&#39;rib turamiz.»
+</div>
+
+<h2>1 · Tepadagi qoldiq o&#39;chadi</h2>
+<div class="zona ochir" style="background:#f0efeb">
+  <div class="zt">KASSA QOLDIQ — HAQIQIY</div>
+  <div class="r3">
+    <div class="k" style="border-color:#d8d5cc"><div class="kl">Naqd ›</div><div class="kv">$796,889.25</div></div>
+    <div class="k" style="border-color:#d8d5cc"><div class="kl">Karta ›</div><div class="kv">$11</div></div>
+    <div class="k" style="border-color:#d8d5cc"><div class="kl">Perech ›</div><div class="kv">$0</div></div>
+  </div>
+</div>
+
+<h2>2 · O&#39;rniga — bugungi kassa</h2>
+
+<div class="zona">
+  <div class="zt">KASSA · BUGUN 19.08.2026</div>
+  <div class="r3">
+    <div class="k"><div class="kl">Naqd</div><div class="kv pos">$1,540.00</div></div>
+    <div class="k"><div class="kl">Karta</div><div class="kv pos">$400.00</div></div>
+    <div class="k"><div class="kl">Perech</div><div class="kv zero">$0</div></div>
+  </div>
+  <div class="r3">
+    <div class="k"><div class="kl">Chiqim</div><div class="kv neg">−$340.00</div></div>
+    <div class="k"><div class="kl">Lom 583</div><div class="kv pos">+12.00 g</div></div>
+    <div class="k"><div class="kl">999</div><div class="kv neg">−3.50 g</div></div>
+  </div>
+</div>
+
+<p style="font-size:12.5px;color:var(--muted)">
+Chiqim kartasi <b>lomdan oldin</b>, ikkinchi qatorning boshida — siz aytgandek.
+Musbat yashil, manfiy qizil, nol kulrang.</p>
+
+<h2>Har karta nimani ko&#39;rsatadi</h2>
+<table>
+<tr><th>Karta</th><th>Ma&#39;nosi</th><th>Manba</th></tr>
+<tr><td><b>Naqd</b></td><td>Bugun kassaga <b>kirgan</b> naqd</td><td>sof o&#39;zgarish + chiqim</td></tr>
+<tr><td><b>Karta</b></td><td>Bugun kartaga tushgani</td><td><code>karta</code> ayirmasi</td></tr>
+<tr><td><b>Perech</b></td><td>Bugungi perech</td><td><code>perech</code> ayirmasi</td></tr>
+<tr style="background:var(--red-bg)"><td><b>Chiqim</b></td><td><b>Bugun kassadan chiqqan naqd — rasxod</b></td><td><code>bugunChiqim</code></td></tr>
+<tr><td><b>Lom 583</b></td><td>Bugungi lom o&#39;zgarishi</td><td><code>lomEkv</code> ayirmasi</td></tr>
+<tr><td><b>999</b></td><td>Bugungi 999 o&#39;zgarishi</td><td><code>toza</code> ayirmasi</td></tr>
+</table>
+
+<div class="ok">
+<b>Naqd − Chiqim = bugungi sof.</b> Misolda: $1,540 − $340 = <b>$1,200</b> qo&#39;shildi.<br>
+Ya&#39;ni <b>Naqd</b> — bugun tushgani, <b>Chiqim</b> — bugun ketgani. Ikkalasi alohida
+ko&#39;rinadi, chunki siz rasxodni ko&#39;rib turmoqchisiz.
+</div>
+
+<h2>Qanday hisoblanadi</h2>
+<p style="font-size:13px">Yangi mantiq <b>yozilmaydi</b>. <code>kassaOqim</code>
+(<span class="ln">3316</span>) <code>limitSana</code> qabul qiladi va
+<code>bugunChiqim</code> ni ham qaytaradi:</p>
+<div class="card" style="font-family:Consolas,monospace;font-size:12px;color:var(--muted)">
+var b = kassaOqim(<span style="color:var(--gold)">bugun</span>);<br>
+var k = kassaOqim(<span style="color:var(--gold)">kecha</span>);<br><br>
+Chiqim  = b.bugunChiqim<br>
+Naqd    = (b.naqd − k.naqd) + b.bugunChiqim<br>
+Karta   = b.karta − k.karta<br>
+Perech  = b.perech − k.perech<br>
+Lom 583 = b.lomEkv − k.lomEkv<br>
+999     = b.toza − k.toza
+</div>
+<p style="font-size:12.5px;color:var(--muted)">
+<code>kassaOqim</code> ning o&#39;ziga <b>tegilmaydi</b>. <b>Diff: ~25–35 qator.</b></p>
+
+<div class="warn">
+<b>KOD YOZILMAGAN.</b> «Naqd = bugun tushgani, Chiqim = bugun ketgani» degan
+tushunish to&#39;g&#39;ri bo&#39;lsa — <b>«ha»</b> deng, darhol yozaman.<br>
+<b>Kun yopish</b> (kassa 0 bo&#39;lishi) — keyingi ish, hozir tegilmaydi.
+</div>
+
+</div></body></html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zavod ERP — kassa snapshotsiz</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:10px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start}
+@media(max-width:880px){.grid3{grid-template-columns:1fr}}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px}
+.panel{background:var(--surf);border:1px solid var(--gold);border-top:2px solid var(--gold);
+border-radius:12px;padding:10px 11px}
+.panel.dim{border-color:var(--border);border-top-color:var(--border)}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px}
+.ph .t{font-size:10.5px;color:var(--gold);letter-spacing:.06em;font-weight:600}
+.ph .r{font-size:9.5px;color:var(--muted);white-space:nowrap}
+.acct{display:flex;justify-content:space-between;align-items:center;background:var(--surf2);
+border-radius:8px;padding:5px 8px;margin-bottom:8px}
+.acct .em{font-size:11px;color:var(--text)}
+.bo{background:transparent;border:1px solid var(--red-bd);color:var(--red);border-radius:6px;
+padding:2px 9px;font-size:10px;font-weight:600}
+.cho{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:7px}
+.c{background:var(--surf2);border-radius:8px;padding:6px 2px;text-align:center}
+.c .cl{font-size:9px;color:var(--muted)} .c .cv{font-size:13px;color:var(--gold);font-weight:500}
+.mut{font-size:10.5px;color:var(--muted);text-align:center;padding:5px 0}
+.flow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
+.box{background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:7px 11px;font-size:12px}
+.box.g{border-color:var(--green-bd);color:var(--green)}
+.ar{color:var(--muted);font-size:15px}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+</style></head><body><div class="wrap">
+
+<h1>Zavod ERP — kassa snapshotsiz ham ko&#39;rinsin</h1>
+<div class="sub">Mockup · 2026-08-19 · kod <b>yozilgan, lekin COMMIT QILINMAGAN</b> — tasdiqlasangiz commit, tasdiqlamasangiz qaytaraman</div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «snapshot so&#39;ravotti — snapshotsiz ishlaydigan
+qil, lekin zavod erp buzilmasin, shunchaki ko&#39;rsatsin»
+</div>
+
+<h2>Qanday ishlaydi</h2>
+<div class="flow">
+  <span class="box">Ulanish</span><span class="ar">→</span>
+  <span class="box">kassa_snapshot bormi?</span><span class="ar">→</span>
+  <span class="box g">BOR: hozirgidek<br><span style="font-size:10px;color:var(--muted)">to&#39;liq — zakaz, harakatlar</span></span>
+  <span class="ar">yoki</span>
+  <span class="box g">YO&#39;Q: holat_b0…bN o&#39;qiladi<br><span style="font-size:10px;color:var(--muted)">JSON.parse → kassa hisoblanadi</span></span>
+</div>
+<p style="font-size:13px"><code>holat</code> hujjatiga <code>onSnapshot</code> qo&#39;yiladi —
+Tilla ERP saqlagan zahoti qayta hisoblanadi. <b>Tilla ERP ochiq bo&#39;lishi shart emas.</b></p>
+
+<h2>Uch holat — ekranda</h2>
+<div class="grid3">
+
+<div>
+<div class="lbl" style="color:var(--red)">HOZIR (snapshot yo&#39;q)</div>
+<div class="panel dim">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">TILLA KASSA — kutilmoqda...
+  (Tilla ERP hali snapshot yubormagan)</div>
+  <div class="acct"><span class="em">☁ admin@tilla.com</span><span class="bo">Chiqish</span></div>
+</div>
+<div style="font-size:11.5px;color:#ffb0b0;margin-top:7px">Raqam umuman yo&#39;q.</div>
+</div>
+
+<div>
+<div class="lbl" style="color:var(--green)">YANGI — snapshot yo&#39;q</div>
+<div class="panel">
+  <div class="ph"><span class="t">TILLA KASSA — HISOBLANGAN</span>
+    <span class="r"><span style="color:var(--green)">●</span> 15:40</span></div>
+  <div class="acct"><span class="em">☁ admin@tilla.com</span><span class="bo">Chiqish</span></div>
+  <div class="cho">
+    <div class="c"><div class="cl">Naqd</div><div class="cv">$12 480</div></div>
+    <div class="c"><div class="cl">Lom 583</div><div class="cv">148.20 g</div></div>
+    <div class="c"><div class="cl">999</div><div class="cv" style="color:#5ab4e8">32.10 g</div></div>
+  </div>
+  <div class="mut">− Berish · + Sotib olish</div>
+  <div style="font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;">
+    <span>Bugun: <span style="color:var(--green)">+$1 200</span> / <span style="color:var(--red)">−$340</span></span>
+    <span>Z qilinmagan</span></div>
+</div>
+<div style="font-size:11.5px;color:#a8e9c4;margin-top:7px">
+Raqamlar bor. Zakaz banneri, harakatlar ro&#39;yxati, band/erkin — <b>yo&#39;q</b>.</div>
+</div>
+
+<div>
+<div class="lbl" style="color:var(--muted)">SNAPSHOT BOR — o&#39;zgarmaydi</div>
+<div class="panel">
+  <div class="ph"><span class="t">TILLA KASSA — JONLI</span>
+    <span class="r"><span style="color:var(--green)">●</span> 15:42</span></div>
+  <div class="acct"><span class="em">☁ admin@tilla.com</span><span class="bo">Chiqish</span></div>
+  <div class="cho">
+    <div class="c"><div class="cl">Naqd</div><div class="cv">$12 480</div></div>
+    <div class="c"><div class="cl">Lom 583</div><div class="cv">148.20 g</div></div>
+    <div class="c"><div class="cl">999</div><div class="cv" style="color:#5ab4e8">32.10 g</div></div>
+  </div>
+  <div class="mut">− Berish · + Sotib olish</div>
+  <div style="font-size:10.5px;color:var(--muted);padding:3px 0">Kassa harakatlari · oxirgi<br>
+  Zakaz bannerlari · band/erkin</div>
+</div>
+<div style="font-size:11.5px;color:var(--muted);margin-top:7px">
+Hozirgi xulq <b>butunlay saqlanadi</b>.</div>
+</div>
+</div>
+
+<p style="font-size:12.5px;color:var(--muted)">Yagona farq sarlavhada:
+<b>«jonli»</b> ↔ <b>«hisoblangan»</b>. Shu so&#39;z ortiqcha bo&#39;lsa olib tashlayman.</p>
+
+<h2>«Zavod ERP buzilmasin» — nima qilindi</h2>
+<div class="ok">
+<b>Zavod ERP ning o&#39;z bazasiga umuman tegilmadi.</b><br>
+• <code>db</code> (zavod-erp-88cd6), <code>save()</code>, <code>data</code> — <b>tegilmagan</b><br>
+• Tilla ma&#39;lumoti <b>hech qachon</b> <code>data</code> ga yozilmaydi — parametr (<code>D</code>)
+bilan uzatiladi va faqat hisoblash uchun ishlatiladi<br>
+• Ko&#39;chirilgan funksiyalarga <code>tk</code> prefiksi qo&#39;yildi — Zavod ERP dagi
+hech qanday nom bilan to&#39;qnashmaydi (grep bilan tekshirildi)<br>
+• Snapshot yo&#39;li <b>o&#39;zgarmadi</b> — bor bo&#39;lsa hozirgidek ishlaydi
+</div>
+
+<h2>Nima ko&#39;chirildi</h2>
+<table>
+<tr><th>Zavodda yangi nom</th><th>Tilla ERP dagi asli</th><th>Hajmi</th></tr>
+<tr><td><code>tkKassaOqim(D)</code></td><td><code>kassaOqim</code> <span class="ln">3316</span></td><td>68 qator</td></tr>
+<tr><td><code>tkOpNaqtPul</code></td><td><code>_opNaqtPul</code> <span class="ln">3305</span></td><td>11</td></tr>
+<tr><td><code>tkKassaEkv</code></td><td><code>kassaEkv</code> <span class="ln">3286</span></td><td>8</td></tr>
+<tr><td><code>tkSanaKey</code></td><td><code>sanaKey</code> <span class="ln">3289</span></td><td>5</td></tr>
+<tr><td><code>tillaHolatListen</code> / <code>tillaHolatOqi</code></td><td>yangi kod</td><td>~30</td></tr>
+</table>
+<p style="font-size:12.5px;color:var(--muted)">Haqiqiy diff: <b>+146 / −6</b>.
+Taxminim ~130–150 edi. Node sintaksis-sinov xatosiz.</p>
+
+<div class="warn">
+<b>Ochiq aytaman — ikki nusxa mantiq.</b> <code>tkKassaOqim</code> Tilla ERP dagi
+<code>kassaOqim</code> ning <b>aynan nusxasi</b>. Tilla ERP da kassa hisobi o&#39;zgarsa
+(yangi chiqim turi, yangi cho&#39;ntak), Zavod ERP dagi nusxa eskirib qoladi va
+<b>ikkala ilova boshqa raqam ko&#39;rsatadi</b>. Xato chiqmaydi — jim farq qiladi.<br><br>
+Shuning uchun funksiya tepasiga ogohlantirish izohi yozildi. Boshqa yo&#39;l yo&#39;q —
+Tilla ochiq bo&#39;lmaganda hisobni kimdir qilishi kerak.
+</div>
+
+<div class="q">
+<div class="qh">Qaror</div>
+<p style="font-size:13px;margin:6px 0">
+<b>Tasdiqlasangiz</b> — commit qilaman (push faqat aytsangiz).<br>
+<b>Tasdiqlamasangiz</b> — <code>git checkout</code> bilan qaytaraman, iz qolmaydi.<br>
+<b>O&#39;zgartirish kerak bo&#39;lsa</b> — ayting, tuzataman.</p>
+</div>
+
+</div></body></html>

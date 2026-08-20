@@ -1,4 +1,4 @@
-<!-- v176.5 -->
+<!-- v176.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1980,7 +1980,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.5';
+var APP_VER = 'v176.6';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -4917,7 +4917,22 @@ function kassaQoldiqPanelHTML(){
   var erkin = Math.round((o.naqd - band)*100)/100;
   var ochiqZ = ((data.kassa&&data.kassa.zakazlar)||[]).filter(function(z){return z.holat==='ochiq';});
   var h = '<div style="background:var(--surf);border:1px solid var(--gold-bd);border-top:2px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:10px;">';
-  h += '<div style="margin-bottom:8px;"><span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA QOLDIQ — HAQIQIY</span></div>';
+  // v176.6 (Ibrohim): «tepadagi qoldiq o'chsin-de, keyin lomni oldiga chiqim
+  // qo'shsang — chiqimda rasxodlarni ko'rib turamiz». Haqiqiy qoldiq o'rniga
+  // BUGUNGI harakat turadi. kassaOqim ga TEGILMADI — u limitSana ni allaqachon
+  // qabul qiladi, bugun bilan kechaning ayirmasi olinadi.
+  var _bugSana = today(), _kecSana = kunOldin(_bugSana);
+  var _bO = kassaOqim(_bugSana), _kO = kassaOqim(_kecSana);
+  var _bChiqim = _bO.bugunChiqim;
+  var _bNaqd   = Math.round(((_bO.naqd - _kO.naqd) + _bChiqim)*100)/100; // kirgani (sof + chiqqani)
+  var _bKarta  = Math.round((_bO.karta  - _kO.karta )*100)/100;
+  var _bPerech = Math.round((_bO.perech - _kO.perech)*100)/100;
+  var _bLom    = roundG(_bO.lomEkv - _kO.lomEkv);
+  var _bToza   = roundG(_bO.toza   - _kO.toza);
+  function _bRang(v){ return v>0.0001 ? 'green' : (v<-0.0001 ? 'red' : 'muted'); }
+  function _bPul(v){ return (v>0.0001?'':(v<-0.0001?'−':''))+'$'+fmtD(Math.abs(v)); }
+  function _bGr(v){  return (v>0.0001?'+':(v<-0.0001?'−':''))+fmtG(Math.abs(v))+' g'; }
+  h += '<div style="margin-bottom:8px;"><span style="font-size:11px;color:var(--gold);letter-spacing:.08em;font-weight:600;">KASSA · BUGUN '+_bugSana+'</span></div>';
   // YOPILMAGAN KUN ESLATMASI: oxirgi Z dan keyingi eng eski yopilmagan kun (kechagacha)
   var yopilmagan = kassaYopilmaganKun();
   if(yopilmagan && !_zEslatmaYopiq){
@@ -4943,13 +4958,15 @@ function kassaQoldiqPanelHTML(){
   // v136.1: TEPA QATOR DOIM 3 TA (Naqd · Karta · Perech) — qiymati 0 bo'lsa ham turadi,
   // hisoboti bosilsin va panel joyidan siljimasin. Tagida DOIM 2 ta (Lom 583 · 999).
   h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:5px;">';
-  h += cho('Naqd','$'+fmtD(o.naqd),'gold',naqdSub,'naqt','green');
-  h += cho('Karta','$'+fmtD(o.karta),'blue','','karta','blue');
-  h += cho('Perech','$'+fmtD(o.perech),'teal','<div style="font-size:9px;color:var(--muted);margin-top:2px;">oqim</div>','perech','teal');
+  h += cho('Naqd',_bPul(_bNaqd),_bRang(_bNaqd),'','naqt','green');
+  h += cho('Karta',_bPul(_bKarta),_bRang(_bKarta),'','karta','blue');
+  h += cho('Perech',_bPul(_bPerech),_bRang(_bPerech),'<div style="font-size:9px;color:var(--muted);margin-top:2px;">oqim</div>','perech','teal');
   h += '</div>';
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;">';
-  h += cho('Lom 583',fmtG(o.lomEkv)+' g','gold');
-  h += cho('999',fmtG(o.toza)+' g','blue');
+  // v176.6: Chiqim (rasxod) lomdan OLDIN — Ibrohim shunday so'radi
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;">';
+  h += cho('Chiqim',_bPul(-_bChiqim),_bRang(-_bChiqim),'','','red');
+  h += cho('Lom 583',_bGr(_bLom),_bRang(_bLom));
+  h += cho('999',_bGr(_bToza),_bRang(_bToza));
   h += '</div>';
   // v112: ZAVODGA TO'LANMAGAN — ochiq pozitsiya (foyda suzib turibdi)
   var _tlm = kassaZavodgaTolanmagan();
