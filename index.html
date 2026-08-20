@@ -1,4 +1,4 @@
-<!-- v176.7 -->
+<!-- v176.8 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -257,6 +257,13 @@ input[type=number]{-moz-appearance:textfield;}
 }
 /* Zavod roli — klient panelini yashir */
 body.rol-zavod #main-klient { display: none !important; }
+
+/* POS roli (kassatest) — faqat klient tarafi ko'rinadi. Ibrohim: «klient
+   ostatkasini ko'radi, zavodlar qo'limizda shart emas, lekin bazasini oladi».
+   Ya'ni zavod EKRANI yashirinadi, zavod MA'LUMOTI joyida qoladi — sotuvda
+   zavod·tur·narx o'shandan olinadi. */
+body.rol-pos #main-tab-zavod,
+body.rol-pos #main-zavod { display: none !important; }
 
 /* Abdulhamid roli (rol-hamid) — soddalashtirilgan ko'rinish */
 /* Zavod tarafda: Kassa, LOM, Sherik, Ostatka yashirin */
@@ -1980,7 +1987,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.7';
+var APP_VER = 'v176.8';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2178,18 +2185,26 @@ var CREDS = [
   {login:'zavod', parol:'zavod9999', rol:'zavod'},
   {login:'abdulhamid_7777', parol:'Scoplon2003', rol:'hamid'},
   {login:'test', parol:'test7777', rol:'admin', sandbox:'TEST'},   // TEST hisobi — sinov uchun
-  {login:'admin', parol:'admin123', rol:'admin', sandbox:'ADMIN'}  // v172.15: ADMIN xonasi — bo'sh boshlanadi, alohida cloud (ADMIN_)
+  {login:'admin', parol:'admin123', rol:'admin', sandbox:'ADMIN'},  // v172.15: ADMIN xonasi — bo'sh boshlanadi, alohida cloud (ADMIN_)
+  // POS (planshet kassa). sandbox:'TEST' — sinov davrida haqiqiy pulga tegmaydi.
+  // Sinov tugagach shu qatordan sandbox OLIB TASHLANADI → haqiqiy tilla_<uid> bazasi.
+  {login:'kassatest', parol:'kassatest', rol:'pos', sandbox:'TEST'}
 ];
 function setAuth(rol){ localStorage.setItem('tilla-auth','1'); localStorage.setItem('tilla-rol',rol); document.cookie='tilla-auth=1;max-age=31536000;path=/'; }
 function getAuth(){ return localStorage.getItem('tilla-auth') || document.cookie.indexOf('tilla-auth=1')>=0; }
 function getRol(){ return localStorage.getItem('tilla-rol')||'admin'; }
 function applyRol(){
   var rol=getRol();
-  document.body.classList.remove('rol-zavod','rol-hamid');
+  document.body.classList.remove('rol-zavod','rol-hamid','rol-pos');
   if(rol==='zavod'){
     document.body.classList.add('rol-zavod');
   } else if(rol==='hamid'){
     document.body.classList.add('rol-hamid');
+  } else if(rol==='pos'){
+    document.body.classList.add('rol-pos');
+    // Zavod tarafi yashirin — ochilishda darhol Klientlarga o'tadi, aks holda
+    // bo'sh ekran chiqadi (standart faol tab 312-qatorda 'zavod').
+    if(typeof mainTab==='function') try{ mainTab('klient'); }catch(e){}
   }
 }
 function doLogin(){

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POS — baza qayerdan olinadi</title>
+<style>
+:root{--bg:#0f1115;--surf:#171a21;--surf2:#1e222b;--border:#2b3040;--text:#e6e9ef;--muted:#8b93a7;
+--green:#3ddc84;--green-bd:#2a7a4d;--green-bg:#12281c;--gold:#e8b93a;--gold-bd:#7a6320;--gold-bg:#2a2312;
+--red:#ff6b6b;--red-bd:#7a2a2a;--red-bg:#2a1414;--blue:#5aa9ff;--purple:#b07cff;--purple-bg:#221733;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+font-size:14px;line-height:1.55;padding:24px 16px 60px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:21px;margin:0 0 4px}
+h2{font-size:16px;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px;font-size:12.5px;color:var(--gold)}
+.ln{color:var(--blue);font-family:Consolas,monospace;font-size:12px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin:10px 0}
+.warn{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#ffb0b0}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:8px;padding:11px 14px;
+margin:12px 0;font-size:13px;color:#a8e9c4}
+.q{background:var(--purple-bg);border:1px solid #4a3570;border-radius:10px;padding:14px 16px;margin:14px 0}
+.q .qh{color:var(--purple);font-weight:700;font-size:13px;margin-bottom:8px}
+.opt{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin:7px 0}
+.opt .tag{display:inline-block;background:var(--surf2);color:var(--muted);font-size:11px;
+padding:1px 7px;border-radius:5px;margin-right:7px;font-weight:700}
+.rec{border-color:var(--green-bd)} .rec .tag{background:var(--green-bg);color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.lg{background:var(--surf);border:1.5px solid var(--border);border-radius:11px;padding:12px 14px}
+.lg.a{border-color:var(--gold-bd)} .lg.b{border-color:var(--blue)}
+.lg .h{font-size:11px;letter-spacing:.06em;font-weight:700;margin-bottom:7px}
+.lg.a .h{color:var(--gold)} .lg.b .h{color:var(--blue)}
+.lg .v{font-family:Consolas,monospace;font-size:14px;font-weight:700;margin-bottom:6px}
+.lg .d{font-size:12px;color:var(--muted)}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.bx{background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:9px 13px;font-size:12.5px}
+.bx.g{border-color:var(--green-bd);color:var(--green)}
+.bx.r{border-color:var(--red-bd);color:var(--red)}
+.bx.b{border-color:#2a5a7a;color:var(--blue)}
+.ar{color:var(--muted);font-size:17px}
+.step{display:flex;gap:11px;margin:12px 0;align-items:flex-start}
+.num{flex:none;width:25px;height:25px;border-radius:50%;background:var(--gold-bg);
+border:1px solid var(--gold-bd);color:var(--gold);font-weight:800;font-size:12px;
+display:flex;align-items:center;justify-content:center}
+.step .t{font-weight:700;margin-bottom:3px}
+</style></head><body><div class="wrap">
+
+<h1>POS — bazani qayerdan oladi</h1>
+<div class="sub">Mockup · 2026-08-19 · <b>KOD YOZILMAGAN</b></div>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<b style="color:var(--gold)">Ibrohim:</b> «testda ozgina baza qolib ketgan, o&#39;shandan
+ham test qilib ishlatsam bo&#39;ladi. Lekin test tugaganidan keyin menga admindagi
+<code>admin@tilla.com</code> cloudidan olishi kerak — online bazani, klient
+ostatkalarini. Shuni qanaqa qilamiz?»
+</div>
+
+<h2>1 · Asosiy narsa: planshetda IKKITA login bo&#39;ladi</h2>
+<p style="font-size:13px">Ular bir-biriga bog&#39;liq emas va boshqa-boshqa ish qiladi.
+Chalkashish shu yerdan chiqadi.</p>
+
+<div class="two">
+<div class="lg a">
+  <div class="h">1 · ILOVA LOGINI (lokal)</div>
+  <div class="v">kassatest / kassatest</div>
+  <div class="d">Nimani hal qiladi:<br>
+  • <b>ROL</b> — POS ekrani ko&#39;rinadi, qolgani yashiriladi<br>
+  • <b>SANDBOX</b> — qaysi bazaga yozilishi<br><br>
+  Qayerda: <code>CREDS</code> <span class="ln">2176</span></div>
+</div>
+<div class="lg b">
+  <div class="h">2 · CLOUD LOGINI (Firebase)</div>
+  <div class="v">admin@tilla.com</div>
+  <div class="d">Nimani hal qiladi:<br>
+  • <b>UID</b> — kolleksiya nomining ikkinchi qismi<br>
+  • Klient ostatkalari, zavodlar, narxlar shundan keladi<br><br>
+  Qayerda: <code>cloudKol()</code> <span class="ln">18286</span></div>
+</div>
+</div>
+
+<div class="card" style="font-family:Consolas,monospace;font-size:12.5px;text-align:center">
+kolleksiya = <span style="color:var(--gold)">SANDBOX_</span> + &#39;tilla_&#39; + <span style="color:var(--blue)">uid</span><br>
+<span style="font-size:11px;color:var(--muted)">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8593; 1-login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8593; 2-login</span>
+</div>
+
+<h2>2 · Ikki bosqich — bitta qator farq</h2>
+
+<div class="card" style="border-color:var(--gold-bd)">
+<div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.06em;margin-bottom:8px;">BOSQICH 1 — SINOV (hozir)</div>
+<div class="flow">
+  <span class="bx">kassatest<br><span style="font-size:10px;color:var(--muted)">sandbox: &#39;TEST&#39;</span></span>
+  <span class="ar">+</span>
+  <span class="bx b">admin@tilla.com</span>
+  <span class="ar">&#8594;</span>
+  <span class="bx r"><b>TEST_</b>tilla_&lt;uid&gt;</span>
+</div>
+<div style="font-size:12.5px;color:var(--muted)">
+Siz aytgan «ozgina qolib ketgan» baza aynan shu yerda. Haqiqiy pulga
+<b>tegmaydi</b>. Xohlagancha sinaysiz.</div>
+</div>
+
+<div class="card" style="border-color:var(--green-bd)">
+<div style="font-size:11px;color:var(--green);font-weight:700;letter-spacing:.06em;margin-bottom:8px;">BOSQICH 2 — HAQIQIY (sinov tugagach)</div>
+<div class="flow">
+  <span class="bx">kassatest<br><span style="font-size:10px;color:var(--muted)">sandbox YO&#39;Q</span></span>
+  <span class="ar">+</span>
+  <span class="bx b">admin@tilla.com</span>
+  <span class="ar">&#8594;</span>
+  <span class="bx g">tilla_&lt;uid&gt;</span>
+</div>
+<div style="font-size:12.5px;color:var(--muted)">
+Haqiqiy online baza — klient ostatkalari, zavodlar, narxlar. Aynan
+<code>admin@tilla.com</code> nikidan.</div>
+</div>
+
+<div class="ok">
+<b>O&#39;tish — bitta so&#39;z o&#39;chiriladi.</b> <code>CREDS</code> dagi qatordan
+<code>sandbox:&#39;TEST&#39;</code> olib tashlanadi. Boshqa hech narsa o&#39;zgarmaydi,
+POS ekrani ham, kod ham. Siz «endi haqiqiyga o&#39;tamiz» deganingizda qilinadi.
+</div>
+
+<h2>3 · «Online» qanday ishlaydi — yangi kod kerak emas</h2>
+<p style="font-size:13px">Tilla ERP allaqachon jonli sinxron —
+<code>cloudListen()</code> <span class="ln">18503</span>:</p>
+<div class="card" style="font-family:Consolas,monospace;font-size:12px;color:var(--muted)">
+_cloudUnsub = _cloudDb.collection(cloudKol()).doc(&#39;holat&#39;).<b style="color:var(--green)">onSnapshot</b>(...)
+</div>
+<p style="font-size:13px">Ya&#39;ni planshet — shunchaki <b>yana bitta qurilma</b>.
+Kompyuterda klient qarzi o&#39;zgarsa, planshetda <b>o&#39;zi</b> yangilanadi. Klient
+ostatkalari uchun alohida mexanizm yozilmaydi.</p>
+
+<h2>4 · Sinovdan haqiqiyga o&#39;tish tartibi</h2>
+
+<div class="step"><div class="num">1</div><div>
+<div class="t">Hozir sinaysiz</div>
+<div style="font-size:12.5px;color:var(--muted)">Planshetda <code>kassatest</code> bilan
+kirasiz, cloudga <code>admin@tilla.com</code> bilan ulanasiz. TEST bazasidagi
+ozgina ma&#39;lumot bilan POS ni sinab ko&#39;rasiz.</div></div></div>
+
+<div class="step"><div class="num">2</div><div>
+<div class="t">Kamchiliklarni aytasiz, tuzataman</div>
+<div style="font-size:12.5px;color:var(--muted)">Hammasi TEST bazasida — xato bo&#39;lsa
+ham haqiqiy pul hisobiga tegmaydi.</div></div></div>
+
+<div class="step"><div class="num">3</div><div>
+<div class="t">«Haqiqiyga o&#39;tamiz» deysiz</div>
+<div style="font-size:12.5px;color:var(--muted)"><code>sandbox:&#39;TEST&#39;</code> olib
+tashlanadi (1 qator), yangi versiya chiqadi. Planshet haqiqiy bazani ko&#39;radi.</div></div></div>
+
+<div class="warn">
+<b>Bitta xavf — oldindan aytaman.</b> 3-qadamdan keyin POS dagi har sotuv
+<b>haqiqiy</b> bo&#39;ladi va darhol cloudga ketadi. Sinov davridagi TEST ma&#39;lumoti
+haqiqiyga <b>ko&#39;chmaydi</b> — u alohida bazada qoladi (bu yaxshi: sinov axlati
+haqiqiyga aralashmaydi).
+</div>
+
+<h2>5 · Qolgan javobsiz savollar</h2>
+<div class="q">
+<div class="qh">B. POS da nima qilinadi?</div>
+<div class="opt rec"><span class="tag">B1 · TAKLIF</span><b>Sotuv</b> — klient tanlash,
+zavod·tur, gramm, to&#39;lov, chek</div>
+<div class="opt"><span class="tag">B2</span><b>Faqat kassa</b> — naqt kirim/chiqim</div>
+<div class="opt"><span class="tag">B3</span><b>Ikkalasi</b></div>
+</div>
+<div class="q">
+<div class="qh">D. POS foydalanuvchisi yana nimani ko&#39;radi?</div>
+<div class="opt rec"><span class="tag">D1 · TAKLIF</span><b>Faqat POS ekrani</b> —
+hisobot, zavodlar, sozlama yashiriladi (<code>rol-zavod</code> naqshi <span class="ln">259</span>)</div>
+<div class="opt"><span class="tag">D2</span><b>POS + kassa</b></div>
+<div class="opt"><span class="tag">D3</span><b>Hammasi ko&#39;rinadi</b></div>
+</div>
+
+<div class="warn" style="margin-top:22px">
+<b>KOD YOZILMAGAN.</b> A1 (Tilla ERP) va C (sinov: TEST → keyin haqiqiy) aniq bo&#39;ldi.
+<b>B va D</b> ni ayting — keyin aniq maket va diff budjeti, keyin kod.
+</div>
+
+</div></body></html>
