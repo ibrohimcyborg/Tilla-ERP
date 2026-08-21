@@ -1,4 +1,4 @@
-<!-- v177 -->
+<!-- v177.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -263,7 +263,10 @@ body.rol-zavod #main-klient { display: none !important; }
    Ya'ni zavod EKRANI yashirinadi, zavod MA'LUMOTI joyida qoladi — sotuvda
    zavod·tur·narx o'shandan olinadi. */
 body.rol-pos #main-tab-zavod,
-body.rol-pos #main-zavod { display: none !important; }
+body.rol-pos #main-tab-klient,
+body.rol-pos #main-zavod,
+body.rol-pos #main-klient { display: none !important; }
+body.rol-pos #main-pos { display: flex !important; }
 
 /* Abdulhamid roli (rol-hamid) — soddalashtirilgan ko'rinish */
 /* Zavod tarafda: Kassa, LOM, Sherik, Ostatka yashirin */
@@ -1989,7 +1992,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v177';
+var APP_VER = 'v177.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -14679,7 +14682,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.00';
+var POS_VER = '1.01';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -17581,6 +17584,17 @@ function isPCMode(){ return window.innerWidth >= 1024; }
 function initPC() {
   var mz = document.getElementById('main-zavod');
   var mk = document.getElementById('main-klient');
+  // POS 1.01: POS rolida faqat POS turadi. Avval bu shart yo'q edi — ekran
+  // 1024px dan kengaysa (yoki zoom out qilinsa) resize -> initPC ishga tushib
+  // ikkala panelni majburan ochardi va POS yonida zavod+klient chiqib qolardi.
+  if (getRol()==='pos') {
+    if(mz) mz.style.setProperty('display','none','important');
+    if(mk) mk.style.setProperty('display','none','important');
+    var mp = document.getElementById('main-pos');
+    if(mp) mp.style.setProperty('display','flex','important');
+    if(typeof renderPOS==='function') renderPOS();
+    return;
+  }
   if (!isPCMode()) {
     if(mz) mz.style.removeProperty('display');
     if(mk) mk.style.removeProperty('display');
