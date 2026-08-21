@@ -1,4 +1,4 @@
-<!-- v177.3 -->
+<!-- v177.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1992,7 +1992,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v177.3';
+var APP_VER = 'v177.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -14682,17 +14682,20 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.03';
+var POS_VER = '1.04';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
 function _posEsc(x){ return String(x==null?'':x)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-// Sof qarz: klient qarzi minus bizning qarzimiz (v172.19 qoidasi)
+// POS 1.04: ro'yxatdagi son ILOVANING O'ZI bilan bir xil bo'lishi shart.
+// Avval bu yerda ostatka-bizQarz (sof) hisoblanardi va klient ekranidagidan
+// farq qilardi (Abdulhamid VIP: POS +557.46 / ilova 559.58). Endi ikkalasi
+// ham klientJamiQarz (9733) dan o'qiydi va ishora ham bir xil: klient
+// qarzdor bo'lsa MINUS (renderKlientlar 11553 dagi qoida).
 function _posQarz(k){
-  try{ var j=_qarzJamiRows(_qarzTarkibRows(k)); return Math.round((j.ostatka-j.bizQarz)*100)/100; }
-  catch(e){ return 0; }
+  try{ return klientJamiQarz(k)||0; } catch(e){ return 0; }
 }
 function posQidir(v){ _posQ=v; _posRoyxat(); }
 function posSakra(h){
@@ -14827,10 +14830,11 @@ function _posRoyxat(){
       var qz=_posQarz(k);
       var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
       var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZ QARZDORMIZ':"QARZ YO'Q");
+      var belgi = qz>0.001?'\u2212':(qz<-0.001?'+':'');   // ilovadagi qoida: klient qarzi MINUS
       out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
       out+='<div style="width:42px;height:42px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(hf)+'</div>';
       out+='<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
-      out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;">'+(qz>0?'+':'')+fmtG(qz)+'g</div>';
+      out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+belgi+fmtG(Math.abs(qz))+'g</div>';
       out+='<div style="font-size:9px;color:var(--muted);letter-spacing:.04em;">'+yorliq+'</div></div>';
       out+='</div>';
     });
@@ -14848,39 +14852,72 @@ function _posRoyxat(){
 function _posModal(){
   posModalYop();
   var k=data.klientlar[_posKi]; if(!k){ return; }
-  var rows=[]; try{ rows=_qarzTarkibRows(k)||[]; }catch(e){}
-  var qz=_posQarz(k);
-  var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
-  var fon  = qz>0.001?'var(--red-bg)':(qz<-0.001?'var(--green-bg)':'var(--surf2)');
-  var chek = qz>0.001?'var(--red-bd)':(qz<-0.001?'var(--green-bd)':'var(--border)');
-  var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZNING QARZ':"QARZ YO'Q");
+  // POS 1.04: qarz bloki klient ekranining (openKlientDetail 11780) AYNAN nusxasi.
+  // Ibrohim: «klientga bosib kirganda qarzdorligini shunaqa ko'rsatsin».
+  // Hisob qayta yozilmadi — _qarzTarkib (17057) va _qarzJamiRows (16980) chaqiriladi.
+  var _t=null, rows=[], jr={ostatka:0,bizQarz:0};
+  try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
+  var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
+  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
+  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
+  h+='<div style="padding:15px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
+  h+='<div style="width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(_posBosh(k.nom))+'</div>';
+  h+='<div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
+  h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
+  h+='<div style="padding:16px 17px;">';
+
+  // ── tepa blok: klient qarzi / jami savdo / bizning qarz
+  h+='<div style="border:1px solid var(--border);border-radius:13px;padding:13px 15px;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">';
+  h+='<div><div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">KLIENT QARZI</div>';
+  h+='<div style="font-size:27px;font-weight:700;color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;line-height:1.2;">\u2212'+fmtG(jr.ostatka)+' g</div></div>';
+  h+='<div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Jami savdo</div>';
+  h+='<div style="font-size:15px;font-weight:600;color:var(--gold);font-family:Roboto,sans-serif;">'+fmtG(sav.g)+'g</div>';
+  h+='<div style="font-size:11.5px;color:var(--muted);font-family:Roboto,sans-serif;">'+fmtD(sav.pul)+'$</div></div>';
+  h+='</div>';
+  if(jr.bizQarz>0.001){
+    h+='<div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--border);">';
+    h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">BIZNING QARZ</div>';
+    h+='<div style="font-size:19px;font-weight:700;color:var(--green);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">+'+fmtG(jr.bizQarz)+'g</div></div>';
+  }
+  h+='</div>';
+
+  // ── qarz tarkibi
+  h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);margin:15px 0 7px;">QARZ TARKIBI</div>';
+  h+='<div style="border:1px solid var(--border);border-radius:13px;padding:13px 15px;background:var(--bg);">';
+  h+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+  h+='<span style="font-size:12px;color:var(--muted);">Klient ostatkasi</span>';
+  h+='<span style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--red);font-variant-numeric:tabular-nums;">\u2212'+fmtG(jr.ostatka)+'</span></div>';
+  if(jr.bizQarz>0.001){
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">';
+    h+='<span style="font-size:12px;color:var(--muted);">Bizning qarz</span>';
+    h+='<span style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums;">+'+fmtG(jr.bizQarz)+'</span></div>';
+  }
+  h+='</div>';
+  var byZ={}, tartib=[];
+  rows.forEach(function(b){ if(!byZ[b.zavod]){ byZ[b.zavod]=[]; tartib.push(b.zavod); } byZ[b.zavod].push(b); });
+  var bor=false;
+  tartib.forEach(function(zn){
+    var turs=byZ[zn].filter(function(b){ return Math.abs(b.qarz)>0.01; });
+    if(!turs.length) return;
+    bor=true;
+    h+='<div style="margin-bottom:11px;"><div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:7px;">'+_posEsc(zn)+'</div>';
+    turs.forEach(function(b){
+      var neg=b.qarz<0;
+      h+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:'+(neg?'var(--green-bg)':'var(--surf2)')+';border-radius:8px;margin-bottom:4px;">';
+      h+='<span style="color:var(--muted);">'+_posEsc(b.tur)+(neg?' <span style="font-size:10px;color:var(--green);">\u21a9 biz qarzdor</span>':'')+'</span>';
+      h+='<span style="font-weight:600;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:'+(neg?'var(--green)':'var(--red)')+';">'+(neg?'+':'\u2212')+fmtG(Math.abs(b.qarz))+'</span></div>';
+    });
+    h+='</div>';
+  });
+  if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
+  h+='</div>';
+
   var amallar=[['berish','&#8593; BERISH','Klientga tovar berish','gold'],
                ['vozvrat','&#8617; VOZVRAT','Klientdan qaytgan','teal'],
                ['tolov','$ TO\'LOV','Pul / lom qabul qilish','blue'],
                ['sotuv','&#10003; SOTUV','Sotib yuborish','green']];
-  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
-  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
-  h+='<div style="padding:15px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
-  h+='<span style="font-size:16px;font-weight:700;">Klient</span><span style="flex:1;"></span>';
-  h+='<button onclick="posModalYop()" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
-  h+='<div style="padding:17px;">';
-  h+='<div style="display:flex;align-items:center;gap:13px;">';
-  h+='<div style="width:52px;height:52px;flex:none;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:19px;">'+_posEsc(_posBosh(k.nom))+'</div>';
-  h+='<div style="min-width:0;"><div style="font-size:20px;font-weight:700;">'+_posEsc(k.nom)+'</div></div></div>';
-  h+='<div style="margin-top:15px;padding:13px 15px;border-radius:12px;background:'+fon+';border:1px solid '+chek+';display:flex;justify-content:space-between;align-items:center;">';
-  h+='<span style="font-size:11px;letter-spacing:.07em;color:var(--muted);">'+yorliq+'</span>';
-  h+='<span style="font-size:23px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;">'+(qz>0?'+':'')+fmtG(qz)+'g</span></div>';
-  if(rows.length){
-    h+='<div style="margin-top:12px;padding:11px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--border);">';
-    h+='<div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;">ZAVOD &#183; TUR BO\'YICHA</div>';
-    rows.forEach(function(r,i){
-      var rc = r.qarz>0?'var(--red)':'var(--green)';
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13.5px;'+(i?'border-top:1px solid var(--border);':'')+'">';
-      h+='<span style="color:var(--text);">'+_posEsc(r.zavod)+' &#183; '+_posEsc(r.tur)+'</span>';
-      h+='<b style="color:'+rc+';font-family:Roboto,sans-serif;">'+(r.qarz>0?'+':'')+fmtG(r.qarz)+'g</b></div>';
-    });
-    h+='</div>';
-  }
   h+='<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   amallar.forEach(function(a){
     h+='<button onclick="posAmal(\''+a[0]+'\')" style="border:1px solid var(--'+a[3]+'-bd);background:var(--'+a[3]+'-bg);border-radius:13px;padding:16px 13px;cursor:pointer;text-align:left;font-family:inherit;min-height:86px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
