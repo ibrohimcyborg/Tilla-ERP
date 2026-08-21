@@ -1,0 +1,385 @@
+<!-- POS berish — savat + zavodlar orasida yurish. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS berish — savat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#080808}
+body{color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin:12px 0;font-size:12.5px;color:#b8b1a5;line-height:1.65}
+.note b{color:var(--text)}
+.note.g{background:var(--green-bg);border-color:var(--green-bd);color:#a9dfc2}
+.note.g b{color:#d3f2e0}
+.note.q{border-color:#4a3a12;background:#1a1508;color:#cdbd90}
+.note.q b{color:var(--gold2)}
+code{background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#cfc9bd}
+
+.m{background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.55)}
+.mh{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;font-family:'Outfit',sans-serif}
+.mh .bk,.mh .x{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:#aaa;cursor:pointer;font-size:14px}
+.mh .k{font-weight:600;font-size:16px;color:var(--gold2)}
+.mh .w{margin-left:auto;font-size:12px;color:var(--muted);font-family:'Roboto',sans-serif}
+.crumb{display:flex;align-items:center;gap:7px;padding:10px 16px;border-bottom:1px solid var(--border);background:#141414;font-family:'Outfit',sans-serif;font-size:12.5px;flex-wrap:wrap}
+.cb{display:flex;align-items:center;gap:6px;color:#4a4a4a}
+.cb i{font-style:normal;width:19px;height:19px;border-radius:6px;display:grid;place-items:center;font-size:10px;background:#1e1e1e;color:#555}
+.cb.done{color:#9a9186;cursor:pointer} .cb.done i{background:var(--gold-bg);color:var(--gold2)}
+.cb.now{color:var(--gold2)} .cb.now i{background:var(--gold);color:var(--on-gold);font-weight:600}
+.sep{color:#333}
+.mb{padding:15px 16px}
+
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.zc{border:1px solid var(--border);background:var(--surf2);border-radius:13px;padding:15px 14px;cursor:pointer;text-align:left;color:var(--text);min-height:78px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative}
+.zc:hover{border-color:var(--gold-bd);background:#282215}
+.zc b{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;color:var(--gold2)}
+.zc span{font-size:11.5px;color:var(--muted)}
+.zc .bg{position:absolute;top:9px;right:10px;font-family:'Outfit',sans-serif;font-size:10.5px;font-weight:600;
+  padding:2px 8px;border-radius:999px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.tchips{display:flex;gap:10px;flex-wrap:wrap}
+.tc{padding:15px 20px;border-radius:12px;cursor:pointer;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;min-width:112px;text-align:center;position:relative}
+.tc:hover{border-color:var(--gold-bd)}
+.tc small{display:block;font-family:'Roboto',sans-serif;font-size:11px;color:var(--muted);font-weight:400;margin-top:3px}
+.tc .bg{position:absolute;top:-7px;right:-7px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:999px;background:var(--green);color:#07160c}
+
+.katbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:#121212}
+.katbar .l{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.9px;color:var(--muted)}
+.kb{padding:7px 18px;border-radius:999px;border:1px solid var(--border);background:var(--surf2);
+  color:#6a6a6a;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600}
+.kb.on{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.cust{display:none;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;
+  border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);
+  font-family:'Outfit',sans-serif;font-size:13px}
+.cust.on{display:inline-flex}
+.cust input{width:46px;background:none;border:0;outline:none;color:var(--blue);
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;text-align:center}
+.katbar .u{margin-left:auto;font-size:11.5px;color:var(--muted);font-family:'Roboto',sans-serif}
+.modebar{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:12px}
+.modebar button{flex:1;height:42px;border:0;background:none;color:#7a7266;border-radius:9px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500}
+.modebar button.on{background:var(--surf2);color:var(--gold2)}
+.scanbox{display:flex;gap:9px;margin-bottom:11px}
+.scanbox input{flex:1;height:52px;border-radius:12px;padding:0 15px;font-size:18px;font-family:'Outfit',sans-serif;background:var(--bg);border:1px solid var(--gold-bd);color:var(--text);outline:none}
+.scanbox input::placeholder{color:#4a4a4a;font-size:14px;font-family:'Roboto',sans-serif}
+.addb{width:56px;height:52px;border-radius:12px;border:0;background:var(--gold);color:var(--on-gold);font-size:22px;cursor:pointer}
+.minb{width:56px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd;font-size:22px;cursor:pointer}
+.minb.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;min-height:50px;padding:11px;border-radius:12px;background:var(--bg);border:1px solid var(--border);max-height:140px;overflow-y:auto;align-content:flex-start}
+.chip{display:inline-flex;align-items:center;gap:9px;padding:6px 6px 6px 10px;border-radius:10px;background:var(--surf2);border:1px solid #333;font-family:'Outfit',sans-serif;font-size:14px}
+.chip.neg{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.chip .n{color:#5a5a5a;font-size:10px}
+.chip .col{display:flex;flex-direction:column;line-height:1.22}
+.chip .pul{font-size:10.5px;color:var(--green);font-family:'Roboto',sans-serif}
+.chip.neg .pul{color:#d98a88}
+.chip .x{width:22px;height:22px;border-radius:6px;border:1px solid #3a3a3a;background:#1c1c1c;color:#6a6a6a;display:grid;place-items:center;font-size:12px;cursor:pointer;line-height:1}
+.chip .x:hover{border-color:var(--red-bd);background:var(--red-bg);color:var(--red)}
+.dhint{color:#4a4a4a;font-size:12.5px;padding:6px 2px}
+.tot{margin-top:11px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);overflow:hidden}
+.tot .up{display:flex;justify-content:space-between;align-items:center;padding:12px 14px}
+.tot .t{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.8px;color:var(--gold)}
+.tot .d{font-size:11.5px;color:#8a7a4a;margin-top:2px}
+.tot .v{font-family:'Outfit',sans-serif;font-size:22px;font-weight:600;color:var(--gold2)}
+.tot .pul{display:flex;justify-content:space-between;padding:9px 14px;border-top:1px solid #3a2a0a;background:#1c1608;font-size:11.5px;color:#8a7a4a}
+.tot .pul b{font-family:'Outfit',sans-serif;font-size:16px;color:var(--green);font-weight:600}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+.keypad button{height:52px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:'Outfit',sans-serif;font-size:19px;cursor:pointer}
+.keypad button:active{background:#2e2e2e}
+.keypad button.wide{grid-column:span 2}
+.keypad button.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600;font-size:16px}
+.savbtn{margin-top:11px;width:100%;height:52px;border-radius:12px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
+.savbtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* savat */
+.savat{border-top:1px solid var(--border);background:#121212}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;cursor:pointer}
+.sh .l{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.9px;color:var(--muted)}
+.sh .r{display:flex;align-items:baseline;gap:9px}
+.sh .g{font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;color:var(--green)}
+.sh .p{font-size:12px;color:var(--muted)}
+.sh .ar{color:#4a4a4a;font-size:11px}
+.slist{padding:0 16px 12px;display:none}
+.slist.on{display:block}
+.srow{display:flex;align-items:center;gap:10px;padding:9px 0}
+.srow + .srow{border-top:1px solid #1c1c1c}
+.srow .a{flex:1;min-width:0}
+.srow .a b{display:block;font-weight:500;font-size:13.5px}
+.srow .a small{color:var(--muted);font-size:11px;font-family:'Outfit',sans-serif}
+.srow .g{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;color:var(--gold2)}
+.srow .x{width:25px;height:25px;flex:none;border-radius:8px;border:1px solid #333;color:#5a5a5a;display:grid;place-items:center;cursor:pointer;font-size:13px}
+.srow .x:hover{border-color:var(--red-bd);color:var(--red)}
+.sempty{color:#4a4a4a;font-size:12.5px;padding:4px 0 10px}
+.mf{padding:13px 16px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.b{height:48px;padding:0 20px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;font-size:14.5px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd}
+.b.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+.b[disabled]{opacity:.32;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>POS berish — <span>savat</span></h1>
+<p class="lead">Zavodga kirasiz → tur → gramm → <b>savatga</b> → o‘zi zavodlar ro‘yxatiga qaytadi.
+Boshqa zavodga kirib yana qo‘shasiz. Oxirida bitta saqlash, bitta chek.</p>
+
+<div class="m">
+  <div class="mh">
+    <button class="bk" id="bk" onclick="orqaga()">←</button>
+    <span class="k">↑ BERISH</span>
+    <span class="w">Zulfiya Opa Andijon</span>
+    <button class="x" onclick="alert('Yopiladi')">✕</button>
+  </div>
+  <div class="katbar">
+    <span class="l">KATEGORIYA</span>
+    <span class="kb on" id="kA" onclick="katSet('A')">A</span>
+    <span class="kb" id="kB" onclick="katSet('B')">B</span>
+    <span class="kb" id="kC" onclick="katSet('C')">C</span>
+    <span class="cust" id="cust"><span>+</span><input id="cu" value="2" inputmode="decimal"
+      oninput="cUstSet(this.value)"><span>$/g</span></span>
+    <span class="u" id="kinfo"></span>
+  </div>
+  <div class="crumb" id="crumb"></div>
+  <div class="mb" id="mb"></div>
+  <div class="savat">
+    <div class="sh" onclick="savatToggle()">
+      <span class="l">SAVAT <span id="scnt" style="color:#4a4a4a"></span></span>
+      <span class="r"><span class="g" id="sg">0.00 g</span><span class="p" id="sp">$0.00</span>
+        <span class="ar" id="sar">▾</span></span>
+    </div>
+    <div class="slist" id="slist"></div>
+  </div>
+  <div class="mf">
+    <button class="b" onclick="bekor()">Bekor</button>
+    <button class="b go" id="saq" onclick="saqla()">Saqlash + chek</button>
+  </div>
+</div>
+
+<div class="note g">
+<b>Zavod kartasida yashil belgi</b> — o‘sha zavoddan savatga nechta tur tushgani.
+Tur chipida ham raqam chiqadi. Shunda qaysi zavodga kirganingiz esdan chiqmaydi.
+</div>
+
+<div class="note">
+<b>Ilovada qanday saqlanadi:</b> savat faqat ekran qulayligi. <code>k.tarix</code> ga
+<b>har tur uchun alohida yozuv</b> tushadi —
+<code>{tip:'berish', zavod, tur, gramm, dona}</code> (index.html 12616).
+Ma’lumot tuzilishi o‘zgarmaydi, faqat <b>chek bitta</b> bo‘ladi.
+</div>
+
+<div class="note q">
+<b>Javobsiz savol:</b> berish — qarzga berish, pul olinmaydi. Narx faqat
+<b>ko‘rsatiladi</b>, saqlanmaydi (yozuvga gramm va dona tushadi).
+Shundaymi, yoki narx ham saqlansinmi?
+</div>
+
+<script>
+var NARX={};
+/* [tur nomi, A narx, ZAVOD (kirim) narxi] */
+var ZAV=[
+ {n:'Butterfly', t:[['Oddiy',91.1,89.9],['3D',94.1,92.4],['3DS',97.4,95.8]]},
+ {n:'Diamond',   t:[['Oddiy',94.9,94.1],['Polimer',95.8,94.1]]},
+ {n:'Simay',     t:[['Oddiy',94.5,93.5]]},
+ {n:'Jilva',     t:[['Oddiy',94.9,93.2]]},
+ {n:'Dorika',    t:[['Oddiy',95.8,94.1],['Dor S',97.4,95.8]]},
+ {n:'Sepochka',  t:[['Sep',95.8,94.1]]}
+];
+var zi=-1, ti=-1, kir='', neg=false, dona=[], savat=[], ochiq=true;
+var rejim='skan';
+var kat='A', B_UST=3, C_UST=2;   /* B: tilla-b-ust dan · C: har amalda qo'lda */
+// A = ZAV dagi A narx
+// B = A + B ustama          (ilovadagi getKatNarx qoidasi)
+// C = ZAVOD (kirim) narxi + C ustama   (Ibrohim: «kirim foizini ustiga qo'yiladigan ustama»)
+function narxKat(i,j){
+  var t=ZAV[i].t[j];
+  if(kat==='B') return Math.round((t[1]+B_UST)*10)/10;
+  if(kat==='C') return Math.round((t[2]+C_UST)*10)/10;
+  return t[1];
+}
+function cUstSet(v){
+  C_UST=parseFloat(String(v).replace(',','.'))||0;
+  savat.forEach(function(r){ r.p=narxKat(r.zi,r.ti); r.s=r.g*r.p; });
+  draw();
+}
+function katSet(k){
+  kat=k;
+  savat.forEach(function(r){ r.p=narxKat(r.zi,r.ti); r.s=r.g*r.p; });   /* savat ham qayta hisoblanadi */
+  draw();
+}
+
+function fg(n){ return (Math.round(n*100)/100).toFixed(2); }
+function fd(n){ return (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function qadam(){ return zi<0?1:(ti<0?2:3); }
+function narx(){ return (zi>=0&&ti>=0)?narxKat(zi,ti):0; }
+function zavodSoni(i){ var n=0; savat.forEach(function(r){ if(r.zi===i) n++; }); return n; }
+function turBor(i,j){ return savat.some(function(r){ return r.zi===i && r.ti===j; }); }
+
+function zavodOch(i){ zi=i; ti=-1; kir=''; dona=[]; draw(); }
+function savatIdx(i,j){ for(var x=0;x<savat.length;x++){ if(savat[x].zi===i&&savat[x].ti===j) return x; } return -1; }
+// Turga qayta kirilsa — savatdagi donalar YUKLANADI, davom ettiriladi
+function turOch(j){
+  ti=j; kir='';
+  var x=savatIdx(zi,j);
+  dona = x>=0 ? savat[x].dona.slice() : [];
+  draw();
+}
+function orqaga(){
+  if(qadam()===3){ if(dona.length && !confirm('Kiritilgan donalar o‘chadi. Orqaga qaytilsinmi?')) return;
+    ti=-1; dona=[]; kir=''; }
+  else if(qadam()===2){ zi=-1; }
+  else { alert('Klient oynasiga qaytiladi'); return; }
+  draw();
+}
+function tuz(x){
+  if(x==='del') kir=kir.slice(0,-1);
+  else if(x==='c') kir='';
+  else kir+=x;
+  var i=document.getElementById('bin'); if(i){ i.value=kir; i.focus(); }
+}
+function qosh(){
+  var v=parseFloat((kir||'').replace(',','.'));
+  if(isNaN(v)||v===0){ var i=document.getElementById('bin'); if(i){i.style.borderColor='var(--red)';i.focus();} return; }
+  if(neg) v=-Math.abs(v);
+  dona.push(v); neg=false; kir=''; draw();
+}
+function donaOchir(i){ dona.splice(i,1); draw(); }
+function rejimSet(r){ rejim=r; draw(); }
+// iPhone tartibi — katta raqamlar tepada
+function klavHTML(){
+  var k=function(x){ return '<button onclick="tuz(&#39;'+x+'&#39;)">'+x+'</button>'; };
+  return '<div class="keypad">'+[7,8,9,4,5,6,1,2,3].map(k).join('')+k('.')+k('0')
+    +'<button onclick="tuz(&#39;del&#39;)">⌫</button>'
+    +'<button class="wide go" onclick="qosh()">+ Qo‘shish</button>'
+    +'<button onclick="tuz(&#39;c&#39;)">C</button></div>';
+}
+// Bir tur — SAVATDA BITTA QATOR. Qayta kirilib qo'shilsa o'sha qator
+// yangilanadi (Ibrohim: «obshiy qilsin»), ketma-ket qator qo'shilmaydi.
+function savatga(){
+  if(!dona.length) return;
+  var j=dona.reduce(function(a,b){return a+b;},0);
+  var rec={zi:zi, ti:ti, z:ZAV[zi].n, t:ZAV[zi].t[ti][0], p:narx(), dona:dona.slice(), g:j, s:j*narx()};
+  var x=savatIdx(zi,ti);
+  if(x>=0) savat[x]=rec; else savat.push(rec);
+  dona=[]; kir=''; ti=-1; zi=-1;      /* o'zi zavodlar ro'yxatiga qaytadi */
+  ochiq=true; draw();
+}
+function savatOchir(i){ savat.splice(i,1); draw(); }
+function savatToggle(){ ochiq=!ochiq; draw(); }
+function bekor(){ if((savat.length||dona.length) && !confirm('Hammasi o‘chadi. Bekor qilinsinmi?')) return;
+  savat=[]; dona=[]; kir=''; zi=-1; ti=-1; draw(); }
+function saqla(){
+  if(!savat.length) return;
+  var g=0,s=0,d=0; savat.forEach(function(r){ g+=r.g; s+=r.s; d+=r.dona.length; });
+  alert('BITTA CHEK:\n\n'+savat.map(function(r){
+    return r.z+' · '+r.t+'   '+fg(r.g)+' g   ('+r.dona.length+' dona)';
+  }).join('\n')+'\n──────────────────\nJAMI  '+fg(g)+' g   '+d+' dona   $'+fd(s)
+   +'\n\nIlovada: har tur uchun ALOHIDA k.tarix yozuvi (12616)');
+}
+
+function draw(){
+  var n=qadam();
+  /* nonushta */
+  var cb=function(i,txt,go){
+    return '<div class="cb '+(n===i?'now':(n>i?'done':''))+'"'+(n>i&&go?' onclick="'+go+'"':'')+'>'
+      +'<i>'+i+'</i>'+txt+'</div>'+(i<3?'<span class="sep">›</span>':'');
+  };
+  document.getElementById('crumb').innerHTML =
+    cb(1, zi<0?'Zavod':ZAV[zi].n, 'zavodOch(-1)') +
+    cb(2, ti<0?'Tur':ZAV[zi].t[ti][0], 'turOch(-1)') +
+    cb(3, 'Gramm', '');
+  document.getElementById('bk').textContent = '←';
+
+  var h='';
+  if(n===1){
+    h+='<div class="zgrid">';
+    ZAV.forEach(function(z,i){
+      var c=zavodSoni(i);
+      h+='<div class="zc" onclick="zavodOch('+i+')">'
+        +(c?'<span class="bg">'+c+' tur</span>':'')
+        +'<b>'+z.n+'</b><span>'+z.t.length+' ta tur</span></div>';
+    });
+    h+='</div>';
+  } else if(n===2){
+    h+='<div class="tchips">';
+    ZAV[zi].t.forEach(function(t,j){
+      h+='<div class="tc" onclick="turOch('+j+')">'
+        +(turBor(zi,j)?'<span class="bg">✓</span>':'')
+        +t[0]+'<small>'+fd(narxKat(zi,j))+' $/g</small></div>';
+    });
+    h+='</div>';
+  } else {
+    var jami=dona.reduce(function(a,b){return a+b;},0), p=narx();
+    h+='<div class="modebar">'
+      +'<button class="'+(rejim==='skan'?'on':'')+'" onclick="rejimSet(\'skan\')">SKAN</button>'
+      +'<button class="'+(rejim==='qolda'?'on':'')+'" onclick="rejimSet(\'qolda\')">QO‘LDA</button></div>';
+    h+='<div class="scanbox">'
+      +'<input id="bin" value="'+kir.replace(/"/g,'&quot;')+'" oninput="kir=this.value" '
+      +'onkeydown="if(event.key===\'Enter\')qosh()" inputmode="decimal" autocomplete="off" placeholder="'+(rejim==='skan'?'Skan — gramm':'Gramm')+'">'
+      +'<button class="minb'+(neg?' on':'')+'" onclick="neg=!neg;draw()">'+(neg?'−':'±')+'</button>'
+      +'<button class="addb" onclick="qosh()">+</button></div>';
+    h+='<div class="chips">';
+    if(savatIdx(zi,ti)>=0 && dona.length){
+      h=h.replace('<div class="chips">','<div style="font-size:11.5px;color:var(--green);padding:0 2px 7px;">Bu tur savatda bor — donalar yuklandi, davom ettiring</div><div class="chips">');
+    }
+    if(dona.length){
+      dona.forEach(function(v,i){
+        h+='<span class="chip'+(v<0?' neg':'')+'"><span class="n">'+(i+1)+'</span>'
+          +'<span class="col"><span>'+v.toFixed(2)+'</span><span class="pul">$'+fd(v*p)+'</span></span>'
+          +'<span class="x" onclick="donaOchir('+i+')">✕</span></span>';
+      });
+    } else h+='<div class="dhint">Skanerni bosing — har dona shu yerga tushadi</div>';
+    h+='</div>';
+    h+='<div class="tot"><div class="up"><div><div class="t">'+ZAV[zi].n.toUpperCase()+' · '+ZAV[zi].t[ti][0].toUpperCase()+'</div>'
+      +'<div class="d">'+dona.length+' dona'+(neg?' · keyingi MANFIY':'')+'</div></div>'
+      +'<div class="v">'+jami.toFixed(2)+' g</div></div>'
+      +'<div class="pul"><span>'+fg(jami)+' g × '+fd(p)+' $/g</span><b>$'+fd(jami*p)+'</b></div></div>';
+    if(rejim==='qolda') h+=klavHTML();
+    var _bor = savatIdx(zi,ti)>=0;
+    h+='<button class="savbtn" onclick="savatga()"'+(dona.length?'':' disabled')+'>'
+      +(_bor?'✓ Savatda yangilash':'+ Savatga qo‘shish')+'</button>';
+  }
+  document.getElementById('mb').innerHTML=h;
+  var inp=document.getElementById('bin'); if(inp && rejim==='skan'){ inp.focus(); try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(e){} }
+
+  /* savat */
+  var jg=0, js=0, jd=0;
+  savat.forEach(function(r){ jg+=r.g; js+=r.s; jd+=r.dona.length; });
+  document.getElementById('scnt').textContent = savat.length? '· '+savat.length+' tur · '+jd+' dona' : '';
+  document.getElementById('sg').textContent = fg(jg)+' g';
+  document.getElementById('sp').textContent = '$'+fd(js);
+  document.getElementById('sar').textContent = ochiq?'▴':'▾';
+  var sl=document.getElementById('slist');
+  sl.className = 'slist'+(ochiq?' on':'');
+  sl.innerHTML = savat.length ? savat.map(function(r,i){
+    return '<div class="srow"><div class="a"><b>'+r.z+' · '+r.t+'</b>'
+      +'<small>'+r.dona.length+' dona · '+r.dona.map(function(x){return x.toFixed(2);}).join(' + ')+'</small></div>'
+      +'<span class="g">'+fg(r.g)+' g</span>'
+      +'<span class="x" onclick="savatOchir('+i+')">✕</span></div>';
+  }).join('') : '<div class="sempty">Bo‘sh — zavodga kirib tur qo‘shing</div>';
+  document.getElementById('saq').disabled = !savat.length;
+  document.getElementById('kA').className='kb'+(kat==='A'?' on':'');
+  document.getElementById('kB').className='kb'+(kat==='B'?' on':'');
+  document.getElementById('kC').className='kb'+(kat==='C'?' on':'');
+  document.getElementById('cust').className='cust'+(kat==='C'?' on':'');
+  document.getElementById('kinfo').textContent =
+    kat==='B' ? ('B = A + '+fd(B_UST)+' $/g') :
+    kat==='C' ? ('C = kirim narxi + '+fd(C_UST)+' $/g') : 'A — optom narx';
+}
+draw();
+</script>
+</body>
+</html>

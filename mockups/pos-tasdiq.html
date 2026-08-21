@@ -1,0 +1,289 @@
+<!-- POS -> Tilla ERP tasdiq va tekshiruv. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS tasdiq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --yellow:#e8b84c; --yellow-bg:#2a1f0a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#080808}
+body{color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55;max-width:840px}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin:12px 0;font-size:12.5px;color:#b8b1a5;line-height:1.65}
+.note b{color:var(--text)}
+.note.q{border-color:#4a3a12;background:#1a1508;color:#cdbd90}
+.note.q b{color:var(--gold2)}
+code{background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#cfc9bd}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:940px){.two{grid-template-columns:1fr}}
+.dev{background:var(--bg);border:1px solid var(--border);border-radius:17px;overflow:hidden}
+.dh{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#141414}
+.dh .t{font-family:'Outfit',sans-serif;font-weight:600;font-size:14.5px}
+.dh .b{margin-left:auto;font-size:10px;letter-spacing:.5px;padding:3px 9px;border-radius:999px;font-family:'Outfit',sans-serif}
+.dh .b.pos{background:var(--yellow-bg);border:1px solid #4a3a12;color:var(--yellow)}
+.dh .b.pc{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}
+.db{padding:15px}
+
+.lbl{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.9px;color:var(--muted);margin-bottom:7px}
+.inp{display:flex;gap:8px;margin-bottom:10px}
+.inp input{flex:1;height:46px;border-radius:11px;padding:0 13px;font-size:17px;font-family:'Outfit',sans-serif;background:var(--surf);border:1px solid var(--border);color:var(--text);outline:none}
+.inp input:focus{border-color:var(--gold-bd)}
+.inp button{width:52px;height:46px;border-radius:11px;border:0;background:var(--gold);color:var(--on-gold);font-size:21px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:10px;border-radius:11px;background:var(--surf);border:1px solid var(--border);align-content:flex-start;max-height:120px;overflow-y:auto}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 5px 5px 9px;border-radius:9px;background:var(--surf2);border:1px solid #333;font-family:'Outfit',sans-serif;font-size:13.5px}
+.chip .n{color:#5a5a5a;font-size:10px}
+.chip .x{width:20px;height:20px;border-radius:6px;border:1px solid #3a3a3a;color:#6a6a6a;display:grid;place-items:center;font-size:11px;cursor:pointer}
+.chip .x:hover{border-color:var(--red-bd);color:var(--red)}
+.hint{color:#4a4a4a;font-size:12px;padding:5px 2px}
+.sum{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:11px 13px;border-radius:11px;background:var(--gold-bg);border:1px solid var(--gold-bd)}
+.sum .l{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.7px;color:var(--gold)}
+.sum .v{font-family:'Outfit',sans-serif;font-size:20px;font-weight:600;color:var(--gold2)}
+.act{width:100%;height:48px;margin-top:11px;border-radius:11px;border:0;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14.5px;font-weight:600}
+.act.send{background:var(--gold);color:var(--on-gold)}
+.act:disabled{opacity:.3;cursor:not-allowed}
+.stat{margin-top:11px;padding:11px 13px;border-radius:11px;font-size:12.5px;font-family:'Outfit',sans-serif;display:none}
+.stat.on{display:block}
+.stat.wait{background:var(--yellow-bg);border:1px solid #4a3a12;color:var(--yellow)}
+.stat.ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.stat.no{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+
+/* PC tomondagi bildirishnoma */
+.bell{display:none;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;
+  background:var(--yellow-bg);border:1px solid #4a3a12;margin-bottom:13px;cursor:pointer}
+.bell.on{display:flex}
+.bell .ic{width:34px;height:34px;flex:none;border-radius:10px;background:var(--yellow);color:#1a1200;
+  display:grid;place-items:center;font-size:17px}
+.bell .t{flex:1}
+.bell .t b{display:block;font-family:'Outfit',sans-serif;font-size:14px;color:var(--yellow)}
+.bell .t small{color:#8a7a4a;font-size:11.5px}
+.bell .ar{color:var(--yellow);font-size:15px}
+.empty{color:#4a4a4a;font-size:12.5px;text-align:center;padding:26px 10px}
+
+.cmp{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:11px}
+.cmph{display:grid;grid-template-columns:1fr 1fr;background:#141414;border-bottom:1px solid var(--border)}
+.cmph span{padding:8px 12px;font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.8px;color:var(--muted)}
+.cmph span+span{border-left:1px solid var(--border)}
+.cmpb{display:grid;grid-template-columns:1fr 1fr}
+.cmpb>div{padding:10px 12px}
+.cmpb>div+div{border-left:1px solid var(--border)}
+.wl{font-family:'Outfit',sans-serif;font-size:13.5px;line-height:1.9;font-variant-numeric:tabular-nums}
+.res{margin-top:11px;padding:12px 14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px}
+.res.ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.res.no{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.res .dt{margin-top:8px;font-family:'Roboto',sans-serif;font-size:12.5px;line-height:1.7;color:#d9a5a3}
+.res .dt code{background:#2a1414;border-color:var(--red-bd);color:#f0b8b6;margin-right:5px}
+.res.ok .dt{color:#a9dfc2}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+.btns button{height:46px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:1px solid var(--border)}
+.btns .ok{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+.btns .no{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.btns button:disabled{opacity:.3;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>POS → Tilla ERP — <span>tasdiq va tekshiruv</span></h1>
+<p class="lead">Kassir POS da tortadi va yuboradi. Tilla ERP da (glavniy PC) tepada
+<b>bildirishnoma</b> chiqadi. Admin o‘sha tovarni <b>qayta tortadi</b> — tizim ikkala
+ro‘yxatni solishtiradi va <b>MOS</b> yoki <b>FARQ</b> deb ko‘rsatadi. Ikki jarayon
+bir-birini tekshiradi.</p>
+
+<div class="two">
+
+  <!-- POS -->
+  <div class="dev">
+    <div class="dh"><span class="t">TILLA POS</span>
+      <span class="b pos">planshet · kassatest</span></div>
+    <div class="db">
+      <div class="lbl">BUTTERFLY · ODDIY — TORTISH</div>
+      <div class="inp">
+        <input id="pi" inputmode="decimal" placeholder="gramm" onkeydown="if(event.key==='Enter')posQosh()">
+        <button onclick="posQosh()">+</button>
+      </div>
+      <div class="chips" id="pch"></div>
+      <div class="sum"><span class="l">JAMI</span><span class="v" id="psum">0.00 g</span></div>
+      <button class="act send" id="psend" onclick="yubor()">Saqlash + yuborish</button>
+      <div class="stat" id="pstat"></div>
+    </div>
+  </div>
+
+  <!-- PC -->
+  <div class="dev">
+    <div class="dh"><span class="t">TILLA ERP</span>
+      <span class="b pc">glavniy PC · admin</span></div>
+    <div class="db">
+      <div class="bell" id="bell" onclick="ochish()">
+        <span class="ic">🔔</span>
+        <span class="t"><b>POS dan 1 ta amal</b><small id="bellsub"></small></span>
+        <span class="ar">›</span>
+      </div>
+      <div id="pcbody"><div class="empty">Bildirishnoma yo‘q — POS dan amal kutilmoqda</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+<b>Mexanizm mavjud narsadan quriladi.</b> Zavod ERP allaqachon cloud orqali amal yuboradi,
+Tilla <code>zavodAmallarListen</code> (18970) bilan qabul qiladi. Farqi: u
+<b>avtomat import</b> qiladi, tasdiq so‘ramaydi. POS uchun o‘sha yo‘lga
+<b>tasdiq va solishtiruv</b> qadami qo‘shiladi.<br><br>
+Solishtiruv ham tayyor — <code>skReconcile</code> (6378) ikkita gramm ro‘yxatini
+multiset bo‘yicha solishtirib, <b>qaysi dona kam yoki ortiq</b> ekanini aytadi.
+</div>
+
+<div class="note q">
+<b>To‘rt qaror kerak — kod yozishdan oldin:</b><br><br>
+<b>1.</b> POS amali <b>darhol</b> <code>k.tarix</code> ga tushadimi, yoki faqat
+admin tasdiqlagandan keyinmi? Darhol tushsa — klient qarzi tez yangilanadi, lekin
+tasdiqlanmagan yozuv bazada turadi. Faqat tasdiqdan keyin bo‘lsa — admin javob
+bermaguncha qarz eski holicha qoladi.<br><br>
+<b>2.</b> <b>Farq chiqsa nima bo‘ladi?</b> Rad etiladimi · admin tuzatib qabul qiladimi ·
+yoki farq bilan qabul qilinib, keyin tekshiriladimi?<br><br>
+<b>3.</b> <b>Kim tekshiradi?</b> Faqat ASOSIY qurilmami, yoki har qanday Tilla ERP
+ochilgan qurilmami? Ikkitasi bir vaqtda tasdiqlasa nima bo‘ladi?<br><br>
+<b>4.</b> Admin javob bermay qo‘ysa? Amal necha vaqt <b>kutadi</b> —
+muddat bormi, eslatma chiqadimi?
+</div>
+
+<script>
+var pos=[], pc=[], holat='bosh';   /* bosh -> yuborildi -> tekshirilyapti -> qabul/rad */
+function fg(n){ return (Math.round(n*100)/100).toFixed(2); }
+function roundG(v){ var t=Math.floor(v*1000)%10; return t>=5?Math.ceil(v*100)/100:Math.floor(v*100)/100; }
+function multiset(a){ var m={}; a.forEach(function(x){ var k=roundG(x).toFixed(2); m[k]=(m[k]||0)+1; }); return m; }
+function reconcile(p1,p2){
+  var ma=multiset(p1), mb=multiset(p2), keys={};
+  for(var k in ma) keys[k]=1; for(var k2 in mb) keys[k2]=1;
+  var matched=0, kam=[], ortiq=[];
+  Object.keys(keys).sort(function(a,b){return parseFloat(a)-parseFloat(b);}).forEach(function(k){
+    var ca=ma[k]||0, cb=mb[k]||0; matched+=Math.min(ca,cb);
+    if(ca>cb) kam.push({g:k,n:ca-cb});
+    if(cb>ca) ortiq.push({g:k,n:cb-ca});
+  });
+  return {matched:matched,kam:kam,ortiq:ortiq};
+}
+function jami(a){ return a.reduce(function(x,y){return x+y;},0); }
+
+function posQosh(){
+  var e=document.getElementById('pi');
+  var v=parseFloat((e.value||'').replace(',','.'));
+  if(isNaN(v)||v===0){ e.style.borderColor='var(--red)'; return; }
+  pos.push(v); e.value=''; e.style.borderColor='var(--border)'; e.focus(); draw();
+}
+function posOchir(i){ pos.splice(i,1); draw(); }
+function yubor(){
+  if(!pos.length) return;
+  holat='yuborildi'; draw();
+}
+function pcQosh(){
+  var e=document.getElementById('ci');
+  var v=parseFloat((e.value||'').replace(',','.'));
+  if(isNaN(v)||v===0){ e.style.borderColor='var(--red)'; return; }
+  pc.push(v); e.value=''; e.style.borderColor='var(--border)'; e.focus(); draw();
+}
+function pcOchir(i){ pc.splice(i,1); draw(); }
+function ochish(){ holat='tekshirilyapti'; draw(); }
+function qabul(){ holat='qabul'; draw(); }
+function rad(){ holat='rad'; draw(); }
+function qayta(){ pos=[]; pc=[]; holat='bosh'; draw(); }
+
+function draw(){
+  /* ── POS ── */
+  document.getElementById('pch').innerHTML = pos.length
+    ? pos.map(function(v,i){ return '<span class="chip"><span class="n">'+(i+1)+'</span>'+v.toFixed(2)
+        + (holat==='bosh' ? '<span class="x" onclick="posOchir('+i+')">✕</span>' : '') +'</span>'; }).join('')
+    : '<div class="hint">Tortib, gramm kiriting</div>';
+  document.getElementById('psum').textContent = fg(jami(pos))+' g';
+  var ps=document.getElementById('psend');
+  ps.disabled = !pos.length || holat!=='bosh';
+  ps.textContent = holat==='bosh' ? 'Saqlash + yuborish' : 'Yuborildi';
+  var st=document.getElementById('pstat');
+  var pi=document.getElementById('pi'); if(pi) pi.disabled = holat!=='bosh';
+  if(holat==='bosh'){ st.className='stat'; }
+  else if(holat==='qabul'){ st.className='stat on ok'; st.textContent='✓ Admin tasdiqladi — mos keldi'; }
+  else if(holat==='rad'){ st.className='stat on no'; st.textContent='✕ Admin rad etdi — farq chiqdi'; }
+  else { st.className='stat on wait'; st.textContent='⏳ Yuborildi — admin tasdig‘i kutilmoqda'; }
+
+  /* ── PC ── */
+  var bell=document.getElementById('bell');
+  bell.className = 'bell'+((holat==='yuborildi')?' on':'');
+  document.getElementById('bellsub').textContent =
+    'Butterfly · Oddiy — '+pos.length+' dona · '+fg(jami(pos))+' g · kassatest';
+
+  var body=document.getElementById('pcbody');
+  if(holat==='bosh'){
+    body.innerHTML='<div class="empty">Bildirishnoma yo‘q — POS dan amal kutilmoqda</div>';
+    return;
+  }
+  if(holat==='yuborildi'){
+    body.innerHTML='<div class="empty">Tepadagi bildirishnomani bosing</div>';
+    return;
+  }
+  if(holat==='qabul' || holat==='rad'){
+    var r0=reconcile(pos,pc);
+    body.innerHTML='<div class="res '+(holat==='qabul'?'ok':'no')+'">'
+      +(holat==='qabul'?'✓ QABUL QILINDI':'✕ RAD ETILDI')
+      +'<div class="dt">'+(holat==='qabul'
+         ? 'k.tarix ga yozildi: Butterfly · Oddiy — '+pos.length+' dona · '+fg(jami(pos))+' g'
+         : 'Yozilmadi. POS ga qaytarildi — kassir qayta tortadi.')+'</div></div>'
+      +'<button class="act send" style="background:var(--surf2);color:#cfc9bd" onclick="qayta()">Boshidan sinash</button>';
+    return;
+  }
+
+  /* tekshiruv */
+  var r=reconcile(pos,pc);
+  var teng = pc.length && !r.kam.length && !r.ortiq.length;
+  var h='';
+  h+='<div class="lbl">PC DA QAYTA TORTISH</div>';
+  h+='<div class="inp"><input id="ci" inputmode="decimal" placeholder="gramm" '
+    +'onkeydown="if(event.key===\'Enter\')pcQosh()"><button onclick="pcQosh()">+</button></div>';
+  h+='<div class="cmp"><div class="cmph"><span>POS YOZGAN</span><span>PC DA TORTILDI</span></div>';
+  h+='<div class="cmpb"><div><div class="wl">'
+    +(pos.length?pos.map(function(v){return v.toFixed(2);}).join('<br>'):'<span style="color:#4a4a4a">—</span>')
+    +'</div></div><div><div class="wl">'
+    +(pc.length?pc.map(function(v,i){return v.toFixed(2)+' <span style="color:#5a5a5a;cursor:pointer" onclick="pcOchir('+i+')">✕</span>';}).join('<br>'):'<span style="color:#4a4a4a">—</span>')
+    +'</div></div></div></div>';
+  h+='<div class="sum"><span class="l">POS '+fg(jami(pos))+' g · PC '+fg(jami(pc))+' g</span>'
+    +'<span class="v" style="color:'+(teng?'var(--green)':'var(--red)')+'">'
+    +(jami(pc)-jami(pos)>=0?'+':'')+fg(jami(pc)-jami(pos))+' g</span></div>';
+  if(pc.length){
+    if(teng){
+      h+='<div class="res ok">✓ MOS — ikkala tortish bir xil ('+pos.length+' dona)'
+        +'<div class="dt">Farq yo‘q. Qabul qilsa bo‘ladi.</div></div>';
+    } else {
+      var dt='';
+      if(r.kam.length) dt+='<div><b>PC da yetmayapti:</b> '+r.kam.map(function(x){return '<code>'+x.g+' g</code>×'+x.n;}).join(' ')+'</div>';
+      if(r.ortiq.length) dt+='<div><b>PC da ortiqcha:</b> '+r.ortiq.map(function(x){return '<code>'+x.g+' g</code>×'+x.n;}).join(' ')+'</div>';
+      h+='<div class="res no">✕ FARQ BOR — mos kelgani '+r.matched+' dona<div class="dt">'+dt+'</div></div>';
+    }
+  } else {
+    h+='<div class="res" style="background:var(--surf);border:1px solid var(--border);color:var(--muted)">'
+      +'Tovarni qayta torting — tizim solishtiradi</div>';
+  }
+  h+='<div class="btns"><button class="ok" onclick="qabul()"'+(pc.length?'':' disabled')+'>Qabul qilish</button>'
+    +'<button class="no" onclick="rad()"'+(pc.length?'':' disabled')+'>Rad etish</button></div>';
+  body.innerHTML=h;
+  var ci=document.getElementById('ci'); if(ci) ci.focus();
+}
+draw();
+</script>
+</body>
+</html>
