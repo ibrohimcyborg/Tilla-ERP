@@ -3,6 +3,35 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v177 - v177.7: POS (planshet kassa) - 1-bosqich
+
+Ibrohim: planshetda kassaga o'xshab ishlaydigan POS. Login kassatest/kassatest.
+POS o'z versiyasi bilan yuradi (POS 1.00, 1.01 ...), APP_VER alohida.
+
+v176.8   kassatest logini + rol-pos + zavod ekranini yashirish
+         CREDS ga qator, sandbox:'TEST' - sinov davrida haqiqiy pulga tegmaydi
+v176.9   POS ekrani - MAHSULOT-BIRINCHI savat (keyin ALMASHTIRILDI)
+v177     POS 1.00 - klient bazasi. Ibrohim maketi: KLIENT BIRINCHI, keyin amal.
+         Qidiruv, A-Z rels (ro'yxatdan quriladi), qarz ustuni
+v177.1   POS 1.01 - zoom out qilinsa zavod+klient panellari chiqib qolardi.
+         initPC (17581) POS haqida bilmasdi
+v177.2   POS 1.02 - kurs paneli (faqat ko'rish): kurs, lom, B ustama,
+         zavod/A/B narxlar jadvali. getZavodNarx va getKatNarx CHAQIRILADI,
+         hisob qayta yozilmadi
+v177.3   POS 1.03 - kurs jadvali ustunlari grid ga o'tkazildi, tabular-nums
+v177.4   POS 1.04 - klient modali openKlientDetail (11780) nusxasi:
+         KLIENT QARZI / Jami savdo / BIZNING QARZ / QARZ TARKIBI.
+         Ro'yxatdagi son ham klientJamiQarz ga o'tdi - avval sof qarz
+         hisoblanardi va ilovadan farq qilardi (Abdulhamid VIP:
+         POS +557.46 / ilova 559.58). Ishora ham ilovadagidek: MINUS
+v177.5   POS 1.05 - klient modali OCHILMASDI. posModalYop() _posKi=-1 qilardi,
+         _posModal uni BIRINCHI QATORDA chaqirardi -> data.klientlar[-1]
+         undefined -> jim to'xtardi. Mening xatoim
+v177.6   POS 1.06 - POS rolida versiya belgisi 'POS 1.06' ko'rsatadi
+v177.7   POS 1.07 - test loginida ham POS tabi ko'rinadi (rol admin +
+         SANDBOX TEST). rol-pos QO'YILMAYDI - admin bo'lib qolaveradi.
+         Abdulhamid rejimiga TEGILMADI
+
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 
 Ibrohim (rasm bilan): "chekdayam o'chib ketsin, sdacha qilib naqt bervordik chiqsin"

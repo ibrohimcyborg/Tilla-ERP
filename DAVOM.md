@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v176.5 · 2026-08-19
+**Oxirgi yangilanish:** v177.7 / POS 1.07 · 2026-08-21
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v176.5** (`index.html` birinchi qatorida `<!-- v176.5 -->`, `APP_VER` da ham) |
+| Versiya | **v177.7** (`index.html` 1-qatorida `<!-- v177.7 -->`, `APP_VER` da ham). POS o‘z versiyasi bilan yuradi: **POS 1.07** (`POS_VER`) |
 | Hajm | ~17,470 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v176.5 gacha push qilingan** (2026-08-19) — prod v176.5. ⏳ Tekshiruv kutilmoqda: v175.3 PDF · v175.4 hisobot · v175.5 nol-yozuv · v176 skan oynasi · v176.1 offset ptichkasi · v176.2 yaxlitlash (✅ chekda naqt — Ibrohim tasdiqladi 2026-08-19: kerakli summaga yozilmasa ham qolgan summa N qatori bo'lib chekda chiqadi) · **v176.3 offset sdachasi** · **v176.4 sdacha ro'yxati filtri**. |
+| Git | **v177.7 gacha push qilingan** (2026-08-21) — prod v177.7. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -99,6 +99,77 @@ Ibrohim tasdiqladi: «ishlab ketti shuni qiganimdan kegin».
 **Tuzatilmagan kamchilik:** bitta tasodifiy «OK» mahalliy bosishni abadiy o'chiradi
 va oynadagi matn chalg'ituvchi (print-server o'sha payt ishlamayotgan bo'lishi ham
 mumkin). Yumshatish taklif qilingan, Ibrohim hali qaror bermagan.
+
+---
+
+## 🟢 HOZIRGI ISH — POS (planshet kassa)
+
+**Login:** `kassatest` / `kassatest` — `CREDS` (2194), `rol:'pos'`, `sandbox:'TEST'`
+**Sinov uchun:** `test` / `test7777` da ham POS tabi ko'rinadi (v177.7), lekin u
+admin bo'lib qolaveradi — ikkala tomonni bitta qurilmadan sinash uchun.
+
+### Baza qayerdan
+
+```
+kolleksiya = SANDBOX_ + 'tilla_' + uid
+             ↑ kassatest       ↑ Firebase logini (admin@tilla.com)
+```
+Hozir `TEST_tilla_<uid>` — haqiqiy pulga tegmaydi.
+**Haqiqiyga o'tish:** `CREDS` dagi qatordan `sandbox:'TEST'` OLIB TASHLANADI. Boshqa
+hech narsa o'zgarmaydi.
+
+### Yozilgan (POS 1.00–1.07)
+
+| | |
+|---|---|
+| Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
+| Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
+| Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
+| Versiya belgisi | POS rolida `POS 1.07` |
+
+**Qarz hisobi qayta yozilmagan** — `klientJamiQarz` (9733), `_qarzTarkib` (17057),
+`_qarzJamiRows` (16980), `klientJamiSavdo` (9779) CHAQIRILADI. Bu shart: boshqa yo'l
+bilan hisoblansa raqamlar klient ekranidagidan farq qiladi (v177.4 da aynan shu
+xato tuzatilgan).
+
+### Yozilmagan — mockup tayyor
+
+**1. Berish oqimi** — `mockups/pos-berish-savat.html` (ishlaydi, tasdiqlangan)
+* zavod → tur → gramm, orqaga qaytish
+* **savat**: bir tur = bitta qator; turga qayta kirilsa donalar yuklanadi
+* **A / B / C** kategoriya: A optom · B = A + ustama · **C = kirim narxi + qo'lda ustama**
+* SKAN va QO'LDA rejim (klaviatura iPhone tartibida: 7 8 9 tepada)
+* har donada `×` va narxi
+* **Narx SAQLANMAYDI** — faqat ko'rsatiladi (Ibrohim tasdiqladi). `k.tarix` ga
+  hozirgidek gramm va dona yoziladi (12616)
+* Diff taxmini: **250–300 qator**
+
+**2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
+POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
+`skReconcile` (6378) solishtiradi → MOS yoki FARQ (qaysi dona kam/ortiq) → qabul/rad.
+Yo'l mavjud: Zavod ERP shunday yuboradi, `zavodAmallarListen` (18970) qabul qiladi —
+faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
+
+⚠ **TO'RT SAVOL JAVOBSIZ — kod yozishdan oldin kerak:**
+1. POS amali **darhol** `k.tarix` ga tushadimi, yoki faqat tasdiqdan keyinmi?
+2. **Farq chiqsa** — rad · admin tuzatib qabul qiladi · yoki farq bilan qabul?
+3. **Kim tekshiradi** — faqat ASOSIY qurilmami? Ikkitasi bir vaqtda tasdiqlasa?
+4. Admin javob bermasa — amal qancha **kutadi**? Muddat, eslatma?
+
+### Keyingi tartib
+1. **Berish** yoziladi (savol yo'q) → sinaladi
+2. To'rt savolga javob → **tasdiq mexanizmi**
+3. Keyin: Vozvrat · To'lov · Sotuv
+
+### POS mockuplari
+```
+pos-berish-savat.html   berish savati — TASDIQLANGAN, yozilishi kerak
+pos-tasdiq.html         qo'ng'iroqcha va ikki tomonlama tekshiruv
+pos-kurs-panel.html     kurs paneli (yozilgan, POS 1.02)
+v177-pos-chernovik.html login + klient bazasi (Ibrohim maketi asosida)
+v177-pos-kassa.html     Ibrohimning asl maketi
+pos-savat.html          savat: 1-variant vs 2-variant (savat tanlandi)
+```
 
 ---
 
