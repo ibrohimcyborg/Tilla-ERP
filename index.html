@@ -1,4 +1,4 @@
-<!-- v177.1 -->
+<!-- v177.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1992,7 +1992,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v177.1';
+var APP_VER = 'v177.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -14682,7 +14682,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.01';
+var POS_VER = '1.02';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14706,6 +14706,76 @@ function posAmal(a){
   alert(nomlar[a]+' - keyingi bosqichda yoziladi (POS 1.02).');
 }
 
+// POS 1.02: kurs paneli — FAQAT KO'RISH (Ibrohim: «kassir o'zgartirmaydi,
+// faqat ko'roladi»). Narx hisobi qayta yozilmadi — ilovaning o'z funksiyalari
+// chaqiriladi: getZavodNarx (14840) va getKatNarx (14820). getKatNarx _aktivKat
+// ga qarab A yoki B beradi, shuning uchun u vaqtincha almashtirilib DARHOL
+// qaytariladi — boshqa ekranlarga ta'sir qilmasin.
+function _posNarxlar(zi, ti){
+  var eski = _aktivKat, a='', b='';
+  try{
+    _aktivKat='A'; a = getKatNarx(zi, ti, -1);
+    _aktivKat='B'; b = getKatNarx(zi, ti, -1);
+  } catch(e){}
+  _aktivKat = eski;
+  var z=''; try{ z = getZavodNarx(zi, ti); }catch(e){}
+  return {z:z, a:a, b:b};
+}
+function posKursYop(){ var m=document.getElementById('pos-kurs-ovl'); if(m) m.remove(); }
+function posKursOch(){
+  posKursYop();
+  var kurs = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  var lom  = parseNum(localStorage.getItem('tilla-lom-bugun')||0);
+  var bUst = parseNum(localStorage.getItem('tilla-b-ust')||0);
+  function qut(yorliq, qiymat, birlik, rang){
+    return '<div style="flex:1;border-radius:12px;padding:11px 13px;border:1px solid '
+      +(rang?'var(--gold-bd)':'var(--border)')+';background:'+(rang?'var(--yellow-bg)':'var(--surf2)')+';">'
+      +'<div style="font-size:9.5px;letter-spacing:.09em;color:'+(rang?'var(--gold)':'var(--muted)')+';">'+yorliq+'</div>'
+      +'<div style="font-size:24px;font-weight:700;color:'+(rang?'var(--gold)':'var(--text)')+';font-family:Roboto,sans-serif;">'
+      +(qiymat?fmtD(qiymat):'\u2014')+'<span style="font-size:11px;color:var(--muted);font-weight:400;"> '+birlik+'</span></div></div>';
+  }
+  var h='<div id="pos-kurs-ovl" onclick="if(event.target===this)posKursYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9100;">';
+  h+='<div style="width:100%;max-width:580px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
+  h+='<span style="font-size:16px;font-weight:700;color:var(--gold);">Kunlik kurs</span>';
+  h+='<span style="font-size:10.5px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 9px;">faqat ko\'rish</span>';
+  h+='<span style="flex:1;"></span>';
+  h+='<button onclick="posKursYop()" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
+  h+='<div style="padding:15px 16px;">';
+  h+='<div style="display:flex;gap:10px;margin-bottom:11px;">'+qut('KURS',kurs,'$/g',1)+qut('LOM',lom,'$/g',0)+'</div>';
+  h+='<div style="border-radius:12px;padding:10px 13px;border:1px solid var(--blue-bd);background:var(--blue-bg);margin-bottom:14px;">';
+  h+='<div style="font-size:9.5px;letter-spacing:.09em;color:var(--blue);">B USTAMA \u2014 A NARX USTIGA QO\'SHILADI</div>';
+  h+='<div style="font-size:20px;font-weight:700;color:var(--blue);font-family:Roboto,sans-serif;">+ '+fmtD(bUst)+'<span style="font-size:11px;color:var(--muted);font-weight:400;"> $/g</span></div></div>';
+  if(!kurs){
+    h+='<div style="padding:22px;text-align:center;color:var(--muted);font-size:13px;">Kunlik kurs kiritilmagan \u2014 narxlar hisoblanmaydi.</div>';
+  } else {
+    h+='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg);">';
+    h+='<div style="display:flex;padding:8px 13px;font-size:9.5px;letter-spacing:.09em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surf2);">';
+    h+='<span style="flex:1;">TUR</span><span style="width:66px;text-align:right;">ZAVOD</span>';
+    h+='<span style="width:66px;text-align:right;">A</span><span style="width:66px;text-align:right;">B</span></div>';
+    (data.zavodlar||[]).forEach(function(z,zi){
+      h+='<div style="padding:9px 13px 4px;font-size:12px;color:var(--gold);">'+_posEsc(z.nom)+'</div>';
+      (z.turlar||[]).forEach(function(t,ti,arr){
+        var n=_posNarxlar(zi,ti);
+        h+='<div style="display:flex;align-items:center;padding:7px 13px;font-size:13.5px;'+(ti?'border-top:1px solid var(--border);':'')+'">';
+        h+='<span style="flex:1;color:var(--text);">'+_posEsc(t.nom)+'</span>';
+        h+='<span style="width:66px;text-align:right;color:var(--green);font-family:Roboto,sans-serif;">'+(n.z?fmtD(n.z):'\u2014')+'</span>';
+        h+='<span style="width:66px;text-align:right;color:var(--gold);font-weight:600;font-family:Roboto,sans-serif;">'+(n.a?fmtD(n.a):'\u2014')+'</span>';
+        h+='<span style="width:66px;text-align:right;color:var(--blue);font-weight:600;font-family:Roboto,sans-serif;">'+(n.b?fmtD(n.b):'\u2014')+'</span></div>';
+      });
+    });
+    h+='<div style="display:flex;gap:13px;padding:9px 13px;border-top:1px solid var(--border);background:var(--surf2);font-size:11px;color:var(--muted);">';
+    h+='<span><span style="color:var(--green);">ZAVOD</span> kirim</span>';
+    h+='<span><span style="color:var(--gold);">A</span> optom</span>';
+    h+='<span><span style="color:var(--blue);">B</span> = A + ustama</span>';
+    h+='<span>C \u2014 qo\'lda</span></div>';
+    h+='</div>';
+  }
+  h+='<div style="margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.6;">Kursni admin ekranidan o\'zgartiriladi \u2014 bu yerda faqat ko\'rinadi.</div>';
+  h+='</div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
+}
 function renderPOS(){
   var el=document.getElementById('main-pos'); if(!el) return;
   var kurs=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
@@ -14714,7 +14784,7 @@ function renderPOS(){
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
   h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 8px;">'+POS_VER+'</span>';
   h+='<span style="flex:1;"></span>';
-  if(kurs) h+='<span style="display:flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:10px;background:var(--yellow-bg);border:1px solid var(--gold-bd);"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+fmtD(kurs)+'</b></span>';
+  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:10px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
   h+='</div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
   h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:0 13px;height:52px;">';

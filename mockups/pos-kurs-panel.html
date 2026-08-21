@@ -1,0 +1,218 @@
+<!-- POS kurs paneli. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS kurs paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#080808}
+body{color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:13px 16px;margin:12px 0;font-size:12.5px;color:#b8b1a5;line-height:1.65}
+.note b{color:var(--text)}
+.note.g{background:var(--green-bg);border-color:var(--green-bd);color:#a9dfc2}
+.note.g b{color:#d3f2e0}
+.note.q{border-color:#4a3a12;background:#1a1508;color:#cdbd90}
+.note.q b{color:var(--gold2)}
+code{background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#cfc9bd}
+
+/* POS sarlavhasi */
+.top{display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid var(--border);
+  border-radius:14px;background:linear-gradient(180deg,#141414,#101010)}
+.brand{font-family:'Outfit',sans-serif;font-weight:600;font-size:16px}
+.brand b{color:var(--gold)}
+.ver{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
+.sp{flex:1}
+.kursbtn{display:flex;align-items:baseline;gap:7px;padding:7px 13px;border-radius:11px;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);cursor:pointer}
+.kursbtn:hover{border-color:var(--gold)}
+.kursbtn small{font-family:'Outfit',sans-serif;font-size:10px;color:var(--gold);letter-spacing:.6px}
+.kursbtn b{font-family:'Outfit',sans-serif;font-size:17px;color:var(--gold2);font-weight:600}
+.kursbtn .ar{color:var(--gold);font-size:11px}
+
+/* panel */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.ovl.on{display:flex}
+.panel{width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);
+  border:1px solid var(--border);border-radius:16px}
+.ph{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px}
+.ph .k{font-family:'Outfit',sans-serif;font-weight:600;font-size:16px;color:var(--gold2)}
+.ph .x{width:34px;height:34px;margin-left:auto;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:#aaa;cursor:pointer;font-size:14px}
+.pb{padding:16px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px}
+.kf{border-radius:13px;padding:12px 14px;border:1px solid var(--border);background:var(--bg)}
+.kf.au{border-color:var(--gold-bd);background:var(--gold-bg)}
+.kf .l{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.9px;color:var(--muted);margin-bottom:5px}
+.kf.au .l{color:var(--gold)}
+.kf .row{display:flex;align-items:baseline;gap:6px}
+.kf input{width:100%;background:none;border:0;outline:none;color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:27px;font-weight:600;padding:0}
+.kf.au input{color:var(--gold2)}
+.kf .u{font-size:12px;color:var(--muted);flex:none}
+.meta{font-size:11px;color:var(--muted);margin-bottom:14px;font-family:'Outfit',sans-serif;letter-spacing:.3px}
+
+.tbl{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--bg)}
+.th{display:flex;padding:9px 14px;font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.9px;
+  color:var(--muted);border-bottom:1px solid var(--border);background:#141414}
+.th .a{flex:1} .th .b,.th .c,.th .d{width:70px;text-align:right}
+.zg{padding:9px 14px 5px;font-family:'Outfit',sans-serif;font-size:12px;color:var(--gold);letter-spacing:.4px}
+.tr{display:flex;align-items:center;padding:8px 14px;font-size:13.5px}
+.tr + .tr{border-top:1px solid #1c1c1c}
+.tr .a{flex:1;color:#cfc9bd}
+.tr .b{width:70px;text-align:right;font-family:'Outfit',sans-serif;font-weight:500;color:var(--green)}
+.tr .c{width:70px;text-align:right;font-family:'Outfit',sans-serif;font-weight:600;color:var(--gold2)}
+.tr .d{width:70px;text-align:right;font-family:'Outfit',sans-serif;font-weight:600;color:var(--blue)}
+.legend{display:flex;gap:14px;padding:9px 14px;border-top:1px solid var(--border);background:#121212;font-size:11px;color:var(--muted)}
+.legend i{font-style:normal}
+.legend .g{color:var(--green)} .legend .y{color:var(--gold2)}
+
+.pf{padding:13px 16px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.b{height:46px;padding:0 20px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;font-size:14.5px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd}
+.b.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+.warn{margin-top:12px;padding:11px 14px;border-radius:11px;background:var(--red-bg);border:1px solid var(--red-bd);color:#f0b8b6;font-size:12.5px;display:none}
+.warn.on{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>POS — <span>kurs paneli</span></h1>
+<p class="lead">Kurs POS sarlavhasida turadi. Bosilsa panel ochiladi — kursni ko‘rasiz,
+o‘zgartirasiz, va turlar narxi <b>darhol</b> qayta hisoblanadi. Tekshirib bo‘lgach yopasiz.</p>
+
+<div class="top">
+  <span class="brand">TILLA <b>POS</b></span>
+  <span class="ver">1.02</span>
+  <span class="sp"></span>
+  <span class="kursbtn" onclick="ochish()">
+    <small>KURS</small><b id="topk">84</b><span class="ar">▾</span>
+  </span>
+</div>
+
+<div class="note g">
+<b>Sarlavhadagi KURS bosiladigan bo‘ldi.</b> Bosing — panel ochiladi.
+Kursni o‘zgartiring, pastdagi narxlar darhol o‘zgarishini ko‘rasiz.
+</div>
+
+<div class="note">
+<b>Narx qanday hisoblanadi</b> (ilovadagi <code>getKatNarx</code>, 14663):<br>
+<b>Zavod</b> = kurs × (1 + zavod%) &nbsp;·&nbsp; <b>A</b> = kurs × (1 + A%) &nbsp;·&nbsp; <b>B</b> = A + ustama<br>
+Sotuvda kassir A yoki B ni tanlaydi. C — ixtiyoriy narx, har amalda qo'lda yoziladi. Foizlar zavod·tur bo‘yicha alohida saqlanadi
+(<code>tilla-a-foiz-&lt;zi&gt;</code>) — ular POS da o‘zgarmaydi, faqat ko‘rinadi.
+</div>
+
+<div class="note q">
+<b>Qaror kerak:</b> POS foydalanuvchisi kursni <b>o‘zgartira olsinmi</b>, yoki faqat
+<b>ko‘rsinmi</b>?<br><br>
+Bu maketda o‘zgartirsa bo‘ladi. Kassir noto‘g‘ri kurs qo‘ysa butun kunning narxi
+buziladi — shuning uchun «faqat ko‘rish» ham mantiqiy. Ayting.
+</div>
+
+<div class="ovl" id="ovl" onclick="if(event.target===this)yopish()">
+  <div class="panel">
+    <div class="ph"><span class="k">Kunlik kurs</span>
+      <button class="x" onclick="yopish()">✕</button></div>
+    <div class="pb">
+      <div class="two">
+        <div class="kf au"><div class="l">KURS</div>
+          <div class="row"><input id="k" value="84" inputmode="decimal" oninput="upd()"><span class="u">$/g</span></div></div>
+        <div class="kf"><div class="l">LOM</div>
+          <div class="row"><input id="l" value="82" inputmode="decimal" oninput="upd()"><span class="u">$/g</span></div></div>
+      </div>
+      <div class="kf" style="border-color:var(--blue-bd);background:var(--blue-bg);margin-bottom:14px;">
+        <div class="l" style="color:var(--blue);">B USTAMA — A NARX USTIGA QO'SHILADI</div>
+        <div class="row"><span class="u" style="color:var(--blue);font-size:20px;">+</span>
+          <input id="bu" value="3" inputmode="decimal" oninput="upd()" style="color:#8fd0f5;">
+          <span class="u">$/g</span></div>
+      </div>
+      <div class="meta" id="meta">Oxirgi yozilgan: 21.08.2026 · 16:01</div>
+
+      <div class="tbl">
+        <div class="th"><span class="a">TUR</span><span class="b">ZAVOD</span><span class="c">A</span><span class="d">B</span></div>
+        <div id="rows"></div>
+        <div class="legend">
+          <i class="g">ZAVOD</i> kirim &nbsp; <i class="y">A</i> optom &nbsp; <i style="color:var(--blue)">B</i> = A + ustama
+        </div>
+      </div>
+
+      <div class="warn" id="warn"></div>
+    </div>
+    <div class="pf">
+      <button class="b" onclick="yopish()">Yopish</button>
+      <button class="b go" onclick="saqla()">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var ZAV=[
+ {n:'Butterfly', t:[['Oddiy',7,8.5],['3D',10,12],['3DS',14,16]]},
+ {n:'Diamond',   t:[['Oddiy',12,13],['Polimer',12,14]]},
+ {n:'Premium',   t:[['Oddiy',10,13]]},
+ {n:'Simay',     t:[['Oddiy',12.7,13.9]]},
+ {n:'Jilva',     t:[['Oddiy',11,13]]},
+ {n:'Zmeyka',    t:[['Oddiy',18.6,19.8]]},
+ {n:'Merrit',    t:[['Oddiy',12,14]]},
+ {n:'Dorika',    t:[['Oddiy',12,14],['Dor S',14,16]]},
+ {n:'Sepochka',  t:[['Sep',12,14]]},
+ {n:'Shedevr',   t:[['Oddiy',0,0]]},
+ {n:'Hayat',     t:[['Oddiy',0,0]]},
+ {n:'Iffar',     t:[['Oddiy',0,0]]}
+];
+function n1(v){ return Math.round(v*10)/10; }
+function ochish(){ document.getElementById('ovl').classList.add('on');
+  setTimeout(function(){ var e=document.getElementById('k'); if(e){e.focus();e.select();} },60); }
+function yopish(){ document.getElementById('ovl').classList.remove('on'); }
+function saqla(){
+  var k=parseFloat(document.getElementById('k').value)||0;
+  if(k<=0){ ogoh('Kurs 0 dan katta bo‘lishi kerak'); return; }
+  document.getElementById('topk').textContent=String(n1(k));
+  alert('Saqlanadi:\n\nKurs: '+n1(k)+' $/g\nLom: '+(parseFloat(document.getElementById('l').value)||0)+' $/g\n\n'
+    +'Ilovada: localStorage[\'tilla-kurs-bugun\'] va kurs tarixiga yoziladi,\n'
+    +'keyin data._narxSync orqali cloudga ergashadi.');
+  yopish();
+}
+function ogoh(t){ var w=document.getElementById('warn'); w.textContent=t; w.classList.add('on');
+  setTimeout(function(){ w.classList.remove('on'); },3000); }
+function upd(){
+  var k=parseFloat(document.getElementById('k').value)||0;
+  var bu=parseFloat(document.getElementById('bu').value)||0;
+  var out='';
+  ZAV.forEach(function(z){
+    out+='<div class="zg">'+z.n+'</div>';
+    z.t.forEach(function(t){
+      var zn = k? n1(k*(1+t[1]/100)) : 0;
+      var an = k? n1(k*(1+t[2]/100)) : 0;
+      var bn = an? n1(an+bu) : 0;
+      out+='<div class="tr"><span class="a">'+t[0]+'</span>'
+        +'<span class="b">'+(zn?zn:'—')+'</span>'
+        +'<span class="c">'+(an?an:'—')+'</span>'
+        +'<span class="d">'+(bn?bn:'—')+'</span></div>';
+    });
+  });
+  document.getElementById('rows').innerHTML=out;
+  document.getElementById('topk').textContent = k? String(n1(k)) : '—';
+}
+upd();
+</script>
+</body>
+</html>
