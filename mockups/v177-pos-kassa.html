@@ -1,0 +1,589 @@
+<!-- v177 POS · kassa + klient bazasi — MOCKUP (kod emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tilla POS — kassa mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --yellow:#e8b84c; --yellow-bg:#2a1f0a;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:#080808;color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:1320px;margin:0 auto}
+
+.mockhead{margin:0 0 16px}
+.mockhead h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px;letter-spacing:.2px}
+.mockhead h1 span{color:var(--gold)}
+.mockhead p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;max-width:780px}
+.tagrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:11px;font-family:'Outfit',sans-serif;letter-spacing:.4px;padding:4px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surf);color:var(--muted)}
+.tag.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold2)}
+.tag.off{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+
+.device{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.app{display:flex;flex-direction:column;height:min(78vh,820px);min-height:580px}
+
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#141414,#101010)}
+.brand{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;letter-spacing:.3px}
+.brand b{color:var(--gold)}
+.room{font-family:'Outfit',sans-serif;font-size:11.5px;letter-spacing:.5px;padding:5px 10px;border-radius:999px;background:var(--yellow-bg);border:1px solid #4a3a12;color:var(--yellow)}
+.tb-sp{flex:1}
+.kurs{display:flex;align-items:baseline;gap:7px;padding:6px 12px;border-radius:10px;background:var(--gold-bg);border:1px solid var(--gold-bd)}
+.kurs small{font-size:10.5px;color:var(--gold);letter-spacing:.6px;font-family:'Outfit',sans-serif}
+.kurs b{font-family:'Outfit',sans-serif;font-size:17px;color:var(--gold2);font-weight:600}
+.clock{text-align:right;font-size:11.5px;color:var(--muted);line-height:1.35}
+.clock b{display:block;color:var(--text);font-size:13px;font-weight:500}
+
+.searchbar{padding:14px 16px 10px;display:flex;gap:10px}
+.sfield{flex:1;display:flex;align-items:center;gap:10px;background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:0 14px;height:54px}
+.sfield input{flex:1;background:none;border:0;outline:none;color:var(--text);font-size:16px;font-family:'Roboto',sans-serif}
+.sfield input::placeholder{color:#555}
+.sfield .ico{color:var(--muted);font-size:16px}
+.btn-new{height:54px;padding:0 20px;border-radius:12px;cursor:pointer;background:var(--gold);color:var(--on-gold);border:0;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;white-space:nowrap}
+.btn-new:active{transform:translateY(1px)}
+
+.recent{padding:2px 16px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.recent .lbl{font-size:10.5px;letter-spacing:.7px;color:var(--muted);font-family:'Outfit',sans-serif}
+.chip{padding:8px 13px;border-radius:999px;cursor:pointer;font-size:13.5px;background:var(--surf);border:1px solid var(--border);color:#cfc9bd}
+.chip:hover{border-color:#3a3a3a}
+
+.listwrap{flex:1;display:flex;min-height:0;border-top:1px solid #1a1a1a}
+.list{flex:1;overflow-y:auto;padding:4px 8px 20px 16px;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;align-content:start}
+.list::-webkit-scrollbar{width:8px}
+.list::-webkit-scrollbar-thumb{background:#2c2c2c;border-radius:8px}
+.grp{grid-column:1/-1;font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--muted);padding:14px 4px 4px}
+.row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px 14px;border-radius:12px;border:1px solid transparent;background:var(--surf)}
+.row:hover{background:#1f1f1f;border-color:#333}
+.row:active{transform:translateY(1px)}
+.av{width:44px;height:44px;flex:none;border-radius:11px;display:grid;place-items:center;background:var(--surf2);color:var(--gold2);font-family:'Outfit',sans-serif;font-weight:600;font-size:16px}
+.who{flex:1;min-width:0}
+.who b{display:block;font-weight:500;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{color:var(--muted);font-size:11.5px}
+.qz{text-align:right;font-family:'Outfit',sans-serif;line-height:1.3}
+.qz b{font-size:15px;font-weight:600}
+.qz small{display:block;font-size:9.5px;letter-spacing:.5px;color:var(--muted)}
+.qz.r b{color:var(--red)} .qz.g b{color:var(--green)} .qz.z b{color:#4a4a4a}
+
+.rail{width:36px;flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:14px 0;border-left:1px solid #1c1c1c;overflow:hidden}
+.rail span{font-family:'Outfit',sans-serif;font-size:10.5px;color:#3f3f3f;cursor:pointer;padding:1px 6px;border-radius:5px}
+.rail span.has{color:#7a7266}
+.rail span:hover{color:var(--gold2);background:#1c1608}
+
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px}
+.empty .ring{width:88px;height:88px;border-radius:50%;border:1px dashed #333;display:grid;place-items:center;font-size:30px;margin:0 auto 16px;color:#3a3a3a}
+.empty h3{font-family:'Outfit',sans-serif;font-weight:500;font-size:16px;margin:0 0 6px;color:#8a8378}
+.empty p{margin:0;font-size:13px;color:#555;line-height:1.6}
+
+/* ---------- modal ---------- */
+.ovl{position:absolute;inset:0;background:rgba(0,0,0,.74);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+.ovl.on{display:flex}
+.modal{width:100%;max-width:600px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.mhead{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.mhead .k{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px}
+.mhead .who2{flex:1;font-size:12.5px;color:var(--muted)}
+.x,.bk{width:36px;height:36px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:#aaa;cursor:pointer;font-size:15px}
+.mbody{padding:18px}
+
+.kc{display:flex;align-items:center;gap:14px}
+.kc .av{width:54px;height:54px;font-size:19px}
+.kc h2{font-family:'Outfit',sans-serif;font-weight:600;font-size:21px;margin:0;line-height:1.25}
+.kc .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+.balance{margin-top:16px;padding:13px 15px;border-radius:12px;background:var(--surf2);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.balance .t{font-size:11px;letter-spacing:.7px;color:var(--muted);font-family:'Outfit',sans-serif}
+.balance .v{font-family:'Outfit',sans-serif;font-size:24px;font-weight:600}
+.balance.r{background:var(--red-bg);border-color:var(--red-bd)} .balance.r .v{color:var(--red)}
+.balance.g{background:var(--green-bg);border-color:var(--green-bd)} .balance.g .v{color:var(--green)}
+
+.turs{margin-top:12px;padding:12px 15px;border-radius:12px;background:var(--bg);border:1px solid var(--border)}
+.turs .h{font-size:10.5px;letter-spacing:1px;color:var(--muted);font-family:'Outfit',sans-serif;margin-bottom:6px}
+.tline{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13.5px}
+.tline + .tline{border-top:1px solid #1c1c1c}
+.tline i{font-style:normal;color:#b8b1a5}
+.tline b{font-family:'Outfit',sans-serif;font-weight:500}
+.tline b.r{color:var(--red)} .tline b.g{color:var(--green)}
+
+.acts{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.act{border:1px solid var(--border);background:var(--surf2);border-radius:var(--r);padding:18px 14px;cursor:pointer;text-align:left;color:var(--text);display:flex;flex-direction:column;gap:4px;min-height:92px;justify-content:center}
+.act:active{transform:translateY(1px)}
+.act .k{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;letter-spacing:.3px}
+.act .d{font-size:11.5px;color:var(--muted);line-height:1.35}
+.act.berish{background:var(--gold-bg);border-color:var(--gold-bd)} .act.berish .k{color:var(--gold2)}
+.act.sotuv{background:var(--green-bg);border-color:var(--green-bd)} .act.sotuv .k{color:var(--green)}
+.act.tolov{background:var(--blue-bg);border-color:var(--blue-bd)} .act.tolov .k{color:var(--blue)}
+.act.vozvrat{background:var(--teal-bg);border-color:var(--teal-bd)} .act.vozvrat .k{color:var(--teal)}
+
+.stub{border:1px dashed #3a3a3a;border-radius:12px;padding:20px;text-align:center;color:#7a7266;font-size:13px;line-height:1.6}
+.stub b{display:block;color:var(--gold2);font-family:'Outfit',sans-serif;font-size:13.5px;margin-bottom:6px;letter-spacing:.3px}
+.willbe{margin:14px 0 0;padding:0;list-style:none;font-size:12.5px;color:#8a8378}
+.willbe li{padding:8px 0;border-top:1px solid #232323;display:flex;gap:9px}
+.willbe li:before{content:'·';color:var(--gold);font-weight:700}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;letter-spacing:.7px;color:var(--muted);font-family:'Outfit',sans-serif;margin-bottom:6px}
+.field input{width:100%;height:54px;border-radius:12px;padding:0 14px;font-size:16px;background:var(--bg);border:1px solid var(--border);color:var(--text);outline:none;font-family:'Roboto',sans-serif}
+.field input:focus{border-color:var(--gold-bd)}
+.mfoot{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.b2{height:50px;padding:0 22px;border-radius:12px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;font-size:15px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd}
+.b2.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+
+.notes{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px}
+.note h4{font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:1px;margin:0 0 10px;color:var(--gold);font-weight:600}
+.note ul{margin:0;padding-left:16px;font-size:13px;line-height:1.7;color:#b8b1a5}
+.note li{margin-bottom:5px}
+.note .q{color:var(--yellow)}
+.note code{background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#cfc9bd}
+
+
+/* ===== BERISH modali ===== */
+.steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--border);background:#141414}
+.step{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#4a4a4a;font-family:'Outfit',sans-serif}
+.step i{font-style:normal;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10.5px;background:#1e1e1e;color:#555}
+.step.done{color:#9a9186;cursor:pointer}
+.step.done i{background:var(--gold-bg);color:var(--gold2)}
+.step.now{color:var(--gold2)}
+.step.now i{background:var(--gold);color:var(--on-gold);font-weight:600}
+.step-sep{color:#333;font-size:12px}
+
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.zcard{border:1px solid var(--border);background:var(--surf2);border-radius:var(--r);padding:18px 16px;cursor:pointer;text-align:left;color:var(--text);min-height:88px;display:flex;flex-direction:column;justify-content:center;gap:5px}
+.zcard:hover{border-color:var(--gold-bd);background:#282215}
+.zcard:active{transform:translateY(1px)}
+.zcard b{font-family:'Outfit',sans-serif;font-weight:600;font-size:18px;color:var(--gold2)}
+.zcard span{font-size:11.5px;color:var(--muted)}
+
+.tchips{display:flex;gap:10px;flex-wrap:wrap}
+.tchip{padding:16px 22px;border-radius:12px;cursor:pointer;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;min-width:110px;text-align:center}
+.tchip:hover{border-color:var(--gold-bd)}
+.tchip:active{transform:translateY(1px)}
+.tchip small{display:block;font-family:'Roboto',sans-serif;font-size:11px;color:var(--muted);font-weight:400;margin-top:3px}
+
+.modebar{display:flex;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:14px}
+.modebar button{flex:1;height:44px;border:0;background:none;color:#7a7266;border-radius:9px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14.5px;font-weight:500}
+.modebar button.on{background:var(--surf2);color:var(--gold2)}
+
+.scanbox{display:flex;gap:10px;margin-bottom:12px}
+.scanbox input{flex:1;height:56px;border-radius:12px;padding:0 16px;font-size:19px;font-family:'Outfit',sans-serif;background:var(--bg);border:1px solid var(--gold-bd);color:var(--text);outline:none}
+.scanbox input::placeholder{color:#4a4a4a;font-size:15px;font-family:'Roboto',sans-serif}
+.addb{width:60px;height:56px;border-radius:12px;border:0;background:var(--gold);color:var(--on-gold);font-size:24px;cursor:pointer;font-family:'Outfit',sans-serif}
+.minb{width:60px;height:56px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd;font-size:24px;cursor:pointer;font-family:'Outfit',sans-serif}
+
+.passbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:11.5px;font-family:'Outfit',sans-serif;letter-spacing:.4px}
+.pass{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surf2);color:#6a6a6a;cursor:pointer}
+.pass.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold2)}
+
+.dchips{display:flex;flex-wrap:wrap;gap:7px;min-height:52px;padding:12px;border-radius:12px;background:var(--bg);border:1px solid var(--border);align-content:flex-start;max-height:150px;overflow-y:auto}
+.dchip{padding:7px 12px;border-radius:9px;background:var(--surf2);border:1px solid #333;font-family:'Outfit',sans-serif;font-size:14px}
+.dchip.neg{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.dchip .n{color:#5a5a5a;font-size:10.5px;margin-right:5px}
+.dhint{color:#4a4a4a;font-size:12.5px;padding:6px 2px}
+
+.totbar{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd)}
+.totbar .t{font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:.8px;color:var(--gold)}
+.totbar .v{font-family:'Outfit',sans-serif;font-size:24px;font-weight:600;color:var(--gold2)}
+.totbar .d{font-size:12px;color:#8a7a4a;margin-top:2px}
+
+.vband{margin-top:12px;padding:13px 16px;border-radius:12px;font-size:13.5px;display:flex;align-items:center;gap:10px;font-family:'Outfit',sans-serif}
+.vband.ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.vband.no{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.vband b{font-weight:600}
+
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.keypad button{height:56px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:'Outfit',sans-serif;font-size:20px;cursor:pointer}
+.keypad button:active{transform:translateY(1px);background:#2e2e2e}
+.keypad button.wide{grid-column:span 2}
+.keypad button.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600;font-size:17px}
+@media(max-width:900px){ .zgrid{grid-template-columns:1fr} }
+
+@media(max-width:900px){
+  .app{height:auto}
+  .list{grid-template-columns:1fr;max-height:420px}
+  .rail{display:none}
+  .ovl{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mockhead">
+    <h1>Tilla POS — <span>kassa ekrani</span> · v177 mockup</h1>
+    <p>Planshet uchun. Butun ekran — klient bazasi. Klientni bosgandan keyin <b>modal chiqadi</b>: ichida klient qarzi va to'rt amal — berish · vozvrat · to'lov · sotuv. Amal bosilsa o'sha amalning modali ochiladi. <b>BERISH</b> modali ichi tayyor: zavod → tur → gramm (skan yoki qo'lda). Vozvrat, to'lov, sotuv — keyingi navbatda.</p>
+    <div class="tagrow">
+      <span class="tag on">Klient bazasi</span>
+      <span class="tag on">Bosilsa → modal</span>
+      <span class="tag on">Yangi klient</span>
+      <span class="tag on">4 amal</span>
+      <span class="tag on">Berish: zavod → tur → gramm</span>
+      <span class="tag off">Vozvrat / to'lov / sotuv — keyin</span>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="app">
+
+      <div class="topbar">
+        <div class="brand">TILLA <b>POS</b></div>
+        <div class="room">TEST XONASI · kassatest</div>
+        <div class="tb-sp"></div>
+        <div class="kurs"><small>KURS</small><b>78.00</b></div>
+        <div class="clock"><b>14:32</b>20.08.2026</div>
+      </div>
+
+      <div class="searchbar">
+        <div class="sfield">
+          <span class="ico">&#128269;</span>
+          <input id="q" placeholder="Klient qidirish — ism yoki shahar" autocomplete="off">
+        </div>
+        <button class="btn-new" onclick="yangiOch()">+ Yangi klient</button>
+      </div>
+
+      <div class="recent">
+        <span class="lbl">OXIRGI ISHLANGAN</span>
+        <span class="chip" onclick="tanla('Zulfiya Opa Andijon')">Zulfiya Opa</span>
+        <span class="chip" onclick="tanla('Asror Aka 23')">Asror Aka 23</span>
+        <span class="chip" onclick="tanla('Dilfuza Opa')">Dilfuza Opa</span>
+      </div>
+
+      <div class="listwrap">
+        <div class="list" id="list"></div>
+        <div class="rail" id="rail"></div>
+      </div>
+    </div>
+
+    <div class="ovl" id="ovl" onclick="if(event.target===this)yop()">
+      <div class="modal" id="modal"></div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <h4>BERISH OQIMI</h4>
+      <ul>
+        <li><b>1</b> Zavod → <b>2</b> Tur → <b>3</b> Gramm — tepadagi zanjirdan orqaga bosiladi</li>
+        <li>Gramm: <b>SKAN</b> yoki <b>QO'LDA</b> — qo'lda rejimda klaviatura chiqadi</li>
+        <li>1-skan / 2-skan: ikkinchisi kiritilsa mos/farq bandi chiqadi</li>
+        <li><b>±</b> tugmasi — keyingi kiritish manfiy gramm bo'ladi (tuzatish uchun)</li>
+        <li>Jami har doim <b>1-skan</b> dan hisoblanadi</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>QAROR NUQTALARI</h4>
+      <ul>
+        <li class="q">Sen faqat <b>zavod</b> dedi — men <b>tur</b> qadamini qo'shdim (ilovada kalit <code>zi_ti</code>). Kerakmasmi?</li>
+        <li class="q">2-skan majburiymi, yoki ixtiyoriy tekshiruvmi? Hozir ixtiyoriy</li>
+        <li class="q">Farq chiqsa saqlashga ruxsat berilsinmi?</li>
+        <li class="q">Bir modalda bir nechta tur berilsinmi, yoki har tur alohida amalmi? Hozir bittada bitta tur</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h4>ULANISH (kassatest &#8594; TEST)</h4>
+      <ul>
+        <li>v172.15 da sandbox <b>nomlangan xona</b> ga umumlashgan (<code>ADMIN-</code> prefiks + <code>ADMIN_tilla_&lt;uid&gt;</code>)</li>
+        <li>Demak <code>kassatest</code> uchun yangi arxitektura kerak emas — o'sha <code>TEST_tilla_&lt;uid&gt;</code> kalitiga qarasa bo'ldi</li>
+        <li class="q">Ikkovi bir xonada yozsa kim ustun? Bu DAVOM <b>0j</b> (kassa sinxron emas) bilan tutashadi — POS ni real ishlatishdan oldin hal bo'lsin</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const KLIENTLAR = [
+  {nom:"Asror Aka 23", shahar:"Toshkent", qarz:41.56, turlar:[["Butterfly \u00b7 Oddiy",28.10],["Butterfly \u00b7 3D",13.46]]},
+  {nom:"Dilfuza Opa", shahar:"Andijon", qarz:58.62, turlar:[["Butterfly \u00b7 Oddiy",34.12],["Sepco \u00b7 Sep",24.50]]},
+  {nom:"Dilobar Opa", shahar:"Namangan", qarz:-12.40, turlar:[["Butterfly \u00b7 3DS",-12.40]]},
+  {nom:"Dilorom Opa", shahar:"Farg'ona", qarz:22.05, turlar:[["Butterfly \u00b7 Oddiy",22.05]]},
+  {nom:"Gulnora Opa", shahar:"Toshkent", qarz:0, turlar:[]},
+  {nom:"Madina Opa", shahar:"Samarqand", qarz:75.98, turlar:[["Butterfly \u00b7 3D",45.30],["Butterfly \u00b7 Oddiy",30.68]]},
+  {nom:"Marhabo Opa TJK", shahar:"Dushanbe", qarz:103.44, turlar:[["Butterfly \u00b7 Oddiy",61.20],["Butterfly \u00b7 3D",42.24]]},
+  {nom:"Nodira Opa Qo'qon", shahar:"Qo'qon", qarz:-5.18, turlar:[["Sepco \u00b7 Sep",-5.18]]},
+  {nom:"Ozoda Opa", shahar:"Buxoro", qarz:17.30, turlar:[["Butterfly \u00b7 Oddiy",17.30]]},
+  {nom:"Sevara Opa", shahar:"Qarshi", qarz:0, turlar:[]},
+  {nom:"Shahnoza Opa", shahar:"Navoiy", qarz:9.72, turlar:[["Butterfly \u00b7 3DS",9.72]]},
+  {nom:"Zulfiya Opa Andijon", shahar:"Andijon", qarz:108.93, turlar:[["Butterfly \u00b7 Oddiy",72.30],["Butterfly \u00b7 3D",24.00],["Sepco \u00b7 Sep",12.63]]},
+];
+
+const AMALLAR = {
+  berish:  {k:"BERISH",  ic:"\u2191", d:"Klientga tovar berish", ichi:["Zavod va tur tanlash","1-skan \u2192 gramm ro'yxati","2-skan tekshiruv (mos / farq)","Chek yuborish"]},
+  vozvrat: {k:"VOZVRAT", ic:"\u21a9", d:"Klientdan qaytgan",     ichi:["Qaytgan dona skani","Zavodga ketdimi yoki bizda qoldimi","Ostatkaga ta'siri"]},
+  tolov:   {k:"TO'LOV",  ic:"$",      d:"Pul / lom qabul qilish", ichi:["Naqd / karta / lom","Zavod\u00b7tur bo'yicha taqsimlash","Offset va sdacha","Chek"]},
+  sotuv:   {k:"SOTUV",   ic:"\u2713", d:"Sotib yuborish",         ichi:["Gramm (skan yoki qo'lda)","Narx qatlami A / B / C","To'lov yoki qarzga","Chek + ostatka jadvali"]},
+};
+
+let tanlangan = null;
+const g = n => (n>0?"+":"") + n.toFixed(2) + "g";
+const bosh = nom => nom.trim()[0].toUpperCase();
+const esc = s => s.replace(/'/g,"\\'");
+
+function render(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const ro = KLIENTLAR.filter(k => !q || k.nom.toLowerCase().includes(q) || k.shahar.toLowerCase().includes(q));
+  const list = document.getElementById('list');
+
+  if(!ro.length){
+    list.innerHTML = '<div class="empty"><div class="ring">\u2205</div>'
+      + '<h3>Bunday klient yo\'q</h3><p>Yangi klient qo\'shish uchun tepadagi tugmani bosing.</p></div>';
+  } else {
+    let html = "", oxHarf = "";
+    ro.forEach(k => {
+      const h = bosh(k.nom);
+      if(h !== oxHarf){ html += '<div class="grp" id="h-'+h+'">'+h+'</div>'; oxHarf = h; }
+      const cls = k.qarz > 0.001 ? "r" : (k.qarz < -0.001 ? "g" : "z");
+      const lbl = k.qarz > 0.001 ? "KLIENT QARZI" : (k.qarz < -0.001 ? "BIZ QARZDORMIZ" : "QARZ YO'Q");
+      html += '<div class="row" onclick="tanla(\''+esc(k.nom)+'\')">'
+        + '<div class="av">'+h+'</div>'
+        + '<div class="who"><b>'+k.nom+'</b><small>'+k.shahar+'</small></div>'
+        + '<div class="qz '+cls+'"><b>'+(k.qarz===0?"0.00g":g(k.qarz))+'</b><small>'+lbl+'</small></div>'
+        + '</div>';
+    });
+    list.innerHTML = html;
+  }
+
+  const harflar = [...new Set(KLIENTLAR.map(k => bosh(k.nom)))];
+  document.getElementById('rail').innerHTML = "ABDEFGIKLMNOQRSTUXYZ".split("")
+    .map(h => '<span class="'+(harflar.includes(h)?'has':'')+'" onclick="sakra(\''+h+'\')">'+h+'</span>').join("");
+}
+
+function sakra(h){
+  const el = document.getElementById('h-'+h);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---- klient bosilganda chiqadigan modal ---- */
+function tanla(nom){
+  tanlangan = nom;
+  const k = KLIENTLAR.find(x => x.nom === nom);
+  if(!k) return;
+
+  const cls = k.qarz > 0.001 ? "r" : (k.qarz < -0.001 ? "g" : "");
+  const lbl = k.qarz > 0.001 ? "KLIENT QARZI" : (k.qarz < -0.001 ? "BIZNING QARZ" : "QARZ YO'Q");
+
+  document.getElementById('modal').innerHTML =
+    '<div class="mhead"><span class="k">Klient</span><span class="who2"></span>'
+    + '<button class="x" onclick="yop()">\u2715</button></div>'
+    + '<div class="mbody">'
+      + '<div class="kc"><div class="av">'+bosh(k.nom)+'</div>'
+      + '<div><h2>'+k.nom+'</h2><div class="sub">'+k.shahar+'</div></div></div>'
+      + '<div class="balance '+cls+'"><span class="t">'+lbl+'</span>'
+      + '<span class="v">'+(k.qarz===0?"0.00g":g(k.qarz))+'</span></div>'
+      + (k.turlar.length
+          ? '<div class="turs"><div class="h">ZAVOD \u00b7 TUR BO\'YICHA</div>'
+            + k.turlar.map(t => '<div class="tline"><i>'+t[0]+'</i><b class="'+(t[1]>0?'r':'g')+'">'+g(t[1])+'</b></div>').join("")
+            + '</div>'
+          : '')
+      + '<div class="acts">'
+      + Object.keys(AMALLAR).map(a => '<button class="act '+a+'" onclick="amalOch(\''+a+'\')">'
+          + '<span class="k">'+AMALLAR[a].ic+' '+AMALLAR[a].k+'</span>'
+          + '<span class="d">'+AMALLAR[a].d+'</span></button>').join("")
+      + '</div>'
+    + '</div>';
+  document.getElementById('ovl').classList.add('on');
+}
+
+/* ---- amal modali ---- */
+function amalOch(a){
+  if(a === 'berish'){ B = {zavod:null, tur:null, rejim:'skan', pass:1, p1:[], p2:[], neg:false}; berishRender(); return; }
+  const A = AMALLAR[a];
+  const rang = a==='sotuv' ? 'green' : a==='tolov' ? 'blue' : 'teal';
+  document.getElementById('modal').innerHTML =
+    '<div class="mhead"><button class="bk" onclick="tanla(\''+esc(tanlangan)+'\')">\u2190</button>'
+    + '<span class="k" style="color:var(--'+rang+')">'+A.ic+' '+A.k+'</span>'
+    + '<span class="who2">'+tanlangan+'</span>'
+    + '<button class="x" onclick="yop()">\u2715</button></div>'
+    + '<div class="mbody"><div class="stub"><b>MODAL ICHI \u2014 HALI CHIZILMAGAN</b>'
+    + 'Ketma-ket shakllantiramiz. Navbat berishdan keyin.</div>'
+    + '<ul class="willbe">'+A.ichi.map(x => '<li>'+x+'</li>').join("")+'</ul></div>'
+    + '<div class="mfoot"><button class="b2" onclick="tanla(\''+esc(tanlangan)+'\')">\u2190 Klientga qaytish</button></div>';
+}
+
+/* ================= BERISH ================= */
+const ZAVODLAR = {
+  "Butterfly": [["Oddiy","7%"],["3D","9%"],["3DS","11%"]],
+  "Sepco":     [["Sep","8%"]]
+};
+let B = null;
+
+function bStep(){ return !B.zavod ? 1 : (!B.tur ? 2 : 3); }
+
+function berishHead(){
+  const n = bStep();
+  const mk = (i,txt,go) =>
+    '<div class="step '+(n===i?'now':(n>i?'done':''))+'"'+(n>i?' onclick="'+go+'"':'')+'>'
+    + '<i>'+i+'</i>'+txt+'</div>' + (i<3 ? '<span class="step-sep">\u203a</span>' : '');
+  return '<div class="mhead">'
+    + '<button class="bk" onclick="'+(n===1?'tanla(\''+esc(tanlangan)+'\')':'bOrqaga()')+'">\u2190</button>'
+    + '<span class="k" style="color:var(--gold2)">\u2191 BERISH</span>'
+    + '<span class="who2">'+tanlangan+'</span>'
+    + '<button class="x" onclick="yop()">\u2715</button></div>'
+    + '<div class="steps">'
+    + mk(1, B.zavod || 'Zavod', 'bReset(1)')
+    + mk(2, B.tur || 'Tur', 'bReset(2)')
+    + mk(3, 'Gramm', '')
+    + '</div>';
+}
+
+function bReset(n){
+  if(n===1){ B.zavod=null; B.tur=null; }
+  if(n===2){ B.tur=null; }
+  berishRender();
+}
+function bOrqaga(){ bReset(bStep()-1); }
+
+function berishRender(){
+  const n = bStep();
+  let body = '', foot = '';
+
+  if(n === 1){
+    body = '<div class="mbody"><div class="zgrid">'
+      + Object.keys(ZAVODLAR).map(z =>
+          '<button class="zcard" onclick="B.zavod=\''+z+'\';berishRender()">'
+          + '<b>'+z+'</b><span>'+ZAVODLAR[z].length+' ta tur</span></button>').join("")
+      + '</div></div>';
+  }
+
+  else if(n === 2){
+    body = '<div class="mbody"><div class="tchips">'
+      + ZAVODLAR[B.zavod].map(t =>
+          '<button class="tchip" onclick="B.tur=\''+t[0]+'\';berishRender()">'
+          + t[0]+'<small>ustama '+t[1]+'</small></button>').join("")
+      + '</div></div>';
+  }
+
+  else {
+    const arr = B.pass===1 ? B.p1 : B.p2;
+    const jami = B.p1.reduce((a,b)=>a+b,0);
+    const chips = arr.length
+      ? arr.map((v,i) => '<span class="dchip'+(v<0?' neg':'')+'"><span class="n">'+(i+1)+'</span>'+v.toFixed(2)+'</span>').join("")
+      : '<div class="dhint">'+(B.rejim==='skan' ? 'Skanerni bosing \u2014 har dona shu yerga chip bo\'lib tushadi' : 'Raqam kiriting va + bosing')+'</div>';
+
+    let verify = '';
+    if(B.p2.length){
+      const a = [...B.p1].sort().join(","), b = [...B.p2].sort().join(",");
+      verify = a===b
+        ? '<div class="vband ok">\u2713 <b>MOS</b> \u2014 ikkala skan bir xil ('+B.p1.length+' dona)</div>'
+        : '<div class="vband no">\u2715 <b>FARQ BOR</b> \u2014 1-skan '+B.p1.length+' dona / '+B.p1.reduce((x,y)=>x+y,0).toFixed(2)+'g \u00b7 2-skan '+B.p2.length+' dona / '+B.p2.reduce((x,y)=>x+y,0).toFixed(2)+'g</div>';
+    }
+
+    body = '<div class="mbody">'
+      + '<div class="modebar">'
+        + '<button class="'+(B.rejim==='skan'?'on':'')+'" onclick="B.rejim=\'skan\';berishRender()">SKAN</button>'
+        + '<button class="'+(B.rejim==='qolda'?'on':'')+'" onclick="B.rejim=\'qolda\';berishRender()">QO\'LDA</button>'
+      + '</div>'
+      + '<div class="passbar">'
+        + '<span class="pass '+(B.pass===1?'on':'')+'" onclick="B.pass=1;berishRender()">1-SKAN</span>'
+        + '<span class="pass '+(B.pass===2?'on':'')+'" onclick="B.pass=2;berishRender()">2-SKAN \u00b7 tekshiruv</span>'
+      + '</div>'
+      + '<div class="scanbox">'
+        + '<input id="bin" placeholder="'+(B.rejim==='skan'?'Skan \u2014 gramm':'Gramm')+'" autocomplete="off" inputmode="decimal" onkeydown="if(event.key===\'Enter\')bQosh()">'
+        + '<button class="minb" onclick="B.neg=!B.neg;berishRender()" title="Manfiy gramm">'+(B.neg?'\u2212':'\u00b1')+'</button>'
+        + '<button class="addb" onclick="bQosh()">+</button>'
+      + '</div>'
+      + '<div class="dchips">'+chips+'</div>'
+      + verify
+      + '<div class="totbar"><div><div class="t">JAMI \u2014 '+B.zavod+' \u00b7 '+B.tur+'</div>'
+        + '<div class="d">'+B.p1.length+' dona'+(B.neg?' \u00b7 keyingi kiritish MANFIY':'')+'</div></div>'
+        + '<div class="v">'+jami.toFixed(2)+' g</div></div>'
+      + (B.rejim==='qolda' ? bKeypad() : '')
+      + '</div>';
+
+    foot = '<div class="mfoot">'
+      + '<button class="b2" onclick="tanla(\''+esc(tanlangan)+'\')">Bekor</button>'
+      + '<button class="b2 go" onclick="bSaqla()">Saqlash + chek</button></div>';
+  }
+
+  document.getElementById('modal').innerHTML = berishHead() + body + foot;
+  const inp = document.getElementById('bin');
+  if(inp && B.rejim==='skan') setTimeout(()=>inp.focus(), 50);
+}
+
+function bKeypad(){
+  const k = n => '<button onclick="bTuz(\''+n+'\')">'+n+'</button>';
+  return '<div class="keypad">'
+    + [1,2,3,4,5,6,7,8,9].map(k).join("")
+    + k('.') + k('0')
+    + '<button onclick="bTuz(\'del\')">\u232b</button>'
+    + '<button class="wide go" onclick="bQosh()">+ Qo\'shish</button>'
+    + '<button onclick="bTuz(\'c\')">C</button>'
+    + '</div>';
+}
+
+function bTuz(x){
+  const i = document.getElementById('bin'); if(!i) return;
+  if(x==='del') i.value = i.value.slice(0,-1);
+  else if(x==='c') i.value = '';
+  else i.value += x;
+}
+
+function bQosh(){
+  const i = document.getElementById('bin'); if(!i) return;
+  let v = parseFloat((i.value||'').replace(',','.'));
+  if(isNaN(v) || v===0){ i.style.borderColor='var(--red)'; return; }
+  if(B.neg) v = -Math.abs(v);
+  (B.pass===1 ? B.p1 : B.p2).push(v);
+  B.neg = false;
+  berishRender();
+}
+
+function bSaqla(){
+  document.getElementById('modal').innerHTML = berishHead()
+    + '<div class="mbody"><div class="stub"><b>SAQLASH VA CHEK \u2014 KEYINGI BOSQICH</b>'
+    + 'Bu yerda yozuv saqlanadi va chek yuboriladi. Hozircha mockup shu joyda to\'xtaydi.</div>'
+    + '<ul class="willbe"><li>'+B.zavod+' \u00b7 '+B.tur+' \u2014 '+B.p1.length+' dona, '
+    + B.p1.reduce((a,b)=>a+b,0).toFixed(2)+' g</li>'
+    + '<li>Klient: '+tanlangan+'</li>'
+    + '<li>Chek: lokal printer yoki Firestore navbati</li></ul></div>'
+    + '<div class="mfoot"><button class="b2" onclick="berishRender()">\u2190 Orqaga</button>'
+    + '<button class="b2 go" onclick="tanla(\''+esc(tanlangan)+'\')">Tugatish</button></div>';
+}
+
+/* ---- yangi klient ---- */
+function yangiOch(){
+  document.getElementById('modal').innerHTML =
+    '<div class="mhead"><span class="k">+ Yangi klient</span><span class="who2"></span>'
+    + '<button class="x" onclick="yop()">\u2715</button></div>'
+    + '<div class="mbody">'
+      + '<div class="field"><label>ISM</label><input id="nk" placeholder="Masalan: Zulfiya Opa Andijon" autocomplete="off"></div>'
+      + '<div class="field"><label>SHAHAR <span style="color:#444">\u2014 majburiy emas</span></label>'
+      + '<input id="ns" placeholder="Andijon" autocomplete="off"></div>'
+      + '<div class="stub" style="text-align:left;font-size:12.5px">Qo\'shilgach klient modali '
+      + '<b style="display:inline;color:var(--gold2)">o\'zi ochiladi</b> \u2014 to\'rt amal shu zahoti tayyor.</div>'
+    + '</div>'
+    + '<div class="mfoot"><button class="b2" onclick="yop()">Bekor</button>'
+    + '<button class="b2 go" onclick="yangiSaqla()">Qo\'shish</button></div>';
+  document.getElementById('ovl').classList.add('on');
+  setTimeout(() => document.getElementById('nk').focus(), 60);
+}
+
+function yangiSaqla(){
+  const nom = document.getElementById('nk').value.trim();
+  if(!nom){ document.getElementById('nk').style.borderColor = 'var(--red)'; return; }
+  KLIENTLAR.push({nom, shahar:document.getElementById('ns').value.trim() || "\u2014", qarz:0, turlar:[]});
+  KLIENTLAR.sort((a,b) => a.nom.localeCompare(b.nom,'uz'));
+  document.getElementById('q').value = "";
+  render();
+  tanla(nom);
+}
+
+function yop(){ document.getElementById('ovl').classList.remove('on'); }
+
+document.getElementById('q').addEventListener('input', render);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') yop(); });
+KLIENTLAR.sort((a,b) => a.nom.localeCompare(b.nom,'uz'));
+render();
+</script>
+</body>
+</html>

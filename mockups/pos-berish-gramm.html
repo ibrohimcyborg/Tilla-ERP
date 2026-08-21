@@ -1,0 +1,250 @@
+<!-- POS berish — gramm qadami. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS berish — gramm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#080808}
+body{color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:660px;margin:0 auto}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;margin:12px 0;font-size:12.5px;color:#b8b1a5;line-height:1.65}
+.note b{color:var(--text)}
+.note.g{background:var(--green-bg);border-color:var(--green-bd);color:#a9dfc2}
+.note.g b{color:#d3f2e0}
+.note.q{border-color:#4a3a12;background:#1a1508;color:#cdbd90}
+.note.q b{color:var(--gold2)}
+code{background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px;font-size:11.5px;color:#cfc9bd}
+
+.m{background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.55)}
+.mh{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;font-family:'Outfit',sans-serif}
+.mh .bk,.mh .x{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:#aaa;cursor:pointer;font-size:14px}
+.mh .k{font-weight:600;font-size:16px;color:var(--gold2)}
+.mh .w{margin-left:auto;font-size:12px;color:var(--muted);font-family:'Roboto',sans-serif}
+.steps{display:flex;align-items:center;gap:7px;padding:11px 16px;border-bottom:1px solid var(--border);background:#141414;font-family:'Outfit',sans-serif;font-size:12.5px}
+.st{display:flex;align-items:center;gap:6px;color:#4a4a4a}
+.st i{font-style:normal;width:19px;height:19px;border-radius:6px;display:grid;place-items:center;font-size:10px;background:#1e1e1e;color:#555}
+.st.done{color:#9a9186;cursor:pointer} .st.done i{background:var(--gold-bg);color:var(--gold2)}
+.st.now{color:var(--gold2)} .st.now i{background:var(--gold);color:var(--on-gold);font-weight:600}
+.sep{color:#333}
+.mb{padding:16px}
+
+.modebar{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:13px}
+.modebar button{flex:1;height:42px;border:0;background:none;color:#7a7266;border-radius:9px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500}
+.modebar button.on{background:var(--surf2);color:var(--gold2)}
+.passbar{display:flex;gap:8px;margin-bottom:12px;font-family:'Outfit',sans-serif;font-size:11.5px}
+.pass{padding:7px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surf2);color:#6a6a6a;cursor:pointer}
+.pass.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold2)}
+.scanbox{display:flex;gap:9px;margin-bottom:12px}
+.scanbox input{flex:1;height:54px;border-radius:12px;padding:0 15px;font-size:19px;font-family:'Outfit',sans-serif;background:var(--bg);border:1px solid var(--gold-bd);color:var(--text);outline:none}
+.scanbox input::placeholder{color:#4a4a4a;font-size:14.5px;font-family:'Roboto',sans-serif}
+.addb{width:58px;height:54px;border-radius:12px;border:0;background:var(--gold);color:var(--on-gold);font-size:23px;cursor:pointer}
+.minb{width:58px;height:54px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd;font-size:23px;cursor:pointer}
+.minb.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+
+/* dona chiplari — har birida X */
+.chips{display:flex;flex-wrap:wrap;gap:7px;min-height:52px;padding:11px;border-radius:12px;background:var(--bg);border:1px solid var(--border);max-height:158px;overflow-y:auto;align-content:flex-start}
+.chip{display:inline-flex;align-items:center;gap:9px;padding:6px 6px 6px 10px;border-radius:10px;background:var(--surf2);border:1px solid #333;font-family:'Outfit',sans-serif;font-size:14px}
+.chip .col{display:flex;flex-direction:column;line-height:1.22}
+.chip .pul{font-size:10.5px;color:var(--green);font-family:'Roboto',sans-serif}
+.chip.neg .pul{color:#d98a88}
+.chip.neg{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.chip .n{color:#5a5a5a;font-size:10px}
+.chip .v{font-weight:500}
+.chip .x{width:22px;height:22px;border-radius:6px;border:1px solid #3a3a3a;background:#1c1c1c;color:#6a6a6a;
+  display:grid;place-items:center;font-size:12px;cursor:pointer;line-height:1}
+.chip .x:hover{border-color:var(--red-bd);background:var(--red-bg);color:var(--red)}
+.dhint{color:#4a4a4a;font-size:12.5px;padding:7px 3px}
+
+/* jami + pul */
+.tot{margin-top:12px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);overflow:hidden}
+.tot .up{display:flex;justify-content:space-between;align-items:center;padding:13px 15px}
+.tot .t{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.8px;color:var(--gold)}
+.tot .d{font-size:11.5px;color:#8a7a4a;margin-top:2px}
+.tot .v{font-family:'Outfit',sans-serif;font-size:23px;font-weight:600;color:var(--gold2)}
+.tot .pul{display:flex;justify-content:space-between;align-items:baseline;padding:10px 15px;
+  border-top:1px solid #3a2a0a;background:#1c1608}
+.tot .pul .l{font-size:11.5px;color:#8a7a4a;font-family:'Roboto',sans-serif}
+.tot .pul .r{font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;color:var(--green)}
+.vband{margin-top:11px;padding:12px 15px;border-radius:12px;font-size:13px;font-family:'Outfit',sans-serif}
+.vband.ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.vband.no{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.vband .dt{margin-top:7px;font-family:'Roboto',sans-serif;font-size:12.5px;color:#d9a5a3;line-height:1.7}
+.vband .dt code{background:#2a1414;border-color:var(--red-bd);color:#f0b8b6;margin-right:4px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.keypad button{height:54px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:'Outfit',sans-serif;font-size:19px;cursor:pointer}
+.keypad button:active{background:#2e2e2e}
+.keypad button.wide{grid-column:span 2}
+.keypad button.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600;font-size:16px}
+.mf{padding:13px 16px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.b{height:48px;padding:0 20px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;font-size:14.5px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd}
+.b.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+.b[disabled]{opacity:.32;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>POS berish — <span>gramm qadami</span></h1>
+<p class="lead">1-variant: bitta amalda bitta tur. Ikkita qo‘shimcha kiritildi —
+har donada <b>×</b> va jami ostida <b>pul qiymati</b>. Bosib ko‘ring.</p>
+
+<div class="m">
+  <div class="mh"><button class="bk">←</button><span class="k">↑ BERISH</span>
+    <span class="w">Zulfiya Opa Andijon</span><button class="x">✕</button></div>
+  <div class="steps">
+    <span class="st done"><i>1</i>Butterfly</span><span class="sep">›</span>
+    <span class="st done"><i>2</i>Oddiy</span><span class="sep">›</span>
+    <span class="st now"><i>3</i>Gramm</span>
+  </div>
+  <div class="mb" id="mb"></div>
+  <div class="mf">
+    <button class="b" onclick="bekor()">Bekor</button>
+    <button class="b go" id="saq" onclick="saqla()">Saqlash + chek</button>
+  </div>
+</div>
+
+<div class="note g">
+<b>Qo‘shildi:</b> har dona chipida <b>×</b> — bosilsa o‘sha dona o‘chadi va jami darhol qayta hisoblanadi.
+Jami ostida <b>pul qiymati</b>: gramm × narx.
+</div>
+
+<div class="note">
+<b>Narx qayerdan:</b> ilovada <code>getKatNarx(zi, ti, ki)</code> (index.html 14663) — kunlik kurs
+va A/B/C kategoriyaga qarab hisoblanadi. Bu maketda A kategoriya, <b>78.00 $/g</b> olindi.
+</div>
+
+<div class="note q">
+<b>Bitta savol:</b> berish — bu tovarni <b>qarzga berish</b>, pul olinmaydi.
+Pul qiymati faqat <b>ma’lumot uchun</b> ko‘rsatiladi va hech qayerga saqlanmaydi
+(<code>k.tarix</code> ga faqat gramm va dona yoziladi, 12616).<br><br>
+Shundaymi, yoki narx ham saqlanishi kerakmi?
+</div>
+
+<script>
+var NARX = 78.00;                 /* A kategoriya — maketda qat'iy */
+var S = { rejim:'skan', pass:1, p1:[], p2:[], neg:false, kiritma:'' };
+
+function fg(n){ return (Math.round(n*100)/100).toFixed(2); }
+function fd(n){ return (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function roundG(v){ var t=Math.floor(v*1000)%10; return t>=5?Math.ceil(v*100)/100:Math.floor(v*100)/100; }
+function multiset(a){ var m={}; a.forEach(function(x){ var k=roundG(x).toFixed(2); m[k]=(m[k]||0)+1; }); return m; }
+function reconcile(p1,p2){
+  var ma=multiset(p1), mb=multiset(p2), keys={};
+  for(var k in ma) keys[k]=1; for(var k2 in mb) keys[k2]=1;
+  var matched=0, kam=[], ortiq=[];
+  Object.keys(keys).sort(function(a,b){return parseFloat(a)-parseFloat(b);}).forEach(function(k){
+    var ca=ma[k]||0, cb=mb[k]||0; matched+=Math.min(ca,cb);
+    if(ca>cb) kam.push({g:k,n:ca-cb});
+    if(cb>ca) ortiq.push({g:k,n:cb-ca});
+  });
+  return {matched:matched,kam:kam,ortiq:ortiq};
+}
+
+function rejim(r){ S.rejim=r; draw(); }
+function pass(p){ S.pass=p; draw(); }
+function neg(){ S.neg=!S.neg; draw(); }
+function ochir(i){ (S.pass===1?S.p1:S.p2).splice(i,1); draw(); }
+function tuz(x){
+  if(x==='del') S.kiritma=S.kiritma.slice(0,-1);
+  else if(x==='c') S.kiritma='';
+  else S.kiritma+=x;
+  var i=document.getElementById('bin'); if(i){ i.value=S.kiritma; i.focus(); }
+}
+function qosh(){
+  var v=parseFloat((S.kiritma||'').replace(',','.'));
+  if(isNaN(v)||v===0){ var i=document.getElementById('bin'); if(i){i.style.borderColor='var(--red)';i.focus();} return; }
+  if(S.neg) v=-Math.abs(v);
+  (S.pass===1?S.p1:S.p2).push(v);
+  S.neg=false; S.kiritma=''; draw();
+}
+function bekor(){ if((S.p1.length||S.p2.length) && !confirm('Kiritilgan donalar o\u2018chadi. Bekor qilinsinmi?')) return;
+  S={rejim:'skan',pass:1,p1:[],p2:[],neg:false,kiritma:''}; draw(); }
+function saqla(){
+  if(!S.p1.length) return;
+  var j=S.p1.reduce(function(a,b){return a+b;},0);
+  alert('Saqlanadi:\n\nButterfly \u00b7 Oddiy\n'+S.p1.length+' dona \u00b7 '+fg(j)+' g\n'
+    +'Pul qiymati: $'+fd(j*NARX)+'  (saqlanmaydi, faqat ma\u2018lumot)\n\n'
+    +'Ilovada: k.tarix.push({tip:\'berish\', zavod, tur, gramm, dona})');
+}
+
+function draw(){
+  var arr = S.pass===1 ? S.p1 : S.p2;
+  var jami = S.p1.reduce(function(a,b){return a+b;},0);
+  var h='';
+  h+='<div class="modebar">'
+   +'<button class="'+(S.rejim==='skan'?'on':'')+'" onclick="rejim(\'skan\')">SKAN</button>'
+   +'<button class="'+(S.rejim==='qolda'?'on':'')+'" onclick="rejim(\'qolda\')">QO\u2018LDA</button></div>';
+  h+='<div class="passbar">'
+   +'<span class="pass '+(S.pass===1?'on':'')+'" onclick="pass(1)">1-SKAN \u00b7 '+S.p1.length+'</span>'
+   +'<span class="pass '+(S.pass===2?'on':'')+'" onclick="pass(2)">2-SKAN \u00b7 tekshiruv'+(S.p2.length?' \u00b7 '+S.p2.length:'')+'</span></div>';
+  h+='<div class="scanbox">'
+   +'<input id="bin" value="'+S.kiritma.replace(/"/g,'&quot;')+'" oninput="S.kiritma=this.value" '
+   +'onkeydown="if(event.key===\'Enter\')qosh()" inputmode="decimal" autocomplete="off" '
+   +'placeholder="'+(S.rejim==='skan'?'Skan \u2014 gramm':'Gramm')+'">'
+   +'<button class="minb'+(S.neg?' on':'')+'" onclick="neg()" title="Manfiy">'+(S.neg?'\u2212':'\u00b1')+'</button>'
+   +'<button class="addb" onclick="qosh()">+</button></div>';
+  h+='<div class="chips">';
+  if(arr.length){
+    arr.forEach(function(v,i){
+      h+='<span class="chip'+(v<0?' neg':'')+'"><span class="n">'+(i+1)+'</span>'
+       +'<span class="col"><span class="v">'+v.toFixed(2)+'</span>'
+       +'<span class="pul">$'+fd(v*NARX)+'</span></span>'
+       +'<span class="x" onclick="ochir('+i+')" title="O\u2018chirish">\u2715</span></span>';
+    });
+  } else {
+    h+='<div class="dhint">'+(S.rejim==='skan'
+      ?'Skanerni bosing \u2014 har dona shu yerga chip bo\u2018lib tushadi'
+      :'Raqam kiriting va + bosing')+'</div>';
+  }
+  h+='</div>';
+  if(S.p2.length){
+    var r=reconcile(S.p1,S.p2);
+    if(!r.kam.length && !r.ortiq.length){
+      h+='<div class="vband ok">\u2713 <b>MOS</b> \u2014 ikkala skan bir xil ('+S.p1.length+' dona)</div>';
+    } else {
+      var dt='';
+      if(r.kam.length) dt+='<div><b>2-skanda yetmayapti:</b> '+r.kam.map(function(x){return '<code>'+x.g+' g</code>\u00d7'+x.n;}).join(' ')+'</div>';
+      if(r.ortiq.length) dt+='<div><b>2-skanda ortiqcha:</b> '+r.ortiq.map(function(x){return '<code>'+x.g+' g</code>\u00d7'+x.n;}).join(' ')+'</div>';
+      h+='<div class="vband no">\u2715 <b>FARQ BOR</b> \u2014 mos kelgani '+r.matched+' dona<div class="dt">'+dt+'</div></div>';
+    }
+  }
+  h+='<div class="tot"><div class="up"><div>'
+   +'<div class="t">JAMI \u2014 BUTTERFLY \u00b7 ODDIY</div>'
+   +'<div class="d">'+S.p1.length+' dona'+(S.neg?' \u00b7 keyingi kiritish MANFIY':'')+'</div></div>'
+   +'<div class="v">'+jami.toFixed(2)+' g</div></div>'
+   +'<div class="pul"><span class="l">'+fg(jami)+' g \u00d7 '+fd(NARX)+' $/g</span>'
+   +'<span class="r">$'+fd(jami*NARX)+'</span></div></div>';
+  if(S.rejim==='qolda'){
+    var k=function(n){ return '<button onclick="tuz(\''+n+'\')">'+n+'</button>'; };
+    /* iPhone tartibi — katta raqamlar tepada (Ibrohim: «o'sha qulay») */
+    h+='<div class="keypad">'+[7,8,9,4,5,6,1,2,3].map(k).join('')+k('.')+k('0')
+     +'<button onclick="tuz(\'del\')">\u232b</button>'
+     +'<button class="wide go" onclick="qosh()">+ Qo\u2018shish</button>'
+     +'<button onclick="tuz(\'c\')">C</button></div>';
+  }
+  document.getElementById('mb').innerHTML=h;
+  document.getElementById('saq').disabled = !S.p1.length;
+  var inp=document.getElementById('bin');
+  if(inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
+}
+draw();
+</script>
+</body>
+</html>

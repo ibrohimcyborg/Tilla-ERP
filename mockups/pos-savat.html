@@ -1,0 +1,219 @@
+<!-- POS — berish savati. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS savati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#666;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#080808}
+body{color:var(--text);font-family:'Roboto',system-ui,sans-serif;padding:18px 14px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:20px;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.55;max-width:820px}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px 17px;margin:12px 0;font-size:13px;color:#b8b1a5;line-height:1.65}
+.note b{color:var(--text)}
+.note.q{border-color:#4a3a12;background:#1a1508}
+.note.q b{color:var(--gold2)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:6px}
+@media(max-width:940px){.two{grid-template-columns:1fr}}
+.opt{background:var(--bg);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.opt.pick{border-color:var(--gold-bd)}
+.ohead{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#141414}
+.ohead .n{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;background:var(--surf2);color:var(--muted)}
+.opt.pick .ohead .n{background:var(--gold);color:var(--on-gold)}
+.ohead .t{font-family:'Outfit',sans-serif;font-weight:600;font-size:15px}
+.ohead .b{margin-left:auto;font-size:10.5px;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:var(--surf2);color:var(--muted);font-family:'Outfit',sans-serif}
+.opt.pick .ohead .b{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold2)}
+.obody{padding:15px 16px}
+
+/* modal taqlidi */
+.m{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.mh{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-family:'Outfit',sans-serif}
+.mh .k{font-weight:600;font-size:15px;color:var(--gold2)}
+.mh .w{margin-left:auto;font-size:12px;color:var(--muted);font-family:'Roboto',sans-serif}
+.steps{display:flex;align-items:center;gap:7px;padding:10px 15px;border-bottom:1px solid var(--border);background:#141414;font-family:'Outfit',sans-serif;font-size:12px}
+.st{display:flex;align-items:center;gap:6px;color:#4a4a4a}
+.st i{font-style:normal;width:19px;height:19px;border-radius:6px;display:grid;place-items:center;font-size:10px;background:#1e1e1e;color:#555}
+.st.done{color:#9a9186} .st.done i{background:var(--gold-bg);color:var(--gold2)}
+.st.now{color:var(--gold2)} .st.now i{background:var(--gold);color:var(--on-gold);font-weight:600}
+.sep{color:#333}
+.mb{padding:14px 15px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px;border-radius:11px;background:var(--bg);border:1px solid var(--border);min-height:46px}
+.chip{padding:6px 11px;border-radius:9px;background:var(--surf2);border:1px solid #333;font-family:'Outfit',sans-serif;font-size:13.5px}
+.chip .n{color:#5a5a5a;font-size:10px;margin-right:4px}
+.tot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding:12px 14px;border-radius:11px;background:var(--gold-bg);border:1px solid var(--gold-bd)}
+.tot .t{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.7px;color:var(--gold)}
+.tot .d{font-size:11.5px;color:#8a7a4a;margin-top:2px}
+.tot .v{font-family:'Outfit',sans-serif;font-size:22px;font-weight:600;color:var(--gold2)}
+
+/* savat */
+.savat{margin-top:11px;border-radius:11px;background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.savat .sh{padding:9px 13px;font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.9px;color:var(--muted);border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 13px}
+.srow + .srow{border-top:1px solid #1c1c1c}
+.srow .a{flex:1;min-width:0}
+.srow .a b{display:block;font-weight:500;font-size:14px}
+.srow .a small{color:var(--muted);font-size:11.5px;font-family:'Outfit',sans-serif}
+.srow .g{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;color:var(--gold2)}
+.srow .x{width:26px;height:26px;flex:none;border-radius:8px;border:1px solid #333;color:#5a5a5a;display:grid;place-items:center;cursor:pointer;font-size:14px}
+.srow .x:hover{border-color:var(--red-bd);color:var(--red)}
+.sfoot{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-top:1px solid var(--border);background:#121212}
+.sfoot .l{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.8px;color:var(--muted)}
+.sfoot .v{font-family:'Outfit',sans-serif;font-size:20px;font-weight:600;color:var(--green)}
+.add{margin-top:10px;width:100%;height:48px;border-radius:11px;border:1px dashed #3a3a3a;background:transparent;color:var(--gold2);font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;cursor:pointer}
+.add:hover{border-color:var(--gold-bd);background:#1a1508}
+.mf{padding:12px 15px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.b{height:46px;padding:0 18px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;font-size:14px;border:1px solid var(--border);background:var(--surf2);color:#cfc9bd}
+.b.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+
+.plus{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.pm{border-radius:12px;padding:13px 15px;font-size:12.5px;line-height:1.6}
+.pm.g{background:var(--green-bg);border:1px solid var(--green-bd);color:#a9dfc2}
+.pm.r{background:var(--red-bg);border:1px solid var(--red-bd);color:#f0b8b6}
+.pm b{display:block;font-family:'Outfit',sans-serif;font-size:11px;letter-spacing:.8px;margin-bottom:6px}
+.chek{background:#0b0b0b;border:1px solid var(--border);border-radius:11px;padding:13px 15px;margin-top:11px;font-family:'Courier New',monospace;font-size:12px;color:#c8c2b6;line-height:1.65;white-space:pre}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>POS — <span>savat masalasi</span></h1>
+<p class="lead">Siz maketingizda o‘zingiz savol qo‘ygan edingiz: «Bir modalda bir nechta tur berilsinmi,
+yoki har tur alohida amalmi?» Ikkala variant quyida. Hozirgi maket — 1-variant.</p>
+
+<div class="two">
+
+  <!-- 1-VARIANT -->
+  <div class="opt">
+    <div class="ohead"><span class="n">1</span><span class="t">Bitta amal — bitta tur</span>
+      <span class="b">HOZIRGI MAKET</span></div>
+    <div class="obody">
+      <div class="m">
+        <div class="mh"><span class="k">↑ BERISH</span><span class="w">Zulfiya Opa Andijon</span></div>
+        <div class="steps">
+          <span class="st done"><i>1</i>Butterfly</span><span class="sep">›</span>
+          <span class="st done"><i>2</i>Oddiy</span><span class="sep">›</span>
+          <span class="st now"><i>3</i>Gramm</span>
+        </div>
+        <div class="mb">
+          <div class="chips">
+            <span class="chip"><span class="n">1</span>1.20</span>
+            <span class="chip"><span class="n">2</span>1.30</span>
+            <span class="chip"><span class="n">3</span>1.02</span>
+          </div>
+          <div class="tot"><div><div class="t">JAMI — Butterfly · Oddiy</div>
+            <div class="d">3 dona</div></div><div class="v">3.52 g</div></div>
+        </div>
+        <div class="mf"><button class="b">Bekor</button><button class="b go">Saqlash + chek</button></div>
+      </div>
+
+      <div class="chek">CHEK
+─────────────────────────
+Butterfly · Oddiy   3.52 g
+                   3 dona
+─────────────────────────</div>
+
+      <div class="plus">
+        <div class="pm g"><b>YAXSHI</b>Sodda. Bitta ekran, bitta jami.
+        Xato bo‘lsa faqat shu amal bekor qilinadi.</div>
+        <div class="pm r"><b>YOMON</b>Uch tur bersangiz — <b>uch marta</b> boshdan:
+        klient → berish → zavod → tur. Va <b>uchta alohida chek</b>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2-VARIANT -->
+  <div class="opt pick">
+    <div class="ohead"><span class="n">2</span><span class="t">Bitta amal — savat</span>
+      <span class="b">TAKLIF</span></div>
+    <div class="obody">
+      <div class="m">
+        <div class="mh"><span class="k">↑ BERISH</span><span class="w">Zulfiya Opa Andijon</span></div>
+        <div class="steps">
+          <span class="st done"><i>1</i>Butterfly</span><span class="sep">›</span>
+          <span class="st done"><i>2</i>Oddiy</span><span class="sep">›</span>
+          <span class="st now"><i>3</i>Gramm</span>
+        </div>
+        <div class="mb">
+          <div class="chips">
+            <span class="chip"><span class="n">1</span>2.05</span>
+            <span class="chip"><span class="n">2</span>2.10</span>
+          </div>
+          <div class="tot"><div><div class="t">JORIY — Butterfly · 3D</div>
+            <div class="d">2 dona</div></div><div class="v">4.15 g</div></div>
+
+          <div class="savat">
+            <div class="sh"><span>SAVAT</span><span>2 tur</span></div>
+            <div class="srow"><div class="a"><b>Butterfly · Oddiy</b><small>3 dona · 1.20 + 1.30 + 1.02</small></div>
+              <span class="g">3.52 g</span><span class="x">×</span></div>
+            <div class="srow"><div class="a"><b>Sepco · Sep</b><small>2 dona · 5.00 + 4.20</small></div>
+              <span class="g">9.20 g</span><span class="x">×</span></div>
+            <div class="sfoot"><span class="l">SAVAT JAMI</span><span class="v">12.72 g</span></div>
+          </div>
+
+          <button class="add">+ Joriy turni savatga qo‘shish</button>
+        </div>
+        <div class="mf"><button class="b">Bekor</button><button class="b go">Saqlash + chek</button></div>
+      </div>
+
+      <div class="chek">CHEK
+─────────────────────────
+Butterfly · Oddiy   3.52 g
+                   3 dona
+Sepco · Sep         9.20 g
+                   2 dona
+Butterfly · 3D      4.15 g
+                   2 dona
+─────────────────────────
+JAMI               16.87 g
+                   7 dona
+─────────────────────────</div>
+
+      <div class="plus">
+        <div class="pm g"><b>YAXSHI</b>Bir klientga uch tur — <b>bitta chek</b>,
+        bitta amal. Kassir uchun tez.</div>
+        <div class="pm r"><b>YOMON</b>Ekran to‘ladi. «Savatga qo‘shish» ni unutsa,
+        joriy tur yo‘qoladi — ogohlantirish kerak.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+<b>Ilovada qanday saqlanadi — ikkalasi ham bir xil.</b>
+<code style="background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px">k.tarix</code>
+ga <b>har tur uchun alohida yozuv</b> tushadi
+(<code style="background:#101010;border:1px solid #262626;border-radius:5px;padding:1px 5px">{tip:'berish', zavod, tur, gramm, dona}</code>, index.html 12616).
+Savat faqat <b>ekran qulayligi</b> — ma’lumot tuzilishi o‘zgarmaydi.
+Farq bitta: <b>chek</b> bitta bo‘ladimi yoki uchta.
+</div>
+
+<div class="note q">
+<b>Nima tanlaysiz?</b><br><br>
+<b>1</b> — bitta amalda bitta tur (hozirgi maket, soddaroq)<br>
+<b>2</b> — savat, bitta chekda bir nechta tur (taklifim)<br><br>
+Agar <b>2</b> bo‘lsa yana bitta savol: savat <b>faqat berishda</b>mi, yoki
+<b>sotuv</b> va <b>vozvrat</b>da ham shundaymi?
+</div>
+
+</div>
+</body>
+</html>

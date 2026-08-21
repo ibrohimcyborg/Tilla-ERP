@@ -1,4 +1,4 @@
-<!-- v176.9 -->
+<!-- v177 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1989,7 +1989,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v176.9';
+var APP_VER = 'v177';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -14673,99 +14673,146 @@ function kSotuvRenderZavodlar() {
   document.getElementById('ks-zavod-list').innerHTML = out || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Zavodlarda tilla yoq</div>';
 }
 
-// POS (planshet kassa) - v176.9
-// Ibrohim: "planshetda kassaga o'xshab". Ko'rinish shu ilova uslubida,
-// mantiq oddiy: zavod > tur > gramm > savat > to'lov.
-// To'lov MAVJUD sotuv modalini ochadi - yangi to'lov ekrani yozilmadi.
-var _posZi=-1, _posTi=-1, _posG='', _posSavat=[];
-function _posNarx(zi,ti){ var n=getKatNarx(zi,ti,-1); return parseFloat(n)||0; }
-function posZavod(zi){ _posZi=zi; _posTi=-1; _posG=''; renderPOS(); }
-function posTur(ti){ _posTi=ti; renderPOS(); }
-function posKey(k){
-  if(k==='del'){ _posG=_posG.slice(0,-1); }
-  else if(k==='.'){ if(_posG.indexOf('.')<0) _posG=(_posG||'0')+'.'; }
-  else { if(_posG==='0') _posG=''; _posG+=k; }
-  renderPOS();
+// POS (planshet kassa) - klient bazasi. Ibrohim maketi bo'yicha: KLIENT BIRINCHI,
+// keyin amal. v176.9 dagi mahsulot-birinchi savat ekrani ALMASHTIRILDI (u commitda
+// qoldi, kerak bo'lsa qaytariladi).
+// Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
+// (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
+// raqamlar klient ekranidagidan farq qiladi.
+var POS_VER = '1.00';
+var _posQ = '', _posKi = -1;
+
+function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
+function _posEsc(x){ return String(x==null?'':x)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// Sof qarz: klient qarzi minus bizning qarzimiz (v172.19 qoidasi)
+function _posQarz(k){
+  try{ var j=_qarzJamiRows(_qarzTarkibRows(k)); return Math.round((j.ostatka-j.bizQarz)*100)/100; }
+  catch(e){ return 0; }
 }
-function posQosh(){
-  var g=parseFloat(_posG)||0;
-  if(_posZi<0||_posTi<0){ alert('Zavod va tur tanlang'); return; }
-  if(g<=0){ alert('Gramm kiriting'); return; }
-  var z=data.zavodlar[_posZi], t=z.turlar[_posTi], n=_posNarx(_posZi,_posTi);
-  _posSavat.push({zi:_posZi, ti:_posTi, zavod:z.nom, tur:t.nom, gramm:g, narx:n,
-                  summa:Math.round(g*n*100)/100});
-  _posG=''; renderPOS();
+function posQidir(v){ _posQ=v; _posRoyxat(); }
+function posSakra(h){
+  var el=document.getElementById('pos-h-'+h);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function posOchir(i){ _posSavat.splice(i,1); renderPOS(); }
-function posTozala(){
-  if(_posSavat.length && !confirm('Savat tozalansinmi?')) return;
-  _posSavat=[]; _posG=''; renderPOS();
+function posKlientOch(ki){ _posKi=ki; _posModal(); }
+function posModalYop(){ _posKi=-1; var m=document.getElementById('pos-ovl'); if(m) m.remove(); }
+function posAmal(a){
+  var nomlar={berish:'BERISH',vozvrat:'VOZVRAT',tolov:"TO'LOV",sotuv:'SOTUV'};
+  alert(nomlar[a]+' - keyingi bosqichda yoziladi (POS 1.02).');
 }
-function posTolov(){
-  if(!_posSavat.length){ alert('Savat bosh'); return; }
-  window._posSavatPending = _posSavat.slice();   // klient sotuv modalida tanlanadi
-  openKlientSotuv();
-}
+
 function renderPOS(){
   var el=document.getElementById('main-pos'); if(!el) return;
-  function btn(sel,nom,sub,onc){
-    return '<div onclick="'+onc+'" style="background:'+(sel?'var(--yellow-bg)':'var(--surf2)')
-      +';border:1.5px solid '+(sel?'var(--gold)':'var(--border)')
-      +';border-radius:10px;padding:12px 6px;text-align:center;cursor:pointer;">'
-      +'<div style="font-size:13.5px;font-weight:700;color:'+(sel?'var(--gold)':'var(--text)')+';">'+nom+'</div>'
-      +(sub?'<div style="font-size:10px;color:var(--muted);margin-top:1px;">'+sub+'</div>':'')+'</div>';
-  }
-  var h='<div style="display:grid;grid-template-columns:1fr 320px;gap:10px;align-items:start;">';
-  h+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:11px;">';
-  h+='<div style="font-size:9.5px;color:var(--muted);letter-spacing:.09em;font-weight:700;margin-bottom:8px;">MAHSULOT</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">';
-  (data.zavodlar||[]).forEach(function(z,zi){
-    var n0=(z.turlar&&z.turlar.length)?_posNarx(zi,0):0;
-    h+=btn(_posZi===zi, z.nom, n0?fmtD(n0)+' $/g':'', 'posZavod('+zi+')');
-  });
+  var kurs=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  var h='';
+  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 2px 11px;border-bottom:1px solid var(--border);margin-bottom:11px;">';
+  h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
+  h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 8px;">'+POS_VER+'</span>';
+  h+='<span style="flex:1;"></span>';
+  if(kurs) h+='<span style="display:flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:10px;background:var(--yellow-bg);border:1px solid var(--gold-bd);"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+fmtD(kurs)+'</b></span>';
   h+='</div>';
-  if(_posZi>=0){
-    h+='<div style="font-size:9.5px;color:var(--muted);letter-spacing:.09em;font-weight:700;margin:11px 0 8px;">TUR</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">';
-    (data.zavodlar[_posZi].turlar||[]).forEach(function(t,ti){
-      var n=_posNarx(_posZi,ti);
-      h+=btn(_posTi===ti, t.nom, n?fmtD(n)+' $/g':'', 'posTur('+ti+')');
+  h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
+  h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:0 13px;height:52px;">';
+  h+='<span style="color:var(--muted);font-size:15px;">&#128269;</span>';
+  h+='<input id="pos-q" value="'+_posEsc(_posQ)+'" oninput="posQidir(this.value)" autocomplete="off" placeholder="Klient qidirish - ism bo\'yicha" style="flex:1;background:none;border:0;outline:none;color:var(--text);font-size:16px;font-family:inherit;">';
+  h+='</div></div>';
+  h+='<div style="display:flex;gap:8px;min-height:0;flex:1;">';
+  h+='<div id="pos-list" style="flex:1;overflow-y:auto;padding-right:4px;"></div>';
+  h+='<div id="pos-rail" style="width:32px;flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;overflow-y:auto;border-left:1px solid var(--border);"></div>';
+  h+='</div>';
+  el.innerHTML=h;
+  el.style.display='flex'; el.style.flexDirection='column';
+  _posRoyxat();
+}
+
+function _posRoyxat(){
+  var lst=document.getElementById('pos-list'), rail=document.getElementById('pos-rail');
+  if(!lst) return;
+  var q=(_posQ||'').toLowerCase().trim();
+  var hamma=(data.klientlar||[]).map(function(k,i){ return {k:k,i:i}; })
+    .filter(function(o){ return o.k && o.k.nom; });
+  hamma.sort(function(a,b){ return String(a.k.nom).localeCompare(String(b.k.nom),'uz'); });
+  var ro=hamma.filter(function(o){ return !q || String(o.k.nom).toLowerCase().indexOf(q)>=0; });
+
+  if(!ro.length){
+    lst.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;">'
+      +(q?'Bunday klient yo\'q':'Klient ro\'yxati bo\'sh')+'</div>';
+  } else {
+    var out='', oxHarf='';
+    ro.forEach(function(o){
+      var k=o.k, hf=_posBosh(k.nom);
+      if(hf!==oxHarf){
+        out+='<div id="pos-h-'+_posEsc(hf)+'" style="font-size:11px;letter-spacing:.12em;color:var(--muted);padding:13px 4px 5px;font-weight:700;">'+_posEsc(hf)+'</div>';
+        oxHarf=hf;
+      }
+      var qz=_posQarz(k);
+      var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
+      var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZ QARZDORMIZ':"QARZ YO'Q");
+      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
+      out+='<div style="width:42px;height:42px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(hf)+'</div>';
+      out+='<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
+      out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;">'+(qz>0?'+':'')+fmtG(qz)+'g</div>';
+      out+='<div style="font-size:9px;color:var(--muted);letter-spacing:.04em;">'+yorliq+'</div></div>';
+      out+='</div>';
+    });
+    lst.innerHTML=out;
+  }
+  // A-Z rels - ro'yxatdan quriladi (qattiq yozilmaydi)
+  var harflar=[]; hamma.forEach(function(o){
+    var hf=_posBosh(o.k.nom); if(harflar.indexOf(hf)<0) harflar.push(hf); });
+  harflar.sort(function(a,b){ return a.localeCompare(b,'uz'); });
+  rail.innerHTML=harflar.map(function(hf){
+    return '<span onclick="posSakra(\''+_posEsc(hf)+'\')" style="font-size:10.5px;color:var(--muted);cursor:pointer;padding:1px 6px;border-radius:5px;">'+_posEsc(hf)+'</span>';
+  }).join('');
+}
+
+function _posModal(){
+  posModalYop();
+  var k=data.klientlar[_posKi]; if(!k){ return; }
+  var rows=[]; try{ rows=_qarzTarkibRows(k)||[]; }catch(e){}
+  var qz=_posQarz(k);
+  var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
+  var fon  = qz>0.001?'var(--red-bg)':(qz<-0.001?'var(--green-bg)':'var(--surf2)');
+  var chek = qz>0.001?'var(--red-bd)':(qz<-0.001?'var(--green-bd)':'var(--border)');
+  var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZNING QARZ':"QARZ YO'Q");
+  var amallar=[['berish','&#8593; BERISH','Klientga tovar berish','gold'],
+               ['vozvrat','&#8617; VOZVRAT','Klientdan qaytgan','teal'],
+               ['tolov','$ TO\'LOV','Pul / lom qabul qilish','blue'],
+               ['sotuv','&#10003; SOTUV','Sotib yuborish','green']];
+  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
+  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
+  h+='<div style="padding:15px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
+  h+='<span style="font-size:16px;font-weight:700;">Klient</span><span style="flex:1;"></span>';
+  h+='<button onclick="posModalYop()" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
+  h+='<div style="padding:17px;">';
+  h+='<div style="display:flex;align-items:center;gap:13px;">';
+  h+='<div style="width:52px;height:52px;flex:none;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:19px;">'+_posEsc(_posBosh(k.nom))+'</div>';
+  h+='<div style="min-width:0;"><div style="font-size:20px;font-weight:700;">'+_posEsc(k.nom)+'</div></div></div>';
+  h+='<div style="margin-top:15px;padding:13px 15px;border-radius:12px;background:'+fon+';border:1px solid '+chek+';display:flex;justify-content:space-between;align-items:center;">';
+  h+='<span style="font-size:11px;letter-spacing:.07em;color:var(--muted);">'+yorliq+'</span>';
+  h+='<span style="font-size:23px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;">'+(qz>0?'+':'')+fmtG(qz)+'g</span></div>';
+  if(rows.length){
+    h+='<div style="margin-top:12px;padding:11px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--border);">';
+    h+='<div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;">ZAVOD &#183; TUR BO\'YICHA</div>';
+    rows.forEach(function(r,i){
+      var rc = r.qarz>0?'var(--red)':'var(--green)';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13.5px;'+(i?'border-top:1px solid var(--border);':'')+'">';
+      h+='<span style="color:var(--text);">'+_posEsc(r.zavod)+' &#183; '+_posEsc(r.tur)+'</span>';
+      h+='<b style="color:'+rc+';font-family:Roboto,sans-serif;">'+(r.qarz>0?'+':'')+fmtG(r.qarz)+'g</b></div>';
     });
     h+='</div>';
   }
-  h+='</div>';
-  var gNum=parseFloat(_posG)||0, nSel=(_posZi>=0&&_posTi>=0)?_posNarx(_posZi,_posTi):0;
-  h+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:11px;">';
-  h+='<div style="background:#000;border:1px solid var(--gold-bd);border-radius:10px;padding:10px 12px;text-align:right;margin-bottom:9px;">';
-  h+='<div style="font-size:10px;color:var(--muted);">Gramm</div>';
-  h+='<div style="font-size:30px;font-weight:700;color:var(--gold);font-family:Consolas,monospace;line-height:1.15;">'+(_posG||'0')+'</div>';
-  if(nSel&&gNum) h+='<div style="font-size:11px;color:var(--green);">= '+fmtD(Math.round(gNum*nSel*100)/100)+' $</div>';
-  h+='</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">';
-  ['7','8','9','4','5','6','1','2','3','.','0'].forEach(function(k){
-    h+='<div onclick="posKey(&#39;'+k+'&#39;)" style="background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:15px 0;text-align:center;font-size:19px;font-weight:700;font-family:Consolas,monospace;cursor:pointer;">'+k+'</div>';
+  h+='<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  amallar.forEach(function(a){
+    h+='<button onclick="posAmal(\''+a[0]+'\')" style="border:1px solid var(--'+a[3]+'-bd);background:var(--'+a[3]+'-bg);border-radius:13px;padding:16px 13px;cursor:pointer;text-align:left;font-family:inherit;min-height:86px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
+    h+='<span style="font-size:16px;font-weight:700;color:var(--'+a[3]+');">'+a[1]+'</span>';
+    h+='<span style="font-size:11.5px;color:var(--muted);">'+a[2]+'</span></button>';
   });
-  h+='<div onclick="posKey(&#39;del&#39;)" style="background:var(--surf2);border:1.5px solid var(--gold-bd);border-radius:10px;padding:15px 0;text-align:center;font-size:17px;color:var(--gold);cursor:pointer;">\u2190</div>';
-  h+='</div>';
-  h+='<div onclick="posQosh()" style="background:var(--green-bg);border:1.5px solid var(--green-bd);color:var(--green);border-radius:10px;padding:14px;text-align:center;font-size:15px;font-weight:800;margin-top:9px;cursor:pointer;">+ Savatga</div>';
-  h+='</div></div>';
-  var jamiS=0, jamiG=0;
-  _posSavat.forEach(function(r){ jamiS+=r.summa; jamiG+=r.gramm; });
-  h+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:11px;margin-top:10px;">';
-  h+='<div style="font-size:9.5px;color:var(--muted);letter-spacing:.09em;font-weight:700;margin-bottom:8px;">SAVAT</div>';
-  if(!_posSavat.length) h+='<div style="font-size:12px;color:var(--muted);padding:6px 2px;">Savat bosh</div>';
-  _posSavat.forEach(function(r,i){
-    h+='<div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 2px;border-bottom:1px solid var(--border);">';
-    h+='<span>'+r.zavod+' \u00b7 '+r.tur+' &nbsp;'+fmtG(r.gramm)+' g \u00d7 '+fmtD(r.narx)+'</span>';
-    h+='<span>$'+fmtD(r.summa)+' <span onclick="posOchir('+i+')" style="color:var(--red);font-weight:700;padding-left:9px;cursor:pointer;">\u00d7</span></span></div>';
-  });
-  h+='<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:800;color:var(--green);padding:10px 2px;">';
-  h+='<span>JAMI <span style="font-size:12px;color:var(--muted);font-weight:400;">'+fmtG(jamiG)+' g</span></span><span>$'+fmtD(Math.round(jamiS*100)/100)+'</span></div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  h+='<div onclick="posTolov()" style="background:var(--yellow-bg);border:1.5px solid var(--gold-bd);color:var(--gold);border-radius:10px;padding:14px;text-align:center;font-size:15px;font-weight:800;cursor:pointer;">Tolov \u2192</div>';
-  h+='<div onclick="posTozala()" style="background:var(--red-bg);border:1.5px solid var(--red-bd);color:var(--red);border-radius:10px;padding:14px;text-align:center;font-size:15px;font-weight:800;cursor:pointer;">Tozalash</div>';
-  h+='</div></div>';
-  el.innerHTML=h;
+  h+='</div></div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
 }
 function getKatNarx(zi, ti, ki) {
   var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
@@ -14910,14 +14957,6 @@ function kSotuvRenderTolov() {
     });
   });
   document.getElementById('ks-tolov-list').innerHTML = out;
-  // v176.9: POS savati - klient tanlangach tur maydonlariga tushadi
-  if(window._posSavatPending && window._posSavatPending.length){
-    var _ps=window._posSavatPending; window._posSavatPending=null;
-    _ps.forEach(function(r){
-      var _gEl=document.getElementById('kst-g-'+r.zi+'-'+r.ti);
-      if(_gEl){ _gEl.value=r.gramm; if(typeof kSotuvTolovUpd==='function') kSotuvTolovUpd('g', r.zi, r.ti); }
-    });
-  }
   // v176.1 (Ibrohim, A varianti): BIZ QARZDOR bo'lgan turlarda offset tugmasi
   // O'ZI yonadi — qo'lda bosish shart emas. Yangi mantiq YOZILMADI: mavjud
   // ksOffsetToggle bir marta chaqiriladi, ya'ni natija qo'lda bosish bilan

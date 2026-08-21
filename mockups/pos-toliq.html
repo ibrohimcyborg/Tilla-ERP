@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tilla POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#131110; --tray:#1c1917; --tray-2:#242019; --etch:#302a22; --etch-2:#3d3529;
+  --ink:#f4efe6; --ink-2:#a89c8b; --ink-3:#726859;
+  --au:#d4a544; --au-hi:#f0cb72; --au-dim:#7a5f24; --au-wash:#241c0c;
+  --in:#4fb87a; --in-wash:#0f2418; --out:#d9605c; --out-wash:#2a1412;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{margin:0;color:var(--ink);font-family:Manrope,-apple-system,'Segoe UI',sans-serif;
+  font-size:14px;line-height:1.45;padding:18px 14px 40px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto}
+.hd{font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+.hd em{font-style:normal;color:var(--au)}
+.dek{color:var(--ink-3);font-size:12px;margin-bottom:14px}
+.note{border:1px solid var(--etch);background:var(--tray);border-radius:12px;
+  padding:11px 14px;margin:10px 0;font-size:12.5px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.note.good{border-color:#2b6244;background:var(--in-wash);color:#a9dfc2}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+.dev{background:#0c0a09;border:1px solid var(--etch-2);border-radius:17px;padding:11px;
+  box-shadow:0 22px 60px rgba(0,0,0,.6);width:100%;max-width:1060px;margin:0 auto}
+.bar{display:flex;justify-content:space-between;align-items:center;
+  padding:1px 4px 9px;border-bottom:1px solid var(--etch);margin-bottom:10px}
+.bar .who{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-2)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--in);box-shadow:0 0 8px var(--in)}
+.kurs{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-3)}
+.chip{font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:20px;
+  background:var(--au-wash);border:1px solid var(--au-dim);color:var(--au)}
+
+.stage{display:grid;grid-template-columns:230px minmax(0,1fr) 268px;gap:10px;height:600px}
+@media(max-width:900px){.stage{grid-template-columns:1fr;height:auto}}
+.col{display:flex;flex-direction:column;gap:10px;min-height:0}
+.card{background:var(--tray);border:1px solid var(--etch);border-radius:12px;padding:11px;
+  display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.cap{font-size:9.5px;font-weight:700;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase;
+  margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex:none}
+.cap .n{letter-spacing:.02em;font-weight:600}
+
+/* ── klient ── */
+.find{position:relative;margin-bottom:8px;flex:none}
+.find input{width:100%;background:var(--ground);border:1px solid var(--etch-2);border-radius:10px;
+  padding:11px 12px 11px 34px;color:var(--ink);font-size:13px;font-family:inherit;outline:none}
+.find input::placeholder{color:var(--ink-3)}
+.find input:focus{border-color:var(--au-dim);box-shadow:0 0 0 3px rgba(212,165,68,.09)}
+.find svg{position:absolute;left:11px;top:50%;transform:translateY(-50%)}
+.people{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;margin:0 -3px;padding:0 3px}
+.who-r{display:flex;align-items:center;gap:9px;padding:9px;border-radius:10px;
+  border:1px solid transparent;cursor:pointer;min-height:48px}
+.who-r:hover{background:var(--tray-2)}
+.seal{width:30px;height:30px;border-radius:9px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;background:var(--tray-2);
+  color:var(--ink-3);border:1px solid var(--etch-2)}
+.seal.au{background:linear-gradient(160deg,var(--au-hi),var(--au));color:#241c0c;border-color:var(--au)}
+.who-t{flex:1;min-width:0}
+.who-t .a{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who-t .b{font-size:10.5px;color:var(--ink-3);font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who-n{text-align:right;flex:none}
+.who-n .v{font-size:12.5px;font-weight:700;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.who-n .t{font-size:9px;color:var(--ink-3)}
+.q-due{color:var(--out)} .q-owe{color:var(--in)} .q-nil{color:var(--ink-3)}
+.picked{display:flex;align-items:center;gap:9px;padding:10px 9px;border-radius:10px;
+  background:var(--au-wash);border:1px solid var(--au-dim);cursor:pointer;flex:none}
+.picked .sw{font-size:10px;color:var(--au);white-space:nowrap;flex:none}
+
+/* ── mahsulot: ikki bosqich ── */
+.back{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;
+  background:var(--tray-2);border:1px solid var(--etch-2);cursor:pointer;flex:none;margin-bottom:10px}
+.back:hover{border-color:var(--au-dim)}
+.back .ar{color:var(--au);font-size:16px;line-height:1;flex:none}
+.back .nm{font-size:13.5px;font-weight:600;flex:1;min-width:0}
+.back .pr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3)}
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;
+  flex:1;overflow-y:auto;align-content:start;margin:0 -3px;padding:0 3px}
+.tile{background:var(--tray-2);border:1px solid var(--etch-2);border-radius:11px;
+  padding:13px 11px;cursor:pointer;user-select:none;position:relative;overflow:hidden;
+  min-height:60px;height:fit-content}
+.tile:hover{background:#282319}
+.tile.on{border-color:var(--au);background:var(--au-wash)}
+.tile.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--au-hi),var(--au))}
+.tile .a{font-size:13.5px;font-weight:600}
+.tile.on .a{color:var(--au-hi)}
+.tile .b{font-size:10.5px;color:var(--ink-3);font-family:'JetBrains Mono',monospace;
+  font-variant-numeric:tabular-nums;margin-top:2px}
+
+/* ── tarozi ── */
+.weigh{display:grid;grid-template-columns:1fr 166px;gap:10px;flex:none}
+.scale{background:var(--ground);border:1px solid var(--etch-2);border-radius:11px;
+  padding:11px 13px;box-shadow:inset 0 2px 10px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;justify-content:center}
+.scale .u{font-size:9px;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase}
+.scale .rd{display:flex;align-items:baseline;justify-content:flex-end;gap:5px}
+.scale .rd .num{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;
+  color:var(--au-hi);letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.15}
+.scale .rd .g{font-size:12.5px;color:var(--au-dim);font-weight:700}
+.scale .eq{text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--in);min-height:17px;font-variant-numeric:tabular-nums}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kb{background:var(--tray-2);border:1px solid var(--etch-2);border-radius:10px;
+  min-height:46px;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:500;cursor:pointer;user-select:none}
+.kb:hover{background:#282319} .kb:active{background:var(--etch-2)}
+.kb.au{color:var(--au);border-color:var(--au-dim)}
+.go{border-radius:10px;min-height:46px;display:flex;align-items:center;justify-content:center;
+  font-size:13.5px;font-weight:700;cursor:pointer;user-select:none;margin-top:6px;
+  background:var(--in-wash);border:1px solid #2b6244;color:var(--in)}
+.go:hover{background:#123020}
+.go.off{opacity:.3;pointer-events:none}
+
+/* ── chek ── */
+.lines{flex:1;overflow-y:auto;margin:0 -3px;padding:0 3px;min-height:0}
+.grp{border-bottom:1px solid var(--etch)}
+.ghead{display:flex;align-items:center;gap:8px;padding:9px 3px;cursor:pointer}
+.ghead:hover{background:var(--tray-2)}
+.ghead .t{flex:1;min-width:0}
+.ghead .t .a{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.ghead .t .a .cnt{font-size:9.5px;font-weight:700;color:var(--au);background:var(--au-wash);
+  border:1px solid var(--au-dim);border-radius:20px;padding:0 6px;line-height:15px}
+.ghead .t .b{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;margin-top:1px}
+.ghead .s{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.x-b{width:24px;height:24px;border-radius:7px;border:1px solid var(--etch-2);color:var(--ink-3);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;font-size:14px;line-height:1}
+.x-b:hover{border-color:#5c2a27;color:var(--out);background:var(--out-wash)}
+.subs{padding:0 3px 8px 12px;border-left:2px solid var(--etch-2);margin-left:4px}
+.sub{display:flex;align-items:center;gap:8px;padding:5px 0;font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.sub .g{flex:1}
+.sub .m{color:var(--ink-3)}
+.perf{height:1px;flex:none;margin:9px 0 0;
+  background:repeating-linear-gradient(90deg,var(--etch-2) 0 5px,transparent 5px 10px)}
+.tally{display:flex;justify-content:space-between;align-items:baseline;padding:11px 3px 10px;flex:none}
+.tally .l{font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.tally .w{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-2);margin-left:8px;font-variant-numeric:tabular-nums}
+.tally .v{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--in);
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.acts{display:grid;grid-template-columns:2.1fr 1fr;gap:8px;flex:none}
+.act{border-radius:11px;min-height:48px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;cursor:pointer;user-select:none}
+.act.pay{background:linear-gradient(160deg,var(--au-hi),var(--au));color:#241c0c;border:1px solid var(--au)}
+.act.pay:hover{filter:brightness(1.07)}
+.act.pay.off{background:var(--tray-2);color:var(--ink-3);border-color:var(--etch-2);pointer-events:none}
+.act.clr{background:transparent;border:1px solid #5c2a27;color:var(--out)}
+.act.clr:hover{background:var(--out-wash)}
+.nil{font-size:11.5px;color:var(--ink-3);padding:14px 2px;text-align:center}
+:focus-visible{outline:2px solid var(--au);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body><div class="wrap">
+
+<h1 class="hd">Tilla <em>POS</em></h1>
+<div class="dek">Mockup · 2026-08-19 · ILOVAGA YOZILMAGAN · 1024×768 planshet</div>
+
+<div class="note good">
+<b>To&#39;rtta o&#39;zgarish:</b> 1) Zavod bosilsa turlari <b>alohida</b> chiqadi, ← bilan
+qaytiladi — ro&#39;yxat uzun bo&#39;lsa ham ekran cho&#39;zilmaydi. 2) Chekda bir xil zavod·tur
+<b>birlashadi</b>: <span class="mono">1.20 + 2.10 = 3.30 g</span>. 3) Qatorni bossangiz
+ichidagi qo&#39;shimchalar ochiladi, har birini alohida <b>×</b> qilsa bo&#39;ladi.
+4) Turlar tarozi ustiga chiqib ketardi — tuzatildi.
+</div>
+
+<div class="dev">
+  <div class="bar">
+    <div class="who"><span class="pulse"></span> kassatest
+      <span style="color:var(--ink-3)">·</span> 19.08.2026
+      <span class="kurs">· kurs 89.00</span></div>
+    <span class="chip">TEST XONASI</span>
+  </div>
+
+  <div class="stage">
+
+    <div class="col">
+      <div class="card" style="flex:1;">
+        <div class="cap">Klient <span class="n" id="kcnt"></span></div>
+        <div id="kbox" style="display:flex;flex-direction:column;min-height:0;flex:1;"></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card" style="flex:1;">
+        <div class="cap" id="mcap">Mahsulot</div>
+        <div id="mbox" style="display:flex;flex-direction:column;min-height:0;flex:1;"></div>
+      </div>
+      <div class="card" style="flex:none;">
+        <div class="cap">Tarozi</div>
+        <div class="weigh">
+          <div class="scale">
+            <div class="u">Miqdor</div>
+            <div class="rd"><span class="num" id="pg">0</span><span class="g">g</span></div>
+            <div class="eq" id="ps">&nbsp;</div>
+          </div>
+          <div>
+            <div class="keys" id="pkeys"></div>
+            <div class="go" id="addb" onclick="posQosh()">Savatga</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card" style="flex:1;">
+        <div class="cap">Chek <span class="n" id="scnt"></span></div>
+        <div class="lines" id="savat"></div>
+        <div class="perf"></div>
+        <div class="tally">
+          <span><span class="l">Jami</span><span class="w" id="jg"></span></span>
+          <span class="v" id="js">$0.00</span>
+        </div>
+        <div class="acts">
+          <div class="act pay" id="paybtn" onclick="pay()">To&#39;lov</div>
+          <div class="act clr" onclick="posTozala()">Tozalash</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note" style="margin-top:16px;">
+<b>ILOVAGA YOZILMAGAN.</b> Sinang: bitta turdan ikki marta qo&#39;shing — chekda
+birlashadi. Qatorni bosing — ichi ochiladi.
+</div>
+
+<script>
+var KLI=[{n:'Madina Opa',m:'+998 90 123 45 67',q:15.78},
+         {n:'Dilorom Opa',m:'+998 91 222 33 44',q:0},
+         {n:'Bexruz Aka Qarshi',m:'+998 93 555 66 77',q:42.10},
+         {n:'Nargiza Opa Qashqadaryo',m:'+998 97 111 22 33',q:-5.21},
+         {n:'Sitora Opa TJK',m:'+998 99 777 88 99',q:8.42},
+         {n:'Muhabbat Opa Gold Sentr',m:'+998 94 321 21 21',q:120.55}];
+var ZAV=[{n:'Butterfly',t:[{n:'Oddiy',p:89.26},{n:'3D',p:92.10}]},
+         {n:'Jilva',t:[{n:'Oddiy',p:91.00},{n:'3D',p:93.40}]},
+         {n:'Simay',t:[{n:'Oddiy',p:91.60}]},
+         {n:'Dorika',t:[{n:'Oddiy',p:90.60},{n:'3DS',p:94.00}]},
+         {n:'Zebo',t:[{n:'Oddiy',p:88.90}]},
+         {n:'Nilufar',t:[{n:'Oddiy',p:90.10},{n:'3D',p:93.00}]}];
+var ki=-1, zi=-1, ti=-1, pg='', savat=[], kq='', ochiq={};
+function fd(n){ return (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fg(n){ return (Math.round(n*100)/100).toFixed(2); }
+function ini(s){ return s.split(' ').slice(0,2).map(function(w){return w.charAt(0);}).join('').toUpperCase(); }
+function qcls(q){ return q>0.001?'q-due':(q<-0.001?'q-owe':'q-nil'); }
+function qtxt(q){ return q>0.001?'qarzi':(q<-0.001?'biz qarz':'toza'); }
+function posKlient(i){ ki=i; draw(); }
+function klientAlmash(){ ki=-1; kq=''; draw(); }
+function kqIn(v){ kq=v; draw(); }
+function posZavod(i){ zi=i; ti=-1; pg=''; draw(); }
+function orqaga(){ zi=-1; ti=-1; pg=''; draw(); }
+function posTur(i){ ti=i; draw(); }
+function pk(k){
+  if(k==='del') pg=pg.slice(0,-1);
+  else if(k==='.'){ if(pg.indexOf('.')<0) pg=(pg||'0')+'.'; }
+  else { if(pg==='0') pg=''; pg+=k; }
+  draw();
+}
+function posQosh(){
+  var g=parseFloat(pg)||0;
+  if(zi<0||ti<0){ alert('Zavod va tur tanlang'); return; }
+  if(g<=0){ alert('Gramm kiriting'); return; }
+  var z=ZAV[zi], t=z.t[ti];
+  savat.push({z:z.n,t:t.n,g:g,p:t.p,s:Math.round(g*t.p*100)/100});
+  pg=''; draw();
+}
+function posOchir(i){ savat.splice(i,1); draw(); }
+function grpOchir(key){
+  var g=grup().filter(function(o){return o.key===key;})[0];
+  if(!g) return;
+  if(g.rows.length>1 && !confirm(g.z+' · '+g.t+' — '+g.rows.length+' ta yozuv o’chirilsinmi?')) return;
+  savat = savat.filter(function(r){ return (r.z+'|'+r.t)!==key; });
+  draw();
+}
+function grpToggle(key){ ochiq[key]=!ochiq[key]; draw(); }
+function posTozala(){ if(savat.length && !confirm('Chek tozalansinmi?')) return; savat=[]; pg=''; ochiq={}; draw(); }
+function pay(){
+  alert('Ilovada mavjud sotuv modali ochiladi\n\n' + KLI[ki].n + '\n' +
+    grup().map(function(g){return g.z+' · '+g.t+'   '+fg(g.g)+' g';}).join('\n'));
+}
+function grup(){
+  var m={}, ord=[];
+  savat.forEach(function(r,i){
+    var key=r.z+'|'+r.t;
+    if(!m[key]){ m[key]={key:key,z:r.z,t:r.t,p:r.p,g:0,s:0,rows:[]}; ord.push(key); }
+    m[key].g+=r.g; m[key].s+=r.s; m[key].rows.push({i:i,g:r.g,s:r.s});
+  });
+  return ord.map(function(k){ return m[k]; });
+}
+function draw(){
+  /* ── klient ── */
+  var box=document.getElementById('kbox'), cnt=document.getElementById('kcnt');
+  if(ki>=0){
+    var k=KLI[ki];
+    cnt.textContent='';
+    box.innerHTML='<div class="picked" onclick="klientAlmash()">'+
+      '<div class="seal au">'+ini(k.n)+'</div>'+
+      '<div class="who-t"><div class="a">'+k.n+'</div>'+
+      '<div class="b '+qcls(k.q)+'" style="font-weight:700;">'+(k.q>0?'+':'')+fg(k.q)+' g · '+qtxt(k.q)+'</div></div>'+
+      '<span class="sw">almashtirish</span></div>';
+  } else {
+    var lst=KLI.map(function(k,i){return {k:k,i:i};})
+      .filter(function(o){ var q=kq.toLowerCase();
+        return !q || o.k.n.toLowerCase().indexOf(q)>=0 || o.k.m.indexOf(q)>=0; });
+    cnt.textContent=lst.length+' ta';
+    box.innerHTML='<div class="find">'+
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#726859" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.7" y2="16.7"/></svg>'+
+      '<input id="kq" placeholder="Ism yoki raqam…" oninput="kqIn(this.value)" autocomplete="off" value="'+kq.replace(/"/g,'&quot;')+'"></div>'+
+      '<div class="people">'+ (lst.length ? lst.map(function(o){
+        var k=o.k;
+        return '<div class="who-r" onclick="posKlient('+o.i+')">'+
+          '<div class="seal">'+ini(k.n)+'</div>'+
+          '<div class="who-t"><div class="a">'+k.n+'</div><div class="b">'+k.m+'</div></div>'+
+          '<div class="who-n"><div class="v '+qcls(k.q)+'">'+(k.q>0?'+':'')+fg(k.q)+'</div>'+
+          '<div class="t">'+qtxt(k.q)+'</div></div></div>';
+      }).join('') : '<div class="nil">Topilmadi</div>') +'</div>';
+  }
+
+  /* ── mahsulot: ikki bosqich ── */
+  var mb=document.getElementById('mbox'), mc=document.getElementById('mcap');
+  if(zi<0){
+    mc.innerHTML='Mahsulot <span class="n">'+ZAV.length+' zavod</span>';
+    mb.innerHTML='<div class="rack">'+ZAV.map(function(z,i){
+      return '<div class="tile" onclick="posZavod('+i+')">'+
+        '<div class="a">'+z.n+'</div><div class="b">'+z.t.length+' tur · '+fd(z.t[0].p)+' $/g</div></div>';
+    }).join('')+'</div>';
+  } else {
+    var z=ZAV[zi];
+    mc.innerHTML='Tur <span class="n">'+z.n+'</span>';
+    mb.innerHTML='<div class="back" onclick="orqaga()"><span class="ar">&#8592;</span>'+
+      '<span class="nm">'+z.n+'</span><span class="pr">zavodlarga</span></div>'+
+      '<div class="rack">'+z.t.map(function(t,i){
+        return '<div class="tile'+(ti===i?' on':'')+'" onclick="posTur('+i+')">'+
+          '<div class="a">'+t.n+'</div><div class="b">'+fd(t.p)+' $/g</div></div>';
+      }).join('')+'</div>';
+  }
+
+  /* ── tarozi ── */
+  document.getElementById('pkeys').innerHTML =
+    ['7','8','9','4','5','6','1','2','3','.','0'].map(function(k){
+      return '<div class="kb" onclick="pk(&#39;'+k+'&#39;)">'+k+'</div>';
+    }).join('')+'<div class="kb au" onclick="pk(&#39;del&#39;)">&#8592;</div>';
+  document.getElementById('pg').textContent = pg||'0';
+  var np=(zi>=0&&ti>=0)?ZAV[zi].t[ti].p:0, gv=parseFloat(pg)||0;
+  document.getElementById('ps').innerHTML=(np&&gv)?('$'+fd(gv*np)):'&nbsp;';
+  document.getElementById('addb').className='go'+((np&&gv)?'':' off');
+
+  /* ── chek: birlashtirilgan ── */
+  var gs=grup(), jg=0, js=0;
+  gs.forEach(function(g){ jg+=g.g; js+=g.s; });
+  document.getElementById('scnt').textContent = gs.length?gs.length+' ta':'';
+  document.getElementById('savat').innerHTML = gs.length ? gs.map(function(g){
+    var qosh = g.rows.length>1
+      ? g.rows.map(function(r){return fg(r.g);}).join(' + ')+' = '+fg(g.g)+' g'
+      : fg(g.g)+' g';
+    var h='<div class="grp"><div class="ghead" onclick="grpToggle(\''+g.key+'\')">'+
+      '<div class="t"><div class="a">'+g.z+' · '+g.t+
+        (g.rows.length>1?'<span class="cnt">'+g.rows.length+'</span>':'')+'</div>'+
+      '<div class="b">'+qosh+' × '+fd(g.p)+'</div></div>'+
+      '<div class="s">$'+fd(g.s)+'</div>'+
+      '<div class="x-b" onclick="event.stopPropagation();grpOchir(\''+g.key+'\')">×</div></div>';
+    if(ochiq[g.key] && g.rows.length>1){
+      h+='<div class="subs">'+g.rows.map(function(r,n){
+        return '<div class="sub"><span class="m">'+(n+1)+'.</span><span class="g">'+fg(r.g)+' g</span>'+
+          '<span>$'+fd(r.s)+'</span>'+
+          '<div class="x-b" onclick="event.stopPropagation();posOchir('+r.i+')">×</div></div>';
+      }).join('')+'</div>';
+    }
+    return h+'</div>';
+  }).join('') : '<div class="nil">Mahsulot tanlab qo’shing</div>';
+  document.getElementById('jg').textContent = gs.length?fg(jg)+' g':'';
+  document.getElementById('js').textContent = '$'+fd(js);
+  document.getElementById('paybtn').className='act pay'+((gs.length&&ki>=0)?'':' off');
+}
+draw();
+</script>
+
+</div></body></html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POS — kurs va kategoriya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#131110; --tray:#1c1917; --tray-2:#242019; --etch:#302a22; --etch-2:#3d3529;
+  --ink:#f4efe6; --ink-2:#a89c8b; --ink-3:#726859;
+  --au:#d4a544; --au-hi:#f0cb72; --au-dim:#7a5f24; --au-wash:#241c0c;
+  --in:#4fb87a; --in-wash:#0f2418; --out:#d9605c; --out-wash:#2a1412;
+  --bl:#5f9ee0; --bl-wash:#0e1a26; --bl-dim:#2c5578;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{margin:0;color:var(--ink);font-family:Manrope,-apple-system,'Segoe UI',sans-serif;
+  font-size:14px;line-height:1.5;padding:20px 15px 50px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto}
+h1{font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--au)}
+h2{font-size:15px;font-weight:700;margin:30px 0 11px;padding-bottom:7px;
+  border-bottom:1px solid var(--etch);letter-spacing:-.005em}
+.dek{color:var(--ink-3);font-size:12px;margin-bottom:16px}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+code{background:var(--tray-2);padding:1px 5px;border-radius:5px;font-size:12.5px;color:var(--au);
+  font-family:'JetBrains Mono',monospace}
+.ln{color:var(--bl);font-family:'JetBrains Mono',monospace;font-size:12px}
+.card{background:var(--tray);border:1px solid var(--etch);border-radius:12px;padding:13px 15px;margin:10px 0}
+.note{border:1px solid var(--etch);background:var(--tray);border-radius:12px;
+  padding:12px 15px;margin:11px 0;font-size:13px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.note.ok{border-color:#2b6244;background:var(--in-wash);color:#a9dfc2}
+.note.warn{border-color:#5c2a27;background:var(--out-wash);color:#f0b8b6}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:9px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--etch);vertical-align:top}
+th{font-size:9.5px;font-weight:700;letter-spacing:.11em;color:var(--ink-3);text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+.q{background:#1d1725;border:1px solid #453258;border-radius:12px;padding:14px 16px;margin:13px 0}
+.q .qh{color:#b48ce0;font-weight:700;font-size:13px;margin-bottom:9px}
+.opt{background:var(--tray);border:1px solid var(--etch);border-radius:10px;padding:10px 13px;margin:7px 0;font-size:13px}
+.opt .tag{display:inline-block;background:var(--tray-2);color:var(--ink-3);font-size:10.5px;
+  padding:2px 8px;border-radius:6px;margin-right:8px;font-weight:700}
+.rec{border-color:#2b6244} .rec .tag{background:var(--in-wash);color:var(--in)}
+
+/* ── maket bo'lagi ── */
+.dev{background:#0c0a09;border:1px solid var(--etch-2);border-radius:15px;padding:11px;margin:12px 0}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:2px 3px 10px;border-bottom:1px solid var(--etch);margin-bottom:11px}
+.who{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-2)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--in);box-shadow:0 0 8px var(--in)}
+.chip{font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:20px;
+  background:var(--au-wash);border:1px solid var(--au-dim);color:var(--au)}
+/* kurs bloki */
+.kurs{display:flex;align-items:center;gap:13px;background:var(--tray);border:1px solid var(--au-dim);
+  border-radius:11px;padding:9px 13px}
+.kurs .lb{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.kurs .vl{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:var(--au-hi);
+  line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kurs .dl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--in)}
+.kurs .sep{width:1px;align-self:stretch;background:var(--etch-2)}
+.kurs .frm{font-size:10.5px;color:var(--ink-3);line-height:1.35}
+.kurs .frm b{color:var(--ink-2)}
+/* kategoriya */
+.kats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:11px 0}
+.kat{background:var(--tray-2);border:1px solid var(--etch-2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;user-select:none}
+.kat .a{font-size:14px;font-weight:700}
+.kat .b{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+.kat.on-a{border-color:var(--bl);background:var(--bl-wash)} .kat.on-a .a{color:var(--bl)}
+.kat.on-b{border-color:#2b6244;background:var(--in-wash)} .kat.on-b .a{color:var(--in)}
+.kat.on-c{border-color:var(--au);background:var(--au-wash)} .kat.on-c .a{color:var(--au)}
+.cust{display:flex;align-items:center;gap:9px;background:var(--au-wash);border:1px solid var(--au-dim);
+  border-radius:10px;padding:9px 12px;margin-bottom:11px;font-size:12.5px;color:var(--au)}
+.cust input{width:78px;background:var(--ground);border:1px solid var(--au-dim);border-radius:8px;
+  padding:6px 9px;color:var(--au-hi);font-family:'JetBrains Mono',monospace;font-size:14px;
+  text-align:right;outline:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.tile{background:var(--tray-2);border:1px solid var(--etch-2);border-radius:11px;padding:12px 11px}
+.tile .a{font-size:13.5px;font-weight:600}
+.tile .b{font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:3px;
+  font-variant-numeric:tabular-nums}
+.tile .b.set{color:var(--au)} .tile .b.non{color:var(--out)}
+.flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:11px 0}
+.bx{background:var(--tray-2);border:1px solid var(--etch-2);border-radius:10px;padding:9px 13px;font-size:12.5px}
+.bx.g{border-color:#2b6244;color:var(--in)} .bx.b{border-color:var(--bl-dim);color:var(--bl)}
+.bx.r{border-color:#5c2a27;color:var(--out)}
+.ar{color:var(--ink-3);font-size:16px}
+</style></head><body><div class="wrap">
+
+<h1>POS — kurs va <em>A / B / C</em></h1>
+<div class="dek">Tahlil + mockup · 2026-08-19 · KOD YOZILMAGAN</div>
+
+<div class="note">
+<b>Ibrohim:</b> «cloud bilan sinxron ishlaydigan qilamiz, birin-ketin.
+1-navbatda admin loginidan info oladi. Admin loginidan klientlardagi holat bo&#39;yicha
+ma&#39;lumotlar turadi. Zavoddagi yashirin bo&#39;lishi kerak. Oldin ma&#39;lumotlarni to&#39;plab
+tahlil qilasan, keyin mockup yasaysan.»
+</div>
+
+<h2>1 · Tahlil — POS ma&#39;lumotni qayerdan oladi</h2>
+
+<div class="note ok">
+<b>Asosiy xulosa: yangi sinxron yozilmaydi.</b> POS Tilla ERP <b>ichida</b> turadi,
+ya&#39;ni <code>data</code> obyektining o&#39;zidan o&#39;qiydi. U esa allaqachon jonli
+sinxron — <code>cloudListen()</code> <span class="ln">18503</span> Firestore ga
+<code>onSnapshot</code> qo&#39;yadi. Kompyuterda o&#39;zgargan narsa planshetda <b>o&#39;zi</b>
+yangilanadi.
+</div>
+
+<div class="flow">
+  <span class="bx b">admin@tilla.com</span><span class="ar">&#8594;</span>
+  <span class="bx">tilla_&lt;uid&gt;</span><span class="ar">&#8594;</span>
+  <span class="bx">holat + holat_b0…bN</span><span class="ar">&#8594;</span>
+  <span class="bx g">data</span><span class="ar">&#8594;</span>
+  <span class="bx g">POS</span>
+</div>
+
+<h2>2 · Klient holati — qaysi funksiya nima beradi</h2>
+<table>
+<tr><th>Kerak</th><th>Funksiya</th><th>Qator</th><th>Nima qaytaradi</th></tr>
+<tr><td>Umumiy qarz</td><td><code>klientJamiQarz(k)</code></td><td class="ln">9733</td>
+    <td>Bitta raqam — klientning jami qarzi (gramm)</td></tr>
+<tr><td><b>Zavod·tur bo&#39;yicha</b></td><td><code>_qarzTarkibRows(k)</code></td><td class="ln">16993</td>
+    <td>Har zavod·tur uchun alohida qarz. <b>POS uchun eng keraklisi</b></td></tr>
+<tr><td>Bizdagi ostatka</td><td><code>turOst(zavod,tur)</code></td><td class="ln">7423</td>
+    <td>Omborda necha gramm bor</td></tr>
+</table>
+
+<div class="card" style="font-size:12.5px;color:var(--ink-2)">
+<b style="color:var(--ink)">Ma&#39;lumot manbai bitta:</b> <code>k.tarix</code>.
+<code>_qarzTarkibRows</code> uni o&#39;qib to&#39;rt turdagi yozuvni hisoblaydi —
+<code>berish</code> (+), <code>vozvrat</code> (−), <code>tolov</code> (−),
+<code>klientda</code> (−). Zavod/tursiz to&#39;lovlar turlar bo&#39;yicha
+<b>proportsional</b> ayiriladi (<span class="ln">17031</span>).
+</div>
+
+<h2>3 · Narx — bu yerda tuzoq bor</h2>
+
+<table>
+<tr><th></th><th>Nima</th><th>Qayerda yashaydi</th></tr>
+<tr><td><b>Kunlik kurs</b></td><td><code>tilla-kurs-bugun</code></td>
+    <td>localStorage — <b>cloudda emas</b></td></tr>
+<tr><td><b>Foiz / ustama</b></td><td><code>tilla-a-foiz-&lt;zi&gt;</code>, <code>tilla-b-ust</code> …</td>
+    <td>localStorage — <b>cloudda emas</b></td></tr>
+<tr><td>Narx hisobi</td><td><code>getKatNarx(zi,ti,ki)</code></td><td class="ln">14770</td></tr>
+</table>
+
+<div class="note ok">
+<b>Lekin yo&#39;li bor.</b> <span class="ln">2251–2278</span>: bu kalitlar
+<code>data._narxSync</code> orqali cloudga <b>ergashadi</b>. Ya&#39;ni admin
+kompyuterda kurs qo&#39;ysa, planshetga o&#39;zi yetib boradi.
+<span class="mono">narxHolatQollash()</span> uni ochilishda qo&#39;llaydi.
+</div>
+
+<div class="note warn">
+<b>⚠ Tuzoq — <span class="ln">14771</span>:</b>
+<span class="mono">if(!kurs) return '';</span><br><br>
+Kurs bo&#39;lmasa <code>getKatNarx</code> <b>bo&#39;sh qaytaradi</b>. Ya&#39;ni planshet
+birinchi marta kirganda, kurs hali yetib kelmagan bo&#39;lsa — <b>narx umuman
+chiqmaydi</b>, sotuv ham qilib bo&#39;lmaydi. Hech qanday ogohlantirish yo&#39;q,
+shunchaki bo&#39;sh.<br><br>
+Siz «narxi chiqishdan oldin kurs haqida info bo&#39;lsin» deganingiz — aynan shu
+tuzoqni yopadi.
+</div>
+
+<h2>4 · Zavod yashirin — allaqachon qilingan</h2>
+<div class="card" style="font-size:12.5px;color:var(--ink-2)">
+v176.8 da <code>body.rol-pos</code> qo&#39;shilgan (<span class="ln">261</span>):
+zavod tabi va paneli yashirin. Lekin <code>data.zavodlar</code> <b>o&#39;qilaveradi</b> —
+tur nomi va narx o&#39;shandan olinadi. Siz aytgandek: «zavodlar qo&#39;limizda shart emas,
+lekin bazasini oladi».
+</div>
+
+<h2>5 · Mockup — kurs va kategoriya, narxdan oldin</h2>
+
+<div class="dev">
+  <div class="bar">
+    <div class="who"><span class="pulse"></span> kassatest
+      <span style="color:var(--ink-3)">·</span> 19.08.2026</div>
+    <span class="chip">TEST XONASI</span>
+  </div>
+
+  <div class="kurs">
+    <div>
+      <div class="lb">Kunlik kurs</div>
+      <div class="vl">89.00 <span style="font-size:11px;color:var(--au-dim)">$/g</span></div>
+    </div>
+    <div class="dl">&#8593; +0.30<br><span style="color:var(--ink-3)">kechagidan</span></div>
+    <div class="sep"></div>
+    <div class="frm">
+      Admindan keldi &nbsp;<b>10:14</b><br>
+      <span style="color:var(--ink-3)">Qurilma-1 · admin@tilla.com</span>
+    </div>
+  </div>
+
+  <div class="kats">
+    <div class="kat on-a"><div class="a">A — Optom</div><div class="b">kurs + zavod foizi</div></div>
+    <div class="kat"><div class="a">B — Guruh</div><div class="b">A + ustama</div></div>
+    <div class="kat"><div class="a">C — Ixtiyoriy</div><div class="b">qo&#39;lda narx</div></div>
+  </div>
+
+  <div style="font-size:9.5px;font-weight:700;letter-spacing:.13em;color:var(--ink-3);
+    text-transform:uppercase;margin:13px 0 8px;">Narx — A bo&#39;yicha</div>
+  <div class="tiles">
+    <div class="tile"><div class="a">Butterfly · Oddiy</div><div class="b set">89.26 $/g</div></div>
+    <div class="tile"><div class="a">Butterfly · 3D</div><div class="b set">92.10 $/g</div></div>
+    <div class="tile"><div class="a">Jilva · Oddiy</div><div class="b set">91.00 $/g</div></div>
+    <div class="tile"><div class="a">Simay · Oddiy</div><div class="b non">foiz qo&#39;yilmagan</div></div>
+  </div>
+</div>
+
+<p style="font-size:12.5px;color:var(--ink-3)">
+<b>C tanlansa</b> — kurs bloki ostida qo&#39;lda narx maydoni chiqadi
+(mavjud <code>ks-c-global</code> naqshi, <span class="ln">11607</span>):
+</p>
+<div class="dev" style="padding:11px">
+  <div class="cust">Barcha turlarga qo&#39;lda narx:
+    <input value="95.00" readonly> <span style="color:var(--ink-3);font-size:11px;">$/g</span></div>
+  <div class="tiles">
+    <div class="tile"><div class="a">Butterfly · Oddiy</div><div class="b set">95.00 $/g</div></div>
+    <div class="tile"><div class="a">Jilva · Oddiy</div><div class="b set">95.00 $/g</div></div>
+  </div>
+</div>
+
+<h2>6 · Kurs yetib kelmagan bo&#39;lsa</h2>
+<div class="dev" style="padding:11px">
+  <div class="kurs" style="border-color:#5c2a27;background:var(--out-wash)">
+    <div>
+      <div class="lb" style="color:#c98a87">Kunlik kurs</div>
+      <div class="vl" style="color:var(--out)">— &nbsp;<span style="font-size:12px;">qo&#39;yilmagan</span></div>
+    </div>
+    <div class="sep" style="background:#5c2a27"></div>
+    <div class="frm" style="color:#f0b8b6">
+      Narx hisoblanmaydi. Admin kompyuterda<br>bugungi kursni kiriting.
+    </div>
+  </div>
+</div>
+<p style="font-size:12.5px;color:var(--ink-3)">
+Hozir bunday holatda POS jim turadi — narx bo&#39;sh chiqadi, sabab ko&#39;rinmaydi.
+</p>
+
+<h2>Qaror nuqtalari</h2>
+
+<div class="q">
+<div class="qh">A. Kassir kategoriyani o&#39;zgartira oladimi?</div>
+<div class="opt rec"><span class="tag">A1 · TAKLIF</span><b>Ha, uchalasi ham</b> —
+sotuv modalidagi bilan bir xil. Har yangi klientda A ga qaytadi
+(<code>_aktivKat='A'</code>, <span class="ln">14505</span>)</div>
+<div class="opt"><span class="tag">A2</span><b>Faqat A va B</b> — C (qo&#39;lda narx)
+kassirda bo&#39;lmasin</div>
+<div class="opt"><span class="tag">A3</span><b>O&#39;zgartira olmaydi</b> — doim A</div>
+</div>
+
+<div class="q">
+<div class="qh">B. Kassir kursni ko&#39;radi — o&#39;zgartira oladimi?</div>
+<div class="opt rec"><span class="tag">B1 · TAKLIF</span><b>Faqat ko&#39;radi</b> —
+kurs admin kompyuterda qo&#39;yiladi, planshetda o&#39;zgartirib bo&#39;lmaydi</div>
+<div class="opt"><span class="tag">B2</span><b>O&#39;zgartira oladi</b> — lekin u
+<b>hamma qurilmaga</b> tarqaladi (<code>_narxSync</code> umumiy)</div>
+</div>
+
+<div class="q">
+<div class="qh">C. Kurs yo&#39;q bo&#39;lsa POS nima qilsin?</div>
+<div class="opt rec"><span class="tag">C1 · TAKLIF</span><b>Qizil ogohlantirish + sotuv bloklanadi</b> —
+noto&#39;g&#39;ri narxda sotuvning oldi olinadi</div>
+<div class="opt"><span class="tag">C2</span><b>Ogohlantiradi, lekin sotuvga ruxsat</b></div>
+<div class="opt"><span class="tag">C3</span><b>Hozirgidek</b> — jim, narx bo&#39;sh</div>
+</div>
+
+<div class="note warn" style="margin-top:20px">
+<b>KOD YOZILMAGAN.</b> A · B · C ni ayting — keyin TAXMIN BLOKI va diff budjeti,
+keyin kod.
+</div>
+
+</div></body></html>
