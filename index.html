@@ -1,4 +1,4 @@
-<!-- v177.5 -->
+<!-- v177.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1992,7 +1992,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v177.5';
+var APP_VER = 'v177.6';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2001,7 +2001,8 @@ document.addEventListener('DOMContentLoaded', function(){
   try{
     var v=document.createElement('div');
     v.id='app-ver';
-    v.textContent=APP_VER;
+    // POS 1.06 (Ibrohim): POS rolida Tilla versiyasi emas, POS versiyasi ko'rinsin.
+    v.textContent=_verBelgi();
     // O'NG PASTGA — tepadagi tugmalarni (logout/kurs/mavzu/sozlama) to'smaydi
     v.style.cssText='position:fixed;bottom:6px;right:6px;z-index:99998;'
       +'background:rgba(184,137,43,.55);color:#fff;font-size:9px;font-weight:700;'
@@ -2198,6 +2199,13 @@ var CREDS = [
 function setAuth(rol){ localStorage.setItem('tilla-auth','1'); localStorage.setItem('tilla-rol',rol); document.cookie='tilla-auth=1;max-age=31536000;path=/'; }
 function getAuth(){ return localStorage.getItem('tilla-auth') || document.cookie.indexOf('tilla-auth=1')>=0; }
 function getRol(){ return localStorage.getItem('tilla-rol')||'admin'; }
+// POS rolida o'ng pastdagi belgi POS versiyasini ko'rsatadi (Ibrohim: «versiyani
+// POSda ko'rsat, nima qilaman Tilla o'zgarganini»). Boshqa rollarda — APP_VER.
+function _verBelgi(){
+  try{ if(getRol()==='pos' && typeof POS_VER!=='undefined') return 'POS '+POS_VER; }catch(e){}
+  return APP_VER;
+}
+function _verBelgiUpd(){ var e=document.getElementById('app-ver'); if(e) e.textContent=_verBelgi(); }
 function applyRol(){
   var rol=getRol();
   document.body.classList.remove('rol-zavod','rol-hamid','rol-pos');
@@ -2207,6 +2215,7 @@ function applyRol(){
     document.body.classList.add('rol-hamid');
   } else if(rol==='pos'){
     document.body.classList.add('rol-pos');
+    _verBelgiUpd();
     var _pt=document.getElementById('main-tab-pos'); if(_pt) _pt.style.display='';
     if(typeof mainTab==='function') try{ mainTab('pos'); }catch(e){}
   }
@@ -14682,7 +14691,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.05';
+var POS_VER = '1.06';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
