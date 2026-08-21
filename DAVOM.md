@@ -74,6 +74,34 @@ CHANGELOG + DAVOM. Shu tartib davom etsin.
 
 ---
 
+## ⚠ TUZOQ — chek chiqmay qolsa BIRINCHI shuni tekshir
+
+**2026-08-19, Ibrohim:** PC da chek chiqmadi, «Yuborilmoqda...» da qotib qoldi.
+Print-server ishlab turardi, internet ham bor edi.
+
+**Sabab:** `printXato()` (2171) chek chiqmasa shu oynani chiqaradi — «Bu qurilmada
+printer YO'Qmi? OK bossangiz...». Bir marta **OK** bosilgan va
+`localStorage['tilla-printer-yoq']='1'` **doimiy** yozilgan.
+
+Zanjir: `printerYoq()`→true (2014) → `chekBuQurilmadan()`→false (2031) →
+`chekYubor()` chekni **cloud navbatiga** yozadi (2096) → o'sha kuni Firestore ham
+ishlamadi (DNS: `ERR_NAME_NOT_RESOLVED`) → hech narsa chiqmadi.
+
+**Yechim (5 soniya):** Sozlamalar → 🖨 «Chek shu qurilmadan chiqsin» YOQ.
+`tilla-chek-bu-qurilma='1'` bayrog'i `printerYoq()` dan USTUN turadi (2029).
+Yoki konsolda:
+```
+localStorage.removeItem('tilla-printer-yoq'); localStorage.setItem('tilla-chek-bu-qurilma','1'); location.reload()
+```
+
+Ibrohim tasdiqladi: «ishlab ketti shuni qiganimdan kegin».
+
+**Tuzatilmagan kamchilik:** bitta tasodifiy «OK» mahalliy bosishni abadiy o'chiradi
+va oynadagi matn chalg'ituvchi (print-server o'sha payt ishlamayotgan bo'lishi ham
+mumkin). Yumshatish taklif qilingan, Ibrohim hali qaror bermagan.
+
+---
+
 ## Ochiq masalalar
 
 Quyidagilar **hal qilinmagan**. Tartib — muhimligi bo'yicha.
