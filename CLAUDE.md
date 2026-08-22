@@ -134,6 +134,34 @@ So'ralmasa **qilinmaydi**:
 **Bir turda bitta o'zgarish.** Kichik ko'rinsa ham ikkinchisini qo'shib
 yuborma.
 
+### BITTA-BITTA — maket ustida ishlash tartibi (Ibrohim, 2026-08-23)
+
+Ibrohim: *"man 1ta 1ta etaman, mockupda korsattasan, 'shunaqa qil' diman.
+Har 1ta elementimni saqlab qolasan."*
+
+Ibrohim maketni ko'rib ketma-ket bir nechta gap yozadi. **Ularni YIG'IB,
+bitta nashrda chiqarish TAQIQLANADI.** Har gap alohida sikl:
+
+1. Ibrohim **bitta** narsani aytadi
+2. Maketda **FAQAT o'shani** o'zgartirasan — boshqa hech nimaga tegmaysan
+3. Nashr qilasan va **aynan nima o'zgarganini** bitta qator bilan aytasan
+4. Ibrohim `"shunaqa qil"` deydi yoki tuzatadi
+5. Keyingi gapga o'tasan
+
+Ketma-ket uchta gap kelsa ham — **uchta alohida nashr**, uchta alohida javob.
+Birinchisini qilib, ko'rsatib, keyin ikkinchisiga o'tasan.
+
+⚠ **Har element saqlanadi.** Aytilmagan joyga tegilmaydi: rang, joylashuv,
+matn, bo'shliq — hech biri "yo'l-yo'lakay" o'zgarmaydi. Tuzilishni qayta
+yozish kerak bo'lsa — avval ayt, keyin yoz.
+
+⚠ Agar bir necha gap **bir-biriga bog'liq** bo'lsa (masalan tuzilish buzilgan
+va tuzatmasdan ikkinchisini qilib bo'lmasa) — **buni ochiq ayt**, o'zing
+qo'shib yuborma.
+
+**Nega bu bor:** 2026-08-23 da olti tuzatish bitta nashrga yig'ildi. Ibrohim
+aytmagan narsalar ham o'zgardi, qaysi xato qaysi so'rovdan kelgani yo'qoldi.
+
 **Diff budjeti.** Boshlashdan oldin taxminan necha qator o'zgarishini ayt.
 Haqiqiy diff shu taxmindan ~2 barobar oshsa — **to'xta va xabar ber**,
 davom etma. Shishgan diff = qamrov siljigan.
