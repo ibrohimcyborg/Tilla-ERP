@@ -162,6 +162,23 @@ v178 / POS 1.15  SAFE-AREA YOQILDI - status bar ostida qolish tuzatildi.
            overlay padding 6px -> 53px 6px 40px
          Notch yo'q qurilmada hammasi avvalgidek (0px).
 
+POS 1.16 YANGI USLUB - POS ko'k palitraga o'tdi + amallar sarlavhada.
+         Maket: Ibrohim tanlagan palitra #030F2C / #5183FF / #5F84DF / #93B2FF.
+         Usul: ilovaning O'Z tokenlari FAQAT POS konteynerlari ichida qayta
+         e'lon qilindi - #main-pos, #pos-ovl, #pb-ovl (265-qator). Shuning
+         uchun POS kodidagi inline var(--...) larni qayta yozish shart
+         bo'lmadi, butun POS bir zarbda ko'k bo'ldi.
+         ⚠ Admin, zavod va Abdulhamid ekranlari TEGILMAYDI - ular hamon
+         --gold:#c9a84c bilan ishlaydi (sinovda tasdiqlandi).
+         Klient oynasi (_posModal):
+           * amallar pastdagi 2x2 katakdan SARLAVHAGA ko'chdi - klient nomi
+             yonida uchta ko'k gradient pill (_posAmalPill)
+           * avatar dumaloq (50%), ism 18->16px, oyna eni 560->720px
+             (pillar sarlavhaga sig'ishi uchun)
+         TO'LOV hamon yo'q (POS 1.10 qarori).
+         Berish/vozvrat ekrani ranglarni tokenlar orqali oldi - tuzilishga
+         tegilmadi.
+
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)
          hamma joyda 0px -> .topbar dagi padding-top:var(--safe-top) (17-qator)

@@ -262,6 +262,20 @@ body.rol-zavod #main-klient { display: none !important; }
    ostatkasini ko'radi, zavodlar qo'limizda shart emas, lekin bazasini oladi».
    Ya'ni zavod EKRANI yashirinadi, zavod MA'LUMOTI joyida qoladi — sotuvda
    zavod·tur·narx o'shandan olinadi. */
+/* POS 1.16 — POS palitrasi (Ibrohim tanlagan: #030F2C / #5183FF / #5F84DF / #93B2FF).
+   FAQAT POS konteynerlari ichida amal qiladi. */
+#main-pos, #pos-ovl, #pb-ovl{
+  --bg:#030F2C; --surf:#0A1838; --surf2:#122448; --border:#1B2C55;
+  --text:#FFFFFF; --muted:#7E92C4;
+  --gold:#5183FF; --gold2:#93B2FF;
+  --gold-bg:rgba(81,131,255,.14); --gold-bd:#2A3F73; --on-gold:#FFFFFF;
+  --yellow:#5183FF; --yellow-bg:rgba(81,131,255,.14);
+  --red:#FF8B6B; --red-bg:rgba(255,139,107,.13); --red-bd:rgba(255,139,107,.42);
+  --green:#4ED6A8; --green-bg:rgba(78,214,168,.13); --green-bd:rgba(78,214,168,.42);
+  --teal:#5F84DF; --teal-bg:rgba(95,132,223,.14); --teal-bd:#2A3F73;
+  --blue:#93B2FF; --blue-bg:rgba(147,178,255,.13); --blue-bd:#2A3F73;
+  color:var(--text);
+}
 body.rol-pos #main-tab-zavod,
 body.rol-pos #main-tab-klient,
 body.rol-pos #main-zavod,
@@ -14699,7 +14713,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.15';
+var POS_VER = '1.16';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14871,6 +14885,19 @@ function _posRoyxat(){
   }).join('');
 }
 
+// POS 1.16: berish / vozvrat / sotuv — bir xil ko'k gradient pill.
+// TO'LOV yo'q (Ibrohim, 2026-08-22 — «hozircha»).
+function _posAmalPill(){
+  var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
+  var a=[['berish','&#8593;','BERISH'],['vozvrat','&#8617;','VOZVRAT'],['sotuv','&#10003;','SOTUV']];
+  var h='<div style="display:flex;gap:5px;flex:none;">';
+  a.forEach(function(x){
+    h+='<button onclick="posAmal(\''+x[0]+'\')" style="display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-family:inherit;background:'+G+';color:#fff;box-shadow:0 6px 18px rgba(81,131,255,.32);">';
+    h+='<span style="font-size:14px;line-height:1;">'+x[1]+'</span>';
+    h+='<span style="font-size:11.5px;font-weight:600;letter-spacing:.05em;">'+x[2]+'</span></button>';
+  });
+  return h+'</div>';
+}
 function _posModal(){
   posModalYop();
   var k=data.klientlar[_posKi]; if(!k){ return; }
@@ -14881,11 +14908,13 @@ function _posModal(){
   try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
   var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
   var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
-  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
-  h+='<div style="padding:15px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
-  h+='<div style="width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(_posBosh(k.nom))+'</div>';
-  h+='<div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
-  h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
+  h+='<div style="width:100%;max-width:720px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:20px;">';
+  // POS 1.16: amallar pastdan SARLAVHAGA — klient nomi yoniga pill bo'lib chiqdi.
+  h+='<div style="padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-wrap:wrap;">';
+  h+='<div style="width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#fff;font-weight:600;font-size:17px;">'+_posEsc(_posBosh(k.nom))+'</div>';
+  h+='<div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
+  h+=_posAmalPill();
+  h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
   h+='<div style="padding:16px 17px;">';
 
   // ── tepa blok: klient qarzi / jami savdo / bizning qarz
@@ -14936,17 +14965,7 @@ function _posModal(){
   if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
   h+='</div>';
 
-  // POS 1.10: TO'LOV olib tashlandi (Ibrohim, 2026-08-22 — «hozircha»).
-  var amallar=[['berish','&#8593; BERISH','Klientga tovar berish','gold'],
-               ['vozvrat','&#8617; VOZVRAT','Klientdan qaytgan','teal'],
-               ['sotuv','&#10003; SOTUV','Sotib yuborish','green']];
-  h+='<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-  amallar.forEach(function(a){
-    h+='<button onclick="posAmal(\''+a[0]+'\')" style="border:1px solid var(--'+a[3]+'-bd);background:var(--'+a[3]+'-bg);border-radius:13px;padding:16px 13px;cursor:pointer;text-align:left;font-family:inherit;min-height:86px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
-    h+='<span style="font-size:16px;font-weight:700;color:var(--'+a[3]+');">'+a[1]+'</span>';
-    h+='<span style="font-size:11.5px;color:var(--muted);">'+a[2]+'</span></button>';
-  });
-  h+='</div></div></div></div>';
+  h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
 }
