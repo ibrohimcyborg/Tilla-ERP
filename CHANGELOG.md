@@ -31,6 +31,30 @@ v177.6   POS 1.06 - POS rolida versiya belgisi 'POS 1.06' ko'rsatadi
 v177.7   POS 1.07 - test loginida ham POS tabi ko'rinadi (rol admin +
          SANDBOX TEST). rol-pos QO'YILMAYDI - admin bo'lib qolaveradi.
          Abdulhamid rejimiga TEGILMADI
+v177.8   POS 1.08 - BERISH oqimi (savat). mockups/pos-berish-savat.html
+         asosida, mockup Ibrohim tomonidan tasdiqlangan.
+         Zavod -> tur -> gramm -> savat -> o'zi zavodlar ro'yxatiga qaytadi.
+         Bir tur = SAVATDA BITTA QATOR; turga qayta kirilsa donalar yuklanadi.
+         SKAN / QO'LDA rejim, klaviatura iPhone tartibida (7 8 9 tepada).
+         Kategoriya A / B / C: A va B ilovaning _posNarxlar (getKatNarx) dan,
+         C = getZavodNarx (kirim narxi) + qo'lda ustama (boshlang'ich 2 $/g).
+         NARX SAQLANMAYDI - faqat ko'rsatiladi (Ibrohim tasdiqladi).
+
+         YOZUV saqlashKlientBerish davomEt() bilan AYNAN bir xil:
+         har tur uchun alohida k.tarix yozuvi {tip:'berish',sana,soat,
+         zavod,tur,gramm,dona}, t.ostatka faqat g>0 da kamayadi,
+         t.donaOst + donaRegOlish + donaBazaOlish, save().
+         Chek kBerishUpdateChek shaklida, chekIkkiChop(...,1) - planshetdan
+         cloud navbat orqali PC bosadi. Nusxa sanagichi YO'Q (1 ta).
+
+         Ombor ostatkasi: OGOHLANTIRADI, TO'XTATMAYDI (Ibrohim, 2026-08-22).
+         Admin'dagi "Zavodda yetarli tilla yo'q!" bloki POS ga KO'CHIRILMADI.
+         turOst (tarixdan) bilan solishtiriladi.
+
+         Tasdiq mexanizmi YOZILMADI - POS to'g'ridan k.tarix ga yozadi.
+         (DAVOM.md dagi to'rt savol hali javobsiz.)
+         posAmal da faqat 'berish' ulandi; vozvrat/tolov/sotuv alert bo'lib
+         qoldi. Yangi kod 301 qator, mavjud kodda 1 qator o'zgardi.
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 
