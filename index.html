@@ -14699,7 +14699,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.12';
+var POS_VER = '1.13';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -15193,6 +15193,10 @@ function _pbDraw(){
   h+='<button onclick="'+(z?'posBChiq()':'posBBekor()')+'" style="width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#8592;</button>';
   h+='<span style="font-size:14.5px;font-weight:700;white-space:nowrap;color:var(--'+C+');">'
     +(z?_posEsc(z.nom):(V?'↩ VOZVRAT':'↑ BERISH'))+'</span>';
+  // POS 1.13: o'ng pastdagi versiya belgisi berish oynasi ochiqda ko'rinmay
+  // qolardi (Ibrohim telefonda). Shu sababli tepa satrga ham chiqarildi.
+  // Matn _verBelgi() dan — POS rolida 'POS <ver>', boshqa rolda APP_VER.
+  h+='<span style="font-size:9.5px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:1px 7px;white-space:nowrap;flex:none;">'+_verBelgi()+'</span>';
   h+='<span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+_posEsc(k.nom)+'</span>';
   h+='<span style="flex:1;min-width:4px;"></span>';
   var jq=0; try{ jq=klientJamiQarz(k)||0; }catch(e){}
