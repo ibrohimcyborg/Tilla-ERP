@@ -187,6 +187,27 @@ POS 1.17 TEST loginidan POS tabi OLIB TASHLANDI.
          ⚠ Bu qator applyRol ichida, ya'ni POS konteynerlaridan tashqarida.
          O'zgarish POS tabiga tegishli bo'lgani uchun POS_VER o'stirildi;
          APP_VER v178 da qoldirildi.
+POS 1.18 QO'NG'IROQCHA - Tilla ERP test loginining top barida.
+         Ibrohim: "yoz uni top barga svg qosh minimal qilib" + "faqat test
+         loginiga qo'sh".
+         ⚠ HOZIRCHA FAQAT XABAR BERADI. Qabul/rad YO'Q - yozuv POS saqlagan
+         zahoti k.tarix ga tushaveradi (avvalgidek). Tasdiq bosqichi keyin,
+         DAVOM.md dagi to'rt savolga javob olingach.
+         Yo'lda topilgan to'siq: POS yozuvi admin yozuvidan FARQLANMASDI -
+         belgisi yo'q edi (sotuv muammosining aynan o'zi). Shuning uchun
+         posBSaqla endi har yozuvga `pos:1` va bitta saqlash uchun umumiy
+         `posGrp` yozadi. Boshqa hech kim bu maydonlarni o'qimaydi.
+         Tuzilish:
+           * topbar ga SVG qo'ng'iroqcha + qizil sanagich (#pos-bell-wrap),
+             standart display:none, applyRol da faqat admin+TEST da ochiladi
+           * _posBellGuruhlar - k.tarix dan pos:1 yozuvlarni posGrp bo'yicha
+             guruhlaydi, yangisi birinchi
+           * ko'rilganlar localStorage 'tilla-pos-korilgan' da (oxirgi 300)
+           * posBellOch - ro'yxat: klient, BERISH/VOZVRAT, sana-soat, har
+             zavod-tur qatori, jami dona va gramm, "Ko'rdim" tugmasi
+           * save() dan keyin sanagich yangilanadi (boshqa qurilmadan kelsa ham)
+         Sinov: test - bor; tilla/admin/hamid/kassatest - yo'q.
+         Ikki amal yozildi -> sanagich 2; bittasi ko'rildi -> 1; hammasi -> 0.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

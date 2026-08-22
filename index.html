@@ -324,6 +324,10 @@ body.rol-hamid .hamid-x { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
+    <span id="pos-bell-wrap" style="position:relative;display:none;">
+      <button class="theme-btn" onclick="posBellOch()" title="POS amallari"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <span id="pos-bell-cnt" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e05a5a;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;font-family:sans-serif;pointer-events:none;">0</span>
+    </span>
     <button class="theme-btn" onclick="cloudChipClick()" id="cloud-chip" title="Cloud"><svg id="cloud-ikon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke .3s;"><path d="M17.5 19a4.5 4.5 0 1 0-.42-8.98 6 6 0 1 0-11.06 3.1A3.5 3.5 0 0 0 7 19h10.5z"/></svg></button>
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema"></button>
@@ -2233,6 +2237,10 @@ function applyRol(){
     var _pt=document.getElementById('main-tab-pos'); if(_pt) _pt.style.display='';
     if(typeof mainTab==='function') try{ mainTab('pos'); }catch(e){}
   }
+  // POS 1.18: qo'ng'iroqcha FAQAT test loginida (rol admin + SANDBOX TEST).
+  var _bw=document.getElementById('pos-bell-wrap');
+  if(_bw) _bw.style.display=(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')?'':'none';
+  if(typeof posBellUpd==='function') posBellUpd();
   // POS 1.17 (Ibrohim, 2026-08-23): «keremas manga POS, man telimdan
   // testkassaga kiraman, PC dan test loginiga kirib qo'ng'iroqcha kelganini
   // tekshiraman». POS 1.07 da qo'shilgan blok OLIB TASHLANDI — test logini
@@ -2410,6 +2418,7 @@ if (!data.kassa.zaImportIds) data.kassa.zaImportIds = [];
 if (!data.kassa.qolda) data.kassa.qolda = [];
 
 function save(logText) {
+  try{ if(typeof posBellUpd==='function') setTimeout(posBellUpd,0); }catch(e){}
   turOstKeshTozala();   // v172.26: ma'lumot o'zgardi -> ombor hisobi qayta sanaladi
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
   if (data && data.klientlar) {
@@ -14709,7 +14718,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.17';
+var POS_VER = '1.18';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14883,6 +14892,86 @@ function _posRoyxat(){
 
 // POS 1.16: berish / vozvrat / sotuv — bir xil ko'k gradient pill.
 // TO'LOV yo'q (Ibrohim, 2026-08-22 — «hozircha»).
+// ══════════════════════════════════════════════════════════════
+// POS 1.18 — QO'NG'IROQCHA (Tilla ERP test logini).
+// Ibrohim: «top barga svg qosh minimal qilib · faqat test loginiga qo'sh».
+// HOZIRCHA FAQAT XABAR BERADI — qabul/rad YO'Q. Yozuv POS saqlagan zahoti
+// k.tarix ga tushaveradi (avvalgidek). Tasdiq bosqichi keyin qo'shiladi,
+// DAVOM.md dagi to'rt savolga javob olingach.
+// ══════════════════════════════════════════════════════════════
+function _posBellKorilgan(){
+  try{ return JSON.parse(localStorage.getItem('tilla-pos-korilgan')||'[]'); }catch(e){ return []; }
+}
+function _posBellKorilganSaqla(a){
+  try{ localStorage.setItem('tilla-pos-korilgan', JSON.stringify(a.slice(-300))); }catch(e){}
+}
+// k.tarix dan POS guruhlarini yig'adi (eng yangisi birinchi)
+function _posBellGuruhlar(){
+  var m={}, tartib=[];
+  (data.klientlar||[]).forEach(function(k,ki){
+    (k.tarix||[]).forEach(function(op){
+      if(!op || !op.pos || !op.posGrp) return;
+      if(!m[op.posGrp]){ m[op.posGrp]={id:op.posGrp,ki:ki,klient:k.nom,sana:op.sana,soat:op.soat||'',tip:op.tip,rows:[]}; tartib.push(op.posGrp); }
+      m[op.posGrp].rows.push(op);
+    });
+  });
+  var out=tartib.map(function(id){ return m[id]; });
+  out.sort(function(a,b){ return (b.sana+' '+b.soat).localeCompare(a.sana+' '+a.soat); });
+  return out;
+}
+function posBellUpd(){
+  var el=document.getElementById('pos-bell-cnt'); if(!el) return;
+  var kor=_posBellKorilgan(), n=0;
+  _posBellGuruhlar().forEach(function(g){ if(kor.indexOf(g.id)<0) n++; });
+  el.textContent=n; el.style.display=n?'block':'none';
+}
+function posBellYop(){ var m=document.getElementById('pos-bell-ovl'); if(m) m.remove(); }
+function posBellKordim(id){
+  var kor=_posBellKorilgan();
+  if(id){ if(kor.indexOf(id)<0) kor.push(id); }
+  else _posBellGuruhlar().forEach(function(g){ if(kor.indexOf(g.id)<0) kor.push(g.id); });
+  _posBellKorilganSaqla(kor); posBellUpd(); posBellOch();
+}
+function posBellOch(){
+  posBellYop();
+  var gs=_posBellGuruhlar(), kor=_posBellKorilgan();
+  var h='<div id="pos-bell-ovl" onclick="if(event.target===this)posBellYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-start;justify-content:center;padding:60px 16px 20px;z-index:9400;">';
+  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">';
+  h+='<span style="font-size:15px;font-weight:700;">POS amallari</span>';
+  h+='<span style="font-size:11px;color:var(--muted);">'+gs.length+' ta</span><span style="flex:1;"></span>';
+  if(gs.length) h+='<button onclick="posBellKordim(0)" style="height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;">Hammasini ko\'rdim</button>';
+  h+='<button onclick="posBellYop()" style="width:32px;height:32px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
+  h+='<div style="padding:12px 16px;">';
+  if(!gs.length){
+    h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;">POS dan amal kelmagan</div>';
+  } else {
+    gs.forEach(function(g){
+      var yangi=kor.indexOf(g.id)<0;
+      var jg=0, jd=0;
+      g.rows.forEach(function(r){ jg+=r.gramm; jd+=(r.dona||0); });
+      h+='<div style="border:1px solid '+(yangi?'var(--gold-bd)':'var(--border)')+';background:'+(yangi?'var(--gold-bg)':'var(--surf2)')+';border-radius:12px;padding:11px 13px;margin-bottom:8px;">';
+      h+='<div style="display:flex;align-items:center;gap:9px;">';
+      h+='<span style="font-size:13.5px;font-weight:600;">'+_posEsc(g.klient)+'</span>';
+      h+='<span style="font-size:10.5px;padding:1px 7px;border-radius:20px;background:var(--surf);color:'+(g.tip==='vozvrat'?'var(--teal)':'var(--gold)')+';border:1px solid var(--border);">'+(g.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
+      h+='<span style="flex:1;"></span>';
+      h+='<span style="font-size:11px;color:var(--muted);">'+_posEsc(g.sana)+' '+_posEsc(g.soat)+'</span></div>';
+      g.rows.forEach(function(r){
+        h+='<div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);margin-top:5px;">';
+        h+='<span>'+_posEsc(r.zavod)+' \u00b7 '+_posEsc(r.tur)+(r.dona?' \u00b7 '+r.dona+' dona':'')+'</span>';
+        h+='<span style="font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--text);font-weight:600;">'+fmtG(r.gramm)+' g</span></div>';
+      });
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';
+      h+='<span style="font-size:11px;color:var(--muted);">Jami '+jd+' dona</span><span style="flex:1;"></span>';
+      h+='<span style="font-size:14px;font-weight:700;font-family:Roboto,sans-serif;">'+fmtG(roundG(jg))+' g</span>';
+      if(yangi) h+='<button onclick="posBellKordim(\''+g.id+'\')" style="height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);cursor:pointer;font-size:12px;font-family:inherit;">Ko\'rdim</button>';
+      h+='</div></div>';
+    });
+  }
+  h+='</div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
+}
 function _posAmalPill(){
   var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
   var a=[['berish','&#8593;','BERISH'],['vozvrat','&#8617;','VOZVRAT'],['sotuv','&#10003;','SOTUV']];
@@ -15143,6 +15232,9 @@ function posBSaqla(){
   var _n=new Date();
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   var tana=_pbChekTana(k);
+  // POS 1.18: bitta saqlash = bitta guruh. Tilla ERP dagi qo'ng'iroqcha shu
+  // guruh bo'yicha sanaydi va ro'yxatga chiqaradi.
+  var _grp='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 
   _pbSavat.forEach(function(s){
     var z=data.zavodlar[s.zi]; if(!z) return;
@@ -15155,7 +15247,7 @@ function posBSaqla(){
         // ── VOZVRAT — saqlashKlientVozvrat (13134-13153) bilan aynan
         if(g<=0.001) return;
         var _dv=arr.length;
-        var _vop={tip:'vozvrat',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g};
+        var _vop={tip:'vozvrat',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g,pos:1,posGrp:_grp};
         if(_dv>0){ _vop.dona=_dv; t.donaOst=turDona(t)+_dv; donaRegQosh(t, arr); }
         k.tarix.push(_vop);
         t.ostatka=roundG(parseNum(t.ostatka)+g);
@@ -15174,7 +15266,7 @@ function posBSaqla(){
       } else {
         // ── BERISH — saqlashKlientBerish davomEt() (12630-12651) bilan aynan
         var _dona = g>0 ? arr.length : 0;
-        var _op={tip:'berish',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g};
+        var _op={tip:'berish',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g,pos:1,posGrp:_grp};
         if(_dona>0) _op.dona=_dona;
         k.tarix.push(_op);
         if(g>0) t.ostatka=roundG(parseNum(t.ostatka)-g);
