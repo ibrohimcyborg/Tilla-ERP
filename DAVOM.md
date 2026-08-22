@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.09 · 2026-08-22
+**Oxirgi yangilanish:** POS 1.10 · 2026-08-22
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.09** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.10** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -125,7 +125,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.09` |
+| Versiya belgisi | POS rolida `POS 1.10` |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -173,7 +173,13 @@ faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
    ⏳ **Ibrohim planshetda sinamoqda** — natija kutilmoqda.
    Sinov: `tilla-erp.vercel.app` → `kassatest`/`kassatest` → `TEST_tilla_<uid>`,
    haqiqiy pulga tegmaydi.
-2. **TO'LOV** va **SOTUV** — hali yozilmagan, mockup ham yo'q.
+2. **TO'LOV — POS dan OLIB TASHLANDI** (POS 1.10, Ibrohim: «hozircha»).
+   Sabab: `saqlashKlientTolov` (14162) og'ir — har tur uchun kurs, skidka,
+   offset, lom, naqt/karta/perech bo'linishi, sdacha, biz-qarzdor yopish
+   (`_kdYopish`, `_bizQarzYopildi`) va to'lov ichida vozvrat.
+   **Javobsiz savol:** POS to'lovi qanchalik to'liq bo'lsin — sodda (naqt+kurs) /
+   naqt+karta+perech / admin'dagidek to'liq? Qaytilganda shu hal qilinadi.
+3. **SOTUV** — hali yozilmagan, mockup ham yo'q.
    ⚠ Sotuv `k.tarix` da berishdan **farqlanmaydi** (10-bo'limdagi ochiq muammo) —
    sotuvni yozishdan oldin shu hal qilinishi kerak, qaror Ibrohimda.
 3. To'rt savolga javob → **tasdiq mexanizmi**

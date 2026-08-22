@@ -14699,7 +14699,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.09';
+var POS_VER = '1.10';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14936,9 +14936,9 @@ function _posModal(){
   if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
   h+='</div>';
 
+  // POS 1.10: TO'LOV olib tashlandi (Ibrohim, 2026-08-22 — «hozircha»).
   var amallar=[['berish','&#8593; BERISH','Klientga tovar berish','gold'],
                ['vozvrat','&#8617; VOZVRAT','Klientdan qaytgan','teal'],
-               ['tolov','$ TO\'LOV','Pul / lom qabul qilish','blue'],
                ['sotuv','&#10003; SOTUV','Sotib yuborish','green']];
   h+='<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   amallar.forEach(function(a){

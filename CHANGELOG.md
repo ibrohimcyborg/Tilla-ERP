@@ -87,6 +87,16 @@ v177.9   POS 1.09 - BERISH qayta yozildi + VOZVRAT qo'shildi.
 
          Berish yozuvlari v177.8 dagidek o'zgarmadi.
          Eski POS 1.08 bloki (301 qator) yangisiga almashtirildi (353 qator).
+POS 1.10 TO'LOV tugmasi POS klient modalidan olib tashlandi.
+         Ibrohim: "to'lov modalini obtashimiz POS sistemadan HOZIRCHA".
+         Sabab: saqlashKlientTolov (14162) juda og'ir - har tur uchun kurs,
+         skidka, offset, lom, naqt/karta/perech bo'linishi, sdacha, biz-qarzdor
+         yopish (_kdYopish, _bizQarzYopildi) va to'lov ichida vozvrat.
+         POS uchun qanchalik to'liq bo'lishi hal qilinmagan.
+         Amallar: BERISH · VOZVRAT · SOTUV (3 ta).
+         posAmal dagi 'tolov' yorlig'i tegilmadi (tugma yo'q, zarari yo'q).
+         BU YERDAN BOSHLAB Tilla ERP versiyasi (APP_VER + 1-qator) QOTGAN:
+         v177.9. POS ishida faqat POS_VER o'sadi - CLAUDE.md 5-bo'lim.
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 
