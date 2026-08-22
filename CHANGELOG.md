@@ -112,6 +112,17 @@ POS 1.11 TELEFON GORIZONTAL - klaviatura kesilib qolardi.
          Planshet (1180x800) tegilmadi: klaviatura joyida, tugma 146x92.
          Burilganda qayta chizish: resize + orientationchange listener
          (60ms kechikish bilan - burilishda o'lcham darrov turg'unlashmaydi).
+POS 1.12 TELEFON VERTIKAL - o'ng ustun chetdan kesilardi.
+         Ibrohim rasm bilan ko'rsatdi: klaviaturaning 8/9, 5/6, 2/3, 0 va
+         "+ Qo'shish" ekrandan chiqib ketgan.
+         Sabab: POS kodida tor ekran uchun BIR USTUNGA tushish umuman yo'q edi.
+         chap min-width 296px + o'ng min-width 286px = 582px, telefon eni 390px.
+         (Maketda breakpoint bor edi, ilova kodiga o'tkazilmagan - mening xatoyim.)
+         Yechim: window.innerWidth < 640 bo'lsa (TOR) - cols flex-direction
+         column, chap border-right o'rniga border-bottom, o'ng width:auto.
+         Vertikalda balandlik yetarli, shuning uchun klaviatura QOLADI.
+         Sinov: 390x844 bir ustun, klaviatura tugmasi 115px, kesilmagan,
+         gorizontal scroll yo'q. 780x360 va 1180x800 tegilmadi.
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 

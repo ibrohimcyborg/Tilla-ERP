@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.11 · 2026-08-22
+**Oxirgi yangilanish:** POS 1.12 · 2026-08-22
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.11** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.12** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -125,7 +125,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.11` |
+| Versiya belgisi | POS rolida `POS 1.12` |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -154,12 +154,19 @@ Minus — zavod ichida `±`.
   Musbat bo'lmagan tur saqlanmaydi — ochiq aytiladi.
   Qarz ko'rsatkichi `_qarzTarkibRows` (17468) dan.
 * Chek nusxasi **1 ta**, sana **bugungi**.
-* **Ekran o'lchamlari (POS 1.11):** `window.innerHeight < 560` bo'lsa
-  (telefon **gorizontal**) ekrandagi klaviatura **chiqmaydi** — telefonning o'z
-  raqamli klaviaturasi ishlatiladi (`inputmode="decimal"`), paddinglar kichrayadi.
-  Aks holda klaviatura 423px joy so'raydi, modal esa 340px — kesilib qolardi.
+* **Ekran o'lchamlari (POS 1.12)** — `_pbDraw` boshida ikki bayroq:
+
+  | Bayroq | Shart | Nima bo'ladi |
+  |---|---|---|
+  | `TOR` | `innerWidth < 640` | ikki ustun **bir ustunga** tushadi (tepada katakchalar, pastda kiritish+klaviatura) |
+  | `PAST` | `innerHeight < 560` | ekran klaviaturasi **chiqmaydi** — telefonning o'zi (`inputmode="decimal"`), paddinglar kichrayadi |
+
+  Telefon **vertikal** → TOR · klaviatura bor.
+  Telefon **gorizontal** → PAST · klaviatura yo'q.
+  Planshet → ikkalasi ham yo'q, hammasi to'liq.
   Burilganda `resize` + `orientationchange` bilan qayta chiziladi.
   Katakchalar: `innerWidth > 900` bo'lsa qatorda **5 ta**, aks holda **4 ta**.
+  ⚠ Sinovda tekshirilgan o'lchamlar: 390×844 · 780×360 · 1180×800.
 * Planshetda **sinov kutilmoqda** — push qilindi, prod v177.9.
 
 **2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
