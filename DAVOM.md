@@ -17,7 +17,7 @@
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v177.7 gacha push qilingan** (2026-08-21) — prod v177.7. **v177.8 commit qilindi, PUSH QILINMAGAN** — planshetda sinash uchun push kerak. |
+| Git | **v177.8 gacha push qilingan** (2026-08-22) — prod v177.8, Vercel deploy tasdiqlandi. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -143,7 +143,7 @@ Mockup aynan bajarildi. Qo'shimcha qarorlar (Ibrohim, 2026-08-22):
 * **C ustama boshlang'ich = 2 $/g** (mockupdagidek).
 * Chek nusxasi **1 ta** — sanagich qo'shilmadi. Sana **bugungi**, tanlash yo'q.
 * Yozuv `saqlashKlientBerish` `davomEt()` bilan **aynan bir xil**.
-* Planshetda hali **SINALMAGAN** — push kerak (quyida «Keyingi tartib»).
+* Planshetda **sinov kutilmoqda** — push qilindi 2026-08-22, prod v177.8.
 
 **2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
 POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
@@ -158,11 +158,10 @@ faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
 4. Admin javob bermasa — amal qancha **kutadi**? Muddat, eslatma?
 
 ### Keyingi tartib
-1. ~~**Berish** yoziladi~~ → **push kerak, keyin planshetda sinaladi**
-   ⚠ Lokalda (`localhost:8000`) ma'lumot **yo'q** — Firebase auth faqat
-   `localhost` va `tilla-erp.vercel.app` da ishlaydi. Planshetdan sinash uchun
-   `git push` shart (Vercel darhol deploy qiladi). Qaror Ibrohimda.
-   Sinovda `kassatest`/`kassatest` → `TEST_tilla_<uid>` — haqiqiy pulga tegmaydi.
+1. ~~**Berish** yoziladi~~ → push qilindi (2026-08-22), prod v177.8.
+   ⏳ **Ibrohim planshetda sinamoqda** — natija kutilmoqda.
+   Sinov: `tilla-erp.vercel.app` → `kassatest`/`kassatest` → `TEST_tilla_<uid>`,
+   haqiqiy pulga tegmaydi. Lokalda (`localhost:8000`) ham ishlaydi.
 2. To'rt savolga javob → **tasdiq mexanizmi**
 3. Keyin: Vozvrat · To'lov · Sotuv
 
