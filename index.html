@@ -14699,7 +14699,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.10';
+var POS_VER = '1.11';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14983,7 +14983,7 @@ function _pbOch(m){
   _pbQarzYangila();
   posBYop();
   var d=document.createElement('div');
-  d.innerHTML='<div id="pb-ovl" style="position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:10px;z-index:9200;">'
+  d.innerHTML='<div id="pb-ovl" style="position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:6px;z-index:9200;">'
     +'<div id="pb-box" style="width:100%;max-width:1100px;height:100%;max-height:100%;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;"></div></div>';
   document.body.appendChild(d.firstChild);
   _pbDraw();
@@ -15164,15 +15164,27 @@ function posBSaqla(){
   if(typeof renderPOS==='function') renderPOS();
 }
 
+// Telefon burilganda (gorizontal <-> vertikal) qayta chiziladi — aks holda
+// past ekran uchun tanlangan ko'rinish o'zgarmay qoladi.
+['resize','orientationchange'].forEach(function(ev){
+  window.addEventListener(ev, function(){
+    if(document.getElementById('pb-ovl')) setTimeout(_pbDraw, 60);
+  });
+});
 function _pbDraw(){
   var box=document.getElementById('pb-box'); if(!box) return;
   var k=data.klientlar[_posKi]; if(!k) return;
   var V=_pbV(), C=V?'teal':'gold';
+  // POS 1.11: telefon GORIZONTAL bo'lganda modal balandligi ~340px, klaviatura
+  // esa 423px joy talab qiladi — sig'maydi va pastdan kesiladi. Past ekranda
+  // klaviatura CHIQARILMAYDI, telefonning o'z raqamli klaviaturasi ishlatiladi
+  // (maydonda inputmode="decimal"). Vertikal va planshetda hammasi avvalgidek.
+  var PAST = window.innerHeight < 560;
   var z=_pbZi>=0?data.zavodlar[_pbZi]:null;
   var h='';
 
   // ── sarlavha
-  h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--border);flex:none;">';
+  h+='<div style="display:flex;align-items:center;gap:8px;padding:'+(PAST?'4px 9px':'9px 11px')+';border-bottom:1px solid var(--border);flex:none;">';
   h+='<button onclick="'+(z?'posBChiq()':'posBBekor()')+'" style="width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#8592;</button>';
   h+='<span style="font-size:14.5px;font-weight:700;white-space:nowrap;color:var(--'+C+');">'
     +(z?_posEsc(z.nom):(V?'↩ VOZVRAT':'↑ BERISH'))+'</span>';
@@ -15221,14 +15233,14 @@ function _pbDraw(){
     h+='<span style="font-size:9.5px;letter-spacing:.11em;color:var(--muted);">JAMI</span>';
     h+='<span><span style="font-weight:700;font-size:17px;color:var(--green);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(J.g)+' g</span> '
       +'<span style="font-size:11px;color:var(--muted);">'+J.n+' dona</span></span></div></div></div>';
-    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:9px 11px;border-top:1px solid var(--border);flex:none;">';
-    h+='<button onclick="posBBekor()" style="height:44px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Bekor</button>';
-    h+='<button onclick="posBSaqla()"'+(_pbSavat.length?'':' disabled')+' style="height:44px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-family:inherit;'+(_pbSavat.length?'':'opacity:.35;')+'">Saqlash + chek</button></div>';
+    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
+    h+='<button onclick="posBBekor()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Bekor</button>';
+    h+='<button onclick="posBSaqla()"'+(_pbSavat.length?'':' disabled')+' style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-family:inherit;'+(_pbSavat.length?'':'opacity:.35;')+'">Saqlash + chek</button></div>';
 
   } else {
     // ══ EKRAN 2 — zavod ichi ══
     var t=z.turlar[_pbTi];
-    h+='<div style="display:flex;gap:7px;padding:9px 11px;border-bottom:1px solid var(--border);background:var(--bg);flex:none;overflow-x:auto;">';
+    h+='<div style="display:flex;gap:7px;padding:'+(PAST?'5px 9px':'9px 11px')+';border-bottom:1px solid var(--border);background:var(--bg);flex:none;overflow-x:auto;">';
     (z.turlar||[]).forEach(function(tt,j){
       var tg=_pbTurJami(j), on=_pbTi===j;
       var past = tg ? fmtG(tg)+' g' : (V?('qarz '+fmtG(_pbQarz(z.nom,tt.nom))+'g'):('omborda '+fmtG(_pbOst(_pbZi,j))+'g'));
@@ -15285,17 +15297,21 @@ function _pbDraw(){
     h+='<button onclick="posBNeg()" style="width:48px;flex:none;height:46px;border-radius:11px;cursor:pointer;font-size:19px;border:1px solid '+(_pbNeg?'var(--red-bd)':'var(--border)')+';background:'+(_pbNeg?'var(--red-bg)':'var(--surf2)')+';color:'+(_pbNeg?'var(--red)':'var(--text)')+';">'+(_pbNeg?'−':'±')+'</button>';
     h+='<button onclick="posBQoshDona()" style="width:48px;flex:none;height:46px;border-radius:11px;border:0;background:var(--'+C+');color:var(--on-gold);font-size:19px;cursor:pointer;">+</button></div>';
     if(_pbNeg) h+='<div style="font-size:11px;color:var(--red);padding:0 2px;flex:none;">keyingi qo\'shilgan gramm MINUS bo\'lib tushadi</div>';
-    var KS='min-height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;font-size:18px;cursor:pointer;';
-    h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1;min-height:290px;">';
-    [7,8,9,4,5,6,1,2,3,'.',0].forEach(function(x){ h+='<button onclick="posBTuz(\''+x+'\')" style="'+KS+'">'+x+'</button>'; });
-    h+='<button onclick="posBTuz(\'del\')" style="'+KS+'">⌫</button>';
-    h+='<button onclick="posBQoshDona()" style="grid-column:span 2;min-height:46px;border-radius:11px;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">+ Qo\'shish</button>';
-    h+='<button onclick="posBTuz(\'c\')" style="'+KS+'">C</button></div>';
+    if(PAST){
+      h+='<div style="font-size:10.5px;color:var(--muted);padding:0 2px;flex:none;">Ekran past — telefon klaviaturasidan tering, Enter qo\'shadi</div>';
+    } else {
+      var KS='min-height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;font-size:18px;cursor:pointer;';
+      h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1;min-height:290px;">';
+      [7,8,9,4,5,6,1,2,3,'.',0].forEach(function(x){ h+='<button onclick="posBTuz(\''+x+'\')" style="'+KS+'">'+x+'</button>'; });
+      h+='<button onclick="posBTuz(\'del\')" style="'+KS+'">⌫</button>';
+      h+='<button onclick="posBQoshDona()" style="grid-column:span 2;min-height:46px;border-radius:11px;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">+ Qo\'shish</button>';
+      h+='<button onclick="posBTuz(\'c\')" style="'+KS+'">C</button></div>';
+    }
     h+='</div></div>';
 
-    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:9px 11px;border-top:1px solid var(--border);flex:none;">';
-    h+='<button onclick="posBChiq()" style="height:44px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Chiqish</button>';
-    h+='<button onclick="posBSavatga()"'+(_pbIch.length?'':' disabled')+' style="flex:1;height:44px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-family:inherit;'+(_pbIch.length?'':'opacity:.35;')+'">'
+    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
+    h+='<button onclick="posBChiq()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Chiqish</button>';
+    h+='<button onclick="posBSavatga()"'+(_pbIch.length?'':' disabled')+' style="flex:1;height:'+(PAST?38:44)+'px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-family:inherit;'+(_pbIch.length?'':'opacity:.35;')+'">'
       +(_pbSIdx(_pbZi)>=0?'✓ Savatda yangilab chiqish':'✓ Savatga qo\'shib chiqish')+'</button></div>';
   }
 

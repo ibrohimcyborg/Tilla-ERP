@@ -97,6 +97,21 @@ POS 1.10 TO'LOV tugmasi POS klient modalidan olib tashlandi.
          posAmal dagi 'tolov' yorlig'i tegilmadi (tugma yo'q, zarari yo'q).
          BU YERDAN BOSHLAB Tilla ERP versiyasi (APP_VER + 1-qator) QOTGAN:
          v177.9. POS ishida faqat POS_VER o'sadi - CLAUDE.md 5-bo'lim.
+POS 1.11 TELEFON GORIZONTAL - klaviatura kesilib qolardi.
+         Ibrohim rasm bilan ko'rsatdi: telefon yotiq turganda 7 8 9 / 4 5 6 dan
+         keyingisi ekrandan chiqib ketardi.
+         O'lchandi: 780x360 da modal 340px, o'ng ustun kontenti 423px -
+         SIG'MAYDI, o'ng ustun scroll bo'lib klaviatura kesilardi.
+         Yechim - window.innerHeight < 560 bo'lsa (PAST):
+           * ekrandagi klaviatura CHIQMAYDI, o'rniga izoh: "Ekran past -
+             telefon klaviaturasidan tering, Enter qo'shadi". Maydonda
+             inputmode="decimal" bor, telefon raqamli klaviaturani ochadi.
+           * sarlavha / tur chiplari / pastki panel paddingi kichrayadi,
+             pastki tugmalar 44px -> 38px, overlay paddingi 10px -> 6px
+         Natija (780x360): scroll YO'Q, hamma narsa ko'rinadi.
+         Planshet (1180x800) tegilmadi: klaviatura joyida, tugma 146x92.
+         Burilganda qayta chizish: resize + orientationchange listener
+         (60ms kechikish bilan - burilishda o'lcham darrov turg'unlashmaydi).
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 
