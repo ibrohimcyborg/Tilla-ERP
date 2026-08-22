@@ -167,7 +167,11 @@ Minus — zavod ichida `±`.
   Burilganda `resize` + `orientationchange` bilan qayta chiziladi.
   Katakchalar: `innerWidth > 900` bo'lsa qatorda **5 ta**, aks holda **4 ta**.
   ⚠ Sinovda tekshirilgan o'lchamlar: 390×844 · 780×360 · 1180×800.
-* Planshetda **sinov kutilmoqda** — push qilindi, prod v177.9.
+* ✅ **Ibrohim telefonda SINAB TASDIQLADI** (2026-08-22, POS 1.12): «bo'ldi ishladi».
+  Vertikal ham, gorizontal ham to'g'ri. Prodda POS 1.12.
+  ℹ Sinov paytida bir marta `oflayn` chiqdi — bu tarmoq uzilishi, kod bilan
+  bog'liq emas (`index.html:19126`, firebase SDK yuklanmasa shu chiqadi).
+  POS 1.11/1.12 diffida firebase/cloud kodiga 0 ta qator tegilmagan.
 
 **2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
 POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
@@ -183,7 +187,7 @@ faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
 
 ### Keyingi tartib
 1. ~~**Berish**~~ + ~~**Vozvrat**~~ → push qilindi, prod **v177.9**.
-   ⏳ **Ibrohim planshetda sinamoqda** — natija kutilmoqda.
+   ✅ **Sinaldi va tasdiqlandi** (telefon vertikal + gorizontal, 2026-08-22).
    Sinov: `tilla-erp.vercel.app` → `kassatest`/`kassatest` → `TEST_tilla_<uid>`,
    haqiqiy pulga tegmaydi.
 2. **TO'LOV — POS dan OLIB TASHLANDI** (POS 1.10, Ibrohim: «hozircha»).
