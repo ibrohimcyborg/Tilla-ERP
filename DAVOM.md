@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.18 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.20 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.18** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.20** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.18` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.20` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -167,7 +167,12 @@ Minus — zavod ichida `±`.
   | Bayroq | Shart | Nima bo'ladi |
   |---|---|---|
   | `TOR` | `innerWidth < 640` | ikki ustun **bir ustunga** tushadi (tepada katakchalar, pastda kiritish+klaviatura) |
-  | `PAST` | `innerHeight < 560` | ekran klaviaturasi **chiqmaydi** — telefonning o'zi (`inputmode="decimal"`), paddinglar kichrayadi |
+  | `PAST` | `innerHeight < 560` | klaviatura **5 ustunga** o'tadi (3 qator), tugma 38px, paddinglar kichrayadi |
+
+  ⚠ **POS 1.19–1.20:** gramm maydonida `inputmode="none"` — qurilma klaviaturasi
+  **hech qachon** ochilmaydi (Ibrohim: «son chiqishi keremas»). Maydon
+  tahrirlanadigan bo'lib qoladi, ya'ni **skaner yozaveradi**. Ekran klaviaturasi
+  endi **doim** bor (POS 1.11 dagi yashirish bekor qilindi).
 
   Telefon **vertikal** → TOR · klaviatura bor.
   Telefon **gorizontal** → PAST · klaviatura yo'q.

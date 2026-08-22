@@ -208,6 +208,22 @@ POS 1.18 QO'NG'IROQCHA - Tilla ERP test loginining top barida.
            * save() dan keyin sanagich yangilanadi (boshqa qurilmadan kelsa ham)
          Sinov: test - bor; tilla/admin/hamid/kassatest - yo'q.
          Ikki amal yozildi -> sanagich 2; bittasi ko'rildi -> 1; hammasi -> 0.
+POS 1.19 Qurilma klaviaturasi CHIQMAYDI.
+         Ibrohim rasm bilan: iPhone da gramm maydoniga bosilganda telefonning
+         raqamli klaviaturasi ochilib ekranni yopib qo'yardi.
+         inputmode="decimal" -> inputmode="none". Maydon TAHRIRLANADIGAN
+         bo'lib qoladi, ya'ni SKANER baribir yozadi (readonly qilinsa skaner
+         ham yoza olmasdi). Sinov: dasturiy yozish ishladi.
+POS 1.20 Gorizontalda klaviatura YONIDA chiqadi (avval yashirilardi).
+         Ibrohim: "gorizontal holatda yonida chiqsin, nega chiqmidi?"
+         POS 1.11 da past ekranda klaviatura YASHIRILGAN edi - 3 ustunli
+         5 qator 276px joy so'rardi, modal esa 340px.
+         Endi yashirilmaydi: PAST bo'lsa 5 USTUNGA o'tadi va 3 qatorga sig'adi
+           7 8 9 ⌫ C  /  4 5 6 . 0  /  1 2 3 [+ Qo'shish]
+         tugma balandligi 46 -> 38px, shrift 18 -> 16px.
+         "Ekran past - telefon klaviaturasidan tering" izohi olib tashlandi.
+         Sinov: 780x360 - 5 ustun, 3 qator, tugma 54x38, kesilmagan.
+                1180x800 - avvalgidek 3 ustun, 5 qator, tugma 146x92.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

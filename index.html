@@ -14718,7 +14718,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.18';
+var POS_VER = '1.20';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -15420,20 +15420,30 @@ function _pbDraw(){
       else h+='<div style="'+IN+'border:1px solid var(--border);background:var(--bg);color:var(--muted);">'+_posEsc(t.nom)+' omborda <b>'+fmtG(o)+' g</b></div>';
     }
     h+='<div style="display:flex;gap:7px;flex:none;">';
-    h+='<input id="pb-in" value="'+_posEsc(_pbKir)+'" oninput="posBKirSet(this.value)" onkeydown="if(event.key===\'Enter\')posBQoshDona()" inputmode="decimal" autocomplete="off" placeholder="'+_posEsc(t.nom)+' — gramm" style="flex:1;min-width:0;height:46px;border-radius:11px;padding:0 12px;font-size:16px;background:var(--bg);border:1px solid var(--'+C+'-bd);color:var(--text);outline:none;font-family:inherit;">';
+    h+='<input id="pb-in" value="'+_posEsc(_pbKir)+'" oninput="posBKirSet(this.value)" onkeydown="if(event.key===\'Enter\')posBQoshDona()" inputmode="none" autocomplete="off" placeholder="'+_posEsc(t.nom)+' — gramm" style="flex:1;min-width:0;height:46px;border-radius:11px;padding:0 12px;font-size:16px;background:var(--bg);border:1px solid var(--'+C+'-bd);color:var(--text);outline:none;font-family:inherit;">';
     h+='<button onclick="posBNeg()" style="width:48px;flex:none;height:46px;border-radius:11px;cursor:pointer;font-size:19px;border:1px solid '+(_pbNeg?'var(--red-bd)':'var(--border)')+';background:'+(_pbNeg?'var(--red-bg)':'var(--surf2)')+';color:'+(_pbNeg?'var(--red)':'var(--text)')+';">'+(_pbNeg?'−':'±')+'</button>';
     h+='<button onclick="posBQoshDona()" style="width:48px;flex:none;height:46px;border-radius:11px;border:0;background:var(--'+C+');color:var(--on-gold);font-size:19px;cursor:pointer;">+</button></div>';
     if(_pbNeg) h+='<div style="font-size:11px;color:var(--red);padding:0 2px;flex:none;">keyingi qo\'shilgan gramm MINUS bo\'lib tushadi</div>';
+    // POS 1.20 (Ibrohim): «gorizontal holatda yonida chiqsin, nega chiqmidi?»
+    // POS 1.11 da past ekranda klaviatura YASHIRILARDI (5 qator 276px joy
+    // so'rardi, modal esa 340px). Endi yashirilmaydi — past ekranda 5 USTUNGA
+    // o'tadi va 3 qatorga sig'adi:  7 8 9 ⌫ C / 4 5 6 . 0 / 1 2 3 [Qo'shish]
+    var KUST = PAST ? 5 : 3;
+    var KBAL = PAST ? 38 : 46;
+    var KS='min-height:'+KBAL+'px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;font-size:'+(PAST?16:18)+'px;cursor:pointer;';
+    var KEY=function(x){ return '<button onclick="posBTuz(\''+x+'\')" style="'+KS+'">'+x+'</button>'; };
+    var KDEL='<button onclick="posBTuz(\'del\')" style="'+KS+'">\u232b</button>';
+    var KC='<button onclick="posBTuz(\'c\')" style="'+KS+'">C</button>';
+    var KGO='<button onclick="posBQoshDona()" style="grid-column:span 2;min-height:'+KBAL+'px;border-radius:11px;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">+ Qo\'shish</button>';
+    h+='<div style="display:grid;grid-template-columns:repeat('+KUST+',1fr);gap:6px;flex:'+(PAST?'none':'1')+';'+(PAST?'':'min-height:290px;')+'">';
     if(PAST){
-      h+='<div style="font-size:10.5px;color:var(--muted);padding:0 2px;flex:none;">Ekran past — telefon klaviaturasidan tering, Enter qo\'shadi</div>';
+      h+=KEY(7)+KEY(8)+KEY(9)+KDEL+KC;
+      h+=KEY(4)+KEY(5)+KEY(6)+KEY('.')+KEY(0);
+      h+=KEY(1)+KEY(2)+KEY(3)+KGO;
     } else {
-      var KS='min-height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;font-size:18px;cursor:pointer;';
-      h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1;min-height:290px;">';
-      [7,8,9,4,5,6,1,2,3,'.',0].forEach(function(x){ h+='<button onclick="posBTuz(\''+x+'\')" style="'+KS+'">'+x+'</button>'; });
-      h+='<button onclick="posBTuz(\'del\')" style="'+KS+'">⌫</button>';
-      h+='<button onclick="posBQoshDona()" style="grid-column:span 2;min-height:46px;border-radius:11px;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">+ Qo\'shish</button>';
-      h+='<button onclick="posBTuz(\'c\')" style="'+KS+'">C</button></div>';
+      h+=[7,8,9,4,5,6,1,2,3,'.',0].map(KEY).join('')+KDEL+KGO+KC;
     }
+    h+='</div>';
     h+='</div></div>';
 
     h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
