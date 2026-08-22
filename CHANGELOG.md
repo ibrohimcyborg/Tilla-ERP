@@ -123,6 +123,28 @@ POS 1.12 TELEFON VERTIKAL - o'ng ustun chetdan kesilardi.
          Vertikalda balandlik yetarli, shuning uchun klaviatura QOLADI.
          Sinov: 390x844 bir ustun, klaviatura tugmasi 115px, kesilmagan,
          gorizontal scroll yo'q. 780x360 va 1180x800 tegilmadi.
+POS 1.13 Versiya belgisi berish/vozvrat oynasining TEPA SATRIDA.
+         Ibrohim: "pasda versiyani ko'rsatmayapti, shunga nima bo'layotganini
+         bilolmayapman, tepa barga chiqarsa bo'lmidimi kichkina qilib".
+         O'ng pastdagi #app-ver (z-index 99998) modal ustida turadi, lekin
+         telefonda pastda ko'rinmay qolardi. Tepa satrga kichik chip qo'shildi,
+         matn _verBelgi() (2204) dan - POS rolida "POS <ver>", boshqada APP_VER.
+POS 1.14 Berish oynasi ORQANI TO'LIQ YOPADI.
+         Ibrohim: "klientga kirib berish qilsang orqada klient layeri ko'rinib
+         qopketvotti, shu to'liq yopilishi kere".
+         Sabab: pb-ovl foni rgba(0,0,0,.8) - YARIM SHAFFOF edi, orqadagi klient
+         oynasi (pos-ovl, z-index 9000) shundan o'tib ko'rinardi.
+         Yechim: fon var(--bg) - qattiq. Qo'shimcha: berish ochilganda klient
+         oynasi display:none bo'ladi, posBYop da display:flex ga qaytariladi
+         (O'CHIRILMAYDI - chiqilganda o'sha holatiga qaytadi).
+         Sinov: fon rgb(15,15,15) shaffof emas, overlay 0,0 390x844 = butun
+         viewport, chiqilganda klient oynasi qaytdi.
+
+         OCHIQ QOLDI (Ibrohim tasdiqlamadi): status bar ostida qolish muammosi.
+         viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)
+         hamma joyda 0px -> .topbar dagi padding-top:var(--safe-top) (17-qator)
+         va boshqa safe-area himoyalari ISHLAMAYDI. Tuzatish butun ilovaga
+         tegadi (APP_VER ham o'sadi), shuning uchun Ibrohim qaroriga qoldirildi.
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 

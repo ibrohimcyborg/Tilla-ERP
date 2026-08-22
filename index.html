@@ -14699,7 +14699,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.13';
+var POS_VER = '1.14';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14974,7 +14974,10 @@ var _pbSavat=[], _pbZi=-1, _pbTi=0, _pbIch=[], _pbKir='', _pbNeg=false;
 var _pbQarzKesh=null;                       // {zavod||tur: qarz} — har ochilganda yangilanadi
 
 function _pbV(){ return _pbMode==='vozvrat'; }
-function posBYop(){ var m=document.getElementById('pb-ovl'); if(m) m.remove(); }
+function posBYop(){
+  var m=document.getElementById('pb-ovl'); if(m) m.remove();
+  var km=document.getElementById('pos-ovl'); if(km) km.style.display='flex';
+}
 function posBerishOch(){ _pbOch('berish'); }
 function posVozvratOch(){ _pbOch('vozvrat'); }
 function _pbOch(m){
@@ -14983,9 +14986,13 @@ function _pbOch(m){
   _pbQarzYangila();
   posBYop();
   var d=document.createElement('div');
-  d.innerHTML='<div id="pb-ovl" style="position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:6px;z-index:9200;">'
+  d.innerHTML='<div id="pb-ovl" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:6px;z-index:9200;">'
     +'<div id="pb-box" style="width:100%;max-width:1100px;height:100%;max-height:100%;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;"></div></div>';
   document.body.appendChild(d.firstChild);
+  // Ibrohim (2026-08-22): «orqada klient layeri ko'rinib qopketvotti, to'liq
+  // yopilishi kere». Fon qattiq qilindi + klient oynasi vaqtincha yashiriladi
+  // (o'chirilmaydi — berishdan chiqilganda o'sha holatiga qaytadi).
+  var _km=document.getElementById('pos-ovl'); if(_km) _km.style.display='none';
   _pbDraw();
 }
 // Qarz tarkibi ILOVANING o'z funksiyasidan (17468) — boshqa yo'l bilan

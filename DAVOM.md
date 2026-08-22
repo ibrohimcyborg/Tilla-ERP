@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.12 · 2026-08-22
+**Oxirgi yangilanish:** POS 1.14 · 2026-08-22
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.12** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.14** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -125,7 +125,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.12` |
+| Versiya belgisi | POS rolida `POS 1.14` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -167,6 +167,27 @@ Minus — zavod ichida `±`.
   Burilganda `resize` + `orientationchange` bilan qayta chiziladi.
   Katakchalar: `innerWidth > 900` bo'lsa qatorda **5 ta**, aks holda **4 ta**.
   ⚠ Sinovda tekshirilgan o'lchamlar: 390×844 · 780×360 · 1180×800.
+* **Berish oynasi orqani to'liq yopadi (POS 1.14):** fon `var(--bg)` — qattiq
+  (avval `rgba(0,0,0,.8)` edi, klient oynasi ko'rinib turardi). Berish
+  ochilganda `#pos-ovl` `display:none`, `posBYop` da `display:flex` ga qaytadi.
+
+### ⚠ OCHIQ MUAMMO — status bar ostida qolish (Ibrohim qarori kutilmoqda)
+
+Telefonda POS sarlavhasi (`TILLA POS`, versiya chipi, KURS pilyusi) soat va
+batareya ostida qolib ketadi.
+
+**Tashxis (o'lchandi, taxmin emas):** `index.html:6` viewport meta'da
+**`viewport-fit=cover` YO'Q** → `env(safe-area-inset-top)` hamma joyda **`0px`**
+→ `.topbar` dagi `padding-top:var(--safe-top)` ([:17](index.html)) va boshqa
+safe-area himoyalari **hech qachon ishlamaydi**. `renderPOS` sarlavhasida
+(:14812) esa safe-area umuman yo'q.
+
+**Taklif qilingan tuzatish (4 qadam):**
+`viewport-fit=cover` qo'shish · overlay paddingiga `var(--safe-top)`/`var(--safe-bot)` ·
+`renderPOS` sarlavhasiga `padding-top:var(--safe-top)` · berish ochiqda `#app-ver` ni yashirish.
+
+⚠ 1-qadam **butun ilovaga** tegadi → CLAUDE.md §5 bo'yicha `APP_VER` ham
+o'sishi kerak (`v178`). Shuning uchun **Ibrohimdan ruxsat kutilmoqda**.
 * ✅ **Ibrohim telefonda SINAB TASDIQLADI** (2026-08-22, POS 1.12): «bo'ldi ishladi».
   Vertikal ham, gorizontal ham to'g'ri. Prodda POS 1.12.
   ℹ Sinov paytida bir marta `oflayn` chiqdi — bu tarmoq uzilishi, kod bilan
