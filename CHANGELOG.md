@@ -178,6 +178,15 @@ POS 1.16 YANGI USLUB - POS ko'k palitraga o'tdi + amallar sarlavhada.
          TO'LOV hamon yo'q (POS 1.10 qarori).
          Berish/vozvrat ekrani ranglarni tokenlar orqali oldi - tuzilishga
          tegilmadi.
+POS 1.17 TEST loginidan POS tabi OLIB TASHLANDI.
+         Ibrohim: "keremas manga POS, man telimdan testkassaga kiraman, PC dan
+         test loginiga kirib qo'ng'iroqcha kelganini tekshiraman".
+         POS 1.07 da qo'shilgan blok (applyRol ichida, rol==='admin' &&
+         SANDBOX==='TEST') o'chirildi. Endi POS tabi FAQAT rol==='pos' da.
+         Sinov: test/tilla/admin/hamid - POS tabi yo'q; kassatest - bor.
+         ⚠ Bu qator applyRol ichida, ya'ni POS konteynerlaridan tashqarida.
+         O'zgarish POS tabiga tegishli bo'lgani uchun POS_VER o'stirildi;
+         APP_VER v178 da qoldirildi.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

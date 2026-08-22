@@ -2233,14 +2233,10 @@ function applyRol(){
     var _pt=document.getElementById('main-tab-pos'); if(_pt) _pt.style.display='';
     if(typeof mainTab==='function') try{ mainTab('pos'); }catch(e){}
   }
-  // POS 1.07 (Ibrohim): «test loginiga qo'shilsin, bo'masam chalkashadi».
-  // TEST xonasidagi admin (login: test) POS tabini KO'RADI — sinov uchun ikkala
-  // tomonni bitta qurilmadan tekshirish mumkin. Lekin rol-pos klassi QO'YILMAYDI:
-  // u admin, zavod va klient panellari joyida qoladi, tablar orasida yuradi.
-  // Faqat 'test' logini — haqiqiy 'tilla' ham, ADMIN xonasi ham, hamid ham EMAS.
-  if(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST'){
-    var _pt2=document.getElementById('main-tab-pos'); if(_pt2) _pt2.style.display='';
-  }
+  // POS 1.17 (Ibrohim, 2026-08-23): «keremas manga POS, man telimdan
+  // testkassaga kiraman, PC dan test loginiga kirib qo'ng'iroqcha kelganini
+  // tekshiraman». POS 1.07 da qo'shilgan blok OLIB TASHLANDI — test logini
+  // endi faqat Tilla ERP. POS uchun kassatest logini ishlatiladi.
 }
 function doLogin(){
   var u=document.getElementById('login-user').value.trim();
@@ -14713,7 +14709,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.16';
+var POS_VER = '1.17';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.16 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.17 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.16** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.17** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -104,9 +104,11 @@ mumkin). Yumshatish taklif qilingan, Ibrohim hali qaror bermagan.
 
 ## 🟢 HOZIRGI ISH — POS (planshet kassa)
 
-**Login:** `kassatest` / `kassatest` — `CREDS` (2194), `rol:'pos'`, `sandbox:'TEST'`
-**Sinov uchun:** `test` / `test7777` da ham POS tabi ko'rinadi (v177.7), lekin u
-admin bo'lib qolaveradi — ikkala tomonni bitta qurilmadan sinash uchun.
+**Login:** `kassatest` / `kassatest` — `CREDS`, `rol:'pos'`, `sandbox:'TEST'`
+
+⚠ **POS 1.17 dan (Ibrohim, 2026-08-23):** `test` loginida POS tabi **YO'Q**.
+Ish taqsimoti: **telefon → `kassatest`** (POS), **PC → `test`** (Tilla ERP,
+qo'ng'iroqchani tekshirish uchun). POS tabi endi faqat `rol==='pos'` da.
 
 ### Baza qayerdan
 
@@ -125,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.16` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.17` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
