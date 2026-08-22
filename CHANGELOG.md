@@ -55,6 +55,38 @@ v177.8   POS 1.08 - BERISH oqimi (savat). mockups/pos-berish-savat.html
          (DAVOM.md dagi to'rt savol hali javobsiz.)
          posAmal da faqat 'berish' ulandi; vozvrat/tolov/sotuv alert bo'lib
          qoldi. Yangi kod 301 qator, mavjud kodda 1 qator o'zgardi.
+v177.9   POS 1.09 - BERISH qayta yozildi + VOZVRAT qo'shildi.
+         Mockup: mockups/v177.9-pos-berish-planshet.html (tasdiqlangan).
+
+         EKRAN (Ibrohim aytgani bo'yicha, planshet GORIZONTAL turadi):
+         1) zavod kartalari -> bosiladi, ICHIGA kiriladi
+         2) ichida: tepada tur chiplari, O'NGDA gramm kiritish + klaviatura,
+            CHAPDA katakchalar (bir qatorga 5 ta; tor ekranda 4 ta), tagida JAMI
+         3) "Savatga qo'shib chiqish" -> savatga tushadi va TASHQARIGA chiqadi
+         4) boshqa zavod bosiladi -> u ham qo'shiladi
+         5) o'zgartirish: SAVAT qatorini bosish -> o'sha zavod ichiga qaytadi
+         6) minus: zavod ichida +- tugmasi, keyingi gramm manfiy tushadi
+
+         NARX OLIB TASHLANDI. Ibrohim: "klient to'lagani kelganda tilla narxi
+         oshib ketsa berishda aytilgan narxga to'g'ri kelmaydi". Faqat gramm va
+         dona. Shu sababli A/B/C kategoriya tanlovi ham bu ekrandan chiqarildi
+         (u faqat narx hisoblash uchun edi). Kurs paneli (posKursOch) tegilmadi.
+
+         VOZVRAT berish bilan bir xil ekran (teal rang). Yozuvlar
+         saqlashKlientVozvrat (13099) bilan 1:1:
+           {tip:'vozvrat',sana,soat,zavod,tur,gramm,dona}
+           t.ostatka += g · t.donaOst += dona · donaRegQosh
+           klientda qoldig'i bo'lsa {tip:'tolov',...,_kdVoz:true} ham yoziladi
+         Musbat bo'lmagan tur saqlanmaydi (admin ham faqat g>0.001 oladi) -
+         jim tushib qolmaydi, ochiq aytiladi.
+         Qarz KO'RSATKICHI _qarzTarkibRows (17468) dan - POS klient modalidagi
+         "QARZ TARKIBI" bilan bir xil raqam. Uch holat: qarz ichida / qarzdan
+         oshdi (oshgani biz qarzdor) / qarz yo'q (to'liq biz qarzdor).
+         Admin'dagi ortiqcha-confirm TAKRORLANMADI - ekranda allaqachon yozib
+         turibdi.
+
+         Berish yozuvlari v177.8 dagidek o'zgarmadi.
+         Eski POS 1.08 bloki (301 qator) yangisiga almashtirildi (353 qator).
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 

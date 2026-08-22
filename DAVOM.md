@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v177.8 / POS 1.08 · 2026-08-22
+**Oxirgi yangilanish:** v177.9 / POS 1.09 · 2026-08-22
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v177.8** (`index.html` 1-qatorida `<!-- v177.8 -->`, `APP_VER` da ham). POS o‘z versiyasi bilan yuradi: **POS 1.08** (`POS_VER`) |
-| Hajm | ~19,365 qator · ~1 MB · **~311k token** |
+| Versiya | **v177.9** (`index.html` 1-qatorida `<!-- v177.9 -->`, `APP_VER` da ham). POS o‘z versiyasi bilan yuradi: **POS 1.09** (`POS_VER`) |
+| Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v177.8 gacha push qilingan** (2026-08-22) — prod v177.8, Vercel deploy tasdiqlandi. |
+| Git | **v177.9 gacha push qilingan** (2026-08-22) — prod v177.9. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -125,8 +125,9 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.08` |
-| **BERISH oqimi** | **POS 1.08** — savat. `posBerishOch` / `_pbDraw` / `posBSaqla` (14951–15251). Mockup `pos-berish-savat.html` aynan bajarildi |
+| Versiya belgisi | POS rolida `POS 1.09` |
+| **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
+| **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
 **Qarz hisobi qayta yozilmagan** — `klientJamiQarz` (9733), `_qarzTarkib` (17057),
 `_qarzJamiRows` (16980), `klientJamiSavdo` (9779) CHAQIRILADI. Bu shart: boshqa yo'l
@@ -135,15 +136,25 @@ xato tuzatilgan).
 
 ### Yozilmagan — mockup tayyor
 
-**1. ~~Berish oqimi~~ — BAJARILDI (v177.8 / POS 1.08, 2026-08-22)**
-Mockup aynan bajarildi. Qo'shimcha qarorlar (Ibrohim, 2026-08-22):
-* **Ombor ostatkasi — OGOHLANTIRADI, to'xtatmaydi.** Admin'dagi
-  `Zavodda yetarli tilla yo'q!` bloki POS ga ko'chirilMADI. `turOst` bilan
-  solishtiriladi, qizil chiziq chiqadi, kassir baribir saqlay oladi.
-* **C ustama boshlang'ich = 2 $/g** (mockupdagidek).
-* Chek nusxasi **1 ta** — sanagich qo'shilmadi. Sana **bugungi**, tanlash yo'q.
-* Yozuv `saqlashKlientBerish` `davomEt()` bilan **aynan bir xil**.
-* Planshetda **sinov kutilmoqda** — push qilindi 2026-08-22, prod v177.8.
+**1. ~~Berish~~ + ~~Vozvrat~~ — BAJARILDI (v177.9 / POS 1.09, 2026-08-22)**
+
+Ekran (Ibrohim aytgani; planshet **gorizontal** turadi):
+zavod kartasi → ichiga kirish → tepada tur chiplari · **o'ngda** gramm+klaviatura ·
+**chapda** katakchalar (qatorda 5 ta, tor ekranda 4 ta) + JAMI →
+«Savatga qo'shib chiqish» → boshqa zavod. O'zgartirish — **savat qatorini bosib**.
+Minus — zavod ichida `±`.
+
+* **NARX YO'Q.** Ibrohim: «klient to'lagani kelganda tilla narxi oshib ketsa
+  berishda aytilgan narxga to'g'ri kelmaydi». Faqat gramm va dona.
+  Shu sababli **A/B/C ham chiqarildi** (u faqat narx uchun edi).
+  `posKursOch` kurs paneliga TEGILMADI.
+* **Ombor ostatkasi — OGOHLANTIRADI, to'xtatmaydi** (admin'dagi blok ko'chirilmadi).
+* **Vozvrat** — berish bilan **bitta kod**, `_pbMode` ajratadi. Yozuvlar
+  `saqlashKlientVozvrat` (13099) bilan **1:1**, `_kdVoz` to'lov yozuvi ham.
+  Musbat bo'lmagan tur saqlanmaydi — ochiq aytiladi.
+  Qarz ko'rsatkichi `_qarzTarkibRows` (17468) dan.
+* Chek nusxasi **1 ta**, sana **bugungi**.
+* Planshetda **sinov kutilmoqda** — push qilindi, prod v177.9.
 
 **2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
 POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
@@ -158,12 +169,14 @@ faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
 4. Admin javob bermasa — amal qancha **kutadi**? Muddat, eslatma?
 
 ### Keyingi tartib
-1. ~~**Berish** yoziladi~~ → push qilindi (2026-08-22), prod v177.8.
+1. ~~**Berish**~~ + ~~**Vozvrat**~~ → push qilindi, prod **v177.9**.
    ⏳ **Ibrohim planshetda sinamoqda** — natija kutilmoqda.
    Sinov: `tilla-erp.vercel.app` → `kassatest`/`kassatest` → `TEST_tilla_<uid>`,
-   haqiqiy pulga tegmaydi. Lokalda (`localhost:8000`) ham ishlaydi.
-2. To'rt savolga javob → **tasdiq mexanizmi**
-3. Keyin: Vozvrat · To'lov · Sotuv
+   haqiqiy pulga tegmaydi.
+2. **TO'LOV** va **SOTUV** — hali yozilmagan, mockup ham yo'q.
+   ⚠ Sotuv `k.tarix` da berishdan **farqlanmaydi** (10-bo'limdagi ochiq muammo) —
+   sotuvni yozishdan oldin shu hal qilinishi kerak, qaror Ibrohimda.
+3. To'rt savolga javob → **tasdiq mexanizmi**
 
 ### POS mockuplari
 ```
