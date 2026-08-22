@@ -48,6 +48,29 @@ Buning yagona kafolati — `DAVOM.md`. Shuning uchun:
 5. Kontekst to'layotganini sezsang — **avval `DAVOM.md` ni yangila**, keyin
    ishni davom ettir.
 
+### `/clear` tartibi (Ibrohim, 2026-08-22)
+
+Kontekst to'lib qolganda **Claude o'zi so'raydi**, Ibrohim eslatib turmaydi:
+
+1. Claude: `"Kontekst to'lib qolyapti. DAVOM.md ni yangiladim — /clear
+   qilaylikmi?"`
+2. Ibrohim: `"xop"`
+3. Ibrohim `/clear` yozadi (buni Claude o'zi bajara olmaydi — bu foydalanuvchi
+   buyrug'i), keyin bitta qator:
+   > `CLAUDE.md` va `DAVOM.md` ni o'qi. `POS <oxirgi>` dan davom etamiz.
+4. Yangi seans shu fayllardan holatni oladi va **hech narsa so'ramasdan**
+   davom etadi.
+
+⚠ **So'rashdan OLDIN `DAVOM.md` yozilgan bo'lishi shart.** So'ragandan keyin
+yozaman deb qoldirma — Ibrohim `"xop"` deb darhol tozalashi mumkin.
+
+⚠ Claude aniq foizni ko'ra olmaydi. Shuning uchun: **har versiya tugagach**
+va suhbat uzayganini sezganda — `DAVOM.md` ni yangilab, `/clear` ni taklif qil.
+Foizni Ibrohim o'z ekranida ko'radi.
+
+⚠ Ibrohim **hech qachon loyihani qaytadan tushuntirmaydi.** Agar yangi seans
+"qaysi ish?" deb so'rashga majbur bo'lsa — `DAVOM.md` kam yozilgan, ayb Claude'da.
+
 ### ⚠️ `index.html` NI TO'LIQ O'QIMA
 
 Fayl ~17 385 qator, ~1 MB, **~311k token** — kontekst oynasi 200k.
