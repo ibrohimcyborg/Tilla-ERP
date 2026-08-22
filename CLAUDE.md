@@ -214,8 +214,8 @@ Hozir ish **POS ichida** ketyapti, shuning uchun:
 | | |
 |---|---|
 | `POS_VER` | **HAR POS o'zgarishida o'sadi** — 1.09 → 1.10 → 1.11 … |
-| `APP_VER` | **QOTIB TURADI: `v177.9`** — POS ishida TEGILMAYDI |
-| `index.html` 1-qatori | **QOTIB TURADI: `<!-- v177.9 -->`** |
+| `APP_VER` | **QOTIB TURADI: `v178`** — POS ishida TEGILMAYDI |
+| `index.html` 1-qatori | **QOTIB TURADI: `<!-- v178 -->`** |
 
 - Commit sarlavhasi POS versiyasi bilan: `POS 1.10 — <qisqa mazmun>`
 - `CHANGELOG.md` yozuvi ham `POS 1.10` deb boshlanadi
@@ -225,7 +225,7 @@ Hozir ish **POS ichida** ketyapti, shuning uchun:
 
 ### Umumiy
 
-- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v177.9 -->` —
+- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v178 -->` —
   `<!DOCTYPE html>` dan **oldin**. Faqat raqam, boshqa hech narsa.
 - `APP_VER` o'zgaruvchisi shu 1-qator bilan **doim bir xil** bo'lishi shart.
 - O'zgarishlar **tafsiloti** `index.html` ichiga **YOZILMAYDI** —

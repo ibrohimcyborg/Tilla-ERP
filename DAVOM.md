@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.14 · 2026-08-22
+**Oxirgi yangilanish:** v178 / POS 1.15 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.14** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.15** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -125,7 +125,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.14` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.15` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -171,66 +171,19 @@ Minus — zavod ichida `±`.
   (avval `rgba(0,0,0,.8)` edi, klient oynasi ko'rinib turardi). Berish
   ochilganda `#pos-ovl` `display:none`, `posBYop` da `display:flex` ga qaytadi.
 
-### ⚠ OCHIQ MUAMMO — status bar ostida qolish (Ibrohim qarori kutilmoqda)
+### ✅ Status bar ostida qolish — HAL QILINDI (v178 / POS 1.15, 2026-08-23)
 
-Telefonda POS sarlavhasi (`TILLA POS`, versiya chipi, KURS pilyusi) soat va
-batareya ostida qolib ketadi.
+Ildiz sabab: `index.html:6` viewport meta'da `viewport-fit=cover` yo'q edi →
+`env(safe-area-inset-*)` hamma joyda **0px** → kodda **yozilgan** himoyalarning
+hammasi (`.topbar` :17, `.main-tabs` :21, `--safe-bot` :16/:58) **o'lik turgan**.
 
-**Tashxis (o'lchandi, taxmin emas):** `index.html:6` viewport meta'da
-**`viewport-fit=cover` YO'Q** → `env(safe-area-inset-top)` hamma joyda **`0px`**
-→ `.topbar` dagi `padding-top:var(--safe-top)` ([:17](index.html)) va boshqa
-safe-area himoyalari **hech qachon ishlamaydi**. `renderPOS` sarlavhasida
-(:14812) esa safe-area umuman yo'q.
+Qilingani: meta'ga `viewport-fit=cover` · berish oynasi paddingiga
+`var(--safe-top)`/`var(--safe-bot)` · `renderPOS` sarlavhasiga (:14812)
+`padding-top:var(--safe-top)` · berish ochiqda `#app-ver` yashiriladi ·
+`#app-ver` pastki chekkasi `calc(6px + var(--safe-bot))`.
 
-**Taklif qilingan tuzatish (4 qadam):**
-`viewport-fit=cover` qo'shish · overlay paddingiga `var(--safe-top)`/`var(--safe-bot)` ·
-`renderPOS` sarlavhasiga `padding-top:var(--safe-top)` · berish ochiqda `#app-ver` ni yashirish.
-
-⚠ 1-qadam **butun ilovaga** tegadi → CLAUDE.md §5 bo'yicha `APP_VER` ham
-o'sishi kerak (`v178`). Shuning uchun **Ibrohimdan ruxsat kutilmoqda**.
-* ✅ **Ibrohim telefonda SINAB TASDIQLADI** (2026-08-22, POS 1.12): «bo'ldi ishladi».
-  Vertikal ham, gorizontal ham to'g'ri. Prodda POS 1.12.
-  ℹ Sinov paytida bir marta `oflayn` chiqdi — bu tarmoq uzilishi, kod bilan
-  bog'liq emas (`index.html:19126`, firebase SDK yuklanmasa shu chiqadi).
-  POS 1.11/1.12 diffida firebase/cloud kodiga 0 ta qator tegilmagan.
-
-**2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
-POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
-`skReconcile` (6378) solishtiradi → MOS yoki FARQ (qaysi dona kam/ortiq) → qabul/rad.
-Yo'l mavjud: Zavod ERP shunday yuboradi, `zavodAmallarListen` (18970) qabul qiladi —
-faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
-
-⚠ **TO'RT SAVOL JAVOBSIZ — kod yozishdan oldin kerak:**
-1. POS amali **darhol** `k.tarix` ga tushadimi, yoki faqat tasdiqdan keyinmi?
-2. **Farq chiqsa** — rad · admin tuzatib qabul qiladi · yoki farq bilan qabul?
-3. **Kim tekshiradi** — faqat ASOSIY qurilmami? Ikkitasi bir vaqtda tasdiqlasa?
-4. Admin javob bermasa — amal qancha **kutadi**? Muddat, eslatma?
-
-### Keyingi tartib
-1. ~~**Berish**~~ + ~~**Vozvrat**~~ → push qilindi, prod **v177.9**.
-   ✅ **Sinaldi va tasdiqlandi** (telefon vertikal + gorizontal, 2026-08-22).
-   Sinov: `tilla-erp.vercel.app` → `kassatest`/`kassatest` → `TEST_tilla_<uid>`,
-   haqiqiy pulga tegmaydi.
-2. **TO'LOV — POS dan OLIB TASHLANDI** (POS 1.10, Ibrohim: «hozircha»).
-   Sabab: `saqlashKlientTolov` (14162) og'ir — har tur uchun kurs, skidka,
-   offset, lom, naqt/karta/perech bo'linishi, sdacha, biz-qarzdor yopish
-   (`_kdYopish`, `_bizQarzYopildi`) va to'lov ichida vozvrat.
-   **Javobsiz savol:** POS to'lovi qanchalik to'liq bo'lsin — sodda (naqt+kurs) /
-   naqt+karta+perech / admin'dagidek to'liq? Qaytilganda shu hal qilinadi.
-3. **SOTUV** — hali yozilmagan, mockup ham yo'q.
-   ⚠ Sotuv `k.tarix` da berishdan **farqlanmaydi** (10-bo'limdagi ochiq muammo) —
-   sotuvni yozishdan oldin shu hal qilinishi kerak, qaror Ibrohimda.
-3. To'rt savolga javob → **tasdiq mexanizmi**
-
-### POS mockuplari
-```
-pos-berish-savat.html   berish savati — TASDIQLANGAN, yozilishi kerak
-pos-tasdiq.html         qo'ng'iroqcha va ikki tomonlama tekshiruv
-pos-kurs-panel.html     kurs paneli (yozilgan, POS 1.02)
-v177-pos-chernovik.html login + klient bazasi (Ibrohim maketi asosida)
-v177-pos-kassa.html     Ibrohimning asl maketi
-pos-savat.html          savat: 1-variant vs 2-variant (savat tanlandi)
-```
+⚠ Bu POS'dan **tashqariga** chiqdi (Ibrohim ruxsati bilan) → `APP_VER`
+`v177.9` → **`v178`**. CLAUDE.md §5 dagi qotgan raqam ham yangilandi.
 
 ---
 

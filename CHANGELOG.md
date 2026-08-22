@@ -140,7 +140,29 @@ POS 1.14 Berish oynasi ORQANI TO'LIQ YOPADI.
          Sinov: fon rgb(15,15,15) shaffof emas, overlay 0,0 390x844 = butun
          viewport, chiqilganda klient oynasi qaytdi.
 
-         OCHIQ QOLDI (Ibrohim tasdiqlamadi): status bar ostida qolish muammosi.
+v178 / POS 1.15  SAFE-AREA YOQILDI - status bar ostida qolish tuzatildi.
+         Ibrohim ruxsati bilan (POS dan TASHQARIGA chiqdi -> APP_VER ham o'sdi:
+         v177.9 -> v178. CLAUDE.md 5-bo'limidagi qotgan raqam ham yangilandi).
+         Ildiz sabab: viewport meta da viewport-fit=cover YO'Q edi ->
+         env(safe-area-inset-*) hamma joyda 0px -> kodda YOZILGAN himoyalarning
+         hammasi o'lik turgan (.topbar padding-top:var(--safe-top) 17-qator,
+         .main-tabs top 21-qator, --safe-bot 16/58-qator).
+         Besh o'zgarish:
+           1) meta viewport ga viewport-fit=cover
+           2) berish oynasi paddingi -> calc(6px + var(--safe-top)) / --safe-bot
+           3) renderPOS sarlavhasi (14812) -> padding-top:var(--safe-top)
+           4) berish ochiqda #app-ver yashiriladi (versiya endi tepa satrda),
+              chiqilganda qaytariladi
+           5) #app-ver bottom -> calc(6px + var(--safe-bot)) - viewport-fit
+              yoqilgach home indikatori ostiga tushib qolmasin
+         Sinov (sun'iy notch --safe-top:47px --safe-bot:34px bilan):
+           POS sarlavha padding-top 0 -> 47px
+           .topbar padding-top 0 -> 47px, balandlik 54 -> 101px
+           app-ver bottom 6 -> 40px
+           overlay padding 6px -> 53px 6px 40px
+         Notch yo'q qurilmada hammasi avvalgidek (0px).
+
+         AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)
          hamma joyda 0px -> .topbar dagi padding-top:var(--safe-top) (17-qator)
          va boshqa safe-area himoyalari ISHLAMAYDI. Tuzatish butun ilovaga
