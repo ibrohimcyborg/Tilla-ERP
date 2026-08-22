@@ -1,4 +1,4 @@
-<!-- v177.9 TAKLIF — POS berish: zavodga kirish + ichida chap/o'ng. MOCKUP (ilova kodi emas) -->
+<!-- v177.9 TAKLIF — POS berish: zavodga kirish + katakchali ro'yxat. MOCKUP (ilova kodi emas) -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -106,26 +106,37 @@ h1 em{font-style:normal;color:var(--gold)}
 .tchip small{display:block;font-family:'Roboto',sans-serif;font-size:10px;font-weight:400;color:var(--muted)}
 
 .cols{display:flex;min-height:0;flex:1}
-.left{width:44%;min-width:196px;max-width:330px;border-right:1px solid var(--border);
+/* Gorizontal planshet: chap ustun o'sadi, o'ng ustun (klaviatura) cheklanadi —
+   aks holda tugmalar 200px+ bo'lib ketadi va pastda bo'sh joy qoladi. */
+.left{flex:1;min-width:296px;border-right:1px solid var(--border);
   display:flex;flex-direction:column;min-height:0;background:var(--bg)}
-.right{flex:1;display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px;overflow-y:auto}
+.right{width:44%;min-width:286px;max-width:470px;flex:none;
+  display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px;overflow-y:auto}
 @media(max-width:520px){.cols{flex-direction:column}
   .left{width:auto;max-width:none;border-right:0;border-bottom:1px solid var(--border);max-height:200px}}
 
-.llist{flex:1;overflow-y:auto;padding:9px 11px}
-.lrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px}
-.lrow.neg{color:var(--red)}
-.lrow .i{width:15px;flex:none;color:var(--muted);font-size:9.5px}
-.lrow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lrow .g{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;min-width:52px}
-.lrow .p{color:var(--green);font-size:11px;font-variant-numeric:tabular-nums;text-align:right;min-width:56px}
-.lrow.neg .p{color:var(--red)}
-.lrow .x{width:20px;height:20px;flex:none;border-radius:6px;border:1px solid var(--border);
-  background:var(--surf);color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:10px}
-.lhead{display:flex;gap:8px;padding:0 11px 6px;font-family:'Outfit',sans-serif;
-  font-size:9px;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:2px}
-.lhead .t{flex:1}.lhead .g{min-width:52px;text-align:right}.lhead .p{min-width:56px;text-align:right}
-.lhead .i{width:15px}.lhead .x{width:20px}
+/* Katakchalar — HAR DOIM BIR XIL o'lcham, bir qatorga 4–5 ta.
+   Ustida gramm, tagida puli, burchagida ✕ (Ibrohim, 2026-08-22). */
+.llist{flex:1;overflow-y:auto;padding:11px}
+.lsec + .lsec{margin-top:13px}
+.lsech{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding-bottom:6px;margin-bottom:9px;border-bottom:1px solid var(--border)}
+.lsech .t{font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:600;color:var(--gold)}
+.lsech .g{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Qator HAR DOIM to'la: gorizontal planshetda 5 ta, tor ekranda 4 ta. */
+.cells{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:900px){.cells{grid-template-columns:repeat(4,1fr)}}
+.cell{position:relative;border:1px solid var(--border);background:var(--surf);border-radius:11px;
+  padding:8px 3px 7px;text-align:center;min-height:50px;
+  display:flex;flex-direction:column;justify-content:center;gap:1px}
+.cell .g{font-size:14.5px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.cell .p{font-size:9.5px;color:var(--green);line-height:1.15;font-variant-numeric:tabular-nums}
+.cell.neg{border-color:var(--red-bd);background:var(--red-bg)}
+.cell.neg .g{color:var(--red)} .cell.neg .p{color:var(--red)}
+.cell .x{position:absolute;top:-7px;right:-7px;width:21px;height:21px;border-radius:7px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);
+  display:grid;place-items:center;cursor:pointer;font-size:10px;line-height:1}
+.cell .x:hover{border-color:var(--red-bd);background:var(--red-bg);color:var(--red)}
 .ljami{border-top:1px solid var(--border);padding:10px 11px;flex:none;display:flex;
   justify-content:space-between;align-items:baseline;gap:8px;background:var(--surf2)}
 .ljami .l{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
@@ -140,9 +151,9 @@ h1 em{font-style:normal;color:var(--gold)}
 .inrow button.add{border:0;background:var(--gold);color:var(--on-gold)}
 .inrow button.neg.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
 .negnote{font-size:11px;color:var(--red);padding:0 2px;flex:none}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:none}
-.pad button{height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);
-  color:var(--text);font-family:'Outfit',sans-serif;font-size:17px;cursor:pointer}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1;min-height:290px}
+.pad button{min-height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--text);font-family:'Outfit',sans-serif;font-size:18px;cursor:pointer}
 .pad button:active{background:var(--border)}
 .pad button.wide{grid-column:span 2;background:var(--gold);border-color:var(--gold);
   color:var(--on-gold);font-weight:600;font-size:14px}
@@ -339,15 +350,21 @@ function draw(){
     var J=ichJami();
     h+='<div class="left"><div class="llist">';
     if(ich.length){
-      h+='<div class="lhead"><span class="i"></span><span class="t">NIMA</span>'
-        +'<span class="g">GRAMM</span><span class="p">PUL</span><span class="x"></span></div>';
-      ich.forEach(function(d,i){
-        var p=narx(zi,d.ti);
-        h+='<div class="lrow'+(d.g<0?' neg':'')+'"><span class="i">'+(i+1)+'</span>'
-          +'<span class="t">'+esc(ZAV[zi].t[d.ti][0])+'</span>'
-          +'<span class="g">'+fg(d.g)+'</span>'
-          +'<span class="p">$'+fd(d.g*p)+'</span>'
-          +'<span class="x" onclick="ichOchir('+i+')">✕</span></div>';
+      // Tur bo'yicha bo'linadi — nomi sarlavhada, katakchada faqat gramm va puli.
+      var korilgan=[];
+      ich.forEach(function(d){ if(korilgan.indexOf(d.ti)<0) korilgan.push(d.ti); });
+      korilgan.forEach(function(tj){
+        var tg=0; ich.forEach(function(d){ if(d.ti===tj) tg+=d.g; });
+        h+='<div class="lsec"><div class="lsech"><span class="t">'+esc(ZAV[zi].t[tj][0])+'</span>'
+          +'<span class="g">'+fg(Math.round(tg*100)/100)+' g</span></div><div class="cells">';
+        ich.forEach(function(d,i){
+          if(d.ti!==tj) return;
+          h+='<div class="cell'+(d.g<0?' neg':'')+'">'
+            +'<span class="g">'+fg(d.g)+'</span>'
+            +'<span class="p">$'+fd(d.g*narx(zi,d.ti))+'</span>'
+            +'<span class="x" onclick="ichOchir('+i+')">✕</span></div>';
+        });
+        h+='</div></div>';
       });
     } else h+='<div class="empty">O‘ngdan gramm qo‘shing —<br>shu yerga tushadi</div>';
     h+='</div>';
