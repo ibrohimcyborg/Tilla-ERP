@@ -224,6 +224,23 @@ POS 1.20 Gorizontalda klaviatura YONIDA chiqadi (avval yashirilardi).
          "Ekran past - telefon klaviaturasidan tering" izohi olib tashlandi.
          Sinov: 780x360 - 5 ustun, 3 qator, tugma 54x38, kesilmagan.
                 1180x800 - avvalgidek 3 ustun, 5 qator, tugma 146x92.
+POS 1.21 BUTUN POS SAHIFASI ko'k + klient oynasi orqani to'liq yopadi.
+         Ibrohim: "POS sahifasi umuman bunaqa ishlamasin qora oq, shunaqa
+         bo'sin, orqa layeram qopketmasin, verticalliyam to'g'irlab qo'yib".
+         1) Palitra selektoriga `body.rol-pos` qo'shildi. topbar, main-tabs,
+            logo va sahifa foni allaqachon tokenlar bilan ishlagani uchun
+            BUTUN POS logini bir zarbda ko'k bo'ldi.
+            Sinov: POS - fon #030F2C, topbar rgb(10,24,56), logo ko'k.
+                   admin - #0f0f0f, gold #c9a84c (O'ZGARMAGAN).
+            body.rol-pos #app-ver ham POS palitrasiga o'tdi.
+         2) Klient oynasi foni rgba(0,0,0,.75) -> var(--bg): endi QATTIQ,
+            orqadagi POS ro'yxati ko'rinmaydi. Balandligi 100%, paddingda
+            safe-area. (Berishda bu POS 1.14 da qilingan edi.)
+         3) VERTIKAL: sarlavhaga .pos-hd / .pos-pills klasslari qo'shildi,
+            @media(max-width:700px) da amal pillari O'Z QATORIGA tushadi va
+            teng bo'linadi. Avval avatar+ism bilan bir qatorda siqilardi.
+            Sinov 390x844: pillar alohida qatorda, eni 112px, chetdan
+            chiqmagan, gorizontal scroll yo'q.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

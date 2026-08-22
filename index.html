@@ -264,7 +264,7 @@ body.rol-zavod #main-klient { display: none !important; }
    zavod·tur·narx o'shandan olinadi. */
 /* POS 1.16 — POS palitrasi (Ibrohim tanlagan: #030F2C / #5183FF / #5F84DF / #93B2FF).
    FAQAT POS konteynerlari ichida amal qiladi. */
-#main-pos, #pos-ovl, #pb-ovl{
+body.rol-pos, #main-pos, #pos-ovl, #pb-ovl{
   --bg:#030F2C; --surf:#0A1838; --surf2:#122448; --border:#1B2C55;
   --text:#FFFFFF; --muted:#7E92C4;
   --gold:#5183FF; --gold2:#93B2FF;
@@ -275,6 +275,16 @@ body.rol-zavod #main-klient { display: none !important; }
   --teal:#5F84DF; --teal-bg:rgba(95,132,223,.14); --teal-bd:#2A3F73;
   --blue:#93B2FF; --blue-bg:rgba(147,178,255,.13); --blue-bd:#2A3F73;
   color:var(--text);
+}
+/* POS 1.21: o'ng pastdagi versiya belgisi ham POS palitrasida */
+body.rol-pos #app-ver{ background:rgba(81,131,255,.55); }
+/* POS 1.21: klient oynasi sarlavhasi — tor ekranda amal pillari o'z qatoriga
+   tushadi (avval avatar/ism bilan bir qatorda siqilib qolardi). */
+#pos-ovl .pos-hd{display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
+#pos-ovl .pos-pills{display:flex;gap:5px;flex:none;}
+@media(max-width:700px){
+  #pos-ovl .pos-pills{order:3;flex:1 1 100%;}
+  #pos-ovl .pos-pills button{flex:1;justify-content:center;padding-left:8px;padding-right:8px;}
 }
 body.rol-pos #main-tab-zavod,
 body.rol-pos #main-tab-klient,
@@ -14718,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.20';
+var POS_VER = '1.21';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14975,7 +14985,7 @@ function posBellOch(){
 function _posAmalPill(){
   var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
   var a=[['berish','&#8593;','BERISH'],['vozvrat','&#8617;','VOZVRAT'],['sotuv','&#10003;','SOTUV']];
-  var h='<div style="display:flex;gap:5px;flex:none;">';
+  var h='<div class="pos-pills">';
   a.forEach(function(x){
     h+='<button onclick="posAmal(\''+x[0]+'\')" style="display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-family:inherit;background:'+G+';color:#fff;box-shadow:0 6px 18px rgba(81,131,255,.32);">';
     h+='<span style="font-size:14px;line-height:1;">'+x[1]+'</span>';
@@ -14992,10 +15002,10 @@ function _posModal(){
   var _t=null, rows=[], jr={ostatka:0,bizQarz:0};
   try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
   var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
-  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
-  h+='<div style="width:100%;max-width:720px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:20px;">';
+  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bot));z-index:9000;">';
+  h+='<div style="width:100%;max-width:720px;height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:20px;">';
   // POS 1.16: amallar pastdan SARLAVHAGA — klient nomi yoniga pill bo'lib chiqdi.
-  h+='<div style="padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-wrap:wrap;">';
+  h+='<div class="pos-hd" style="padding:12px 15px;border-bottom:1px solid var(--border);">';
   h+='<div style="width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#fff;font-weight:600;font-size:17px;">'+_posEsc(_posBosh(k.nom))+'</div>';
   h+='<div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
   h+=_posAmalPill();
