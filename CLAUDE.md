@@ -15,6 +15,39 @@ Prod: tilla-erp.vercel.app
    solishtir. Mos kelmasa Ibrohimga ayt, o'zing tuzatma.
 3. **`CHANGELOG.md` ni O'QIMA.** U faqat arxiv — yozasan, o'qimaysan.
 
+---
+
+## 0.1. UZLUKSIZLIK — kontekst to'lsa ish TO'XTAMASIN
+
+Ibrohim ko'pincha **telefondan** ishlaydi: mockupni telefonda ko'radi,
+`"o'zgartir"` yoki `"yoz, push qil"` deydi. Kod PC dagi seansda yoziladi.
+Seans uzilishi, kontekst to'lishi yoki `/clear` bo'lishi mumkin — shunda
+**yangi seans hech narsa so'ramasdan davom eta olishi shart**.
+
+Buning yagona kafolati — `DAVOM.md`. Shuning uchun:
+
+1. **`DAVOM.md` HAR versiyadan keyin DARHOL yangilanadi** — seans oxirini
+   kutmaydi. Kod yozildi → commit → `DAVOM.md`. Uchtasi bitta ish.
+2. **Yarim qolgan ish** `DAVOM.md` ga shunday yoziladi:
+   ```
+   ⏳ YARIM QOLDI — <nima>
+   Qilingan:  <aniq nima tushdi> — <fayl>:<qator>
+   Qolgan:    <aniq nima qolgan>
+   Keyingi qadam: <bitta jumla>
+   Javobsiz savol: <bor bo'lsa>
+   ```
+   Hech qachon `"davom etyapman"` deb qoldirma — keyingi seans o'qiydi.
+3. **Mockup DOIM Artifact qilib chiqariladi** — Ibrohim telefonda ochadi.
+   Faqat `mockups/` ga yozib qo'yish yetmaydi, telefonda ochilmaydi.
+   Havolani javobda ber.
+4. Yangi seans birinchi xabari doim shu bo'ladi:
+   > `CLAUDE.md` va `DAVOM.md` ni o'qi. `POS <oxirgi>` dan davom etamiz.
+
+   Boshqa hech narsa kerak bo'lmasligi kerak. Kerak bo'lsa — `DAVOM.md`
+   kam yozilgan, tuzat.
+5. Kontekst to'layotganini sezsang — **avval `DAVOM.md` ni yangila**, keyin
+   ishni davom ettir.
+
 ### ⚠️ `index.html` NI TO'LIQ O'QIMA
 
 Fayl ~17 385 qator, ~1 MB, **~311k token** — kontekst oynasi 200k.
@@ -148,9 +181,30 @@ qolib ketdi. Ibrohim topdi, Claude emas.
 
 ## 5. VERSIYA VA CHANGELOG
 
-- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v171.7 -->` —
+### ⚠️ HOZIR POS DAVRI — faqat `POS_VER` o'sadi
+
+Ibrohim (2026-08-22): *"pos sistemada v o'zgarsin chunki biza hozi POS
+sistemada ishlavommiz, Tilla ERP da tursin v oxirida."*
+
+Hozir ish **POS ichida** ketyapti, shuning uchun:
+
+| | |
+|---|---|
+| `POS_VER` | **HAR POS o'zgarishida o'sadi** — 1.09 → 1.10 → 1.11 … |
+| `APP_VER` | **QOTIB TURADI: `v177.9`** — POS ishida TEGILMAYDI |
+| `index.html` 1-qatori | **QOTIB TURADI: `<!-- v177.9 -->`** |
+
+- Commit sarlavhasi POS versiyasi bilan: `POS 1.10 — <qisqa mazmun>`
+- `CHANGELOG.md` yozuvi ham `POS 1.10` deb boshlanadi
+- **Istisno:** o'zgarish POS dan TASHQARIDA bo'lsa (admin ekranlari, kassa,
+  hisobot, chek dvigateli) — o'shanda `APP_VER` va 1-qator o'sadi, `POS_VER`
+  tegilmaydi. Ikkalasiga ham tegadigan o'zgarish bo'lsa — **Ibrohimdan so'ra**.
+
+### Umumiy
+
+- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v177.9 -->` —
   `<!DOCTYPE html>` dan **oldin**. Faqat raqam, boshqa hech narsa.
-- `APP_VER` o'zgaruvchisi ham shu versiyaga o'zgartiriladi.
+- `APP_VER` o'zgaruvchisi shu 1-qator bilan **doim bir xil** bo'lishi shart.
 - O'zgarishlar **tafsiloti** `index.html` ichiga **YOZILMAYDI** —
   adashtiradi. Faqat `CHANGELOG.md` ga.
 

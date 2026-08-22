@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v177.9 / POS 1.09 · 2026-08-22
+**Oxirgi yangilanish:** POS 1.09 · 2026-08-22
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **v177.9** (`index.html` 1-qatorida `<!-- v177.9 -->`, `APP_VER` da ham). POS o‘z versiyasi bilan yuradi: **POS 1.09** (`POS_VER`) |
+| Versiya | **POS 1.09** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v177.9` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -906,10 +906,33 @@ cd Tilla-ERP
 claude
 ```
 
-Keyin:
-> CLAUDE.md va DAVOM.md ni o'qi. v171.7 dan davom etamiz.
+Birinchi xabar — doim shu:
+> CLAUDE.md va DAVOM.md ni o'qi. POS 1.09 dan davom etamiz.
 
-Keyingi safar shu ishni davom ettirish uchun — `claude -c`.
+Boshqa hech narsa tushuntirilmasligi kerak. Kerak bo'lsa — bu fayl kam
+yozilgan, tuzatilsin (CLAUDE.md §0.1).
 
 **Har versiyadan keyin:** `/clear` qiling va yangi seans boshlang.
 Uzun seans tokenni ko'p yeydi (har so'rovda butun suhbat qayta yuboriladi).
+
+---
+
+## Ish tartibi — Ibrohim telefonda, Claude PC da
+
+Ibrohim ko'chada bo'lganda PC yoniq qoladi va ish shunday ketadi:
+
+| Kim | Nima qiladi |
+|---|---|
+| **Claude (PC)** | mockup yozadi → **Artifact qilib chiqaradi** → havolani beradi |
+| **Ibrohim (telefon)** | havolani ochadi, ko'radi — `"o'zgartir"` yoki `"yoz, push qil"` |
+| **Claude (PC)** | kodni yozadi, sinaydi, commit + **push** qiladi |
+| **Ibrohim (telefon)** | `tilla-erp.vercel.app` → `kassatest`/`kassatest` da sinaydi |
+
+⚠ **Mockupni faqat `mockups/` ga yozib qo'yish YETMAYDI** — telefonda
+ochilmaydi. Har mockup **Artifact** qilib chiqarilsin va havolasi berilsin.
+
+⚠ **Chek** sinovi uchun PC da `print_server.py` ishlab turishi kerak —
+chek planshetdan cloud navbatga ketadi, uni PC printerga beradi.
+
+⚠ Telefondan **PC dagi seansga to'g'ridan yozib bo'lmaydi** (masofaviy
+ulanish yoqilmagan). Seans uzilsa — yangi seans shu faylni o'qib davom etadi.
