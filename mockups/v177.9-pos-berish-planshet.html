@@ -1,4 +1,4 @@
-<!-- v177.9 TAKLIF — POS berish planshet ikki ustun. MOCKUP (ilova kodi emas) -->
+<!-- v177.9 TAKLIF — POS berish: chapda ro'yxat, o'ngda hisob. MOCKUP (ilova kodi emas) -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -11,16 +11,14 @@
 </head>
 <body>
 <style>
-/* Tilla ERP ning O'Z tokenlari — index.html 12/13-qatordan olindi.
-   Yorug' = asosiy (Ibrohimning planshetida shu), qorong'i = media/stamp bilan. */
+/* Tilla ERP ning O'Z tokenlari — index.html 12/13-qatordan. */
 :root{
   --bg:#f5f4f0; --surf:#ffffff; --surf2:#f0efe9; --border:#e0ddd4;
   --text:#1a1a1a; --muted:#999; --gold:#a07830; --gold2:#b89040;
   --red:#c84545; --red-bg:#f5caca; --red-bd:#d97878;
   --green:#2e8f56; --green-bg:#c8edcf; --green-bd:#6cbd82;
   --blue:#2e7cb0; --blue-bg:#c8dff0; --blue-bd:#6aafd6;
-  --gold-bg:#f0d99a; --gold-bd:#c8a030; --on-gold:#fff8e6;
-  --ink:#6b6558;
+  --gold-bg:#f0d99a; --gold-bd:#c8a030; --on-gold:#fff8e6; --ink:#6b6558;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -29,8 +27,7 @@
     --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
     --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
     --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
-    --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
-    --ink:#b8b1a5;
+    --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200; --ink:#b8b1a5;
   }
 }
 :root[data-theme="dark"]{
@@ -39,347 +36,154 @@
   --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
   --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
   --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
-  --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
-  --ink:#b8b1a5;
+  --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200; --ink:#b8b1a5;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--text);
-  font-family:'Roboto',system-ui,sans-serif;padding:26px 18px 70px;line-height:1.55}
-.wrap{max-width:1140px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
-
-h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:26px;margin:0;text-wrap:balance}
+  font-family:'Roboto',system-ui,sans-serif;padding:14px 12px 40px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;margin:0;text-wrap:balance}
 h1 em{font-style:normal;color:var(--gold)}
-.sub{margin:0;color:var(--ink);font-size:14px;max-width:66ch}
-h2{font-family:'Outfit',sans-serif;font-weight:600;font-size:11px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.sub{margin:0;color:var(--ink);font-size:12.5px}
 
-.card{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:18px 20px}
-.card p{margin:0 0 10px;font-size:13.5px;color:var(--ink)}
-.card p:last-child{margin-bottom:0}
-.card b{color:var(--text)}
-code{background:var(--surf2);border:1px solid var(--border);border-radius:5px;
-  padding:1px 5px;font-size:12px;font-family:'Roboto Mono',ui-monospace,monospace;color:var(--text)}
-
-/* tashxis */
-.diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:12px}
-.d{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--red);
-  border-radius:12px;padding:13px 15px}
-.d h3{font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:600;margin:0 0 5px;color:var(--red)}
-.d p{margin:0;font-size:12.5px;color:var(--ink)}
-
-/* hozirgi vs taklif */
-.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:860px){.vs{grid-template-columns:1fr}}
-.pane{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.pane>.tag{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.12em;font-weight:600;
-  padding:9px 14px;border-bottom:1px solid var(--border)}
-.tag.now{background:var(--red-bg);color:var(--red)}
-.tag.new{background:var(--green-bg);color:var(--green)}
-.pane .body{padding:14px}
-
-/* sxema chizmalari */
-.sk{font-family:'Outfit',sans-serif;font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
-.sk .row{display:flex;gap:5px}
-.sk .b{border:1px dashed var(--border);border-radius:7px;padding:9px 7px;text-align:center;background:var(--surf2)}
-.sk .b.hi{border-style:solid;border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold)}
-.sk .b.g{border-style:solid;border-color:var(--green-bd);background:var(--green-bg);color:var(--green)}
-.sk .cut{border-color:var(--red-bd);background:var(--red-bg);color:var(--red)}
-
-/* ── PROTOTIP ───────────────────────────── */
-.proto{background:var(--surf);border:1px solid var(--border);border-radius:16px;
-  overflow:hidden;display:flex;flex-direction:column;height:600px}
-.ph{display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--border);flex:none}
-.ph .ic{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--border);
-  background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;display:grid;place-items:center}
-.ph .t{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;color:var(--gold)}
-.ph .kl{font-size:12px;color:var(--muted);margin-left:2px}
-.ph .sp{flex:1}
-.kb{padding:6px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surf2);
-  color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600}
+.proto{background:var(--surf);border:1px solid var(--border);border-radius:15px;
+  overflow:hidden;display:flex;flex-direction:column;height:640px}
+.ph{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--border);flex:none}
+.ph .ic{width:32px;height:32px;flex:none;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;display:grid;place-items:center}
+.ph .t{font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;color:var(--gold);white-space:nowrap}
+.ph .kl{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ph .sp{flex:1;min-width:4px}
+.kb{padding:5px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600}
 .kb.on{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
 
+/* ⚠ Ikki ustun 520px gacha SAQLANADI — planshetda ustma-ust tushmasin. */
 .cols{display:flex;min-height:0;flex:1}
-.left{width:36%;min-width:230px;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
-.right{flex:1;display:flex;flex-direction:column;min-height:0;padding:13px;gap:10px;overflow-y:auto}
-@media(max-width:760px){.cols{flex-direction:column}.left{width:auto;border-right:0;border-bottom:1px solid var(--border)}}
+.left{width:35%;min-width:186px;max-width:290px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;min-height:0}
+.right{flex:1;display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px;overflow-y:auto}
+@media(max-width:520px){.cols{flex-direction:column}
+  .left{width:auto;max-width:none;border-right:0;border-bottom:1px solid var(--border)}}
 
-.tree{overflow-y:auto;flex:1;padding:8px}
-.zrow{display:flex;align-items:center;gap:8px;padding:10px 11px;border-radius:10px;cursor:pointer;
-  font-family:'Outfit',sans-serif;font-size:14.5px;font-weight:500}
+.tree{overflow-y:auto;flex:1;padding:6px}
+.zrow{display:flex;align-items:center;gap:7px;padding:9px 9px;border-radius:9px;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:500}
 .zrow:hover{background:var(--surf2)}
-.zrow .ar{color:var(--muted);font-size:10px;width:11px}
-.zrow .cnt{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;
+.zrow .ar{color:var(--muted);font-size:9px;width:9px;flex:none}
+.zrow .cnt{margin-left:auto;font-size:9.5px;font-weight:600;padding:1px 7px;border-radius:999px;
   background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
-.trow{display:flex;align-items:center;gap:8px;padding:9px 11px 9px 30px;border-radius:10px;cursor:pointer;font-size:13.5px}
+.trow{display:flex;align-items:center;gap:6px;padding:8px 9px 8px 25px;border-radius:9px;
+  cursor:pointer;font-size:12.5px}
 .trow:hover{background:var(--surf2)}
 .trow.sel{background:var(--gold-bg);border:1px solid var(--gold-bd)}
-.trow .p{margin-left:auto;font-family:'Roboto',sans-serif;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.trow .ok{color:var(--green);font-size:12px}
+.trow .p{margin-left:auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.trow .ok{color:var(--green);font-size:11px}
 
-.savat{border-top:1px solid var(--border);background:var(--bg);flex:none;max-height:200px;display:flex;flex-direction:column}
-.savat .sh{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;flex:none}
-.savat .sh span:first-child{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.11em;color:var(--muted)}
-.savat .sl{overflow-y:auto;padding:0 13px}
-.srow{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:12.5px;border-top:1px solid var(--border)}
+.savat{border-top:1px solid var(--border);background:var(--bg);flex:none;
+  max-height:186px;display:flex;flex-direction:column}
+.savat .sh{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;flex:none}
+.savat .sh span:first-child{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
+.savat .sl{overflow-y:auto;padding:0 11px}
+.srow{display:flex;align-items:center;gap:7px;padding:6px 0;font-size:12px;border-top:1px solid var(--border)}
 .srow .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.srow .g{font-family:'Roboto',sans-serif;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
-.srow .x{width:21px;height:21px;border-radius:6px;border:1px solid var(--border);color:var(--muted);
-  display:grid;place-items:center;cursor:pointer;font-size:11px}
-.sj{display:flex;justify-content:space-between;align-items:baseline;padding:9px 13px;
-  border-top:1px solid var(--border);flex:none}
-.sj .l{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.11em;color:var(--muted)}
-.sj .v{font-family:'Roboto',sans-serif;font-weight:700;font-size:17px;color:var(--green);font-variant-numeric:tabular-nums}
-.sj .d{font-size:11.5px;color:var(--muted)}
+.srow .g{font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.srow .x{width:20px;height:20px;flex:none;border-radius:6px;border:1px solid var(--border);
+  color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:10px}
+.sj{display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  padding:8px 11px;border-top:1px solid var(--border);flex:none}
+.sj .l{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
+.sj .v{font-weight:700;font-size:16px;color:var(--green);font-variant-numeric:tabular-nums}
+.sj .d{font-size:11px;color:var(--muted)}
 
-.head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;
-  border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);flex:none}
-.head .l{font-family:'Outfit',sans-serif;font-size:10.5px;letter-spacing:.09em;color:var(--gold)}
-.head .d{font-size:11.5px;color:var(--muted)}
-.head .v{font-family:'Roboto',sans-serif;font-size:23px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
-.inrow{display:flex;gap:8px;flex:none}
-.inrow input{flex:1;height:48px;border-radius:11px;padding:0 14px;font-size:17px;background:var(--bg);
-  border:1px solid var(--gold-bd);color:var(--text);outline:none;font-family:'Outfit',sans-serif}
-.inrow button{width:52px;height:48px;border-radius:11px;cursor:pointer;font-size:20px;
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;
+  border-radius:11px;background:var(--gold-bg);border:1px solid var(--gold-bd);flex:none}
+.head .l{font-family:'Outfit',sans-serif;font-size:10px;letter-spacing:.08em;color:var(--gold)}
+.head .d{font-size:11px;color:var(--muted)}
+.head .v{font-size:21px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.inrow{display:flex;gap:7px;flex:none}
+.inrow input{flex:1;min-width:0;height:46px;border-radius:11px;padding:0 12px;font-size:16px;
+  background:var(--bg);border:1px solid var(--gold-bd);color:var(--text);outline:none;font-family:'Outfit',sans-serif}
+.inrow button{width:48px;flex:none;height:46px;border-radius:11px;cursor:pointer;font-size:19px;
   border:1px solid var(--border);background:var(--surf2);color:var(--text)}
 .inrow button.add{border:0;background:var(--gold);color:var(--on-gold)}
 .inrow button.neg.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:46px;padding:9px;border-radius:11px;
-  background:var(--bg);border:1px solid var(--border);align-content:flex-start;max-height:104px;overflow-y:auto;flex:none}
-.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 5px 5px 9px;border-radius:9px;
-  background:var(--surf2);border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;min-height:42px;padding:8px;border-radius:11px;
+  background:var(--bg);border:1px solid var(--border);align-content:flex-start;
+  max-height:92px;overflow-y:auto;flex:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 4px 4px 8px;border-radius:9px;
+  background:var(--surf2);border:1px solid var(--border);font-family:'Outfit',sans-serif;font-size:12.5px}
 .chip.neg{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
-.chip .i{color:var(--muted);font-size:9.5px}
-.chip .c{display:flex;flex-direction:column;line-height:1.2}
-.chip .pul{font-size:10px;color:var(--green);font-family:'Roboto',sans-serif}
-.chip .x{width:19px;height:19px;border-radius:5px;border:1px solid var(--border);background:var(--surf);
-  color:var(--muted);display:grid;place-items:center;font-size:10px;cursor:pointer}
-.hint{color:var(--muted);font-size:12px;padding:5px 2px}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;flex:none}
-.pad button{height:48px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);
-  color:var(--text);font-family:'Outfit',sans-serif;font-size:18px;cursor:pointer}
+.chip .i{color:var(--muted);font-size:9px}
+.chip .c{display:flex;flex-direction:column;line-height:1.18}
+.chip .pul{font-size:9.5px;color:var(--green);font-family:'Roboto',sans-serif}
+.chip .x{width:18px;height:18px;border-radius:5px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);display:grid;place-items:center;font-size:10px;cursor:pointer}
+.hint{color:var(--muted);font-size:11.5px;padding:4px 2px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:none}
+.pad button{height:44px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--text);font-family:'Outfit',sans-serif;font-size:17px;cursor:pointer}
 .pad button:active{background:var(--border)}
 .pad button.wide{grid-column:span 2;background:var(--gold);border-color:var(--gold);
-  color:var(--on-gold);font-weight:600;font-size:15px}
-.addsav{height:48px;border-radius:11px;border:1px solid var(--green-bd);background:var(--green-bg);
-  color:var(--green);font-family:'Outfit',sans-serif;font-size:14.5px;font-weight:600;cursor:pointer;flex:none}
+  color:var(--on-gold);font-weight:600;font-size:14px}
+.addsav{height:46px;border-radius:11px;border:1px solid var(--green-bd);background:var(--green-bg);
+  color:var(--green);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;flex:none}
 .addsav:disabled{opacity:.35;cursor:not-allowed}
-.warn{padding:8px 11px;border-radius:10px;border:1px solid var(--red-bd);background:var(--red-bg);
-  color:var(--red);font-size:12px;flex:none}
-.empty{display:grid;place-items:center;flex:1;color:var(--muted);font-size:13px;text-align:center;padding:30px}
-
-.pf{display:flex;gap:8px;justify-content:flex-end;padding:11px 14px;border-top:1px solid var(--border);flex:none}
-.pf button{height:44px;padding:0 20px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;
-  font-size:14px;font-weight:500;border:1px solid var(--border);background:var(--surf2);color:var(--text)}
+.warn{padding:7px 10px;border-radius:10px;border:1px solid var(--red-bd);background:var(--red-bg);
+  color:var(--red);font-size:11.5px;flex:none}
+.empty{display:grid;place-items:center;flex:1;color:var(--muted);font-size:12.5px;text-align:center;padding:24px}
+.pf{display:flex;gap:7px;justify-content:flex-end;padding:9px 11px;border-top:1px solid var(--border);flex:none}
+.pf button{height:42px;padding:0 18px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;
+  font-size:13.5px;font-weight:500;border:1px solid var(--border);background:var(--surf2);color:var(--text)}
 .pf button.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
 .pf button:disabled{opacity:.35;cursor:not-allowed}
-
-/* qarorlar */
-.q{display:flex;flex-direction:column;gap:11px}
-.qi{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--gold);
-  border-radius:12px;padding:14px 16px}
-.qi h3{font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;margin:0 0 7px;color:var(--text)}
-.qi p{margin:0 0 8px;font-size:13px;color:var(--ink)}
-.opt{display:flex;flex-direction:column;gap:5px}
-.opt div{font-size:12.5px;color:var(--ink);padding-left:16px;position:relative}
-.opt div::before{content:'○';position:absolute;left:0;color:var(--muted)}
-.opt div.rec::before{content:'●';color:var(--gold)}
-.opt div.rec{color:var(--text)}
-.opt b{color:var(--text)}
-.foot{font-size:12.5px;color:var(--muted);text-align:center;padding-top:6px}
+.note{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:11px;padding:11px 14px;font-size:12.5px;color:var(--ink)}
+.note b{color:var(--text)}
 </style>
 
 <div class="wrap">
 
-<header>
-  <h1>POS berish — <em>ikki ustunli planshet ko'rinishi</em></h1>
-  <p class="sub">Ibrohim: «chapda spiska, o'ngda hisoblaydigan bo'lsin — hammasi window ichida
-  bo'lgandan ko'ra yaxshi». Bu <b>taklif</b>, kod yozilmagan. Quyidagi prototip ishlaydi —
-  bosib ko'ring, keyin qaror nuqtalariga javob bering.</p>
-</header>
+<div>
+  <h1>POS berish — <em>chapda ro'yxat, o'ngda hisob</em></h1>
+  <p class="sub">Zavod va turlar chapda doim ko'rinadi · gramm va klaviatura o'ngda · savat chap pastda.</p>
+</div>
 
-<section>
-  <h2>Tashxis — hozirgi v177.8 da nima noqulay</h2>
-  <div class="diag">
-    <div class="d">
-      <h3>Klaviatura ekranga sig'maydi</h3>
-      <p>Skrinshotda 7 8 9 / 4 5 6 / 1 2 3 ko'rinadi, pastki qatori kesilgan — «+ Qo'shish» ga
-      yetish uchun scroll qilinadi. Har donada shu takrorlanadi.</p>
-    </div>
-    <div class="d">
-      <h3>Savat ko'rinmaydi</h3>
-      <p>Savat pastki chetda, faqat <code>0.00 g</code> yig'indisi ko'rinadi. Nima qo'shilganini
-      ko'rish uchun ochib-yopish kerak, u esa yana joy yeydi.</p>
-    </div>
-    <div class="d">
-      <h3>Uch qadam sakrash</h3>
-      <p>Har tur uchun: zavod &rsaquo; tur &rsaquo; gramm &rsaquo; savat &rsaquo; yana zavod.
-      Planshetda joy bor — bu qadamlarni yonma-yon qo'ysa bo'ladi.</p>
-    </div>
-    <div class="d">
-      <h3>Modal kengligi 680px</h3>
-      <p>Planshet ekrani kengroq, lekin oyna o'rtada tor ustun bo'lib qolgan. Yon-atrofdagi
-      qora joy bekorga ketyapti.</p>
-    </div>
+<div class="proto">
+  <div class="ph">
+    <div class="ic" onclick="alert('Klient oynasiga qaytadi')">←</div>
+    <span class="t">↑ BERISH</span>
+    <span class="kl">Abdulaziz Qashqadaryo</span>
+    <span class="sp"></span>
+    <span class="kb on" id="kA" onclick="katSet('A')">A</span>
+    <span class="kb" id="kB" onclick="katSet('B')">B</span>
+    <span class="kb" id="kC" onclick="katSet('C')">C</span>
+    <div class="ic" onclick="alert('Yopiladi')">✕</div>
   </div>
-</section>
 
-<section>
-  <h2>Tuzilish — hozirgi va taklif</h2>
-  <div class="vs">
-    <div class="pane">
-      <div class="tag now">HOZIRGI · v177.8 · bitta ustun, modal</div>
-      <div class="body">
-        <div class="sk">
-          <div class="row"><div class="b" style="flex:1">← &nbsp; ↑ BERISH &nbsp; klient &nbsp; ✕</div></div>
-          <div class="row"><div class="b" style="flex:1">KATEGORIYA A B C</div></div>
-          <div class="row"><div class="b" style="flex:1">1 Zavod › 2 Tur › <b>3 Gramm</b></div></div>
-          <div class="row"><div class="b hi" style="flex:1">SKAN / QO'LDA</div></div>
-          <div class="row"><div class="b hi" style="flex:1">Gramm kiritish&nbsp; ± &nbsp;+</div></div>
-          <div class="row"><div class="b hi" style="flex:1">donalar chiplari</div></div>
-          <div class="row"><div class="b hi" style="flex:1">PREMIUM · ODDIY &nbsp; 0.00 g</div></div>
-          <div class="row"><div class="b cut" style="flex:1">klaviatura — ekrandan chiqib ketadi ↓</div></div>
-          <div class="row"><div class="b cut" style="flex:1">+ Savatga qo'shish — scroll kerak</div></div>
-          <div class="row"><div class="b cut" style="flex:1">SAVAT — yopiq, ko'rinmaydi</div></div>
-          <div class="row"><div class="b" style="flex:1">Bekor &nbsp; Saqlash + chek</div></div>
-        </div>
+  <div class="cols">
+    <div class="left">
+      <div class="tree" id="tree"></div>
+      <div class="savat">
+        <div class="sh"><span>SAVAT</span><span id="scnt" style="font-size:10.5px;color:var(--muted)"></span></div>
+        <div class="sl" id="slist"></div>
+        <div class="sj"><span class="l">JAMI</span>
+          <span><span class="v" id="sg">0.00 g</span> <span class="d" id="sp">$0</span></span></div>
       </div>
     </div>
-    <div class="pane">
-      <div class="tag new">TAKLIF · ikki ustun, modal emas</div>
-      <div class="body">
-        <div class="sk">
-          <div class="row"><div class="b" style="flex:1">← &nbsp; ↑ BERISH &nbsp; klient &nbsp; A B C &nbsp; ✕</div></div>
-          <div class="row">
-            <div style="flex:36;display:flex;flex-direction:column;gap:5px">
-              <div class="b hi">Premium ▾</div>
-              <div class="b hi" style="opacity:.75">&nbsp;&nbsp;Oddiy 86.3 ✓</div>
-              <div class="b hi" style="opacity:.75">&nbsp;&nbsp;Zar 88.1</div>
-              <div class="b">Butterfly ▸</div>
-              <div class="b">Diamond ▸</div>
-              <div class="b g">SAVAT · ro'yxat<br>doim ko'rinadi</div>
-              <div class="b g">JAMI 31.84 g</div>
-            </div>
-            <div style="flex:64;display:flex;flex-direction:column;gap:5px">
-              <div class="b hi">PREMIUM · ODDIY &nbsp; 19.84 g</div>
-              <div class="b">Gramm &nbsp; ± &nbsp; +</div>
-              <div class="b">donalar chiplari</div>
-              <div class="b">7 8 9</div>
-              <div class="b">4 5 6</div>
-              <div class="b">1 2 3</div>
-              <div class="b">. 0 ⌫ &nbsp; + Qo'shish &nbsp; C</div>
-              <div class="b g">✓ Savatga qo'shish</div>
-            </div>
-          </div>
-          <div class="row"><div class="b" style="flex:1">Bekor &nbsp; Saqlash + chek</div></div>
-        </div>
-      </div>
-    </div>
+    <div class="right" id="right"></div>
   </div>
-</section>
 
-<section>
-  <h2>Ishlaydigan prototip — bosib ko'ring</h2>
-  <div class="proto">
-    <div class="ph">
-      <div class="ic" onclick="alert('Klient oynasiga qaytadi')">←</div>
-      <span class="t">↑ BERISH</span>
-      <span class="kl">Abdulaziz Qashqadaryo</span>
-      <span class="sp"></span>
-      <span class="kb on" id="kA" onclick="katSet('A')">A</span>
-      <span class="kb" id="kB" onclick="katSet('B')">B</span>
-      <span class="kb" id="kC" onclick="katSet('C')">C</span>
-      <div class="ic" onclick="alert('Yopiladi')">✕</div>
-    </div>
-
-    <div class="cols">
-      <div class="left">
-        <div class="tree" id="tree"></div>
-        <div class="savat">
-          <div class="sh"><span>SAVAT</span><span id="scnt" style="font-size:11px;color:var(--muted)"></span></div>
-          <div class="sl" id="slist"></div>
-          <div class="sj"><span class="l">JAMI</span>
-            <span><span class="v" id="sg">0.00 g</span> <span class="d" id="sp">$0</span></span></div>
-        </div>
-      </div>
-      <div class="right" id="right"></div>
-    </div>
-
-    <div class="pf">
-      <button onclick="hammasi()">Bekor</button>
-      <button class="go" id="saq" onclick="saqla()" disabled>Saqlash + chek</button>
-    </div>
+  <div class="pf">
+    <button onclick="hammasi()">Bekor</button>
+    <button class="go" id="saq" onclick="saqla()" disabled>Saqlash + chek</button>
   </div>
-</section>
+</div>
 
-<section>
-  <h2>Qaror nuqtalari — javob kerak</h2>
-  <div class="q">
-
-    <div class="qi">
-      <h3>1. Savat qayerda tursin?</h3>
-      <p>Prototipda chap ustun pastida — zavodlar ro'yxati bilan bitta ustunda, doim ko'rinadi.</p>
-      <div class="opt">
-        <div class="rec"><b>Chap ustun pastida</b> — prototipdagidek. Zavod tanlashda ham, gramm kiritishda ham ko'rinib turadi</div>
-        <div><b>O'ng ustun pastida</b> — kiritish bilan yonma-yon, lekin klaviaturaga joy kamayadi</div>
-        <div><b>Alohida uchinchi ustun</b> — eng keng, lekin chap va o'ng torayadi</div>
-      </div>
-    </div>
-
-    <div class="qi">
-      <h3>2. Modal qoladimi, yo'qmi?</h3>
-      <p>«hammasi window bo'lmayin ichiga kirgani yaxshi» degandingiz — buni ikki xil tushunish mumkin.</p>
-      <div class="opt">
-        <div class="rec"><b>POS ekranining o'zi</b> — modal yo'q, berish to'liq sahifa bo'lib ochiladi.
-          ✕ o'rniga «← Klientga qaytish»</div>
-        <div><b>Modal qoladi, lekin kengayadi</b> — 680px o'rniga deyarli butun ekran, ✕ qoladi</div>
-      </div>
-    </div>
-
-    <div class="qi">
-      <h3>3. Qadamlar chizig'i (1 Zavod › 2 Tur › 3 Gramm) yo'qoladi</h3>
-      <p>Ikki ustunda zavod va tur doim ko'rinib turadi — qadamlarni sanashning keragi qolmaydi.
-      O'rniga chapda daraxt: zavod bosilsa turlari ochiladi.</p>
-      <div class="opt">
-        <div class="rec"><b>Yo'qolsin</b> — daraxt o'zi ko'rsatib turadi</div>
-        <div><b>Qolsin</b> — tepada kichkina bo'lib qolaversin</div>
-      </div>
-    </div>
-
-    <div class="qi">
-      <h3>4. Telefonda nima bo'ladi?</h3>
-      <p>Ikki ustun telefon ekraniga sig'maydi.</p>
-      <div class="opt">
-        <div class="rec"><b>Telefonda hozirgi bir ustunli ko'rinish qoladi</b> — ekran tor bo'lsa
-          avtomatik eski tartibga o'tadi, keng bo'lsa ikki ustun</div>
-        <div><b>Telefonda ham ikki ustun</b> — chap ustun juda torayadi</div>
-        <div><b>POS faqat planshet uchun</b> — telefonda umuman ishlatilmaydi</div>
-      </div>
-    </div>
-
-    <div class="qi">
-      <h3>5. SKAN / QO'LDA tanlovi kerakmi?</h3>
-      <p>O'ng ustunda joy bor — klaviatura doim ko'rinib tursa bo'ladi. Prototipda shunday qilingan:
-      tanlov tugmasi yo'q, skanerdan kelgan raqam ham, qo'lda bosilgani ham bitta maydonga tushadi.</p>
-      <div class="opt">
-        <div class="rec"><b>Tanlov olib tashlansin</b> — klaviatura doim ko'rinadi, skaner baribir ishlaydi</div>
-        <div><b>Tanlov qolsin</b> — SKAN rejimida klaviatura yashirinadi</div>
-      </div>
-    </div>
-
-    <div class="qi">
-      <h3>6. Vozvrat · To'lov · Sotuv ham shu tuzilishda bo'ladimi?</h3>
-      <p>Hali yozilmagan. Agar «ha» bo'lsa, berish uchun yoziladigan tuzilish ularga ham asos bo'ladi
-      — keyinroq qayta yozib o'tirilmaydi.</p>
-      <div class="opt">
-        <div class="rec"><b>Ha</b> — to'rttasi ham ikki ustunli</div>
-        <div><b>Hozircha faqat berish</b> — qolganiga keyin qaraladi</div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<p class="foot">Javoblardan keyin kod yoziladi — v177.9. Hozirgi v177.8 prodda turibdi, tegilmagan.</p>
+<div class="note">
+  <b>Shu ko'rinish to'g'rimi?</b> «ha» desangiz ilovaga aynan shunday yozaman — qolgan hamma narsa
+  (kategoriya A/B/C, savat qoidasi, chek, yozuv) v177.8 dagidek qoladi, faqat joylashuv o'zgaradi.
+</div>
 
 </div>
 
@@ -437,12 +241,10 @@ function saqla(){
   var g=0,d=0; savat.forEach(function(r){ g+=r.g; d+=r.dona.length; });
   alert('BITTA CHEK\n\n'+savat.map(function(r){
     return r.z+' · '+r.t+'   '+fg(r.g)+' g  ('+r.dona.length+' dona)'; }).join('\n')
-    +'\n'+Array(34).join('─')+'\nJAMI  '+fg(g)+' g   '+d+' dona'
-    +'\n\nk.tarix ga har tur uchun alohida yozuv — v177.8 dagidek, o‘zgarmaydi.');
+    +'\n──────────────────────────\nJAMI  '+fg(g)+' g   '+d+' dona');
 }
 
 function draw(){
-  // ── chap: daraxt
   var h='';
   ZAV.forEach(function(z,i){
     var c=0; savat.forEach(function(r){ if(r.zi===i) c++; });
@@ -457,7 +259,6 @@ function draw(){
   });
   document.getElementById('tree').innerHTML=h;
 
-  // ── o'ng: kiritish
   var R=document.getElementById('right');
   if(ti<0){
     R.innerHTML='<div class="empty">Chapdan zavodni oching,<br>keyin turni tanlang</div>';
@@ -472,7 +273,7 @@ function draw(){
     if(jami>o+0.001)
       r+='<div class="warn">⚠ Omborda '+fg(o)+'g — '+fg(Math.round((jami-o)*100)/100)+'g oshib ketdi (to‘xtatmaydi)</div>';
     r+='<div class="inrow"><input id="gin" value="'+kir.replace(/"/g,'&quot;')+'" oninput="kir=this.value" '
-      +'onkeydown="if(event.key===\'Enter\')qosh()" inputmode="decimal" autocomplete="off" placeholder="Gramm — skan yoki qo‘lda">'
+      +'onkeydown="if(event.key===\'Enter\')qosh()" inputmode="decimal" autocomplete="off" placeholder="Gramm">'
       +'<button class="neg'+(neg?' on':'')+'" onclick="neg=!neg;draw()">'+(neg?'−':'±')+'</button>'
       +'<button class="add" onclick="qosh()">+</button></div>';
     r+='<div class="chips">';
@@ -494,7 +295,6 @@ function draw(){
     var e=document.getElementById('gin'); if(e){ e.focus(); try{ e.setSelectionRange(e.value.length,e.value.length); }catch(_){} }
   }
 
-  // ── savat
   var jg=0,js=0,jd=0;
   savat.forEach(function(r){ jg+=r.g; js+=r.g*narx(r.zi,r.ti); jd+=r.dona.length; });
   document.getElementById('scnt').textContent = savat.length ? savat.length+' tur · '+jd+' dona' : '';
@@ -504,7 +304,7 @@ function draw(){
     return '<div class="srow"><span class="n">'+r.z+' · '+r.t+'</span>'
       +'<span class="g">'+fg(r.g)+'</span>'
       +'<span class="x" onclick="sOchir('+i+')">✕</span></div>'; }).join('')
-    : '<div class="hint" style="padding:6px 0 10px">Bo‘sh — chapdan tur tanlang</div>';
+    : '<div class="hint" style="padding:5px 0 9px">Bo‘sh — chapdan tur tanlang</div>';
   document.getElementById('saq').disabled = !savat.length;
   ['A','B','C'].forEach(function(x){ document.getElementById('k'+x).className='kb'+(kat===x?' on':''); });
 }
