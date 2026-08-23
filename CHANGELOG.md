@@ -288,6 +288,14 @@ POS 1.25 SAHIFA SCROLLI QULFLANADI - orqadagi fon muammosi HAL BO'LDI.
          Sinov: klient oynasi -> sanagich 1, berish -> 2, berish yopildi -> 1
          (qulf QOLADI), hammasi yopildi -> 0 va scroll o'z joyiga qaytdi.
          Takror yopilsa sanagich manfiyga tushmaydi.
+POS 1.26 Tugma nomi: "Saqlash + chek" -> "TEKSHIRUVGA YUBORISH".
+         Ibrohim: "Saqlash+chek emas, tekshiruvga yuborish qilish kere".
+         FAQAT YOZUV o'zgardi - ish avvalgidek (Ibrohim tasdiqladi:
+         "ha, hozirgidek bosilsin"):
+           * yozuv k.tarix ga darrov tushadi
+           * chek darrov bosiladi (klient olib ketaveradi)
+           * qo'ng'iroqcha admin'ni ogohlantiradi (POS 1.18)
+         Qabul/rad mexanizmi hali yozilmagan - u to'rt savolga bog'liq.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

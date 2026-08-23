@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.25 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.26 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.25** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.26** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.25` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.26` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -156,6 +156,9 @@ Minus — zavod ichida `±`.
   Musbat bo'lmagan tur saqlanmaydi — ochiq aytiladi.
   Qarz ko'rsatkichi `_qarzTarkibRows` (17468) dan.
 * Chek nusxasi **1 ta**, sana **bugungi**.
+* Saqlash tugmasi nomi: **«Tekshiruvga yuborish»** (POS 1.26). ⚠ Nomi
+  o'zgardi, **ishi o'zgarmadi** (Ibrohim: «ha, hozirgidek bosilsin») — yozuv
+  darrov `k.tarix` ga tushadi, chek darrov bosiladi, qo'ng'iroqcha xabar beradi.
 * **YANGI USLUB (POS 1.16 → 1.21):** POS ko'k palitrada — `#030F2C` fon,
   `#5183FF` urg'u. Tokenlar `body.rol-pos, #main-pos, #pos-ovl, #pb-ovl`
   selektorida qayta e'lon qilingan ([index.html:265](index.html)) — `topbar`,

@@ -14728,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.25';
+var POS_VER = '1.26';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -15436,7 +15436,7 @@ function _pbDraw(){
       +'<span style="font-size:11px;color:var(--muted);">'+J.n+' dona</span></span></div></div></div>';
     h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
     h+='<button onclick="posBBekor()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Bekor</button>';
-    h+='<button onclick="posBSaqla()"'+(_pbSavat.length?'':' disabled')+' style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-family:inherit;'+(_pbSavat.length?'':'opacity:.35;')+'">Saqlash + chek</button></div>';
+    h+='<button onclick="posBSaqla()"'+(_pbSavat.length?'':' disabled')+' style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:11px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-family:inherit;'+(_pbSavat.length?'':'opacity:.35;')+'">Tekshiruvga yuborish</button></div>';
 
   } else {
     // ══ EKRAN 2 — zavod ichi ══
