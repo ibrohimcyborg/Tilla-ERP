@@ -257,6 +257,17 @@ POS 1.23 Amal ikonlari INLINE SVG.
          Endi uchalasi ham 15x15 inline SVG, stroke=currentColor:
          BERISH yuqoriga strelka, VOZVRAT qaytish strelkasi, SOTUV belgi.
          Matn belgilari (↑ ↩ ✓) pilldan butunlay olib tashlandi.
+POS 1.24 Chapdagi ro'yxat FAQAT tanlangan turni ko'rsatadi.
+         Ibrohim rasm bilan: 3D tanlangan, lekin chapda hamon Oddiy
+         ro'yxati (181.10 g, 15 dona) turardi.
+         Sabab: chap ustun zavodning HAMMA turlarini bo'lim-bo'lim qilib
+         chizardi. Endi `var korilgan=[_pbTi]` - faqat tanlangani.
+         Boshqa turlar YO'QOLMAYDI: savatga baribir tushadi, har turning
+         o'z grammi tur chipida ko'rinib turadi.
+         Sinov: Oddiy 7.00+1.20 -> 3D ga o'tildi: ro'yxat BO'SH; 3D ga 5.55
+         qo'shildi -> faqat 5.55; Oddiy ga qaytildi -> yana 7.00+1.20;
+         chiplar "Oddiy 8.20 g" / "3D 5.55 g"; savatga 3 dona tushdi.
+         JAMI zavod bo'yicha qoladi (savatga shu tushadi).
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

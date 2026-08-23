@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.23 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.24 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.23** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.24** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.23` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.24` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -171,6 +171,29 @@ Minus — zavod ichida `±`.
   ⚠ `body.rol-pos #main-pos` da `display:flex !important` bor — yashirish uchun
   `setProperty('display','none','important')` shart.
   Amal ikonlari **inline SVG** (POS 1.23) — `↩` iOS da emoji bo'lib ketardi.
+  Chapdagi ro'yxat **faqat tanlangan turni** ko'rsatadi (POS 1.24) — boshqa
+  turlar yo'qolmaydi, chipida grammi turadi va savatga tushadi.
+
+### ⏳ YARIM QOLDI — «orqasi yurvotti» (POS 1.22 da HAL BO'LMAGAN)
+
+Ibrohim: *«shu menyuning orqasi yurvotti, tepada klient qidirish turipti»*.
+Berish oynasi ochiqda POS ro'yxatining tepasi (qidirish maydoni) ko'rinib qoladi.
+
+Qilingan (ikkalasi ham YETMADI):
+* POS 1.14 — fon `rgba(0,0,0,.8)` → `var(--bg)` qattiq qilindi
+* POS 1.22 — `_pbOrqa('none')` topbar/tablar/`#main-pos` ni yashiradi
+
+Nega yetmadi:
+1. `mainTab('pos')` ([index.html:12456](index.html)) `#main-pos` ga
+   `display:block !important` qo'yib **qayta ochib yuboradi** — u `applyRol`
+   dan chaqiriladi.
+2. Asosiysi: oyna `position:fixed` bo'lsa ham **orqadagi sahifa scroll
+   bo'laveradi**; iOS da sahifa surilganda tepasi qatlam ustida ko'rinadi.
+
+Keyingi qadam: **sahifa scrollini qulflash** — oyna ochilganda `body` ni
+`position:fixed` + `top:-scrollY` qilib qotirish, yopilganda qaytarish.
+Klient oynasi va berish oynasi bittadan sanagich bilan ishlatadi (berish
+klient oynasi ustida ochiladi). Kod **yozilmagan**.
   Maket: artifact `cbcd6392`.
 * **Ekran o'lchamlari (POS 1.12)** — `_pbDraw` boshida ikki bayroq:
 

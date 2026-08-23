@@ -14728,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.23';
+var POS_VER = '1.24';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -15412,8 +15412,12 @@ function _pbDraw(){
     h+='<div style="flex:1;'+(TOR?'min-width:0;border-bottom:1px solid var(--border);':'min-width:296px;border-right:1px solid var(--border);')+'display:flex;flex-direction:column;min-height:0;background:var(--bg);">';
     h+='<div style="flex:1;overflow-y:auto;padding:11px;">';
     if(_pbIch.length){
-      var korilgan=[];
-      _pbIch.forEach(function(d){ if(korilgan.indexOf(d.ti)<0) korilgan.push(d.ti); });
+      // POS 1.24 (Ibrohim): «Oddiydan boshqa turga o'tganda spiska o'chsin».
+      // Avval zavodning HAMMA turlari ustma-ust ko'rinardi — 3D ga o'tilsa ham
+      // Oddiy ro'yxati turaverardi. Endi FAQAT tanlangan tur ko'rinadi.
+      // Boshqa turlar yo'qolmaydi — savatga baribir tushadi, tur chipida
+      // o'z grammi ko'rinib turadi.
+      var korilgan=[_pbTi];
       korilgan.forEach(function(tj,si){
         var tg=0, tn=0; _pbIch.forEach(function(d){ if(d.ti===tj){ tg+=d.g; tn++; } });
         h+='<div style="'+(si?'margin-top:13px;':'')+'"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:6px;margin-bottom:9px;border-bottom:1px solid var(--border);">';
