@@ -266,7 +266,35 @@ ekranlari deyarli o'zgarishsiz ko'chadi; `index.html` dan ~700 qator o'chadi;
 qo'ng'iroqcha va qabul `index.html` da qoladi. `viewport-fit`, sticky o'lchash,
 `!important`, `body.rol-pos` — hammasi keraksiz bo'ladi.
 
-**Ibrohim javob bermadi:** boshlaymizmi, yoki avval hozirgi POS sinab ko'rilsinmi.
+**Ibrohim qarori (2026-08-23):** *«2 ni qilaqolilik»* — avval hozirgi POS sinaladi,
+ishonch hosil qilingach ajratiladi. Ajratish **hozir boshlanmaydi**.
+
+### 🔒 KAFOLAT — boshqa loginlarga TEGILMAYDI
+
+Ibrohim: *«bu o'zgarishla Abdulhamid loginiga, admin tilla loginiga umuman
+ta'sir qilmasin»*.
+
+**O'lchandi (2026-08-23, POS 1.30):**
+
+| Login | Palitra | Topbar | Qo'ng'iroqcha | Tugma radiusi | POS tabi | `hamid-x` |
+|---|---|---|---|---|---|---|
+| `tilla` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `abdulhamid_7777` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | **none** ✔ |
+| `zavod` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `admin/admin123` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `test` | `#0f0f0f` / `#c9a84c` | qorong'i | **ko'rinadi** (ataylab) | 50% | yashirin | flex |
+| `kassatest` | `#EEF1F7` / `#3B6FE0` | oq | yashirin | **999px** | ko'rinadi | flex |
+
+Kod jihatdan ham tekshirildi: `hamid` so'zi uchraydigan 36 qatordan **faqat bitta
+IZOH** o'chgan (POS 1.17 da olib tashlangan blokning izohi). CSS va shartlar
+o'zgarmagan. `rol-zavod` qatorlari aynan bir xil.
+
+⚠ **Ikkita o'zgarish GLOBAL** (Ibrohim ruxsati bilan, v178):
+1. `viewport-fit=cover` — notchli telefonda **hamma login** endi safe-area'ni
+   hisobga oladi (avval `env(safe-area-inset-*)` 0 edi, himoyalar o'lik turgan)
+2. `#app-ver` pastki chekkasi `calc(6px + var(--safe-bot))`
+
+Bular mantiqqa, hisobga, ma'lumotga tegmaydi — faqat bo'shliq.
 
 ## Ochiq masalalar
 
