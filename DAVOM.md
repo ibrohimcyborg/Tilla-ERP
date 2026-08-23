@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.28 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.29 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.28** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.29** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.28` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.29` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -190,8 +190,18 @@ Zavod/tur/klient **nom bo'yicha** qayta topiladi — indeksga ishonilmaydi.
 Sinov: POS yubordi → k.tarix 0, qarz/ostatka/donaOst o'zgarmadi, save() yo'q.
 Admin 3D ni 1.50 o'rniga 1.80 kiritdi → qabuldan keyin k.tarix da **1.8**,
 ostatka 307.98→300.68, donaOst 20→18, chernovik holati `qabul`.
-* **YANGI USLUB (POS 1.16 → 1.21):** POS ko'k palitrada — `#030F2C` fon,
-  `#5183FF` urg'u. Tokenlar `body.rol-pos, #main-pos, #pos-ovl, #pb-ovl`
+* **YANGI USLUB (POS 1.16 → 1.29):** POS **YORUG'** palitrada (POS 1.29,
+  Ibrohim: «fon oq bo'lsin, faqat POS da») — `#EEF1F7` fon, `#FFFFFF` karta,
+  `#3B6FE0` urg'u, `#D14A2E` qarz, `#0F1B33` matn.
+  ⚠ Ranglar to'q ko'kdagidan **ataylab farq qiladi**: `#5183FF`/`#FF8B6B` oq
+  ustida xiralashardi (qarz kontrasti 2.1 → 4.4 ga ko'tarildi).
+  **Shakl (POS 1.29):** tugma va maydonlar **to'liq pill** (`999px`, iOS uslubi —
+  Ibrohim: «rangiga emas formasiga»), avatar **oq va dumaloq** (50%), kartalar
+  14–24px. Pill uchun `!important` shart — POS kodi inline style bilan chiziladi.
+  **Sticky (POS 1.29):** `_posBoy()` `#main-pos` balandligini **o'lchab** qo'yadi
+  (piksel taxmin qilinmaydi) — aks holda butun sahifa siljib, klient qatori tepa
+  panel va soat ustida ko'rinib qolardi. Endi faqat `#pos-list` siljiydi.
+  ~~POS ko'k palitrada — `#030F2C` fon, `#5183FF` urg'u.~~ Tokenlar `body.rol-pos, #main-pos, #pos-ovl, #pb-ovl`
   selektorida qayta e'lon qilingan ([index.html:265](index.html)) — `topbar`,
   `main-tabs`, `logo` ham tokenlar bilan ishlagani uchun **butun POS logini**
   ko'k. Inline `var(--...)` lar qayta yozilmadi.
