@@ -906,13 +906,34 @@ Bularning hammasi **mockup/tahlil bosqichida**. Kod yozilmagan.
 
 ## Seans boshlash
 
+### ⚠ BOSHQA KOMPYUTERGA O'TGANDA — avval `git pull`
+
+Ibrohim ikki joyda ishlaydi: **uy PC** va **ishxona PC**. Loyiha GitHub'da
+(`ibrohimcyborg/Tilla-ERP`), hamma narsa shu yerda sinxronlanadi —
+`index.html`, `CLAUDE.md`, `DAVOM.md`, `CHANGELOG.md`, `mockups/`.
+
+Yangi kompyuterda ish boshlashdan oldin:
+
+```
+cd "<loyiha papkasi>"
+git pull
+```
+
+⚠ `git pull` xato bersa (lokal o'zgarish bor deb) — **o'zing hal qilma**,
+Ibrohimga ayt. Eski kompyuterda saqlanmagan ish qolgan bo'lishi mumkin.
+
+Papka umuman yo'q bo'lsa:
+```
+git clone https://github.com/ibrohimcyborg/Tilla-ERP.git
+```
+
 ```
 cd Tilla-ERP
 claude
 ```
 
 Birinchi xabar — doim shu:
-> CLAUDE.md va DAVOM.md ni o'qi. POS 1.09 dan davom etamiz.
+> CLAUDE.md va DAVOM.md ni o'qi. POS 1.26 dan davom etamiz.
 
 Boshqa hech narsa tushuntirilmasligi kerak. Kerak bo'lsa — bu fayl kam
 yozilgan, tuzatilsin (CLAUDE.md §0.1).
