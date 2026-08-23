@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v179 · POS 1.33 · 2026-08-23
+**Oxirgi yangilanish:** v179.1 · POS 1.33 · 2026-08-23
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v179`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v179.1`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v179 gacha** (2026-08-23) — `APP_VER v179`, `POS_VER 1.33`. ⚠ push qilinmagan — Ibrohim aytsa. |
+| Git | **v179 push qilingan** (prodda). **v179.1** commit qilindi, ⚠ push qilinmagan — Ibrohim aytsa. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -376,6 +376,16 @@ Zavod ERP usuli olindi: bitta hujjat, hamma tinglaydi.
 | `sozYubor(h)` | **faqat `getRol()==='admin'`** yozadi (Ibrohim qarori) |
 | `sozKuzat()` | 3 soniyalik barmoq izi kuzatuvchisi — ~20 yozuv joyiga chaqiruv qo'shmaslik uchun |
 | `_kursTarixBirlashtir` | tarix BIRLASHTIRILADI, hech narsa o'chmaydi |
+| `sozManbaSaqla` / `sozManba` | **v179.1** — kursni kim va qachon qo'ygani. `tilla-soz-manba` kalitida |
+
+**v179.1 — manba ko'rsatildi.** Admin bosh ekranidagi «Kunlik kurs» blokida
+«23.08 · 14:30 · Qurilma-1», POS kurs oynasida «Kursni qo'ygan: Qurilma-1 · 14:32».
+POS kurs TUGMASIGA (pill) tegilmadi — joy tor, Ibrohim so'rasa qo'shiladi.
+
+⚠ **«ASOSIY» qurilma HECH NIMA QILMAYDI.** `qurilmaAsosiy()` (19470) butun faylda
+faqat 19591 da yorliq chizishda ishlatiladi — imtiyoz yo'q. Ibrohim uni qidirib
+vaqt sarflagan. Kodga tegilmadi. Kelajakda «asosiy qurilma» bilan bir narsa
+qilmoqchi bo'lsang — u avval haqiqiy xulqqa ega bo'lishi kerak.
 
 ⚠ **Kursni o'qiydigan 20 joyga TEGILMADI** — ular localStorage dan o'qiyveradi.
 Yangi kurs o'qish joyi qo'shsang ham shu yo'ldan o'qi, alohida kanal ochma.

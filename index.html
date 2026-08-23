@@ -1,4 +1,4 @@
-<!-- v179 -->
+<!-- v179.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2031,7 +2031,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179';
+var APP_VER = 'v179.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2814,7 +2814,11 @@ function hkKunlikHTML() {
   var v = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0')||0;
   var tarix = kursTarixOl();
   var last = tarix.length ? tarix[tarix.length-1] : null;
-  var vaqt = last ? ((last.sana||'').slice(0,5)+' · '+(last.soat||'')) : '—';
+  var vaqt = last ? ((last.sana||'').slice(0,5)+' \u00b7 '+(last.soat||'')) : '';
+  // v179.1: kursni kim qo'ygani (Ibrohim: «kurs qatta o'zgarvotganini bilomayamman»)
+  var _mn = (typeof sozManba==='function') ? sozManba() : '';
+  if(_mn) vaqt = vaqt ? (vaqt+' \u00b7 '+_mn) : _mn;
+  if(!vaqt) vaqt = '\u2014';
   return '<div style="font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;line-height:1.2;">Kunlik kurs</div>'
     + '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:700;color:var(--gold);line-height:1.2;">'+(v>0?(v+' $/g'):'—')+'</div>'
     + '<div style="font-size:8px;color:var(--muted);line-height:1.2;">'+vaqt+'</div>';
@@ -14817,6 +14821,8 @@ function posKursOch(){
   h+='<button onclick="posKursYop()" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
   h+='<div style="padding:15px 16px;">';
   h+='<div style="display:flex;gap:10px;margin-bottom:11px;">'+qut('KURS',kurs,'$/g',1)+qut('LOM',lom,'$/g',0)+'</div>';
+  var _mn=(typeof sozManba==='function')?sozManba(true):'';
+  if(_mn) h+='<div style="font-size:11.5px;color:var(--muted);margin-bottom:11px;">Kursni qo\'ygan: <b style="color:var(--text);">'+_posEsc(_mn)+'</b></div>';
   h+='<div style="border-radius:12px;padding:10px 13px;border:1px solid var(--blue-bd);background:var(--blue-bg);margin-bottom:14px;">';
   h+='<div style="font-size:9.5px;letter-spacing:.09em;color:var(--blue);">B USTAMA \u2014 A NARX USTIGA QO\'SHILADI</div>';
   h+='<div style="font-size:20px;font-weight:700;color:var(--blue);font-family:Roboto,sans-serif;">+ '+fmtD(bUst)+'<span style="font-size:11px;color:var(--muted);font-weight:400;"> $/g</span></div></div>';
@@ -19784,11 +19790,27 @@ function _kursTarixBirlashtir(lokal, bulut){
   return JSON.stringify(r.slice(-100));
 }
 
+// Kursni KIM va QACHON qo'ygani (v179.1 — Ibrohim: «kurs qatta o'zgarvotganini
+// bilomayamman»). Ma'lumot allaqachon `sozlamalar` hujjatida bor edi (qurilma, ts),
+// shunchaki ekranga chiqarilmagan.
+function sozManbaSaqla(qurilma, ts){
+  try{ localStorage.setItem('tilla-soz-manba', JSON.stringify({q:qurilma||'', ts:ts||Date.now()})); }catch(e){}
+}
+function sozManba(vaqtBilan){
+  try{
+    var m=JSON.parse(localStorage.getItem('tilla-soz-manba')||'null');
+    if(!m || !m.q) return '';
+    if(!vaqtBilan) return m.q;
+    var d=new Date(m.ts||0);
+    return m.q+' \u00b7 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }catch(e){ return ''; }
+}
 function sozYubor(h){
   var ref=sozRef(); if(!ref) return;
   if(typeof cloudYozaOladi==='function' && !cloudYozaOladi()) return;
   h = h || narxHolatYig();
   _sozOzimTs = h.ts;
+  sozManbaSaqla(localStorage.getItem('tilla-qurilma')||'', h.ts);
   ref.set({ ts:h.ts, k:h.k, qurilma:(localStorage.getItem('tilla-qurilma')||'') })
     .then(function(){ try{ cloudYozuvSana(1); }catch(e){} })
     .catch(function(e){ try{ cloudXato(e); }catch(_){} });
@@ -19841,6 +19863,7 @@ function sozQollash(d){
     if(key==='tilla-kurs-tarix') yangi=_kursTarixBirlashtir(localStorage.getItem(key), yangi);
     if(localStorage.getItem(key)!==yangi){ localStorage.setItem(key, yangi); ozgardi=true; }
   });
+  sozManbaSaqla(d.qurilma, d.ts);
   if(!ozgardi) return;
 
   // Kuzatuvchi buni «lokal o'zgarish» deb o'ylab cloudga qaytarib yubormasin.
