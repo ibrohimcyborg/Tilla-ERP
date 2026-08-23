@@ -2251,6 +2251,7 @@ function applyRol(){
   var _bw=document.getElementById('pos-bell-wrap');
   if(_bw) _bw.style.display=(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')?'':'none';
   if(typeof posBellUpd==='function') posBellUpd();
+  if(typeof posChListen==='function') posChListen();
   // POS 1.17 (Ibrohim, 2026-08-23): «keremas manga POS, man telimdan
   // testkassaga kiraman, PC dan test loginiga kirib qo'ng'iroqcha kelganini
   // tekshiraman». POS 1.07 da qo'shilgan blok OLIB TASHLANDI — test logini
@@ -14728,7 +14729,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.27';
+var POS_VER = '1.28';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14937,11 +14938,24 @@ function _posChRef(){
 var _posChUnsub=null, _posCh=[], _posChOchiq=null, _posChSkan={}, _posChKir={};
 
 // Faqat TEST xonasidagi admin tinglaydi (POS o'zi tinglamaydi).
+// POS 1.28: avval bu FAQAT Firebase auth chaqirig'ida bir marta ishga tushardi.
+// O'sha paytda rol hali 'admin' bo'lmasa yoki cloud tayyor bo'lmasa — jimgina
+// qaytardi va BOSHQA HECH QACHON urinmasdi, natijada chernovik yetib kelmasdi.
+// Endi applyRol dan ham chaqiriladi va tayyor bo'lmasa qayta urinadi.
+var _posChKut=null;
 function posChListen(){
   try{
     if(_posChUnsub) return;
     if(!(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')) return;
-    var ref=_posChRef(); if(!ref) return;
+    var ref=_posChRef();
+    if(!ref){                                   // cloud hali ulanmagan — kutamiz
+      if(!_posChKut) _posChKut=setInterval(function(){
+        if(_posChUnsub || !(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')){
+          clearInterval(_posChKut); _posChKut=null; return; }
+        if(_posChRef()){ clearInterval(_posChKut); _posChKut=null; posChListen(); }
+      }, 2000);
+      return;
+    }
     _posChUnsub=ref.onSnapshot(function(snap){
       _posCh=[];
       snap.forEach(function(doc){
@@ -15488,7 +15502,8 @@ function posBSaqla(){
   var sana=today();
   var _n=new Date();
   var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
-  var tana=_pbChekTana(k);
+  // POS 1.28 (Ibrohim: «chek chiqarish digan narsani unut») — chek BOSILMAYDI.
+  // Chernovik hisobga tegmaydi, chek esa qabuldan keyin ma'noga ega bo'ladi.
 
   // Har zavod·tur uchun bitta qator. Donalarning ALOHIDA og'irliklari ham
   // yuboriladi — admin skan bilan solishtirishi uchun (k.tarix ularni saqlamaydi).
@@ -15520,7 +15535,6 @@ function posBSaqla(){
     _chekXabar('Yuborilmadi — qayta urining','xato');
   });
 
-  chekIkkiChop(chekYakun(tana), 1);
   posBYop(); posModalYop();
   if(typeof renderPOS==='function') renderPOS();
 }

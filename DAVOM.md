@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.27 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.28 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.27** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.28** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.27` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.28` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -166,9 +166,15 @@ o'tadi»*.
 tegmaydi**, `save()` ham chaqirilmaydi. Faqat cloudga chernovik yozadi:
 `collection(cloudKol()).doc('_poschernovik').collection('items')` — chek navbati
 (`_cheknavbat`) bilan bir xil naqsh, har chernovik alohida hujjat (massiv emas —
-ikki qurilma bir-birini o'chirmasin). Chek avvalgidek **darrov** bosiladi.
+ikki qurilma bir-birini o'chirmasin). ⚠ **Chek POS 1.28 da OLIB TASHLANDI** (Ibrohim: «chek chiqarish digan narsani unut») — chernovik hisobga tegmagani uchun chek qabuldan keyin ma'noga ega.
 Chernovikda **`donalar:[...]`** ham bor — `k.tarix` ularni saqlamaydi, skan
 solishtiruvi uchun shart.
+
+⚠ **POS 1.28 tuzatish:** `posChListen()` avval FAQAT Firebase auth chaqirig'ida
+bir marta ishga tushardi — o'sha paytda rol hali `admin` bo'lmasa yoki cloud
+tayyor bo'lmasa jimgina qaytardi va **boshqa hech qachon urinmasdi**, natijada
+chernovik admin ekraniga **yetib kelmasdi** (Ibrohim: «0 ta kutmoqda»). Endi
+`applyRol` dan ham chaqiriladi va cloud tayyor bo'lmasa 2 soniyada qayta urinadi.
 
 **Tilla ERP tomoni** (`test` logini) — `posChListen()` tinglaydi, qo'ng'iroqcha
 sanaydi. Ochilganda har tur uchun POS donalari ko'rinadi, admin **yozib yoki
