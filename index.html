@@ -14738,7 +14738,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.29';
+var POS_VER = '1.30';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -18422,6 +18422,11 @@ mainTab(_savedTab);
   document.addEventListener('touchend', function(e){
     if(!swiping) return;
     swiping=false;
+    // POS 1.30 (Ibrohim rasm bilan): POS rolida chapga/o'ngga surilganda
+    // mainTab('klient'/'zavod') chaqirilib, kassir BUTUN Tilla ERP ga
+    // (kassa, zavodlar, PDF) kirib qolardi. Bu ishlovchida rol tekshiruvi
+    // umuman yo'q edi.
+    if(typeof getRol==='function' && getRol()==='pos') return;
     var dx=e.changedTouches[0].clientX - swipeStartX;
     var dy=Math.abs(e.changedTouches[0].clientY - swipeStartY);
     if(dy > VERT_MAX) return; // vertikal scroll

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.29 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.30 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.29** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.30** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.29` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.30` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -235,6 +235,38 @@ ochiladi, ikkalasi ham qulflaydi, faqat oxirgisi bo'shatadi. `posBYop` /
 `posModalYop` oyna yo'q bo'lsa qulfga tegmaydi.
 
 ---
+
+## ⚠️ ARXITEKTURA QARORI KUTILMOQDA — POS ni AJRATISH
+
+Ibrohim (2026-08-23): *«POS sistemani shunaqa qigansanki u Tilla ERP ning orqa
+fonida ishlayapti — bu umuman noto'g'ri yo'nalish, eng katta xato».*
+
+**U haq.** POS `index.html` ichida, ERP ning `#main-pos` div'i sifatida yashaydi:
+bitta `body`, bitta `:root`, bitta scroll, bitta tab tizimi. Bugungi muammolarning
+deyarli **hammasi** shuning ko'rinishi edi:
+
+| Muammo | Ildizi |
+|---|---|
+| Tepada klient qidirish ko'rinardi | POS ERP div'i ichida |
+| `mainTab('pos')` yashirishni bekor qilardi | ERP tab tizimiga bo'ysunadi |
+| Palitrani `body.rol-pos` ga o'rash | bitta CSS, bitta tema |
+| Orqa fon suzardi | bitta `body`, bitta scroll |
+| **Surib ERP ga kirib ketish** | umumiy swipe ishlovchisi (POS 1.30 da yopildi) |
+
+**Taklif:** POS alohida fayl — `pos.html`. O'z DOM'i, CSS'i, qobig'i. ERP bilan
+faqat Firestore orqali uchrashadi (o'qish + `_poschernovik` ga yozish).
+Chernovik g'oyasiga to'g'ri keladi — POS `data` ga baribir yozmaydi.
+
+⚠ **Yagona jiddiy xavf:** qarz funksiyalari (`klientJamiQarz`, `_qarzTarkibRows`)
+nusxalanmasin — aks holda raqamlar ajraladi (v177.4 xatosi). Yechim: ularni
+`hisob.js` ga chiqarib, `index.html` va `pos.html` **ikkalasi** yuklasin.
+
+**Narxi:** yangi `pos.html` qobig'i; `hisob.js` ko'chiriladi; bugungi POS
+ekranlari deyarli o'zgarishsiz ko'chadi; `index.html` dan ~700 qator o'chadi;
+qo'ng'iroqcha va qabul `index.html` da qoladi. `viewport-fit`, sticky o'lchash,
+`!important`, `body.rol-pos` — hammasi keraksiz bo'ladi.
+
+**Ibrohim javob bermadi:** boshlaymizmi, yoki avval hozirgi POS sinab ko'rilsinmi.
 
 ## Ochiq masalalar
 
