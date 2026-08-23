@@ -14728,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.21';
+var POS_VER = '1.22';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -15088,8 +15088,20 @@ var _pbSavat=[], _pbZi=-1, _pbTi=0, _pbIch=[], _pbKir='', _pbNeg=false;
 var _pbQarzKesh=null;                       // {zavod||tur: qarz} — har ochilganda yangilanadi
 
 function _pbV(){ return _pbMode==='vozvrat'; }
+// POS 1.22: berish/vozvrat oynasi ochiqda orqadagi POS sahifasi yashiriladi,
+// yopilganda o'sha holatiga qaytariladi.
+function _pbOrqa(v){
+  // ⚠ body.rol-pos #main-pos da `display:flex !important` bor (269-qator),
+  // shuning uchun oddiy style.display='none' ISHLAMAYDI — !important kerak.
+  ['#main-pos','.topbar','.main-tabs'].forEach(function(sel){
+    var e=document.querySelector(sel); if(!e) return;
+    if(v==='none') e.style.setProperty('display','none','important');
+    else e.style.removeProperty('display');
+  });
+}
 function posBYop(){
   var m=document.getElementById('pb-ovl'); if(m) m.remove();
+  _pbOrqa('');
   var km=document.getElementById('pos-ovl'); if(km) km.style.display='flex';
   var av=document.getElementById('app-ver'); if(av) av.style.display='';
 }
@@ -15108,6 +15120,10 @@ function _pbOch(m){
   // yopilishi kere». Fon qattiq qilindi + klient oynasi vaqtincha yashiriladi
   // (o'chirilmaydi — berishdan chiqilganda o'sha holatiga qaytadi).
   var _km=document.getElementById('pos-ovl'); if(_km) _km.style.display='none';
+  // POS 1.22 (Ibrohim: «orqasi o'ynavotti»): oyna ochilganda ORQADAGI SAHIFA
+  // butunlay yashiriladi. Faqat qattiq fonga ishonmaymiz — telefonda fixed
+  // qatlam tepani to'liq qoplamay qolgan edi (POS sarlavhasi ko'rinib turardi).
+  _pbOrqa('none');
   // Versiya endi tepa satrda (POS 1.13) — o'ng pastdagi belgi modal ustida
   // turaverardi (z-index 99998 > 9200). Berish ochiqda yashiriladi.
   var _av=document.getElementById('app-ver'); if(_av) _av.style.display='none';
