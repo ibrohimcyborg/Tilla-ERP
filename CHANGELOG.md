@@ -268,6 +268,26 @@ POS 1.24 Chapdagi ro'yxat FAQAT tanlangan turni ko'rsatadi.
          qo'shildi -> faqat 5.55; Oddiy ga qaytildi -> yana 7.00+1.20;
          chiplar "Oddiy 8.20 g" / "3D 5.55 g"; savatga 3 dona tushdi.
          JAMI zavod bo'yicha qoladi (savatga shu tushadi).
+POS 1.25 SAHIFA SCROLLI QULFLANADI - orqadagi fon muammosi HAL BO'LDI.
+         Ibrohim: "orqada background da klient shundoq turipti, shu yo'qolsin
+         umuman, shuning hisobiga scrollam chiqvotti yonga".
+         UCHINCHI urinish. Avvalgi ikkitasi noto'g'ri mexanizmni tuzatgan:
+           POS 1.14 - fonni qattiq qildi (muammo shaffoflikda emas edi)
+           POS 1.22 - orqadagi elementlarni yashirdi (mainTab('pos') 12456
+                      `display:block !important` qo'yib qayta ochib yuborardi,
+                      u applyRol dan chaqiriladi)
+         ASL SABAB: oyna `position:fixed` bo'lsa ham ORQADAGI SAHIFA scroll
+         bo'laverardi. iOS da surilganda tepasi qatlam ustida ko'rinardi,
+         yon tomonda scroll chizig'i chiqardi.
+         Yechim - _posScrollLock(on): body ga position:fixed + top:-scrollY,
+         yopilganda qaytariladi va scrollTo tiklaydi.
+         SANAGICH kerak: berish oynasi KLIENT oynasi USTIDA ochiladi, ikkalasi
+         ham qulflaydi, faqat oxirgisi yopilganda bo'shatiladi.
+         posBYop / posModalYop endi oyna YO'Q bo'lsa qulfga TEGMAYDI (avval
+         har chaqirilganda bo'shatib yuborishi mumkin edi).
+         Sinov: klient oynasi -> sanagich 1, berish -> 2, berish yopildi -> 1
+         (qulf QOLADI), hammasi yopildi -> 0 va scroll o'z joyiga qaytdi.
+         Takror yopilsa sanagich manfiyga tushmaydi.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)

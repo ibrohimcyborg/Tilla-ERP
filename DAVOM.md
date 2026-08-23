@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.24 · 2026-08-23
+**Oxirgi yangilanish:** POS 1.25 · 2026-08-23
 
 ---
 
@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.24** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **POS 1.25** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
@@ -127,7 +127,7 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.24` — o'ng pastda **va** berish oynasi tepa satrida |
+| Versiya belgisi | POS rolida `POS 1.25` — o'ng pastda **va** berish oynasi tepa satrida |
 | **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
 | **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
@@ -174,62 +174,21 @@ Minus — zavod ichida `±`.
   Chapdagi ro'yxat **faqat tanlangan turni** ko'rsatadi (POS 1.24) — boshqa
   turlar yo'qolmaydi, chipida grammi turadi va savatga tushadi.
 
-### ⏳ YARIM QOLDI — «orqasi yurvotti» (POS 1.22 da HAL BO'LMAGAN)
+### ✅ «Orqasi yurvotti» — HAL BO'LINDI (POS 1.25)
 
-Ibrohim: *«shu menyuning orqasi yurvotti, tepada klient qidirish turipti»*.
-Berish oynasi ochiqda POS ro'yxatining tepasi (qidirish maydoni) ko'rinib qoladi.
+Uch urinishdan keyin. Avvalgi ikkitasi **noto'g'ri mexanizmni** tuzatgan:
+* POS 1.14 — fonni qattiq qildi → muammo shaffoflikda emas edi
+* POS 1.22 — orqadagi elementlarni yashirdi → `mainTab('pos')`
+  ([index.html:12456](index.html)) `#main-pos` ga `display:block !important`
+  qo'yib qayta ochib yuborardi (u `applyRol` dan chaqiriladi)
 
-Qilingan (ikkalasi ham YETMADI):
-* POS 1.14 — fon `rgba(0,0,0,.8)` → `var(--bg)` qattiq qilindi
-* POS 1.22 — `_pbOrqa('none')` topbar/tablar/`#main-pos` ni yashiradi
+**Asl sabab:** oyna `position:fixed` bo'lsa ham **orqadagi sahifa scroll
+bo'laverardi** — iOS da surilganda tepasi qatlam ustida ko'rinardi.
 
-Nega yetmadi:
-1. `mainTab('pos')` ([index.html:12456](index.html)) `#main-pos` ga
-   `display:block !important` qo'yib **qayta ochib yuboradi** — u `applyRol`
-   dan chaqiriladi.
-2. Asosiysi: oyna `position:fixed` bo'lsa ham **orqadagi sahifa scroll
-   bo'laveradi**; iOS da sahifa surilganda tepasi qatlam ustida ko'rinadi.
-
-Keyingi qadam: **sahifa scrollini qulflash** — oyna ochilganda `body` ni
-`position:fixed` + `top:-scrollY` qilib qotirish, yopilganda qaytarish.
-Klient oynasi va berish oynasi bittadan sanagich bilan ishlatadi (berish
-klient oynasi ustida ochiladi). Kod **yozilmagan**.
-  Maket: artifact `cbcd6392`.
-* **Ekran o'lchamlari (POS 1.12)** — `_pbDraw` boshida ikki bayroq:
-
-  | Bayroq | Shart | Nima bo'ladi |
-  |---|---|---|
-  | `TOR` | `innerWidth < 640` | ikki ustun **bir ustunga** tushadi (tepada katakchalar, pastda kiritish+klaviatura) |
-  | `PAST` | `innerHeight < 560` | klaviatura **5 ustunga** o'tadi (3 qator), tugma 38px, paddinglar kichrayadi |
-
-  ⚠ **POS 1.19–1.20:** gramm maydonida `inputmode="none"` — qurilma klaviaturasi
-  **hech qachon** ochilmaydi (Ibrohim: «son chiqishi keremas»). Maydon
-  tahrirlanadigan bo'lib qoladi, ya'ni **skaner yozaveradi**. Ekran klaviaturasi
-  endi **doim** bor (POS 1.11 dagi yashirish bekor qilindi).
-
-  Telefon **vertikal** → TOR · klaviatura bor.
-  Telefon **gorizontal** → PAST · klaviatura yo'q.
-  Planshet → ikkalasi ham yo'q, hammasi to'liq.
-  Burilganda `resize` + `orientationchange` bilan qayta chiziladi.
-  Katakchalar: `innerWidth > 900` bo'lsa qatorda **5 ta**, aks holda **4 ta**.
-  ⚠ Sinovda tekshirilgan o'lchamlar: 390×844 · 780×360 · 1180×800.
-* **Berish oynasi orqani to'liq yopadi (POS 1.14):** fon `var(--bg)` — qattiq
-  (avval `rgba(0,0,0,.8)` edi, klient oynasi ko'rinib turardi). Berish
-  ochilganda `#pos-ovl` `display:none`, `posBYop` da `display:flex` ga qaytadi.
-
-### ✅ Status bar ostida qolish — HAL QILINDI (v178 / POS 1.15, 2026-08-23)
-
-Ildiz sabab: `index.html:6` viewport meta'da `viewport-fit=cover` yo'q edi →
-`env(safe-area-inset-*)` hamma joyda **0px** → kodda **yozilgan** himoyalarning
-hammasi (`.topbar` :17, `.main-tabs` :21, `--safe-bot` :16/:58) **o'lik turgan**.
-
-Qilingani: meta'ga `viewport-fit=cover` · berish oynasi paddingiga
-`var(--safe-top)`/`var(--safe-bot)` · `renderPOS` sarlavhasiga (:14812)
-`padding-top:var(--safe-top)` · berish ochiqda `#app-ver` yashiriladi ·
-`#app-ver` pastki chekkasi `calc(6px + var(--safe-bot))`.
-
-⚠ Bu POS'dan **tashqariga** chiqdi (Ibrohim ruxsati bilan) → `APP_VER`
-`v177.9` → **`v178`**. CLAUDE.md §5 dagi qotgan raqam ham yangilandi.
+**Yechim:** `_posScrollLock(on)` — `body` ga `position:fixed` + `top:-scrollY`,
+yopilganda qaytariladi. **Sanagich shart:** berish oynasi klient oynasi ustida
+ochiladi, ikkalasi ham qulflaydi, faqat oxirgisi bo'shatadi. `posBYop` /
+`posModalYop` oyna yo'q bo'lsa qulfga tegmaydi.
 
 ---
 

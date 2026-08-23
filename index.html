@@ -14728,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.24';
+var POS_VER = '1.25';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14752,7 +14752,12 @@ function posKlientOch(ki){ _posKi=ki; _posModal(); }
 // POS 1.05 XATO TUZATILDI: bu funksiya _posKi=-1 qilardi va _posModal uni
 // BIRINCHI QATORDA chaqirardi -> data.klientlar[-1] undefined -> modal
 // jim yopilardi (Ibrohim: «bosvomman kirmayapti»). Endi faqat DOM tozalanadi.
-function posModalYop(){ var m=document.getElementById('pos-ovl'); if(m) m.remove(); }
+function posModalYop(){
+  var m=document.getElementById('pos-ovl');
+  if(!m) return;                     // ochilmagan bo'lsa qulfga TEGILMAYDI
+  m.remove();
+  _posScrollLock(false);
+}
 function posAmal(a){
   if(a==='berish'){ posBerishOch(); return; }    // POS 1.08
   if(a==='vozvrat'){ posVozvratOch(); return; }  // POS 1.09
@@ -15068,6 +15073,7 @@ function _posModal(){
   h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
+  _posScrollLock(true);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -15095,6 +15101,39 @@ var _pbQarzKesh=null;                       // {zavod||tur: qarz} — har ochilg
 function _pbV(){ return _pbMode==='vozvrat'; }
 // POS 1.22: berish/vozvrat oynasi ochiqda orqadagi POS sahifasi yashiriladi,
 // yopilganda o'sha holatiga qaytariladi.
+// ══════════════════════════════════════════════════════════════
+// POS 1.25 — SAHIFA SCROLLINI QULFLASH.
+// Ibrohim: «orqada background da klient shundoq turipti, shu yo'qolsin
+// umuman, shuning hisobiga scrollam chiqvotti yonga».
+// Oyna `position:fixed` bo'lsa ham ORQADAGI SAHIFA scroll bo'laverardi —
+// iOS da surilganda tepasi qatlam ustida ko'rinib qolardi, yon tomonda esa
+// scroll chizig'i chiqardi. Elementlarni yashirish YETMADI, chunki
+// mainTab('pos') (12456) `#main-pos` ga `display:block !important` qo'yib
+// qayta ochib yuboradi (u applyRol dan chaqiriladi).
+// Sanagich kerak: berish oynasi KLIENT oynasi USTIDA ochiladi — ikkalasi ham
+// qulflaydi, faqat oxirgisi yopilganda bo'shatiladi.
+var _posLockN=0, _posLockY=0;
+function _posScrollLock(on){
+  var b=document.body;
+  if(on){
+    if(_posLockN===0){
+      _posLockY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      b.style.setProperty('position','fixed','important');
+      b.style.setProperty('top',(-_posLockY)+'px','important');
+      b.style.setProperty('left','0','important');
+      b.style.setProperty('right','0','important');
+      b.style.setProperty('width','100%','important');
+      b.style.setProperty('overflow','hidden','important');
+    }
+    _posLockN++;
+  } else {
+    _posLockN = Math.max(0, _posLockN-1);
+    if(_posLockN===0){
+      ['position','top','left','right','width','overflow'].forEach(function(k){ b.style.removeProperty(k); });
+      window.scrollTo(0,_posLockY);
+    }
+  }
+}
 function _pbOrqa(v){
   // ⚠ body.rol-pos #main-pos da `display:flex !important` bor (269-qator),
   // shuning uchun oddiy style.display='none' ISHLAMAYDI — !important kerak.
@@ -15105,7 +15144,10 @@ function _pbOrqa(v){
   });
 }
 function posBYop(){
-  var m=document.getElementById('pb-ovl'); if(m) m.remove();
+  var m=document.getElementById('pb-ovl');
+  if(!m) return;                     // ochilmagan bo'lsa qulfga TEGILMAYDI
+  m.remove();
+  _posScrollLock(false);
   _pbOrqa('');
   var km=document.getElementById('pos-ovl'); if(km) km.style.display='flex';
   var av=document.getElementById('app-ver'); if(av) av.style.display='';
@@ -15132,6 +15174,7 @@ function _pbOch(m){
   // Versiya endi tepa satrda (POS 1.13) — o'ng pastdagi belgi modal ustida
   // turaverardi (z-index 99998 > 9200). Berish ochiqda yashiriladi.
   var _av=document.getElementById('app-ver'); if(_av) _av.style.display='none';
+  _posScrollLock(true);
   _pbDraw();
 }
 // Qarz tarkibi ILOVANING o'z funksiyasidan (17468) — boshqa yo'l bilan
