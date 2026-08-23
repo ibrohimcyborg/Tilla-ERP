@@ -14740,7 +14740,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.32';
+var POS_VER = '1.33';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14957,6 +14957,10 @@ function _posChRef(){
   return null;
 }
 var _posChUnsub=null, _posCh=[], _posChOchiq=null, _posChSkan={}, _posChKir={};
+// POS 1.33 (Ibrohim): har skandan keyin panel qayta chizilib, maydon o'chib
+// yangisi yaratilardi — fokus yo'qolib, sichqoncha bilan qayta bosishga to'g'ri
+// kelardi. Qaysi qatorga qaytarish kerakligini eslab qolamiz.
+var _posChFokus=null;
 
 // Faqat TEST xonasidagi admin tinglaydi (POS o'zi tinglamaydi).
 // POS 1.28: avval bu FAQAT Firebase auth chaqirig'ida bir marta ishga tushardi.
@@ -15019,14 +15023,19 @@ function posChSkanQosh(ri){
   var v=parseNum(_posChKir[ri]||'');
   if(!v){ var e=document.getElementById('pch-in-'+ri); if(e){ e.style.borderColor='var(--red)'; e.focus(); } return; }
   if(!_posChSkan[ri]) _posChSkan[ri]=[];
-  _posChSkan[ri].push(roundG(v)); _posChKir[ri]=''; posBellOch();
+  _posChSkan[ri].push(roundG(v)); _posChKir[ri]='';
+  _posChFokus=ri; posBellOch();
 }
-function posChSkanOchir(ri,j){ if(_posChSkan[ri]) _posChSkan[ri].splice(j,1); posBellOch(); }
+function posChSkanOchir(ri,j){
+  if(_posChSkan[ri]) _posChSkan[ri].splice(j,1);
+  _posChFokus=ri; posBellOch();
+}
 function posChNusxa(ri){
   var c=_posChTop(_posChOchiq); if(!c) return;
-  _posChSkan[ri]=(c.rows[ri].donalar||[]).slice(); posBellOch();
+  _posChSkan[ri]=(c.rows[ri].donalar||[]).slice();
+  _posChFokus=ri; posBellOch();
 }
-function posChOch(id){ _posChOchiq=id; _posChSkan={}; _posChKir={}; posBellOch(); }
+function posChOch(id){ _posChOchiq=id; _posChSkan={}; _posChKir={}; _posChFokus=0; posBellOch(); }
 function posChOrqa(){ _posChOchiq=null; posBellOch(); }
 
 // ── QABUL — yozuvlar FAQAT shu yerda tug'iladi
@@ -15210,6 +15219,14 @@ function posBellOch(){
   h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
+  // POS 1.33: skandan keyin fokus o'sha maydonda qoladi — ketma-ket skan qilish
+  // uchun sichqonchaga tegish shart emas.
+  if(c){
+    var _fi = (_posChFokus!=null) ? _posChFokus : 0;
+    var _fe = document.getElementById('pch-in-'+_fi) || document.getElementById('pch-in-0');
+    if(_fe){ _fe.focus(); try{ _fe.setSelectionRange(_fe.value.length,_fe.value.length); }catch(e){} }
+  }
+  _posChFokus=null;
 }
 function _posAmalPill(){
   var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
