@@ -14728,7 +14728,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.22';
+var POS_VER = '1.23';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14984,11 +14984,16 @@ function posBellOch(){
 }
 function _posAmalPill(){
   var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
-  var a=[['berish','&#8593;','BERISH'],['vozvrat','&#8617;','VOZVRAT'],['sotuv','&#10003;','SOTUV']];
+  // POS 1.23 (Ibrohim: «iconli, svg-mas emas»): matn belgilari o'rniga INLINE SVG.
+  // Sabab: ↩ (U+21A9) iOS da EMOJI bo'lib, kulrang quti ichida chiqardi.
+  var _sv=function(d){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;">'+d+'</svg>'; };
+  var a=[['berish', _sv('<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>'), 'BERISH'],
+         ['vozvrat',_sv('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),'VOZVRAT'],
+         ['sotuv',  _sv('<polyline points="20 6 9 17 4 12"/>'), 'SOTUV']];
   var h='<div class="pos-pills">';
   a.forEach(function(x){
     h+='<button onclick="posAmal(\''+x[0]+'\')" style="display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-family:inherit;background:'+G+';color:#fff;box-shadow:0 6px 18px rgba(81,131,255,.32);">';
-    h+='<span style="font-size:14px;line-height:1;">'+x[1]+'</span>';
+    h+='<span style="display:flex;align-items:center;">'+x[1]+'</span>';
     h+='<span style="font-size:11.5px;font-weight:600;letter-spacing:.05em;">'+x[2]+'</span></button>';
   });
   return h+'</div>';

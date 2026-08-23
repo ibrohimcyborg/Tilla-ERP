@@ -241,6 +241,22 @@ POS 1.21 BUTUN POS SAHIFASI ko'k + klient oynasi orqani to'liq yopadi.
             teng bo'linadi. Avval avatar+ism bilan bir qatorda siqilardi.
             Sinov 390x844: pillar alohida qatorda, eni 112px, chetdan
             chiqmagan, gorizontal scroll yo'q.
+POS 1.22 Berish oynasi ochiqda ORQADAGI SAHIFA yashiriladi.
+         Ibrohim rasm bilan: berish oynasi ustida POS ro'yxatining qatori
+         ("Bexruz Aka Qarshi · 0.00g · QARZ YO'Q") ko'rinib turardi.
+         Qattiq fon yetmadi - telefonda fixed qatlam tepani to'liq
+         qoplamas ekan. Endi _pbOrqa('none') topbar, main-tabs va main-pos ni
+         yashiradi, posBYop qaytaradi.
+         ⚠ Tuzoq: body.rol-pos #main-pos da `display:flex !important` bor,
+         shuning uchun style.display='none' ISHLAMADI - birinchi urinishda
+         sinov "#main-pos hali ko'rinadi" dedi. setProperty(...,'important')
+         bilan tuzatildi.
+POS 1.23 Amal ikonlari INLINE SVG.
+         Ibrohim: "vozvrat berish sotuvla iconli, svg-mas emas".
+         Sabab: ↩ (U+21A9) iOS da EMOJI bo'lib kulrang quti ichida chiqardi.
+         Endi uchalasi ham 15x15 inline SVG, stroke=currentColor:
+         BERISH yuqoriga strelka, VOZVRAT qaytish strelkasi, SOTUV belgi.
+         Matn belgilari (↑ ↩ ✓) pilldan butunlay olib tashlandi.
 
          AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
          viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)
