@@ -14738,7 +14738,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.30';
+var POS_VER = '1.31';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14874,10 +14874,10 @@ function renderPOS(){
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
   h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:2px 8px;">'+POS_VER+'</span>';
   h+='<span style="flex:1;"></span>';
-  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:15px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
+  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 13px;border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
   h+='</div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
-  h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:18px;padding:0 13px;height:52px;">';
+  h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:0 18px;height:52px;">';
   h+='<span style="color:var(--muted);font-size:15px;">&#128269;</span>';
   h+='<input id="pos-q" value="'+_posEsc(_posQ)+'" oninput="posQidir(this.value)" autocomplete="off" placeholder="Klient qidirish - ism bo\'yicha" style="flex:1;background:none;border:0;outline:none;color:var(--text);font-size:16px;font-family:inherit;">';
   h+='</div></div>';
@@ -14915,7 +14915,7 @@ function _posRoyxat(){
       var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
       var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZ QARZDORMIZ':"QARZ YO'Q");
       var belgi = qz>0.001?'\u2212':(qz<-0.001?'+':'');   // ilovadagi qoida: klient qarzi MINUS
-      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:18px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
+      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
       out+='<div style="width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surf);border:1px solid var(--border);color:var(--gold);font-weight:600;font-size:16px;">'+_posEsc(hf)+'</div>';
       out+='<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
       out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+belgi+fmtG(Math.abs(qz))+'g</div>';
