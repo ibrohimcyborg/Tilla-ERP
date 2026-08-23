@@ -17,7 +17,7 @@
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v177.9 gacha push qilingan** (2026-08-22) — prod v177.9. |
+| Git | **POS 1.33 gacha push qilingan** (2026-08-23) — prod `POS_VER 1.33`, `APP_VER v178`. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -310,6 +310,73 @@ o'zgarmagan. `rol-zavod` qatorlari aynan bir xil.
 2. `#app-ver` pastki chekkasi `calc(6px + var(--safe-bot))`
 
 Bular mantiqqa, hisobga, ma'lumotga tegmaydi — faqat bo'shliq.
+
+## ☁️ CLOUD AUDITI — 2026-08-23 (kod O'ZGARMADI, faqat tahlil)
+
+Ibrohim POS da kursni uch qurilmada uch xil ko'rdi (planshet 77.7 · telefon 74.4
+· PC 84) va cloud qanday qurilganini so'radi. Uch audit o'tkazildi.
+Hujjat (Artifact, telefonda ochiladi):
+https://claude.ai/code/artifact/c5df1f9e-fa33-4ea0-815a-2928002b52b6
+
+### ILDIZ — bitta, alomati ikkita
+
+Blobdan oplogga o'tish **boshlangan, lekin oxirigacha yetkazilmagan**.
+`data.kassa` va kurs/narx sozlamalari o'sha o'tishda qolib ketgan — ikkalasi
+ham FAQAT blob bilan sayohat qiladi, blob esa ma'lumoti bor qurilmaga
+hech qachon tushmaydi (`cloudListen` 19645: `bosh && lokalVaqt===0`).
+
+| Alomat | Sabab | Joy |
+|---|---|---|
+| Kurs har qurilmada boshqa | `tilla-kurs-bugun` localStorage da; cloudga faqat `data._narxSync` bilan chiqadi | `narxHolatQollash` butun faylda **1 marta** chaqiriladi — 2338 |
+| Kassa sinxronlanmaydi | `amalWalk` kassani ATAYLAB tashlab ketadi — «obyekt, blob orqali sinxron bo'ladi» | izoh 8279 |
+
+⚠ POS kursni 14873 va 14801 da localStorage dan o'qiydi.
+
+### To'g'ri ishlayotgan joylar — TEGILMASIN
+
+- **Oplog** (`_amallar/items`, 8389/8392) — har yozuv o'z `_id` si bilan.
+- **Ostatka tarixdan** — `turOst` 7484. Increment-hisob v99 da ATAYLAB
+  o'chirilgan (`hisobListen` 8530). ⚠ Uni qaytarish TAKLIF QILINSA — RAD ET,
+  Ibrohim bu qarorni allaqachon qilgan.
+- **Sinov xonasi** — `tk()` prefikslash 2007, `cloudKol()` 19447.
+- **`arrayUnion` + `zaImportIds`** — Zavod ko'prigi to'qnashuvsiz.
+
+### Boshqa tasdiqlangan kamchiliklar
+
+- **Yashil chiroq aldaydi** — cloudda yangiroq nusxa borligini ko'rib, uni
+  YUKLAMAYDI, lekin «sinxron» deb ko'rsatadi (19649).
+- **POS chernovigini faqat TEST xonasi tinglaydi** — `posChListen` 14974:
+  `getRol()==='admin' && SANDBOX==='TEST'`. ⚠ Haqiqiy bazaga o'tishda SHU
+  SHART o'zgarishi kerak, aks holda chernovik hech kimga bormaydi.
+- **`_poschernovik` hujjatlari hech qachon o'chirilmaydi** (chekda tozalash bor — 2197).
+- **Zavod ERP ga kassa hisobi KO'CHIRILGAN** — Zavod 623–631, to'rt funksiya.
+  Tillada hisob o'zgarsa, Zavodda qo'lda o'zgartirilmasa ikki xil raqam chiqadi.
+- **Zavod ERP `tillaKolTop`** (Zavod 498) eng oxirgi yozilgan omborni tanlaydi —
+  TEST da ko'p ishlangan bo'lsa SINOV bazasiga ulanib qoladi.
+- **Zavod ERP o'z bazasiga hisobsiz ulanadi** (Zavod 559–560) va uni har
+  saqlashda to'liq ustiga yozadi (1338/1341).
+- **Bo'lak BELGI bilan kesiladi** (19843), Firestore esa BAYT bilan cheklaydi.
+- **`enablePersistence` ikkala faylda ham YO'Q** — internetsiz navbat yoqilmagan.
+- **`YOZUV_LIMIT` 25000** (19412) — bu Firestore limiti EMAS, o'z tormozimiz;
+  va `cloudSaqlaNow` hisoblagichni umuman chaqirmaydi.
+- **`kassa_snapshot`** har saqlashda yoziladi, lekin Zavod uni O'QIMAYDI.
+
+### Tavsiya qilingan tartib (Ibrohim hali tanlamagan)
+
+| | Ish | Xavf |
+|---|---|---|
+| 0 | `enablePersistence` + yashil chiroq yolg'oni | juda kichik |
+| 1 | `settings/global_config` — kurs bitta manbadan | kichik |
+| 2 | `zavod_amallar` → subkolleksiya (massiv emas) | kichik |
+| 3 | Kassa tarixdan + hisob ikki ilovada UMUMIY | katta |
+| 4 | Faqat shundan keyin blobni nafaqaga chiqarish | katta |
+
+⚠ Gemini «arxitekturani tubdan o'zgartir, increment/transaction ishlat» dedi —
+tahlil qilindi, RAD ETILDI: increment allaqachon sinalib o'chirilgan (8530),
+`runTransaction` yozuvni ko'paytiradi, `arrayUnion` esa xavfsiz qism.
+To'liq tahlil suhbatda, 2026-08-23.
+
+---
 
 ## Ochiq masalalar
 
