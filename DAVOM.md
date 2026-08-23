@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** POS 1.33 · 2026-08-23
+**Oxirgi yangilanish:** v179 · POS 1.33 · 2026-08-23
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **POS 1.33** (`POS_VER`) — hozir FAQAT shu o'sadi. Tilla ERP versiyasi **`v178` da QOTIB TURADI** (`index.html` 1-qatori + `APP_VER`), POS ishida tegilmaydi. Qoida: CLAUDE.md §5 (Ibrohim, 2026-08-22) |
+| Versiya | **`APP_VER v179`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **POS 1.33 gacha push qilingan** (2026-08-23) — prod `POS_VER 1.33`, `APP_VER v178`. |
+| Git | **v179 gacha** (2026-08-23) — `APP_VER v179`, `POS_VER 1.33`. ⚠ push qilinmagan — Ibrohim aytsa. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -327,7 +327,7 @@ hech qachon tushmaydi (`cloudListen` 19645: `bosh && lokalVaqt===0`).
 
 | Alomat | Sabab | Joy |
 |---|---|---|
-| Kurs har qurilmada boshqa | `tilla-kurs-bugun` localStorage da; cloudga faqat `data._narxSync` bilan chiqadi | `narxHolatQollash` butun faylda **1 marta** chaqiriladi — 2338 |
+| ~~Kurs har qurilmada boshqa~~ **✅ v179 da YOPILDI** | `tilla-kurs-bugun` localStorage da; cloudga faqat `data._narxSync` bilan chiqardi | endi `sozlamalar` jonli hujjati — `sozListen`/`sozQollash`/`sozKuzat` |
 | Kassa sinxronlanmaydi | `amalWalk` kassani ATAYLAB tashlab ketadi — «obyekt, blob orqali sinxron bo'ladi» | izoh 8279 |
 
 ⚠ POS kursni 14873 va 14801 da localStorage dan o'qiydi.
@@ -361,7 +361,42 @@ hech qachon tushmaydi (`cloudListen` 19645: `bosh && lokalVaqt===0`).
   va `cloudSaqlaNow` hisoblagichni umuman chaqirmaydi.
 - **`kassa_snapshot`** har saqlashda yoziladi, lekin Zavod uni O'QIMAYDI.
 
-### Tavsiya qilingan tartib (Ibrohim hali tanlamagan)
+### ✅ 1-QADAM BAJARILDI — SOZLAMALAR JONLI HUJJATDA (v179)
+
+Ibrohim: «cloud bir xil turmasligi charchatti, zavod erpda bu muammo yoqde» →
+Zavod ERP usuli olindi: bitta hujjat, hamma tinglaydi.
+
+`cloudKol()/sozlamalar` — kurs, lom, lom-farq, B ustama, zavod foizlari.
+
+| Funksiya | Nima qiladi |
+|---|---|
+| `sozRef()` | hujjat manzili |
+| `sozListen()` | **hamma rol** tinglaydi (pos, zavod, hamid ham) |
+| `sozQollash(d)` | localStorage ga yozadi + ekranni qayta chizadi. ⚠ narx maydoniga yozayotgan bo'lsa TEGMAYDI |
+| `sozYubor(h)` | **faqat `getRol()==='admin'`** yozadi (Ibrohim qarori) |
+| `sozKuzat()` | 3 soniyalik barmoq izi kuzatuvchisi — ~20 yozuv joyiga chaqiruv qo'shmaslik uchun |
+| `_kursTarixBirlashtir` | tarix BIRLASHTIRILADI, hech narsa o'chmaydi |
+
+⚠ **Kursni o'qiydigan 20 joyga TEGILMADI** — ular localStorage dan o'qiyveradi.
+Yangi kurs o'qish joyi qo'shsang ham shu yo'ldan o'qi, alohida kanal ochma.
+
+⚠ Eski `data._narxSync` ko'prigi (2313/2325/2338) **o'chirilmadi** — u faqat
+sahifa yuklanganda ishlaydi, yangi tinglovchi undan keyin ustun keladi.
+Sahifa ochilganda bir lahza eski kurs ko'rinib, keyin to'g'rilanishi mumkin.
+
+**Qolgan tartib:**
+
+| | Ish | Xavf |
+|---|---|---|
+| ~~1~~ | ~~`settings/global_config` — kurs~~ **✅ v179** | — |
+| 0 | `enablePersistence` + yashil chiroq yolg'oni | juda kichik |
+| 2 | `zavod_amallar` → subkolleksiya (massiv emas) | kichik |
+| 3 | **Kassa** tarixdan + hisob ikki ilovada UMUMIY — Ibrohim «avval kurs» dedi, navbat shunda | katta |
+| 4 | Faqat shundan keyin blobni nafaqaga chiqarish | katta |
+
+---
+
+### Tavsiya qilingan tartib (eski yozuv)
 
 | | Ish | Xavf |
 |---|---|---|

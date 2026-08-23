@@ -1,4 +1,4 @@
-<!-- v178 -->
+<!-- v179 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2031,7 +2031,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v178';
+var APP_VER = 'v179';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -19572,8 +19572,8 @@ function cloudInit(){
         if (!TEST_MODE) { localStorage.setItem('tilla-cloud-tasdiq','1'); } // haqiqiy rejimdagi mavjud sessiya — qonuniy
         else { firebase.auth().signOut(); return; } // TEST rejimga meros sessiya kirolmaydi
       }
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); chekNavbatTingla(); posChListen();   /* v172.28: chek navbati — faqat chiqaruvchi qurilmada ishlaydi */ if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
-      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); try{ chekNavbatUnsub(); }catch(e){} obyektUnsub(); amalUnsubAll(); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); sozListen(); sozKuzat(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); chekNavbatTingla(); posChListen();   /* v172.28: chek navbati — faqat chiqaruvchi qurilmada ishlaydi */ if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
+      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} if(_sozUnsub){_sozUnsub();_sozUnsub=null;} donaBazaCloudUnsub(); try{ chekNavbatUnsub(); }catch(e){} obyektUnsub(); amalUnsubAll(); }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
   } catch(e) { console.error('cloudInit:', e); cloudStatus('red','xato'); }
@@ -19742,6 +19742,116 @@ function cloudYuklab(meta, jim){
     alert('Clouddan yuklashda xato: '+e.message+'\nLokal malumot ozgarmadi.');
     cloudStatus('red','yuklash xatosi');
   });
+}
+// ══════════════════════════════════════════════════════════════════
+// SOZLAMALAR — CLOUDDA BITTA JONLI HUJJAT (v179, Ibrohim: «cloud bir xil
+// turmasligi charchatti, Zavod ERP da bu muammo yo'q»).
+//
+// Zavod ERP usuli: bitta hujjat, hamma qurilma tinglaydi. Shu yerda kurs,
+// lom, B ustama va zavod foizlari uchun aynan shunday qilinadi.
+//
+// ⚠ Kursni O'QIYDIGAN 20 joyga TEGILMAYDI (kursSanada 9978, POS 14801/14873,
+//   kassa snapshot 19768, sotuv/to'lov modallari ...). Ular avvalgidek
+//   localStorage dan o'qiydi — biz faqat localStorage ni to'g'ri holatda
+//   ushlab turamiz. Shuning uchun bironta hisob-kitob o'zgarmaydi.
+//
+// Yozadi: FAQAT rol 'admin' (test / tilla / admin loginlari).
+// Ko'radi: hamma — pos, zavod, hamid ham.
+// Eski data._narxSync ko'prigi (2313/2325) TEGILMADI — u faqat sahifa
+// yuklanganda bir marta ishlaydi, bu esa undan keyin ustun keladi.
+// ══════════════════════════════════════════════════════════════════
+function sozRef(){
+  try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('sozlamalar'); }catch(e){}
+  return null;
+}
+var _sozUnsub=null, _sozImzo=null, _sozKutgan=null, _sozTimer=null, _sozOzimTs=0;
+
+// Kurs tarixi BIRLASHTIRILADI — hech narsa o'chirilmaydi. Bir kunda ikki xil
+// yozuv bo'lsa kechrog'i (soati kattarog'i) qoladi — «bir kunda bitta yozuv»
+// qoidasi hkSaqla (3063) bilan bir xil.
+function _kursTarixBirlashtir(lokal, bulut){
+  var a=[], b=[];
+  try{ a=JSON.parse(lokal||'[]')||[]; }catch(e){}
+  try{ b=JSON.parse(bulut||'[]')||[]; }catch(e){}
+  var m={};
+  a.concat(b).forEach(function(x){
+    if(!x || !x.sana) return;
+    var bor=m[x.sana];
+    if(!bor || String(x.soat||'') > String(bor.soat||'')) m[x.sana]=x;
+  });
+  var r=[]; Object.keys(m).forEach(function(k){ r.push(m[k]); });
+  try{ kursTarixSort(r); }catch(e){}
+  return JSON.stringify(r.slice(-100));
+}
+
+function sozYubor(h){
+  var ref=sozRef(); if(!ref) return;
+  if(typeof cloudYozaOladi==='function' && !cloudYozaOladi()) return;
+  h = h || narxHolatYig();
+  _sozOzimTs = h.ts;
+  ref.set({ ts:h.ts, k:h.k, qurilma:(localStorage.getItem('tilla-qurilma')||'') })
+    .then(function(){ try{ cloudYozuvSana(1); }catch(e){} })
+    .catch(function(e){ try{ cloudXato(e); }catch(_){} });
+}
+
+// Kuzatuvchi: narx kalitlari ~20 joydan yoziladi (2803, 2833, 2859, 2885,
+// 3066, 3256, 3364, 19199 ...). Har biriga chaqiruv qo'shish o'rniga bitta
+// joyda barmoq izi solishtiriladi — yangi yozuv joyi qo'shilsa ham o'zi
+// ilinadi, unutib qo'yish mumkin emas.
+// Ikki tik ketma-ket bir xil bo'lgandagina yuboriladi — kurs terilayotganda
+// har raqamga alohida yozuv ketmasin.
+function sozKuzat(){
+  if(_sozTimer) return;
+  _sozTimer=setInterval(function(){
+    try{
+      if(typeof getRol!=='function' || getRol()!=='admin') return;
+      if(!sozRef()) return;
+      var h=narxHolatYig(), im=JSON.stringify(h.k);
+      if(_sozImzo===null){ _sozImzo=im; return; }        // birinchi o'lchov — yubormaymiz
+      if(im!==_sozImzo){ _sozImzo=im; _sozKutgan=im; return; }  // hozir o'zgardi — tinchishini kutamiz
+      if(_sozKutgan){ _sozKutgan=null; sozYubor(h); }    // tinchidi — yuboramiz
+    }catch(e){}
+  }, 3000);
+}
+
+function sozListen(){
+  var ref=sozRef(); if(!ref || _sozUnsub) return;
+  _sozUnsub=ref.onSnapshot(function(doc){
+    if(!doc.exists){
+      // Cloudda hali yo'q — birinchi bo'lib admin yozadi.
+      if(typeof getRol==='function' && getRol()==='admin') sozYubor();
+      return;
+    }
+    var d=doc.data()||{};
+    if(!d.k) return;
+    if(d.ts && d.ts===_sozOzimTs) return;   // o'zimiz yozganimiz qaytdi — qayta qo'llamaymiz
+    sozQollash(d);
+  }, function(e){ console.error('sozListen:', e); });
+}
+
+function sozQollash(d){
+  // Foydalanuvchi ayni paytda narx maydoniga yozayotgan bo'lsa TEGMAYMIZ —
+  // terayotgan raqami ustidan yozilib ketmasin.
+  var a=document.activeElement;
+  if(a && a.id && /^(hk-kurs-inp|hk-lom-inp|hk-b-ust|z-kurs-inp|z-lom-inp)$/.test(a.id)) return;
+
+  var ozgardi=false;
+  Object.keys(d.k).forEach(function(key){
+    var yangi=d.k[key];
+    if(key==='tilla-kurs-tarix') yangi=_kursTarixBirlashtir(localStorage.getItem(key), yangi);
+    if(localStorage.getItem(key)!==yangi){ localStorage.setItem(key, yangi); ozgardi=true; }
+  });
+  if(!ozgardi) return;
+
+  // Kuzatuvchi buni «lokal o'zgarish» deb o'ylab cloudga qaytarib yubormasin.
+  try{ _sozImzo=JSON.stringify(narxHolatYig().k); }catch(e){}
+  localStorage.setItem('tilla-narx-sync-ts', String(d.ts||Date.now()));
+
+  ['renderHomeKurs','hkKunlikUpd','renderKassa','renderKassaCard','renderPOS'].forEach(function(f){
+    try{ if(typeof window[f]==='function') window[f](); }catch(e){}
+  });
+  // POS kurs oynasi ochiq bo'lsa u ham yangilansin
+  try{ if(document.getElementById('pos-kurs-ovl') && typeof posKursOch==='function') posKursOch(); }catch(e){}
 }
 function cloudSaqla(){
   // save() ichidan chaqiriladi — debounce (ketma-ket saqlashlarni bitta yozishga yig'adi)
