@@ -1,4 +1,4 @@
-<!-- v179.1 -->
+<!-- v179.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2031,7 +2031,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.1';
+var APP_VER = 'v179.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2838,6 +2838,7 @@ function hkAvtoSaqla() {
   hkKunlikUpd();
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
 }
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
@@ -3080,6 +3081,7 @@ function hkSaqla() {
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
   // LOM narxini ham avtomatik hisoblash va saqlash
   var lomEl = document.getElementById('hk-lom-inp');
   var lom = lomEl ? parseFloat(lomEl.value)||0 : 0;
@@ -3371,6 +3373,7 @@ function zKursSaqla() {
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
   if(typeof renderLom==='function'){ try{ renderLom(); }catch(e){} } // LOM tabidagi JAMI FOYDA ham yangilansin
   zKursRender();
 }
@@ -14800,6 +14803,16 @@ function _posNarxlar(zi, ti){
 // sarlavha bilan qatorlar tekislanmasdi (Ibrohim rasm bilan ko'rsatdi).
 var _POSG = 'display:grid;grid-template-columns:1fr 72px 72px 72px;align-items:center;gap:6px;';
 function posKursYop(){ var m=document.getElementById('pos-kurs-ovl'); if(m) m.remove(); }
+// v179.2 (Ibrohim rasm: admin 83 yozgan, POS hamon «KURS 8» ko'rsatib turgan).
+// Sabab: kurs terilganda hkAvtoSaqla (2834) renderKassa/renderKassaCard ni
+// chaqiradi, POS ni esa YO'Q — POS eski qiymatda qolib ketardi.
+// Butun ro'yxatni qayta chizmaymiz: ro'yxat tepaga sakrab, qidiruv matni
+// va scroll joyi buzilmasin. Faqat tugmadagi raqam yangilanadi.
+function posKursUpd(){
+  var e=document.getElementById('pos-kurs-val'); if(!e) return;
+  var k=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  e.textContent = k ? fmtD(k) : '\u2014';
+}
 function posKursOch(){
   posKursYop();
   var kurs = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
@@ -14882,7 +14895,7 @@ function renderPOS(){
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
   h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:2px 8px;">'+POS_VER+'</span>';
   h+='<span style="flex:1;"></span>';
-  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 13px;border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
+  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 13px;border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b id="pos-kurs-val" style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
   h+='</div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
   h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:0 18px;height:52px;">';
