@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v177.7 / POS 1.07 · 2026-08-21
+**Oxirgi yangilanish:** v179.2 · POS 1.33 · 2026-08-23
 
 ---
 
@@ -12,12 +12,12 @@
 
 | | |
 |---|---|
-| Versiya | **v177.7** (`index.html` 1-qatorida `<!-- v177.7 -->`, `APP_VER` da ham). POS o‘z versiyasi bilan yuradi: **POS 1.07** (`POS_VER`) |
-| Hajm | ~17,470 qator · ~1 MB · **~311k token** |
+| Versiya | **`APP_VER v179.2`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v177.7 gacha push qilingan** (2026-08-21) — prod v177.7. |
+| Git | **v179 push qilingan** (prodda). **v179.1** commit qilindi, ⚠ push qilinmagan — Ibrohim aytsa. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |
@@ -104,9 +104,11 @@ mumkin). Yumshatish taklif qilingan, Ibrohim hali qaror bermagan.
 
 ## 🟢 HOZIRGI ISH — POS (planshet kassa)
 
-**Login:** `kassatest` / `kassatest` — `CREDS` (2194), `rol:'pos'`, `sandbox:'TEST'`
-**Sinov uchun:** `test` / `test7777` da ham POS tabi ko'rinadi (v177.7), lekin u
-admin bo'lib qolaveradi — ikkala tomonni bitta qurilmadan sinash uchun.
+**Login:** `kassatest` / `kassatest` — `CREDS`, `rol:'pos'`, `sandbox:'TEST'`
+
+⚠ **POS 1.17 dan (Ibrohim, 2026-08-23):** `test` loginida POS tabi **YO'Q**.
+Ish taqsimoti: **telefon → `kassatest`** (POS), **PC → `test`** (Tilla ERP,
+qo'ng'iroqchani tekshirish uchun). POS tabi endi faqat `rol==='pos'` da.
 
 ### Baza qayerdan
 
@@ -125,7 +127,9 @@ hech narsa o'zgarmaydi.
 | Klient bazasi | qidiruv, A–Z rels, qarz ustuni — `renderPOS` / `_posRoyxat` |
 | Klient modali | `openKlientDetail` (11780) nusxasi — qarz tarkibi bilan |
 | Kurs paneli | faqat ko'rish: kurs, lom, B ustama, zavod/A/B narxlar |
-| Versiya belgisi | POS rolida `POS 1.07` |
+| Versiya belgisi | POS rolida `POS 1.33` — FAQAT tepada (pastdagi belgi POS da yashirin) — o'ng pastda **va** berish oynasi tepa satrida |
+| **BERISH** | **POS 1.09** — zavodga kirish + ichida chap/o'ng. `posBerishOch` / `_pbDraw` / `posBSaqla` (14952–15304) |
+| **VOZVRAT** | **POS 1.09** — berish bilan BITTA kod, `_pbMode` bilan ajraladi. `posVozvratOch` |
 
 **Qarz hisobi qayta yozilmagan** — `klientJamiQarz` (9733), `_qarzTarkib` (17057),
 `_qarzJamiRows` (16980), `klientJamiSavdo` (9779) CHAQIRILADI. Bu shart: boshqa yo'l
@@ -134,42 +138,288 @@ xato tuzatilgan).
 
 ### Yozilmagan — mockup tayyor
 
-**1. Berish oqimi** — `mockups/pos-berish-savat.html` (ishlaydi, tasdiqlangan)
-* zavod → tur → gramm, orqaga qaytish
-* **savat**: bir tur = bitta qator; turga qayta kirilsa donalar yuklanadi
-* **A / B / C** kategoriya: A optom · B = A + ustama · **C = kirim narxi + qo'lda ustama**
-* SKAN va QO'LDA rejim (klaviatura iPhone tartibida: 7 8 9 tepada)
-* har donada `×` va narxi
-* **Narx SAQLANMAYDI** — faqat ko'rsatiladi (Ibrohim tasdiqladi). `k.tarix` ga
-  hozirgidek gramm va dona yoziladi (12616)
-* Diff taxmini: **250–300 qator**
+**1. ~~Berish~~ + ~~Vozvrat~~ — BAJARILDI (v177.9 / POS 1.09, 2026-08-22)**
 
-**2. Tasdiq va tekshiruv** — `mockups/pos-tasdiq.html` (ishlaydi)
-POS amal yuboradi → Tilla ERP da 🔔 bildirishnoma → admin qayta tortadi →
-`skReconcile` (6378) solishtiradi → MOS yoki FARQ (qaysi dona kam/ortiq) → qabul/rad.
-Yo'l mavjud: Zavod ERP shunday yuboradi, `zavodAmallarListen` (18970) qabul qiladi —
-faqat u AVTOMAT import qiladi, tasdiq so'ramaydi.
+Ekran (Ibrohim aytgani; planshet **gorizontal** turadi):
+zavod kartasi → ichiga kirish → tepada tur chiplari · **o'ngda** gramm+klaviatura ·
+**chapda** katakchalar (qatorda 5 ta, tor ekranda 4 ta) + JAMI →
+«Savatga qo'shib chiqish» → boshqa zavod. O'zgartirish — **savat qatorini bosib**.
+Minus — zavod ichida `±`.
 
-⚠ **TO'RT SAVOL JAVOBSIZ — kod yozishdan oldin kerak:**
-1. POS amali **darhol** `k.tarix` ga tushadimi, yoki faqat tasdiqdan keyinmi?
-2. **Farq chiqsa** — rad · admin tuzatib qabul qiladi · yoki farq bilan qabul?
-3. **Kim tekshiradi** — faqat ASOSIY qurilmami? Ikkitasi bir vaqtda tasdiqlasa?
-4. Admin javob bermasa — amal qancha **kutadi**? Muddat, eslatma?
+* **NARX YO'Q.** Ibrohim: «klient to'lagani kelganda tilla narxi oshib ketsa
+  berishda aytilgan narxga to'g'ri kelmaydi». Faqat gramm va dona.
+  Shu sababli **A/B/C ham chiqarildi** (u faqat narx uchun edi).
+  `posKursOch` kurs paneliga TEGILMADI.
+* **Ombor ostatkasi — OGOHLANTIRADI, to'xtatmaydi** (admin'dagi blok ko'chirilmadi).
+* **Vozvrat** — berish bilan **bitta kod**, `_pbMode` ajratadi. Yozuvlar
+  `saqlashKlientVozvrat` (13099) bilan **1:1**, `_kdVoz` to'lov yozuvi ham.
+  Musbat bo'lmagan tur saqlanmaydi — ochiq aytiladi.
+  Qarz ko'rsatkichi `_qarzTarkibRows` (17468) dan.
+* Chek nusxasi **1 ta**, sana **bugungi**.
+### ✅ SKAN MAYDONI FOKUSNI SAQLAYDI (POS 1.33)
 
-### Keyingi tartib
-1. **Berish** yoziladi (savol yo'q) → sinaladi
-2. To'rt savolga javob → **tasdiq mexanizmi**
-3. Keyin: Vozvrat · To'lov · Sotuv
+Ibrohim: «1 ta skan qilsam chiqib ketvotti, sichqonchada yana inputga bosib
+ishlatvomman».
 
-### POS mockuplari
-```
-pos-berish-savat.html   berish savati — TASDIQLANGAN, yozilishi kerak
-pos-tasdiq.html         qo'ng'iroqcha va ikki tomonlama tekshiruv
-pos-kurs-panel.html     kurs paneli (yozilgan, POS 1.02)
-v177-pos-chernovik.html login + klient bazasi (Ibrohim maketi asosida)
-v177-pos-kassa.html     Ibrohimning asl maketi
-pos-savat.html          savat: 1-variant vs 2-variant (savat tanlandi)
-```
+Sabab: `posBellOch()` panelni butunlay qayta quradi (`posBellYop()` +
+`appendChild`) — eski `<input>` DOM dan o'chadi, fokus yo'qoladi.
+
+Yechim: `_posChFokus` (14963) qaysi qatorga qaytishni eslaydi;
+`posBellOch()` oxirida (15224) `#pch-in-<qator>` ga `focus()` beriladi.
+`posChOch` panel ochilishida 0-qatorga qo'yadi.
+
+⚠ Panelni qayta chizadigan YANGI amal qo'shsang — `_posChFokus=ri` ni ham
+qo'y, aks holda o'sha amaldan keyin fokus yana yo'qoladi.
+
+### ✅ CHERNOVIK REJIMI — POS HISOBGA TEGMAYDI (POS 1.27)
+
+Ibrohim (2026-08-23): *«buni faqat chernovik bo'lib keladigan qilgin, man testda
+tekshiraman, qo'ng'iroqcha keladi, yozib yoki skan qilib kirgizsam, qabul qilsam
+o'tadi»*.
+
+**POS tomoni** (`posBSaqla`) — `k.tarix`, `t.ostatka`, `t.donaOst` ga **umuman
+tegmaydi**, `save()` ham chaqirilmaydi. Faqat cloudga chernovik yozadi:
+`collection(cloudKol()).doc('_poschernovik').collection('items')` — chek navbati
+(`_cheknavbat`) bilan bir xil naqsh, har chernovik alohida hujjat (massiv emas —
+ikki qurilma bir-birini o'chirmasin). ⚠ **Chek POS 1.28 da OLIB TASHLANDI** (Ibrohim: «chek chiqarish digan narsani unut») — chernovik hisobga tegmagani uchun chek qabuldan keyin ma'noga ega.
+Chernovikda **`donalar:[...]`** ham bor — `k.tarix` ularni saqlamaydi, skan
+solishtiruvi uchun shart.
+
+⚠ **POS 1.28 tuzatish:** `posChListen()` avval FAQAT Firebase auth chaqirig'ida
+bir marta ishga tushardi — o'sha paytda rol hali `admin` bo'lmasa yoki cloud
+tayyor bo'lmasa jimgina qaytardi va **boshqa hech qachon urinmasdi**, natijada
+chernovik admin ekraniga **yetib kelmasdi** (Ibrohim: «0 ta kutmoqda»). Endi
+`applyRol` dan ham chaqiriladi va cloud tayyor bo'lmasa 2 soniyada qayta urinadi.
+
+**Tilla ERP tomoni** (`test` logini) — `posChListen()` tinglaydi, qo'ng'iroqcha
+sanaydi. Ochilganda har tur uchun POS donalari ko'rinadi, admin **yozib yoki
+skan qilib** kiritadi, `_posChRecon` (skReconcile mantig'i) mos/kam/ortiq
+ko'rsatadi. **Hamma tur tekshirilmaguncha qabul tugmasi yopiq.** Farq bo'lsa
+tugma «⚠ O'zgarish bilan qabul» ga aylanadi.
+
+**Yozuvlar FAQAT `posChQabul` da tug'iladi** — `saqlashKlientBerish` /
+`saqlashKlientVozvrat` bilan aynan bir xil (`_kdVoz` ham). **Admin skani
+haqiqiy** hisoblanadi. Sana/soat chernovikdan olinadi (kassir qilgan payt).
+Zavod/tur/klient **nom bo'yicha** qayta topiladi — indeksga ishonilmaydi.
+
+Sinov: POS yubordi → k.tarix 0, qarz/ostatka/donaOst o'zgarmadi, save() yo'q.
+Admin 3D ni 1.50 o'rniga 1.80 kiritdi → qabuldan keyin k.tarix da **1.8**,
+ostatka 307.98→300.68, donaOst 20→18, chernovik holati `qabul`.
+* **YANGI USLUB (POS 1.16 → 1.29):** POS **YORUG'** palitrada (POS 1.29,
+  Ibrohim: «fon oq bo'lsin, faqat POS da») — `#EEF1F7` fon, `#FFFFFF` karta,
+  `#3B6FE0` urg'u, `#D14A2E` qarz, `#0F1B33` matn.
+  ⚠ Ranglar to'q ko'kdagidan **ataylab farq qiladi**: `#5183FF`/`#FF8B6B` oq
+  ustida xiralashardi (qarz kontrasti 2.1 → 4.4 ga ko'tarildi).
+  **Shakl (POS 1.29):** tugma va maydonlar **to'liq pill** (`999px`, iOS uslubi —
+  Ibrohim: «rangiga emas formasiga»), avatar **oq va dumaloq** (50%), kartalar
+  14–24px. Pill uchun `!important` shart — POS kodi inline style bilan chiziladi.
+  **Sticky (POS 1.29):** `_posBoy()` `#main-pos` balandligini **o'lchab** qo'yadi
+  (piksel taxmin qilinmaydi) — aks holda butun sahifa siljib, klient qatori tepa
+  panel va soat ustida ko'rinib qolardi. Endi faqat `#pos-list` siljiydi.
+  ~~POS ko'k palitrada — `#030F2C` fon, `#5183FF` urg'u.~~ Tokenlar `body.rol-pos, #main-pos, #pos-ovl, #pb-ovl`
+  selektorida qayta e'lon qilingan ([index.html:265](index.html)) — `topbar`,
+  `main-tabs`, `logo` ham tokenlar bilan ishlagani uchun **butun POS logini**
+  ko'k. Inline `var(--...)` lar qayta yozilmadi.
+  ⚠ **Admin/zavod/hamid tegilmagan** — ular hamon `--gold:#c9a84c` (sinovda
+  har safar tekshiriladi).
+  Amallar klient oynasining **sarlavhasida**, uchta ko'k pill (`_posAmalPill`);
+  tor ekranda (`max-width:700px`) o'z qatoriga tushadi (`.pos-hd`/`.pos-pills`).
+  Klient oynasi ham berish oynasi ham **orqani to'liq yopadi** (fon `var(--bg)`),
+  qo'shimcha: berish ochiqda `_pbOrqa('none')` topbar/tablar/`#main-pos` ni
+  **yashiradi** (POS 1.22 — telefonda fixed qatlam tepani qoplamas ekan).
+  ⚠ `body.rol-pos #main-pos` da `display:flex !important` bor — yashirish uchun
+  `setProperty('display','none','important')` shart.
+  Amal ikonlari **inline SVG** (POS 1.23) — `↩` iOS da emoji bo'lib ketardi.
+  Chapdagi ro'yxat **faqat tanlangan turni** ko'rsatadi (POS 1.24) — boshqa
+  turlar yo'qolmaydi, chipida grammi turadi va savatga tushadi.
+
+### ✅ «Orqasi yurvotti» — HAL BO'LINDI (POS 1.25)
+
+Uch urinishdan keyin. Avvalgi ikkitasi **noto'g'ri mexanizmni** tuzatgan:
+* POS 1.14 — fonni qattiq qildi → muammo shaffoflikda emas edi
+* POS 1.22 — orqadagi elementlarni yashirdi → `mainTab('pos')`
+  ([index.html:12456](index.html)) `#main-pos` ga `display:block !important`
+  qo'yib qayta ochib yuborardi (u `applyRol` dan chaqiriladi)
+
+**Asl sabab:** oyna `position:fixed` bo'lsa ham **orqadagi sahifa scroll
+bo'laverardi** — iOS da surilganda tepasi qatlam ustida ko'rinardi.
+
+**Yechim:** `_posScrollLock(on)` — `body` ga `position:fixed` + `top:-scrollY`,
+yopilganda qaytariladi. **Sanagich shart:** berish oynasi klient oynasi ustida
+ochiladi, ikkalasi ham qulflaydi, faqat oxirgisi bo'shatadi. `posBYop` /
+`posModalYop` oyna yo'q bo'lsa qulfga tegmaydi.
+
+---
+
+## ⚠️ ARXITEKTURA QARORI KUTILMOQDA — POS ni AJRATISH
+
+Ibrohim (2026-08-23): *«POS sistemani shunaqa qigansanki u Tilla ERP ning orqa
+fonida ishlayapti — bu umuman noto'g'ri yo'nalish, eng katta xato».*
+
+**U haq.** POS `index.html` ichida, ERP ning `#main-pos` div'i sifatida yashaydi:
+bitta `body`, bitta `:root`, bitta scroll, bitta tab tizimi. Bugungi muammolarning
+deyarli **hammasi** shuning ko'rinishi edi:
+
+| Muammo | Ildizi |
+|---|---|
+| Tepada klient qidirish ko'rinardi | POS ERP div'i ichida |
+| `mainTab('pos')` yashirishni bekor qilardi | ERP tab tizimiga bo'ysunadi |
+| Palitrani `body.rol-pos` ga o'rash | bitta CSS, bitta tema |
+| Orqa fon suzardi | bitta `body`, bitta scroll |
+| **Surib ERP ga kirib ketish** | umumiy swipe ishlovchisi (POS 1.30 da yopildi) |
+
+**Taklif:** POS alohida fayl — `pos.html`. O'z DOM'i, CSS'i, qobig'i. ERP bilan
+faqat Firestore orqali uchrashadi (o'qish + `_poschernovik` ga yozish).
+Chernovik g'oyasiga to'g'ri keladi — POS `data` ga baribir yozmaydi.
+
+⚠ **Yagona jiddiy xavf:** qarz funksiyalari (`klientJamiQarz`, `_qarzTarkibRows`)
+nusxalanmasin — aks holda raqamlar ajraladi (v177.4 xatosi). Yechim: ularni
+`hisob.js` ga chiqarib, `index.html` va `pos.html` **ikkalasi** yuklasin.
+
+**Narxi:** yangi `pos.html` qobig'i; `hisob.js` ko'chiriladi; bugungi POS
+ekranlari deyarli o'zgarishsiz ko'chadi; `index.html` dan ~700 qator o'chadi;
+qo'ng'iroqcha va qabul `index.html` da qoladi. `viewport-fit`, sticky o'lchash,
+`!important`, `body.rol-pos` — hammasi keraksiz bo'ladi.
+
+**Ibrohim qarori (2026-08-23):** *«2 ni qilaqolilik»* — avval hozirgi POS sinaladi,
+ishonch hosil qilingach ajratiladi. Ajratish **hozir boshlanmaydi**.
+
+### 🔒 KAFOLAT — boshqa loginlarga TEGILMAYDI
+
+Ibrohim: *«bu o'zgarishla Abdulhamid loginiga, admin tilla loginiga umuman
+ta'sir qilmasin»*.
+
+**O'lchandi (2026-08-23, POS 1.30):**
+
+| Login | Palitra | Topbar | Qo'ng'iroqcha | Tugma radiusi | POS tabi | `hamid-x` |
+|---|---|---|---|---|---|---|
+| `tilla` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `abdulhamid_7777` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | **none** ✔ |
+| `zavod` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `admin/admin123` | `#0f0f0f` / `#c9a84c` | qorong'i | yashirin | 50% | yashirin | flex |
+| `test` | `#0f0f0f` / `#c9a84c` | qorong'i | **ko'rinadi** (ataylab) | 50% | yashirin | flex |
+| `kassatest` | `#EEF1F7` / `#3B6FE0` | oq | yashirin | **999px** | ko'rinadi | flex |
+
+Kod jihatdan ham tekshirildi: `hamid` so'zi uchraydigan 36 qatordan **faqat bitta
+IZOH** o'chgan (POS 1.17 da olib tashlangan blokning izohi). CSS va shartlar
+o'zgarmagan. `rol-zavod` qatorlari aynan bir xil.
+
+⚠ **Ikkita o'zgarish GLOBAL** (Ibrohim ruxsati bilan, v178):
+1. `viewport-fit=cover` — notchli telefonda **hamma login** endi safe-area'ni
+   hisobga oladi (avval `env(safe-area-inset-*)` 0 edi, himoyalar o'lik turgan)
+2. `#app-ver` pastki chekkasi `calc(6px + var(--safe-bot))`
+
+Bular mantiqqa, hisobga, ma'lumotga tegmaydi — faqat bo'shliq.
+
+## ☁️ CLOUD AUDITI — 2026-08-23 (kod O'ZGARMADI, faqat tahlil)
+
+Ibrohim POS da kursni uch qurilmada uch xil ko'rdi (planshet 77.7 · telefon 74.4
+· PC 84) va cloud qanday qurilganini so'radi. Uch audit o'tkazildi.
+Hujjat (Artifact, telefonda ochiladi):
+https://claude.ai/code/artifact/c5df1f9e-fa33-4ea0-815a-2928002b52b6
+
+### ILDIZ — bitta, alomati ikkita
+
+Blobdan oplogga o'tish **boshlangan, lekin oxirigacha yetkazilmagan**.
+`data.kassa` va kurs/narx sozlamalari o'sha o'tishda qolib ketgan — ikkalasi
+ham FAQAT blob bilan sayohat qiladi, blob esa ma'lumoti bor qurilmaga
+hech qachon tushmaydi (`cloudListen` 19645: `bosh && lokalVaqt===0`).
+
+| Alomat | Sabab | Joy |
+|---|---|---|
+| ~~Kurs har qurilmada boshqa~~ **✅ v179 da YOPILDI** | `tilla-kurs-bugun` localStorage da; cloudga faqat `data._narxSync` bilan chiqardi | endi `sozlamalar` jonli hujjati — `sozListen`/`sozQollash`/`sozKuzat` |
+| Kassa sinxronlanmaydi | `amalWalk` kassani ATAYLAB tashlab ketadi — «obyekt, blob orqali sinxron bo'ladi» | izoh 8279 |
+
+⚠ POS kursni 14873 va 14801 da localStorage dan o'qiydi.
+
+### To'g'ri ishlayotgan joylar — TEGILMASIN
+
+- **Oplog** (`_amallar/items`, 8389/8392) — har yozuv o'z `_id` si bilan.
+- **Ostatka tarixdan** — `turOst` 7484. Increment-hisob v99 da ATAYLAB
+  o'chirilgan (`hisobListen` 8530). ⚠ Uni qaytarish TAKLIF QILINSA — RAD ET,
+  Ibrohim bu qarorni allaqachon qilgan.
+- **Sinov xonasi** — `tk()` prefikslash 2007, `cloudKol()` 19447.
+- **`arrayUnion` + `zaImportIds`** — Zavod ko'prigi to'qnashuvsiz.
+
+### Boshqa tasdiqlangan kamchiliklar
+
+- **Yashil chiroq aldaydi** — cloudda yangiroq nusxa borligini ko'rib, uni
+  YUKLAMAYDI, lekin «sinxron» deb ko'rsatadi (19649).
+- **POS chernovigini faqat TEST xonasi tinglaydi** — `posChListen` 14974:
+  `getRol()==='admin' && SANDBOX==='TEST'`. ⚠ Haqiqiy bazaga o'tishda SHU
+  SHART o'zgarishi kerak, aks holda chernovik hech kimga bormaydi.
+- **`_poschernovik` hujjatlari hech qachon o'chirilmaydi** (chekda tozalash bor — 2197).
+- **Zavod ERP ga kassa hisobi KO'CHIRILGAN** — Zavod 623–631, to'rt funksiya.
+  Tillada hisob o'zgarsa, Zavodda qo'lda o'zgartirilmasa ikki xil raqam chiqadi.
+- **Zavod ERP `tillaKolTop`** (Zavod 498) eng oxirgi yozilgan omborni tanlaydi —
+  TEST da ko'p ishlangan bo'lsa SINOV bazasiga ulanib qoladi.
+- **Zavod ERP o'z bazasiga hisobsiz ulanadi** (Zavod 559–560) va uni har
+  saqlashda to'liq ustiga yozadi (1338/1341).
+- **Bo'lak BELGI bilan kesiladi** (19843), Firestore esa BAYT bilan cheklaydi.
+- **`enablePersistence` ikkala faylda ham YO'Q** — internetsiz navbat yoqilmagan.
+- **`YOZUV_LIMIT` 25000** (19412) — bu Firestore limiti EMAS, o'z tormozimiz;
+  va `cloudSaqlaNow` hisoblagichni umuman chaqirmaydi.
+- **`kassa_snapshot`** har saqlashda yoziladi, lekin Zavod uni O'QIMAYDI.
+
+### ✅ 1-QADAM BAJARILDI — SOZLAMALAR JONLI HUJJATDA (v179)
+
+Ibrohim: «cloud bir xil turmasligi charchatti, zavod erpda bu muammo yoqde» →
+Zavod ERP usuli olindi: bitta hujjat, hamma tinglaydi.
+
+`cloudKol()/sozlamalar` — kurs, lom, lom-farq, B ustama, zavod foizlari.
+
+| Funksiya | Nima qiladi |
+|---|---|
+| `sozRef()` | hujjat manzili |
+| `sozListen()` | **hamma rol** tinglaydi (pos, zavod, hamid ham) |
+| `sozQollash(d)` | localStorage ga yozadi + ekranni qayta chizadi. ⚠ narx maydoniga yozayotgan bo'lsa TEGMAYDI |
+| `sozYubor(h)` | **faqat `getRol()==='admin'`** yozadi (Ibrohim qarori) |
+| `sozKuzat()` | 3 soniyalik barmoq izi kuzatuvchisi — ~20 yozuv joyiga chaqiruv qo'shmaslik uchun |
+| `_kursTarixBirlashtir` | tarix BIRLASHTIRILADI, hech narsa o'chmaydi |
+| `sozManbaSaqla` / `sozManba` | **v179.1** — kursni kim va qachon qo'ygani. `tilla-soz-manba` kalitida |
+
+**v179.1 — manba ko'rsatildi.** Admin bosh ekranidagi «Kunlik kurs» blokida
+«23.08 · 14:30 · Qurilma-1», POS kurs oynasida «Kursni qo'ygan: Qurilma-1 · 14:32».
+POS kurs TUGMASIGA (pill) tegilmadi — joy tor, Ibrohim so'rasa qo'shiladi.
+
+⚠ **«ASOSIY» qurilma HECH NIMA QILMAYDI.** `qurilmaAsosiy()` (19470) butun faylda
+faqat 19591 da yorliq chizishda ishlatiladi — imtiyoz yo'q. Ibrohim uni qidirib
+vaqt sarflagan. Kodga tegilmadi. Kelajakda «asosiy qurilma» bilan bir narsa
+qilmoqchi bo'lsang — u avval haqiqiy xulqqa ega bo'lishi kerak.
+
+⚠ **Kursni o'qiydigan 20 joyga TEGILMADI** — ular localStorage dan o'qiyveradi.
+Yangi kurs o'qish joyi qo'shsang ham shu yo'ldan o'qi, alohida kanal ochma.
+
+⚠ Eski `data._narxSync` ko'prigi (2313/2325/2338) **o'chirilmadi** — u faqat
+sahifa yuklanganda ishlaydi, yangi tinglovchi undan keyin ustun keladi.
+Sahifa ochilganda bir lahza eski kurs ko'rinib, keyin to'g'rilanishi mumkin.
+
+**Qolgan tartib:**
+
+| | Ish | Xavf |
+|---|---|---|
+| ~~1~~ | ~~`settings/global_config` — kurs~~ **✅ v179** | — |
+| 0 | `enablePersistence` + yashil chiroq yolg'oni | juda kichik |
+| 2 | `zavod_amallar` → subkolleksiya (massiv emas) | kichik |
+| 3 | **Kassa** tarixdan + hisob ikki ilovada UMUMIY — Ibrohim «avval kurs» dedi, navbat shunda | katta |
+| 4 | Faqat shundan keyin blobni nafaqaga chiqarish | katta |
+
+---
+
+### Tavsiya qilingan tartib (eski yozuv)
+
+| | Ish | Xavf |
+|---|---|---|
+| 0 | `enablePersistence` + yashil chiroq yolg'oni | juda kichik |
+| 1 | `settings/global_config` — kurs bitta manbadan | kichik |
+| 2 | `zavod_amallar` → subkolleksiya (massiv emas) | kichik |
+| 3 | Kassa tarixdan + hisob ikki ilovada UMUMIY | katta |
+| 4 | Faqat shundan keyin blobni nafaqaga chiqarish | katta |
+
+⚠ Gemini «arxitekturani tubdan o'zgartir, increment/transaction ishlat» dedi —
+tahlil qilindi, RAD ETILDI: increment allaqachon sinalib o'chirilgan (8530),
+`runTransaction` yozuvni ko'paytiradi, `arrayUnion` esa xavfsiz qism.
+To'liq tahlil suhbatda, 2026-08-23.
 
 ---
 
@@ -884,15 +1134,59 @@ Bularning hammasi **mockup/tahlil bosqichida**. Kod yozilmagan.
 
 ## Seans boshlash
 
+### ⚠ BOSHQA KOMPYUTERGA O'TGANDA — avval `git pull`
+
+Ibrohim ikki joyda ishlaydi: **uy PC** va **ishxona PC**. Loyiha GitHub'da
+(`ibrohimcyborg/Tilla-ERP`), hamma narsa shu yerda sinxronlanadi —
+`index.html`, `CLAUDE.md`, `DAVOM.md`, `CHANGELOG.md`, `mockups/`.
+
+Yangi kompyuterda ish boshlashdan oldin:
+
+```
+cd "<loyiha papkasi>"
+git pull
+```
+
+⚠ `git pull` xato bersa (lokal o'zgarish bor deb) — **o'zing hal qilma**,
+Ibrohimga ayt. Eski kompyuterda saqlanmagan ish qolgan bo'lishi mumkin.
+
+Papka umuman yo'q bo'lsa:
+```
+git clone https://github.com/ibrohimcyborg/Tilla-ERP.git
+```
+
 ```
 cd Tilla-ERP
 claude
 ```
 
-Keyin:
-> CLAUDE.md va DAVOM.md ni o'qi. v171.7 dan davom etamiz.
+Birinchi xabar — doim shu:
+> CLAUDE.md va DAVOM.md ni o'qi. POS 1.26 dan davom etamiz.
 
-Keyingi safar shu ishni davom ettirish uchun — `claude -c`.
+Boshqa hech narsa tushuntirilmasligi kerak. Kerak bo'lsa — bu fayl kam
+yozilgan, tuzatilsin (CLAUDE.md §0.1).
 
 **Har versiyadan keyin:** `/clear` qiling va yangi seans boshlang.
 Uzun seans tokenni ko'p yeydi (har so'rovda butun suhbat qayta yuboriladi).
+
+---
+
+## Ish tartibi — Ibrohim telefonda, Claude PC da
+
+Ibrohim ko'chada bo'lganda PC yoniq qoladi va ish shunday ketadi:
+
+| Kim | Nima qiladi |
+|---|---|
+| **Claude (PC)** | mockup yozadi → **Artifact qilib chiqaradi** → havolani beradi |
+| **Ibrohim (telefon)** | havolani ochadi, ko'radi — `"o'zgartir"` yoki `"yoz, push qil"` |
+| **Claude (PC)** | kodni yozadi, sinaydi, commit + **push** qiladi |
+| **Ibrohim (telefon)** | `tilla-erp.vercel.app` → `kassatest`/`kassatest` da sinaydi |
+
+⚠ **Mockupni faqat `mockups/` ga yozib qo'yish YETMAYDI** — telefonda
+ochilmaydi. Har mockup **Artifact** qilib chiqarilsin va havolasi berilsin.
+
+⚠ **Chek** sinovi uchun PC da `print_server.py` ishlab turishi kerak —
+chek planshetdan cloud navbatga ketadi, uni PC printerga beradi.
+
+⚠ Telefondan **PC dagi seansga to'g'ridan yozib bo'lmaydi** (masofaviy
+ulanish yoqilmagan). Seans uzilsa — yangi seans shu faylni o'qib davom etadi.

@@ -15,6 +15,62 @@ Prod: tilla-erp.vercel.app
    solishtir. Mos kelmasa Ibrohimga ayt, o'zing tuzatma.
 3. **`CHANGELOG.md` ni O'QIMA.** U faqat arxiv — yozasan, o'qimaysan.
 
+---
+
+## 0.1. UZLUKSIZLIK — kontekst to'lsa ish TO'XTAMASIN
+
+Ibrohim ko'pincha **telefondan** ishlaydi: mockupni telefonda ko'radi,
+`"o'zgartir"` yoki `"yoz, push qil"` deydi. Kod PC dagi seansda yoziladi.
+Seans uzilishi, kontekst to'lishi yoki `/clear` bo'lishi mumkin — shunda
+**yangi seans hech narsa so'ramasdan davom eta olishi shart**.
+
+Buning yagona kafolati — `DAVOM.md`. Shuning uchun:
+
+1. **`DAVOM.md` HAR versiyadan keyin DARHOL yangilanadi** — seans oxirini
+   kutmaydi. Kod yozildi → commit → `DAVOM.md`. Uchtasi bitta ish.
+2. **Yarim qolgan ish** `DAVOM.md` ga shunday yoziladi:
+   ```
+   ⏳ YARIM QOLDI — <nima>
+   Qilingan:  <aniq nima tushdi> — <fayl>:<qator>
+   Qolgan:    <aniq nima qolgan>
+   Keyingi qadam: <bitta jumla>
+   Javobsiz savol: <bor bo'lsa>
+   ```
+   Hech qachon `"davom etyapman"` deb qoldirma — keyingi seans o'qiydi.
+3. **Mockup DOIM Artifact qilib chiqariladi** — Ibrohim telefonda ochadi.
+   Faqat `mockups/` ga yozib qo'yish yetmaydi, telefonda ochilmaydi.
+   Havolani javobda ber.
+4. Yangi seans birinchi xabari doim shu bo'ladi:
+   > `CLAUDE.md` va `DAVOM.md` ni o'qi. `POS <oxirgi>` dan davom etamiz.
+
+   Boshqa hech narsa kerak bo'lmasligi kerak. Kerak bo'lsa — `DAVOM.md`
+   kam yozilgan, tuzat.
+5. Kontekst to'layotganini sezsang — **avval `DAVOM.md` ni yangila**, keyin
+   ishni davom ettir.
+
+### `/clear` tartibi (Ibrohim, 2026-08-22)
+
+Kontekst to'lib qolganda **Claude o'zi so'raydi**, Ibrohim eslatib turmaydi:
+
+1. Claude: `"Kontekst to'lib qolyapti. DAVOM.md ni yangiladim — /clear
+   qilaylikmi?"`
+2. Ibrohim: `"xop"`
+3. Ibrohim `/clear` yozadi (buni Claude o'zi bajara olmaydi — bu foydalanuvchi
+   buyrug'i), keyin bitta qator:
+   > `CLAUDE.md` va `DAVOM.md` ni o'qi. `POS <oxirgi>` dan davom etamiz.
+4. Yangi seans shu fayllardan holatni oladi va **hech narsa so'ramasdan**
+   davom etadi.
+
+⚠ **So'rashdan OLDIN `DAVOM.md` yozilgan bo'lishi shart.** So'ragandan keyin
+yozaman deb qoldirma — Ibrohim `"xop"` deb darhol tozalashi mumkin.
+
+⚠ Claude aniq foizni ko'ra olmaydi. Shuning uchun: **har versiya tugagach**
+va suhbat uzayganini sezganda — `DAVOM.md` ni yangilab, `/clear` ni taklif qil.
+Foizni Ibrohim o'z ekranida ko'radi.
+
+⚠ Ibrohim **hech qachon loyihani qaytadan tushuntirmaydi.** Agar yangi seans
+"qaysi ish?" deb so'rashga majbur bo'lsa — `DAVOM.md` kam yozilgan, ayb Claude'da.
+
 ### ⚠️ `index.html` NI TO'LIQ O'QIMA
 
 Fayl ~17 385 qator, ~1 MB, **~311k token** — kontekst oynasi 200k.
@@ -77,6 +133,34 @@ So'ralmasa **qilinmaydi**:
 
 **Bir turda bitta o'zgarish.** Kichik ko'rinsa ham ikkinchisini qo'shib
 yuborma.
+
+### BITTA-BITTA — maket ustida ishlash tartibi (Ibrohim, 2026-08-23)
+
+Ibrohim: *"man 1ta 1ta etaman, mockupda korsattasan, 'shunaqa qil' diman.
+Har 1ta elementimni saqlab qolasan."*
+
+Ibrohim maketni ko'rib ketma-ket bir nechta gap yozadi. **Ularni YIG'IB,
+bitta nashrda chiqarish TAQIQLANADI.** Har gap alohida sikl:
+
+1. Ibrohim **bitta** narsani aytadi
+2. Maketda **FAQAT o'shani** o'zgartirasan — boshqa hech nimaga tegmaysan
+3. Nashr qilasan va **aynan nima o'zgarganini** bitta qator bilan aytasan
+4. Ibrohim `"shunaqa qil"` deydi yoki tuzatadi
+5. Keyingi gapga o'tasan
+
+Ketma-ket uchta gap kelsa ham — **uchta alohida nashr**, uchta alohida javob.
+Birinchisini qilib, ko'rsatib, keyin ikkinchisiga o'tasan.
+
+⚠ **Har element saqlanadi.** Aytilmagan joyga tegilmaydi: rang, joylashuv,
+matn, bo'shliq — hech biri "yo'l-yo'lakay" o'zgarmaydi. Tuzilishni qayta
+yozish kerak bo'lsa — avval ayt, keyin yoz.
+
+⚠ Agar bir necha gap **bir-biriga bog'liq** bo'lsa (masalan tuzilish buzilgan
+va tuzatmasdan ikkinchisini qilib bo'lmasa) — **buni ochiq ayt**, o'zing
+qo'shib yuborma.
+
+**Nega bu bor:** 2026-08-23 da olti tuzatish bitta nashrga yig'ildi. Ibrohim
+aytmagan narsalar ham o'zgardi, qaysi xato qaysi so'rovdan kelgani yo'qoldi.
 
 **Diff budjeti.** Boshlashdan oldin taxminan necha qator o'zgarishini ayt.
 Haqiqiy diff shu taxmindan ~2 barobar oshsa — **to'xta va xabar ber**,
@@ -148,9 +232,30 @@ qolib ketdi. Ibrohim topdi, Claude emas.
 
 ## 5. VERSIYA VA CHANGELOG
 
-- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v171.7 -->` —
+### ⚠️ HOZIR POS DAVRI — faqat `POS_VER` o'sadi
+
+Ibrohim (2026-08-22): *"pos sistemada v o'zgarsin chunki biza hozi POS
+sistemada ishlavommiz, Tilla ERP da tursin v oxirida."*
+
+Hozir ish **POS ichida** ketyapti, shuning uchun:
+
+| | |
+|---|---|
+| `POS_VER` | **HAR POS o'zgarishida o'sadi** — 1.09 → 1.10 → 1.11 … |
+| `APP_VER` | **QOTIB TURADI: `v178`** — POS ishida TEGILMAYDI |
+| `index.html` 1-qatori | **QOTIB TURADI: `<!-- v178 -->`** |
+
+- Commit sarlavhasi POS versiyasi bilan: `POS 1.10 — <qisqa mazmun>`
+- `CHANGELOG.md` yozuvi ham `POS 1.10` deb boshlanadi
+- **Istisno:** o'zgarish POS dan TASHQARIDA bo'lsa (admin ekranlari, kassa,
+  hisobot, chek dvigateli) — o'shanda `APP_VER` va 1-qator o'sadi, `POS_VER`
+  tegilmaydi. Ikkalasiga ham tegadigan o'zgarish bo'lsa — **Ibrohimdan so'ra**.
+
+### Umumiy
+
+- `index.html` ning **ENG BIRINCHI qatori**: `<!-- v178 -->` —
   `<!DOCTYPE html>` dan **oldin**. Faqat raqam, boshqa hech narsa.
-- `APP_VER` o'zgaruvchisi ham shu versiyaga o'zgartiriladi.
+- `APP_VER` o'zgaruvchisi shu 1-qator bilan **doim bir xil** bo'lishi shart.
 - O'zgarishlar **tafsiloti** `index.html` ichiga **YOZILMAYDI** —
   adashtiradi. Faqat `CHANGELOG.md` ga.
 

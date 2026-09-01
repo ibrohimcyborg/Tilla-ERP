@@ -31,6 +31,277 @@ v177.6   POS 1.06 - POS rolida versiya belgisi 'POS 1.06' ko'rsatadi
 v177.7   POS 1.07 - test loginida ham POS tabi ko'rinadi (rol admin +
          SANDBOX TEST). rol-pos QO'YILMAYDI - admin bo'lib qolaveradi.
          Abdulhamid rejimiga TEGILMADI
+v177.8   POS 1.08 - BERISH oqimi (savat). mockups/pos-berish-savat.html
+         asosida, mockup Ibrohim tomonidan tasdiqlangan.
+         Zavod -> tur -> gramm -> savat -> o'zi zavodlar ro'yxatiga qaytadi.
+         Bir tur = SAVATDA BITTA QATOR; turga qayta kirilsa donalar yuklanadi.
+         SKAN / QO'LDA rejim, klaviatura iPhone tartibida (7 8 9 tepada).
+         Kategoriya A / B / C: A va B ilovaning _posNarxlar (getKatNarx) dan,
+         C = getZavodNarx (kirim narxi) + qo'lda ustama (boshlang'ich 2 $/g).
+         NARX SAQLANMAYDI - faqat ko'rsatiladi (Ibrohim tasdiqladi).
+
+         YOZUV saqlashKlientBerish davomEt() bilan AYNAN bir xil:
+         har tur uchun alohida k.tarix yozuvi {tip:'berish',sana,soat,
+         zavod,tur,gramm,dona}, t.ostatka faqat g>0 da kamayadi,
+         t.donaOst + donaRegOlish + donaBazaOlish, save().
+         Chek kBerishUpdateChek shaklida, chekIkkiChop(...,1) - planshetdan
+         cloud navbat orqali PC bosadi. Nusxa sanagichi YO'Q (1 ta).
+
+         Ombor ostatkasi: OGOHLANTIRADI, TO'XTATMAYDI (Ibrohim, 2026-08-22).
+         Admin'dagi "Zavodda yetarli tilla yo'q!" bloki POS ga KO'CHIRILMADI.
+         turOst (tarixdan) bilan solishtiriladi.
+
+         Tasdiq mexanizmi YOZILMADI - POS to'g'ridan k.tarix ga yozadi.
+         (DAVOM.md dagi to'rt savol hali javobsiz.)
+         posAmal da faqat 'berish' ulandi; vozvrat/tolov/sotuv alert bo'lib
+         qoldi. Yangi kod 301 qator, mavjud kodda 1 qator o'zgardi.
+v177.9   POS 1.09 - BERISH qayta yozildi + VOZVRAT qo'shildi.
+         Mockup: mockups/v177.9-pos-berish-planshet.html (tasdiqlangan).
+
+         EKRAN (Ibrohim aytgani bo'yicha, planshet GORIZONTAL turadi):
+         1) zavod kartalari -> bosiladi, ICHIGA kiriladi
+         2) ichida: tepada tur chiplari, O'NGDA gramm kiritish + klaviatura,
+            CHAPDA katakchalar (bir qatorga 5 ta; tor ekranda 4 ta), tagida JAMI
+         3) "Savatga qo'shib chiqish" -> savatga tushadi va TASHQARIGA chiqadi
+         4) boshqa zavod bosiladi -> u ham qo'shiladi
+         5) o'zgartirish: SAVAT qatorini bosish -> o'sha zavod ichiga qaytadi
+         6) minus: zavod ichida +- tugmasi, keyingi gramm manfiy tushadi
+
+         NARX OLIB TASHLANDI. Ibrohim: "klient to'lagani kelganda tilla narxi
+         oshib ketsa berishda aytilgan narxga to'g'ri kelmaydi". Faqat gramm va
+         dona. Shu sababli A/B/C kategoriya tanlovi ham bu ekrandan chiqarildi
+         (u faqat narx hisoblash uchun edi). Kurs paneli (posKursOch) tegilmadi.
+
+         VOZVRAT berish bilan bir xil ekran (teal rang). Yozuvlar
+         saqlashKlientVozvrat (13099) bilan 1:1:
+           {tip:'vozvrat',sana,soat,zavod,tur,gramm,dona}
+           t.ostatka += g · t.donaOst += dona · donaRegQosh
+           klientda qoldig'i bo'lsa {tip:'tolov',...,_kdVoz:true} ham yoziladi
+         Musbat bo'lmagan tur saqlanmaydi (admin ham faqat g>0.001 oladi) -
+         jim tushib qolmaydi, ochiq aytiladi.
+         Qarz KO'RSATKICHI _qarzTarkibRows (17468) dan - POS klient modalidagi
+         "QARZ TARKIBI" bilan bir xil raqam. Uch holat: qarz ichida / qarzdan
+         oshdi (oshgani biz qarzdor) / qarz yo'q (to'liq biz qarzdor).
+         Admin'dagi ortiqcha-confirm TAKRORLANMADI - ekranda allaqachon yozib
+         turibdi.
+
+         Berish yozuvlari v177.8 dagidek o'zgarmadi.
+         Eski POS 1.08 bloki (301 qator) yangisiga almashtirildi (353 qator).
+POS 1.10 TO'LOV tugmasi POS klient modalidan olib tashlandi.
+         Ibrohim: "to'lov modalini obtashimiz POS sistemadan HOZIRCHA".
+         Sabab: saqlashKlientTolov (14162) juda og'ir - har tur uchun kurs,
+         skidka, offset, lom, naqt/karta/perech bo'linishi, sdacha, biz-qarzdor
+         yopish (_kdYopish, _bizQarzYopildi) va to'lov ichida vozvrat.
+         POS uchun qanchalik to'liq bo'lishi hal qilinmagan.
+         Amallar: BERISH · VOZVRAT · SOTUV (3 ta).
+         posAmal dagi 'tolov' yorlig'i tegilmadi (tugma yo'q, zarari yo'q).
+         BU YERDAN BOSHLAB Tilla ERP versiyasi (APP_VER + 1-qator) QOTGAN:
+         v177.9. POS ishida faqat POS_VER o'sadi - CLAUDE.md 5-bo'lim.
+POS 1.11 TELEFON GORIZONTAL - klaviatura kesilib qolardi.
+         Ibrohim rasm bilan ko'rsatdi: telefon yotiq turganda 7 8 9 / 4 5 6 dan
+         keyingisi ekrandan chiqib ketardi.
+         O'lchandi: 780x360 da modal 340px, o'ng ustun kontenti 423px -
+         SIG'MAYDI, o'ng ustun scroll bo'lib klaviatura kesilardi.
+         Yechim - window.innerHeight < 560 bo'lsa (PAST):
+           * ekrandagi klaviatura CHIQMAYDI, o'rniga izoh: "Ekran past -
+             telefon klaviaturasidan tering, Enter qo'shadi". Maydonda
+             inputmode="decimal" bor, telefon raqamli klaviaturani ochadi.
+           * sarlavha / tur chiplari / pastki panel paddingi kichrayadi,
+             pastki tugmalar 44px -> 38px, overlay paddingi 10px -> 6px
+         Natija (780x360): scroll YO'Q, hamma narsa ko'rinadi.
+         Planshet (1180x800) tegilmadi: klaviatura joyida, tugma 146x92.
+         Burilganda qayta chizish: resize + orientationchange listener
+         (60ms kechikish bilan - burilishda o'lcham darrov turg'unlashmaydi).
+POS 1.12 TELEFON VERTIKAL - o'ng ustun chetdan kesilardi.
+         Ibrohim rasm bilan ko'rsatdi: klaviaturaning 8/9, 5/6, 2/3, 0 va
+         "+ Qo'shish" ekrandan chiqib ketgan.
+         Sabab: POS kodida tor ekran uchun BIR USTUNGA tushish umuman yo'q edi.
+         chap min-width 296px + o'ng min-width 286px = 582px, telefon eni 390px.
+         (Maketda breakpoint bor edi, ilova kodiga o'tkazilmagan - mening xatoyim.)
+         Yechim: window.innerWidth < 640 bo'lsa (TOR) - cols flex-direction
+         column, chap border-right o'rniga border-bottom, o'ng width:auto.
+         Vertikalda balandlik yetarli, shuning uchun klaviatura QOLADI.
+         Sinov: 390x844 bir ustun, klaviatura tugmasi 115px, kesilmagan,
+         gorizontal scroll yo'q. 780x360 va 1180x800 tegilmadi.
+POS 1.13 Versiya belgisi berish/vozvrat oynasining TEPA SATRIDA.
+         Ibrohim: "pasda versiyani ko'rsatmayapti, shunga nima bo'layotganini
+         bilolmayapman, tepa barga chiqarsa bo'lmidimi kichkina qilib".
+         O'ng pastdagi #app-ver (z-index 99998) modal ustida turadi, lekin
+         telefonda pastda ko'rinmay qolardi. Tepa satrga kichik chip qo'shildi,
+         matn _verBelgi() (2204) dan - POS rolida "POS <ver>", boshqada APP_VER.
+POS 1.14 Berish oynasi ORQANI TO'LIQ YOPADI.
+         Ibrohim: "klientga kirib berish qilsang orqada klient layeri ko'rinib
+         qopketvotti, shu to'liq yopilishi kere".
+         Sabab: pb-ovl foni rgba(0,0,0,.8) - YARIM SHAFFOF edi, orqadagi klient
+         oynasi (pos-ovl, z-index 9000) shundan o'tib ko'rinardi.
+         Yechim: fon var(--bg) - qattiq. Qo'shimcha: berish ochilganda klient
+         oynasi display:none bo'ladi, posBYop da display:flex ga qaytariladi
+         (O'CHIRILMAYDI - chiqilganda o'sha holatiga qaytadi).
+         Sinov: fon rgb(15,15,15) shaffof emas, overlay 0,0 390x844 = butun
+         viewport, chiqilganda klient oynasi qaytdi.
+
+v178 / POS 1.15  SAFE-AREA YOQILDI - status bar ostida qolish tuzatildi.
+         Ibrohim ruxsati bilan (POS dan TASHQARIGA chiqdi -> APP_VER ham o'sdi:
+         v177.9 -> v178. CLAUDE.md 5-bo'limidagi qotgan raqam ham yangilandi).
+         Ildiz sabab: viewport meta da viewport-fit=cover YO'Q edi ->
+         env(safe-area-inset-*) hamma joyda 0px -> kodda YOZILGAN himoyalarning
+         hammasi o'lik turgan (.topbar padding-top:var(--safe-top) 17-qator,
+         .main-tabs top 21-qator, --safe-bot 16/58-qator).
+         Besh o'zgarish:
+           1) meta viewport ga viewport-fit=cover
+           2) berish oynasi paddingi -> calc(6px + var(--safe-top)) / --safe-bot
+           3) renderPOS sarlavhasi (14812) -> padding-top:var(--safe-top)
+           4) berish ochiqda #app-ver yashiriladi (versiya endi tepa satrda),
+              chiqilganda qaytariladi
+           5) #app-ver bottom -> calc(6px + var(--safe-bot)) - viewport-fit
+              yoqilgach home indikatori ostiga tushib qolmasin
+         Sinov (sun'iy notch --safe-top:47px --safe-bot:34px bilan):
+           POS sarlavha padding-top 0 -> 47px
+           .topbar padding-top 0 -> 47px, balandlik 54 -> 101px
+           app-ver bottom 6 -> 40px
+           overlay padding 6px -> 53px 6px 40px
+         Notch yo'q qurilmada hammasi avvalgidek (0px).
+
+POS 1.16 YANGI USLUB - POS ko'k palitraga o'tdi + amallar sarlavhada.
+         Maket: Ibrohim tanlagan palitra #030F2C / #5183FF / #5F84DF / #93B2FF.
+         Usul: ilovaning O'Z tokenlari FAQAT POS konteynerlari ichida qayta
+         e'lon qilindi - #main-pos, #pos-ovl, #pb-ovl (265-qator). Shuning
+         uchun POS kodidagi inline var(--...) larni qayta yozish shart
+         bo'lmadi, butun POS bir zarbda ko'k bo'ldi.
+         ⚠ Admin, zavod va Abdulhamid ekranlari TEGILMAYDI - ular hamon
+         --gold:#c9a84c bilan ishlaydi (sinovda tasdiqlandi).
+         Klient oynasi (_posModal):
+           * amallar pastdagi 2x2 katakdan SARLAVHAGA ko'chdi - klient nomi
+             yonida uchta ko'k gradient pill (_posAmalPill)
+           * avatar dumaloq (50%), ism 18->16px, oyna eni 560->720px
+             (pillar sarlavhaga sig'ishi uchun)
+         TO'LOV hamon yo'q (POS 1.10 qarori).
+         Berish/vozvrat ekrani ranglarni tokenlar orqali oldi - tuzilishga
+         tegilmadi.
+POS 1.17 TEST loginidan POS tabi OLIB TASHLANDI.
+         Ibrohim: "keremas manga POS, man telimdan testkassaga kiraman, PC dan
+         test loginiga kirib qo'ng'iroqcha kelganini tekshiraman".
+         POS 1.07 da qo'shilgan blok (applyRol ichida, rol==='admin' &&
+         SANDBOX==='TEST') o'chirildi. Endi POS tabi FAQAT rol==='pos' da.
+         Sinov: test/tilla/admin/hamid - POS tabi yo'q; kassatest - bor.
+         ⚠ Bu qator applyRol ichida, ya'ni POS konteynerlaridan tashqarida.
+         O'zgarish POS tabiga tegishli bo'lgani uchun POS_VER o'stirildi;
+         APP_VER v178 da qoldirildi.
+POS 1.18 QO'NG'IROQCHA - Tilla ERP test loginining top barida.
+         Ibrohim: "yoz uni top barga svg qosh minimal qilib" + "faqat test
+         loginiga qo'sh".
+         ⚠ HOZIRCHA FAQAT XABAR BERADI. Qabul/rad YO'Q - yozuv POS saqlagan
+         zahoti k.tarix ga tushaveradi (avvalgidek). Tasdiq bosqichi keyin,
+         DAVOM.md dagi to'rt savolga javob olingach.
+         Yo'lda topilgan to'siq: POS yozuvi admin yozuvidan FARQLANMASDI -
+         belgisi yo'q edi (sotuv muammosining aynan o'zi). Shuning uchun
+         posBSaqla endi har yozuvga `pos:1` va bitta saqlash uchun umumiy
+         `posGrp` yozadi. Boshqa hech kim bu maydonlarni o'qimaydi.
+         Tuzilish:
+           * topbar ga SVG qo'ng'iroqcha + qizil sanagich (#pos-bell-wrap),
+             standart display:none, applyRol da faqat admin+TEST da ochiladi
+           * _posBellGuruhlar - k.tarix dan pos:1 yozuvlarni posGrp bo'yicha
+             guruhlaydi, yangisi birinchi
+           * ko'rilganlar localStorage 'tilla-pos-korilgan' da (oxirgi 300)
+           * posBellOch - ro'yxat: klient, BERISH/VOZVRAT, sana-soat, har
+             zavod-tur qatori, jami dona va gramm, "Ko'rdim" tugmasi
+           * save() dan keyin sanagich yangilanadi (boshqa qurilmadan kelsa ham)
+         Sinov: test - bor; tilla/admin/hamid/kassatest - yo'q.
+         Ikki amal yozildi -> sanagich 2; bittasi ko'rildi -> 1; hammasi -> 0.
+POS 1.19 Qurilma klaviaturasi CHIQMAYDI.
+         Ibrohim rasm bilan: iPhone da gramm maydoniga bosilganda telefonning
+         raqamli klaviaturasi ochilib ekranni yopib qo'yardi.
+         inputmode="decimal" -> inputmode="none". Maydon TAHRIRLANADIGAN
+         bo'lib qoladi, ya'ni SKANER baribir yozadi (readonly qilinsa skaner
+         ham yoza olmasdi). Sinov: dasturiy yozish ishladi.
+POS 1.20 Gorizontalda klaviatura YONIDA chiqadi (avval yashirilardi).
+         Ibrohim: "gorizontal holatda yonida chiqsin, nega chiqmidi?"
+         POS 1.11 da past ekranda klaviatura YASHIRILGAN edi - 3 ustunli
+         5 qator 276px joy so'rardi, modal esa 340px.
+         Endi yashirilmaydi: PAST bo'lsa 5 USTUNGA o'tadi va 3 qatorga sig'adi
+           7 8 9 ⌫ C  /  4 5 6 . 0  /  1 2 3 [+ Qo'shish]
+         tugma balandligi 46 -> 38px, shrift 18 -> 16px.
+         "Ekran past - telefon klaviaturasidan tering" izohi olib tashlandi.
+         Sinov: 780x360 - 5 ustun, 3 qator, tugma 54x38, kesilmagan.
+                1180x800 - avvalgidek 3 ustun, 5 qator, tugma 146x92.
+POS 1.21 BUTUN POS SAHIFASI ko'k + klient oynasi orqani to'liq yopadi.
+         Ibrohim: "POS sahifasi umuman bunaqa ishlamasin qora oq, shunaqa
+         bo'sin, orqa layeram qopketmasin, verticalliyam to'g'irlab qo'yib".
+         1) Palitra selektoriga `body.rol-pos` qo'shildi. topbar, main-tabs,
+            logo va sahifa foni allaqachon tokenlar bilan ishlagani uchun
+            BUTUN POS logini bir zarbda ko'k bo'ldi.
+            Sinov: POS - fon #030F2C, topbar rgb(10,24,56), logo ko'k.
+                   admin - #0f0f0f, gold #c9a84c (O'ZGARMAGAN).
+            body.rol-pos #app-ver ham POS palitrasiga o'tdi.
+         2) Klient oynasi foni rgba(0,0,0,.75) -> var(--bg): endi QATTIQ,
+            orqadagi POS ro'yxati ko'rinmaydi. Balandligi 100%, paddingda
+            safe-area. (Berishda bu POS 1.14 da qilingan edi.)
+         3) VERTIKAL: sarlavhaga .pos-hd / .pos-pills klasslari qo'shildi,
+            @media(max-width:700px) da amal pillari O'Z QATORIGA tushadi va
+            teng bo'linadi. Avval avatar+ism bilan bir qatorda siqilardi.
+            Sinov 390x844: pillar alohida qatorda, eni 112px, chetdan
+            chiqmagan, gorizontal scroll yo'q.
+POS 1.22 Berish oynasi ochiqda ORQADAGI SAHIFA yashiriladi.
+         Ibrohim rasm bilan: berish oynasi ustida POS ro'yxatining qatori
+         ("Bexruz Aka Qarshi · 0.00g · QARZ YO'Q") ko'rinib turardi.
+         Qattiq fon yetmadi - telefonda fixed qatlam tepani to'liq
+         qoplamas ekan. Endi _pbOrqa('none') topbar, main-tabs va main-pos ni
+         yashiradi, posBYop qaytaradi.
+         ⚠ Tuzoq: body.rol-pos #main-pos da `display:flex !important` bor,
+         shuning uchun style.display='none' ISHLAMADI - birinchi urinishda
+         sinov "#main-pos hali ko'rinadi" dedi. setProperty(...,'important')
+         bilan tuzatildi.
+POS 1.23 Amal ikonlari INLINE SVG.
+         Ibrohim: "vozvrat berish sotuvla iconli, svg-mas emas".
+         Sabab: ↩ (U+21A9) iOS da EMOJI bo'lib kulrang quti ichida chiqardi.
+         Endi uchalasi ham 15x15 inline SVG, stroke=currentColor:
+         BERISH yuqoriga strelka, VOZVRAT qaytish strelkasi, SOTUV belgi.
+         Matn belgilari (↑ ↩ ✓) pilldan butunlay olib tashlandi.
+POS 1.24 Chapdagi ro'yxat FAQAT tanlangan turni ko'rsatadi.
+         Ibrohim rasm bilan: 3D tanlangan, lekin chapda hamon Oddiy
+         ro'yxati (181.10 g, 15 dona) turardi.
+         Sabab: chap ustun zavodning HAMMA turlarini bo'lim-bo'lim qilib
+         chizardi. Endi `var korilgan=[_pbTi]` - faqat tanlangani.
+         Boshqa turlar YO'QOLMAYDI: savatga baribir tushadi, har turning
+         o'z grammi tur chipida ko'rinib turadi.
+         Sinov: Oddiy 7.00+1.20 -> 3D ga o'tildi: ro'yxat BO'SH; 3D ga 5.55
+         qo'shildi -> faqat 5.55; Oddiy ga qaytildi -> yana 7.00+1.20;
+         chiplar "Oddiy 8.20 g" / "3D 5.55 g"; savatga 3 dona tushdi.
+         JAMI zavod bo'yicha qoladi (savatga shu tushadi).
+POS 1.25 SAHIFA SCROLLI QULFLANADI - orqadagi fon muammosi HAL BO'LDI.
+         Ibrohim: "orqada background da klient shundoq turipti, shu yo'qolsin
+         umuman, shuning hisobiga scrollam chiqvotti yonga".
+         UCHINCHI urinish. Avvalgi ikkitasi noto'g'ri mexanizmni tuzatgan:
+           POS 1.14 - fonni qattiq qildi (muammo shaffoflikda emas edi)
+           POS 1.22 - orqadagi elementlarni yashirdi (mainTab('pos') 12456
+                      `display:block !important` qo'yib qayta ochib yuborardi,
+                      u applyRol dan chaqiriladi)
+         ASL SABAB: oyna `position:fixed` bo'lsa ham ORQADAGI SAHIFA scroll
+         bo'laverardi. iOS da surilganda tepasi qatlam ustida ko'rinardi,
+         yon tomonda scroll chizig'i chiqardi.
+         Yechim - _posScrollLock(on): body ga position:fixed + top:-scrollY,
+         yopilganda qaytariladi va scrollTo tiklaydi.
+         SANAGICH kerak: berish oynasi KLIENT oynasi USTIDA ochiladi, ikkalasi
+         ham qulflaydi, faqat oxirgisi yopilganda bo'shatiladi.
+         posBYop / posModalYop endi oyna YO'Q bo'lsa qulfga TEGMAYDI (avval
+         har chaqirilganda bo'shatib yuborishi mumkin edi).
+         Sinov: klient oynasi -> sanagich 1, berish -> 2, berish yopildi -> 1
+         (qulf QOLADI), hammasi yopildi -> 0 va scroll o'z joyiga qaytdi.
+         Takror yopilsa sanagich manfiyga tushmaydi.
+POS 1.26 Tugma nomi: "Saqlash + chek" -> "TEKSHIRUVGA YUBORISH".
+         Ibrohim: "Saqlash+chek emas, tekshiruvga yuborish qilish kere".
+         FAQAT YOZUV o'zgardi - ish avvalgidek (Ibrohim tasdiqladi:
+         "ha, hozirgidek bosilsin"):
+           * yozuv k.tarix ga darrov tushadi
+           * chek darrov bosiladi (klient olib ketaveradi)
+           * qo'ng'iroqcha admin'ni ogohlantiradi (POS 1.18)
+         Qabul/rad mexanizmi hali yozilmagan - u to'rt savolga bog'liq.
+
+         AVVALGI YOZUV (endi hal qilindi): status bar ostida qolish muammosi.
+         viewport meta da viewport-fit=cover YO'Q -> env(safe-area-inset-top)
+         hamma joyda 0px -> .topbar dagi padding-top:var(--safe-top) (17-qator)
+         va boshqa safe-area himoyalari ISHLAMAYDI. Tuzatish butun ilovaga
+         tegadi (APP_VER ham o'sadi), shuning uchun Ibrohim qaroriga qoldirildi.
 
 ## v176.5: chekda offset sdachasi - qarz yopiladi + "Naqt qaytarildi" qatori
 
@@ -4568,3 +4839,23 @@ QOLGAN (tegilmadi, Ibrohimga aytildi): (a) kTolovCalc dagi ktSdacha = ktLomOrtiq
 ILDIZ: v136 da men aniq o'zgaruvchi nomlarini grepladim (_kartaBerdiSave, ktBerdiK2, _kbPrev, _ksKbM, _ktKbM, _kartaBerdi2) — `kt-karta-berildi` / `ks-karta-berildi` MAYDONINI o'qiydigan HAMMA joyni emas. Shuning uchun boshqa nomdagilar (sdachaTaqsimSaqla dagi ktKb -> v137 da tuzatildi; bu yerdagi _tKbM -> v137.1) ko'rinmay qoldi.
 AUDIT (endi to'liq, ikki yo'nalishda): (1) `getElementById('k[ts]-karta-berildi')` o'qiladigan 14 joy — hammasida perech yonida bor (12405 yolg'on trevoga: nbKEl e'loni, perech reseti 6 qator pastda). (2) "Jami summa" yorlig'i quriladigan 3 joy (kt preview 11118, ks preview 12754, ks chop 13261) — uchalasi ham N+K+P. (3) op.kartaPul o'qiydigan joylar: 2115/3049/4169 eski-yozuv zaxira shoxobchasi `naqtPul!==undefined ? naqtPul : (kartaPul?0:summa)` — v136+ yozuvlarida naqtPul DOIM aniqlangan, shuning uchun bu shoxobcha perechli yozuvda umuman ishlamaydi (xato emas, tegilmadi); 11356/11432/13082 offset/_kdYopish/sdacha oplari `naqtPul:0, kartaPul:0` yozadi, perechPul yo'q — `parseNum(op.perechPul||0)` hamma joyda 0 beradi, funksional farq yo'q (tegilmadi).
 SINOV: mavjud 63 sinov qayta o'tkazildi (v136: 40, v137: 23) — hammasi o'tdi. APP_VER v137 -> v137.1.
+
+## POS 1.33: TEKSHIRUV PANELIDA SKAN MAYDONIDAN FOKUS KETMASDI (Ibrohim: "skan qilish uchun tekshirish uchun gram kirim qilish automat ishlamayapti, 1ta skan qisam chiqb ketvottide — man sichqonchada yana inputga obkelib bosib ishlatvomman"). SABAB: `posChSkanQosh` / `posChSkanOchir` / `posChNusxa` har amaldan keyin `posBellOch()` ni chaqiradi, u esa `posBellYop()` bilan butun panelni DOM dan o'chirib qaytadan quradi — eski `<input id="pch-in-N">` yo'q bo'lib, o'rniga yangi element yaratiladi. Fokus DOM elementiga bog'langani uchun har skandan keyin `document.body` ga qaytardi; skaner keyingi raqamni yozadigan joy qolmasdi. TUZATISH: `_posChFokus` o'zgaruvchisi qaysi qatorga qaytish kerakligini eslab qoladi (skan qo'shish / o'chirish / «Mos» — uchalasi ham qo'yadi); `posBellOch()` panelni `appendChild` qilgandan keyin `#pch-in-<qator>` ni topib `focus()` beradi va `setSelectionRange` bilan kursorni matn oxiriga qo'yadi. `posChOch` ham `_posChFokus=0` qo'yadi — panel ochilishi bilan birinchi maydon tayyor, skaner darrov ishlaydi. Ro'yxat ko'rinishida (chernovik tanlanmagan) fokus berilmaydi. SINOV (brauzer, soxta chernovik bilan — cloudga tegilmadi): ochilganda `pch-in-0`; 1-skandan keyin `pch-in-0`; ketma-ket 2-skandan keyin ham `pch-in-0` (qabul qilingan donalar 3.83, 2.83); 2-qatorga o'tib skan qilinsa `pch-in-1`; «Mos» dan keyin `pch-in-1`; dona o'chirilgandan keyin `pch-in-0`. POS_VER 1.32 -> 1.33. APP_VER v178 — TEGILMADI.
+
+
+## v179: SOZLAMALAR CLOUDDA BITTA JONLI HUJJATDA (Ibrohim: «cloud bir xil turmasligi charchatti, zavod erpda bu muammo yoqde»). MUAMMO: kurs planshetda 77.7, telefonda 74.4, PC da 84 — uchtasi bir-birini ko'rmasdi. ILDIZ: kurs/lom/B-ustama/zavod foizlari faqat localStorage da yashaydi va cloudga faqat `data._narxSync` (2313/2325) orqali, blob bilan birga chiqadi; blob esa ma'lumoti bor qurilmaga HECH QACHON tushmaydi (`cloudListen` 19645: `bosh && lokalVaqt===0`). Ustiga `narxHolatQollash()` butun faylda BIR MARTA — 2338, sahifa yuklanganda — chaqiriladi, ya'ni clouddan kelgan kurs ish paytida umuman qo'llanmasdi.
+YECHIM — ZAVOD ERP USULI (Ibrohim ko'rsatdi): Zavod ERP butun ma'lumotni bitta hujjatda saqlaydi, hamma qurilma o'shani `onSnapshot` bilan tinglaydi va shuning uchun doim bir xil turadi. Shu naqsh kurs/narx uchun olindi: yangi `sozlamalar` hujjati (`cloudKol()/sozlamalar`), ichida `narxHolatYig()` yig'adigan o'sha kalitlar — `tilla-kurs-bugun`, `tilla-lom-bugun`, `tilla-lom-farq`, `tilla-b-ust`, `tilla-kurs-tarix` + zavod foizlari (`tilla-foiz-N`, `tilla-manual-N`, `tilla-a-foiz-N`, `tilla-a-manual-N`).
+⚠ ENG MUHIM QAROR: kursni O'QIYDIGAN 20 JOYGA TEGILMADI (kursSanada 9978, POS 14801/14873, kassa snapshot 19768 `kurs583`, zakaz 4918 `kunlikKurs`, sotuv/to'lov/kassa modallari 3874/4000/4297/4418/4562/9118/10059/10530/15759/15780, 19804 foyda bazasi). Ular avvalgidek localStorage dan o'qiydi — biz faqat localStorage ni to'g'ri holatda ushlab turamiz. Shu sababli BIRONTA hisob-kitob o'zgarmadi va orqaga qaytarish oson.
+(1) `sozRef()` — `collection(cloudKol()).doc('sozlamalar')`. (2) `sozListen()` — hamma rol tinglaydi (pos, zavod, hamid ham); hujjat bo'lmasa admin birinchi bo'lib yozadi; o'z yozuvi qaytsa (`d.ts===_sozOzimTs`) qayta qo'llanmaydi. (3) `sozQollash(d)` — kalitlarni localStorage ga yozadi, `tilla-narx-sync-ts` ni yangilaydi va renderHomeKurs / hkKunlikUpd / renderKassa / renderKassaCard / renderPOS ni chaqiradi; POS kurs oynasi ochiq bo'lsa u ham qayta chiziladi. FOYDALANUVCHI NARX MAYDONIGA YOZAYOTGAN BO'LSA TEGMAYDI — `document.activeElement` `hk-kurs-inp`/`hk-lom-inp`/`hk-b-ust`/`z-kurs-inp`/`z-lom-inp` bo'lsa jimgina chiqadi, terayotgan raqam ustidan yozilmasin. (4) `sozYubor(h)` — FAQAT `getRol()==='admin'` (test/tilla/admin loginlari; zavod/hamid/pos yozmaydi — Ibrohim: «kurssi hamma yozolsa bo'ladi test loginidan, posda yozilishi shartamas korinib tursa bo'ldi»). (5) `sozKuzat()` — narx kalitlari ~20 joydan yoziladi (2803, 2833, 2859, 2885, 3066, 3256, 3364, 19199 ...), har biriga chaqiruv qo'shish o'rniga 3 soniyalik BARMOQ IZI kuzatuvchisi: `JSON.stringify(narxHolatYig().k)` solishtiriladi, ikki tik ketma-ket bir xil bo'lgandagina yuboriladi. Shunda kurs terilayotganda har raqamga alohida cloud yozuvi ketmaydi, va kelajakda yangi yozuv joyi qo'shilsa ham o'zi ilinadi — unutib qo'yish mumkin emas. (6) `_kursTarixBirlashtir` — kurs tarixi BIRLASHTIRILADI, hech narsa o'chirilmaydi: sana bo'yicha union, bir kunda ikki xil yozuv bo'lsa soati kattarog'i qoladi (hkSaqla 3063 dagi «bir kunda bitta yozuv» qoidasi bilan bir xil), oxirgi 100 ta saqlanadi.
+TEGILMAGAN: eski `data._narxSync` ko'prigi (2313/2325/2338/2452) — o'chirilmadi, u faqat sahifa yuklanganda bir marta ishlaydi, yangi tinglovchi undan keyin ustun keladi; orqaga qaytarish oson bo'lsin. Kassa — Ibrohim «avval kurs» dedi, `data.kassa` hamon blobda. Zavod ERP — tegilmadi (u kursni hamon Tilla blobidan oladi). POS kodi — BIR QATOR HAM o'zgarmadi.
+SINOV (brauzer, soxta cloud bilan — haqiqiy Firebase ga tegilmadi): tarix birlashtirish — uch kun (20.08 / 21.08 / 23.08) ham qoldi, 23.08 da lokal 84@10:00 va bulut 74.4@12:30 dan kechrog'i (74.4) qoldi; qo'llash — 77.7 → 84, B ustama 3 tushdi; yozayotganda — `hk-kurs-inp` fokusda turganda 999 kelgan bo'lsa ham 84 saqlanib qoldi; terish — 3.2 soniyada uch marta o'zgargan kurs uchun CLOUDGA 1 TA yozuv ketdi (oxirgi qiymat 84.5); rol — `pos` da 0 ta yozuv, lekin clouddan 55 → 84.5 ni QABUL QILDI; tinch turganda 10 soniyada 0 ta yozuv. Node sintaksis-sinovi o'tdi.
+APP_VER v178 -> v179 (1-qator ham). POS_VER 1.33 — TEGILMADI: o'zgarish POS dan tashqarida, admin ekranlari va cloud qatlamida (CLAUDE.md §5 istisnosi).
+
+## v179.1: KURSNI KIM VA QACHON QO'YGANI KO'RSATILADI (Ibrohim: «asosiy qurilmani topomayamman shunga kurs qata o'zgarvotganini bilomayamman»). MUAMMO: v179 da sinxron yozildi, lekin HECH QANDAY BELGI qo'yilmadi — kurs ko'rinadi-yu, uni kim va qachon qo'ygani bilinmasdi. Bu aynan auditda tanqid qilingan «yashil chiroq aldaydi» xatosining takrori. Ma'lumot allaqachon bor edi: `sozlamalar` hujjatida `qurilma` va `ts` yozilyapti, faqat ekranga chiqarilmagan.
+YO'L-YO'LAKAY ANIQLANDI: «ASOSIY» qurilma tushunchasi HECH NIMA QILMAYDI — `qurilmaAsosiy()` (19470) butun faylda faqat 19591 da, yorliq chizishda ishlatiladi; hech qanday imtiyoz yoki xulq unga bog'lanmagan. Ibrohim uni qidirib vaqt sarflagan. Kodga TEGILMADI, faqat aytildi.
+(1) `sozManbaSaqla(qurilma, ts)` / `sozManba(vaqtBilan)` — manba `tilla-soz-manba` kalitida saqlanadi (sahifa yangilansa ham qoladi). `sozYubor` o'zi yozganda o'z qurilmasini, `sozQollash` clouddan kelganda `d.qurilma` ni yozadi. (2) ADMIN BOSH EKRANI — `hkKunlikHTML` (2813) uchinchi qatoriga qurilma qo'shildi: «23.08 · 14:30 · Qurilma-1». (3) POS KURS OYNASI — `posKursOch` da KURS/LOM qutilari ostiga «Kursni qo'ygan: Qurilma-1 · 14:32». POS kurs TUGMASIGA (pill) tegilmadi — joy tor, Ibrohim so'rasa qo'shiladi.
+CHETKI HOLATLAR: kurs tarixi bo'sh-u manba bor bo'lsa «— · Qurilma-1» chiqib qolardi — `vaqt` endi bo'sh matndan boshlanadi, manba bo'lsa o'sha turadi, ikkalasi ham bo'lmasa «—».
+SINOV (brauzer): ikkalasi yo'q → «—»; faqat manba → «Qurilma-1» (ortiqcha chiziqcha yo'q); ikkalasi bor → «23.08 · 14:30 · Qurilma-1»; takror chiqmadi (1 marta); POS oynasi → «Kursni qo'ygan: Qurilma-1 · 14:32». Node sintaksis-sinovi o'tdi.
+APP_VER v179 -> v179.1 (1-qator ham). POS_VER 1.33 — TEGILMADI. ⚠ O'zgarish ikkala tomonga ham tegdi (admin bosh ekrani + POS kurs oynasi); v179 ning davomi bo'lgani uchun `APP_VER` patch qilindi, Ibrohimga aytildi.
+
+## v179.2: POS KURS TUGMASI ESKI QIYMATDA QOLIB KETARDI (Ibrohim rasm: admin maydonida 83, «Kunlik kurs» blokida 83, POS panelida esa hamon «KURS 8»). SABAB: kurs terilganda `hkAvtoSaqla` (2834) faqat `hkKunlikUpd` / `renderKassa` / `renderKassaCard` ni chaqirardi — POS ni chaqirmasdi. Uch panelli keng ekranda POS yonma-yon turgani uchun farq darrov ko'zga tashlandi. TUZATISH: POS kurs tugmasidagi raqamga `id="pos-kurs-val"` berildi va yangi `posKursUpd()` (14811) qo'shildi — u FAQAT o'sha raqamni yangilaydi. Butun `renderPOS()` ATAYLAB chaqirilmadi: u ro'yxatni qayta quradi, natijada qidiruv matni va scroll joyi yo'qolardi (sinovda tekshirildi — qidiruv matni joyida qoldi). Chaqiruv uchta kurs saqlash yo'lidan: 2841 (hkAvtoSaqla), 3084 (hkSaqla), 3376 (zavod kurs formasi). `sozQollash` ga tegilmadi — u allaqachon to'liq `renderPOS()` chaqiradi. SINOV (brauzer): tugma id topildi; 8 → hkAvtoSaqla(83) → POS «83» bo'ldi; qidiruv matni «abdul» turganda kurs 84 ga o'zgardi va matn joyida qoldi; kurs 0 bo'lsa «—». Node sintaksis-sinovi o'tdi. APP_VER v179.1 -> v179.2. POS_VER 1.33 — TEGILMADI (o'zgarish admin ishlovchisida, POS tomonida faqat bitta id qo'shildi).

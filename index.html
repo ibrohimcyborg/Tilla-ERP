@@ -1,9 +1,9 @@
-<!-- v177.8 -->
+<!-- v179.3 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="screen-orientation" content="any">
 <title>Tilla Hisob</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -262,6 +262,41 @@ body.rol-zavod #main-klient { display: none !important; }
    ostatkasini ko'radi, zavodlar qo'limizda shart emas, lekin bazasini oladi».
    Ya'ni zavod EKRANI yashirinadi, zavod MA'LUMOTI joyida qoladi — sotuvda
    zavod·tur·narx o'shandan olinadi. */
+/* POS 1.16 — POS palitrasi (Ibrohim tanlagan: #030F2C / #5183FF / #5F84DF / #93B2FF).
+   FAQAT POS konteynerlari ichida amal qiladi. */
+/* POS 1.29 — YORUG' fon (Ibrohim: «fon oq bo'lsin», faqat POS).
+   Ranglar oq ustida o'qilishi uchun to'q ko'kdagilardan farq qiladi:
+   urg'u #5183FF -> #3B6FE0, qarz #FF8B6B -> #D14A2E (kontrast 2.1 -> 4.4). */
+body.rol-pos, #main-pos, #pos-ovl, #pb-ovl{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold2:#3B6FE0;
+  --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#FFFFFF;
+  --yellow:#3B6FE0; --yellow-bg:rgba(59,111,224,.10);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --teal:#2E7D8F; --teal-bg:rgba(46,125,143,.10); --teal-bd:#C3CFE8;
+  --blue:#3B6FE0; --blue-bg:rgba(59,111,224,.10); --blue-bd:#C3CFE8;
+  color:var(--text);
+}
+/* POS 1.21: o'ng pastdagi versiya belgisi ham POS palitrasida */
+/* POS 1.32 (Ibrohim: «pasdan versiyaniyam obtasha») — POS da pastdagi
+   versiya belgisi ko'rinmaydi; u tepada «TILLA POS 1.32» bo'lib turibdi. */
+body.rol-pos #app-ver{ display:none !important; }
+/* POS 1.29 (Ibrohim: «iOS dizayn, rangiga emas formasiga») — tugma va maydonlar
+   TO'LIQ PILL. !important kerak: POS kodi inline style bilan chiziladi. */
+body.rol-pos button, body.rol-pos input,
+#pos-ovl button, #pos-ovl input,
+#pb-ovl button, #pb-ovl input,
+#pos-bell-ovl button, #pos-bell-ovl input{ border-radius:999px !important; }
+/* POS 1.21: klient oynasi sarlavhasi — tor ekranda amal pillari o'z qatoriga
+   tushadi (avval avatar/ism bilan bir qatorda siqilib qolardi). */
+#pos-ovl .pos-hd{display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
+#pos-ovl .pos-pills{display:flex;gap:5px;flex:none;}
+@media(max-width:700px){
+  #pos-ovl .pos-pills{order:3;flex:1 1 100%;}
+  #pos-ovl .pos-pills button{flex:1;justify-content:center;padding-left:8px;padding-right:8px;}
+}
 body.rol-pos #main-tab-zavod,
 body.rol-pos #main-tab-klient,
 body.rol-pos #main-zavod,
@@ -310,6 +345,10 @@ body.rol-hamid .hamid-x { display: none !important; }
 <div class="topbar">
   <div class="logo">⬡ TILLA HISOB</div>
   <div class="topbar-right">
+    <span id="pos-bell-wrap" style="position:relative;display:none;">
+      <button class="theme-btn" onclick="posBellOch()" title="POS amallari"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <span id="pos-bell-cnt" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e05a5a;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;font-family:sans-serif;pointer-events:none;">0</span>
+    </span>
     <button class="theme-btn" onclick="cloudChipClick()" id="cloud-chip" title="Cloud"><svg id="cloud-ikon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke .3s;"><path d="M17.5 19a4.5 4.5 0 1 0-.42-8.98 6 6 0 1 0-11.06 3.1A3.5 3.5 0 0 0 7 19h10.5z"/></svg></button>
     <button class="theme-btn" onclick="manualRefresh()" title="Yangilash"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Tema"></button>
@@ -1992,7 +2031,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v177.8';
+var APP_VER = 'v179.3';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2004,7 +2043,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // POS 1.06 (Ibrohim): POS rolida Tilla versiyasi emas, POS versiyasi ko'rinsin.
     v.textContent=_verBelgi();
     // O'NG PASTGA — tepadagi tugmalarni (logout/kurs/mavzu/sozlama) to'smaydi
-    v.style.cssText='position:fixed;bottom:6px;right:6px;z-index:99998;'
+    v.style.cssText='position:fixed;bottom:calc(6px + var(--safe-bot));right:6px;z-index:99998;'
       +'background:rgba(184,137,43,.55);color:#fff;font-size:9px;font-weight:700;'
       +'padding:2px 7px;border-radius:8px;font-family:sans-serif;letter-spacing:.03em;'
       +'cursor:pointer;user-select:none;pointer-events:auto;opacity:.75;';
@@ -2219,14 +2258,15 @@ function applyRol(){
     var _pt=document.getElementById('main-tab-pos'); if(_pt) _pt.style.display='';
     if(typeof mainTab==='function') try{ mainTab('pos'); }catch(e){}
   }
-  // POS 1.07 (Ibrohim): «test loginiga qo'shilsin, bo'masam chalkashadi».
-  // TEST xonasidagi admin (login: test) POS tabini KO'RADI — sinov uchun ikkala
-  // tomonni bitta qurilmadan tekshirish mumkin. Lekin rol-pos klassi QO'YILMAYDI:
-  // u admin, zavod va klient panellari joyida qoladi, tablar orasida yuradi.
-  // Faqat 'test' logini — haqiqiy 'tilla' ham, ADMIN xonasi ham, hamid ham EMAS.
-  if(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST'){
-    var _pt2=document.getElementById('main-tab-pos'); if(_pt2) _pt2.style.display='';
-  }
+  // POS 1.18: qo'ng'iroqcha FAQAT test loginida (rol admin + SANDBOX TEST).
+  var _bw=document.getElementById('pos-bell-wrap');
+  if(_bw) _bw.style.display=(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')?'':'none';
+  if(typeof posBellUpd==='function') posBellUpd();
+  if(typeof posChListen==='function') posChListen();
+  // POS 1.17 (Ibrohim, 2026-08-23): «keremas manga POS, man telimdan
+  // testkassaga kiraman, PC dan test loginiga kirib qo'ng'iroqcha kelganini
+  // tekshiraman». POS 1.07 da qo'shilgan blok OLIB TASHLANDI — test logini
+  // endi faqat Tilla ERP. POS uchun kassatest logini ishlatiladi.
 }
 function doLogin(){
   var u=document.getElementById('login-user').value.trim();
@@ -2400,6 +2440,7 @@ if (!data.kassa.zaImportIds) data.kassa.zaImportIds = [];
 if (!data.kassa.qolda) data.kassa.qolda = [];
 
 function save(logText) {
+  try{ if(typeof posBellUpd==='function') setTimeout(posBellUpd,0); }catch(e){}
   turOstKeshTozala();   // v172.26: ma'lumot o'zgardi -> ombor hisobi qayta sanaladi
   // Har saqlashda yaroqsiz vozvratni tozalash (har qanday manba)
   if (data && data.klientlar) {
@@ -2773,7 +2814,11 @@ function hkKunlikHTML() {
   var v = parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0')||0;
   var tarix = kursTarixOl();
   var last = tarix.length ? tarix[tarix.length-1] : null;
-  var vaqt = last ? ((last.sana||'').slice(0,5)+' · '+(last.soat||'')) : '—';
+  var vaqt = last ? ((last.sana||'').slice(0,5)+' \u00b7 '+(last.soat||'')) : '';
+  // v179.1: kursni kim qo'ygani (Ibrohim: «kurs qatta o'zgarvotganini bilomayamman»)
+  var _mn = (typeof sozManba==='function') ? sozManba() : '';
+  if(_mn) vaqt = vaqt ? (vaqt+' \u00b7 '+_mn) : _mn;
+  if(!vaqt) vaqt = '\u2014';
   return '<div style="font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;line-height:1.2;">Kunlik kurs</div>'
     + '<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:700;color:var(--gold);line-height:1.2;">'+(v>0?(v+' $/g'):'—')+'</div>'
     + '<div style="font-size:8px;color:var(--muted);line-height:1.2;">'+vaqt+'</div>';
@@ -2793,6 +2838,7 @@ function hkAvtoSaqla() {
   hkKunlikUpd();
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
 }
 function hkUpd() {
   var kurs = parseFloat((document.getElementById('hk-kurs-inp')||{}).value)||0;
@@ -3035,6 +3081,7 @@ function hkSaqla() {
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
   // LOM narxini ham avtomatik hisoblash va saqlash
   var lomEl = document.getElementById('hk-lom-inp');
   var lom = lomEl ? parseFloat(lomEl.value)||0 : 0;
@@ -3326,6 +3373,7 @@ function zKursSaqla() {
   if(typeof save==='function') save('Kurs/narx saqlandi');
   if(typeof renderKassa==='function'){ try{ renderKassa(); }catch(e){} }
   if(typeof renderKassaCard==='function'){ try{ renderKassaCard(); }catch(e){} }
+  if(typeof posKursUpd==='function'){ try{ posKursUpd(); }catch(e){} }
   if(typeof renderLom==='function'){ try{ renderLom(); }catch(e){} } // LOM tabidagi JAMI FOYDA ham yangilansin
   zKursRender();
 }
@@ -14699,7 +14747,7 @@ function kSotuvRenderZavodlar() {
 // Qarz raqami _qarzTarkibRows (16993) dan olinadi - v175.2 dan beri YAGONA manba
 // (klient ekrani, ro'yxat, PDF, chek hammasi shundan). Boshqa yo'l bilan hisoblansa
 // raqamlar klient ekranidagidan farq qiladi.
-var POS_VER = '1.07';
+var POS_VER = '1.33';
 var _posQ = '', _posKi = -1;
 
 function _posBosh(nom){ return String(nom||'?').trim().charAt(0).toUpperCase(); }
@@ -14723,8 +14771,15 @@ function posKlientOch(ki){ _posKi=ki; _posModal(); }
 // POS 1.05 XATO TUZATILDI: bu funksiya _posKi=-1 qilardi va _posModal uni
 // BIRINCHI QATORDA chaqirardi -> data.klientlar[-1] undefined -> modal
 // jim yopilardi (Ibrohim: «bosvomman kirmayapti»). Endi faqat DOM tozalanadi.
-function posModalYop(){ var m=document.getElementById('pos-ovl'); if(m) m.remove(); }
+function posModalYop(){
+  var m=document.getElementById('pos-ovl');
+  if(!m) return;                     // ochilmagan bo'lsa qulfga TEGILMAYDI
+  m.remove();
+  _posScrollLock(false);
+}
 function posAmal(a){
+  if(a==='berish'){ posBerishOch(); return; }    // POS 1.08
+  if(a==='vozvrat'){ posVozvratOch(); return; }  // POS 1.09
   var nomlar={berish:'BERISH',vozvrat:'VOZVRAT',tolov:"TO'LOV",sotuv:'SOTUV'};
   alert(nomlar[a]+' - keyingi bosqichda yoziladi (POS 1.02).');
 }
@@ -14748,6 +14803,16 @@ function _posNarxlar(zi, ti){
 // sarlavha bilan qatorlar tekislanmasdi (Ibrohim rasm bilan ko'rsatdi).
 var _POSG = 'display:grid;grid-template-columns:1fr 72px 72px 72px;align-items:center;gap:6px;';
 function posKursYop(){ var m=document.getElementById('pos-kurs-ovl'); if(m) m.remove(); }
+// v179.2 (Ibrohim rasm: admin 83 yozgan, POS hamon «KURS 8» ko'rsatib turgan).
+// Sabab: kurs terilganda hkAvtoSaqla (2834) renderKassa/renderKassaCard ni
+// chaqiradi, POS ni esa YO'Q — POS eski qiymatda qolib ketardi.
+// Butun ro'yxatni qayta chizmaymiz: ro'yxat tepaga sakrab, qidiruv matni
+// va scroll joyi buzilmasin. Faqat tugmadagi raqam yangilanadi.
+function posKursUpd(){
+  var e=document.getElementById('pos-kurs-val'); if(!e) return;
+  var k=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  e.textContent = k ? fmtD(k) : '\u2014';
+}
 function posKursOch(){
   posKursYop();
   var kurs = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
@@ -14769,6 +14834,8 @@ function posKursOch(){
   h+='<button onclick="posKursYop()" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
   h+='<div style="padding:15px 16px;">';
   h+='<div style="display:flex;gap:10px;margin-bottom:11px;">'+qut('KURS',kurs,'$/g',1)+qut('LOM',lom,'$/g',0)+'</div>';
+  var _mn=(typeof sozManba==='function')?sozManba(true):'';
+  if(_mn) h+='<div style="font-size:11.5px;color:var(--muted);margin-bottom:11px;">Kursni qo\'ygan: <b style="color:var(--text);">'+_posEsc(_mn)+'</b></div>';
   h+='<div style="border-radius:12px;padding:10px 13px;border:1px solid var(--blue-bd);background:var(--blue-bg);margin-bottom:14px;">';
   h+='<div style="font-size:9.5px;letter-spacing:.09em;color:var(--blue);">B USTAMA \u2014 A NARX USTIGA QO\'SHILADI</div>';
   h+='<div style="font-size:20px;font-weight:700;color:var(--blue);font-family:Roboto,sans-serif;">+ '+fmtD(bUst)+'<span style="font-size:11px;color:var(--muted);font-weight:400;"> $/g</span></div></div>';
@@ -14803,32 +14870,49 @@ function posKursOch(){
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
 }
+// POS 1.29: #main-pos balandligi O'LCHAB qo'yiladi — aks holda u kontent bilan
+// o'sadi va BUTUN SAHIFA siljiydi; shunda klient qatori tepa panel va soat
+// ustida ko'rinib qolardi (Ibrohim rasm bilan ko'rsatdi).
+function _posBoy(){
+  var el=document.getElementById('main-pos'); if(!el) return;
+  if(getRol()!=='pos'){ el.style.removeProperty('height'); return; }
+  var h=window.innerHeight;
+  ['.topbar','.main-tabs'].forEach(function(sel){
+    var e=document.querySelector(sel);
+    if(e && getComputedStyle(e).display!=='none') h-=e.getBoundingClientRect().height;
+  });
+  el.style.setProperty('height', Math.max(240, Math.round(h))+'px', 'important');
+  el.style.setProperty('overflow','hidden','important');   // ichidagi #pos-list siljiydi
+}
+['resize','orientationchange'].forEach(function(ev){
+  window.addEventListener(ev, function(){ setTimeout(_posBoy, 60); });
+});
 function renderPOS(){
   var el=document.getElementById('main-pos'); if(!el) return;
   var kurs=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
   var h='';
-  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 2px 11px;border-bottom:1px solid var(--border);margin-bottom:11px;">';
+  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:var(--safe-top) 2px 11px;border-bottom:1px solid var(--border);margin-bottom:11px;">';
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
-  h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 8px;">'+POS_VER+'</span>';
+  h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:2px 8px;">'+POS_VER+'</span>';
   h+='<span style="flex:1;"></span>';
-  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:10px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
+  h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 13px;border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b id="pos-kurs-val" style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
   h+='</div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
-  h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:0 13px;height:52px;">';
+  h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:0 18px;height:52px;">';
   h+='<span style="color:var(--muted);font-size:15px;">&#128269;</span>';
   h+='<input id="pos-q" value="'+_posEsc(_posQ)+'" oninput="posQidir(this.value)" autocomplete="off" placeholder="Klient qidirish - ism bo\'yicha" style="flex:1;background:none;border:0;outline:none;color:var(--text);font-size:16px;font-family:inherit;">';
   h+='</div></div>';
   h+='<div style="display:flex;gap:8px;min-height:0;flex:1;">';
   h+='<div id="pos-list" style="flex:1;overflow-y:auto;padding-right:4px;"></div>';
-  h+='<div id="pos-rail" style="width:32px;flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;overflow-y:auto;border-left:1px solid var(--border);"></div>';
   h+='</div>';
   el.innerHTML=h;
   el.style.display='flex'; el.style.flexDirection='column';
+  _posBoy();
   _posRoyxat();
 }
 
 function _posRoyxat(){
-  var lst=document.getElementById('pos-list'), rail=document.getElementById('pos-rail');
+  var lst=document.getElementById('pos-list');
   if(!lst) return;
   var q=(_posQ||'').toLowerCase().trim();
   var hamma=(data.klientlar||[]).map(function(k,i){ return {k:k,i:i}; })
@@ -14851,8 +14935,8 @@ function _posRoyxat(){
       var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
       var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZ QARZDORMIZ':"QARZ YO'Q");
       var belgi = qz>0.001?'\u2212':(qz<-0.001?'+':'');   // ilovadagi qoida: klient qarzi MINUS
-      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:12px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
-      out+='<div style="width:42px;height:42px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(hf)+'</div>';
+      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
+      out+='<div style="width:52px;height:52px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surf);border:1px solid var(--border);color:var(--gold);font-weight:600;font-size:20px;">'+_posEsc(hf)+'</div>';
       out+='<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
       out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+belgi+fmtG(Math.abs(qz))+'g</div>';
       out+='<div style="font-size:9px;color:var(--muted);letter-spacing:.04em;">'+yorliq+'</div></div>';
@@ -14860,15 +14944,325 @@ function _posRoyxat(){
     });
     lst.innerHTML=out;
   }
-  // A-Z rels - ro'yxatdan quriladi (qattiq yozilmaydi)
-  var harflar=[]; hamma.forEach(function(o){
-    var hf=_posBosh(o.k.nom); if(harflar.indexOf(hf)<0) harflar.push(hf); });
-  harflar.sort(function(a,b){ return a.localeCompare(b,'uz'); });
-  rail.innerHTML=harflar.map(function(hf){
-    return '<span onclick="posSakra(\''+_posEsc(hf)+'\')" style="font-size:10.5px;color:var(--muted);cursor:pointer;padding:1px 6px;border-radius:5px;">'+_posEsc(hf)+'</span>';
-  }).join('');
 }
 
+// POS 1.16: berish / vozvrat / sotuv — bir xil ko'k gradient pill.
+// TO'LOV yo'q (Ibrohim, 2026-08-22 — «hozircha»).
+// ══════════════════════════════════════════════════════════════
+// POS 1.18 — QO'NG'IROQCHA (Tilla ERP test logini).
+// Ibrohim: «top barga svg qosh minimal qilib · faqat test loginiga qo'sh».
+// HOZIRCHA FAQAT XABAR BERADI — qabul/rad YO'Q. Yozuv POS saqlagan zahoti
+// k.tarix ga tushaveradi (avvalgidek). Tasdiq bosqichi keyin qo'shiladi,
+// DAVOM.md dagi to'rt savolga javob olingach.
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// POS 1.27 — CHERNOVIK KANALI + QO'NG'IROQCHA (Tilla ERP test logini).
+// Ibrohim (2026-08-23): «buni faqat chernovik bo'lib keladigan qilgin, man
+// testda tekshiraman, qo'ng'iroqcha keladi, yozib yoki skan qilib kirgizsam,
+// qabul qilsam o'tadi».
+//
+// POS ENDI HISOBGA TEGMAYDI. posBSaqla faqat cloudga chernovik yozadi.
+// k.tarix / t.ostatka / t.donaOst ga yozuv FAQAT shu yerdan — admin qabul
+// qilganda — tushadi.
+//
+// Kanal chek navbati bilan bir xil naqshda (_cheknavbat/items):
+//   collection(cloudKol()).doc('_poschernovik').collection('items')
+//   har chernovik alohida hujjat, holat: kutilmoqda | qabul | rad
+// Massiv emas — ikki qurilma bir vaqtda yozsa bir-birini o'chirmasin.
+// ══════════════════════════════════════════════════════════════
+function _posChRef(){
+  try{ if(typeof _cloudDb!=='undefined' && _cloudDb && _cloudUser)
+    return _cloudDb.collection(cloudKol()).doc('_poschernovik').collection('items'); }catch(e){}
+  return null;
+}
+var _posChUnsub=null, _posCh=[], _posChOchiq=null, _posChSkan={}, _posChKir={};
+// POS 1.33 (Ibrohim): har skandan keyin panel qayta chizilib, maydon o'chib
+// yangisi yaratilardi — fokus yo'qolib, sichqoncha bilan qayta bosishga to'g'ri
+// kelardi. Qaysi qatorga qaytarish kerakligini eslab qolamiz.
+var _posChFokus=null;
+
+// Faqat TEST xonasidagi admin tinglaydi (POS o'zi tinglamaydi).
+// POS 1.28: avval bu FAQAT Firebase auth chaqirig'ida bir marta ishga tushardi.
+// O'sha paytda rol hali 'admin' bo'lmasa yoki cloud tayyor bo'lmasa — jimgina
+// qaytardi va BOSHQA HECH QACHON urinmasdi, natijada chernovik yetib kelmasdi.
+// Endi applyRol dan ham chaqiriladi va tayyor bo'lmasa qayta urinadi.
+var _posChKut=null;
+function posChListen(){
+  try{
+    if(_posChUnsub) return;
+    if(!(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')) return;
+    var ref=_posChRef();
+    if(!ref){                                   // cloud hali ulanmagan — kutamiz
+      if(!_posChKut) _posChKut=setInterval(function(){
+        if(_posChUnsub || !(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')){
+          clearInterval(_posChKut); _posChKut=null; return; }
+        if(_posChRef()){ clearInterval(_posChKut); _posChKut=null; posChListen(); }
+      }, 2000);
+      return;
+    }
+    _posChUnsub=ref.onSnapshot(function(snap){
+      _posCh=[];
+      snap.forEach(function(doc){
+        var d=doc.data()||{};
+        if(d.holat!=='kutilmoqda') return;
+        d._id=doc.id; d._ref=doc.ref;
+        _posCh.push(d);
+      });
+      _posCh.sort(function(a,b){ return (b.vaqt||0)-(a.vaqt||0); });
+      posBellUpd();
+      if(document.getElementById('pos-bell-ovl')) posBellOch();
+    }, function(err){ if(window.console) console.error('posChListen:', err); });
+  }catch(e){}
+}
+function posBellUpd(){
+  var el=document.getElementById('pos-bell-cnt'); if(!el) return;
+  var n=_posCh.length;
+  el.textContent=n; el.style.display=n?'block':'none';
+}
+function posBellYop(){ var m=document.getElementById('pos-bell-ovl'); if(m) m.remove(); }
+
+// ── Skan solishtiruvi — skReconcile (6398) bilan bir xil mantiq
+function _posChRecon(p1,p2){
+  function ms(a){ var m={}; (a||[]).forEach(function(g){ var k=fmtG(g); m[k]=(m[k]||0)+1; }); return m; }
+  var A=ms(p1), B=ms(p2), keys={}, matched=0, kam=[], ortiq=[];
+  for(var k in A) keys[k]=1; for(var k2 in B) keys[k2]=1;
+  Object.keys(keys).sort(function(a,b){return parseFloat(a)-parseFloat(b);}).forEach(function(k){
+    var ca=A[k]||0, cb=B[k]||0;
+    matched+=Math.min(ca,cb);
+    if(ca>cb) kam.push({g:k,n:ca-cb});
+    if(cb>ca) ortiq.push({g:k,n:cb-ca});
+  });
+  return {matched:matched, kam:kam, ortiq:ortiq};
+}
+function _posChSum(a){ var s=0; (a||[]).forEach(function(x){ s+=x; }); return roundG(s); }
+function _posChTop(id){ for(var i=0;i<_posCh.length;i++) if(_posCh[i]._id===id) return _posCh[i]; return null; }
+
+function posChKir(ri,v){ _posChKir[ri]=v; }
+function posChSkanQosh(ri){
+  var v=parseNum(_posChKir[ri]||'');
+  if(!v){ var e=document.getElementById('pch-in-'+ri); if(e){ e.style.borderColor='var(--red)'; e.focus(); } return; }
+  if(!_posChSkan[ri]) _posChSkan[ri]=[];
+  _posChSkan[ri].push(roundG(v)); _posChKir[ri]='';
+  _posChFokus=ri; posBellOch();
+}
+function posChSkanOchir(ri,j){
+  if(_posChSkan[ri]) _posChSkan[ri].splice(j,1);
+  _posChFokus=ri; posBellOch();
+}
+function posChNusxa(ri){
+  var c=_posChTop(_posChOchiq); if(!c) return;
+  _posChSkan[ri]=(c.rows[ri].donalar||[]).slice();
+  _posChFokus=ri; posBellOch();
+}
+function posChOch(id){ _posChOchiq=id; _posChSkan={}; _posChKir={}; _posChFokus=0; posBellOch(); }
+function posChOrqa(){ _posChOchiq=null; posBellOch(); }
+
+// ── QABUL — yozuvlar FAQAT shu yerda tug'iladi
+function posChQabul(){
+  var c=_posChTop(_posChOchiq); if(!c) return;
+  var ki=-1;
+  (data.klientlar||[]).forEach(function(k,i){ if(k.nom===c.klient) ki=i; });
+  if(ki<0){ alert('Klient topilmadi: '+c.klient); return; }
+  var k=data.klientlar[ki]; if(!k.tarix) k.tarix=[];
+
+  // Admin skanlagani BOR bo'lsa — HAQIQIY o'sha (Ibrohim qarori).
+  var satrlar=[], xato=[];
+  (c.rows||[]).forEach(function(r,ri){
+    var arr=(_posChSkan[ri] && _posChSkan[ri].length) ? _posChSkan[ri].slice() : (r.donalar||[]).slice();
+    var g=arr.length ? _posChSum(arr) : roundG(r.gramm);
+    var zi=-1, ti=-1;
+    (data.zavodlar||[]).forEach(function(z,i){
+      if(z.nom!==r.zavod) return;
+      (z.turlar||[]).forEach(function(t,j){ if(t.nom===r.tur){ zi=i; ti=j; } });
+    });
+    if(zi<0||ti<0){ xato.push(r.zavod+' · '+r.tur+' — zavod yoki tur topilmadi'); return; }
+    if(c.tip==='vozvrat' && g<=0.001){ xato.push(r.zavod+' · '+r.tur+' — vozvratda gramm musbat bo\'lishi kerak'); return; }
+    satrlar.push({zi:zi, ti:ti, zavod:r.zavod, tur:r.tur, g:g, arr:arr});
+  });
+  if(xato.length){ alert('Qabul qilinmadi:\n\n'+xato.join('\n')); return; }
+  if(!satrlar.length){ alert('Qatorlar yo\'q.'); return; }
+
+  var ozg=[];
+  satrlar.forEach(function(x,i){
+    var pos=roundG((c.rows[i]||{}).gramm||0);
+    if(Math.abs(pos-x.g)>0.001) ozg.push('  '+x.zavod+' · '+x.tur+':  POS '+fmtG(pos)+'g  →  '+fmtG(x.g)+'g');
+  });
+  var jg=0; satrlar.forEach(function(x){ jg+=x.g; });
+  var m = ozg.length
+    ? 'FARQ BOR — quyidagicha o\'zgartirib qabul qilinadi:\n\n'+ozg.join('\n')+'\n\nJami: '+fmtG(roundG(jg))+' g\n\nDavom etilsinmi?'
+    : 'Hammasi MOS.\n\nJami: '+fmtG(roundG(jg))+' g\n\nQabul qilinsinmi?';
+  if(!confirm(m)) return;
+
+  var sana=c.sana||today(), soat=c.soat||'';
+  satrlar.forEach(function(x){
+    var z=data.zavodlar[x.zi], t=z.turlar[x.ti], g=x.g, arr=x.arr;
+    if(c.tip==='vozvrat'){
+      // saqlashKlientVozvrat (13134-13153) bilan aynan
+      var _dv=arr.length;
+      var _vop={tip:'vozvrat',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g,pos:1,posGrp:c._id};
+      if(_dv>0){ _vop.dona=_dv; t.donaOst=turDona(t)+_dv; donaRegQosh(t, arr); }
+      k.tarix.push(_vop);
+      t.ostatka=roundG(parseNum(t.ostatka)+g);
+      var _kdG=0;
+      k.tarix.forEach(function(op2){
+        if(op2.zavod!==z.nom||op2.tur!==t.nom) return;
+        if(op2.tip==='klientda') _kdG+=op2.gramm;
+        else if(op2.tip==='tolov'&&op2._kdVoz) _kdG-=(op2.ekvivalent||0);
+      });
+      _kdG=roundG(_kdG);
+      if(_kdG>0.001){
+        k.tarix.push({tip:'tolov',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,
+          summa:0,kurs:0,ekvivalent:Math.min(g,_kdG),kirimNarx:0,_kdVoz:true});
+      }
+    } else {
+      // saqlashKlientBerish davomEt() (12630-12651) bilan aynan
+      var _dona = g>0 ? arr.length : 0;
+      var _op={tip:'berish',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g,pos:1,posGrp:c._id};
+      if(_dona>0) _op.dona=_dona;
+      k.tarix.push(_op);
+      if(g>0) t.ostatka=roundG(parseNum(t.ostatka)-g);
+      if(_dona>0){ t.donaOst=Math.max(0, turDona(t)-_dona); donaRegOlish(t, arr); }
+      if(g>0) donaBazaOlish(z.nom, t.nom, arr, k.nom);
+    }
+  });
+
+  save('POS chernovik qabul: '+k.nom);
+  try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
+  // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
+  _posCh = _posCh.filter(function(x){ return x._id!==c._id; });
+  posBellUpd();
+  _posChOchiq=null; _posChSkan={}; _posChKir={};
+  if(typeof renderKlientlar==='function') renderKlientlar();
+  if(typeof renderHome==='function') renderHome();
+  posBellOch();
+}
+function posChRad(){
+  var c=_posChTop(_posChOchiq); if(!c) return;
+  if(!confirm('Rad qilinsinmi?\n\n'+c.klient+' — hisobga TUSHMAYDI.')) return;
+  try{ c._ref.set({holat:'rad', radVaqt:Date.now()},{merge:true}); }catch(e){}
+  _posCh = _posCh.filter(function(x){ return x._id!==c._id; });
+  posBellUpd();
+  _posChOchiq=null; posBellOch();
+}
+
+function posBellOch(){
+  posBellYop();
+  var h='<div id="pos-bell-ovl" onclick="if(event.target===this)posBellYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-start;justify-content:center;padding:50px 14px 20px;z-index:9400;">';
+  h+='<div style="width:100%;max-width:620px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:24px;">';
+
+  var c=_posChOchiq?_posChTop(_posChOchiq):null;
+  if(!c) _posChOchiq=null;
+
+  // ── sarlavha
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">';
+  if(c) h+='<button onclick="posChOrqa()" style="width:32px;height:32px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#8592;</button>';
+  h+='<span style="font-size:15px;font-weight:700;">'+(c?_posEsc(c.klient):'POS chernoviklari')+'</span>';
+  if(c) h+='<span style="font-size:10.5px;padding:2px 9px;border-radius:24px;background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);">'+(c.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
+  else h+='<span style="font-size:11px;color:var(--muted);">'+_posCh.length+' ta kutmoqda</span>';
+  h+='<span style="flex:1;"></span>';
+  h+='<button onclick="posBellYop()" style="width:32px;height:32px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
+  h+='<div style="padding:12px 16px;">';
+
+  if(!c){
+    // ── ro'yxat
+    if(!_posCh.length){
+      h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;">Chernovik yo\'q</div>';
+    } else {
+      _posCh.forEach(function(x){
+        var jg=0, jd=0;
+        (x.rows||[]).forEach(function(r){ jg+=(r.gramm||0); jd+=(r.dona||0); });
+        h+='<div onclick="posChOch(\''+x._id+'\')" style="border:1px solid var(--gold-bd);background:var(--gold-bg);border-radius:18px;padding:11px 13px;margin-bottom:8px;cursor:pointer;">';
+        h+='<div style="display:flex;align-items:center;gap:9px;">';
+        h+='<span style="font-size:13.5px;font-weight:600;">'+_posEsc(x.klient||'?')+'</span>';
+        h+='<span style="font-size:10.5px;padding:1px 7px;border-radius:24px;background:var(--surf);color:'+(x.tip==='vozvrat'?'var(--teal)':'var(--gold)')+';border:1px solid var(--border);">'+(x.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
+        h+='<span style="flex:1;"></span>';
+        h+='<span style="font-size:11px;color:var(--muted);">'+_posEsc(x.sana||'')+' '+_posEsc(x.soat||'')+'</span></div>';
+        h+='<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">';
+        h+='<span style="font-size:11.5px;color:var(--muted);">'+((x.rows||[]).length)+' tur · '+jd+' dona</span><span style="flex:1;"></span>';
+        h+='<span style="font-size:15px;font-weight:700;font-family:Roboto,sans-serif;">'+fmtG(roundG(jg))+' g</span></div></div>';
+      });
+    }
+  } else {
+    // ── tekshiruv
+    var hammasiSkan=true, farqBor=false;
+    (c.rows||[]).forEach(function(r,ri){
+      var pos=(r.donalar||[]);
+      var skan=_posChSkan[ri]||[];
+      var x=_posChRecon(pos, skan);
+      var mos = skan.length && !x.kam.length && !x.ortiq.length;
+      if(!skan.length) hammasiSkan=false;
+      if(skan.length && Math.abs(_posChSum(skan)-roundG(r.gramm))>0.001) farqBor=true;
+
+      h+='<div style="border:1px solid '+(skan.length?(mos?'var(--green-bd)':'var(--red-bd)'):'var(--border)')+';background:var(--surf2);border-radius:18px;padding:11px 13px;margin-bottom:9px;">';
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+      h+='<b style="font-size:13.5px;">'+_posEsc(r.zavod)+' · '+_posEsc(r.tur)+'</b><span style="flex:1;"></span>';
+      h+='<span style="font-size:11px;color:var(--muted);">POS: <b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(r.gramm)+' g</b> · '+(r.dona||0)+' dona</span></div>';
+
+      // POS donalari
+      h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
+      if(pos.length) pos.forEach(function(g){
+        h+='<span style="padding:4px 9px;border-radius:14px;border:1px solid var(--border);background:var(--surf);font-size:12px;font-family:Roboto,sans-serif;">'+fmtG(g)+'</span>';
+      });
+      else h+='<span style="font-size:11.5px;color:var(--muted);">POS donalarni yubormagan</span>';
+      h+='</div>';
+
+      // Admin skani
+      h+='<div style="display:flex;gap:6px;margin-bottom:7px;">';
+      h+='<input id="pch-in-'+ri+'" value="'+_posEsc(_posChKir[ri]||'')+'" oninput="posChKir('+ri+',this.value)" onkeydown="if(event.key===\'Enter\')posChSkanQosh('+ri+')" inputmode="decimal" placeholder="Skan yoki yozing" style="flex:1;min-width:0;height:38px;border-radius:14px;border:1px solid var(--gold-bd);background:var(--bg);color:var(--text);padding:0 11px;font-size:14px;outline:none;font-family:inherit;">';
+      h+='<button onclick="posChSkanQosh('+ri+')" style="width:40px;height:38px;border-radius:14px;border:0;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;">+</button>';
+      h+='<button onclick="posChNusxa('+ri+')" style="height:38px;padding:0 11px;border-radius:14px;border:1px solid var(--border);background:var(--surf);color:var(--muted);font-size:11.5px;cursor:pointer;font-family:inherit;">Mos</button></div>';
+
+      if(skan.length){
+        h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;">';
+        skan.forEach(function(g,j){
+          h+='<span style="padding:4px 5px 4px 9px;border-radius:14px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:12px;font-family:Roboto,sans-serif;">'+fmtG(g)
+            +'<span onclick="posChSkanOchir('+ri+','+j+')" style="margin-left:6px;cursor:pointer;color:var(--muted);">✕</span></span>';
+        });
+        h+='</div>';
+        h+='<div style="font-size:11.5px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;">';
+        h+='<span style="color:var(--green);">mos '+x.matched+'</span>';
+        if(x.kam.length) h+='<span style="color:var(--red);">kam: '+x.kam.map(function(o){return o.g+(o.n>1?'×'+o.n:'');}).join(', ')+'</span>';
+        if(x.ortiq.length) h+='<span style="color:var(--blue);">ortiq: '+x.ortiq.map(function(o){return o.g+(o.n>1?'×'+o.n:'');}).join(', ')+'</span>';
+        h+='<span style="flex:1;"></span><b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(skan))+' g</b></div>';
+      }
+      h+='</div>';
+    });
+
+    h+='<div style="display:flex;gap:8px;margin-top:12px;">';
+    h+='<button onclick="posChQabul()"'+(hammasiSkan?'':' disabled')+' style="flex:1;height:44px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+(farqBor?'gold':'green')+'-bd);background:var(--'+(farqBor?'gold':'green')+'-bg);color:var(--'+(farqBor?'gold':'green')+');font-family:inherit;'+(hammasiSkan?'':'opacity:.35;')+'">'
+      +(farqBor?'⚠ O\'zgarish bilan qabul':'✓ Qabul qilish')+'</button>';
+    h+='<button onclick="posChRad()" style="height:44px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--red-bd);background:var(--red-bg);color:var(--red);font-family:inherit;">✕ Rad</button></div>';
+    if(!hammasiSkan) h+='<div style="font-size:11.5px;color:var(--muted);text-align:center;padding-top:8px;">Hamma tur tekshirilmaguncha qabul qilinmaydi</div>';
+  }
+
+  h+='</div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
+  // POS 1.33: skandan keyin fokus o'sha maydonda qoladi — ketma-ket skan qilish
+  // uchun sichqonchaga tegish shart emas.
+  if(c){
+    var _fi = (_posChFokus!=null) ? _posChFokus : 0;
+    var _fe = document.getElementById('pch-in-'+_fi) || document.getElementById('pch-in-0');
+    if(_fe){ _fe.focus(); try{ _fe.setSelectionRange(_fe.value.length,_fe.value.length); }catch(e){} }
+  }
+  _posChFokus=null;
+}
+function _posAmalPill(){
+  var G='linear-gradient(90deg,#5183FF 0%,#5F84DF 100%)';
+  // POS 1.23 (Ibrohim: «iconli, svg-mas emas»): matn belgilari o'rniga INLINE SVG.
+  // Sabab: ↩ (U+21A9) iOS da EMOJI bo'lib, kulrang quti ichida chiqardi.
+  var _sv=function(d){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;">'+d+'</svg>'; };
+  var a=[['berish', _sv('<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>'), 'BERISH'],
+         ['vozvrat',_sv('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),'VOZVRAT'],
+         ['sotuv',  _sv('<polyline points="20 6 9 17 4 12"/>'), 'SOTUV']];
+  var h='<div class="pos-pills">';
+  a.forEach(function(x){
+    h+='<button onclick="posAmal(\''+x[0]+'\')" style="display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-family:inherit;background:'+G+';color:#fff;box-shadow:0 6px 18px rgba(81,131,255,.32);">';
+    h+='<span style="display:flex;align-items:center;">'+x[1]+'</span>';
+    h+='<span style="font-size:11.5px;font-weight:600;letter-spacing:.05em;">'+x[2]+'</span></button>';
+  });
+  return h+'</div>';
+}
 function _posModal(){
   posModalYop();
   var k=data.klientlar[_posKi]; if(!k){ return; }
@@ -14878,16 +15272,18 @@ function _posModal(){
   var _t=null, rows=[], jr={ostatka:0,bizQarz:0};
   try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
   var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
-  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9000;">';
-  h+='<div style="width:100%;max-width:560px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:16px;">';
-  h+='<div style="padding:15px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;">';
-  h+='<div style="width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--gold);font-weight:700;font-size:16px;">'+_posEsc(_posBosh(k.nom))+'</div>';
-  h+='<div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
-  h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
+  var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bot));z-index:9000;">';
+  h+='<div style="width:100%;max-width:720px;height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:24px;">';
+  // POS 1.16: amallar pastdan SARLAVHAGA — klient nomi yoniga pill bo'lib chiqdi.
+  h+='<div class="pos-hd" style="padding:12px 15px;border-bottom:1px solid var(--border);">';
+  h+='<div style="width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#fff;font-weight:600;font-size:17px;">'+_posEsc(_posBosh(k.nom))+'</div>';
+  h+='<div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
+  h+=_posAmalPill();
+  h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
   h+='<div style="padding:16px 17px;">';
 
   // ── tepa blok: klient qarzi / jami savdo / bizning qarz
-  h+='<div style="border:1px solid var(--border);border-radius:13px;padding:13px 15px;">';
+  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;">';
   h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">';
   h+='<div><div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">KLIENT QARZI</div>';
   h+='<div style="font-size:27px;font-weight:700;color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;line-height:1.2;">\u2212'+fmtG(jr.ostatka)+' g</div></div>';
@@ -14904,7 +15300,7 @@ function _posModal(){
 
   // ── qarz tarkibi
   h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);margin:15px 0 7px;">QARZ TARKIBI</div>';
-  h+='<div style="border:1px solid var(--border);border-radius:13px;padding:13px 15px;background:var(--bg);">';
+  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;background:var(--bg);">';
   h+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
   h+='<span style="font-size:12px;color:var(--muted);">Klient ostatkasi</span>';
@@ -14925,7 +15321,7 @@ function _posModal(){
     h+='<div style="margin-bottom:11px;"><div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:7px;">'+_posEsc(zn)+'</div>';
     turs.forEach(function(b){
       var neg=b.qarz<0;
-      h+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:'+(neg?'var(--green-bg)':'var(--surf2)')+';border-radius:8px;margin-bottom:4px;">';
+      h+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:'+(neg?'var(--green-bg)':'var(--surf2)')+';border-radius:14px;margin-bottom:4px;">';
       h+='<span style="color:var(--muted);">'+_posEsc(b.tur)+(neg?' <span style="font-size:10px;color:var(--green);">\u21a9 biz qarzdor</span>':'')+'</span>';
       h+='<span style="font-weight:600;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:'+(neg?'var(--green)':'var(--red)')+';">'+(neg?'+':'\u2212')+fmtG(Math.abs(b.qarz))+'</span></div>';
     });
@@ -14934,19 +15330,449 @@ function _posModal(){
   if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
   h+='</div>';
 
-  var amallar=[['berish','&#8593; BERISH','Klientga tovar berish','gold'],
-               ['vozvrat','&#8617; VOZVRAT','Klientdan qaytgan','teal'],
-               ['tolov','$ TO\'LOV','Pul / lom qabul qilish','blue'],
-               ['sotuv','&#10003; SOTUV','Sotib yuborish','green']];
-  h+='<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-  amallar.forEach(function(a){
-    h+='<button onclick="posAmal(\''+a[0]+'\')" style="border:1px solid var(--'+a[3]+'-bd);background:var(--'+a[3]+'-bg);border-radius:13px;padding:16px 13px;cursor:pointer;text-align:left;font-family:inherit;min-height:86px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
-    h+='<span style="font-size:16px;font-weight:700;color:var(--'+a[3]+');">'+a[1]+'</span>';
-    h+='<span style="font-size:11.5px;color:var(--muted);">'+a[2]+'</span></button>';
-  });
-  h+='</div></div></div></div>';
+  h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
+  _posScrollLock(true);
+}
+
+// ══════════════════════════════════════════════════════════════
+// POS 1.09 — BERISH va VOZVRAT (bitta ekran).
+// Mockup: mockups/v177.9-pos-berish-planshet.html — Ibrohim tasdiqladi.
+//
+// Oqim: zavod kartasi -> ichiga kiriladi -> o'ngda gramm qo'shiladi,
+// chapda katakchalar yig'iladi -> savatga qo'shib chiqiladi -> boshqa zavod.
+// O'zgartirish savat qatorini bosib (o'sha zavod ichiga qaytadi).
+//
+// NARX YO'Q (Ibrohim, 2026-08-22): klient to'lagani kelganda kurs o'zgargan
+// bo'lishi mumkin, berishda aytilgan narx to'g'ri kelmaydi. Faqat gramm va
+// dona. Shu sababli A/B/C kategoriya tanlovi ham bu ekranda yo'q.
+//
+// YOZUVLAR — ilovaning o'z yo'llari bilan AYNAN bir xil:
+//   berish  -> saqlashKlientBerish davomEt() (12630)
+//   vozvrat -> saqlashKlientVozvrat (13099), `_kdVoz` to'lov yozuvi bilan
+// Qarz KO'RSATKICHI qayta hisoblanmaydi — _qarzTarkibRows (17468) chaqiriladi,
+// shunda POS klient modalidagi «QARZ TARKIBI» bilan bir xil raqam chiqadi.
+// ══════════════════════════════════════════════════════════════
+var _pbMode='berish';                       // 'berish' | 'vozvrat'
+var _pbSavat=[], _pbZi=-1, _pbTi=0, _pbIch=[], _pbKir='', _pbNeg=false;
+var _pbQarzKesh=null;                       // {zavod||tur: qarz} — har ochilganda yangilanadi
+
+function _pbV(){ return _pbMode==='vozvrat'; }
+// POS 1.22: berish/vozvrat oynasi ochiqda orqadagi POS sahifasi yashiriladi,
+// yopilganda o'sha holatiga qaytariladi.
+// ══════════════════════════════════════════════════════════════
+// POS 1.25 — SAHIFA SCROLLINI QULFLASH.
+// Ibrohim: «orqada background da klient shundoq turipti, shu yo'qolsin
+// umuman, shuning hisobiga scrollam chiqvotti yonga».
+// Oyna `position:fixed` bo'lsa ham ORQADAGI SAHIFA scroll bo'laverardi —
+// iOS da surilganda tepasi qatlam ustida ko'rinib qolardi, yon tomonda esa
+// scroll chizig'i chiqardi. Elementlarni yashirish YETMADI, chunki
+// mainTab('pos') (12456) `#main-pos` ga `display:block !important` qo'yib
+// qayta ochib yuboradi (u applyRol dan chaqiriladi).
+// Sanagich kerak: berish oynasi KLIENT oynasi USTIDA ochiladi — ikkalasi ham
+// qulflaydi, faqat oxirgisi yopilganda bo'shatiladi.
+var _posLockN=0, _posLockY=0;
+function _posScrollLock(on){
+  var b=document.body;
+  if(on){
+    if(_posLockN===0){
+      _posLockY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      b.style.setProperty('position','fixed','important');
+      b.style.setProperty('top',(-_posLockY)+'px','important');
+      b.style.setProperty('left','0','important');
+      b.style.setProperty('right','0','important');
+      b.style.setProperty('width','100%','important');
+      b.style.setProperty('overflow','hidden','important');
+    }
+    _posLockN++;
+  } else {
+    _posLockN = Math.max(0, _posLockN-1);
+    if(_posLockN===0){
+      ['position','top','left','right','width','overflow'].forEach(function(k){ b.style.removeProperty(k); });
+      window.scrollTo(0,_posLockY);
+    }
+  }
+}
+function _pbOrqa(v){
+  // ⚠ body.rol-pos #main-pos da `display:flex !important` bor (269-qator),
+  // shuning uchun oddiy style.display='none' ISHLAMAYDI — !important kerak.
+  ['#main-pos','.topbar','.main-tabs'].forEach(function(sel){
+    var e=document.querySelector(sel); if(!e) return;
+    if(v==='none') e.style.setProperty('display','none','important');
+    else e.style.removeProperty('display');
+  });
+}
+function posBYop(){
+  var m=document.getElementById('pb-ovl');
+  if(!m) return;                     // ochilmagan bo'lsa qulfga TEGILMAYDI
+  m.remove();
+  _posScrollLock(false);
+  _pbOrqa('');
+  var km=document.getElementById('pos-ovl'); if(km) km.style.display='flex';
+  var av=document.getElementById('app-ver'); if(av) av.style.display='';
+}
+function posBerishOch(){ _pbOch('berish'); }
+function posVozvratOch(){ _pbOch('vozvrat'); }
+function _pbOch(m){
+  if(!data.klientlar[_posKi]) return;
+  _pbMode=m; _pbSavat=[]; _pbZi=-1; _pbTi=0; _pbIch=[]; _pbKir=''; _pbNeg=false;
+  _pbQarzYangila();
+  posBYop();
+  var d=document.createElement('div');
+  d.innerHTML='<div id="pb-ovl" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bot));z-index:9200;">'
+    +'<div id="pb-box" style="width:100%;max-width:1100px;height:100%;max-height:100%;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--border);border-radius:24px;overflow:hidden;"></div></div>';
+  document.body.appendChild(d.firstChild);
+  // Ibrohim (2026-08-22): «orqada klient layeri ko'rinib qopketvotti, to'liq
+  // yopilishi kere». Fon qattiq qilindi + klient oynasi vaqtincha yashiriladi
+  // (o'chirilmaydi — berishdan chiqilganda o'sha holatiga qaytadi).
+  var _km=document.getElementById('pos-ovl'); if(_km) _km.style.display='none';
+  // POS 1.22 (Ibrohim: «orqasi o'ynavotti»): oyna ochilganda ORQADAGI SAHIFA
+  // butunlay yashiriladi. Faqat qattiq fonga ishonmaymiz — telefonda fixed
+  // qatlam tepani to'liq qoplamay qolgan edi (POS sarlavhasi ko'rinib turardi).
+  _pbOrqa('none');
+  // Versiya endi tepa satrda (POS 1.13) — o'ng pastdagi belgi modal ustida
+  // turaverardi (z-index 99998 > 9200). Berish ochiqda yashiriladi.
+  var _av=document.getElementById('app-ver'); if(_av) _av.style.display='none';
+  _posScrollLock(true);
+  _pbDraw();
+}
+// Qarz tarkibi ILOVANING o'z funksiyasidan (17468) — boshqa yo'l bilan
+// hisoblansa klient modalidagi raqamdan farq qiladi (v177.4 xatosi).
+function _pbQarzYangila(){
+  _pbQarzKesh={};
+  try{
+    var k=data.klientlar[_posKi];
+    (_qarzTarkibRows(k)||[]).forEach(function(b){ _pbQarzKesh[b.zavod+'||'+b.tur]=b.qarz; });
+  }catch(e){}
+}
+function _pbQarz(zNom,tNom){ return (_pbQarzKesh&&_pbQarzKesh[zNom+'||'+tNom])||0; }
+function _pbOst(zi,ti){
+  var z=data.zavodlar[zi], t=z&&z.turlar[ti]; if(!t) return 0;
+  try{ return turOst(z.nom,t.nom)||0; }catch(e){ return 0; }
+}
+function _pbSIdx(i){ for(var x=0;x<_pbSavat.length;x++) if(_pbSavat[x].zi===i) return x; return -1; }
+function _pbIchJami(){ var g=0; _pbIch.forEach(function(d){ g+=d.g; }); return roundG(g); }
+function _pbTurJami(j){ var g=0; _pbIch.forEach(function(d){ if(d.ti===j) g+=d.g; }); return roundG(g); }
+function _pbSavatJami(){ var g=0,n=0;
+  _pbSavat.forEach(function(s){ s.dona.forEach(function(d){ g+=d.g; n++; }); });
+  return {g:roundG(g), n:n}; }
+function _pbZavodJami(i){ var x=_pbSIdx(i); if(x<0) return null;
+  var g=0; _pbSavat[x].dona.forEach(function(d){ g+=d.g; });
+  return {g:roundG(g), n:_pbSavat[x].dona.length}; }
+// Bitta savat yozuvini TUR bo'yicha jamlaydi: {tartib:[ti...], m:{ti:{g,arr}}}
+function _pbTurlar(s){
+  var m={}, tartib=[];
+  s.dona.forEach(function(d){
+    if(!m[d.ti]){ m[d.ti]={g:0,arr:[]}; tartib.push(d.ti); }
+    m[d.ti].g+=d.g; m[d.ti].arr.push(d.g);
+  });
+  tartib.forEach(function(ti){ m[ti].g=roundG(m[ti].g); });
+  return {tartib:tartib, m:m};
+}
+
+function posBZavod(i){
+  _pbZi=i; _pbTi=0; _pbKir=''; _pbNeg=false;
+  var x=_pbSIdx(i);
+  _pbIch = x>=0 ? _pbSavat[x].dona.map(function(d){ return {ti:d.ti,g:d.g}; }) : [];
+  _pbDraw();
+}
+function posBChiq(){
+  if(_pbIch.length && !confirm('Savatga qo\'shilmadi — kiritilganlar o\'chadi. Chiqilsinmi?')) return;
+  _pbZi=-1; _pbIch=[]; _pbKir=''; _pbDraw();
+}
+function posBTur(j){ _pbTi=j; _pbKir=''; _pbDraw(); }
+function posBTuz(x){
+  if(x==='del') _pbKir=_pbKir.slice(0,-1);
+  else if(x==='c') _pbKir='';
+  else _pbKir+=x;
+  var i=document.getElementById('pb-in'); if(i){ i.value=_pbKir; i.focus(); }
+}
+function posBKirSet(v){ _pbKir=v; }
+function posBNeg(){ _pbNeg=!_pbNeg; _pbDraw(); }
+function posBQoshDona(){
+  var v=parseNum(_pbKir);
+  if(!v){ var i=document.getElementById('pb-in'); if(i){ i.style.borderColor='var(--red)'; i.focus(); } return; }
+  if(_pbNeg) v=-Math.abs(v);
+  _pbIch.push({ti:_pbTi, g:roundG(v)}); _pbNeg=false; _pbKir=''; _pbDraw();
+}
+function posBIchOchir(i){ _pbIch.splice(i,1); _pbDraw(); }
+function posBSavatga(){
+  if(!_pbIch.length) return;
+  var rec={zi:_pbZi, dona:_pbIch.map(function(d){ return {ti:d.ti,g:d.g}; })};
+  var x=_pbSIdx(_pbZi);
+  if(x>=0) _pbSavat[x]=rec; else _pbSavat.push(rec);
+  _pbZi=-1; _pbIch=[]; _pbKir=''; _pbDraw();
+}
+function posBSavatOchir(i,ev){ if(ev) ev.stopPropagation(); _pbSavat.splice(i,1); _pbDraw(); }
+function posBSavatKir(i){ posBZavod(_pbSavat[i].zi); }
+function posBBekor(){
+  if((_pbSavat.length||_pbIch.length) && !confirm('Hammasi o\'chadi. Bekor qilinsinmi?')) return;
+  posBYop();
+}
+
+// ── CHEK tanasi. Berish: kBerishUpdateChek (12275). Vozvrat: kVozvratUpdateChek (13040).
+function _pbChekTana(k){
+  var W=48, LINE=Array(W+1).join('-');
+  function ctr(s){ var p=Math.max(0,Math.floor((W-s.length)/2)); return Array(p+1).join(' ')+s; }
+  function rj(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
+  var rows=[];
+  _pbSavat.forEach(function(s){
+    var z=data.zavodlar[s.zi]; if(!z) return;
+    var agg=_pbTurlar(s);
+    agg.tartib.forEach(function(ti){
+      var t=z.turlar[ti]; if(!t) return;
+      if(!agg.m[ti].g) return;
+      rows.push({zavod:z.nom, tur:t.nom, g:agg.m[ti].g});
+    });
+  });
+  var t=ctr(k.nom)+'\n'+ctr(today())+'\n'+LINE+'\n';
+  if(_pbV()){
+    t+='Vozvrat qilindi\n';
+    rows.forEach(function(r){ t+=rj('  '+r.zavod+' - '+r.tur, '+'+fmtG(r.g)+'g')+'\n'; });
+    var vg=0; rows.forEach(function(r){ vg+=r.g; }); vg=roundG(vg);
+    t+=LINE+'\n'+rj('Jami gramm','+'+fmtG(vg)+'g')+'\n';
+  } else {
+    t+='Klientga berildi\n';
+    rows.forEach(function(r){
+      t+=rj('  '+r.zavod+' - '+r.tur, r.g>0?('-'+fmtG(r.g)+'g'):('+'+fmtG(Math.abs(r.g))+'g'))+'\n';
+    });
+    if(rows.length>1){
+      var jg=0; rows.forEach(function(r){ jg+=r.g; }); jg=roundG(jg);
+      t+=LINE+'\n'+rj('JAMI', jg>0?('-'+fmtG(jg)+'g'):(jg<0?('+'+fmtG(Math.abs(jg))+'g'):'0.00g'))+'\n';
+    }
+  }
+  return t;
+}
+
+// POS 1.27: SAQLASH EMAS — CHERNOVIK YUBORISH.
+// Ibrohim: «buni faqat chernovik bo'lib keladigan qilgin».
+// Bu funksiya endi k.tarix / t.ostatka / t.donaOst ga UMUMAN TEGMAYDI.
+// Yozuvlar Tilla ERP tomonida, admin qabul qilganda tug'iladi (posChQabul).
+// Chek avvalgidek DARROV bosiladi (Ibrohim tasdiqladi) — klient olib ketadi.
+function posBSaqla(){
+  if(!_pbSavat.length) return;
+  var k=data.klientlar[_posKi]; if(!k) return;
+  var ref=_posChRef();
+  if(!ref){ alert('Cloud ulanmagan — chernovik yuborilmadi.\nInternetni tekshiring.'); return; }
+
+  var sana=today();
+  var _n=new Date();
+  var soat=String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
+  // POS 1.28 (Ibrohim: «chek chiqarish digan narsani unut») — chek BOSILMAYDI.
+  // Chernovik hisobga tegmaydi, chek esa qabuldan keyin ma'noga ega bo'ladi.
+
+  // Har zavod·tur uchun bitta qator. Donalarning ALOHIDA og'irliklari ham
+  // yuboriladi — admin skan bilan solishtirishi uchun (k.tarix ularni saqlamaydi).
+  var rows=[];
+  _pbSavat.forEach(function(s){
+    var z=data.zavodlar[s.zi]; if(!z) return;
+    var agg=_pbTurlar(s);
+    agg.tartib.forEach(function(ti){
+      var t=z.turlar[ti]; if(!t) return;
+      var g=agg.m[ti].g; if(!g) return;
+      rows.push({zavod:z.nom, tur:t.nom, gramm:g,
+                 dona:agg.m[ti].arr.length, donalar:agg.m[ti].arr.slice()});
+    });
+  });
+  if(!rows.length){ alert('Qatorlar yo\'q.'); return; }
+
+  ref.add({
+    tip: _pbV()?'vozvrat':'berish',
+    klient: k.nom,
+    sana: sana, soat: soat,
+    qurilma: (localStorage.getItem('tilla-qurilma')||''),
+    rows: rows,
+    holat: 'kutilmoqda',
+    vaqt: Date.now()
+  }).then(function(){
+    _chekXabar('Tekshiruvga yuborildi','ok');
+  }).catch(function(e){
+    try{ cloudXato(e); }catch(_){}
+    _chekXabar('Yuborilmadi — qayta urining','xato');
+  });
+
+  posBYop(); posModalYop();
+  if(typeof renderPOS==='function') renderPOS();
+}
+
+// Telefon burilganda (gorizontal <-> vertikal) qayta chiziladi — aks holda
+// past ekran uchun tanlangan ko'rinish o'zgarmay qoladi.
+['resize','orientationchange'].forEach(function(ev){
+  window.addEventListener(ev, function(){
+    if(document.getElementById('pb-ovl')) setTimeout(_pbDraw, 60);
+  });
+});
+function _pbDraw(){
+  var box=document.getElementById('pb-box'); if(!box) return;
+  var k=data.klientlar[_posKi]; if(!k) return;
+  var V=_pbV(), C=V?'teal':'gold';
+  // POS 1.11: telefon GORIZONTAL bo'lganda modal balandligi ~340px, klaviatura
+  // esa 423px joy talab qiladi — sig'maydi va pastdan kesiladi. Past ekranda
+  // klaviatura CHIQARILMAYDI, telefonning o'z raqamli klaviaturasi ishlatiladi
+  // (maydonda inputmode="decimal"). Vertikal va planshetda hammasi avvalgidek.
+  var PAST = window.innerHeight < 560;
+  // POS 1.12: telefon VERTIKAL — eni ~390px, chap(296) + o'ng(286) sig'maydi
+  // va o'ng ustun chetdan kesilardi (Ibrohim rasm bilan ko'rsatdi).
+  // Tor ekranda ikki ustun BIR ustunga tushadi: tepada katakchalar, pastda
+  // kiritish va klaviatura. Vertikalda balandlik yetarli, klaviatura qoladi.
+  var TOR = window.innerWidth < 640;
+  var z=_pbZi>=0?data.zavodlar[_pbZi]:null;
+  var h='';
+
+  // ── sarlavha
+  h+='<div style="display:flex;align-items:center;gap:8px;padding:'+(PAST?'4px 9px':'9px 11px')+';border-bottom:1px solid var(--border);flex:none;">';
+  h+='<button onclick="'+(z?'posBChiq()':'posBBekor()')+'" style="width:34px;height:34px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#8592;</button>';
+  h+='<span style="font-size:14.5px;font-weight:700;white-space:nowrap;color:var(--'+C+');">'
+    +(z?_posEsc(z.nom):(V?'↩ VOZVRAT':'↑ BERISH'))+'</span>';
+  // POS 1.13: o'ng pastdagi versiya belgisi berish oynasi ochiqda ko'rinmay
+  // qolardi (Ibrohim telefonda). Shu sababli tepa satrga ham chiqarildi.
+  // Matn _verBelgi() dan — POS rolida 'POS <ver>', boshqa rolda APP_VER.
+  h+='<span style="font-size:9.5px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:1px 7px;white-space:nowrap;flex:none;">'+_verBelgi()+'</span>';
+  h+='<span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+_posEsc(k.nom)+'</span>';
+  h+='<span style="flex:1;min-width:4px;"></span>';
+  var jq=0; try{ jq=klientJamiQarz(k)||0; }catch(e){}
+  h+='<span style="font-size:11px;color:var(--muted);white-space:nowrap;">Klient qarzi <b style="color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">−'+fmtG(Math.abs(jq))+' g</b></span>';
+  h+='<button onclick="posBBekor()" style="width:34px;height:34px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
+
+  if(!z){
+    // ══ EKRAN 1 — zavod tanlash ══
+    h+='<div style="flex:1;min-height:0;display:flex;flex-direction:column;">';
+    h+='<div style="flex:1;overflow-y:auto;padding:12px;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;">';
+    (data.zavodlar||[]).forEach(function(zz,i){
+      var j=_pbZavodJami(i);
+      h+='<div onclick="posBZavod('+i+')" style="position:relative;border:1px solid var(--border);background:var(--surf2);border-radius:18px;padding:14px 13px;cursor:pointer;min-height:74px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
+      if(j) h+='<span style="position:absolute;top:8px;right:9px;font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);">'+fmtG(j.g)+' g · '+j.n+' dona</span>';
+      h+='<b style="font-size:16px;font-weight:600;color:var(--'+C+');">'+_posEsc(zz.nom)+'</b>';
+      h+='<span style="font-size:11px;color:var(--muted);">'+((zz.turlar||[]).length)+' ta tur</span></div>';
+    });
+    h+='</div></div>';
+    // savat
+    var J=_pbSavatJami();
+    h+='<div style="border-top:1px solid var(--border);background:var(--bg);flex:none;max-height:210px;display:flex;flex-direction:column;">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;flex:none;">';
+    h+='<span style="font-size:9.5px;letter-spacing:.11em;color:var(--muted);">SAVAT</span>';
+    h+='<span style="font-size:10.5px;color:var(--muted);">'+(_pbSavat.length?_pbSavat.length+' zavod · o\'zgartirish uchun bosing':'')+'</span></div>';
+    h+='<div style="overflow-y:auto;padding:0 12px 8px;">';
+    if(_pbSavat.length){
+      _pbSavat.forEach(function(s,i){
+        var zz=data.zavodlar[s.zi]; if(!zz) return;
+        var agg=_pbTurlar(s), g=0;
+        s.dona.forEach(function(d){ g+=d.g; });
+        var turlar=agg.tartib.map(function(ti){
+          return (zz.turlar[ti]?zz.turlar[ti].nom:'?')+' '+fmtG(agg.m[ti].g)+'g'; }).join(' · ');
+        h+='<div onclick="posBSavatKir('+i+')" style="display:flex;align-items:center;gap:9px;padding:8px 0;font-size:12.5px;border-top:1px solid var(--border);cursor:pointer;">';
+        h+='<div style="flex:1;min-width:0;"><b style="display:block;font-weight:500;font-size:13px;">'+_posEsc(zz.nom)+'</b>';
+        h+='<small style="color:var(--muted);font-size:10.5px;">'+_posEsc(turlar)+'</small></div>';
+        h+='<div style="text-align:right;font-weight:700;color:var(--'+C+');font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(roundG(g))+' g'
+          +'<small style="display:block;font-weight:400;color:var(--muted);font-size:10.5px;">'+s.dona.length+' dona</small></div>';
+        h+='<div onclick="posBSavatOchir('+i+',event)" style="width:22px;flex:none;color:var(--muted);font-size:12px;text-align:center;cursor:pointer;">✕</div></div>';
+      });
+    } else h+='<div style="color:var(--muted);font-size:11.5px;padding:6px 2px 10px;">Bo\'sh — tepadan zavodni bosing</div>';
+    h+='</div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:9px 12px;border-top:1px solid var(--border);flex:none;">';
+    h+='<span style="font-size:9.5px;letter-spacing:.11em;color:var(--muted);">JAMI</span>';
+    h+='<span><span style="font-weight:700;font-size:17px;color:var(--green);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(J.g)+' g</span> '
+      +'<span style="font-size:11px;color:var(--muted);">'+J.n+' dona</span></span></div></div></div>';
+    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
+    h+='<button onclick="posBBekor()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Bekor</button>';
+    h+='<button onclick="posBSaqla()"'+(_pbSavat.length?'':' disabled')+' style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-family:inherit;'+(_pbSavat.length?'':'opacity:.35;')+'">Tekshiruvga yuborish</button></div>';
+
+  } else {
+    // ══ EKRAN 2 — zavod ichi ══
+    var t=z.turlar[_pbTi];
+    h+='<div style="display:flex;gap:7px;padding:'+(PAST?'5px 9px':'9px 11px')+';border-bottom:1px solid var(--border);background:var(--bg);flex:none;overflow-x:auto;">';
+    (z.turlar||[]).forEach(function(tt,j){
+      var tg=_pbTurJami(j), on=_pbTi===j;
+      var past = tg ? fmtG(tg)+' g' : (V?('qarz '+fmtG(_pbQarz(z.nom,tt.nom))+'g'):('omborda '+fmtG(_pbOst(_pbZi,j))+'g'));
+      h+='<div onclick="posBTur('+j+')" style="padding:8px 16px;border-radius:15px;cursor:pointer;font-size:13.5px;font-weight:500;white-space:nowrap;flex:none;text-align:center;border:1px solid '+(on?'var(--'+C+'-bd)':'var(--border)')+';background:'+(on?'var(--'+C+'-bg)':'var(--surf2)')+';color:'+(on?'var(--'+C+')':'var(--muted)')+';">'+_posEsc(tt.nom)
+        +'<small style="display:block;font-family:Roboto,sans-serif;font-size:10px;font-weight:400;color:var(--muted);">'+past+'</small></div>';
+    });
+    h+='</div>';
+
+    h+='<div style="display:flex;'+(TOR?'flex-direction:column;':'')+'min-height:0;flex:1;">';
+    // ── CHAP: katakchalar (faqat gramm)
+    h+='<div style="flex:1;'+(TOR?'min-width:0;border-bottom:1px solid var(--border);':'min-width:296px;border-right:1px solid var(--border);')+'display:flex;flex-direction:column;min-height:0;background:var(--bg);">';
+    h+='<div style="flex:1;overflow-y:auto;padding:11px;">';
+    if(_pbIch.length){
+      // POS 1.24 (Ibrohim): «Oddiydan boshqa turga o'tganda spiska o'chsin».
+      // Avval zavodning HAMMA turlari ustma-ust ko'rinardi — 3D ga o'tilsa ham
+      // Oddiy ro'yxati turaverardi. Endi FAQAT tanlangan tur ko'rinadi.
+      // Boshqa turlar yo'qolmaydi — savatga baribir tushadi, tur chipida
+      // o'z grammi ko'rinib turadi.
+      var korilgan=[_pbTi];
+      korilgan.forEach(function(tj,si){
+        var tg=0, tn=0; _pbIch.forEach(function(d){ if(d.ti===tj){ tg+=d.g; tn++; } });
+        h+='<div style="'+(si?'margin-top:13px;':'')+'"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding-bottom:6px;margin-bottom:9px;border-bottom:1px solid var(--border);">';
+        h+='<span style="font-size:12px;font-weight:600;color:var(--'+C+');">'+_posEsc(z.turlar[tj]?z.turlar[tj].nom:'?')+'</span>';
+        h+='<span style="font-size:11.5px;color:var(--muted);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(roundG(tg))+' g · '+tn+' dona</span></div>';
+        h+='<div style="display:grid;grid-template-columns:repeat('+(window.innerWidth>900?5:4)+',1fr);gap:8px;">';
+        _pbIch.forEach(function(d,i){
+          if(d.ti!==tj) return;
+          var ng=d.g<0;
+          h+='<div style="position:relative;border:1px solid '+(ng?'var(--red-bd)':'var(--border)')+';background:'+(ng?'var(--red-bg)':'var(--surf)')+';border-radius:16px;padding:11px 3px;text-align:center;min-height:46px;display:flex;align-items:center;justify-content:center;">';
+          h+='<span style="font-size:16px;font-weight:700;line-height:1.1;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;'+(ng?'color:var(--red);':'')+'">'+fmtG(d.g)+'</span>';
+          h+='<span onclick="posBIchOchir('+i+')" style="position:absolute;top:-7px;right:-7px;width:21px;height:21px;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1;">✕</span></div>';
+        });
+        h+='</div></div>';
+      });
+    } else h+='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:12px;text-align:center;padding:20px;">O\'ngdan gramm qo\'shing —<br>shu yerga tushadi</div>';
+    h+='</div>';
+    h+='<div style="border-top:1px solid var(--border);padding:11px;flex:none;display:flex;justify-content:space-between;align-items:baseline;gap:8px;background:var(--surf2);">';
+    h+='<span style="font-size:9.5px;letter-spacing:.11em;color:var(--muted);">JAMI · '+_pbIch.length+' dona</span>';
+    h+='<span style="font-size:20px;font-weight:700;color:var(--'+C+');font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(_pbIchJami())+' g</span></div></div>';
+
+    // ── O'NG: kiritish + klaviatura
+    h+='<div style="'+(TOR?'width:auto;min-width:0;max-width:none;':'width:44%;min-width:286px;max-width:470px;')+'flex:none;display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px;overflow-y:auto;">';
+    var tg2=_pbTurJami(_pbTi);
+    var IN='padding:8px 11px;border-radius:15px;font-size:11.5px;flex:none;line-height:1.45;';
+    if(V){
+      var q=_pbQarz(z.nom,t.nom), ortiq=roundG(tg2-q);
+      if(q<=0.001) h+='<div style="'+IN+'border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);">Bu turda klient qarzi <b>yo\'q</b> — qaytgan'
+        +(tg2?' <b>'+fmtG(tg2)+' g</b>':'')+' to\'liq <b>biz qarzdor</b> bo\'lib yoziladi</div>';
+      else if(ortiq>0.001) h+='<div style="'+IN+'border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);">Klient qarzi <b>'+fmtG(q)+' g</b> — qarzdan <b>'+fmtG(ortiq)+' g</b> oshdi, oshgani <b>biz qarzdor</b> bo\'ladi</div>';
+      else h+='<div style="'+IN+'border:1px solid var(--border);background:var(--bg);color:var(--muted);">Klient qarzi <b>'+fmtG(q)+' g</b> · qaytdi <b>'+fmtG(tg2)+' g</b> · qoladi <b>'+fmtG(roundG(q-tg2))+' g</b></div>';
+    } else {
+      var o=_pbOst(_pbZi,_pbTi);
+      if(tg2>o+0.001) h+='<div style="'+IN+'border:1px solid var(--red-bd);background:var(--red-bg);color:var(--red);">⚠ '+_posEsc(t.nom)+' omborda <b>'+fmtG(o)+' g</b> — <b>'+fmtG(roundG(tg2-o))+' g</b> oshib ketdi (to\'xtatmaydi)</div>';
+      else h+='<div style="'+IN+'border:1px solid var(--border);background:var(--bg);color:var(--muted);">'+_posEsc(t.nom)+' omborda <b>'+fmtG(o)+' g</b></div>';
+    }
+    h+='<div style="display:flex;gap:7px;flex:none;">';
+    h+='<input id="pb-in" value="'+_posEsc(_pbKir)+'" oninput="posBKirSet(this.value)" onkeydown="if(event.key===\'Enter\')posBQoshDona()" inputmode="none" autocomplete="off" placeholder="'+_posEsc(t.nom)+' — gramm" style="flex:1;min-width:0;height:46px;border-radius:16px;padding:0 12px;font-size:16px;background:var(--bg);border:1px solid var(--'+C+'-bd);color:var(--text);outline:none;font-family:inherit;">';
+    h+='<button onclick="posBNeg()" style="width:48px;flex:none;height:46px;border-radius:16px;cursor:pointer;font-size:19px;border:1px solid '+(_pbNeg?'var(--red-bd)':'var(--border)')+';background:'+(_pbNeg?'var(--red-bg)':'var(--surf2)')+';color:'+(_pbNeg?'var(--red)':'var(--text)')+';">'+(_pbNeg?'−':'±')+'</button>';
+    h+='<button onclick="posBQoshDona()" style="width:48px;flex:none;height:46px;border-radius:16px;border:0;background:var(--'+C+');color:var(--on-gold);font-size:19px;cursor:pointer;">+</button></div>';
+    if(_pbNeg) h+='<div style="font-size:11px;color:var(--red);padding:0 2px;flex:none;">keyingi qo\'shilgan gramm MINUS bo\'lib tushadi</div>';
+    // POS 1.20 (Ibrohim): «gorizontal holatda yonida chiqsin, nega chiqmidi?»
+    // POS 1.11 da past ekranda klaviatura YASHIRILARDI (5 qator 276px joy
+    // so'rardi, modal esa 340px). Endi yashirilmaydi — past ekranda 5 USTUNGA
+    // o'tadi va 3 qatorga sig'adi:  7 8 9 ⌫ C / 4 5 6 . 0 / 1 2 3 [Qo'shish]
+    var KUST = PAST ? 5 : 3;
+    var KBAL = PAST ? 38 : 46;
+    var KS='min-height:'+KBAL+'px;border-radius:16px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;font-size:'+(PAST?16:18)+'px;cursor:pointer;';
+    var KEY=function(x){ return '<button onclick="posBTuz(\''+x+'\')" style="'+KS+'">'+x+'</button>'; };
+    var KDEL='<button onclick="posBTuz(\'del\')" style="'+KS+'">\u232b</button>';
+    var KC='<button onclick="posBTuz(\'c\')" style="'+KS+'">C</button>';
+    var KGO='<button onclick="posBQoshDona()" style="grid-column:span 2;min-height:'+KBAL+'px;border-radius:16px;border:1px solid var(--'+C+');background:var(--'+C+');color:var(--on-gold);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">+ Qo\'shish</button>';
+    h+='<div style="display:grid;grid-template-columns:repeat('+KUST+',1fr);gap:6px;flex:'+(PAST?'none':'1')+';'+(PAST?'':'min-height:290px;')+'">';
+    if(PAST){
+      h+=KEY(7)+KEY(8)+KEY(9)+KDEL+KC;
+      h+=KEY(4)+KEY(5)+KEY(6)+KEY('.')+KEY(0);
+      h+=KEY(1)+KEY(2)+KEY(3)+KGO;
+    } else {
+      h+=[7,8,9,4,5,6,1,2,3,'.',0].map(KEY).join('')+KDEL+KGO+KC;
+    }
+    h+='</div>';
+    h+='</div></div>';
+
+    h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
+    h+='<button onclick="posBChiq()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Chiqish</button>';
+    h+='<button onclick="posBSavatga()"'+(_pbIch.length?'':' disabled')+' style="flex:1;height:'+(PAST?38:44)+'px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:600;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-family:inherit;'+(_pbIch.length?'':'opacity:.35;')+'">'
+      +(_pbSIdx(_pbZi)>=0?'✓ Savatda yangilab chiqish':'✓ Savatga qo\'shib chiqish')+'</button></div>';
+  }
+
+  box.innerHTML=h;
+  var inp=document.getElementById('pb-in');
+  if(inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
 }
 function getKatNarx(zi, ti, ki) {
   var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
@@ -17624,6 +18450,11 @@ mainTab(_savedTab);
   document.addEventListener('touchend', function(e){
     if(!swiping) return;
     swiping=false;
+    // POS 1.30 (Ibrohim rasm bilan): POS rolida chapga/o'ngga surilganda
+    // mainTab('klient'/'zavod') chaqirilib, kassir BUTUN Tilla ERP ga
+    // (kassa, zavodlar, PDF) kirib qolardi. Bu ishlovchida rol tekshiruvi
+    // umuman yo'q edi.
+    if(typeof getRol==='function' && getRol()==='pos') return;
     var dx=e.changedTouches[0].clientX - swipeStartX;
     var dy=Math.abs(e.changedTouches[0].clientY - swipeStartY);
     if(dy > VERT_MAX) return; // vertikal scroll
@@ -18758,8 +19589,8 @@ function cloudInit(){
         if (!TEST_MODE) { localStorage.setItem('tilla-cloud-tasdiq','1'); } // haqiqiy rejimdagi mavjud sessiya — qonuniy
         else { firebase.auth().signOut(); return; } // TEST rejimga meros sessiya kirolmaydi
       }
-      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); chekNavbatTingla();   /* v172.28: chek navbati — faqat chiqaruvchi qurilmada ishlaydi */ if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
-      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} donaBazaCloudUnsub(); try{ chekNavbatUnsub(); }catch(e){} obyektUnsub(); amalUnsubAll(); }
+      if (u) { cloudStatus('yellow','ulanmoqda'); cloudListen(); sozListen(); sozKuzat(); zavodAmallarListen(); donaBazaCloudListen(); obyektListen(); amalListen(); hisobListen(); chekNavbatTingla(); posChListen();   /* v172.28: chek navbati — faqat chiqaruvchi qurilmada ishlaydi */ if(_cloudPending) cloudSaqlaNow(); setTimeout(kassaSnapshotYubor, 2500); /* v122: AVTOMAT syncFullFill O'CHIRILDI — har ulanishda butun bazani push qilib Firestore kunlik kvotasini tugatardi (resource-exhausted). Endi faqat QO'LDA: Cloud holati > "Hammani cloud bilan to'ldirish". */ }
+      else { cloudStatus('gray','kirish'); if(_cloudUnsub){_cloudUnsub();_cloudUnsub=null;} if(_sozUnsub){_sozUnsub();_sozUnsub=null;} donaBazaCloudUnsub(); try{ chekNavbatUnsub(); }catch(e){} obyektUnsub(); amalUnsubAll(); }
     });
     window.addEventListener('online', function(){ if(_cloudPending && _cloudUser) cloudSaqlaNow(); });
   } catch(e) { console.error('cloudInit:', e); cloudStatus('red','xato'); }
@@ -18928,6 +19759,133 @@ function cloudYuklab(meta, jim){
     alert('Clouddan yuklashda xato: '+e.message+'\nLokal malumot ozgarmadi.');
     cloudStatus('red','yuklash xatosi');
   });
+}
+// ══════════════════════════════════════════════════════════════════
+// SOZLAMALAR — CLOUDDA BITTA JONLI HUJJAT (v179, Ibrohim: «cloud bir xil
+// turmasligi charchatti, Zavod ERP da bu muammo yo'q»).
+//
+// Zavod ERP usuli: bitta hujjat, hamma qurilma tinglaydi. Shu yerda kurs,
+// lom, B ustama va zavod foizlari uchun aynan shunday qilinadi.
+//
+// ⚠ Kursni O'QIYDIGAN 20 joyga TEGILMAYDI (kursSanada 9978, POS 14801/14873,
+//   kassa snapshot 19768, sotuv/to'lov modallari ...). Ular avvalgidek
+//   localStorage dan o'qiydi — biz faqat localStorage ni to'g'ri holatda
+//   ushlab turamiz. Shuning uchun bironta hisob-kitob o'zgarmaydi.
+//
+// Yozadi: FAQAT rol 'admin' (test / tilla / admin loginlari).
+// Ko'radi: hamma — pos, zavod, hamid ham.
+// Eski data._narxSync ko'prigi (2313/2325) TEGILMADI — u faqat sahifa
+// yuklanganda bir marta ishlaydi, bu esa undan keyin ustun keladi.
+// ══════════════════════════════════════════════════════════════════
+function sozRef(){
+  try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('sozlamalar'); }catch(e){}
+  return null;
+}
+var _sozUnsub=null, _sozImzo=null, _sozKutgan=null, _sozTimer=null, _sozOzimTs=0;
+
+// Kurs tarixi BIRLASHTIRILADI — hech narsa o'chirilmaydi. Bir kunda ikki xil
+// yozuv bo'lsa kechrog'i (soati kattarog'i) qoladi — «bir kunda bitta yozuv»
+// qoidasi hkSaqla (3063) bilan bir xil.
+function _kursTarixBirlashtir(lokal, bulut){
+  var a=[], b=[];
+  try{ a=JSON.parse(lokal||'[]')||[]; }catch(e){}
+  try{ b=JSON.parse(bulut||'[]')||[]; }catch(e){}
+  var m={};
+  a.concat(b).forEach(function(x){
+    if(!x || !x.sana) return;
+    var bor=m[x.sana];
+    if(!bor || String(x.soat||'') > String(bor.soat||'')) m[x.sana]=x;
+  });
+  var r=[]; Object.keys(m).forEach(function(k){ r.push(m[k]); });
+  try{ kursTarixSort(r); }catch(e){}
+  return JSON.stringify(r.slice(-100));
+}
+
+// Kursni KIM va QACHON qo'ygani (v179.1 — Ibrohim: «kurs qatta o'zgarvotganini
+// bilomayamman»). Ma'lumot allaqachon `sozlamalar` hujjatida bor edi (qurilma, ts),
+// shunchaki ekranga chiqarilmagan.
+function sozManbaSaqla(qurilma, ts){
+  try{ localStorage.setItem('tilla-soz-manba', JSON.stringify({q:qurilma||'', ts:ts||Date.now()})); }catch(e){}
+}
+function sozManba(vaqtBilan){
+  try{
+    var m=JSON.parse(localStorage.getItem('tilla-soz-manba')||'null');
+    if(!m || !m.q) return '';
+    if(!vaqtBilan) return m.q;
+    var d=new Date(m.ts||0);
+    return m.q+' \u00b7 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }catch(e){ return ''; }
+}
+function sozYubor(h){
+  var ref=sozRef(); if(!ref) return;
+  if(typeof cloudYozaOladi==='function' && !cloudYozaOladi()) return;
+  h = h || narxHolatYig();
+  _sozOzimTs = h.ts;
+  sozManbaSaqla(localStorage.getItem('tilla-qurilma')||'', h.ts);
+  ref.set({ ts:h.ts, k:h.k, qurilma:(localStorage.getItem('tilla-qurilma')||'') })
+    .then(function(){ try{ cloudYozuvSana(1); }catch(e){} })
+    .catch(function(e){ try{ cloudXato(e); }catch(_){} });
+}
+
+// Kuzatuvchi: narx kalitlari ~20 joydan yoziladi (2803, 2833, 2859, 2885,
+// 3066, 3256, 3364, 19199 ...). Har biriga chaqiruv qo'shish o'rniga bitta
+// joyda barmoq izi solishtiriladi — yangi yozuv joyi qo'shilsa ham o'zi
+// ilinadi, unutib qo'yish mumkin emas.
+// Ikki tik ketma-ket bir xil bo'lgandagina yuboriladi — kurs terilayotganda
+// har raqamga alohida yozuv ketmasin.
+function sozKuzat(){
+  if(_sozTimer) return;
+  _sozTimer=setInterval(function(){
+    try{
+      if(typeof getRol!=='function' || getRol()!=='admin') return;
+      if(!sozRef()) return;
+      var h=narxHolatYig(), im=JSON.stringify(h.k);
+      if(_sozImzo===null){ _sozImzo=im; return; }        // birinchi o'lchov — yubormaymiz
+      if(im!==_sozImzo){ _sozImzo=im; _sozKutgan=im; return; }  // hozir o'zgardi — tinchishini kutamiz
+      if(_sozKutgan){ _sozKutgan=null; sozYubor(h); }    // tinchidi — yuboramiz
+    }catch(e){}
+  }, 3000);
+}
+
+function sozListen(){
+  var ref=sozRef(); if(!ref || _sozUnsub) return;
+  _sozUnsub=ref.onSnapshot(function(doc){
+    if(!doc.exists){
+      // Cloudda hali yo'q — birinchi bo'lib admin yozadi.
+      if(typeof getRol==='function' && getRol()==='admin') sozYubor();
+      return;
+    }
+    var d=doc.data()||{};
+    if(!d.k) return;
+    if(d.ts && d.ts===_sozOzimTs) return;   // o'zimiz yozganimiz qaytdi — qayta qo'llamaymiz
+    sozQollash(d);
+  }, function(e){ console.error('sozListen:', e); });
+}
+
+function sozQollash(d){
+  // Foydalanuvchi ayni paytda narx maydoniga yozayotgan bo'lsa TEGMAYMIZ —
+  // terayotgan raqami ustidan yozilib ketmasin.
+  var a=document.activeElement;
+  if(a && a.id && /^(hk-kurs-inp|hk-lom-inp|hk-b-ust|z-kurs-inp|z-lom-inp)$/.test(a.id)) return;
+
+  var ozgardi=false;
+  Object.keys(d.k).forEach(function(key){
+    var yangi=d.k[key];
+    if(key==='tilla-kurs-tarix') yangi=_kursTarixBirlashtir(localStorage.getItem(key), yangi);
+    if(localStorage.getItem(key)!==yangi){ localStorage.setItem(key, yangi); ozgardi=true; }
+  });
+  sozManbaSaqla(d.qurilma, d.ts);
+  if(!ozgardi) return;
+
+  // Kuzatuvchi buni «lokal o'zgarish» deb o'ylab cloudga qaytarib yubormasin.
+  try{ _sozImzo=JSON.stringify(narxHolatYig().k); }catch(e){}
+  localStorage.setItem('tilla-narx-sync-ts', String(d.ts||Date.now()));
+
+  ['renderHomeKurs','hkKunlikUpd','renderKassa','renderKassaCard','renderPOS'].forEach(function(f){
+    try{ if(typeof window[f]==='function') window[f](); }catch(e){}
+  });
+  // POS kurs oynasi ochiq bo'lsa u ham yangilansin
+  try{ if(document.getElementById('pos-kurs-ovl') && typeof posKursOch==='function') posKursOch(); }catch(e){}
 }
 function cloudSaqla(){
   // save() ichidan chaqiriladi — debounce (ketma-ket saqlashlarni bitta yozishga yig'adi)

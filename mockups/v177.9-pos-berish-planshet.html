@@ -1,0 +1,429 @@
+<!-- v177.9 TAKLIF — POS berish/vozvrat: narxsiz, gorizontal planshet. MOCKUP (ilova kodi emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS Berish va Vozvrat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap">
+</head>
+<body>
+<style>
+:root{
+  --bg:#f5f4f0; --surf:#ffffff; --surf2:#f0efe9; --border:#e0ddd4;
+  --text:#1a1a1a; --muted:#999; --gold:#a07830; --gold2:#b89040;
+  --red:#c84545; --red-bg:#f5caca; --red-bd:#d97878;
+  --green:#2e8f56; --green-bg:#c8edcf; --green-bd:#6cbd82;
+  --blue:#2e7cb0; --blue-bg:#c8dff0; --blue-bd:#6aafd6;
+  --teal:#1a7a72; --teal-bg:#c8ebe8; --teal-bd:#6abfb8;
+  --gold-bg:#f0d99a; --gold-bd:#c8a030; --on-gold:#fff8e6; --ink:#6b6558;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+    --text:#f0ede6; --muted:#666; --gold:#c9a84c; --gold2:#e8c96a;
+    --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+    --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+    --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+    --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+    --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200; --ink:#b8b1a5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#666; --gold:#c9a84c; --gold2:#e8c96a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+  --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200; --ink:#b8b1a5;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:'Roboto',system-ui,sans-serif;padding:14px 12px 40px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--gold)}
+.sub{margin:0;color:var(--ink);font-size:12.5px}
+.modesw{display:flex;gap:7px}
+.modesw button{padding:8px 20px;border-radius:10px;cursor:pointer;font-family:'Outfit',sans-serif;
+  font-size:13.5px;font-weight:600;border:1px solid var(--border);background:var(--surf);color:var(--muted)}
+.modesw button.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold)}
+.modesw button.on.v{background:var(--teal-bg);border-color:var(--teal-bd);color:var(--teal)}
+
+.proto{background:var(--surf);border:1px solid var(--border);border-radius:15px;
+  overflow:hidden;display:flex;flex-direction:column;height:640px}
+.ph{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--border);flex:none}
+.ph .ic{width:32px;height:32px;flex:none;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;display:grid;place-items:center}
+.ph .t{font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;white-space:nowrap}
+.ph .kl{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ph .sp{flex:1;min-width:4px}
+.ph .qz{font-size:11px;color:var(--muted);white-space:nowrap}
+.ph .qz b{font-family:'Roboto',sans-serif;font-variant-numeric:tabular-nums}
+
+/* ══ EKRAN 1 — zavod tanlash ══ */
+.scr{flex:1;min-height:0;display:flex;flex-direction:column}
+.zwrap{flex:1;overflow-y:auto;padding:12px}
+.zgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}
+.zc{position:relative;border:1px solid var(--border);background:var(--surf2);border-radius:12px;
+  padding:14px 13px;cursor:pointer;min-height:74px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.zc:hover{border-color:var(--gold-bd)}
+.zc b{font-family:'Outfit',sans-serif;font-weight:600;font-size:16px;color:var(--gold)}
+.zc span{font-size:11px;color:var(--muted)}
+.zc .bg{position:absolute;top:8px;right:9px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;
+  padding:1px 7px;border-radius:999px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+
+.savat{border-top:1px solid var(--border);background:var(--bg);flex:none;
+  max-height:210px;display:flex;flex-direction:column}
+.savat .sh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;flex:none}
+.savat .sh .l{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
+.savat .sh .r{font-size:10.5px;color:var(--muted)}
+.savat .sl{overflow-y:auto;padding:0 12px 8px}
+.srow{display:flex;align-items:center;gap:9px;padding:8px 0;font-size:12.5px;
+  border-top:1px solid var(--border);cursor:pointer}
+.srow:hover{background:var(--surf2)}
+.srow .n{flex:1;min-width:0}
+.srow .n b{display:block;font-weight:500;font-size:13px}
+.srow .n small{color:var(--muted);font-size:10.5px}
+.srow .g{font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;text-align:right}
+.srow .g small{display:block;font-weight:400;color:var(--muted);font-size:10.5px}
+.srow .e{width:22px;flex:none;color:var(--muted);font-size:12px;text-align:center}
+.sj{display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  padding:9px 12px;border-top:1px solid var(--border);flex:none}
+.sj .l{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
+.sj .v{font-weight:700;font-size:17px;color:var(--green);font-variant-numeric:tabular-nums}
+.sj .d{font-size:11px;color:var(--muted)}
+.hint{color:var(--muted);font-size:11.5px;padding:6px 2px 10px}
+
+/* ══ EKRAN 2 — zavod ichi ══ */
+.turbar{display:flex;gap:7px;padding:9px 11px;border-bottom:1px solid var(--border);
+  background:var(--bg);flex:none;overflow-x:auto}
+.tchip{padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:500;
+  white-space:nowrap;flex:none;text-align:center}
+.tchip.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold)}
+.tchip.on.v{background:var(--teal-bg);border-color:var(--teal-bd);color:var(--teal)}
+.tchip small{display:block;font-family:'Roboto',sans-serif;font-size:10px;font-weight:400;color:var(--muted)}
+
+.cols{display:flex;min-height:0;flex:1}
+.left{flex:1;min-width:296px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.right{width:44%;min-width:286px;max-width:470px;flex:none;
+  display:flex;flex-direction:column;min-height:0;padding:10px;gap:8px;overflow-y:auto}
+@media(max-width:520px){.cols{flex-direction:column}
+  .left{width:auto;border-right:0;border-bottom:1px solid var(--border);max-height:210px}}
+
+/* Katakcha — FAQAT GRAMM (Ibrohim: berishda narx shart emas, kurs o'zgaradi). */
+.llist{flex:1;overflow-y:auto;padding:11px}
+.lsec + .lsec{margin-top:13px}
+.lsech{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding-bottom:6px;margin-bottom:9px;border-bottom:1px solid var(--border)}
+.lsech .t{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--gold)}
+.lsech .g{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cells{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:900px){.cells{grid-template-columns:repeat(4,1fr)}}
+.cell{position:relative;border:1px solid var(--border);background:var(--surf);border-radius:11px;
+  padding:11px 3px;text-align:center;min-height:46px;display:grid;place-items:center}
+.cell .g{font-size:16px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.cell.neg{border-color:var(--red-bd);background:var(--red-bg)}
+.cell.neg .g{color:var(--red)}
+.cell .x{position:absolute;top:-7px;right:-7px;width:21px;height:21px;border-radius:7px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);
+  display:grid;place-items:center;cursor:pointer;font-size:10px;line-height:1}
+.cell .x:hover{border-color:var(--red-bd);background:var(--red-bg);color:var(--red)}
+.ljami{border-top:1px solid var(--border);padding:11px;flex:none;display:flex;
+  justify-content:space-between;align-items:baseline;gap:8px;background:var(--surf2)}
+.ljami .l{font-family:'Outfit',sans-serif;font-size:9.5px;letter-spacing:.11em;color:var(--muted)}
+.ljami .v{font-size:20px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+
+.inrow{display:flex;gap:7px;flex:none}
+.inrow input{flex:1;min-width:0;height:46px;border-radius:11px;padding:0 12px;font-size:16px;
+  background:var(--bg);border:1px solid var(--gold-bd);color:var(--text);outline:none;font-family:'Outfit',sans-serif}
+.inrow input.v{border-color:var(--teal-bd)}
+.inrow button{width:48px;flex:none;height:46px;border-radius:11px;cursor:pointer;font-size:19px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--text)}
+.inrow button.add{border:0;background:var(--gold);color:var(--on-gold)}
+.inrow button.add.v{background:var(--teal);color:var(--on-gold)}
+.inrow button.neg.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.negnote{font-size:11px;color:var(--red);padding:0 2px;flex:none}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1;min-height:290px}
+.pad button{min-height:46px;border-radius:11px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--text);font-family:'Outfit',sans-serif;font-size:18px;cursor:pointer}
+.pad button:active{background:var(--border)}
+.pad button.wide{grid-column:span 2;background:var(--gold);border-color:var(--gold);
+  color:var(--on-gold);font-weight:600;font-size:14px}
+.pad button.wide.v{background:var(--teal);border-color:var(--teal)}
+.info{padding:8px 11px;border-radius:10px;font-size:11.5px;flex:none;line-height:1.45}
+.info.r{border:1px solid var(--red-bd);background:var(--red-bg);color:var(--red)}
+.info.g{border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green)}
+.info.n{border:1px solid var(--border);background:var(--bg);color:var(--muted)}
+.info b{font-family:'Roboto',sans-serif;font-variant-numeric:tabular-nums}
+.empty{display:grid;place-items:center;flex:1;color:var(--muted);font-size:12px;text-align:center;padding:20px}
+
+.pf{display:flex;gap:7px;justify-content:flex-end;padding:9px 11px;border-top:1px solid var(--border);flex:none}
+.pf button{height:44px;padding:0 18px;border-radius:11px;cursor:pointer;font-family:'Outfit',sans-serif;
+  font-size:13.5px;font-weight:500;border:1px solid var(--border);background:var(--surf2);color:var(--text)}
+.pf button.go{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:600}
+.pf button.go.v{background:var(--teal);border-color:var(--teal)}
+.pf button.gr{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);font-weight:600;flex:1}
+.pf button:disabled{opacity:.35;cursor:not-allowed}
+.note{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:11px;padding:11px 14px;font-size:12.5px;color:var(--ink)}
+.note + .note{border-left-color:var(--teal)}
+.note b{color:var(--text)}
+.note ul{margin:6px 0 0;padding-left:17px}
+.note li{margin-bottom:3px}
+</style>
+
+<div class="wrap">
+
+<div>
+  <h1>POS — <em>berish va vozvrat</em></h1>
+  <p class="sub">Narx olib tashlandi: faqat gramm va dona soni. Vozvrat berish bilan bir xil ekran.</p>
+</div>
+
+<div class="modesw">
+  <button class="on" id="mB" onclick="modeSet('berish')">↑ BERISH</button>
+  <button id="mV" onclick="modeSet('vozvrat')">↩ VOZVRAT</button>
+</div>
+
+<div class="proto" id="proto"></div>
+
+<div class="note">
+  <b>Berish — narx yo'q.</b> Katakchada faqat gramm. Klient to'lagani kelganda kurs o'zgargan
+  bo'lishi mumkin, shuning uchun berishda aytilgan narx to'g'ri kelmaydi. Chekka ham gramm
+  va dona tushadi — v177.8 dagidek, o'zgarmaydi.
+  <br><br><b>Diqqat:</b> narx ko'rsatilmagani uchun <b>A / B / C</b> tanlovi endi hech narsani
+  o'zgartirmaydi — shuning uchun bu maketda olib qo'yildi. Kerak bo'lsa ayting, qaytaraman.
+</div>
+
+<div class="note">
+  <b>Vozvrat — berish bilan bir xil ekran.</b> Zavodga kirasiz, o'ngda gramm qo'shasiz,
+  chapda katakchalar yig'iladi, savatga qo'shib chiqasiz.
+  <ul>
+    <li>Tepada shu turdagi <b>klient qarzi</b> ko'rinadi</li>
+    <li>Qarzdan oshsa yoki qarz bo'lmasa — <b>«biz qarzdor bo'lamiz»</b> deb yashil chiziq chiqadi</li>
+    <li>Hisob qayta yozilmaydi: ilovaning <code>klientJamiQarz</code> · <code>_qarzTarkib</code> ·
+      <code>_qarzJamiRows</code> funksiyalari <b>1:1</b> chaqiriladi</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+var ZAV=[
+ {n:'Premium',  t:['Oddiy','Zar']},
+ {n:'Butterfly',t:['Oddiy','3D','3DS']},
+ {n:'Diamond',  t:['Oddiy','Polimer']},
+ {n:'Simay',    t:['Oddiy']},
+ {n:'Dorika',   t:['Oddiy','Dor S']},
+ {n:'Sepochka', t:['Sep']}
+];
+// Ombor (berish uchun) va klient qarzi (vozvrat uchun) — maket ma'lumoti
+var OMBOR={'Premium|Oddiy':18.5,'Premium|Zar':40,'Butterfly|Oddiy':120,'Butterfly|3D':60,
+  'Butterfly|3DS':60,'Diamond|Oddiy':25,'Diamond|Polimer':30,'Simay|Oddiy':40,
+  'Dorika|Oddiy':35,'Dorika|Dor S':22,'Sepochka|Sep':50};
+var QARZ ={'Premium|Oddiy':17.84,'Premium|Zar':0,'Butterfly|Oddiy':42.10,'Butterfly|3D':0,
+  'Butterfly|3DS':11.5,'Diamond|Oddiy':8.20,'Diamond|Polimer':0,'Simay|Oddiy':15,
+  'Dorika|Oddiy':0,'Dorika|Dor S':6.4,'Sepochka|Sep':0};
+
+var mode='berish';
+var ekran='zavod', zi=-1, ti=0, ich=[], kir='', neg=false, savat=[];
+
+function fg(n){ return (Math.round(n*100)/100).toFixed(2); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function V(){ return mode==='vozvrat'; }
+function sIdx(i){ for(var x=0;x<savat.length;x++) if(savat[x].zi===i) return x; return -1; }
+function ost(i,j){ return OMBOR[ZAV[i].n+'|'+ZAV[i].t[j]]||0; }
+function qarz(i,j){ return QARZ[ZAV[i].n+'|'+ZAV[i].t[j]]||0; }
+
+function modeSet(m){
+  if(m===mode) return;
+  if((savat.length||ich.length) && !confirm('Kiritilganlar o‘chadi. Almashtirilsinmi?')) return;
+  mode=m; ekran='zavod'; zi=-1; ich=[]; kir=''; neg=false; savat=[];
+  document.getElementById('mB').className = mode==='berish'?'on':'';
+  document.getElementById('mV').className = mode==='vozvrat'?'on v':'';
+  draw();
+}
+function zavodOch(i){
+  zi=i; ti=0; kir=''; neg=false;
+  var x=sIdx(i);
+  ich = x>=0 ? savat[x].dona.map(function(d){ return {ti:d.ti,g:d.g}; }) : [];
+  ekran='ich'; draw();
+}
+function chiq(){
+  if(ich.length && !confirm('Savatga qo‘shilmadi — kiritilganlar o‘chadi. Chiqilsinmi?')) return;
+  ekran='zavod'; zi=-1; ich=[]; kir=''; draw();
+}
+function turSet(j){ ti=j; kir=''; draw(); }
+function tuz(x){ if(x==='del') kir=kir.slice(0,-1); else if(x==='c') kir=''; else kir+=x;
+  var e=document.getElementById('gin'); if(e){ e.value=kir; e.focus(); } }
+function qosh(){
+  var v=parseFloat((kir||'').replace(',','.'));
+  if(isNaN(v)||v===0){ var e=document.getElementById('gin'); if(e){ e.style.borderColor='var(--red)'; e.focus(); } return; }
+  if(neg) v=-Math.abs(v);
+  ich.push({ti:ti, g:Math.round(v*100)/100}); neg=false; kir=''; draw();
+}
+function ichOchir(i){ ich.splice(i,1); draw(); }
+function savatga(){
+  if(!ich.length) return;
+  var rec={zi:zi, dona:ich.map(function(d){ return {ti:d.ti,g:d.g}; })};
+  var x=sIdx(zi); if(x>=0) savat[x]=rec; else savat.push(rec);
+  ekran='zavod'; zi=-1; ich=[]; kir=''; draw();
+}
+function savatOchir(i,ev){ ev.stopPropagation(); savat.splice(i,1); draw(); }
+function savatKir(i){ zavodOch(savat[i].zi); }
+function hammasi(){ if((savat.length||ich.length)&&!confirm('Hammasi o‘chadi. Bekor qilinsinmi?')) return;
+  savat=[]; ich=[]; kir=''; zi=-1; ekran='zavod'; draw(); }
+function saqla(){
+  if(!savat.length) return;
+  var txt='', jg=0, jd=0;
+  savat.forEach(function(s){
+    var per={};
+    s.dona.forEach(function(d){ per[d.ti]=(per[d.ti]||0)+d.g; jd++; });
+    Object.keys(per).forEach(function(k){
+      var g=Math.round(per[k]*100)/100; jg+=g;
+      txt+=ZAV[s.zi].n+' · '+ZAV[s.zi].t[k]+'   '+fg(g)+' g\n';
+    });
+  });
+  alert('BITTA CHEK — '+(V()?'VOZVRAT':'BERISH')+'\n\n'+txt
+    +'──────────────────────────\nJAMI  '+fg(jg)+' g   '+jd+' dona\n\nNarx yo‘q — faqat gramm va dona.');
+}
+
+function ichJami(){ var g=0; ich.forEach(function(d){ g+=d.g; }); return Math.round(g*100)/100; }
+function savatJami(){ var g=0,n=0;
+  savat.forEach(function(x){ x.dona.forEach(function(d){ g+=d.g; n++; }); });
+  return {g:Math.round(g*100)/100, n:n}; }
+function zavodJami(i){ var x=sIdx(i); if(x<0) return null;
+  var g=0; savat[x].dona.forEach(function(d){ g+=d.g; });
+  return {g:Math.round(g*100)/100, n:savat[x].dona.length}; }
+// Butun klient qarzi (maket) — tepada ko'rsatish uchun
+function klientQarz(){ var s=0; Object.keys(QARZ).forEach(function(k){ s+=QARZ[k]; }); return Math.round(s*100)/100; }
+
+function head(){
+  var h='<div class="ph">';
+  if(ekran==='ich'){
+    h+='<div class="ic" onclick="chiq()">←</div>'
+      +'<span class="t" style="color:var(--'+(V()?'teal':'gold')+')">'+esc(ZAV[zi].n)+'</span>';
+  } else {
+    h+='<div class="ic" onclick="alert(\'Klient oynasiga qaytadi\')">←</div>'
+      +'<span class="t" style="color:var(--'+(V()?'teal':'gold')+')">'+(V()?'↩ VOZVRAT':'↑ BERISH')+'</span>';
+  }
+  h+='<span class="kl">Abdulaziz Qashqadaryo</span><span class="sp"></span>';
+  h+='<span class="qz">Klient qarzi <b style="color:var(--red)">−'+fg(klientQarz())+' g</b></span>';
+  h+='<div class="ic" onclick="alert(\'Yopiladi\')">✕</div></div>';
+  return h;
+}
+
+function draw(){
+  var h=head();
+  var C = V()?'teal':'gold';
+
+  if(ekran==='zavod'){
+    h+='<div class="scr"><div class="zwrap"><div class="zgrid">';
+    ZAV.forEach(function(z,i){
+      var j=zavodJami(i);
+      h+='<div class="zc" onclick="zavodOch('+i+')">'
+        +(j?'<span class="bg">'+fg(j.g)+' g · '+j.n+' dona</span>':'')
+        +'<b style="color:var(--'+C+')">'+esc(z.n)+'</b><span>'+z.t.length+' ta tur</span></div>';
+    });
+    h+='</div></div>';
+    var J=savatJami();
+    h+='<div class="savat"><div class="sh"><span class="l">SAVAT</span>'
+      +'<span class="r">'+(savat.length?savat.length+' zavod · o‘zgartirish uchun bosing':'')+'</span></div>';
+    h+='<div class="sl">';
+    if(savat.length){
+      savat.forEach(function(s,i){
+        var per={}, g=0;
+        s.dona.forEach(function(d){ per[d.ti]=(per[d.ti]||0)+d.g; g+=d.g; });
+        var turlar=Object.keys(per).map(function(k){ return ZAV[s.zi].t[k]+' '+fg(per[k])+'g'; }).join(' · ');
+        h+='<div class="srow" onclick="savatKir('+i+')"><div class="n">'
+          +'<b>'+esc(ZAV[s.zi].n)+'</b><small>'+esc(turlar)+'</small></div>'
+          +'<div class="g" style="color:var(--'+C+')">'+fg(Math.round(g*100)/100)+' g'
+          +'<small>'+s.dona.length+' dona</small></div>'
+          +'<div class="e" onclick="savatOchir('+i+',event)">✕</div></div>';
+      });
+    } else h+='<div class="hint">Bo‘sh — tepadan zavodni bosing</div>';
+    h+='</div>';
+    h+='<div class="sj"><span class="l">JAMI</span><span><span class="v">'+fg(J.g)+' g</span> '
+      +'<span class="d">'+J.n+' dona</span></span></div></div></div>';
+    h+='<div class="pf"><button onclick="hammasi()">Bekor</button>'
+      +'<button class="go'+(V()?' v':'')+'" onclick="saqla()"'+(savat.length?'':' disabled')+'>Saqlash + chek</button></div>';
+
+  } else {
+    h+='<div class="turbar">';
+    ZAV[zi].t.forEach(function(t,j){
+      var tg=0; ich.forEach(function(d){ if(d.ti===j) tg+=d.g; });
+      h+='<div class="tchip'+(ti===j?' on'+(V()?' v':''):'')+'" onclick="turSet('+j+')">'+esc(t)
+        +'<small>'+(tg?fg(Math.round(tg*100)/100)+' g':(V()?'qarz '+fg(qarz(zi,j))+'g':'omborda '+fg(ost(zi,j))+'g'))+'</small></div>';
+    });
+    h+='</div>';
+
+    h+='<div class="cols"><div class="left"><div class="llist">';
+    if(ich.length){
+      var korilgan=[];
+      ich.forEach(function(d){ if(korilgan.indexOf(d.ti)<0) korilgan.push(d.ti); });
+      korilgan.forEach(function(tj){
+        var tg=0, tn=0; ich.forEach(function(d){ if(d.ti===tj){ tg+=d.g; tn++; } });
+        h+='<div class="lsec"><div class="lsech"><span class="t" style="color:var(--'+C+')">'+esc(ZAV[zi].t[tj])+'</span>'
+          +'<span class="g">'+fg(Math.round(tg*100)/100)+' g · '+tn+' dona</span></div><div class="cells">';
+        ich.forEach(function(d,i){
+          if(d.ti!==tj) return;
+          h+='<div class="cell'+(d.g<0?' neg':'')+'"><span class="g">'+fg(d.g)+'</span>'
+            +'<span class="x" onclick="ichOchir('+i+')">✕</span></div>';
+        });
+        h+='</div></div>';
+      });
+    } else h+='<div class="empty">O‘ngdan gramm qo‘shing —<br>shu yerga tushadi</div>';
+    h+='</div>';
+    h+='<div class="ljami"><span class="l">JAMI · '+ich.length+' dona</span>'
+      +'<span class="v" style="color:var(--'+C+')">'+fg(ichJami())+' g</span></div></div>';
+
+    // ── O'NG
+    h+='<div class="right">';
+    var tg=0; ich.forEach(function(d){ if(d.ti===ti) tg+=d.g; }); tg=Math.round(tg*100)/100;
+    if(V()){
+      // Vozvrat: qarzdan oshsa yoki qarz bo'lmasa — BIZ QARZDOR
+      var q=qarz(zi,ti), ortiq=Math.round((tg-q)*100)/100;
+      if(!q) h+='<div class="info g">Bu turda klient qarzi <b>yo‘q</b> — qaytgan '
+        +(tg?'<b>'+fg(tg)+' g</b> ':'')+'to‘liq <b>biz qarzdor</b> bo‘lib yoziladi</div>';
+      else if(ortiq>0.001) h+='<div class="info g">Klient qarzi <b>'+fg(q)+' g</b> — qarzdan '
+        +'<b>'+fg(ortiq)+' g</b> oshdi, oshgani <b>biz qarzdor</b> bo‘ladi</div>';
+      else h+='<div class="info n">Klient qarzi <b>'+fg(q)+' g</b> · qaytdi <b>'+fg(tg)+' g</b>'
+        +' · qoladi <b>'+fg(Math.round((q-tg)*100)/100)+' g</b></div>';
+    } else {
+      var o=ost(zi,ti);
+      if(tg>o+0.001) h+='<div class="info r">⚠ '+esc(ZAV[zi].t[ti])+' omborda <b>'+fg(o)+' g</b> — '
+        +'<b>'+fg(Math.round((tg-o)*100)/100)+' g</b> oshib ketdi (to‘xtatmaydi)</div>';
+      else h+='<div class="info n">'+esc(ZAV[zi].t[ti])+' omborda <b>'+fg(o)+' g</b></div>';
+    }
+    h+='<div class="inrow"><input id="gin" class="'+(V()?'v':'')+'" value="'+esc(kir)+'" oninput="kir=this.value" '
+      +'onkeydown="if(event.key===\'Enter\')qosh()" inputmode="decimal" autocomplete="off" '
+      +'placeholder="'+esc(ZAV[zi].t[ti])+' — gramm">'
+      +'<button class="neg'+(neg?' on':'')+'" onclick="neg=!neg;draw()">'+(neg?'−':'±')+'</button>'
+      +'<button class="add'+(V()?' v':'')+'" onclick="qosh()">+</button></div>';
+    if(neg) h+='<div class="negnote">keyingi qo‘shilgan gramm MINUS bo‘lib tushadi</div>';
+    var K=function(x){ return '<button onclick="tuz(\''+x+'\')">'+x+'</button>'; };
+    h+='<div class="pad">'+[7,8,9,4,5,6,1,2,3].map(K).join('')+K('.')+K('0')
+      +'<button onclick="tuz(\'del\')">⌫</button>'
+      +'<button class="wide'+(V()?' v':'')+'" onclick="qosh()">+ Qo‘shish</button>'
+      +'<button onclick="tuz(\'c\')">C</button></div>';
+    h+='</div></div>';
+
+    h+='<div class="pf"><button onclick="chiq()">Chiqish</button>'
+      +'<button class="gr" onclick="savatga()"'+(ich.length?'':' disabled')+'>'
+      +(sIdx(zi)>=0?'✓ Savatda yangilab chiqish':'✓ Savatga qo‘shib chiqish')+'</button></div>';
+  }
+
+  document.getElementById('proto').innerHTML=h;
+  var e=document.getElementById('gin');
+  if(e){ e.focus(); try{ e.setSelectionRange(e.value.length,e.value.length); }catch(_){} }
+}
+draw();
+</script>
+
+</body>
+</html>
