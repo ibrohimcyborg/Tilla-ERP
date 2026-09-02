@@ -1,0 +1,159 @@
+<!-- v179.4 — sotuv va to'lov modalida kunlik kurs. MOCKUP (kod emas) -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modalda kunlik kurs</title>
+<style>
+:root{
+  --bg:#f7f7f5; --surf:#ffffff; --surf2:#f2f1ee; --border:#e8e5de;
+  --text:#1a1a1a; --muted:#888;
+  --gold:#a07830; --gold2:#b89040; --gold-bg:#fdf6e3; --gold-bd:#e8d5a8;
+  --red:#d04040; --red-bg:#fdecec; --red-bd:#f5c0c0;
+  --green:#3a9060; --green-bg:#e8f5e8; --green-bd:#b8e0c0;
+  --blue:#1a7ab8; --blue-bg:#e8f2f8; --blue-bd:#b0d0e8;
+  --yellow-bg:#fdf6e3;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#eeece7}
+body{color:var(--text);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;padding:20px 14px 60px}
+.wrap{max-width:940px;margin:0 auto}
+h1{font-size:20px;font-weight:650;margin:0 0 6px}
+h1 span{color:var(--gold)}
+.lead{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin:12px 0;font-size:12.5px;color:#5a5a5a;line-height:1.65}
+.note b{color:var(--text)}
+.note.q{border-color:var(--gold-bd);background:var(--gold-bg)}
+.note.q b{color:var(--gold)}
+code{background:var(--surf2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;font-size:11.5px;color:#444}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.opt{background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.opt.pick{border-color:var(--gold-bd);box-shadow:0 0 0 3px rgba(160,120,48,.07)}
+.oh{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--surf2)}
+.oh .n{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;background:#dedbd4;color:#777}
+.opt.pick .oh .n{background:var(--gold);color:#fff}
+.oh .t{font-weight:650;font-size:14.5px}
+.oh .b{margin-left:auto;font-size:10px;letter-spacing:.5px;padding:3px 9px;border-radius:999px;background:#dedbd4;color:#777;font-weight:700}
+.opt.pick .oh .b{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold)}
+.ob{padding:15px}
+
+/* modal taqlidi */
+.m{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.07)}
+.mh{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.mh .t{font-weight:650;font-size:15px}
+.mh .x{margin-left:auto;width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:#999;display:grid;place-items:center;font-size:13px}
+.mb{padding:14px 15px}
+.kli{display:flex;align-items:center;gap:11px;padding:11px;border-radius:11px;background:var(--surf2);border:1px solid var(--border)}
+.ini{width:34px;height:34px;border-radius:50%;background:#e4e1da;display:grid;place-items:center;font-size:13px;color:#777;flex:none}
+.kli .mid{flex:1;min-width:0}
+.kli .nm{font-size:14px;font-weight:650}
+.kats{display:flex;gap:6px;margin-top:6px}
+.kats b{flex:1;padding:5px 0;border-radius:8px;border:1.5px solid var(--border);background:var(--surf);color:var(--muted);font-size:12px;font-weight:600;text-align:center}
+.kats b.on{border-color:var(--blue-bd);background:var(--blue-bg);color:var(--blue)}
+.qz{font-size:11px;color:var(--red);margin-top:4px}
+.fld{margin-top:11px}
+.fld label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.fld .inp{height:42px;border-radius:10px;border:1px solid var(--border);background:var(--surf);
+  display:flex;align-items:center;padding:0 12px;font-size:15px;color:#555}
+
+/* kurs chipi */
+.kurs{display:inline-flex;align-items:baseline;gap:6px;padding:5px 11px;border-radius:9px;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);white-space:nowrap}
+.kurs .l{font-size:9.5px;letter-spacing:.07em;color:var(--gold);font-weight:700}
+.kurs .v{font-size:15px;font-weight:700;color:var(--gold)}
+.kurs .u{font-size:10px;color:#b09050}
+.kurs.big .v{font-size:17px}
+.hi{outline:2px dashed var(--gold);outline-offset:3px;border-radius:10px}
+.cap{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.6}
+.cap b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Sotuv va to‘lov modalida — <span>kunlik kurs</span></h1>
+<p class="lead">Kurs har ikkala modalda ko‘rinib tursin. Ikki joylashuv varianti —
+qaysi biri qulay bo‘lsa ayting.</p>
+
+<div class="two">
+
+  <!-- 1-VARIANT -->
+  <div class="opt pick">
+    <div class="oh"><span class="n">1</span><span class="t">Sarlavhada</span>
+      <span class="b">TAKLIF</span></div>
+    <div class="ob">
+      <div class="m">
+        <div class="mh"><span class="t">Sotuv</span>
+          <span class="kurs hi"><span class="l">KURS</span><span class="v">84</span><span class="u">$/g</span></span>
+          <span class="x">✕</span></div>
+        <div class="mb">
+          <div class="kli">
+            <span class="ini">MO</span>
+            <span class="mid"><span class="nm">Madina Opa</span>
+              <span class="kats"><b class="on">A</b><b>B</b><b>C</b></span>
+              <span class="qz">Qarzi: −75.98 g</span></span>
+          </div>
+          <div class="fld"><label>Sana</label><div class="inp">21.08.2026</div></div>
+        </div>
+      </div>
+      <div class="cap">Sarlavhada, yopish tugmasi yonida. <b>Ikkala modalda bir xil joy</b> —
+      sotuvda ham, to‘lovda ham. Ichkariga aralashmaydi, doim ko‘rinib turadi.</div>
+    </div>
+  </div>
+
+  <!-- 2-VARIANT -->
+  <div class="opt">
+    <div class="oh"><span class="n">2</span><span class="t">Kategoriya yonida</span>
+      <span class="b">MUQOBIL</span></div>
+    <div class="ob">
+      <div class="m">
+        <div class="mh"><span class="t">Sotuv</span><span class="x">✕</span></div>
+        <div class="mb">
+          <div class="kli">
+            <span class="ini">MO</span>
+            <span class="mid"><span class="nm">Madina Opa</span>
+              <span class="kats"><b class="on">A</b><b>B</b><b>C</b></span>
+              <span class="qz">Qarzi: −75.98 g</span></span>
+          </div>
+          <div style="margin-top:11px;" class="hi">
+            <span class="kurs big"><span class="l">KUNLIK KURS</span><span class="v">84</span><span class="u">$/g</span></span>
+          </div>
+          <div class="fld"><label>Sana</label><div class="inp">21.08.2026</div></div>
+        </div>
+      </div>
+      <div class="cap">Kategoriya tugmalari ostida, alohida qator. Kattaroq ko‘rinadi va
+      A/B/C ga yaqin turadi — narx qaysi kursdan chiqqani darrov tushunarli.
+      Lekin modal biroz uzayadi.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+<b>Qiymat qayerdan:</b> <code>localStorage['tilla-kurs-bugun']</code> — ilovaning yagona
+kurs manbai. <code>getKatNarx</code> ham, «Kunlik kurs» bloki ham shundan o‘qiydi.
+Yangi hisob yozilmaydi, faqat ko‘rsatiladi.<br><br>
+<b>Yangilanishi:</b> modal ochilganda o‘qiladi. Kurs modal ochiq turganda o‘zgarsa —
+qayta o‘qilmaydi. Kerak bo‘lsa har hisobda yangilash mumkin, lekin
+<code>kSotuvCalc</code> / <code>kTolovCalc</code> ga tegishga to‘g‘ri keladi.
+</div>
+
+<div class="note q">
+<b>Uch savol:</b><br><br>
+<b>1.</b> Qaysi variant — <b>1</b> (sarlavhada) yoki <b>2</b> (kategoriya yonida)?<br><br>
+<b>2.</b> Kurs yonida <b>lom narxi</b> ham kerakmi? (kurs ekranida ikkalasi birga turadi)<br><br>
+<b>3.</b> Kurs <b>kiritilmagan</b> bo‘lsa nima ko‘rinsin — «—» mi, yoki qizil
+ogohlantirishmi? Kurs yo‘q bo‘lsa narxlar ham hisoblanmaydi.
+</div>
+
+<div class="note" style="border-color:var(--red-bd);background:var(--red-bg);color:#8a3a3a;">
+<b>KOD YOZILMAGAN.</b> Javoblaringizdan keyin yozaman — diff taxminan
+<b>10–16 qator</b>, ikkala modalga.
+</div>
+
+</div>
+</body>
+</html>

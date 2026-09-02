@@ -1,4 +1,4 @@
-<!-- v179.3 -->
+<!-- v179.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1716,7 +1716,8 @@ body.rol-hamid .hamid-x { display: none !important; }
       </div>
     </div>
     <div id="kt-turlar-cont" style="display:none;">
-      <div id="kt-turlar-list"></div>
+      <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:5px;margin-bottom:7px;"><span style="font-size:9px;letter-spacing:.07em;font-weight:700;color:var(--muted);">KUNLIK KURS</span><span id="kt-kurs-chip" style="font-size:14px;font-weight:700;color:var(--gold);font-family:Roboto,sans-serif;">—</span><span style="font-size:10px;color:var(--muted);">$/g</span></div>
+        <div id="kt-turlar-list"></div>
       <div onclick="toggleKtVozvrat()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:10px;cursor:pointer;margin:10px 0 0;">
         <div style="font-size:13px;color:var(--blue);font-weight:500;">↩ Vozvrat ham qo'shish</div>
         <div id="kt-voz-arr" style="font-size:14px;color:var(--blue);">›</div>
@@ -1891,6 +1892,7 @@ body.rol-hamid .hamid-x { display: none !important; }
             $
           </div>
         </div>
+        <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:5px;margin-bottom:7px;"><span style="font-size:9px;letter-spacing:.07em;font-weight:700;color:var(--muted);">KUNLIK KURS</span><span id="ks-kurs-chip" style="font-size:14px;font-weight:700;color:var(--gold);font-family:Roboto,sans-serif;">—</span><span style="font-size:10px;color:var(--muted);">$/g</span></div>
         <div id="ks-tolov-list"></div>
         <div id="ks-naqt-res" style="font-size:11px;color:var(--green);margin-top:4px;display:none;"></div>
         <input type="hidden" id="ks-naqt" value="0">
@@ -2031,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.3';
+var APP_VER = 'v179.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13932,6 +13934,7 @@ function kTolovCalc(){
   if(jamiSummaKt>0){
     if(ktNbBlok) ktNbBlok.style.display='block';
     if(ktKnEl){ktKnEl.textContent=fmtD(ktKerakli)+'$';ktKnEl.dataset.val=ktKerakli;}
+    _kursChipUpd('kt');
   } else {
     if(ktNbBlok) ktNbBlok.style.display='none';
     if(ktKnEl){ktKnEl.textContent='0$';ktKnEl.dataset.val=0;}
@@ -15774,6 +15777,16 @@ function _pbDraw(){
   var inp=document.getElementById('pb-in');
   if(inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
 }
+// v179.4 (Ibrohim): sotuv va to'lov modalida kunlik kurs ko'rinib tursin —
+// TO'LOV ro'yxatining TEPASIDA. Qiymat localStorage['tilla-kurs-bugun'] dan —
+// ilovaning YAGONA kurs manbai (getKatNarx ham shundan o'qiydi).
+// Yangi hisob yozilmadi, faqat ko'rsatiladi.
+function _kursChipUpd(pre){
+  var e=document.getElementById(pre+'-kurs-chip'); if(!e) return;
+  var k=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  e.textContent = k ? fmtD(k) : '\u2014';
+  e.style.color = k ? 'var(--gold)' : 'var(--muted)';
+}
 function getKatNarx(zi, ti, ki) {
   var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
   if (!kurs) return '';
@@ -15917,6 +15930,7 @@ function kSotuvRenderTolov() {
     });
   });
   document.getElementById('ks-tolov-list').innerHTML = out;
+  _kursChipUpd('ks');
   // v177.8: v176.1 dagi AVTOMAT OFFSET BEKOR QILINDI (Ibrohim: «sotuv modalida
   // offset yoqib qo'p ketvotti, shuning hisobiga klientlarni qarzi 0 bo'p qolvotti —
   // avtomat bo'masin, tursin»).
@@ -16500,6 +16514,7 @@ function kSotuvCalc() {
   if (mahsulotNarxi > 0) {
     if (nbBlok) nbBlok.style.display = 'block';
     if (knEl) { knEl.textContent = fmtD(kerakliNaqt) + '$'; knEl.dataset.val = kerakliNaqt; }
+    _kursChipUpd('ks');
   } else {
     if (nbBlok) nbBlok.style.display = 'none';
     if (knEl) { knEl.textContent = '0$'; knEl.dataset.val = 0; }
