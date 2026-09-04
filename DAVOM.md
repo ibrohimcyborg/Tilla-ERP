@@ -4,7 +4,39 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v179.2 · POS 1.33 · 2026-08-23
+**Oxirgi yangilanish:** v179.6 · POS 1.33 · 2026-09-03
+
+---
+
+## ✅ v179.6 — klient PDF hisoboti 500 berardi
+
+**Ibrohim:** «klientga kirsam pdf hisobotini olmoqchi bosam» — `/api/pdf.py 500`.
+
+**Sabab:** klient tarixida bitta yozuvda `gramm` yo'q → `runBal += undefined`
+→ NaN → o'sha klientning hamma qatoridagi ostatka NaN → JSON da `null`
+→ `pdf.py` da `None < -0.001` → TypeError → 500.
+`.get('ostatka', 0)` yordam bermaydi: Python'da standart qiymat faqat kalit
+**yo'q** bo'lganda ishlaydi, `null` bo'lganda emas.
+
+**Qilindi:** `index.html:18306` — gramm o'qilmasa 0 olinadi, `runBal` NaN
+bo'lmaydi. `api/pdf.py` — `_num()` yordamchisi, faqat `build_klient_tarix`
+ichida (8 joyda).
+
+**Abdulhamid:** tegilmadi — uning oltita sharti va `hamid-x` dan tashqarida.
+⌘ PDF tugmasida (811) `hamid-x` yo'q, ya'ni u ham shu 500 ni olardi; endi ochadi.
+
+**Hisob-kitobga ta'sir yo'q:** `klientPDFYukor` hech narsa yozmaydi — na
+`save()`, na cloud, na `localStorage`, na `data.klientlar`. Chizilgan 44 ta
+matn eski kod bilan solishtirildi — hammasi bir xil.
+
+### ⚠ Aytildi, tegilmadi — Ibrohim so'ramadi
+
+1. «Hamma klientlar» hisobotida (18658 `bal += op.gramm`) **aynan shu xato bor**.
+2. `pdf.py` dagi qolgan 4 hisobot turi ham `.get(k, 0)` bilan himoyasiz.
+3. index.html 11154 `tip:'tolov_hisobot'` — `pdf.py` da bu tip uchun **shox yo'q**.
+4. Buzuq yozuvni PDF da **belgilash** (qizil «?») — Ibrohim aytgan edi,
+   alohida qadam sifatida qoldirildi.
+5. Qaysi yozuv buzuq ekani **hali topilmagan**.
 
 ---
 
@@ -12,12 +44,12 @@
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v179.2`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v179.6`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v179 push qilingan** (prodda). **v179.1** commit qilindi, ⚠ push qilinmagan — Ibrohim aytsa. |
+| Git | **v179.5 gacha push qilingan** (prodda). **v179.6** commit qilindi, ⚠ **push qilinmagan** — Ibrohim ko'rib, sinab, o'zi yuboradi. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |

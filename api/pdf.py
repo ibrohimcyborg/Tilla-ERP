@@ -8,6 +8,19 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from datetime import datetime
 
+def _num(v, d=0):
+    """v179.6: JSON da NaN `null` bo'lib keladi. `.get(k, 0)` esa faqat kalit
+    YO'Q bo'lganda standart qiymat beradi — kalit bor-u qiymati null bo'lsa
+    None qaytadi, keyin solishtirish yoki abs() TypeError berib 500 ga olib borardi."""
+    if v is None:
+        return d
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return d
+    return d if f != f else f          # NaN ham d
+
+
 def parse_d(s):
     try: return datetime.strptime(s, "%d.%m.%Y")
     except: return datetime.min
@@ -415,6 +428,8 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
                         jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib,
                         ost_bloklar=None, jami_qolgan=None,
                         klient_ostatka=None, biz_qarz=0):
+    jami_berildi = _num(jami_berildi); jami_vozvrat = _num(jami_vozvrat)      # v179.6
+    jami_tolov_g = _num(jami_tolov_g); jami_tolov_pul = _num(jami_tolov_pul)  # v179.6
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=8*mm, rightMargin=8*mm, topMargin=8*mm, bottomMargin=8*mm)
     story = []; W_total = landscape(A4)[0] - 16*mm
@@ -465,7 +480,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     CW  = [x*mm for x in [26, 22, 30, 22, 26, 26, 24, 28]]
     tdata = [[P(h,'Helvetica-Bold',9,C_WHITE,'CENTER') for h in HDR]]; rstyles = []
     for si, row in enumerate(ops):
-        tip=row.get('tip',''); ostatka=row.get('ostatka',0)
+        tip=row.get('tip',''); ostatka=_num(row.get('ostatka'))   # v179.6
         # v172.43: shakllantirish ham tip:'berish' bo'lib yoziladi (index 6505).
         # Sessiyaning HAMMA yozuvi shakllantirish bo'lsagina 'Ostatka' deyiladi.
         # Belgi qo'yilmaydi — Helvetica da ⊟ qora kvadrat bo'lib chiqishi mumkin.
@@ -484,7 +499,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         r0=len(tdata)
         if turlar:
             for ti, t in enumerate(turlar):
-                tg=t.get('gramm',0); tsum=t.get('summa',0); tk=t.get('kurs',0)
+                tg=_num(t.get('gramm')); tsum=_num(t.get('summa')); tk=_num(t.get('kurs'))   # v179.6
                 # v174.9: offset o'qi tur ostida ikkinchi qatorda (-> manzil / <- manba).
                 _tok=t.get('ok') or ''
                 _tur=(t.get('tur','') + (
@@ -499,7 +514,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
                     P(f"{tk:,.1f}$/g" if tk else "—",size=9,color=C_MUTED,align='RIGHT'),
                     P(f"{ostatka:,.2f}g" if ti==0 else '','Helvetica-Bold',9,oc,'RIGHT')])
         else:
-            tg=row.get('gramm',0); tsum=row.get('summa',0); tk=row.get('kurs',0)
+            tg=_num(row.get('gramm')); tsum=_num(row.get('summa')); tk=_num(row.get('kurs'))   # v179.6
             tdata.append([P(row.get('sana',''),size=9,color=C_MUTED),
                 P(amal_txt,'Helvetica-Bold',9,ac,'CENTER'),
                 P('',size=9,color=C_MUTED),P('',size=9),
@@ -525,7 +540,7 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         story.append(Spacer(1,6*mm)); story.append(sub_p("Joriy qarz tarkibi"))
         qd=[]
         for q in qarz_tarkib:
-            qv=q.get('qarz',0); col=C_RED if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)
+            qv=_num(q.get('qarz')); col=C_RED   # v179.6 if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)
             sign="−" if qv>0 else ("+" if qv<0 else "")
             qd.append([P(q.get('zavod','')+' · '+q.get('tur',''),size=9),P(f"{sign}{abs(qv):,.2f}g",'Helvetica-Bold',9,col,'RIGHT')])
         qt=Table(qd,colWidths=[80*mm,40*mm])

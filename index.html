@@ -1,4 +1,4 @@
-<!-- v179.5 -->
+<!-- v179.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2033,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.5';
+var APP_VER = 'v179.6';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -18263,7 +18263,13 @@ function klientPDFYukor(dan, gacha){
   var sessMap={}, sessOrder=[];
   var runBal=0;
   k.tarix.forEach(function(op){
-    var g = op.tip==='berish'?op.gramm:(op.tip==='vozvrat'?op.gramm:(op.ekvivalent||0));
+    // v179.6: GRAMMI YOZILMAGAN YOZUV BUTUN HISOBNI BUZARDI.
+    // 'berish' va 'vozvrat' shoxida himoya yo'q edi ('tolov' da ||0 bor edi).
+    // Gramm yozilmagan bo'lsa `runBal += undefined` -> NaN, undan keyin o'sha
+    // klientning HAMMA qatoridagi ostatka NaN bo'lardi. JSON.stringify NaN ni
+    // `null` qiladi, pdf.py esa null ustida yiqilib 500 qaytarardi.
+    var _gxom = (op.tip==='berish' || op.tip==='vozvrat') ? op.gramm : (op.ekvivalent||0);
+    var g = isFinite(parseFloat(String(_gxom).replace(/,/g,'.'))) ? parseNum(_gxom) : 0;
     // v174.8: offset (_kdYopish) BIZNING qarzni yopadi — qoldiq ORTADI, kamaymaydi.
     // Avval oddiy to'lovdek ayirilardi va Ostatka ustuni 2×offset ga past chiqardi
     // (Dilfuza 13.08: 85.15 → −18.23, to'g'risi +87.73).
