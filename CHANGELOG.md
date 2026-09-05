@@ -4899,3 +4899,19 @@ TEGILMADI: hisob mantiqi, Abdulhamid rejimi, POS, sinxron, kassa JS tomoni. `_nu
 ⚠ DIFF TAXMINDAN OSHDI: `api/pdf.py` uchun ~15 qator deyilgan edi, 31/25 chiqdi — sabab yuqoridagi to'rtta yashirin joy. Ibrohimga aytildi.
 
 APP_VER v179.6 -> v179.7 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v179.8: v179.6 DA O'ZIM KIRITGAN RANG XATOSI — «Joriy qarz tarkibi» hamma qatori QIZIL chiqardi
+
+XATO MENDAN. v179.6 da `_num()` ni qo'llashda naqsh sifatida qatorning FAQAT BOSHI olingan (`qv=q.get('qarz',0); col=C_RED`) va o'rniga izoh bilan tugaydigan matn qo'yilgan — natijada qatorning qolgan qismi (` if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)`) IZOH ICHIDA qolib ketgan. `col` doim `C_RED` bo'lib qoldi.
+
+Ta'siri: klient PDF hisobotidagi «Joriy qarz tarkibi» jadvalida BIZ qarzdor bo'lgan qatorlar (yashil `+`) va nol qatorlar (kulrang) ham QIZIL chiqardi — go'yo klient hamma turdan qarzdordek. Raqamlar to'g'ri edi, faqat rang yolg'on.
+
+NEGA SINOVDAN O'TIB KETDI: v179.6/v179.7 regressiya sinovi `P()` ga borgan MATNNI solishtirardi, RANGNI emas. 44 ta matn bir xil chiqdi va xato ko'rinmadi.
+
+TUZATILDI: qator ikkiga bo'lindi — `qv=_num(...)` alohida, `col=...` alohida to'liq shart bilan.
+
+YANGI SINOV: `rang.py` endi `P()` ning MATN va RANG argumentlarini birga solishtiradi. v179.5 (xatodan oldingi) va hozirgi kod uchala holatli qarz tarkibi bilan chaqirildi (musbat/manfiy/nol) — 40 ta yozuv, matn ham rang ham BIR XIL. Sinov buzuq versiyada ishlatib ko'rildi: ikkita farqni aniq ko'rsatdi (`+12.50g` yashil→qizil, `0.00g` kulrang→qizil). `py_compile` o'tdi.
+
+TEKSHIRILDI: butun `api/pdf.py` da izoh yutib yuborgan boshqa qator YO'Q (35 ta `# v179` izohidan faqat shu bittasi buzuq edi).
+
+APP_VER v179.7 -> v179.8 (1-qator ham). POS_VER 1.33 — TEGILMADI.

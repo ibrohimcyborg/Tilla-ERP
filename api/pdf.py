@@ -541,7 +541,8 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         story.append(Spacer(1,6*mm)); story.append(sub_p("Joriy qarz tarkibi"))
         qd=[]
         for q in qarz_tarkib:
-            qv=_num(q.get('qarz')); col=C_RED   # v179.6 if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)
+            qv=_num(q.get('qarz'))   # v179.6
+            col=C_RED if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)
             sign="−" if qv>0 else ("+" if qv<0 else "")
             qd.append([P(q.get('zavod','')+' · '+q.get('tur',''),size=9),P(f"{sign}{abs(qv):,.2f}g",'Helvetica-Bold',9,col,'RIGHT')])
         qt=Table(qd,colWidths=[80*mm,40*mm])
