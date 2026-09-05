@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v179.6 · POS 1.33 · 2026-09-03
+**Oxirgi yangilanish:** v179.7 · POS 1.33 · 2026-09-05
 
 ---
 
@@ -40,16 +40,131 @@ matn eski kod bilan solishtirildi — hammasi bir xil.
 
 ---
 
+## 🟢 POS NI AJRATISH — QAROR QABUL QILINDI (2026-09-05)
+
+**Ibrohim:** *«shunaqa qilsak manimcha to'g'riroq bo'ladi — Tilla ERP dan chiqaradi,
+cloud bilan ulanadigan bo'ladi, alohida loginli qilamiz, test qilib testda
+hammasini hal qilvoganimizdan keyin adminga ulaymiz»*.
+
+Avvalgi qaror (2026-08-23: «2 ni qilaqolilik» — keyinga qoldirish) BEKOR QILINDI.
+
+### O'lchangan holat (2026-09-05, v179.6)
+
+| | |
+|---|---|
+| POS kodi jami | 66 funksiya, **~837 qator** |
+| Kassir tomoni → `pos.html` | ~50 funksiya, **~560 qator** |
+| Admin tomoni → `index.html` da QOLADI | ~18 funksiya, ~277 qator (qo'ng'iroqcha, chernovik, `posChQabul`) |
+| **`hisob.js`** — yangi, ikkalasi yuklaydi | **15 funksiya, ~158 qator** |
+
+### `hisob.js` tarkibi — O'LCHANGAN, yopiq
+
+Tranzitiv bog'liqlik hisoblandi: 13 urug'dan faqat `_ostDelta` va `turOstMap`
+ergashdi. **Cloud qatlami ergashmadi.**
+
+| Guruh | Funksiyalar |
+|---|---|
+| Mayda | `parseNum` (2464) `fmtG` (2465) `fmtD` (2466) `today` (2468) `roundG` (2469) |
+| Ombor | `_ostDelta` (7452) `turOstMap` (7470) `turOst` (7493) |
+| Qarz | `klientJamiQarz` (9803) `klientJamiSavdo` (9841) `_qarzJamiRows` (17993) `_qarzTarkibRows` (18006) `_qarzTarkib` (18068) |
+| Narx | `getKatNarx` (15791) `getZavodNarx` (15812) |
+
+⚠ **NUSXALANMAYDI — KO'CHIRILADI.** Qarz funksiyalari nusxalansa raqamlar
+ajraladi: v177.4 da aynan shu bo'lgan (POS `+557.46`, ilova `559.58`).
+
+✅ **Dona baza va cloud `hisob.js` ga KERAK EMAS** — o'lchandi: `donaBazaOlish`,
+`donaRegQosh`, `donaRegOlish`, `saqlashKlientVozvrat`, `davomEt`, `turDona`
+faqat `posChQabul` dan chaqiriladi, u esa admin tomonida qoladi.
+
+### ⚠ VERCEL XAVFI — 1-qadamda hal qilinadi
+
+`vercel.json` da:
+```
+{ "source": "/((?!api).*)", "destination": "/index.html" }
+```
+Bu `api` dan boshqa HAMMA yo'lni `index.html` ga buradi. Vercel odatda avval
+haqiqiy faylni qidiradi (ya'ni ishlashi kerak), lekin kafolat yo'q — `pos.html`
+ochilmay, o'rniga Tilla ERP chiqib qolishi mumkin. Yechim: naqshga `pos.html`
+va `hisob.js` istisnosi qo'shiladi.
+
+### Qadamlar
+
+| | Qadam | Xavf | Holat |
+|---|---|---|---|
+| 1 | `hisob.js` ajratish + `vercel.json` istisnosi | ⚠ eng xavfli — ERP buzilmasin | **BOSHLANMAGAN** |
+| 2 | `pos.html` qobig'i: alohida login, Firebase, cloud o'qish | past | — |
+| 3 | Kassir ekranlarini ko'chirish (~560 qator) | past | — |
+| 4 | `index.html` dan kassir kodini o'chirish | o'rta | — |
+| 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | — | — |
+
+**1-qadamdan keyin TO'XTALADI** — Ibrohim ERP ni ochib tekshiradi.
+Sinov TEST bazasida; hammasi hal bo'lgach admin (haqiqiy) bazaga ulanadi.
+
+---
+
+## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
+
+### 1. Yakunlangan chekni tahrirlashda TURNI ham almashtirish
+
+Hozir tahrirlash oynasida faqat GRAMM o'zgartiriladi. Ammo xato ko'pincha
+grammda emas, **TURDA** bo'ladi.
+
+Haqiqiy holat: «Diamond · Polimer» da 8.49 g vozvrat qilingan, dasturga
+«Diamond · Oddiy» bo'lib yozilgan. Grammni tuzatish yordam bermaydi.
+
+**Ibrohim qarorlari:**
+- Tur ro'yxatdan tanlanadi, gramm avvalgidek o'zgartiriladi
+- Qatorni o'chirish qolsin (hozir gramm bo'shatilsa o'chadi)
+- Bir xil tur chiqib qolsa — **QO'SHILIB ketsin**
+- Tahrirlangani **BILINIB TURSIN** — masalan «Oddiy -> Polimer, 05.09 14:20»
+- **Butun chekni o'chirish KERAK EMAS**, faqat ichidagi qatorlar. Chek allaqachon
+  chiqib ketgan bo'ladi, keyin mijoz bilan tuzatib yangi chek chiqariladi
+
+### 2. Sinxronizatsiya — o'zgarish boshqa qurilmaga o'tmaydi
+
+Bir qurilmada tahrirlangandan keyin, ikkinchi qurilmada **eski holida qoladi**.
+Faqat asosiy qurilmadan cloud yuborilib, qolgani qabul qilgandagina o'zgaradi —
+ya'ni **avtomatik emas**. (Bog'liq: «0k. CLOUD 1:1 — 3-QADAM» va «0j. Kassa
+qurilmalar orasida SINXRON EMAS».)
+
+### ✅ 3. PDF 500 — SANA TANLANGANDA — BAJARILDI (v179.7)
+
+`/api/pdf.py` 500 beradi — hisobot **sana tanlab** chiqarilganda.
+v179.6 da «grammi yo'q yozuv» tuzatilgan, demak sana tanlanganda **boshqa yo'l**
+ochilyapti. Shubha: `_pdfTip` dispecheri (9821 atrofida) va «hamma klientlar»
+hisoboti (18658 `bal += op.gramm` — himoyasiz, v179.6 da TEGILMAGAN).
+
+**Topildi:** «hamma klientlar» hisoboti (18610 `bal += op.gramm`) — v179.6 da
+TEGILMAGAN edi, ildizi klient detalidagi bilan aynan bir xil.
+
+**Qilindi (v179.7):** `index.html:18610–18620` himoyalandi; `api/pdf.py` da `_num()`
+**oltita hisobot quruvchisining hammasiga** qo'llandi. Sinov `build_pdf` da yana
+to'rtta yashirin yiqilish yo'lini topdi — ular ham yopildi.
+
+Endi oltita hisobot turi ham `null` bilan chaqirilganda yiqilmaydi (o'lchandi).
+To'g'ri ma'lumotli hisobotlar o'zgarmadi — chizilgan matnlar eski kod bilan
+solishtirildi, hammasi bir xil.
+
+ℹ Alohida narsa, xato emas: `localhost:5000/print ERR_CONNECTION_REFUSED` —
+printer serveri o'chiq edi.
+
+### Qolgan ikkitasi — BOSHLANMAGAN
+
+1-vazifa (chekni tahrirlashda TURNI almashtirish) va 2-vazifa (sinxronizatsiya)
+hali qo'lga olinmadi.
+
+---
+
 ## Hozirgi holat
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v179.6`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v179.7`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
 | Sinov | **TEST rejimi** — `TEST_tilla_<uid>`. v172.15 dan yana **ADMIN xonasi**: login admin/admin123, `ADMIN-` prefiks + `ADMIN_tilla_<uid>` cloud — bo'sh, Qo'limizdagi ostatkani boshidan tekshirish uchun. |
-| Git | **v179.5 gacha push qilingan** (prodda). **v179.6** commit qilindi, ⚠ **push qilinmagan** — Ibrohim ko'rib, sinab, o'zi yuboradi. |
+| Git | **v179.5 gacha push qilingan** (prodda). **v179.6 va v179.7** commit qilindi, ⚠ **push qilinmagan** — Ibrohim ko'rib, sinab, o'zi yuboradi. |
 | ⚠ Git auth | Credential Manager dagi GitHub token **eskirgan** — push «Invalid username or token» berdi. Tuzatildi: shu repoda git `gh` CLI orqali autentifikatsiya qiladi (`git config --local credential.https://github.com.helper "!gh auth git-credential"`). `gh auth status` — `ibrohimcyborg`, `repo` huquqi bor. Push yana ishlamasa avval `gh auth status` ni tekshir. |
 | **Ombor (BIZDA)** | **v172.26 dan TARIXDAN hisoblanadi** — `turOstMap()` / `turOst(zNom,tNom)`, yagona qoida `_ostDelta(op, klientTomon)` da. `t.ostatka` endi hech qayerda KO'RSATILMAYDI (18 joy o'tkazildi: bosh ekran, zavod, tur paneli, berish/vozvrat/sotuv modallari, tekshiruv, chiqim, zapros, birlashtirish, kassa snapshot). 🔧 «Ostatkani qayta tiklash» + `ostatkaQaytaTiklaOch` + `ostatkaHisobla` O'CHIRILDI. Kesh `_ostKesh`, tozalanadi: `save()`, amal-sinxron listener, `cloudYuklab`. `qoldData` ham `_ostDelta` ni chaqiradi → 1:1 konstruksiyadan. |
 | **Qo'limizdagi ostatka** | **B usuli (v172.14)** — hafta boshi TARIXDAN hisoblanadi, `t.ostatka` o'qilmaydi. Qator tartibi: bosh → +kirimlar → +klient vozvrat (umumiy) → JAMI → −berish (umumiy) → −zavod vozvrat → qolgan. C bosqich (dushanba skan langari) PLAN.md da. |

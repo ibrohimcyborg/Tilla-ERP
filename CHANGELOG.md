@@ -4879,3 +4879,23 @@ SINOV: `pdf.py` haqiqiy modul sifatida chaqirilib 7 ta holat — to'liq / biz_qa
 DIFF: index.html 9/3, api/pdf.py 22/6.
 
 APP_VER v179.5 -> v179.6 (1-qator ham). POS_VER 1.33 — TEGILMADI (o'zgarish POS dan tashqarida).
+
+## v179.7: PDF 500 — QOLGAN HAMMA HISOBOT TURI YOPILDI (Ibrohim: «hisobotni SANA TANLAB chiqarganda» 500)
+
+v179.6 da FAQAT klient detali (`build_klient_tarix`) tuzatilgan edi; «hamma klientlar» va boshqalarga TEGILMAGAN, CHANGELOG ga «aytildi, tegilmadi» deb yozilgan edi. Ibrohim aynan o'shanga tushdi.
+
+ILDIZ AYNAN BIR XIL: `bal += op.gramm` da himoya yo'q → grammi yozilmagan bitta yozuv `bal` ni NaN qiladi → undan keyingi HAMMA qatorning `ostatka` si NaN → `JSON.stringify` NaN ni `null` qiladi → `pdf.py` da `.get(k, 0)` null uchun standart qiymat BERMAYDI (u faqat kalit YO'Q bo'lganda ishlaydi) → `None` ustida arifmetika → `TypeError` → 500.
+
+index.html (18610–18620, «hamma klientlar» hisoboti): `_g` ajratildi — `isFinite(parseFloat(...)) ? parseNum(op.gramm) : 0`. `bal`, `jami_berildi`, `jami_vozvrat` va qator `gramm` i endi shundan oladi. Kassa hisoboti (`kassaPDFYukor`) TEKSHIRILDI — u allaqachon `||0` bilan himoyalangan, tegilmadi.
+
+api/pdf.py: `_num()` (v179.6 da qo'shilgan) endi HAMMA hisobot quruvchisida: `build_pdf` (qator kataklari, ikkala jadval yig'indisi, `naqtSumma`/`naqtGramm`/`lomGramm`/`lomPul`/`jami`), `build_klient_chek` (`qarz`), `build_klient_qarz_chek` (`qarz`, `jami_qarz`, `biz_qarz`), `build_klientlar_tarix` (qator + `qarz` + to'rtta `jami_*`), `build_kassa` (qator + `jami_summa`/`jami_gramm`).
+
+⚠ SINOV BIR NECHTA YASHIRIN JOYNI TOPDI. Dastlab faqat 2 ta quruvchi tuzatilgan deb o'ylangandi; oltita hisobot turini null bilan chaqirib sinaganda `build_pdf` da YANA TO'RTTA yiqilish yo'li chiqdi (qator kataklari 188–191, birinchi jadval yig'indisi 195–198, ikkinchi jadval yig'indisi 224–229, `naqtSumma`/`naqtGramm`) va `build_klient_qarz_chek` da `jami_qarz`/`biz_qarz` parametrlari. Bittalab quvish o'rniga hamma tur bir sinovga solindi.
+
+SINOV: oltita hisobot turi (`build_pdf`, `build_klient_chek`, `build_klient_qarz_chek`, `build_klient_tarix`, `build_klientlar_tarix`, `build_kassa`) hamma sonli maydoni `null` qilib chaqirildi — **oltitasi ham o'tdi** (avval 3 tasi `TypeError` berardi). REGRESSIYA: eski (HEAD) va yangi modul TO'G'RI ma'lumot bilan yonma-yon chaqirilib, chizilgan matnlar solishtirildi — `build_pdf` 85 ta, `build_klient_tarix` 43 ta, `build_klientlar_tarix` 37 ta, `build_kassa` 25 ta matn, **hammasi bir xil**. Ikkita chek quruvchisi ichki yopiq chizuvchi ishlatgani uchun matn darajasida solishtirib bo'lmadi — ular PDF UZUNLIGI bo'yicha tekshirildi (2743=2743, 2209=2209). ⚠ Bayt-bayt solishtirish MUMKIN EMAS: reportlab har chaqiruvda vaqt tamg'asi qo'yadi (bir xil modul ikki marta chaqirilganda ham baytlar farq qildi — o'lchandi). JS tomoni 8 ta holatda sinaldi (undefined/null/bo'sh/harf → 0; 0, 34.86, '2,98', -5 → to'g'ri), `bal` NaN bo'lmadi. `py_compile` va Node sintaksis-sinovi o'tdi.
+
+TEGILMADI: hisob mantiqi, Abdulhamid rejimi, POS, sinxron, kassa JS tomoni. `_num` faqat qiymat `null`/son emas/NaN bo'lganda ishlaydi.
+
+⚠ DIFF TAXMINDAN OSHDI: `api/pdf.py` uchun ~15 qator deyilgan edi, 31/25 chiqdi — sabab yuqoridagi to'rtta yashirin joy. Ibrohimga aytildi.
+
+APP_VER v179.6 -> v179.7 (1-qator ham). POS_VER 1.33 — TEGILMADI.

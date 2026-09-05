@@ -163,9 +163,9 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
         for t in z.get("turlar", []):
             bal = 0.0
             for op in t.get("tarix", []):
-                if op["tip"] == "mol":      bal += op.get("gramm", 0)
-                elif op["tip"] == "vozvrat": bal  = max(0, bal - op.get("gramm", 0))
-                else:                        bal  = max(0, bal - (op.get("jami") or 0))
+                if op["tip"] == "mol":      bal += _num(op.get("gramm"))          # v179.7
+                elif op["tip"] == "vozvrat": bal  = max(0, bal - _num(op.get("gramm")))  # v179.7
+                else:                        bal  = max(0, bal - _num(op.get("jami")))   # v179.7
                 if not in_davr(op["sana"], dan, gacha): continue
                 all_rows.append({"sana": op["sana"], "zavod": z["nom"], "tur": t["nom"],
                     "tip": op["tip"], "op": op, "ostatka": round(bal, 2)})
@@ -180,22 +180,22 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
             P("↓" if is_k else ("↩" if is_v else "↑"), 'Helvetica-Bold', 11,
               C_GREEN if is_k else (C_BLUE if is_v else C_RED), 'CENTER'),
             cell("" if is_k else (op.get("kimga") or "")),
-            cell(f"+{op.get('gramm',0):,.2f}" if is_k else (f"-{op.get('gramm',0):,.2f}" if is_v else ""),
+            cell(f"+{_num(op.get('gramm')):,.2f}" if is_k else (f"-{_num(op.get('gramm')):,.2f}" if is_v else ""),   # v179.7
                  bold=True, color=C_GREEN if is_k else C_BLUE, align='RIGHT'),
-            cell(f"{op.get('naqtSumma',0):,.0f}" if not is_k else "", align='RIGHT'),
+            cell(f"{_num(op.get('naqtSumma')):,.0f}" if not is_k else "", align='RIGHT'),   # v179.7
             cell(str(op.get("naqtKurs","")) if not is_k else "", align='RIGHT'),
-            cell(f"{op.get('naqtGramm',0):,.2f}" if not is_k else "", align='RIGHT'),
-            cell(f"{op.get('lomGramm',0):,.2f}" if not is_k else "", align='RIGHT'),
-            cell(f"{op.get('lomPul',0):,.0f}" if not is_k else "", align='RIGHT'),
-            cell(f"{op.get('jami',0):,.2f}" if not is_k else "", bold=True, color=C_RED, align='RIGHT'),
-            P(f"{row['ostatka']:,.2f}", 'Helvetica-Bold', 9, C_AMBER, 'RIGHT'),
+            cell(f"{_num(op.get('naqtGramm')):,.2f}" if not is_k else "", align='RIGHT'),   # v179.7
+            cell(f"{_num(op.get('lomGramm')):,.2f}" if not is_k else "", align='RIGHT'),          # v179.7
+            cell(f"{_num(op.get('lomPul')):,.0f}" if not is_k else "", align='RIGHT'),             # v179.7
+            cell(f"{_num(op.get('jami')):,.2f}" if not is_k else "", bold=True, color=C_RED, align='RIGHT'),   # v179.7
+            P(f"{_num(row['ostatka']):,.2f}", 'Helvetica-Bold', 9, C_AMBER, 'RIGHT'),              # v179.7
         ]
         tdata.append(trow)
         rstyles.append(('BACKGROUND', (0, ri), (-1, ri), C_WHITE if ri % 2 else C_GRAY))
-    tK = round(sum(r["op"].get("gramm", 0) for r in all_rows if r["tip"] == "mol"), 2)
-    tC = round(sum(r["op"].get("jami", 0) for r in all_rows if r["tip"] == "tolov"), 2)
-    tN = round(sum(r["op"].get("naqtSumma", 0) for r in all_rows if r["tip"] == "tolov"), 2)
-    tL = round(sum(r["op"].get("lomPul", 0) for r in all_rows if r["tip"] == "tolov"), 2)
+    tK = round(sum(_num(r["op"].get("gramm")) for r in all_rows if r["tip"] == "mol"), 2)        # v179.7
+    tC = round(sum(_num(r["op"].get("jami")) for r in all_rows if r["tip"] == "tolov"), 2)         # v179.7
+    tN = round(sum(_num(r["op"].get("naqtSumma")) for r in all_rows if r["tip"] == "tolov"), 2)    # v179.7
+    tL = round(sum(_num(r["op"].get("lomPul")) for r in all_rows if r["tip"] == "tolov"), 2)       # v179.7
     fin = {}
     for r in all_rows: fin[r["zavod"] + "|" + r["tur"]] = r["ostatka"]
     tO = round(sum(fin.values()), 2)
@@ -222,12 +222,12 @@ def build_pdf(zavodlar, filter_zavod, dan, gacha, label):
         for t in z.get("turlar", []):
             tk = tc = tn = tl = bal = 0
             for op in t.get("tarix", []):
-                if op["tip"] == "mol":      bal += op.get("gramm", 0)
-                elif op["tip"] == "vozvrat": bal = max(0, bal - op.get("gramm", 0))
-                else:                        bal = max(0, bal - (op.get("jami") or 0))
+                if op["tip"] == "mol":      bal += _num(op.get("gramm"))            # v179.7
+                elif op["tip"] == "vozvrat": bal = max(0, bal - _num(op.get("gramm")))   # v179.7
+                else:                        bal = max(0, bal - _num(op.get("jami")))    # v179.7
                 if not in_davr(op["sana"], dan, gacha): continue
-                if op["tip"] == "mol": tk += op.get("gramm", 0)
-                else: tc += op.get("jami", 0); tn += op.get("naqtSumma", 0); tl += op.get("lomPul", 0)
+                if op["tip"] == "mol": tk += _num(op.get("gramm"))                       # v179.7
+                else: tc += _num(op.get("jami")); tn += _num(op.get("naqtSumma")); tl += _num(op.get("lomPul"))   # v179.7
             o = round(bal, 2); bg = C_GRAY if ri2 % 2 == 0 else C_WHITE
             h2data.append([P(z["nom"], size=9), P(t["nom"], size=9),
                 P(f'{tk:,.2f}', 'Helvetica-Bold', 9, C_GREEN, 'RIGHT'),
@@ -294,7 +294,7 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
         story.append(CP('QARZ TARKIBI','Helvetica-Bold',7,C_MUTED,'CENTER'))
         story.append(Spacer(1,1*mm))
         for item in qarz_tarkib:
-            nom=(item.get('zavod','')+' · '+item.get('tur','')); qarz=item.get('qarz',0)
+            nom=(item.get('zavod','')+' · '+item.get('tur','')); qarz=_num(item.get('qarz'))   # v179.7
             if qarz>0: story.append(row(nom,f'-{qarz:.2f}g',cb=C_RED))
         story.append(dline()); story.append(Spacer(1,1*mm))
     if total_pul>0: story.append(row('Jami pul:',f'{total_pul:,.0f}$',fb='Helvetica-Bold',cb=C_BLUE))
@@ -308,6 +308,7 @@ def build_klient_chek(klient_nom, ops_grouped, sana, qarz_tarkib=None):
 
 
 def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0):
+    jami_qarz = _num(jami_qarz); biz_qarz = _num(biz_qarz)   # v179.7
     buf = io.BytesIO(); W = 72*mm; est_h = 50 + len(qarz_tarkib)*15 + 38
     def CP(text, font='Helvetica', size=8, color=colors.black, align='CENTER'):
         a = {'LEFT': TA_LEFT, 'CENTER': TA_CENTER, 'RIGHT': TA_RIGHT}
@@ -339,7 +340,7 @@ def build_klient_qarz_chek(klient_nom, sana, jami_qarz, qarz_tarkib, biz_qarz=0)
     for znom, turs in by_zavod.items():
         story.append(CP(znom, 'Helvetica-Bold', 9, C_GOLD, 'LEFT'))
         for t in turs:
-            q = t.get('qarz', 0)
+            q = _num(t.get('qarz'))   # v179.7
             if q > 0.01:
                 story.append(row2('  ' + t.get('tur',''), f"-{q:.2f}g", cb=C_RED))
             elif q < -0.01:
@@ -569,6 +570,8 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
 
 
 def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat, jami_tolov_g, jami_tolov_pul, qarz_tarkib):
+    jami_berildi = _num(jami_berildi); jami_vozvrat = _num(jami_vozvrat)      # v179.7
+    jami_tolov_g = _num(jami_tolov_g); jami_tolov_pul = _num(jami_tolov_pul)  # v179.7
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=8*mm, rightMargin=8*mm, topMargin=8*mm, bottomMargin=8*mm)
     story = []; W_total = landscape(A4)[0] - 16*mm
@@ -588,7 +591,9 @@ def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat, jami_tolo
     CW=[x*mm for x in [22,30,20,26,20,22,22,20,24]]
     tdata=[[P(h,'Helvetica-Bold',8,C_WHITE,'CENTER') for h in HDR]]; rstyles=[]
     for ri,row in enumerate(ops,1):
-        tip=row.get('tip',''); gramm=row.get('gramm',0); summa=row.get('summa',0); kurs=row.get('kurs',0); ostatka=row.get('ostatka',0)
+        tip=row.get('tip','')
+        gramm=_num(row.get('gramm')); summa=_num(row.get('summa'))          # v179.7
+        kurs=_num(row.get('kurs')); ostatka=_num(row.get('ostatka'))        # v179.7
         if tip=='berish': amal='↑ Berildi'; ac=C_RED; gc=C_RED; gs=f"{abs(gramm):,.2f}g"
         elif tip=='vozvrat': amal='↩ Vozvrat'; ac=C_BLUE; gc=C_GREEN; gs=f"+{abs(gramm):,.2f}g"
         else: amal='$ Tolov'; ac=C_BLUE; gc=C_GREEN; gs=f"+{abs(gramm):,.2f}g"
@@ -609,7 +614,7 @@ def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat, jami_tolo
         story.append(Spacer(1,6*mm)); story.append(sub_p("Joriy qarz tarkibi"))
         qd=[]
         for q in qarz_tarkib:
-            qv=q.get('qarz',0); col=C_RED if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)
+            qv=_num(q.get('qarz')); col=C_RED if qv>0.001 else (C_GREEN if qv<-0.001 else C_MUTED)   # v179.7
             sign="−" if qv>0 else ("+" if qv<0 else "")
             qd.append([P(q.get('klient_nom',''),size=9),P(f"{sign}{abs(qv):,.2f}g",'Helvetica-Bold',9,col,'RIGHT')])
         qt=Table(qd,colWidths=[60*mm,40*mm])
@@ -620,6 +625,7 @@ def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat, jami_tolo
 
 
 def build_kassa(ops, dan, gacha, jami_summa, jami_gramm, label):
+    jami_summa = _num(jami_summa); jami_gramm = _num(jami_gramm)   # v179.7
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=15*mm, rightMargin=15*mm, topMargin=12*mm, bottomMargin=12*mm)
     story = []; W_total = A4[0] - 30*mm
@@ -638,8 +644,8 @@ def build_kassa(ops, dan, gacha, jami_summa, jami_gramm, label):
         bg=C_GRAY if ri%2==0 else C_WHITE
         tdata.append([P(op.get('sana',''),size=9,color=C_MUTED),P(op.get('klient',''),'Helvetica-Bold',9),
             P(op.get('zavod',''),size=9,color=C_MUTED),P(op.get('tur',''),size=9,color=C_MUTED),
-            P(f"{op.get('gramm',0):,.2f}",size=9,align='RIGHT'),P(f"{op.get('kurs',0):,.1f}",size=9,color=C_MUTED,align='RIGHT'),
-            P(f"${op.get('summa',0):,.2f}",'Helvetica-Bold',9,C_GOLD,'RIGHT')])
+            P(f"{_num(op.get('gramm')):,.2f}",size=9,align='RIGHT'),P(f"{_num(op.get('kurs')):,.1f}",size=9,color=C_MUTED,align='RIGHT'),
+            P(f"${_num(op.get('summa')):,.2f}",'Helvetica-Bold',9,C_GOLD,'RIGHT')])   # v179.7
         rstyles.append(('BACKGROUND',(0,ri),(-1,ri),bg))
     jr=len(tdata)
     tdata.append([P('JAMI','Helvetica-Bold',9,C_WHITE,'CENTER'),'','','',

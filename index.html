@@ -1,4 +1,4 @@
-<!-- v179.6 -->
+<!-- v179.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2033,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.6';
+var APP_VER = 'v179.7';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -18607,8 +18607,14 @@ function openKlientlarPDFModal(dan, gacha) {
   (data.klientlar || []).forEach(function(k) {
     var bal = 0;
     k.tarix.forEach(function(op) {
-      if (op.tip === 'berish') { bal += op.gramm; jami_berildi += op.gramm; }
-      else if (op.tip === 'vozvrat') { bal -= op.gramm; jami_vozvrat += op.gramm; }
+      // v179.7: grammi yozilmagan yozuv butun hisobni buzardi — v179.6 dagi
+      // bilan AYNAN bir xil xato. U yerda klient detali tuzatilgan, bu yerda
+      // («hamma klientlar» hisoboti) tegilmagan edi. `bal += undefined` -> NaN,
+      // undan keyin hamma qatordagi ostatka NaN; JSON da NaN `null` bo'ladi va
+      // pdf.py null ustida yiqilib 500 qaytarardi. Ibrohim sana tanlaganda ko'rdi.
+      var _g = isFinite(parseFloat(String(op.gramm).replace(/,/g,'.'))) ? parseNum(op.gramm) : 0;
+      if (op.tip === 'berish') { bal += _g; jami_berildi += _g; }
+      else if (op.tip === 'vozvrat') { bal -= _g; jami_vozvrat += _g; }
       else if (op.tip === 'tolov') {
         bal -= (op.ekvivalent || 0);
         jami_tolov_g += (op.ekvivalent || 0);
@@ -18617,7 +18623,7 @@ function openKlientlarPDFModal(dan, gacha) {
       ops.push({
         sana: op.sana || '', klient_nom: k.nom, tip: op.tip,
         zavod: op.zavod || '', tur: op.tur || '',
-        gramm: op.tip === 'berish' ? op.gramm : (op.tip === 'vozvrat' ? op.gramm : (op.ekvivalent || 0)),
+        gramm: (op.tip === 'berish' || op.tip === 'vozvrat') ? _g : (op.ekvivalent || 0),   // v179.7
         summa: op.summa || 0, kurs: op.kurs || 0, ostatka: Math.round(bal * 100) / 100
       });
     });
