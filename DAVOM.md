@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v179.11 · POS 1.33 · 2026-09-05
+**Oxirgi yangilanish:** v179.12 · POS 1.33 · 2026-09-05
 
 ---
 
@@ -104,7 +104,7 @@ Sinov TEST bazasida; hammasi hal bo'lgach admin (haqiqiy) bazaga ulanadi.
 
 ## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
 
-### 1. Yakunlangan chekni tahrirlashda TURNI ham almashtirish
+### ✅ 1. Chekni tahrirlashda TURNI almashtirish — BAJARILDI (v179.12)
 
 Hozir tahrirlash oynasida faqat GRAMM o'zgartiriladi. Ammo xato ko'pincha
 grammda emas, **TURDA** bo'ladi.
@@ -181,7 +181,7 @@ hali qo'lga olinmadi.
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v179.11`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v179.12`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |

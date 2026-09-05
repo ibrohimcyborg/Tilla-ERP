@@ -1,4 +1,4 @@
-<!-- v179.11 -->
+<!-- v179.12 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2033,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.11';
+var APP_VER = 'v179.12';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -5611,6 +5611,24 @@ function turNarxKalitOchir(zi, delTi, turSoni){
 }
 
 // Eski nom belgisi. FAQAT KO'RSATISH uchun — hech qanday hisob buni o'qimaydi.
+// v179.12 (Ibrohim: «tahrirlangani BILINIB TURSIN»).
+// `op.tahrir` allaqachon yozilardi (gramm/summa o'zgarishi), lekin HECH
+// QAYERDA KO'RSATILMASDI — faqat yozilib qolardi. Endi ko'rinadi va tur
+// almashtirilgani ham shu yerga tushadi.
+// FAQAT KO'RSATISH uchun — hech qanday hisob uni o'qimaydi.
+function _tahrirBelgi(op){
+  var t = op && op.tahrir;
+  if(!t) return '';
+  var m = '';
+  if(t.eskiTur && t.yangiTur && t.eskiTur!==t.yangiTur) m = t.eskiTur+' \u2192 '+t.yangiTur;
+  else if(t.eski!==undefined && t.yangi!==undefined) m = fmtG(t.eski)+'g \u2192 '+fmtG(t.yangi)+'g';
+  else if(t.eskiS!==undefined && t.yangiS!==undefined) m = fmtD(t.eskiS)+'$ \u2192 '+fmtD(t.yangiS)+'$';
+  if(!m) return '';
+  return '<span style="font-size:9.5px;color:var(--yellow);background:var(--yellow-bg);'
+       + 'border:0.5px solid var(--gold-bd);padding:1px 6px;border-radius:20px;'
+       + 'margin-left:5px;white-space:nowrap;">\u270e '+m+(t.vaqt?' \u00b7 '+t.vaqt:'')+'</span>';
+}
+
 function _eskiTurBelgi(op){
   if(!op || !op.eskiTur || op.eskiTur===op.tur) return '';
   return '<span style="font-size:9.5px;color:var(--muted);background:var(--surf2);padding:1px 6px;border-radius:20px;margin-left:5px;white-space:nowrap;">avval '+op.eskiTur+'</span>';
@@ -11308,7 +11326,7 @@ function renderKlientHisobot() {
         html+='<div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);">';
         sess.ops.forEach(function(x){
           var op=x.op;
-          var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
+          var turStr=((op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'')+_tahrirBelgi(op);   // v179.12
           if(tip==='tolov'&&op._kdYopish){
             html+='<div style="font-size:11px;padding:2px 0;color:var(--green);">↳ offsetdan — '+turStr+(op.summa>0?' $'+fmtD(op.summa):'')+'</div>';
             return;
@@ -11326,7 +11344,7 @@ function renderKlientHisobot() {
         html+='</div>';
       } else {
         var op=sess.ops[0].op;
-        var turStr=(op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
+        var turStr=((op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'')+_tahrirBelgi(op);   // v179.12
         var s=tip==='tolov'?(op.summa||0):0;
         if(turStr||s>0){
           html+='<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+turStr+(s>0?' · $'+fmtD(s):'')+'</div>';
@@ -11385,7 +11403,7 @@ function klientGunTahrir(ki, sana) {
     var _shk = (tip==='berish') && op.inventar==='boshlangich';   // v172.42
     var label = _shk?'Ostatka': tip==='berish'?'Berildi': tip==='vozvrat'?'Vozvrat':'Tolov';
     var color = _shk?'var(--muted)': tip==='berish'?'var(--red)': tip==='vozvrat'?'var(--gold)':'var(--blue)';
-    var sub = (op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'';
+    var sub = ((op.zavod&&op.tur)?(op.zavod+' · '+op.tur+_eskiTurBelgi(op)):'')+_tahrirBelgi(op);   // v179.12
 
     body += '<div style="background:var(--surf2);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);">';
     body += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
@@ -11397,8 +11415,21 @@ function klientGunTahrir(ki, sana) {
       var tOstatka = 0;
       data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) tOstatka=turOst(z.nom,t.nom); }); });
       var effOstatka = tip==='berish' ? tOstatka + op.gramm : tOstatka - op.gramm;
+      // v179.12 (Ibrohim A1): TUR ni almashtirish. ZAVOD QOTIB TURADI —
+      // «Diamond ichida Oddiy -> Polimer». Qiymat sifatida tur INDEKSI beriladi,
+      // shunda nomdagi qo'shtirnoq HTML ni buzmaydi.
+      var _kzi = -1;
+      data.zavodlar.forEach(function(z, zi){ if(z.nom===op.zavod) _kzi = zi; });
+      if(_kzi>=0 && op.tur){
+        body += '<div style="font-size:10px;color:var(--muted);margin-bottom:3px;">TUR</div>';
+        body += '<select id="kop-t-'+oi+'" data-oi="'+oi+'" data-zi="'+_kzi+'" data-eski="'+op.tur+'" onchange="kopTurUpdate(this)" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:14px;background:var(--surf);color:var(--text);margin-bottom:8px;">';
+        data.zavodlar[_kzi].turlar.forEach(function(t, ti){
+          body += '<option value="'+ti+'"'+(t.nom===op.tur?' selected':'')+'>'+t.nom+'</option>';
+        });
+        body += '</select>';
+      }
       body += '<div style="display:flex;align-items:center;gap:8px;">';
-      body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" data-ostatka="'+effOstatka.toFixed(2)+'" value="'+op.gramm+'" oninput="kopGUpdate(this)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
+      body += '<input type="number" id="kop-g-'+oi+'" data-oi="'+oi+'" data-tip="'+tip+'" data-ostatka="'+effOstatka.toFixed(2)+'" data-asl="'+effOstatka.toFixed(2)+'" value="'+op.gramm+'" oninput="kopGUpdate(this)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);font-size:15px;background:var(--surf);color:var(--text);">';
       body += '<span style="font-size:13px;color:var(--muted);">g</span>';
       body += '</div>';
       body += '<div id="kop-ost-'+oi+'" style="font-size:11px;color:var(--green);margin-top:3px;">ostatka: '+tOstatka.toFixed(2)+'g</div>';
@@ -11429,6 +11460,35 @@ function kopTolovUpd(oi) {
   var rEl = document.getElementById('kop-tolov-res-'+oi);
   if(sEl) sEl.value = s;
   if(rEl) rEl.textContent = s>0 ? '= '+fmtD(s)+'$' : '';
+}
+
+// v179.12: tur almashtirilganda ostatka ko'rsatkichi YANGI turga o'tadi.
+// Eskisiga qaytarilsa, boshlang'ich hisob tiklanadi (data-asl).
+function kopTurUpdate(el){
+  var oi = el.dataset.oi;
+  var z = data.zavodlar[parseInt(el.dataset.zi, 10)];
+  var t = z && z.turlar[parseInt(el.value, 10)];
+  var gEl = document.getElementById('kop-g-'+oi);
+  var oEl = document.getElementById('kop-ost-'+oi);
+  if(!t || !gEl) return;
+  var ost = turOst(z.nom, t.nom);
+  gEl.dataset.ostatka = (t.nom===el.dataset.eski) ? gEl.dataset.asl : ost.toFixed(2);
+  if(oEl) oEl.textContent = 'ostatka: '+ost.toFixed(2)+'g \u00b7 '+t.nom;
+  kopGUpdate(gEl);
+}
+
+// v179.12: ombor qoldig'ini to'g'irlaydi. berish — ombordan chiqadi,
+// vozvrat — omborga qaytadi. delta: qo'shiladigan gramm (musbat/manfiy).
+function _kopOstQol(zavodNom, turNom, tip, delta){
+  if(!zavodNom || !turNom || !delta) return;
+  data.zavodlar.forEach(function(z){
+    if(z.nom!==zavodNom) return;
+    z.turlar.forEach(function(t){
+      if(t.nom!==turNom) return;
+      var s = (tip==='berish') ? -delta : delta;
+      t.ostatka = Math.max(0, Math.round((t.ostatka + s)*100)/100);
+    });
+  });
 }
 
 function kopGUpdate(el) {
@@ -11468,7 +11528,15 @@ function kopEditSaqla() {
       var gEl = document.getElementById('kop-g-'+oi);
       if(gEl){
         var g = parseNum(gEl.value);
-        var ostatka = parseFloat(gEl.dataset.ostatka)||0;
+        // v179.12: tur almashtirilgan bo'lsa, YANGI turning qoldig'iga qaraladi
+        var ostatka;
+        var _tv = document.getElementById('kop-t-'+oi);
+        if(_tv){
+          var _zv = data.zavodlar[parseInt(_tv.dataset.zi, 10)];
+          var _tt = _zv && _zv.turlar[parseInt(_tv.value, 10)];
+          if(_tt && _tt.nom !== op.tur) ostatka = turOst(_zv.nom, _tt.nom);
+        }
+        if(ostatka === undefined) ostatka = parseFloat(gEl.dataset.ostatka)||0;
         if(g > ostatka + 0.001) hasErr = true;
       }
     }
@@ -11487,14 +11555,29 @@ function kopEditSaqla() {
       if(gEl){
         var oldG = op.gramm;
         var newG = parseNum(gEl.value);
-        var diff = newG - oldG;
-        if(tip==='berish'){
-          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,Math.round((t.ostatka-diff)*100)/100); }); });
+        // v179.12: TUR ham o'zgargan bo'lishi mumkin.
+        var oldTur = op.tur, newTur = oldTur;
+        var _ts = document.getElementById('kop-t-'+oi);
+        if(_ts){
+          var _zs = data.zavodlar[parseInt(_ts.dataset.zi, 10)];
+          var _tn = _zs && _zs.turlar[parseInt(_ts.value, 10)];
+          if(_tn) newTur = _tn.nom;
+        }
+        if(newTur !== oldTur){
+          // eski turdan BUTUNLAY olib tashlanadi, yangisiga to'liq qo'yiladi
+          _kopOstQol(op.zavod, oldTur, tip, -oldG);
+          _kopOstQol(op.zavod, newTur, tip, newG);
+          op.tur = newTur;
         } else {
-          data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.max(0,Math.round((t.ostatka+diff)*100)/100); }); });
+          _kopOstQol(op.zavod, op.tur, tip, newG - oldG);
         }
         op.gramm = newG;
-        if(Math.abs(newG-oldG)>0.001) op.tahrir = { eski: oldG, yangi: newG, vaqt: nowStr };
+        var _gOz = Math.abs(newG-oldG)>0.001, _tOz = (newTur !== oldTur);
+        if(_gOz || _tOz){
+          op.tahrir = { vaqt: nowStr };
+          if(_gOz){ op.tahrir.eski = oldG; op.tahrir.yangi = newG; }
+          if(_tOz){ op.tahrir.eskiTur = oldTur; op.tahrir.yangiTur = newTur; }
+        }
       }
     } else {
       var sEl = document.getElementById('kop-s-'+oi);
@@ -11512,6 +11595,27 @@ function kopEditSaqla() {
     }
     if(newSana) op.sana = newSana;
   });
+
+  // v179.12 (Ibrohim B1: «bo'lib qolsa QO'SHILIB ketsin»): tur almashgandan
+  // keyin bitta sessiyada bir xil zavod·tur ikki marta chiqib qolishi mumkin.
+  // Ular JIMGINA bitta qatorga qo'shiladi — hech nima so'ralmaydi.
+  var _brl = {}, _och = [];
+  oiList.forEach(function(oi){
+    var op = k.tarix[oi];
+    if(!op || (op.tip!=='berish' && op.tip!=='vozvrat')) return;
+    if(!op.zavod || !op.tur) return;
+    var key = op.tip+'|'+op.sana+'|'+(op.soat||'')+'|'+op.zavod+'|'+op.tur;
+    if(_brl[key]===undefined){ _brl[key] = oi; return; }
+    var bosh = k.tarix[_brl[key]];
+    bosh.gramm = roundG((bosh.gramm||0) + (op.gramm||0));
+    if(op.dona) bosh.dona = (bosh.dona||0) + op.dona;
+    if(op.donalar && bosh.donalar) bosh.donalar = bosh.donalar.concat(op.donalar);
+    if(op.tahrir && !bosh.tahrir) bosh.tahrir = op.tahrir;
+    _och.push(oi);
+  });
+  // indekslar siljimasin — kattadan kichikka o'chiriladi
+  _och.sort(function(a,b){ return b-a; }).forEach(function(oi){ k.tarix.splice(oi,1); });
+
   save();
   renderKlientHisobot();
   renderHome();

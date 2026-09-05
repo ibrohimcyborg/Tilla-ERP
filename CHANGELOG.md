@@ -4972,3 +4972,33 @@ SINOV (eski kod bilan yonma-yon): 5 kunlik blok — eski ok 4160 bayt, yangi ok 
 REGRESSIYA: oltita hisobot turining null sinovi — hammasi o'tdi. Matn+RANG solishtiruvi v179.5 bilan — 40 ta yozuv, hammasi bir xil. Tezlik va sahifa soni (v179.9 bo'laklashi) — 2000 amal 22.07 s → 6.69 s, sahifa 183 → 183. `py_compile` o'tdi.
 
 APP_VER v179.10 -> v179.11 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v179.12: TAHRIRLASHDA TURNI HAM ALMASHTIRISH (Ibrohim: A1 B1)
+
+Ibrohim: «Biz Diamond · Polimer da 8.49 g vozvrat qilganmiz, lekin dasturga Diamond · Oddiy bo'lib yozilgan. Grammni tuzatish yordam bermaydi — tur noto'g'ri.»
+
+Hozirgacha tahrirlash oynasida zavod·tur FAQAT YOZUV edi, o'zgartirib bo'lmasdi. Endi tur ro'yxatdan tanlanadi.
+
+IBROHIM QARORLARI: **A1** — faqat TUR almashadi, zavod qotib turadi (uning misoli aynan shunday: Diamond ichida Oddiy → Polimer; noto'g'ri zavodga o'tkazib yuborish mumkin emas). **B1** — bir xil tur chiqib qolsa JIMGINA qo'shiladi, hech nima so'ralmaydi.
+
+`klientGunTahrir` (11372): berish/vozvrat kartochkasiga TUR uchun `select` qo'shildi. Qiymat sifatida tur NOMI emas, INDEKSI beriladi — nomdagi qo'shtirnoq HTML ni buzmasin. Faqat o'sha zavodning turlari chiqadi.
+
+`kopTurUpdate(el)` — YANGI. Tur almashtirilganda ostatka ko'rsatkichi yangi turga o'tadi; eskisiga qaytarilsa boshlang'ich hisob tiklanadi (`data-asl`).
+
+`_kopOstQol(zavod, tur, tip, delta)` — YANGI, ombor to'g'irlash yagona joyda. `berish` → ombordan chiqadi (`-delta`), `vozvrat` → omborga qaytadi (`+delta`). Avval bu mantiq `kopEditSaqla` ichida ikki marta takrorlanardi.
+
+`kopEditSaqla` (11457): tur o'zgargan bo'lsa eski turdan BUTUNLAY olib tashlanadi (`-oldG`) va yangisiga to'liq qo'yiladi (`+newG`); o'zgarmagan bo'lsa avvalgidek farq qo'llanadi. Ostatka tekshiruvi ham yangi turning qoldig'iga qaraydi (avval eski turnikiga qarardi).
+
+BIRLASHTIRISH (B1): saqlashdan keyin `tip|sana|soat|zavod|tur` bo'yicha takrorlar topiladi, grammlar va donalar qo'shiladi, ortiqcha qatorlar o'chiriladi. Indekslar siljimasligi uchun KATTADAN KICHIKKA o'chiriladi.
+
+BELGI: `op.tahrir` ga `eskiTur`/`yangiTur` qo'shildi. ⚠ YO'L-YO'LAKAY ANIQLANDI: `op.tahrir` v170-larda yozila boshlagan, lekin BUTUN FAYLDA HECH QAYERDA KO'RSATILMAGAN — faqat yozilib qolardi. Yangi `_tahrirBelgi(op)` uni chiqaradi (`✎ Oddiy → Polimer · 05.09 16:10`), uch joyda: klient tarixi qatorlari (2 ta) va tahrirlash oynasi. Shu tufayli gramm va summa tahrirlari ham endi ko'rinadi.
+
+TEGILMADI: `op.eskiTur` va `_eskiTurBelgi` — ular TUR NOMI o'zgartirilganda yoziladi (5832), boshqa ma'no. Qarz hisobi — u har zavod·tur bo'yicha `k.tarix` dan hisoblanadi, yozuvdagi tur o'zgargani uchun qarz O'ZI to'g'ri turga ko'chadi. Abdulhamid, POS, kassa, PDF, sinxron.
+
+SINOV (Node, `_kopOstQol` va `kopEditSaqla` haqiqiy fayldan ajratib olinib, soxta DOM bilan): (1) vozvrat 8.49 g Oddiy→Polimer — Oddiy 150→141.51, Polimer 60→68.49, yozuvdagi tur Polimer, belgi to'g'ri; (2) berish 12 g Oddiy→Polimer — Oddiy 100→112 (qaytdi), Polimer 200→188; (3) faqat gramm 12→15, tur o'zgarmadi — Oddiy 100→97, Polimer TEGILMADI (eski xulq saqlandi); (4) ikki qator bir turga tushdi — 2 qator 1 ta bo'ldi, gramm 3.2+5=8.2, dona 2+1=3, ombor to'g'ri. Hammasi o'tdi. Node sintaksis-sinovi o'tdi.
+
+⚠ CHEKLOV (Ibrohimga aytildi): dona baza yozuvlari eski turda qoladi. Hozir muammo emas — dona baza muzlatilgan (`DONA_BAZA_UI=false`).
+
+⚠ DIFF TAXMINDAN OSHDI: 80–100 qator deyilgan edi, 116/12 chiqdi. Sabab: `_tahrirBelgi` va `_kopOstQol` alohida funksiya qilib ajratildi.
+
+APP_VER v179.11 -> v179.12 (1-qator ham). POS_VER 1.33 — TEGILMADI.
