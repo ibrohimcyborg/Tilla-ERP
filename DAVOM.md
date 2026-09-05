@@ -155,10 +155,10 @@ Uch bosqichda hal bo'ldi, har biri BOSHQA sabab edi:
 | Versiya | Sabab | Holat |
 |---|---|---|
 | v179.6 | klient detalida grammi yo'q yozuv → NaN → null | tuzatildi |
-| v179.7 | o'sha xato «hamma klientlar» hisobotida ham +  da 6 ta quruvchi himoyasiz | tuzatildi |
+| v179.7 | o'sha xato «hamma klientlar» hisobotida ham + `pdf.py` da 6 ta quruvchi himoyasiz | tuzatildi |
 | v179.8 | ⚠ v179.6 da O'ZIM kiritgan rang xatosi (qarz tarkibi hammasi qizil) | tuzatildi |
-| v179.9 |  kvadratik → katta klientda 10 s dan oshardi | jadval bo'laklarga bo'lindi +  60 s |
-| v179.10 | xato matni ko'rinmasdi —  deb almashtirilardi |  haqiqiy sababni ko'rsatadi |
+| v179.9 | `SPAN` kvadratik → katta klientda 10 s dan oshardi | jadval bo'laklarga bo'lindi + `maxDuration` 60 s |
+| v179.10 | xato matni ko'rinmasdi — `'Server xatosi'` deb almashtirilardi | `_pdfJavob()` haqiqiy sababni ko'rsatadi |
 | v179.11 | **haqiqiy sabab**: baland ostatka bloki sahifaga sig'masdi | blok kunlar bo'yicha bo'linadi |
 
 **Ibrohim tasdiqladi:** «hozircha ishlavotti, 33,1 kb pdf».
@@ -168,7 +168,7 @@ yo'ldan borildi. Xato ko'rinadigan bo'lgach sabab bir urinishda topildi.
 
 ⚠ DARS 2: v179.6/v179.7 regressiya sinovi faqat MATNNI solishtirardi va
 o'zim kiritgan rang xatosini o'tkazib yubordi. Endi sinov matn bilan birga
-RANGNI ham solishtiradi ( naqshi).
+RANGNI ham solishtiradi (`rang.py` naqshi).
 
 ### Qolgan ikkitasi — BOSHLANMAGAN
 
