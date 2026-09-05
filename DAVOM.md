@@ -120,7 +120,57 @@ Haqiqiy holat: «Diamond · Polimer» da 8.49 g vozvrat qilingan, dasturga
 - **Butun chekni o'chirish KERAK EMAS**, faqat ichidagi qatorlar. Chek allaqachon
   chiqib ketgan bo'ladi, keyin mijoz bilan tuzatib yangi chek chiqariladi
 
-### ⏳ 2. SINXRONIZATSIYA — KEYINGI VAZIFA (tekshiruv boshlandi, kod yozilmadi)
+## 🔴 BIRINCHI ISH — CLOUD POYDEVORI (Ibrohim qarori, 2026-09-05)
+
+**Ibrohim:** «fundamentni to'g'ri qilmasak ertaga POS qanaqasiga to'g'ri ishlaydi —
+u yana muammo ustiga muammo qo'shadi». **Tartib: avval cloud, keyin POS.**
+Hisob-kitobga aniq zarar yetgan. Qo'lda «jo'nat / qabul qil» — yechim emas.
+«Yashil yonadi, orqada qora» — yolg'on chiroq.
+
+Ibrohim ochiq aytdi: bu Claude'ning xatosi — u oddiy talabni o'z taxminlari
+bilan murakkablashtirib yarim yo'lda tashlagan. Claude tan oldi.
+
+### BITTA QOIDA: cloud — haqiqat, qurilma — ko'zgu
+
+1. **Hamma narsa kichik yozuv.** Berish/vozvrat/to'lov allaqachon shunday.
+   Kassa, sozlamalar, klient/zavod/tur ham shunday bo'ladi. **Blob (butun
+   nusxa) O'LADI** — jo'natish ham, qabul qilish ham yo'q.
+2. Qurilma faqat o'zgarganini yuboradi.
+3. «Asosiy qurilma» YO'Q. «Qabul qil» tugmasi YO'Q. Listener o'zi qo'llaydi.
+4. Ostatka/qarz/jami hech qachon saqlanmaydi — yozuvlardan hisoblanadi (allaqachon shunday).
+5. Oxirgi yozgan g'olib — **server vaqti** bilan (telefon soati emas).
+6. Oflayn: navbat, internet kelganda o'zi ketadi (Firestore `enablePersistence` — YOQILMAGAN, yoqiladi).
+7. Chiroq halol: yashil FAQAT rostdan sinxron bo'lsa; yuborilmagan bo'lsa sariq + soni.
+
+### Tartib
+1. Kassani yozuvlarga o'tkazish (eng katta yoriq, hisobga zarar shu yerdan)
+2. Qolgan sozlamalar
+3. Blob tizimini butunlay o'chirish
+4. Server vaqti + oflayn navbat + halol chiroq
+5. KEYIN POS
+
+### Oflayn — Ibrohim tuzatdi
+To'qnashuv (ikki qurilma bir narsani sotib yuborishi) SIZDA YO'Q: tilla
+jismoniy, har hafta ostatka tekshiriladi, bitta klientga ikki kishi sotmaydi.
+Demak oflayn oddiy: ishlaysiz → internet keldi → o'zi ketadi. To'qnashuv
+mantiqi kerak emas.
+
+### Sinov usuli — MAJBURIY
+«Kodda shunday yozilgan» HISOBLANMAYDI. Har amal (berish, vozvrat, sotuv,
+to'lov, tahrirlash, zavod kirim-chiqim, ostatka) IKKITA HAQIQIY QURILMADA:
+birida qilinadi, ikkinchisida ko'z bilan ko'riladi. Ro'yxat, har qatori
+Ibrohim tasdiqlagach yopiladi.
+
+### Nima qilinmaydi
+Noldan yozilmaydi. Tarix yozuvlari uchun oplog TO'G'RI ishlaydi — o'sha
+to'g'ri qismni hamma narsaga yoyamiz.
+
+### Keyingi qadam
+Mockup: HOZIRGI vs TAKLIF, kassa birinchi. Ibrohim ko'radi, qaror qiladi.
+
+---
+
+### ⏳ 2. SINXRONIZATSIYA — tekshiruv natijalari (kod yozilmadi)
 
 **Ibrohim (2026-09-05):** «clouddi to'g'irlamasa bo'lmaydi, umuman sistemani
 adashtirib tashavotti teldan ishlatsak». Bir qurilmada tahrirlangandan keyin
