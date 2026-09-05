@@ -479,7 +479,20 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
     story.append(st); story.append(Spacer(1, 5*mm))
     HDR = ["Sana","Amal","Zavod","Tur","Gramm","Summa ($)","Kurs ($/g)","Ostatka"]
     CW  = [x*mm for x in [26, 22, 30, 22, 26, 26, 24, 28]]
-    tdata = [[P(h,'Helvetica-Bold',9,C_WHITE,'CENTER') for h in HDR]]; rstyles = []
+    # v179.9: BITTA ULKAN JADVAL O'RNIGA BO'LAKLAR.
+    # Har sessiya guruhiga uchta SPAN qo'yiladi (sana / amal / ostatka ustunlari).
+    # reportlab SPAN larni BUTUN jadval bo'yicha qayta hisoblaydi, shuning uchun
+    # vaqt KVADRATIK o'sardi — o'lchandi: 1000 amal 6.7 s, 2000 amal 19.9 s,
+    # 4000 amal 69.6 s. Vercel 10 soniyadan keyin funksiyani o'ldiradi va 500
+    # qaytaradi — Ibrohim eng ko'p amali bor klientda aynan shunga tushdi.
+    # 300 qatorli bo'laklarga bo'linganda o'sish CHIZIQLI bo'ladi (1600 guruh:
+    # 11.9 s -> 3.0 s) va SAHIFA SONI O'ZGARMAYDI — o'lchandi, 37/73/146 sahifa
+    # ikkala usulda ham bir xil. Bo'linish faqat guruh CHEGARASIDA bo'ladi,
+    # shuning uchun birlashtirilgan kataklar (SPAN) hech qachon bo'linmaydi.
+    _BOLAK = 300
+    def _sarlavha(): return [P(h,'Helvetica-Bold',9,C_WHITE,'CENTER') for h in HDR]
+    _bolaklar = []
+    tdata = [_sarlavha()]; rstyles = []
     for si, row in enumerate(ops):
         tip=row.get('tip',''); ostatka=_num(row.get('ostatka'))   # v179.6
         # v172.43: shakllantirish ham tip:'berish' bo'lib yoziladi (index 6505).
@@ -530,13 +543,20 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
             rstyles.append(('SPAN',(1,r0),(1,r1)))
             rstyles.append(('SPAN',(7,r0),(7,r1)))
         rstyles.append(('LINEBELOW',(0,r1),(-1,r1),0.4,colors.HexColor('#cccccc')))
+        if len(tdata) - 1 >= _BOLAK:          # v179.9: guruh chegarasida bo'linadi
+            _bolaklar.append((tdata, rstyles))
+            tdata = [_sarlavha()]; rstyles = []
     jr=len(tdata)
     tdata.append([P('JAMI','Helvetica-Bold',9,C_WHITE,'CENTER'),'','','',
         P(f"-{jami_berildi:,.2f}g",'Helvetica-Bold',9,colors.HexColor('#E05A5A'),'RIGHT'),
         P(f"{jami_tolov_pul:,.0f}$",'Helvetica-Bold',9,colors.HexColor('#F6E05E'),'RIGHT'),'',
         P(qolgan_txt,'Helvetica-Bold',9,colors.HexColor('#E05A5A') if qolgan>0.001 else colors.HexColor('#68D391'),'RIGHT')])
     rstyles+=[('BACKGROUND',(0,jr),(-1,jr),C_DARK),('SPAN',(0,jr),(3,jr))]
-    mt=Table(tdata,colWidths=CW,repeatRows=1); mt.setStyle(TableStyle(base_style()+rstyles)); story.append(mt)
+    _bolaklar.append((tdata, rstyles))            # v179.9: oxirgi bo'lak — JAMI shu yerda
+    for _td, _rs in _bolaklar:                    # v179.9
+        _t = Table(_td, colWidths=CW, repeatRows=1)
+        _t.setStyle(TableStyle(base_style() + _rs))
+        story.append(_t)
     if qarz_tarkib:
         story.append(Spacer(1,6*mm)); story.append(sub_p("Joriy qarz tarkibi"))
         qd=[]

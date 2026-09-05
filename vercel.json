@@ -1,6 +1,17 @@
 {
+  "functions": {
+    "api/pdf.py": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
-    { "source": "/api/excel", "destination": "/api/excel.py" },
-    { "source": "/((?!api).*)", "destination": "/index.html" }
+    {
+      "source": "/api/excel",
+      "destination": "/api/excel.py"
+    },
+    {
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
+    }
   ]
 }

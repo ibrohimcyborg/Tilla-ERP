@@ -4915,3 +4915,29 @@ YANGI SINOV: `rang.py` endi `P()` ning MATN va RANG argumentlarini birga solisht
 TEKSHIRILDI: butun `api/pdf.py` da izoh yutib yuborgan boshqa qator YO'Q (35 ta `# v179` izohidan faqat shu bittasi buzuq edi).
 
 APP_VER v179.7 -> v179.8 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v179.9: KATTA KLIENTDA PDF 500 — SABAB SPAN, JADVAL BO'LAKLARGA BO'LINDI
+
+Ibrohim: v179.6/v179.7 dan keyin ham «usha kottasida» PDF xato beradi. Aniqlandi: bu null muammosi EMAS, HAJM muammosi.
+
+O'LCHANDI (haqiqiy `build_klient_tarix`, lokalda): 100 amal 0.38 s · 500 amal 2.56 s · 1000 amal 6.73 s · 2000 amal 19.9 s · 4000 amal 69.6 s · 8000 amal 267.7 s. Kvadratik. Vercel funksiyani 10 soniyadan keyin o'ldiradi va 500 qaytaradi — ya'ni ~1200 amaldan boshlab yiqiladi.
+
+SABAB IZLANDI, uchta nomzod sinaldi: (1) jadval sahifalarga bo'linishi — sintetik sinovda CHIZIQLI chiqdi, ayb emas; (2) har qatorga alohida `BACKGROUND`/`LINEBELOW` uslub buyruqlari — atigi 1.2x, ayb emas; (3) **`SPAN`** — har sessiya guruhiga uchtadan (sana/amal/ostatka ustunlari). O'lchov: 200 guruh 0.39 s → 1600 guruh 9.52 s (SPAN bilan) vs 3.26 s (SPANsiz). AYB SHU. reportlab SPAN larni butun jadval bo'yicha qayta hisoblaydi.
+
+SPAN ni olib tashlab bo'lmaydi: `base_style()` da to'liq `GRID` bor, SPANsiz guruh ichida qo'shimcha gorizontal chiziqlar paydo bo'ladi — ko'rinish buziladi.
+
+YECHIM: bitta ulkan jadval o'rniga 300 qatorli BO'LAKLAR (`_BOLAK`). Bo'linish faqat guruh CHEGARASIDA bo'ladi, shuning uchun birlashtirilgan kataklar hech qachon bo'linmaydi. Har bo'lak o'z sarlavha qatorini oladi va `repeatRows=1` bilan chiziladi.
+
+BO'LAK O'LCHAMI TANLANDI (2000 amalda o'lchandi): 60 → 5.78 s / ~66 qo'shimcha sarlavha · 150 → 6.07 s / ~26 · **300 → 6.64 s / ~13** · 600 → 7.78 s / ~6. 300 tanlandi — tezlik yaxshi, qo'shimcha sarlavha 183 sahifada atigi ~13 ta (har 14 sahifada bitta).
+
+NATIJA: 2000 amal 21.7 s → 6.96 s (3.1x). 1000 amal 6.68 s → 3.47 s. **SAHIFA SONI O'ZGARMADI** — 19/47/92/183 ikkala usulda ham bir xil (o'lchandi).
+
+`vercel.json`: `functions.api/pdf.py.maxDuration = 60`. Bo'laklash + 60 soniya birga ~18 000 amalgacha yetadi. Undan keyin PAYLOAD DEVORI keladi — ilova butun tarixni JSON qilib yuboradi, 8000 amalda u 1.9 MB, Vercel 4.5 MB dan ko'pini olmaydi. Ikkala chegara ham taxminan bir joyga tushadi (~18 000 amal). Undan narisi uchun server clouddan O'ZI o'qishi kerak — alohida ish, Ibrohimga aytildi.
+
+SINOV: tezlik va sahifa soni yuqorida. Matn+RANG regressiyasi (v179.8 dan keyin qo'shilgan sinov): 150 amalda eski 2448 ta yozuv, yangi 2456 — farq atigi 8 ta, ya'ni BITTA qo'shimcha sarlavha qatori (8 katak). Boshqa hech bir matn yoki rang o'zgarmadi. Oltita hisobot turining null sinovi ham qayta o'tkazildi — hammasi o'tdi. `py_compile` o'tdi.
+
+TEKSHIRILDI: prod endpointga sinov so'rovi yuborildi (sintetik ma'lumot, Ibrohim ma'lumoti ishlatilmadi) — HTTP 200, 3236 bayt PDF, 2.25 s. Ya'ni funksiyaning o'zi sog'lom edi, faqat katta klientda vaqt tugardi.
+
+⚠ ANIQLANDI, TEGILMADI: `index.html` da beshta joyda `if(!r.ok) throw new Error('Server xatosi')` — server qaytargan HAQIQIY xato matni (`{"error": ...}`) o'qilmasdan tashlanadi. Shuning uchun Ibrohim ham, Claude ham xatoni ko'rmadi va tashxis cho'zildi. Tuzatish taklif qilindi, Ibrohim hali javob bermadi.
+
+APP_VER v179.8 -> v179.9 (1-qator ham). POS_VER 1.33 — TEGILMADI.
