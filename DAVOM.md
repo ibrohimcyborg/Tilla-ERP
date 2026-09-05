@@ -148,6 +148,28 @@ solishtirildi, hammasi bir xil.
 ℹ Alohida narsa, xato emas: `localhost:5000/print ERR_CONNECTION_REFUSED` —
 printer serveri o'chiq edi.
 
+### ✅ PDF 500 — TO'LIQ YOPILDI (Ibrohim tasdiqladi, 2026-09-05)
+
+Uch bosqichda hal bo'ldi, har biri BOSHQA sabab edi:
+
+| Versiya | Sabab | Holat |
+|---|---|---|
+| v179.6 | klient detalida grammi yo'q yozuv → NaN → null | tuzatildi |
+| v179.7 | o'sha xato «hamma klientlar» hisobotida ham +  da 6 ta quruvchi himoyasiz | tuzatildi |
+| v179.8 | ⚠ v179.6 da O'ZIM kiritgan rang xatosi (qarz tarkibi hammasi qizil) | tuzatildi |
+| v179.9 |  kvadratik → katta klientda 10 s dan oshardi | jadval bo'laklarga bo'lindi +  60 s |
+| v179.10 | xato matni ko'rinmasdi —  deb almashtirilardi |  haqiqiy sababni ko'rsatadi |
+| v179.11 | **haqiqiy sabab**: baland ostatka bloki sahifaga sig'masdi | blok kunlar bo'yicha bo'linadi |
+
+**Ibrohim tasdiqladi:** «hozircha ishlavotti, 33,1 kb pdf».
+
+⚠ DARS: v179.10 gacha xato matni ko'rinmagani uchun uch marta noto'g'ri
+yo'ldan borildi. Xato ko'rinadigan bo'lgach sabab bir urinishda topildi.
+
+⚠ DARS 2: v179.6/v179.7 regressiya sinovi faqat MATNNI solishtirardi va
+o'zim kiritgan rang xatosini o'tkazib yubordi. Endi sinov matn bilan birga
+RANGNI ham solishtiradi ( naqshi).
+
 ### Qolgan ikkitasi — BOSHLANMAGAN
 
 1-vazifa (chekni tahrirlashda TURNI almashtirish) va 2-vazifa (sinxronizatsiya)
