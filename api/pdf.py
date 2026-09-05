@@ -371,7 +371,9 @@ def _ost_blok(b, kw):
     nom (o'rtada) -> boshlang'ich qoldiq -> kunlik amallar (sana+gramm+amal) ->
     har kun oxiridagi qoldiq -> QOLDI. Qora fon YO'Q (Ibrohim: "yoqmadi")."""
     W = [kw * 0.30, kw * 0.36, kw * 0.34]
-    d = [[P(f"{b.get('zavod','')} · {b.get('tur','')}", 'Helvetica-Bold', 7.5, C_DARK, 'CENTER'), '', '']]
+    # v179.11: blok bo'laklarga bo'lingan bo'lsa, davomida sarlavha belgilanadi.
+    _nom = f"{b.get('zavod','')} · {b.get('tur','')}" + (' (davomi)' if b.get('_davomi') else '')
+    d = [[P(_nom, 'Helvetica-Bold', 7.5, C_DARK, 'CENTER'), '', '']]
     st = [('SPAN', (0, 0), (2, 0)),
           ('BACKGROUND', (0, 0), (2, 0), colors.HexColor('#FBF3E0')),
           ('LINEBELOW', (0, 0), (2, 0), 0.9, C_GOLD)]
@@ -379,7 +381,7 @@ def _ost_blok(b, kw):
     # boshida ostatka qo'shiladi shu bilan davom etadi"). 0 dan boshqa bo'lsa QOLADI —
     # aks holda `boshi + amallar = QOLDI` arifmetikasi ko'rinmay qoladi.
     r = 1
-    _b = str(b.get('boshi', '') or '')
+    _b = '' if b.get('_davomi') else str(b.get('boshi', '') or '')   # v179.11: davomida takrorlanmaydi
     if _b.replace('g', '').strip() not in ('0.00', '-0.00', '0', ''):
         d.append([P('boshi', 'Helvetica-Oblique', 6.5, C_MUTED), '',
                   P(_b, 'Helvetica-Bold', 7, C_DARK, 'RIGHT')])
@@ -409,13 +411,14 @@ def _ost_blok(b, kw):
         r += 1
     # v172.40: qoldiq rangi — klient qarzdor bo'lsa QIZIL, biz qarzdor bo'lsak
     # "+" bilan YASHIL (belgi index.html da qo'yiladi), nol bo'lsa oddiy qora.
-    _h = b.get('holat', 'nol')
-    _oc = C_RED if _h == 'qarz' else (C_GREEN if _h == 'bizda' else C_DARK)
-    d.append([P('QOLDI', 'Helvetica-Bold', 7, colors.HexColor('#5c4708')), '',
-              P(str(b.get('oxiri', '')), 'Helvetica-Bold', 7.5, _oc, 'RIGHT')])
-    st += [('SPAN', (0, r), (1, r)),
-           ('BACKGROUND', (0, r), (2, r), colors.HexColor('#FBF3E0')),
-           ('LINEABOVE', (0, r), (2, r), 0.9, C_GOLD)]
+    if not b.get('_qoldi_yoq'):          # v179.11: QOLDI faqat OXIRGI bo'lakda
+        _h = b.get('holat', 'nol')
+        _oc = C_RED if _h == 'qarz' else (C_GREEN if _h == 'bizda' else C_DARK)
+        d.append([P('QOLDI', 'Helvetica-Bold', 7, colors.HexColor('#5c4708')), '',
+                  P(str(b.get('oxiri', '')), 'Helvetica-Bold', 7.5, _oc, 'RIGHT')])
+        st += [('SPAN', (0, r), (1, r)),
+               ('BACKGROUND', (0, r), (2, r), colors.HexColor('#FBF3E0')),
+               ('LINEABOVE', (0, r), (2, r), 0.9, C_GOLD)]
     st += [('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#CCCCCC')),
            ('TOPPADDING', (0, 0), (-1, -1), 1.4), ('BOTTOMPADDING', (0, 0), (-1, -1), 1.4),
            ('LEFTPADDING', (0, 0), (-1, -1), 3), ('RIGHTPADDING', (0, 0), (-1, -1), 3),
@@ -423,6 +426,45 @@ def _ost_blok(b, kw):
     t = Table(d, colWidths=W)
     t.setStyle(TableStyle(st))
     return t
+
+
+# v179.11 (Ibrohim: eng katta klientda PDF 500 berardi).
+# XATO MATNI: "Flowable <Table 1 rows x 5 cols(tallest row 724)> ... 'Butterfly · Oddiy'
+# (762 x 724.9), tallest cell 724.9 points, too large on page 9 in frame 'normal'
+# (784 x 537.9)".
+# SABAB: ostatka bloklari 5 ustunli BITTA QATORLI jadvalga joylanadi, unday qator
+# sahifaga BO'LINA OLMAYDI. Bir zavod·turda kun ko'p bo'lsa blok 724.9 nuqta
+# bo'lib ketdi, ramkada esa 537.9 nuqta joy bor — reportlab to'xtadi.
+# YECHIM: uzun blok kunlar bo'yicha bo'laklarga bo'linadi. Ma'lumot yo'qolmaydi:
+# «boshi» faqat birinchi bo'lakda, «QOLDI» faqat oxirgisida, oraliq bo'laklar
+# sarlavhasida «(davomi)» turadi.
+_OST_MAX_QATOR = 28          # bitta blokdagi maksimal kun-qatori (~28 x 12.8 nuqta)
+
+
+def _ost_bolaklar(b, kw):
+    kunlar = b.get('kunlar') or []
+    if not kunlar:
+        return [_ost_blok(b, kw)]
+    guruh, joriy, sanoq = [], [], 0
+    for kun in kunlar:
+        n = len(kun.get('amallar') or []) + 1      # amal qatorlari + kun qoldig'i
+        if joriy and sanoq + n > _OST_MAX_QATOR:
+            guruh.append(joriy); joriy = []; sanoq = 0
+        joriy.append(kun); sanoq += n
+    if joriy:
+        guruh.append(joriy)
+    if len(guruh) < 2:
+        return [_ost_blok(b, kw)]
+    out = []
+    for gi, g in enumerate(guruh):
+        bb = dict(b)
+        bb['kunlar'] = g
+        if gi:
+            bb['_davomi'] = True                   # boshi yo'q, sarlavhada (davomi)
+        if gi < len(guruh) - 1:
+            bb['_qoldi_yoq'] = True                # QOLDI faqat oxirgisida
+        out.append(_ost_blok(bb, kw))
+    return out
 
 
 def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
@@ -577,9 +619,11 @@ def build_klient_tarix(klient_nom, klient_tel, ops, dan, gacha,
         story.append(sub_p("Zavod·tur bo'yicha kunlik ostatka"))
         NUS = 5                                   # bir qatorga nechta blok
         kw = (W_total - (NUS - 1) * 3*mm) / NUS
-        for i in range(0, len(ost), NUS):
-            qism = ost[i:i + NUS]
-            hujayra = [_ost_blok(b, kw) for b in qism]
+        _kengaytirilgan = []                               # v179.11: baland bloklar bo'linadi
+        for _ob in ost:
+            _kengaytirilgan.extend(_ost_bolaklar(_ob, kw))
+        for i in range(0, len(_kengaytirilgan), NUS):
+            hujayra = list(_kengaytirilgan[i:i + NUS])
             while len(hujayra) < NUS:
                 hujayra.append('')                # oxirgi qator to'lmasa - bo'sh
             qt2 = Table([hujayra], colWidths=[kw]*NUS)

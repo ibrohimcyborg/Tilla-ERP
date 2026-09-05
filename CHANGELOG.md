@@ -4955,3 +4955,20 @@ SINOV (Node, haqiqiy fayldan funksiya ajratib, soxta javoblar bilan): 200 → bl
 HISOBGA TEGILMADI — faqat xabar ko'rsatish. PDF mazmuni, payload, hisob-kitob o'zgarmadi.
 
 APP_VER v179.9 -> v179.10 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v179.11: BALAND OSTATKA BLOKI SAHIFAGA SIG'MASDI — PDF 500 (haqiqiy sabab, nihoyat)
+
+v179.10 xato matnini ko'rsatadigan qilgandan keyin Ibrohim aniq xabarni yubordi:
+`HTTP 500 — Flowable <Table 1 rows x 5 cols(tallest row 724)> with cell(0,0) containing <Table 4 rows x 3 cols> ... 'Butterfly · Oddiy' (762.5 x 724.9), tallest cell 724.9 points, too large on page 9 in frame 'normal'(784.5 x 537.9)`.
+
+SABAB (na vaqt, na null): «Zavod·tur bo'yicha kunlik ostatka» bo'limida bloklar 5 tadan BITTA QATORLI jadvalga joylanadi (`Table([hujayra], colWidths=[kw]*5)`). Bitta qatorli jadval sahifaga BO'LINA OLMAYDI. `Butterfly · Oddiy` turida kun juda ko'p bo'lgani uchun blok 724.9 nuqta bo'ldi, ramkada esa 537.9 nuqta joy bor — reportlab to'xtadi va `except` bloki 500 qaytardi.
+
+Shuning uchun FAQAT o'sha klientda: boshqalarda birorta zavod·tur bloki ham bir sahifadan oshmaydi. Bu ESKI xato — v179.9 bo'laklashiga aloqasi yo'q, faqat v179.10 dan keyin ko'rindi.
+
+YECHIM: `_ost_bolaklar(b, kw)` — uzun blok kunlar bo'yicha bo'laklarga bo'linadi (`_OST_MAX_QATOR = 28` kun-qatori, ~28 × 12.8 nuqta). Ma'lumot YO'QOLMAYDI: «boshi» faqat birinchi bo'lakda, «QOLDI» faqat oxirgisida, oraliq bo'laklar sarlavhasida «(davomi)». `_ost_blok` ga ikkita bayroq qo'shildi: `_davomi` (boshi yo'q + sarlavhada belgi) va `_qoldi_yoq`.
+
+SINOV (eski kod bilan yonma-yon): 5 kunlik blok — eski ok 4160 bayt, yangi ok 4160 bayt (AYNAN BIR XIL, bo'linmaydi). 25 kun — eski YIQILDI, yangi ok 2 sahifa. 60 kun — eski YIQILDI, yangi ok 2 sahifa. 150 kun — eski YIQILDI, yangi ok 4 sahifa. Aralash (4 ta blok, biri 90 kunlik) — eski YIQILDI, yangi ok 4 sahifa. 90 kunlik blok 7 ta bo'lakka bo'lindi.
+
+REGRESSIYA: oltita hisobot turining null sinovi — hammasi o'tdi. Matn+RANG solishtiruvi v179.5 bilan — 40 ta yozuv, hammasi bir xil. Tezlik va sahifa soni (v179.9 bo'laklashi) — 2000 amal 22.07 s → 6.69 s, sahifa 183 → 183. `py_compile` o'tdi.
+
+APP_VER v179.10 -> v179.11 (1-qator ham). POS_VER 1.33 — TEGILMADI.
