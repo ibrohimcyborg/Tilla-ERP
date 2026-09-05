@@ -4941,3 +4941,17 @@ TEKSHIRILDI: prod endpointga sinov so'rovi yuborildi (sintetik ma'lumot, Ibrohim
 ⚠ ANIQLANDI, TEGILMADI: `index.html` da beshta joyda `if(!r.ok) throw new Error('Server xatosi')` — server qaytargan HAQIQIY xato matni (`{"error": ...}`) o'qilmasdan tashlanadi. Shuning uchun Ibrohim ham, Claude ham xatoni ko'rmadi va tashxis cho'zildi. Tuzatish taklif qilindi, Ibrohim hali javob bermadi.
 
 APP_VER v179.8 -> v179.9 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v179.10: PDF XATOSI ENDI HAQIQIY SABABNI KO'RSATADI (Ibrohim: «shunaqa qil, muammoni topilik»)
+
+MUAMMO: oltita PDF chaqiruv joyidan beshtasida javob shunday tekshirilardi — `if(!r.ok) throw new Error('Server xatosi')` (yoki `'Xato'`). `pdf.py` esa xato bo'lganda `{"error": "<aniq Python xatosi>"}` qaytaradi. O'sha xabar O'QILMASDAN tashlanardi va foydalanuvchi faqat «PDF xato: Server xatosi» ko'rardi. Natijada v179.6–v179.9 dagi nosozliklar tashxisi uzoq cho'zildi — na Ibrohim, na Claude haqiqiy sababni ko'ra olmadi.
+
+YECHIM: yagona `_pdfJavob(r)` yordamchisi (pdfOch dan oldin). `r.ok` bo'lsa avvalgidek `r.blob()`. Aks holda javob TANASI o'qiladi: JSON bo'lsa `error` maydoni olinadi, bo'lmasa xom matnning birinchi 300 belgisi. Xabar bo'sh bo'lgan 502/504 uchun «server vaqti tugadi — bu klientda amal juda ko'p» qo'shiladi (Vercel timeout sahifasi ko'pincha bo'sh keladi). Xato `HTTP <kod> — <sabab>` ko'rinishida uloqtiriladi, mavjud `.catch` uni `alert` da chiqaradi.
+
+QO'LLANDI: 6 joy — kurs tarixi (3026), klient tarixi (9783), to'lov hisoboti (11114), kassa (11170), qarz cheki (18088), klient detali (18435). «Hamma klientlar» hisoboti (18641) TEGILMADI — u allaqachon `r.text()` bilan xom tanani ko'rsatardi.
+
+SINOV (Node, haqiqiy fayldan funksiya ajratib, soxta javoblar bilan): 200 → blob; 500 + `{"error":"TypeError: abs() NoneType"}` → «HTTP 500 — TypeError: abs() NoneType»; 504 bo'sh tana → «HTTP 504 — server vaqti tugadi — bu klientda amal juda ko'p»; 502 bo'sh → xuddi shunday; 500 + HTML → «HTTP 500 — <html>Internal Server Error</html>». Node sintaksis-sinovi o'tdi.
+
+HISOBGA TEGILMADI — faqat xabar ko'rsatish. PDF mazmuni, payload, hisob-kitob o'zgarmadi.
+
+APP_VER v179.9 -> v179.10 (1-qator ham). POS_VER 1.33 — TEGILMADI.
