@@ -120,7 +120,45 @@ Haqiqiy holat: «Diamond · Polimer» da 8.49 g vozvrat qilingan, dasturga
 - **Butun chekni o'chirish KERAK EMAS**, faqat ichidagi qatorlar. Chek allaqachon
   chiqib ketgan bo'ladi, keyin mijoz bilan tuzatib yangi chek chiqariladi
 
-### 2. Sinxronizatsiya — o'zgarish boshqa qurilmaga o'tmaydi
+### ⏳ 2. SINXRONIZATSIYA — KEYINGI VAZIFA (tekshiruv boshlandi, kod yozilmadi)
+
+**Ibrohim (2026-09-05):** «clouddi to'g'irlamasa bo'lmaydi, umuman sistemani
+adashtirib tashavotti teldan ishlatsak». Bir qurilmada tahrirlangandan keyin
+ikkinchisida ESKI holida qoladi.
+
+#### Tekshirilgan — bular JOYIDA, qayta tekshirma
+
+| Joy | Qator | Holat |
+|---|---|---|
+| `amalSyncPush` | 8322 | tahrirni **yuboradi** — imzo o'zgarsa qayta jo'natadi. v172.31 da «tahrirdan oldin muhrlash» xatosi tuzatilgan |
+| `amalListen` | 8513 | tahrirni **qo'llaydi** — `known` bo'lsa `amalRecRemoveById` + `amalRecAdd` |
+| `amalRecAdd` | 8466 | yetishmagan zavod/tur/klientni o'zi yaratadi |
+| `_amalPushImzo` | 8330 atrofi | `JSON.stringify(rec)` + joy — hash |
+
+#### Qolgan shubhalar — SHULARDAN DAVOM ET
+
+1. **`dv <= known` darvozasi** (`amalListen` 8521). `vaqt` yuboruvchi
+   qurilmaning `Date.now()` i. Telefon soati PC dan oldinda bo'lsa, PC dagi
+   keyingi tahrir `vaqt` i kichikroq chiqib **o'tkazib yuborilishi** mumkin.
+   Soat farqi — birinchi tekshiriladigan narsa.
+2. **`cloudYozaOladi()`** (19486) — `YOZUV_LIMIT = 25000` kunlik. Oshsa
+   cloudga yozish **JIMGINA to'xtaydi** (faqat console ogohlantirishi va
+   qizil chip). Ilova lokal ishlayveradi — foydalanuvchi bilmaydi.
+   `_kvotaTugadi` bir marta yoqilsa seans oxirigacha qoladi.
+3. **Blob orqali yuradigan ma'lumot** — `data.kassa` (obyekt, oplogga
+   kirmaydi, `amalWalk` 8303 izohi). Blob esa ma'lumoti bor qurilmaga
+   **hech qachon tushmaydi** (`cloudListen`: `bosh && lokalVaqt===0`).
+4. **«Yashil chiroq aldaydi»** — cloudda yangiroq nusxa borligini ko'radi,
+   YUKLAMAYDI, lekin «sinxron» deb ko'rsatadi. Ibrohim shuning uchun
+   «o'tdi» deb o'ylashi mumkin.
+
+#### Birinchi qadam (taklif)
+
+Kod yozishdan OLDIN o'lchash kerak: ikkala qurilmada `cloudYozuvBugun()` va
+`_kvotaTugadi` qiymatini, va `tilla-cloud-yozuv` kalitini ko'rish. Shundan
+keyin qaysi shubha to'g'ri ekani ma'lum bo'ladi — hozir to'rttasi ham ochiq.
+
+⚠ Bu mavzu KATTA. Yangi seansda to'liq kontekst bilan boshlash kerak.
 
 Bir qurilmada tahrirlangandan keyin, ikkinchi qurilmada **eski holida qoladi**.
 Faqat asosiy qurilmadan cloud yuborilib, qolgani qabul qilgandagina o'zgaradi —
