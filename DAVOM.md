@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v180 · POS 1.33 · 2026-09-05
+**Oxirgi yangilanish:** v180.1 · POS 1.33 · 2026-09-06
 
 ---
 
@@ -145,6 +145,43 @@ eski commitdan ustun.
 
 ⚠ O'sha shoxdagi ikkinchi commit (`b53b473`, PDF) — **kerak emas**, u qayta
 yozilib main'ga tushgan.
+
+---
+
+## 🟢 CLOUD — QAYERDAMIZ (2026-09-06)
+
+| | Ish | Holat |
+|---|---|---|
+| 1 | Kassa yozuvlari cloudga (**v180**) | ✅ push qilingan |
+| 2 | O'chirish cloudga e'lon qilinadi (**v180.1**) | ✅ push qilingan, **Ibrohim sinadi: «ishlavotti»** |
+| 3 | **Farqlar ekrani** — eski divergensiyani tozalash | ⏳ **KEYINGI ISH** |
+| 4 | Chek navbati (muddat + avtomat o'chirish olib tashlanadi, topbarda chek ikoni) | ⬜ |
+| 5 | Server vaqti (`serverTimestamp`) — soat farqi | ⬜ |
+| 6 | Oflayn navbat (`enablePersistence` — kodda YO'Q) | ⬜ |
+| 7 | Halol chiroq (hozir olmasa ham yashil yonadi) | ⬜ |
+| 8 | Blob tizimini o'chirish | ⬜ |
+
+### ⚠ v180.1 — topilgan ildiz (eng muhimi)
+
+`amalDeletePush(op)` BOR EDI, lekin yozuvni o'chiradigan **9 ta joydan faqat 2 tasidan**
+chaqirilardi. Qolganlari lokal o'chirardi, cloudda yozuv TIRIK qolardi, boshqa qurilma
+uni saqlab turardi. Qayta qo'shilsa yangi `_id` olardi → o'sha qurilmada IKKITA.
+
+Ibrohim: PC 1281 yozuv / 13200.78 g, telefon 1298 yozuv / 13314.15 g. Farq 17 yozuv, 113.37 g.
+
+Endi 9 tasi ham e'lon qiladi. **Yangi farq paydo bo'lmaydi.**
+
+### ⚠ ESKI FARQ QOLDI — 3-ish shu uchun
+
+Mavjud 17 ta ortiqcha yozuv o'zi tuzalmaydi. Yechim: **Farqlar ekrani** — qurilma
+o'zini cloud oplogi (`_amallar/items`) bilan solishtiradi va ro'yxat beradi.
+Hech nima yo'qolmagan: o'chirish e'lon qilinmagani uchun yozuvlar CLOUDDA TIRIK.
+
+- «Cloudda bor, menda yo'q» — bu qurilma o'chirgan
+- «Menda bor, cloudda yo'q» — cloudga yetib bormagan
+
+Ibrohim har qatorga qarab qaror qiladi. O'chirish endi tarqalgani uchun
+**bir marta tozalansa, shundayligicha qoladi.**
 
 ---
 
@@ -297,7 +334,7 @@ hali qo'lga olinmadi.
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v180`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v180.1`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
