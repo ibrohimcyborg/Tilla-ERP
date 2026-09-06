@@ -5002,3 +5002,29 @@ SINOV (Node, `_kopOstQol` va `kopEditSaqla` haqiqiy fayldan ajratib olinib, soxt
 ⚠ DIFF TAXMINDAN OSHDI: 80–100 qator deyilgan edi, 116/12 chiqdi. Sabab: `_tahrirBelgi` va `_kopOstQol` alohida funksiya qilib ajratildi.
 
 APP_VER v179.11 -> v179.12 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v180: KASSA YOZUVLARI CLOUDGA CHIQADI (Ibrohim: «cloud bo'yicha 1:1 ishlasin»)
+
+MUAMMO: kassa bir qurilmada o'zgarsa ikkinchisiga HECH QACHON bormasdi — «birida bor, birida yo'q».
+
+SABAB (koddan): `amalWalk` (8297) cloudga jo'natiladigan yozuvlarni yig'adi — zavod tarixi, klient tarixi, lom. Kassa ATAYLAB tashlab ketilgan, izoh bilan: «data.kassa — OBYEKT, massiv emas — oplogga kirmaydi, blob orqali sinxron bo'ladi». Blob esa ma'lumoti bor qurilmaga hech qachon tushmaydi (`cloudListen`: `bosh && lokalVaqt===0`).
+
+⚠ TEKSHIRUV SHUNI KO'RSATDI: kassa MODELI to'g'ri edi. `data.kassa` ichidagi `qolda`/`zlar`/`tuzatishlar`/`zakazlar`/`snabAmallar` — MASSIV, har yozuvning o'z `id` yoki `ts` si bor, qoldiq hech qayerda saqlanmaydi (3462, 4257 da har safar qatorlardan hisoblanadi). Ya'ni «Event Sourcing ga o'tkazish» KERAK EMAS — u allaqachon shunday. Faqat tashish yo'liga kiritilmagandi.
+
+QILINDI — kengaytirish, refaktor emas:
+1. `KASSA_BOLIM` — beshta bo'lim ro'yxati.
+2. `amalWalk` — kassaning beshta massivini ham yuradi, `{kind:'kassa', bolim:'<nom>'}` joy belgisi bilan.
+3. `amalRecAdd` — `kind==='kassa'` shoxi. Notanish bo'lim qabul qilinmaydi.
+4. `amalRecRemoveById` — kassa massivlarini ham qidiradi.
+5. `_yangiId(r, loc)` — YANGI. Kassa uchun raqam TASODIFIY EMAS: `'k'+bolim+':'+(rec.id||rec.ts)`. SABAB: eski kassa yozuvlari ikkala qurilmada ham bor (eski nusxadan). Tasodifiy raqam berilsa har qurilma o'zinikiga boshqa raqam qo'yardi va bitta yozuv IKKI BAROBAR bo'lib qolardi. `ts` yaratilganda qo'yilgan — nusxalarda bir xil.
+6. `_ostImzo` — `ts`, `kategoriya`, `izoh` qo'shildi. Bularsiz bir kunda bir xil summali ikki xil chiqim EGIZAK deb qaralib, biri ikkinchisining raqamini olib qolardi.
+
+ESKI YOZUVLAR HAM CHIQADI: `_amalPushInit` faqat clouddan KELGAN yozuvlarni muhrlaydi (`set[r._id]!==undefined` sharti), shuning uchun mavjud kassa tarixi birinchi saqlashda cloudga ko'tariladi. Takrorlanish yuqoridagi 5-band bilan to'silgan.
+
+SINOV (Node, `amalWalk`/`_yangiId`/`_idTayinla`/`_amalQosh`/`amalRecAdd`/`amalRecRemoveById` haqiqiy fayldan ajratib olinib, ikki qurilma taqlid qilinib) — 12 ta tekshiruv, hammasi o'tdi: beshta bo'lim ham yuriladi; ikki qurilmadagi bir xil eski yozuv AYNI raqamni oladi; `id` yo'q bo'limda (`zlar`) raqam `ts` dan; oltin yozuvlari avvalgidek tasodifiy raqam oladi; clouddan kelgan yozuv joyiga tushadi; bir yozuv ikki marta kelsa bitta qoladi; raqamsiz egizakka raqam yopishtiriladi, nusxa qo'shilmaydi; bir xil summali boshqa kategoriyali ikki chiqim IKKALASI ham qoladi; o'chirish kassaga ham yetadi. Node sintaksis-sinovi o'tdi.
+
+TEGILMADI: kassa ko'rinishi, qoldiq hisobi, ekranlari, hisoboti; berish/vozvrat/sotuv/to'lov; Abdulhamid, POS, PDF, chek; blob tizimi (hozircha turaveradi). Saqlanadigan balans QO'SHILMADI — Ibrohim v99 da rad etgan.
+
+DIFF: 44 qo'shildi / 6 o'chirildi.
+
+APP_VER v179.12 -> v180 (1-qator ham). POS_VER 1.33 — TEGILMADI.

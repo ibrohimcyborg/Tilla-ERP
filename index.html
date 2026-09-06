@@ -1,4 +1,4 @@
-<!-- v179.12 -->
+<!-- v180 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2033,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v179.12';
+var APP_VER = 'v180';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -8291,8 +8291,25 @@ function _amalHash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.ch
 // v172.27: har yozuvga _id — SAQLASHDAN OLDIN. Avval _id faqat amalSyncPush da
 // (localStorage ga yozilgandan KEYIN) berilardi, shuning uchun saqlangan nusxa
 // _id siz qolardi va cloud nusxasi bilan taqqoslanmasdi.
+// v180: kassaning cloudga chiqadigan bo'limlari. Hammasi massiv, har yozuvning
+// o'z `id` yoki `ts` si bor.
+var KASSA_BOLIM = ['qolda','zlar','tuzatishlar','zakazlar','snabAmallar'];
+
+// v180: yozuvga cloud raqamini beradi.
+// KASSA uchun raqam TASODIFIY EMAS — yozuvning o'z `id`/`ts` sidan hisoblanadi.
+// Sabab: eski kassa yozuvlari ikkala qurilmada ham bor (eski nusxadan). Tasodifiy
+// raqam berilsa har qurilma o'zinikiga boshqa raqam qo'yadi va bitta yozuv
+// IKKI BAROBAR bo'lib qoladi. `ts` esa yaratilgan paytda qo'yilgan — nusxalarda
+// BIR XIL, shuning uchun ikkala qurilma ham ayni raqamga keladi.
+function _yangiId(r, loc){
+  if(loc && loc.kind==='kassa'){
+    var t = r.id || r.ts;
+    if(t) return 'k'+loc.bolim+':'+t;
+  }
+  return "n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
 function _idTayinla(){
-  try{ amalWalk(function(r){ if(r && !r._id) r._id="n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }); }catch(e){}
+  try{ amalWalk(function(r, loc){ if(r && !r._id) r._id=_yangiId(r, loc); }); }catch(e){}
 }
 function amalWalk(cb){
   if(!data) return;
@@ -8300,7 +8317,15 @@ function amalWalk(cb){
   A(data.zavodlar).forEach(function(z){ A(z.turlar).forEach(function(t){ A(t.tarix).forEach(function(r,i){ cb(r,{kind:'zt',zavod:z.nom,tur:t.nom},i); }); }); });
   A(data.klientlar).forEach(function(k){ A(k.tarix).forEach(function(r,i){ cb(r,{kind:'kl',klient:k.nom},i); }); });
   A(data.lomlar).forEach(function(r,i){ cb(r,{kind:'lom'},i); });
-  // data.kassa — OBYEKT (zlar/tuzatishlar/zakazlar...), massiv emas — oplogga kirmaydi, blob orqali sinxron bo'ladi.
+  // v180 (Ibrohim: «hamma qurilmada 1:1 ishlasin»): KASSA HAM OPLOGGA CHIQADI.
+  // Avval tashlab ketilgandi — `data.kassa` obyekt, massiv emas. Lekin ICHIDAGI
+  // maydonlar massiv va har yozuvning o'z `id`/`ts` si bor, ya'ni model to'g'ri edi;
+  // faqat jo'natiladiganlar ro'yxatiga kiritilmagandi. Natijada kassa bir qurilmada
+  // o'zgarsa ikkinchisiga HECH QACHON bormasdi — «birida bor, birida yo'q».
+  var K = data.kassa || {};
+  KASSA_BOLIM.forEach(function(b){
+    A(K[b]).forEach(function(r,i){ cb(r,{kind:'kassa',bolim:b},i); });
+  });
 }
 function _turKey(z,t){ return z+'||'+t; }
 // ══════════════════════════════════════════════════════════════
@@ -8448,9 +8473,13 @@ function amalSyncPush(){
 // (Ibrohim: 41.56 g berdi -> 83.12 yozildi; 5 g o'chirdi -> 10 g qo'shildi).
 function _ostImzo(op){
   if(!op) return "";
+  // v180: kassa yozuvlari ham ajralsin — ularda gramm/zavod/tur yo'q, farqi
+  // `ts` va `kategoriya`/`izoh` da. Bularsiz bir kunda bir xil summali ikki
+  // chiqim EGIZAK deb qaralib, biri ikkinchisining raqamini olib qolardi.
   return [op.tip||"", op.sana||"", op.soat||"", op.zavod||"", op.tur||"",
           op.gramm||0, op.summa||0, op.kurs||0, op.ekvivalent||0,
-          op.inventar||"", op._kdYopish?1:0, op._kdVoz?1:0, op.dona||0].join("|");
+          op.inventar||"", op._kdYopish?1:0, op._kdVoz?1:0, op.dona||0,
+          op.ts||0, op.kategoriya||"", op.izoh||""].join("|");
 }
 // Massivga qo'shishdan oldin: _id mos kelsa -> hech nima; _id siz egizak bor bo'lsa ->
 // unga _id beriladi; aks holda yangi yozuv qo'shiladi. true = massiv o'zgardi.
@@ -8480,8 +8509,13 @@ function amalRecAdd(loc, rec){
   } else if(loc.kind==='lom'){
     if(!Array.isArray(data.lomlar)) data.lomlar=[];
     _amalQosh(data.lomlar, rec);
+  } else if(loc.kind==='kassa'){                  // v180
+    if(!data.kassa) data.kassa={};
+    var b=loc.bolim;
+    if(KASSA_BOLIM.indexOf(b)<0) return;          // notanish bo'lim — qabul qilinmaydi
+    if(!Array.isArray(data.kassa[b])) data.kassa[b]=[];
+    _amalQosh(data.kassa[b], rec);
   }
-  // kassa oplogga kirmaydi (obyekt) — bu yerda ishlanmaydi
 }
 // Yozuvni _id bo'yicha qayerda bo'lsa ham olib tashlash (ostatka'ga tegmaydi)
 function amalRecRemoveById(id){
@@ -8491,6 +8525,10 @@ function amalRecRemoveById(id){
   }); });
   (data.klientlar||[]).forEach(function(k){ if(!k.tarix) return; for(var i=k.tarix.length-1;i>=0;i--){ if(k.tarix[i]._id===id){ k.tarix.splice(i,1); found=true; } } });
   if(Array.isArray(data.lomlar)) for(var i=data.lomlar.length-1;i>=0;i--){ if(data.lomlar[i]._id===id){ data.lomlar.splice(i,1); found=true; } }
+  if(data.kassa) KASSA_BOLIM.forEach(function(b){                       // v180
+    var a=data.kassa[b]; if(!Array.isArray(a)) return;
+    for(var j=a.length-1;j>=0;j--){ if(a[j]._id===id){ a.splice(j,1); found=true; } }
+  });
   return found;
 }
 // Ko'chirish/o'chirishni cloudga e'lon qilish (boshqa qurilmalar ham bajaradi)

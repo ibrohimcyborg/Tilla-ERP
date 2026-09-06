@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v179.12 · POS 1.33 · 2026-09-05
+**Oxirgi yangilanish:** v180 · POS 1.33 · 2026-09-05
 
 ---
 
@@ -297,7 +297,7 @@ hali qo'lga olinmadi.
 
 | | |
 |---|---|
-| Versiya | **`APP_VER v179.12`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
+| Versiya | **`APP_VER v180`** · **`POS_VER 1.33`**. POS ishida faqat `POS_VER` o'sadi; v179 — POS dan TASHQARIDAGI o'zgarish (cloud sozlamalari), shuning uchun `APP_VER` o'sdi. Qoida: CLAUDE.md §5 |
 | Hajm | ~19,418 qator · ~1 MB · **~311k token** |
 | Deploy | tilla-erp.vercel.app (GitHub: ibrohimcyborg) |
 | Saqlash | localStorage `tilla-v2` + Firebase Firestore `tilla_<uid>` |
