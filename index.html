@@ -1,4 +1,4 @@
-<!-- v180 -->
+<!-- v180.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2033,7 +2033,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180';
+var APP_VER = 'v180.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -8542,6 +8542,12 @@ function amalMovePush(op, newLoc){
         .catch(cloudXato);
       cloudYozuvSana(1); }catch(e){}
 }
+// v180.1 (Ibrohim: «o'chirdim, keyin qayta qo'shdim — telefonda 2 marta kirib qoldi»).
+// BU FUNKSIYA BOR EDI, LEKIN 9 TA O'CHIRISH JOYIDAN FAQAT 2 TASIDAN chaqirilardi.
+// Qolganlari yozuvni FAQAT LOKAL o'chirardi — cloudda tirik qolar, boshqa qurilma
+// uni saqlab turar edi. Qayta qo'shilsa yangi raqam olardi va o'sha qurilmada
+// IKKITA bo'lib qolardi. Qurilmalar orasidagi farq (1281 / 1298) shundan.
+// Endi hamma o'chirish joyi shu yerdan o'tadi.
 function amalDeletePush(op){
   if(!op || !op._id) return;
   // v172.30: AVVAL navbatga yoziladi — tasdiq kelmasa keyingi save() da qayta urinadi
@@ -9415,6 +9421,7 @@ function editOchir() {
   if(op.tip==='mol') t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100;
   else if(op.tip==='vozvrat') t.ostatka=Math.round((t.ostatka+op.gramm)*100)/100;
   else t.ostatka=Math.round((t.ostatka+(op.jami||0))*100)/100;
+  try{ if(typeof amalDeletePush==='function') amalDeletePush(op); }catch(e){}   // v180.1: ochirish cloudga
   t.tarix.splice(oi,1);
   save('Ochirildi | '+data.zavodlar[zi].nom+'.'+data.zavodlar[zi].turlar[ti].nom);
   closeModal('modal-edit');
@@ -9642,6 +9649,7 @@ function skidkaGrammTuzat() {
     });
     // Orqadan o'chirish
     ochiriladigan.reverse().forEach(function(oi) {
+      try{ if(typeof amalDeletePush==='function') amalDeletePush(k.tarix[oi]); }catch(e){}   // v180.1: ochirish cloudga
       k.tarix.splice(oi, 1);
       tuzatildi++;
     });
@@ -11652,7 +11660,10 @@ function kopEditSaqla() {
     _och.push(oi);
   });
   // indekslar siljimasin — kattadan kichikka o'chiriladi
-  _och.sort(function(a,b){ return b-a; }).forEach(function(oi){ k.tarix.splice(oi,1); });
+  _och.sort(function(a,b){ return b-a; }).forEach(function(oi){
+    try{ if(typeof amalDeletePush==='function') amalDeletePush(k.tarix[oi]); }catch(e){}   // v180.1: ochirish cloudga
+    k.tarix.splice(oi,1);
+  });
 
   save();
   renderKlientHisobot();
@@ -11689,6 +11700,7 @@ function kopEditOchir() {
       data.zavodlar.forEach(function(z){ z.turlar.forEach(function(t){ if(z.nom===op.zavod&&t.nom===op.tur) t.ostatka=Math.round((t.ostatka-op.gramm)*100)/100; }); });
     }
     ochirilgan.push(op);
+    try{ if(typeof amalDeletePush==='function') amalDeletePush(op); }catch(e){}   // v180.1: ochirish cloudga
     k.tarix.splice(oi, 1);
   });
   // lomli to'lov o'chirilsa — aynan o'sha to'lovning (sana+soat) lomini ham o'chirish
@@ -19167,13 +19179,17 @@ function lomYozuvOchir(key){
   var idx = (data.lomlar||[]).findIndex(function(l){ return String(l.id)===String(key) || String(l.sana_ts)===String(key); });
   if(idx<0) return;
   var L = data.lomlar[idx];
+  try{ if(typeof amalDeletePush==='function') amalDeletePush(L); }catch(e){}   // v180.1: ochirish cloudga
   data.lomlar.splice(idx,1);
   // klient tarixidan mos lom yozuvini ham o'chirish
   if(L.klientNom){
     var k = (data.klientlar||[]).find(function(x){ return x.nom===L.klientNom; });
     if(k && k.tarix){
       var ti = k.tarix.findIndex(function(op){ return op.tip==='lom' && op.sana===L.sana && (op.soat||'')===(L.soat||'') && Math.abs((op.gramm||0)-(L.gramm||0))<0.001 && String(op.proba)===String(L.proba); });
-      if(ti>=0) k.tarix.splice(ti,1);
+      if(ti>=0){
+        try{ if(typeof amalDeletePush==='function') amalDeletePush(k.tarix[ti]); }catch(e){}   // v180.1: ochirish cloudga
+        k.tarix.splice(ti,1);
+      }
     }
   }
   save("Lom o'chirildi");

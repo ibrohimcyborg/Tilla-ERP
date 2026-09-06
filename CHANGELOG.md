@@ -5028,3 +5028,26 @@ TEGILMADI: kassa ko'rinishi, qoldiq hisobi, ekranlari, hisoboti; berish/vozvrat/
 DIFF: 44 qo'shildi / 6 o'chirildi.
 
 APP_VER v179.12 -> v180 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v180.1: O'CHIRISH CLOUDGA E'LON QILINMASDI — QURILMALAR ORASIDAGI FARQNING ILDIZI
+
+Ibrohim (rasm bilan): «tekshirish uchun Javohir Aka Jizzax vozvratini o'chirdim, keyin yana qo'shdim — telefonda 2 marta kirib qoldi». PC 13200.78 g / 1281 yozuv, telefon 13314.15 g / 1298 yozuv. Farq 113.37 g va 17 ta yozuv. «Qaysi gramm to'g'ri — Xudo biladi».
+
+ILDIZ: `amalDeletePush(op)` funksiyasi BOR EDI, lekin yozuvni o'chiradigan TO'QQIZTA joydan FAQAT IKKITASIDAN chaqirilardi (`ostRecOchir` 7793 va `klientTarixOchir` 18100; `ostRecSaqla` esa ko'chirish — `amalMovePush` bilan to'g'ri ishlagan). Qolganlari yozuvni FAQAT LOKAL o'chirardi. Cloud oplogida hujjat TIRIK qolardi, boshqa qurilma esa uni saqlab turardi — u hech qachon «o'chirildi» xabarini olmasdi.
+
+Qayta qo'shilganda yangi yozuv YANGI `_id` olardi va o'sha qurilmada IKKITA bo'lib qolardi — Ibrohim ko'rgan aynan shu (10:23 eski + 10:49 yangi).
+
+⚠ v179.12 DA O'ZIM YANA BITTASINI QO'SHGANMAN: `kopEditSaqla` dagi birlashtirish qatorlarni e'lonsiz o'chirardi.
+
+TUZATILDI — oltita joyga e'lon qo'shildi:
+`editOchir` (9418, zavod tarixi) · `skidkaGrammTuzat` (9645) · `kopEditSaqla` (11655, v179.12 birlashtirish) · `kopEditOchir` (11692 — Ibrohim aynan shuni bosgan) · `lomYozuvOchir` ikki joyda (lom yozuvining o'zi va klientdagi juftligi).
+
+`kursTarixDelete` (2694) ATAYLAB tegilmadi — kurs tarixi oplogda emas (`amalWalk` uni yurmaydi).
+
+QAMROV TEKSHIRILDI: `.tarix.splice` / `.lomlar.splice` qidirilib, har biri uchun e'lon bor-yo'qligi o'lchandi — 9 ta joydan 9 tasi ham qoplangan (7 ta `amalDeletePush`, 1 ta `amalMovePush`, 1 tasi listener ichida — clouddan kelgan o'chirish, e'lon shart emas).
+
+SINOV (Node, `amalDeletePush`/`_ochirNavQayta`/`_ochirNavOl`/`_ochirNavSaqla`/`amalRecRemoveById` haqiqiy fayldan ajratib, soxta localStorage va cloud bilan) — 12 ta tekshiruv, hammasi o'tdi: o'chirish cloudga `deleted:true` bilan yoziladi; internet yo'q bo'lsa navbatda qoladi va cloudga yozilmaydi; internet kelganda navbat o'zi ketadi; ikkinchi qurilma o'chirishni qo'llaydi; kassa yozuvi ham topilib o'chiriladi. Node sintaksis-sinovi o'tdi.
+
+⚠ ESKI FARQ O'ZI TUZALMAYDI: bu tuzatish YANGI farq paydo bo'lishini to'xtatadi. Hozir mavjud 17 ta ortiqcha yozuv qurilmada qolaveradi — endi ularni BIR MARTA o'chirsa, o'chirish hamma qurilmaga yetadi.
+
+APP_VER v180 -> v180.1 (1-qator ham). POS_VER 1.33 — TEGILMADI.
