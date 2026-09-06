@@ -14,6 +14,22 @@ Prod: tilla-erp.vercel.app
 2. `index.html` ning 1-qatoridagi versiyani va `APP_VER` o'zgaruvchisini
    solishtir. Mos kelmasa Ibrohimga ayt, o'zing tuzatma.
 3. **`CHANGELOG.md` ni O'QIMA.** U faqat arxiv — yozasan, o'qimaysan.
+4. **Kod haqidagi haqiqat — kodning O'ZI.** Hujjat eskiradi, kod eskirmaydi.
+   `DAVOM.md` ham, bu fayl ham noto'g'ri bo'lishi mumkin — shubha bo'lsa
+   `grep` bilan kodni och. Hujjatga tayanib xulosa chiqarma.
+
+---
+
+## 0.2. ISH QOIDALARI
+
+- **Javoblar o'zbek tilida.**
+- **Workflow / ko'p agent / worktree ISHLATILMAYDI.** Bitta faylli loyihada
+  keraksiz va qimmat. Ular ikkinchi `index.html`, ikkinchi `CHANGELOG.md`
+  qoldiradi — keyingi seans o'shani o'qib eski holatga qarab qoladi.
+  Ibrohim (2026-09-05): *«juda ezvordi, shuning uchun orqaga qarab ezding»*.
+  Agar qolib ketgan worktree ko'rsang — Ibrohimga ayt, o'zing o'chirma
+  (ichida main'da yo'q commit bo'lishi mumkin).
+- **Bir vaqtda BITTA o'zgarish, bitta javob.**
 
 ---
 

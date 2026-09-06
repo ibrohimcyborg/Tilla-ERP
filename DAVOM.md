@@ -120,6 +120,34 @@ Haqiqiy holat: «Diamond · Polimer» da 8.49 g vozvrat qilingan, dasturga
 - **Butun chekni o'chirish KERAK EMAS**, faqat ichidagi qatorlar. Chek allaqachon
   chiqib ketgan bo'ladi, keyin mijoz bilan tuzatib yangi chek chiqariladi
 
+## 💾 SAQLANGAN ISH — SKAN TUZATISHI (yozilgan, main'da YO'Q)
+
+**Skan xatosi:** skan kirim/chiqim va ostatka tekshiruvida o'zidan-o'zi
+`1.00` va `0.01` qo'shilib qoladi. **Kodda hali TURIBDI — tuzatilmagan.**
+
+Tuzatish **yozilgan va sinalgan**, lekin main'ga tushmagan — boshqa sabab
+bilan hamma narsa v179.5 ga qaytarilganda u ham ketgan. Commit saqlanib qolgan:
+
+```
+shox:    claude/jovial-khayyam-9d339a
+commit:  d74df82  «v179.6 — skan: soxta gramm rad etiladi (1.00 / 0.01)»
+ko'rish: git show d74df82
+```
+
+Ichida: `skParseGram` qat'iy naqshga o'tkazilgan (`^[+-]?\d{1,5}([.,]\d{1,3})?$`,
+oxiridagi `g`/`gr`/`gramm` tashlanadi, noto'g'ri bo'lsa `null`), rad etilganda
+ko'rinadigan qizil xabar, va `+`/`-` tugmalari tuzatilgan (shtrix ichidagi tire
+oldingi qatorni o'chirmasin).
+
+⚠ **Noldan yozma** — avval `git show d74df82` bilan ko'r. Lekin ko'r-ko'rona
+ham qo'llama: fayl o'shandan beri o'zgargan, va Ibrohimning hozirgi so'zi
+eski commitdan ustun.
+
+⚠ O'sha shoxdagi ikkinchi commit (`b53b473`, PDF) — **kerak emas**, u qayta
+yozilib main'ga tushgan.
+
+---
+
 ## 🔴 BIRINCHI ISH — CLOUD POYDEVORI (Ibrohim qarori, 2026-09-05)
 
 **Ibrohim:** «fundamentni to'g'ri qilmasak ertaga POS qanaqasiga to'g'ri ishlaydi —
