@@ -1,4 +1,4 @@
-<!-- v180.1 -->
+<!-- v180.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1989,6 +1989,9 @@ body.rol-hamid .hamid-x { display: none !important; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- v180.2: qarz va narx hisobi hisob.js ga chiqarildi. index.html va
+     pos.html IKKALASI ham shuni yuklaydi — nusxa yo'q, raqam ajralmaydi. -->
+<script src="hisob.js"></script>
 <script>
 // ═══════════ TEST REJIMI (sandbox) ═══════════
 // 'test' logini bilan kirilganda BARCHA localStorage kalitlar TEST- prefiks bilan
@@ -2033,7 +2036,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180.1';
+var APP_VER = 'v180.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2461,12 +2464,12 @@ function save(logText) {
   if (typeof cloudSaqla === 'function') cloudSaqla();
 }
 
-function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
-function fmtG(g) { var v=parseFloat(g); return (v<0?'-':'')+Math.abs(v).toFixed(2); }
-function fmtD(d) { return parseFloat(d).toLocaleString('en-US', {maximumFractionDigits:2}); }
+
+
+
 function nowSoat() { var n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
-function today() { return new Date().toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}); }
-function roundG(v) { return Math.round(v * 100) / 100; }
+
+
 function nowDate() { var n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
 var curZ = -1, openTurIdx = -1, curHomeTab = 'zavodlar', curZTab = 'turlar';
 
@@ -7464,51 +7467,11 @@ function _qoEsc(s){
 //   zavod tarixi:  mol +g · vozvrat −g · inventar(tuzatish) ±g
 //   klient tarixi: berish −g · vozvrat +g   (faqat g>0, boshlangich KIRMAYDI)
 //   to'lov / pul — omborga tegmaydi, 0 qaytadi
-function _ostDelta(op, klientTomon){
-  if(!op) return 0;
-  var g = parseNum(op.gramm);
-  if(klientTomon){
-    if(!op.zavod || !op.tur) return 0;
-    if(op.tip!=='berish' && op.tip!=='vozvrat') return 0;
-    if(op.inventar==='boshlangich') return 0;   // zavoddan chiqmagan
-    if(!(g > 0)) return 0;                      // manfiy berish — pul-asosli, omborga tegmaydi
-    return (op.tip==='berish') ? -g : g;
-  }
-  if(op.tip!=='mol' && op.tip!=='vozvrat') return 0;
-  if(!g) return 0;
-  if(op.inventar) return (op.tip==='vozvrat' ? -g : g);   // shakllantirish / tekshiruv tuzatishi
-  return (op.tip==='mol') ? g : -g;
-}
+
 // Har zavod·tur uchun HOZIRGI ombor qoldig'i — bitta o'tishda. Kalit: zavod \0 tur.
-var _ostKesh = null;   // v172.26: bir renderda qayta-qayta sanamaslik uchun
-function turOstKeshTozala(){ _ostKesh = null; }
-function turOstMap(){
-  if(_ostKesh) return _ostKesh;
-  var m = {};
-  (data.zavodlar||[]).forEach(function(z){
-    (z.turlar||[]).forEach(function(t){
-      var key = z.nom+'||'+t.nom, s = 0;
-      (t.tarix||[]).forEach(function(op){ s += _ostDelta(op, false); });
-      m[key] = s;
-    });
-  });
-  (data.klientlar||[]).forEach(function(k){
-    (k.tarix||[]).forEach(function(op){
-      var d = _ostDelta(op, true);
-      if(!d) return;
-      var key = op.zavod+'||'+op.tur;
-      m[key] = (m[key]||0) + d;
-    });
-  });
-  Object.keys(m).forEach(function(key){ m[key] = roundG(m[key]); });
-  _ostKesh = m;
-  return m;
-}
+
 // Bitta zavod·tur uchun (xarita tuzish shart bo'lmaganda)
-function turOst(zNom, tNom){
-  var m = turOstMap();
-  return m[zNom+'||'+tNom] || 0;
-}
+
 function qoldData(){
   var dv = qoldDavr();
 
@@ -9861,9 +9824,7 @@ function klientQarzHolat(k) {
 // o'qirdi, natijada bir klientga uch xil raqam chiqardi (Madina Opa: ro'yxat
 // 0.66g / berish qidiruvi 0.66g / klient ekrani 0.00g).
 // klientQarzSplit O'CHIRILMADI — u 5063 va 5352 da zavod filtri bilan ishlatiladi.
-function klientJamiQarz(k) {
-  return _qarzJamiRows(_qarzTarkibRows(k)).ostatka;
-}
+
 
 // Klient qarzi va bizning qarzimizni alohida hisoblaydi
 function klientQarzSplit(k, zavodFilter) {
@@ -9899,13 +9860,7 @@ function klientQarzSplit(k, zavodFilter) {
   if (bizQarzi < 0) bizQarzi = 0;
   return { klientQarzi: klientQarzi, bizQarzi: bizQarzi };
 }
-function klientJamiSavdo(k) {
-  var g=0,pul=0;
-  k.tarix.forEach(function(op){
-    if(op.tip==='tolov' && !op._kdYopish) { g+=(op.ekvivalent||0); pul+=op.summa||0; }
-  });
-  return {g:Math.round(g*100)/100, pul:Math.round(pul*100)/100};
-}
+
 
 function klientTab(tab) {
   ['kt-top','kt-qizil','kt-hisobot','kt-kassa'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.toggle('active',id==='kt-'+tab);});
@@ -15939,36 +15894,9 @@ function _kursChipUpd(pre){
   e.textContent = k ? fmtD(k) : '\u2014';
   e.style.color = k ? 'var(--gold)' : 'var(--muted)';
 }
-function getKatNarx(zi, ti, ki) {
-  var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
-  if (!kurs) return '';
-  // v172.23: klient yozuvidagi kat emas — shu amal uchun tanlangan kategoriya (doim A dan boshlanadi)
-  var kat = _aktivKat || 'A';
-  if (kat === 'A' || kat === 'B') {
-    // A: kurs + A%,  B: kurs + A% + ustama
-    var aManual = JSON.parse(localStorage.getItem('tilla-a-manual-'+zi) || '{}');
-    var aFoizlar = JSON.parse(localStorage.getItem('tilla-a-foiz-'+zi) || '{}');
-    var aNarx = aManual[ti] ? aManual[ti] : ((parseFloat(aFoizlar[ti])||0) > 0 ? Math.round(kurs*(1+parseFloat(aFoizlar[ti])/100)*10)/10 : '');
-    if (!aNarx) aNarx = getZavodNarx(zi, ti); // fallback
-    if (kat === 'B' && aNarx) {
-      var bUst = parseFloat(localStorage.getItem('tilla-b-ust') || '0') || 0;
-      return bUst > 0 ? Math.round((parseFloat(aNarx)+bUst)*10)/10 : aNarx;
-    }
-    return aNarx;
-  }
-  // C: qo'lda narx kiritiladi — bo'sh qoladi
-  return '';
-}
 
-function getZavodNarx(zi, ti) {
-  var kurs = parseFloat(localStorage.getItem('tilla-kurs-bugun') || '0');
-  if (!kurs) return '';
-  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
-  if (manual[ti]) return manual[ti];
-  var foizlar = JSON.parse(localStorage.getItem('tilla-foiz-'+zi) || '{}');
-  var pct = foizlar[ti] !== undefined ? parseFloat(foizlar[ti]) || 0 : 0;
-  return pct > 0 ? Math.round(kurs*(1+pct/100)*10)/10 : '';
-}
+
+
 
 function kSotuvRenderTolov() {
   // Mavjud inputlar qiymatlarini saqlab qo'yamiz
@@ -18141,85 +18069,15 @@ document.addEventListener('click', function(e) {
 // funksiya) o'qirdi va o'z qatorlariga mos kelmasdi — 641.83 vs 638.61.
 // Endi ekran, termal chek va PDF — hammasi SHU manbadan, ya'ni ko'rsatilayotgan
 // qatorlarning o'zidan hisoblanadi.
-function _qarzJamiRows(qarz_tarkib){
-  var ost=0, biz=0;
-  (qarz_tarkib||[]).forEach(function(b){
-    if(b.qarz>0) ost+=b.qarz; else biz+=-b.qarz;
-  });
-  return {ostatka:Math.round(ost*100)/100, bizQarz:Math.round(biz*100)/100};
-}
+
 // v175.2: hisob-kitob ALOHIDA funksiyaga chiqarildi — klientJamiQarz ham SHUNDAN
 // o'qiydi. Avval u klientQarzSplit (9658) dan o'qirdi va u to'rt joyda boshqacha
 // hisoblardi (manfiy berish, offset, sdacha, turi yo'q to'lov umumiy qopga ketardi).
 // Natijada Madina Opa: ro'yxatda 0.66g, klient ekranida 0.00g chiqardi.
 // ⚠ _qarzTarkib oxirida klientJamiQarz ni chaqiradi — shuning uchun klientJamiQarz
 // _qarzTarkib ni EMAS, shu funksiyani chaqirishi shart (aks holda cheksiz halqa).
-function _qarzTarkibRows(k) {
-  var qbd={};
-  var naqtTolov=0; // zavod/tur siz to'lovlar yig'indisi
-  k.tarix.forEach(function(op){
-    if(op.tip==='berish'&&op.zavod&&op.tur){
-      var key=op.zavod+'||'+op.tur;
-      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      qbd[key].qarz+=op.gramm;
-    } else if(op.tip==='vozvrat'&&op.zavod&&op.tur){
-      var key=op.zavod+'||'+op.tur;
-      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      qbd[key].qarz-=op.gramm;
-    } else if(op.tip==='tolov'&&!op._kdYopish){
-      if(op.zavod&&op.tur){
-        var key=op.zavod+'||'+op.tur;
-        if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-        qbd[key].qarz-=(op.ekvivalent||0);
-      } else {
-        naqtTolov+=(op.ekvivalent||0);
-      }
-    } else if(op.tip==='tolov'&&op._kdYopish&&op.zavod&&op.tur){
-      var key=op.zavod+'||'+op.tur;
-      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      qbd[key].qarz+=(op.ekvivalent||0);
-    } else if(op.tip==='klientda'&&op.zavod&&op.tur){
-      // v171.3: sdacha (klientda) yozuvi shu paytgacha bu yerda umuman qayta
-      // ishlanmasdi — shuning uchun "Qarz tarkibi" da turi bilan KO'RINMASDI,
-      // faqat yuqoridagi umumiy "bizning qarz" raqamiga jim qo'shilardi.
-      // Yozuvda zavod/tur allaqachon saqlanadi (tarixda "↩ Butterfly · Oddiy"
-      // deb chiqadi), endi taqsimotda ham o'sha tur ostiga tushadi.
-      // Manfiyga o'tsa panel uni "↩ biz qarzdor" deb yashil ko'rsatadi.
-      // Jami qarz alohida hisoblanadi (klientJamiQarz) — unga ta'sir qilmaydi.
-      var key=op.zavod+'||'+op.tur;
-      if(!qbd[key]) qbd[key]={zavod:op.zavod,tur:op.tur,qarz:0};
-      qbd[key].qarz-=op.gramm;
-    }
-  });
-  // naqtTolov ni turlar bo'yicha proportsional ayirish
-  if(naqtTolov>0){
-    var jamiPos=Object.values(qbd).reduce(function(a,b){return a+(b.qarz>0?b.qarz:0);},0);
-    if(jamiPos>0.001){
-      var qoldi=naqtTolov;
-      var keys=Object.keys(qbd).filter(function(k){return qbd[k].qarz>0;});
-      keys.forEach(function(key,i){
-        if(i===keys.length-1){
-          qbd[key].qarz=Math.max(0,Math.round((qbd[key].qarz-qoldi)*100)/100);
-        } else {
-          var pay=Math.round(naqtTolov*(qbd[key].qarz/jamiPos)*100)/100;
-          pay=Math.min(pay,qbd[key].qarz);
-          qbd[key].qarz=Math.max(0,Math.round((qbd[key].qarz-pay)*100)/100);
-          qoldi=Math.round((qoldi-pay)*100)/100;
-        }
-      });
-    }
-  }
-  var qarz_tarkib=[];
-  Object.values(qbd).forEach(function(b){
-    if(Math.abs(b.qarz)>0.01) qarz_tarkib.push(b);
-  });
-  qarz_tarkib.sort(function(a,b){ return Math.abs(b.qarz)-Math.abs(a.qarz); });
-  return qarz_tarkib;
-}
-function _qarzTarkib(ki) {
-  var k=data.klientlar[ki];
-  return {k:k, qarz_tarkib:_qarzTarkibRows(k), jamiQarz:klientJamiQarz(k)};
-}
+
+
 function chekCntChange(ki, delta) {
   var el=document.getElementById('chek-cnt-'+ki);
   if(!el) return;

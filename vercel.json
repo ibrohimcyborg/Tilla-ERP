@@ -10,7 +10,7 @@
       "destination": "/api/excel.py"
     },
     {
-      "source": "/((?!api).*)",
+      "source": "/((?!api|hisob\\.js|pos\\.html).*)",
       "destination": "/index.html"
     }
   ]

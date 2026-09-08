@@ -5051,3 +5051,36 @@ SINOV (Node, `amalDeletePush`/`_ochirNavQayta`/`_ochirNavOl`/`_ochirNavSaqla`/`a
 ⚠ ESKI FARQ O'ZI TUZALMAYDI: bu tuzatish YANGI farq paydo bo'lishini to'xtatadi. Hozir mavjud 17 ta ortiqcha yozuv qurilmada qolaveradi — endi ularni BIR MARTA o'chirsa, o'chirish hamma qurilmaga yetadi.
 
 APP_VER v180 -> v180.1 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## v180.2: POS NI AJRATISH — 1-QADAM: `hisob.js`
+
+Ibrohim (2026-09-06): «POS Tilla ERP dan chiqib kelvotti, login boshqa bo'sayam. Shuni Tilla ERP dan chiqarib pos.html qilish kerak, v0.01 qilib. O'zi bu sening xatoyin — ichiga tiqvorganing.»
+
+U haq. POS `index.html` ichida `#main-pos` div sifatida yashaydi: bitta body, bitta palitra, bitta scroll, bitta tab tizimi.
+
+1-QADAM: qarz va narx hisobini `hisob.js` ga CHIQARISH. Nusxa EMAS — asl joyidan olindi, `index.html` endi uni `<script src="hisob.js">` bilan yuklaydi (1994-qator, asosiy `<script>` dan OLDIN).
+
+KO'CHIRILGANLAR (15 funksiya + kesh):
+`parseNum` `fmtG` `fmtD` `today` `roundG` — mayda yordamchilar
+`_ostKesh` + `turOstKeshTozala` — ombor keshi (turOstMap ga tegishli)
+`_ostDelta` `turOstMap` `turOst` — ombor qoldig'i tarixdan
+`klientJamiQarz` `klientJamiSavdo` `_qarzJamiRows` `_qarzTarkibRows` `_qarzTarkib` — qarz
+`getKatNarx` `getZavodNarx` — narx
+
+⚠ NEGA NUSXA EMAS: qarz funksiyalari nusxalansa raqamlar ajraladi — v177.4 da aynan shu bo'lgan (POS +557.46, ilova 559.58). Bitta manba shart.
+
+BOG'LIQLIK O'LCHANDI: `hisob.js` sahifadan faqat UCHTA narsani so'raydi — `data`, `_aktivKat`, `localStorage` (kurs kalitlari). Boshqa hech nima. Bu `pos.html` yozilganda nima e'lon qilinishi kerakligini aniq belgilaydi; izohga yozib qo'yildi.
+
+⚠ YO'L-YO'LAKAY TOPILDI: dastlab `turOstMap` `_ostKesh` ga tayanardi, u esa `index.html` da qolgandi — `hisob.js` yopiq emas edi. Node sinovida darrov chiqdi (`ReferenceError: _ostKesh is not defined`). Kesh ham ko'chirildi.
+
+`vercel.json`: rewrite naqshiga istisno — `/((?!api|hisob\.js|pos\.html).*)`. Aks holda `hisob.js` va kelajakdagi `pos.html` so'ralganda server `index.html` ni qaytarishi mumkin edi.
+
+SINOV: `node --check hisob.js` o'tdi; `index.html` Node sintaksis-sinovi o'tdi; 15 funksiyaning har biri **index.html da 0 marta, hisob.js da 1 marta** ta'riflanganligi o'lchandi (takror yo'q); `<script src="hisob.js">` asosiy `<script>` dan OLDIN turganligi tekshirildi. FUNKSIONAL: hisob.js soxta `data` bilan Node'da ishga tushirilib hisoblari tekshirildi — `parseNum('2,98')`=2.98, `fmtG(34.856)`=34.86, `turOst`=80 (100 mol − 30 berish + 10 vozvrat), `klientJamiQarz`=20, `_qarzTarkibRows`=[{Butterfly,3D,20}].
+
+TEGILMADI: funksiyalarning ICHI — bir belgi ham o'zgarmadi, faqat joyi. POS kodi, admin tomoni, Abdulhamid, kassa, PDF, chek.
+
+DIFF: index.html 20/162 (162 qator chiqdi, 20 qator izoh+teg kirdi), hisob.js yangi 193 qator, vercel.json 1/1.
+
+⏸ 1-QADAMDAN KEYIN TO'XTALDI — Ibrohim ERP ni ochib tekshiradi. Keyin 2-qadam: `pos.html` qobig'i.
+
+APP_VER v180.1 -> v180.2 (1-qator ham). POS_VER 1.33 — TEGILMADI.
