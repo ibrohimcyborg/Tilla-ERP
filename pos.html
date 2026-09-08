@@ -1,0 +1,433 @@
+<!-- v0.01 -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tilla POS</title>
+<style>
+:root{
+  --bg:#EEF1F7; --card:#FFFFFF; --line:#DDE3EC; --line2:#EAEEF4;
+  --ink:#0F1B33; --muted:#66748C;
+  --blue:#3B6FE0; --blue-soft:#E7EEFC;
+  --red:#D14A2E; --red-soft:#FBEAE5;
+  --green:#1E7A4C; --green-soft:#E4F2EA;
+  --r:999px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+button,input{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+[hidden]{display:none!important}
+
+/* ───────── login ───────── */
+#login{
+  position:fixed;inset:0;background:var(--bg);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.lbox{width:100%;max-width:360px}
+.lbrand{text-align:center;margin-bottom:26px}
+.lbrand .n{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.lbrand .s{font-size:12.5px;color:var(--muted);margin-top:3px;letter-spacing:.14em;text-transform:uppercase}
+.lcard{background:var(--card);border-radius:22px;padding:22px;box-shadow:0 8px 30px rgba(15,27,51,.07)}
+.ltitle{font-size:14px;font-weight:700;margin-bottom:14px}
+.fld{
+  width:100%;padding:14px 16px;border-radius:var(--r);border:1.5px solid var(--line);
+  background:#F7F9FC;margin-bottom:10px;outline:none;
+}
+.fld:focus{border-color:var(--blue);background:#fff}
+.go{
+  width:100%;padding:14px;border-radius:var(--r);background:var(--blue);color:#fff;
+  font-weight:700;font-size:15px;margin-top:4px;
+}
+.go:disabled{opacity:.5}
+.err{color:var(--red);font-size:13px;min-height:19px;text-align:center;margin-top:8px}
+.lnote{font-size:12px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6}
+.badge{
+  display:inline-block;background:var(--red-soft);color:var(--red);border-radius:var(--r);
+  padding:3px 11px;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:14px;
+}
+
+/* ───────── shell ───────── */
+#app{display:none;flex-direction:column;height:100%}
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(10px + var(--safe-top)) 16px 10px;background:var(--card);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;
+}
+.top .b{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.top .b em{font-style:normal;color:var(--muted);font-weight:600;font-size:11px;margin-left:7px;letter-spacing:.1em}
+.tright{display:flex;align-items:center;gap:8px}
+.chip{
+  display:flex;align-items:center;gap:6px;background:#F2F5FA;border:1px solid var(--line);
+  border-radius:var(--r);padding:6px 12px;font-size:12px;font-weight:600;color:var(--muted);
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#C3CBD8}
+.dot.ok{background:var(--green)} .dot.no{background:var(--red)} .dot.wait{background:#D9A93F}
+.icb{width:34px;height:34px;border-radius:50%;background:#F2F5FA;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+.body{flex:1;overflow-y:auto;padding:14px 16px calc(20px + var(--safe-bot));-webkit-overflow-scrolling:touch}
+
+.search{
+  width:100%;padding:13px 16px;border-radius:var(--r);border:1.5px solid var(--line);
+  background:var(--card);margin-bottom:12px;outline:none;
+}
+.search:focus{border-color:var(--blue)}
+
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sc{background:var(--card);border-radius:16px;padding:13px 15px}
+.sc .l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sc .v{font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.02em}
+.sc .v.red{color:var(--red)} .sc .v.green{color:var(--green)}
+
+.klist{display:flex;flex-direction:column;gap:8px}
+.kl{
+  display:flex;align-items:center;gap:12px;background:var(--card);
+  border-radius:16px;padding:12px 15px;text-align:left;width:100%;
+}
+.kl:active{background:#F5F8FC}
+.av{
+  width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--blue);
+  flex:0 0 auto;font-size:16px;
+}
+.kl .nm{flex:1;min-width:0}
+.kl .nm .n1{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kl .nm .n2{font-size:12px;color:var(--muted);margin-top:1px}
+.kl .q{text-align:right;flex:0 0 auto}
+.kl .q .g{font-weight:800;font-size:15px}
+.kl .q .g.red{color:var(--red)} .kl .q .g.green{color:var(--green)} .kl .q .g.zero{color:var(--muted)}
+.kl .q .t{font-size:10.5px;color:var(--muted);margin-top:1px}
+
+.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px}
+
+/* ───────── klient oynasi ───────── */
+#kmodal{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column}
+.khd{
+  display:flex;align-items:center;gap:12px;padding:calc(12px + var(--safe-top)) 16px 12px;
+  background:var(--card);border-bottom:1px solid var(--line);
+}
+.back{width:36px;height:36px;border-radius:50%;background:#F2F5FA;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.khd .t{flex:1;min-width:0}
+.khd .t .n{font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.khd .t .s{font-size:12px;color:var(--muted)}
+.kbody{flex:1;overflow-y:auto;padding:14px 16px calc(20px + var(--safe-bot))}
+.big{background:var(--card);border-radius:18px;padding:18px;text-align:center;margin-bottom:12px}
+.big .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.big .v{font-size:34px;font-weight:800;margin-top:4px;letter-spacing:-.03em}
+.big .v.red{color:var(--red)} .big .v.green{color:var(--green)} .big .v.zero{color:var(--muted)}
+.sec{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:16px 0 8px 4px}
+.qrow{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:var(--card);border-radius:14px;padding:12px 15px;margin-bottom:7px;
+}
+.qrow .z{font-size:14px;font-weight:600}
+.qrow .z span{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.qrow .g{font-weight:800;font-size:15px}
+.qrow .g.red{color:var(--red)} .qrow .g.green{color:var(--green)} .qrow .g.zero{color:var(--muted)}
+.ro{
+  background:var(--blue-soft);border-radius:14px;padding:12px 15px;font-size:13px;
+  color:var(--blue);text-align:center;font-weight:600;margin-top:14px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════ LOGIN ═════════ -->
+<div id="login">
+  <div class="lbox">
+    <div class="lbrand">
+      <div class="n">⬡ TILLA POS</div>
+      <div class="s">planshet kassa</div>
+    </div>
+    <div class="lcard">
+      <div style="text-align:center"><span class="badge">SINOV XONASI</span></div>
+      <div class="ltitle" id="lstep-t">Kirish</div>
+
+      <div id="step1">
+        <input class="fld" id="lu" placeholder="Login" autocomplete="off" autocapitalize="none">
+        <input class="fld" id="lp" type="password" placeholder="Parol">
+        <button class="go" id="lbtn">Kirish</button>
+      </div>
+
+      <div id="step2" hidden>
+        <input class="fld" id="fe" placeholder="Cloud pochta" autocomplete="off" autocapitalize="none" inputmode="email">
+        <input class="fld" id="fp" type="password" placeholder="Cloud parol">
+        <button class="go" id="fbtn">Cloudga ulanish</button>
+      </div>
+
+      <div class="err" id="lerr"></div>
+    </div>
+    <div class="lnote" id="lnote">Bu sahifa faqat <b>o'qiydi</b>.<br>Hech qanday yozuv yubormaydi.</div>
+  </div>
+</div>
+
+<!-- ═════════ ILOVA ═════════ -->
+<div id="app">
+  <div class="top">
+    <div class="b">⬡ TILLA POS<em id="ver">v0.01</em></div>
+    <div class="tright">
+      <div class="chip"><span class="dot" id="cdot"></span><span id="ctxt">ulanmoqda</span></div>
+      <button class="icb" id="chiq" title="Chiqish">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="sum">
+      <div class="sc"><div class="l">Klientlar</div><div class="v mono" id="s-kl">—</div></div>
+      <div class="sc"><div class="l">Klientda</div><div class="v mono red" id="s-qz">—</div></div>
+    </div>
+    <input class="search" id="q" placeholder="Klient qidirish…" autocomplete="off">
+    <div class="klist" id="list"></div>
+  </div>
+</div>
+
+<!-- ═════════ KLIENT ═════════ -->
+<div id="kmodal">
+  <div class="khd">
+    <button class="back" id="kback"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="t"><div class="n" id="k-nom">—</div><div class="s" id="k-tel"></div></div>
+  </div>
+  <div class="kbody" id="k-body"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Qarz va narx hisobi — index.html BILAN BITTA fayl. Nusxa yo'q, raqam ajralmaydi. -->
+<script src="hisob.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// TILLA POS — v0.01
+//
+// Ibrohim (2026-09-06): «POS Tilla ERP dan chiqib kelvotti... shuni chiqarib
+// pos.html qilish kerak, v0.01 qilib». Bu o'sha fayl.
+//
+// ⚠ KAFOLAT — SHU BOSQICHDA:
+//   1. Bu sahifa FAQAT O'QIYDI. Kodda cloudga yozadigan birorta yo'l yo'q —
+//      `.set(`, `.add(`, `.update(`, `.delete(` umuman ishlatilmagan.
+//   2. SINOV XONASI QOTIRILGAN — `SANDBOX` o'zgarmas, boshqa bazaga borish
+//      yo'li yo'q. Haqiqiy ma'lumotga jismonan tegolmaydi.
+//   3. `index.html` ga bir belgi ham tegilmagan. `hisob.js` ham o'zgarmagan —
+//      u index.html bilan BITTA fayl, shuning uchun qarz raqamlari ajralmaydi.
+//
+// Bog'liqligi: `hisob.js` sahifadan `data`, `_aktivKat`, `localStorage` ni
+// so'raydi — uchalasi ham quyida beriladi.
+// ══════════════════════════════════════════════════════════════
+
+var POS_VER = 'v0.01';
+
+// ── SINOV XONASI — QOTIRILGAN ──────────────────────────────
+// Bu qator o'zgartirilmaguncha haqiqiy bazaga borish YO'LI YO'Q.
+var SANDBOX = 'TEST';
+// ───────────────────────────────────────────────────────────
+
+var CREDS = [{ login:'test', parol:'test123' }];
+
+var FB = {
+  apiKey: "AIzaSyAfZ45TmFvDRIOos19eG8msyiDFTJuc0PE",
+  authDomain: "tilla-erp-8b357.firebaseapp.com",
+  projectId: "tilla-erp-8b357",
+  storageBucket: "tilla-erp-8b357.firebasestorage.app",
+  messagingSenderId: "876933095476",
+  appId: "1:876933095476:web:a9fbf2c66fb496be0baa61"
+};
+
+// hisob.js SHULARNI so'raydi
+var data = { zavodlar: [], klientlar: [], lomlar: [], kassa: {} };
+var _aktivKat = 'A';
+
+var db = null, user = null, _kiritilgan = false;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function kol(){ return SANDBOX + '_tilla_' + (user ? user.uid : 'x'); }
+
+function holat(tur, matn){
+  var d = $('cdot'), t = $('ctxt');
+  d.className = 'dot' + (tur ? ' ' + tur : '');
+  t.textContent = matn;
+}
+function xato(m){ $('lerr').textContent = m || ''; }
+
+// ═════════ 1-QADAM: ilova logini ═════════
+$('lbtn').addEventListener('click', function(){
+  var u = $('lu').value.trim().toLowerCase(), p = $('lp').value;
+  var mos = CREDS.filter(function(c){ return c.login === u && c.parol === p; })[0];
+  if (!mos){ xato('Login yoki parol notogri'); return; }
+  xato('');
+  _kiritilgan = true;
+  try{ localStorage.setItem('pos-kirdi','1'); }catch(e){}
+  fbBoshla();
+});
+$('lp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('lbtn').click(); });
+
+// ═════════ 2-QADAM: Firebase ═════════
+function fbBoshla(){
+  try{
+    if (!firebase.apps.length) firebase.initializeApp(FB);
+    db = firebase.firestore();
+  }catch(e){ xato('Firebase ishga tushmadi'); return; }
+
+  firebase.auth().onAuthStateChanged(function(u){
+    if (!_kiritilgan) return;
+    if (u){
+      user = u;
+      $('login').style.display = 'none';
+      $('app').style.display = 'flex';
+      holat('wait', 'yuklanmoqda');
+      yukla();
+    } else {
+      $('step1').hidden = true;
+      $('step2').hidden = false;
+      $('lstep-t').textContent = 'Cloud hisobi';
+      $('lnote').innerHTML = 'Ma\'lumot Tilla ERP cloudidan olinadi.<br>Bir marta kiritiladi — keyin eslab qoladi.';
+      xato('');
+      setTimeout(function(){ $('fe').focus(); }, 60);
+    }
+  });
+}
+
+$('fbtn').addEventListener('click', function(){
+  var em = $('fe').value.trim(), pa = $('fp').value;
+  if (!em || !pa){ xato('Pochta va parolni kiriting'); return; }
+  var b = $('fbtn'); b.disabled = true; b.textContent = '...';
+  firebase.auth().signInWithEmailAndPassword(em, pa)
+    .then(function(){ b.disabled = false; b.textContent = 'Cloudga ulanish'; xato(''); })
+    .catch(function(){ b.disabled = false; b.textContent = 'Cloudga ulanish'; xato('Pochta yoki parol notogri'); });
+});
+$('fp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('fbtn').click(); });
+
+// ═════════ CLOUDDAN O'QISH — faqat get(), yozuv YO'Q ═════════
+function yukla(){
+  db.collection(kol()).doc('holat').get().then(function(d){
+    if (!d.exists){ holat('no', 'baza bo\'sh'); chiz(); return; }
+    var meta = d.data() || {};
+    var n = meta.bolak || 1, oq = [];
+    for (var i = 0; i < n; i++) oq.push(db.collection(kol()).doc('holat_b' + i).get());
+    return Promise.all(oq).then(function(docs){
+      var j = '';
+      for (var i = 0; i < docs.length; i++){
+        if (!docs[i].exists) throw new Error('bolak ' + i + ' yo\'q');
+        j += docs[i].data().j;
+      }
+      var yangi = JSON.parse(j);
+      data = yangi;
+      if (!data.zavodlar) data.zavodlar = [];
+      if (!data.klientlar) data.klientlar = [];
+      if (typeof turOstKeshTozala === 'function') turOstKeshTozala();
+      holat('ok', 'sinxron');
+      chiz();
+    });
+  }).catch(function(e){
+    holat('no', 'o\'qilmadi');
+    console.error('yukla:', e);
+  });
+}
+
+// ═════════ RO'YXAT ═════════
+function qarzi(k){
+  try{ return (typeof klientJamiQarz === 'function') ? klientJamiQarz(k) : 0; }
+  catch(e){ return 0; }
+}
+function bosh(n){ return String(n || '?').trim().charAt(0).toUpperCase(); }
+function gr(v){ return (v < 0 ? '-' : '') + Math.abs(v).toFixed(2); }
+
+function chiz(){
+  var q = ($('q').value || '').trim().toLowerCase();
+  var kl = (data.klientlar || []).slice();
+  var jami = 0;
+  kl.forEach(function(k){ jami += qarzi(k); });
+  $('s-kl').textContent = kl.length;
+  $('s-qz').textContent = gr(jami) + ' g';
+
+  if (q) kl = kl.filter(function(k){
+    return String(k.nom || '').toLowerCase().indexOf(q) >= 0 ||
+           String(k.tel || '').indexOf(q) >= 0;
+  });
+  kl.sort(function(a, b){ return qarzi(b) - qarzi(a); });
+
+  if (!kl.length){
+    $('list').innerHTML = '<div class="empty">' + (q ? 'Topilmadi' : 'Klient yo\'q') + '</div>';
+    return;
+  }
+  var h = '';
+  kl.forEach(function(k){
+    var qq = qarzi(k);
+    var kl2 = qq > 0.001 ? 'red' : (qq < -0.001 ? 'green' : 'zero');
+    var bel = qq > 0.001 ? '-' : (qq < -0.001 ? '+' : '');
+    h += '<button class="kl" data-nom="' + esc(k.nom) + '">'
+       + '<span class="av">' + esc(bosh(k.nom)) + '</span>'
+       + '<span class="nm"><span class="n1">' + esc(k.nom) + '</span>'
+       + '<span class="n2">' + esc(k.tel || 'nomer yo\'q') + '</span></span>'
+       + '<span class="q"><span class="g ' + kl2 + '">' + bel + Math.abs(qq).toFixed(2) + '</span>'
+       + '<span class="t">gramm</span></span></button>';
+  });
+  $('list').innerHTML = h;
+  Array.prototype.forEach.call($('list').querySelectorAll('.kl'), function(b){
+    b.addEventListener('click', function(){ klientOch(b.getAttribute('data-nom')); });
+  });
+}
+$('q').addEventListener('input', chiz);
+
+// ═════════ KLIENT OYNASI ═════════
+function klientOch(nom){
+  var k = (data.klientlar || []).filter(function(x){ return x.nom === nom; })[0];
+  if (!k) return;
+  $('k-nom').textContent = k.nom;
+  $('k-tel').textContent = k.tel || '';
+
+  var qq = qarzi(k);
+  var kl = qq > 0.001 ? 'red' : (qq < -0.001 ? 'green' : 'zero');
+  var bel = qq > 0.001 ? '-' : (qq < -0.001 ? '+' : '');
+  var h = '<div class="big"><div class="l">' + (qq < -0.001 ? 'Biz qarzdormiz' : 'Klient qarzi') + '</div>'
+        + '<div class="v mono ' + kl + '">' + bel + Math.abs(qq).toFixed(2) + ' g</div></div>';
+
+  var rows = [];
+  try{ if (typeof _qarzTarkibRows === 'function') rows = _qarzTarkibRows(k) || []; }catch(e){}
+  rows = rows.filter(function(r){ return Math.abs(r.qarz || 0) > 0.001; });
+  if (rows.length){
+    h += '<div class="sec">Qarz tarkibi</div>';
+    rows.forEach(function(r){
+      var v = r.qarz || 0;
+      var c = v > 0.001 ? 'red' : (v < -0.001 ? 'green' : 'zero');
+      var s = v > 0.001 ? '-' : (v < -0.001 ? '+' : '');
+      h += '<div class="qrow"><span class="z">' + esc(r.tur) + '<span>' + esc(r.zavod) + '</span></span>'
+         + '<span class="g mono ' + c + '">' + s + Math.abs(v).toFixed(2) + ' g</span></div>';
+    });
+  }
+  h += '<div class="ro">Bu bosqichda faqat ko\'rish. Amallar keyingi qadamda qo\'shiladi.</div>';
+  $('k-body').innerHTML = h;
+  $('kmodal').style.display = 'flex';
+}
+$('kback').addEventListener('click', function(){ $('kmodal').style.display = 'none'; });
+
+// ═════════ CHIQISH ═════════
+$('chiq').addEventListener('click', function(){
+  if (!confirm('Chiqilsinmi?')) return;
+  try{ localStorage.removeItem('pos-kirdi'); }catch(e){}
+  firebase.auth().signOut().then(function(){ location.reload(); });
+});
+
+// ═════════ BOSHLANISH ═════════
+$('ver').textContent = POS_VER;
+try{
+  if (localStorage.getItem('pos-kirdi') === '1'){ _kiritilgan = true; fbBoshla(); }
+  else setTimeout(function(){ $('lu').focus(); }, 80);
+}catch(e){}
+</script>
+</body>
+</html>

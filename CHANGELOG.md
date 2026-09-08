@@ -5084,3 +5084,30 @@ DIFF: index.html 20/162 (162 qator chiqdi, 20 qator izoh+teg kirdi), hisob.js ya
 ⏸ 1-QADAMDAN KEYIN TO'XTALDI — Ibrohim ERP ni ochib tekshiradi. Keyin 2-qadam: `pos.html` qobig'i.
 
 APP_VER v180.1 -> v180.2 (1-qator ham). POS_VER 1.33 — TEGILMADI.
+
+## POS v0.01 — `pos.html` TUG'ILDI (Tilla ERP dan tashqarida)
+
+Ibrohim (2026-09-06): «POS Tilla ERP dan chiqib kelvotti, login boshqa bo'sayam. Shuni chiqarib pos.html qilish kerak, v0.01 qilib. O'zi bu sening xatoyin — ichiga tiqvorganing.» Va: «kafolat bersen boshla».
+
+`pos.html` — YANGI, MUSTAQIL sahifa. `index.html` ning ichida emas: o'z `<body>` i, o'z palitrasi, o'z scrolli, o'z logini. Shuning uchun POS dan ERP ga «chiqib ketish» jismonan mumkin emas.
+
+O'Z VERSIYASI: `POS_VER = 'v0.01'`, 1-qatorda `<!-- v0.01 -->`. `APP_VER` ga TEGILMADI — Tilla ERP o'z yo'lida raqamlanadi.
+
+BERILGAN KAFOLAT — HAMMASI O'LCHANDI:
+1. **Faqat o'qiydi.** Kodda `.set(` `.add(` `.update(` `.delete(` `batch()` `arrayUnion` `serverTimestamp` — BIRORTASI yo'q (grep bilan tekshirildi; yagona uchrash — izoh matni ichida). Ya'ni cloudga yozadigan yo'l umuman qurilmagan.
+2. **Sinov xonasi qotirilgan.** `var SANDBOX = 'TEST';` — `kol()` faqat shundan `TEST_tilla_<uid>` yasaydi. Haqiqiy bazaga borish yo'li YO'Q.
+3. **`index.html` ga bir belgi ham tegilmadi.** `hisob.js` ham o'zgarmadi. `git status` bo'sh — faqat bitta yangi fayl qo'shildi (`?? pos.html`).
+
+Demak `tilla`, `admin`, `abdulhamid`, `zavod`, `test`, `kassatest` loginlari uchun HECH NARSA o'zgarmadi — ular ochadigan fayl tegilmagan.
+
+QARZ RAQAMI AJRALMAYDI: `pos.html` `hisob.js` ni yuklaydi — `index.html` bilan AYNI fayl. Nusxa yo'q. v177.4 dagi «POS +557.46 / ilova 559.58» xatosi takrorlanmaydi.
+
+ICHIDA NIMA BOR (1-bosqich): ikki qadamli kirish — ilova logini (`test`/`test123`, `CREDS` da) va Firebase hisobi (pochta/parol, brauzer eslab qoladi). Keyin clouddan `holat` + `holat_bN` bo'laklari o'qiladi (faqat `get()`), `data` ga qo'yiladi. Ekranda: klientlar soni, umumiy qarz, qidiruv, klient ro'yxati (qarz bo'yicha tartiblangan, qizil/yashil), klientga bosilsa — qarz va `_qarzTarkibRows` dan tur bo'yicha tarkib.
+
+Amallar (berish/vozvrat/sotuv/to'lov) SHU BOSQICHDA YO'Q — ular keyingi qadamda, yozish yo'li ochilganda qo'shiladi.
+
+`vercel.json` da `pos.html` istisnosi v180.2 da qo'yilgan — manzil: `tilla-erp.vercel.app/pos.html`.
+
+SINOV: pos.html script bloki sintaksis-sinovidan o'tdi; yozuv amallari yo'qligi grep bilan o'lchandi; `SANDBOX` qotirilgani tekshirildi; `index.html` va `hisob.js` ning tegilmagani `git status` bilan isbotlandi.
+
+APP_VER — TEGILMADI. POS_VER 1.33 (index.html ichidagi eski POS) — TEGILMADI, u hali o'z joyida turibdi.
