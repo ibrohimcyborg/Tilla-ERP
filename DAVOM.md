@@ -153,8 +153,9 @@ yozilib main'ga tushgan.
 | | Ish | Holat |
 |---|---|---|
 | 1 | Kassa yozuvlari cloudga (**v180**) | ✅ push qilingan |
-| 2 | O'chirish cloudga e'lon qilinadi (**v180.1**) | ✅ push qilingan, **Ibrohim sinadi: «ishlavotti»** |
-| 3 | **Farqlar ekrani** — eski divergensiyani tozalash | ⏳ **KEYINGI ISH** |
+| 2 | O'chirish cloudga e'lon qilinadi (**v180.1**) | ✅ push qilingan |
+| — | **IBROHIM TASDIQLADI (2026-09-06): «cloud hozi 1 xil ishlavotti»** | ✅ |
+| 3 | **Farqlar ekrani** — eski divergensiyani tozalash | ⏸ maket tayyor (`mockups/v180.2-farqlar.html`), lekin raqamlar mos kelgach **shoshilinch emas** |
 | 4 | Chek navbati (muddat + avtomat o'chirish olib tashlanadi, topbarda chek ikoni) | ⬜ |
 | 5 | Server vaqti (`serverTimestamp`) — soat farqi | ⬜ |
 | 6 | Oflayn navbat (`enablePersistence` — kodda YO'Q) | ⬜ |
