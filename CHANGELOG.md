@@ -5139,3 +5139,23 @@ SINOV: pos.html script bloki sintaksis-sinovidan o'tdi; `pos.html` + `hisob.js` 
 `pos.html` 929 qator. Manzil: `tilla-erp.vercel.app/pos.html`. Login `test` / `test123`, keyin Firebase hisobi.
 
 APP_VER — TEGILMADI. `index.html` ichidagi eski POS (POS 1.33) hali o'z joyida — uni o'chirish keyingi qadam, Ibrohim `pos.html` ni sinab ko'rgandan keyin.
+
+## POS v0.03 — KURS KO'RINADIGAN BO'LDI
+
+Ibrohim: «KURS nimadan oladi, hozir ko'rsatmayapti POS kurssi».
+
+SABAB: kurs zavodlar bilan birga saqlanmaydi — cloudda o'z hujjatida turadi (`sozlamalar`). Tilla ERP uni `sozListen`/`sozQollash` bilan o'qib brauzer xotirasiga yozadi (`tilla-kurs-bugun`, `tilla-lom-bugun`, `tilla-b-ust`, zavod foizlari). POS kodi va `hisob.js` dagi `getKatNarx` esa o'sha xotiradan oladi.
+
+`pos.html` bu hujjatni O'QIMASDI — zanjirning bitta halqasi yo'q edi. Telefonda faqat POS ochilgani uchun xotira bo'sh, kurs «—» bo'lib turardi.
+
+QILINDI: `kursOqi()` — ochilganda `sozlamalar` hujjati bir marta o'qiladi, ichidagi kalitlar xotiraga yoziladi. `yukla()` ma'lumotdan keyin shuni chaqiradi.
+
+Ibrohim: «jonli kerak emas, hamma jarayon Tilla ERP da tekshiriladi» — shuning uchun tinglovchi qo'shilmadi, faqat bir martalik o'qish.
+
+TEGILMADI: POS kurs paneli, `getKatNarx`, narx hisobi — kod o'zgarmadi, endi xotirada qiymat bor xolos. `index.html`, `hisob.js` — tegilmagan (`git status` bilan tekshirildi). Kursni POS dan o'zgartirish QO'SHILMADI — kassir faqat ko'radi.
+
+Kurs kelmasa ham ro'yxat chiziladi (`catch` bilan) — kurs yo'qligi POS ni to'xtatmaydi.
+
+SINOV: sintaksis o'tdi; yozuv amallari qayta sanaldi — hamon BITTA `add()`, u ham `_poschernovik` ga.
+
+POS_VER v0.02 -> v0.03 (1-qator ham). APP_VER — TEGILMADI.

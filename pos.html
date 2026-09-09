@@ -1,4 +1,4 @@
-<!-- v0.02 -->
+<!-- v0.03 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -124,7 +124,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.02';
+var POS_VER = 'v0.03';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -231,6 +231,23 @@ $('fb').addEventListener('click', function(){
 $('fp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('fb').click(); });
 
 // ═════ CLOUDDAN O'QISH ═════
+// v0.03 (Ibrohim: «POS kurssi ko'rsatmayapti»).
+// Kurs zavodlar bilan birga emas — cloudda o'z hujjatida turadi (`sozlamalar`).
+// Tilla ERP uni o'qib brauzer xotirasiga yozadi, POS kodi esa xotiradan oladi.
+// pos.html o'sha hujjatni o'qimasdi — zanjirning bitta halqasi yo'q edi va
+// kurs «—» bo'lib turardi. Endi ochilganda bir marta o'qiladi.
+// POS kurs kodiga TEGILMADI — u avvalgidek xotiradan oladi.
+// FAQAT O'QIYDI: kassir kursni o'zgartirmaydi (Ibrohim qoidasi).
+function kursOqi(){
+  return _cloudDb.collection(cloudKol()).doc('sozlamalar').get().then(function(d){
+    if(!d.exists) return;
+    var k = (d.data() || {}).k || {};
+    Object.keys(k).forEach(function(key){
+      try{ localStorage.setItem(key, k[key]); }catch(e){}
+    });
+  }).catch(function(e){ cloudXato(e); });   // kurs kelmasa ham ro'yxat chiziladi
+}
+
 function yukla(){
   _cloudDb.collection(cloudKol()).doc('holat').get().then(function(d){
     if(!d.exists){ holat('no','baza bo\'sh'); renderPOS(); return; }
@@ -246,8 +263,10 @@ function yukla(){
       if(!data.zavodlar) data.zavodlar = [];
       if(!data.klientlar) data.klientlar = [];
       if(typeof turOstKeshTozala === 'function') turOstKeshTozala();
-      holat('ok','sinxron');
-      renderPOS();
+      return kursOqi().then(function(){
+        holat('ok','sinxron');
+        renderPOS();
+      });
     });
   }).catch(function(e){ holat('no','o\'qilmadi'); cloudXato(e); });
 }
