@@ -87,6 +87,25 @@ haqiqiy faylni qidiradi (ya'ni ishlashi kerak), lekin kafolat yo'q — `pos.html
 ochilmay, o'rniga Tilla ERP chiqib qolishi mumkin. Yechim: naqshga `pos.html`
 va `hisob.js` istisnosi qo'shiladi.
 
+### ✅ BAJARILGAN QADAMLAR (2026-09-09)
+
+| | Qadam | Holat |
+|---|---|---|
+| 1 | `hisob.js` ajratish (**v180.2**) | ✅ push qilingan |
+| 2 | `pos.html` qobig'i — login, Firebase, cloud o'qish (**POS v0.01**) | ✅ push qilingan |
+| 3 | **POS ekranlarini ko'chirish** (**POS v0.02**) | ✅ commit, push kutilmoqda |
+| 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
+| 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
+
+⚠ **v0.01 da xato bo'ldi:** Claude yangi, sodda ekran yasagan edi. Ibrohim:
+«POS nega biz qilgandaka emas?» → «manga yangi Amerika ochma».
+v0.02 da uning ekranlari **o'zgartirilmasdan** ko'chirildi (51 funksiya, CSS,
+element id lari). **Yangi dizayn yasalmaydi.**
+
+⚠ **Hozir POS kodi IKKI JOYDA:** `index.html` (eski, ishlayapti) va `pos.html`
+(yangi). 4-qadamda `index.html` dan o'chiriladi — lekin faqat Ibrohim
+`pos.html` ni sinab «ishlayapti» degandan keyin.
+
 ### Qadamlar
 
 | | Qadam | Xavf | Holat |

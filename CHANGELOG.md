@@ -5111,3 +5111,31 @@ Amallar (berish/vozvrat/sotuv/to'lov) SHU BOSQICHDA YO'Q — ular keyingi qadamd
 SINOV: pos.html script bloki sintaksis-sinovidan o'tdi; yozuv amallari yo'qligi grep bilan o'lchandi; `SANDBOX` qotirilgani tekshirildi; `index.html` va `hisob.js` ning tegilmagani `git status` bilan isbotlandi.
 
 APP_VER — TEGILMADI. POS_VER 1.33 (index.html ichidagi eski POS) — TEGILMADI, u hali o'z joyida turibdi.
+
+## POS v0.02 — IBROHIMNING POS EKRANLARI `pos.html` GA KO'CHIRILDI
+
+Ibrohim (2026-09-09): «POS nega biz qilgandaka emas?» — v0.01 da Claude YANGI, sodda ekran yasagan edi. Xato: Ibrohim POS ko'rinishini uzoq ishlab chiqqan (pill tugmalar, yorug' palitra, berish ekrani, kurs paneli), Claude esa uning o'rniga boshqasini qo'ygan. Ibrohim: «boshla, manga yangi Amerika ochma».
+
+QILINDI: `index.html` dagi POS kodi **O'ZGARTIRILMASDAN** `pos.html` ga ko'chirildi. Yangi dizayn yasalmadi, bir funksiya ham qayta yozilmadi.
+
+KO'CHIRILGANLAR:
+* **51 funksiya, 664 qator** — `renderPOS` `_posRoyxat` `_posModal` `_posAmalPill` `posKursOch` `_pbOch` `_pbDraw` `posBSaqla` `posBZavod` `posBTur` `posBSavatga` va boshqalar. Aynan o'sha kod.
+* **CSS** — `index.html:265–299` dan aynan: POS palitrasi (`--bg:#EEF1F7`, `--gold:#3B6FE0`, `--red:#D14A2E`), to'liq pill shakl (`border-radius:999px !important`), `.pos-hd` / `.pos-pills` va ularning `max-width:700px` qoidasi. Ustiga `:root` bazaviy tokenlari (12-qator).
+* **Element id lari** — `#main-pos`, `#pos-list`, `#pos-ovl`, `#pb-ovl`, `#pos-kurs-ovl`, `body.rol-pos`. Kod ularni qidiradi, shuning uchun AYNI shu id lar berildi. Shu tufayli kodni tahrirlash kerak bo'lmadi.
+* **Holat o'zgaruvchilari** — `_posQ` `_posKi` `_pbMode` `_pbSavat` `_pbZi` `_pbTi` `_pbIch` `_pbKir` `_pbNeg` `_pbQarzKesh` `_posLockN` `_posLockY`.
+
+INDEX.HTML DA QOLDI: admin tomoni — 17 funksiya (`posChListen` `posBellOch` `posChQabul` `posChRad` `_posChRecon` ...). Chernovikni qabul qilish ERP ning ishi.
+
+O'LCHANGAN BOG'LIQLIK: ko'chirilgan kod tashqaridan atigi 8 narsani so'raydi. Ikkitasi (`fmtG` `fmtD`) `hisob.js` da bor. Qolgan oltitasi uchun POS variantlari yozildi: `getRol()` → `'pos'`, `cloudKol()`, `cloudXato()`, `_verBelgi()`, `sozManba()`, `_posChRef()`, `_chekXabar()` (kichik toast).
+
+QAMROV — O'LCHANDI:
+1. **Sinov xonasi qotirilgan** — `var SANDBOX = 'TEST';`.
+2. **Cloudga yozadigan YAGONA joy** — `posBSaqla` ichidagi `ref.add(...)`, `ref` = `_poschernovik/items`. `holat`, `holat_bN`, `_amallar` ga yozadigan yo'l YO'Q. Ya'ni POS hisobga tegmaydi — chernovik ERP da qabul qilinganda yozuv tug'iladi (avvalgidek).
+3. **`index.html` va `hisob.js` ga tegilmagan** — `git status` bilan tekshirildi.
+4. **Qarz raqami ajralmaydi** — `pos.html` `hisob.js` ni yuklaydi, `index.html` bilan ayni fayl.
+
+SINOV: pos.html script bloki sintaksis-sinovidan o'tdi; `pos.html` + `hisob.js` bo'ylab «chaqiriladi, lekin e'lon qilinmagan» funksiya qidirildi — **birortasi ham yo'q** (79 funksiya e'lon qilingan); yozuv amallari sanaldi — bitta `add()`, u ham `_poschernovik` ga; `index.html`/`hisob.js` tegilmagani `git status` bilan isbotlandi.
+
+`pos.html` 929 qator. Manzil: `tilla-erp.vercel.app/pos.html`. Login `test` / `test123`, keyin Firebase hisobi.
+
+APP_VER — TEGILMADI. `index.html` ichidagi eski POS (POS 1.33) hali o'z joyida — uni o'chirish keyingi qadam, Ibrohim `pos.html` ni sinab ko'rgandan keyin.
