@@ -5213,3 +5213,28 @@ Ibrohim: «chapdan o'nga swipe qisa back bo'sin — chap ekrandan back bo'ladi»
 - Bosh ro'yxatda hech nima qilmaydi (logout yo'q)
 
 Mavjud funksiyalarga TEGILMADI — faqat chaqiriladi. `index.html` TEGILMADI.
+
+## POS v0.07 — ro'yxat 240px ga qotib qolardi
+
+Ibrohim rasm yubordi: klient ro'yxati ekranning yarmida tugab, pasti bo'sh
+qolgan. Ro'yxat ichida siljirdi, lekin balandligi ~240px edi.
+
+**Sabab:** `_posBoy()` `index.html` dan o'zgartirilmasdan ko'chgan edi.
+U `window.innerHeight` dan `.topbar` va `.main-tabs` balandligini ayirardi —
+lekin `pos.html` da bu ikki element YO'Q (54-qatordagi izohda aytilgan).
+Ya'ni funksiyaning yagona ishi qolgan: `height` ni bir marta piksel qilib
+`!important` bilan qotirish. `resize` ga ulanmagan. Login oynasi yopilayotgan
+payt olingan `innerHeight` abadiy qolgan, `Math.max(240, ...)` tufayli 240px
+ga tushgan.
+
+**Yechim:** `_posBoy` `pos.html` dan olib tashlandi (11 qator + chaqiruv).
+Balandlikni CSS beradi — `html,body{height:100%}` allaqachon bor edi:
+
+    #main-pos: height:100%; height:100dvh; overflow:hidden
+
+`100dvh` telefonda manzil satri ochilib-yopilganda ham to'g'ri o'lchaydi,
+`height:100%` esa uni qo'llab-quvvatlamaydigan brauzer uchun zaxira.
+`overflow:hidden` — ichidagi `#pos-list` siljiydi (avval buni `_posBoy`
+qilardi).
+
+`index.html` dagi `_posBoy` TEGILMADI — u yerda topbar va tablar bor, kerak.

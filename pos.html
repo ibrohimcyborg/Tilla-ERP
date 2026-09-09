@@ -1,4 +1,4 @@
-<!-- v0.06 -->
+<!-- v0.07 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -55,7 +55,7 @@ body.rol-pos button, body.rol-pos input,
 /* v0.04: safe-top QO'SHILMAYDI — renderPOS ning o'z sarlavhasi uni qo'yadi
    (padding:var(--safe-top) 2px 11px). Ikki marta qo'shilganda kontent pastga
    surilib, ro'yxatning oxiri kesilib qolardi. */
-#main-pos{display:flex!important;flex-direction:column;height:100%;min-width:0;overflow-y:auto;padding:0 10px calc(10px + var(--safe-bot));}
+#main-pos{display:flex!important;flex-direction:column;height:100%;height:100dvh;min-width:0;overflow:hidden;padding:0 10px calc(10px + var(--safe-bot));}
 #kirish{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;}
 #kirish .box{width:100%;max-width:340px}
 #kirish .brand{text-align:center;margin-bottom:24px}
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.06';
+var POS_VER = 'v0.07';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -398,18 +398,6 @@ function qut(yorliq, qiymat, birlik, rang){
       +(qiymat?fmtD(qiymat):'\u2014')+'<span style="font-size:11px;color:var(--muted);font-weight:400;"> '+birlik+'</span></div></div>';
   }
 
-function _posBoy(){
-  var el=document.getElementById('main-pos'); if(!el) return;
-  if(getRol()!=='pos'){ el.style.removeProperty('height'); return; }
-  var h=window.innerHeight;
-  ['.topbar','.main-tabs'].forEach(function(sel){
-    var e=document.querySelector(sel);
-    if(e && getComputedStyle(e).display!=='none') h-=e.getBoundingClientRect().height;
-  });
-  el.style.setProperty('height', Math.max(240, Math.round(h))+'px', 'important');
-  el.style.setProperty('overflow','hidden','important');   // ichidagi #pos-list siljiydi
-}
-
 function renderPOS(){
   var el=document.getElementById('main-pos'); if(!el) return;
   var kurs=parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
@@ -430,7 +418,6 @@ function renderPOS(){
   h+='</div>';
   el.innerHTML=h;
   el.style.display='flex'; el.style.flexDirection='column';
-  _posBoy();
   _posRoyxat();
 }
 
