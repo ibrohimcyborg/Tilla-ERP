@@ -5194,3 +5194,22 @@ narxini ko'rsatsa bo'ldi, o'zi uchun info bo'ladi».
 
 `hisob.js` dagi `getZavodNarx` TEGILMADI — `getKatNarx` uni ichida zaxira
 sifatida ishlatadi. `index.html` TEGILMADI.
+
+## POS v0.06 — chap chetdan o'ngga surish = orqaga
+
+Ibrohim: «chapdan o'nga swipe qisa back bo'sin — chap ekrandan back bo'ladi».
+
+`pos.html` oxiriga (`// BOSHLANISH` dan oldin) qo'shildi:
+
+- `posOrqa()` — eng ustki ochiq qatlamni yopadi. Tartib z-index bo'yicha:
+  `pb-ovl` (9200) → `pos-kurs-ovl` (9100) → `pos-ovl` (9000)
+- Berish oynasida zavod ochiq bo'lsa `posBChiq()` (zavod ro'yxatiga qaytadi),
+  aks holda `posBBekor()` (berishdan chiqadi)
+- Mavjud tugmalar funksiyasi chaqiriladi — savat to'la bo'lsa tasdiq so'raladi
+- `touchstart` / `touchend` tinglovchilari (`passive`), chegaralar:
+  chap chet 28px, kamida 70px o'ngga, tik siljish 60px dan oshmasin
+- `_swBloklandi()` — gorizontal siljiydigan qator (pos.html:854 zavod
+  tugmalari) o'ngga surilgan bo'lsa, avval o'sha qator qaytadi
+- Bosh ro'yxatda hech nima qilmaydi (logout yo'q)
+
+Mavjud funksiyalarga TEGILMADI — faqat chaqiriladi. `index.html` TEGILMADI.

@@ -94,6 +94,10 @@ va `hisob.js` istisnosi qo'shiladi.
 | 1 | `hisob.js` ajratish (**v180.2**) | ✅ push qilingan |
 | 2 | `pos.html` qobig'i — login, Firebase, cloud o'qish (**POS v0.01**) | ✅ push qilingan |
 | 3 | **POS ekranlarini ko'chirish** (**POS v0.02**) | ✅ commit, push kutilmoqda |
+| 3a | Kurs `sozlamalar` hujjatidan o'qiladi (**POS v0.03**) | ✅ push qilingan |
+| 3b | Mobil qobiq: sinxron chipi, pastki kesilish (**POS v0.04**) | ✅ push qilingan |
+| 3c | Kurs jadvali: `_POSG` tuzatildi, ZAVOD ustuni olib tashlandi (**POS v0.05**) | ✅ commit |
+| 3d | Chap chetdan o'ngga surish = orqaga (**POS v0.06**) | ✅ commit |
 | 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
 | 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
 
@@ -118,6 +122,42 @@ element id lari). **Yangi dizayn yasalmaydi.**
 
 **1-qadamdan keyin TO'XTALADI** — Ibrohim ERP ni ochib tekshiradi.
 Sinov TEST bazasida; hammasi hal bo'lgach admin (haqiqiy) bazaga ulanadi.
+
+---
+
+### 🔧 POS v0.05 — kurs narxlari chiqmasdi
+
+Ibrohim: «kursga bossam narx chiqmayapti».
+
+**Sabab:** `posKursOch()` jadval ustunlarini `_POSG` dan oladi. U
+`index.html:14914` da bor, `pos.html` ga **ko'chmay qolgan** edi →
+`ReferenceError` → jadval umuman chizilmasdi. KURS/LOM qutilari undan oldin
+yozilgani uchun ko'rinardi. Cloud, foizlar, `sozlamalar` hujjati — hammasi
+to'g'ri edi.
+
+**Spetsifikatsiya (Ibrohim):** «tilla erpdigi kirim narximas, A B kategoriya
+narxini ko'rsatsa bo'ldi, o'zi uchun info bo'ladi».
+→ Jadval endi 3 ustun: TUR / A / B. `getZavodNarx` POS da chaqirilmaydi
+(`hisob.js` da qoladi — `getKatNarx` uni zaxira sifatida ishlatadi).
+`C — qo'lda` izohi qoldi (Ibrohim: «ha qolursin»).
+
+### 🔙 POS v0.06 — chap chetdan o'ngga surish = orqaga
+
+Ibrohim: «chapdan o'nga swipe qisa back bo'sin — chap ekrandan back bo'ladi».
+
+`pos.html` oxirida (`// BOSHLANISH` dan oldin) 51 qator qo'shildi:
+`posOrqa()` + `touchstart`/`touchend` tinglovchilari.
+
+- Barmoq **chap chetdan (28px)** boshlanib, kamida **70px** o'ngga surilsa
+- Qatlam tartibi: `pb-ovl` (9200) → `pos-kurs-ovl` (9100) → `pos-ovl` (9000)
+- Berish ichida zavod ochiq bo'lsa — `posBChiq()` (zavod ro'yxatiga qaytadi),
+  aks holda `posBBekor()` (berishdan chiqadi)
+- Mavjud tugmalar funksiyasi chaqiriladi → savat to'la bo'lsa **tasdiq so'raladi**
+- Bosh ro'yxatda hech nima qilmaydi (logout yo'q)
+- Gorizontal siljiydigan qator (`pos.html:854` zavod tugmalari) o'ngga
+  surilgan bo'lsa — avval qator qaytadi
+
+⚠ Hali sinalmagan — Ibrohim telefonda tekshiradi.
 
 ---
 

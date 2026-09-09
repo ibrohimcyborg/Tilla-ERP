@@ -1,4 +1,4 @@
-<!-- v0.05 -->
+<!-- v0.06 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.05';
+var POS_VER = 'v0.06';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -944,6 +944,57 @@ function _pbDraw(){
   var inp=document.getElementById('pb-in');
   if(inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
 }
+
+
+// ═════ CHAP CHETDAN O'NGGA SURISH = ORQAGA (v0.06) ═════
+// Ibrohim: «chapdan o'nga swipe qisa back bo'sin... chap ekrandan back bo'ladi».
+// Telefonning o'z orqaga imo-ishorasidek: barmoq ekranning CHAP CHETIDAN
+// boshlanib o'ngga suriladi. O'rtadan surish hech nima qilmaydi.
+var _SW_CHET = 28;   // chap chetning kengligi, px — shundan boshlansagina hisobga olinadi
+var _SW_YOL  = 70;   // orqaga sanalishi uchun kamida shuncha px o'ngga surilsin
+var _SW_TIK  = 60;   // tik siljish shundan oshsa — bu scroll, orqaga emas
+var _swX = -1, _swY = 0, _swBek = false;
+
+// Eng ustki ochiq qatlamni yopadi. Tartib z-index bo'yicha:
+// pb-ovl (9200) → pos-kurs-ovl (9100) → pos-ovl (9000).
+// Mavjud tugmalarning funksiyasi chaqiriladi — ular qanday so'rasa, shunday
+// so'raydi (savat to'la bo'lsa tasdiq so'raladi, ma'lumot bekorga o'chmaydi).
+function posOrqa(){
+  if(document.getElementById('pb-ovl')){
+    if(_pbZi >= 0) posBChiq();   // zavod ichida — zavod ro'yxatiga qaytadi
+    else posBBekor();            // zavod ro'yxatida — berishdan chiqadi
+    return true;
+  }
+  if(document.getElementById('pos-kurs-ovl')){ posKursYop(); return true; }
+  if(document.getElementById('pos-ovl')){ posModalYop(); return true; }
+  return false;                  // bosh ro'yxatda orqaga yo'q
+}
+
+// Barmoq gorizontal siljiydigan qatorda boshlangan bo'lsa (zavod tugmalari,
+// pos.html:854) va o'sha qator o'ngga surilgan bo'lsa — avval qator qaytsin.
+function _swBloklandi(el){
+  for(var n=0; n<8 && el && el.nodeType===1; n++, el=el.parentElement){
+    if(el.scrollWidth > el.clientWidth + 4 && el.scrollLeft > 0) return true;
+  }
+  return false;
+}
+
+document.addEventListener('touchstart', function(e){
+  if(e.touches.length !== 1){ _swX = -1; return; }
+  var t = e.touches[0];
+  if(t.clientX > _SW_CHET){ _swX = -1; return; }
+  _swX = t.clientX; _swY = t.clientY;
+  _swBek = _swBloklandi(e.target);
+}, {passive:true});
+
+document.addEventListener('touchend', function(e){
+  if(_swX < 0) return;
+  var x0 = _swX; _swX = -1;
+  if(_swBek) return;
+  var t = e.changedTouches && e.changedTouches[0]; if(!t) return;
+  var dx = t.clientX - x0, dy = Math.abs(t.clientY - _swY);
+  if(dx >= _SW_YOL && dy <= _SW_TIK && dx > dy) posOrqa();
+}, {passive:true});
 
 // ═════ BOSHLANISH ═════
 try{
