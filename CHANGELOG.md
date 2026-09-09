@@ -5173,3 +5173,24 @@ Ikkalasining sababi ham `pos.html` QOBIG'IDA — ko'chirilgan POS kodida emas.
 TEGILMADI: ko'chirilgan 51 funksiyaning birortasiga ham tegilmadi — `renderPOS`, `_posBoy` va qolganlari o'zgarmadi. Diff faqat qobiq CSS'ida: 9 qo'shildi / 4 o'chirildi. `index.html` va `hisob.js` — tegilmagan.
 
 POS_VER v0.03 -> v0.04 (1-qator ham). APP_VER — TEGILMADI.
+
+## POS v0.05 — kurs jadvali: ZAVOD ustuni olib tashlandi
+
+**Xato tuzatildi.** `posKursOch()` jadval ustunlarini `_POSG` o'zgaruvchisidan
+oladi. U `index.html:14914` da e'lon qilingan, `pos.html` ga esa ko'chmay
+qolgan edi → `ReferenceError` → jadval umuman chizilmasdi. KURS/LOM qutilari
+undan oldin yozilgani uchun ko'rinardi, narx esa yo'q edi.
+Ibrohim: «kursga bossam narx chiqmayapti».
+
+**Spetsifikatsiya (Ibrohim):** «tilla erpdigi kirim narximas, A B kategoriya
+narxini ko'rsatsa bo'ldi, o'zi uchun info bo'ladi».
+
+- `_POSG` `pos.html` da e'lon qilindi — 3 ustun: `1fr 84px 84px`
+- Jadval sarlavhasidan `ZAVOD` ustuni olib tashlandi
+- Qator ichidagi zavod narxi (`n.z`) olib tashlandi
+- Pastdagi izohdan `ZAVOD kirim` olib tashlandi
+- `_posNarxlar` endi `{a, b}` qaytaradi, `getZavodNarx` ni chaqirmaydi
+- `C — qo'lda` izohi QOLDI (Ibrohim: «ha qolursin»)
+
+`hisob.js` dagi `getZavodNarx` TEGILMADI — `getKatNarx` uni ichida zaxira
+sifatida ishlatadi. `index.html` TEGILMADI.
