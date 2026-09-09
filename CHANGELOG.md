@@ -5159,3 +5159,17 @@ Kurs kelmasa ham ro'yxat chiziladi (`catch` bilan) — kurs yo'qligi POS ni to'x
 SINOV: sintaksis o'tdi; yozuv amallari qayta sanaldi — hamon BITTA `add()`, u ham `_poschernovik` ga.
 
 POS_VER v0.02 -> v0.03 (1-qator ham). APP_VER — TEGILMADI.
+
+## POS v0.04 — TELEFONDA IKKI JOYLASHUV XATOSI (ikkalasi ham qobiqda edi)
+
+Ibrohim (rasm bilan): «mobile versiyada sinxron bilan kurs ustma-ust tushib qolgan», «keyin pasi to'liqmas».
+
+Ikkalasining sababi ham `pos.html` QOBIG'IDA — ko'chirilgan POS kodida emas.
+
+1. **Ustma-ust.** `#pos-holat` (sinxron chipi) `position:fixed; top; right` bilan yuqori o'ng burchakka qo'yilgandi. `renderPOS` esa o'z sarlavhasini chizadi va KURS pillini AYNI o'sha joyga qo'yadi. Chip pastki chap burchakka ko'chirildi (`bottom; left`, `opacity:.92`).
+
+2. **Pasti kesilgan.** `renderPOS` ning sarlavhasi notch uchun joyni O'ZI qo'yadi (`padding: var(--safe-top) 2px 11px`). Qobiqdagi `#main-pos` ham `padding-top: calc(10px + var(--safe-top))` qo'shardi — `safe-top` IKKI MARTA. Kontent pastga surilar, `_posBoy` esa balandlikni `innerHeight` ga qotirgani uchun ro'yxatning oxiri kesilib qolardi. Endi qobiq tepadan padding qo'shmaydi: `padding: 0 10px calc(10px + var(--safe-bot))`.
+
+TEGILMADI: ko'chirilgan 51 funksiyaning birortasiga ham tegilmadi — `renderPOS`, `_posBoy` va qolganlari o'zgarmadi. Diff faqat qobiq CSS'ida: 9 qo'shildi / 4 o'chirildi. `index.html` va `hisob.js` — tegilmagan.
+
+POS_VER v0.03 -> v0.04 (1-qator ham). APP_VER — TEGILMADI.
