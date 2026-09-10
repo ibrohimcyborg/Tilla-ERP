@@ -105,6 +105,9 @@ va `hisob.js` istisnosi qo'shiladi.
 | 3i | Savatda har tur va har zavodning o'z narxi (**POS v0.11**) | ✅ push qilingan |
 | 3j | Lom har doim kursdan −2 (**POS v0.13**) | ✅ push qilingan |
 | 3k | Narxi yo'q zavodlar kurs jadvalida chiqmaydi (**POS v0.14**) | ✅ push qilingan |
+| 3l | Savatda har tur alohida qatorda (**POS v0.15**) | ✅ push qilingan |
+| 3m | Savat Ibrohim yozib bergan tartibda (**POS v0.16**) | ✅ push qilingan |
+| 3n | Savat qatorida grammiga narx alohida ustunda (**POS v0.17**) | ✅ push qilingan |
 | 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
 | 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
 
@@ -277,6 +280,47 @@ Har versiya Node bilan sinaldi: `narxtest.js` (12), `kurstest.js` (17),
 `kattest.js` (12), `savattest.js` (13), `lom13test.js` (9), `zavtest.js` (12).
 Usul: `pos.html` dan funksiya matnini qavs hisoblab ajratib `eval` qilish +
 `localStorage` stub. Keyingi seansda kerak bo'lsa shu naqshni takrorla.
+
+---
+
+### 🧾 SAVAT KO'RINISHI — YAKUNIY (v0.17)
+
+Uch urinishdan keyin Ibrohim tartibni O'ZI yozib berdi. Hozirgi holat:
+
+    SAVAT                      2 zavod · o'zgartirish uchun bosing
+
+    Diamond                                                   ✕
+      Oddiy       80.5 $/g    10.00 g    3 dona     805.00 $
+
+    Butterfly                                                 ✕
+      3D         75.95 $/g     3.10 g    1 dona     235.45 $
+      3DS        82.36 $/g     2.01 g    1 dona     165.54 $
+    ────────────────────────────────────────────────
+    JAMI                      15.11 g    5 dona   1,205.99 $
+
+**Qat'iy qoidalar:**
+- Zavod satrida raqam YO'Q — faqat nom va `✕`
+- Dona HAR TURNING yonida (zavod darajasida emas)
+- Ustun kengliklari bitta joyda: `SC_KG` 56, `SC_G` 56, `SC_D` 46,
+  `SC_P` 70, `SC_X` 20 (`_pbDraw` ichida, `var J=_pbSavatJami()` dan keyin)
+- Tur nomi `flex:1` + `ellipsis` — qator HECH QACHON ikkiga bo'linmaydi
+- JAMI ustunlari tur qatorlari bilan bir chiziqda, `$/g` katagi bo'sh
+
+⚠ **Maketni TELEFON ENIDA chiz** (≤420px). v0.15 keng ekranda chizilgan edi,
+telefonda ikki ustun bir-biriga tiqilib qoldi va Ibrohim «judayam tartibsiz»
+dedi. Bu seansda ikki marta shu xato bo'ldi.
+
+### ⬜ KEYINGI ISH — QO'NG'IROQCHA PANELI
+
+Yagona ochiq ish. Ibrohim: «manga shu kelgan narsa tushunarsiz ko'rinvotti»
+(`index.html:15258` `posBellOch` — POS chernovigini tekshirish ekrani).
+
+Oltita muammo aniqlangan, ikkita maket qilingan
+(`mockups/pos-chernovik-panel.html`, `pos-chernovik-ishlaydigan.html`) —
+lekin Ibrohim maketni ham tushunarsiz dedi. **Qaror yo'q, kod yozilmagan.**
+
+➡ Boshlash yo'li: Ibrohimdan o'sha panelning RASMINI so'ra va «nima
+tushunarsiz» ni o'z so'zi bilan ayttir. Yangi maket chizma — u charchadi.
 
 ---
 
