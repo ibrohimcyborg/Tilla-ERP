@@ -5430,3 +5430,36 @@ Maket: `mockups/pos-savat-qator.html` (Ibrohim tasdiqladi: «taklifdaka qilur»)
 
 Sinov: `qatortest.js` — 9 ta tekshiruv, Ibrohimning aynan raqamlari bilan
 (kurs 80, Butterfly 4 tur, 45.30 g, 4,095.84 $). Hammasi o'tdi.
+
+## POS v0.16 — savat Ibrohim yozib bergan tartibda
+
+Ibrohim: «3dona 2dona 9dona noto'g'ri joyda» — va aynan qanday bo'lishini
+yozib berdi:
+
+    Diamond
+    Oddiy      10g    3dona   805$
+    Butterfly
+    3D         3.1g   1dona   235.45$
+    3DS        2.01g  1dona   165.55$
+    Jami       15.11g 5dona   1206$
+
+v0.15 da yonma-yon ikki ustun bor edi — chapda turlar, o'ngda zavod jamisi.
+Telefon enida ular bir-biriga tiqilib qolardi, bitta turli zavodda esa bir xil
+raqam ikki marta chiqardi (Ibrohim rasm bilan ko'rsatdi: `7.31 g` va
+`634.51 $` takrorlangan).
+
+- **Zavod satrida raqam YO'Q** — faqat nom va `✕`
+- **Dona har turning yonida**: nom · gramm · dona · narx
+- Bitta turli zavod ham, ko'p turli zavod ham bir xil ko'rinadi
+- JAMI ustunlari tur qatorlari bilan bir chiziqda (`SC_G` 60px, `SC_D` 50px,
+  `SC_P` 78px, `SC_X` 20px — hammasi bitta joyda e'lon qilingan)
+
+Dona soni `agg.m[ti].arr.length` dan — `_pbTurlar` allaqachon shuni yig'adi,
+yangi hisob yozilmadi. JAMI dona `_pbSavatJami().n` dan, avvalgidek.
+
+`posBSavatKir` (zavodni ochish) va `posBSavatOchir` (o'chirish) TEGILMADI.
+
+Maket: `mockups/pos-savat-tartib.html`.
+
+Sinov: `s16test.js` — 10 ta tekshiruv, Ibrohimning aynan raqamlari bilan
+(15.11 g, 5 dona). Hammasi o'tdi.

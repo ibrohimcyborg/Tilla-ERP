@@ -1,0 +1,133 @@
+<title>Savat Tartibi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --rb:"Roboto",-apple-system,system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:420px;margin:0 auto;padding:16px 13px 60px;}
+.tp{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.tp h1{font-size:18px;margin:0;font-weight:700;}
+.mk{font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;font-weight:600;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:0 0 18px;
+  color:var(--gold);font-size:14px;}
+.lbl{font-size:10px;letter-spacing:.11em;font-weight:700;margin:0 0 8px;color:var(--green);}
+
+.savat{background:var(--surf);border:1px solid var(--green-bd);border-radius:14px;overflow:hidden;}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;
+  font-size:9.5px;letter-spacing:.11em;color:var(--muted);}
+.sh .r{letter-spacing:0;font-size:10px;}
+.num{font-family:var(--rb);font-variant-numeric:tabular-nums;}
+
+.zav{padding:7px 11px 8px;border-top:1px solid var(--border);}
+.zn{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;
+  color:var(--gold);margin-bottom:3px;}
+.zn .sp{flex:1;}
+.zn .x{width:20px;flex:none;color:var(--muted);font-size:12px;text-align:center;cursor:pointer;}
+
+.tr{display:flex;align-items:baseline;gap:7px;padding:2px 0;font-size:11.5px;}
+.tr .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--text);}
+.tr .g{min-width:60px;text-align:right;flex:none;color:var(--text);font-weight:500;}
+.tr .d{min-width:50px;text-align:right;flex:none;color:var(--muted);}
+.tr .p{min-width:78px;text-align:right;flex:none;color:var(--gold);font-weight:500;}
+.tr .x{width:20px;flex:none;}
+
+.jami{display:flex;align-items:baseline;gap:7px;padding:10px 11px;
+  border-top:2px solid var(--border);background:var(--surf2);}
+.jami .n{flex:1;font-size:9.5px;letter-spacing:.11em;color:var(--muted);font-weight:600;}
+.jami .g{min-width:60px;text-align:right;flex:none;font-weight:700;font-size:14px;
+  color:var(--green);}
+.jami .d{min-width:50px;text-align:right;flex:none;font-size:11px;color:var(--muted);}
+.jami .p{min-width:78px;text-align:right;flex:none;font-weight:700;font-size:13px;
+  color:var(--green);}
+.jami .x{width:20px;flex:none;}
+
+.note{margin-top:20px;font-size:12.5px;color:var(--muted);line-height:1.6;}
+.note b{color:var(--text);}
+.ogoh{margin-top:14px;padding:11px 13px;border-radius:12px;background:var(--red-bg);
+  border:1px solid var(--red-bd);font-size:12.5px;color:var(--text);}
+.ogoh b{color:var(--red);}
+</style>
+
+<div class="page">
+  <div class="tp"><h1>Savat tartibi</h1><span class="mk">MAKET</span></div>
+  <p class="quote">«3dona 2dona 9dona noto'g'ri joyda»</p>
+
+  <div class="lbl">SIZ YOZGANINGIZDEK</div>
+
+  <div class="savat">
+    <div class="sh"><span>SAVAT</span><span class="r">2 zavod · o'zgartirish uchun bosing</span></div>
+
+    <div class="zav">
+      <div class="zn"><span>Diamond</span><span class="sp"></span><span class="x">✕</span></div>
+      <div class="tr">
+        <span class="n">Oddiy</span>
+        <span class="g num">10.00 g</span>
+        <span class="d num">3 dona</span>
+        <span class="p num">805.00 $</span>
+        <span class="x"></span>
+      </div>
+    </div>
+
+    <div class="zav">
+      <div class="zn"><span>Butterfly</span><span class="sp"></span><span class="x">✕</span></div>
+      <div class="tr">
+        <span class="n">3D</span>
+        <span class="g num">3.10 g</span>
+        <span class="d num">1 dona</span>
+        <span class="p num">235.45 $</span>
+        <span class="x"></span>
+      </div>
+      <div class="tr">
+        <span class="n">3DS</span>
+        <span class="g num">2.01 g</span>
+        <span class="d num">1 dona</span>
+        <span class="p num">165.55 $</span>
+        <span class="x"></span>
+      </div>
+    </div>
+
+    <div class="jami">
+      <span class="n">JAMI</span>
+      <span class="g num">15.11 g</span>
+      <span class="d num">5 dona</span>
+      <span class="p num">1,206.00 $</span>
+      <span class="x"></span>
+    </div>
+  </div>
+
+  <div class="note">
+    Zavod satrida raqam yo'q — faqat nom va <b>✕</b>. Dona endi
+    <b>har turning yonida</b>. Bitta turli zavod ham, ko'p turli zavod ham
+    bir xil ko'rinadi.
+  </div>
+
+  <div class="ogoh">
+    <b>Bitta farq:</b> siz «4 dona» yozgansiz, lekin 3 + 1 + 1 = <b>5</b>.
+    Dastur haqiqiy yig'indini ko'rsatadi — shu bo'ldi deb hisoblayapman.
+  </div>
+</div>
