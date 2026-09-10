@@ -1,4 +1,4 @@
-<!-- v0.11 -->
+<!-- v0.12 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.11';
+var POS_VER = 'v0.12';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -743,6 +743,15 @@ function posBKursSaqla(){
   var v = e ? parseNum(String(e.value).replace(',','.')) : 0;
   if(v > 0){
     try{ localStorage.setItem('tilla-kurs-bugun', String(v)); }catch(_){}
+    // v0.12: ERP da kurs o'zgarsa lom AVTOMAT qayta hisoblanadi
+    // (index.html:2852 hkUpd): lom = kurs + farq, farq odatda -2.
+    // POS da bu qilinmagani uchun lom eski qiymatda qolib ketardi
+    // — Ibrohim: «lom narxi nega -2 $mas?»
+    // `farq` FAQAT O'QILADI — uni Tilla ERP belgilaydi.
+    var farq = parseNum(localStorage.getItem('tilla-lom-farq'));
+    if(!farq) farq = -2;
+    var lom = Math.round((v + farq)*10)/10;
+    if(lom > 0){ try{ localStorage.setItem('tilla-lom-bugun', String(lom)); }catch(_){} }
     _kursQolda = true;
   }
   _pbKursTahrir = false;

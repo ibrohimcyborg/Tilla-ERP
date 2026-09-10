@@ -5336,3 +5336,25 @@ A/B tugmasiga va qo'lda yozilgan kursga bo'ysunadi — hammasi `_pbNarx` dan.
 Kurs bo'lmasa narx umuman yozilmaydi. Vozvratda yo'q.
 
 Sinov: `savattest.js` — 13 ta tekshiruv. Hammasi o'tdi.
+
+## POS v0.12 — kurs qo'lda o'zgarsa lom ham qayta hisoblanadi
+
+Ibrohim: «lom narxi nega −2 $mas?»
+
+**v0.09 da kiritilgan xato.** Tilla ERP da kurs o'zgarganda lom AVTOMAT
+qayta hisoblanadi (`index.html:2852` `hkUpd`):
+
+    lom = round((kurs + farq) * 10) / 10        // farq odatda -2
+
+POS da esa `posBKursSaqla` faqat `tilla-kurs-bugun` ni yozardi. `tilla-lom-bugun`
+eski (ERP dan kelgan) qiymatda qolib ketardi — kurs 90 ga ko'tarilsa ham lom
+83 bo'lib turardi, farq −7 ko'rinardi.
+
+Endi ERP dagi formulaning aynan o'zi qo'llanadi. `tilla-lom-farq` FAQAT
+O'QILADI — uni Tilla ERP belgilaydi, POS unga tegmaydi. Farq topilmasa
+`−2` (ERP dagi standart, `index.html:2850`).
+
+Lom musbat chiqmasa yozilmaydi — eski qiymat qoladi.
+
+Sinov: `lomtest.js` — 9 ta tekshiruv (farq −2/−3/+1.5/yo'q, yaxlitlash,
+manfiy lom). Hammasi o'tdi.
