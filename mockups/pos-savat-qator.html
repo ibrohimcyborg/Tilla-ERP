@@ -1,0 +1,133 @@
+<title>Savat Qatorlari</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --rb:"Roboto",-apple-system,system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:700px;margin:0 auto;padding:16px 13px 60px;}
+.tp{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.tp h1{font-size:18px;margin:0;font-weight:700;}
+.mk{font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;font-weight:600;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:0 0 20px;
+  color:var(--gold);font-size:14.5px;}
+
+.lbl{font-size:10px;letter-spacing:.11em;font-weight:700;margin:22px 0 8px;}
+.lbl.a{color:var(--red);}
+.lbl.b{color:var(--green);}
+
+/* savat bloki - haqiqiy POS ko'rinishi */
+.savat{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.savat.ok{border-color:var(--green-bd);}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+  font-size:9.5px;letter-spacing:.11em;color:var(--muted);}
+.sh .r{letter-spacing:0;font-size:10.5px;}
+.qat{display:flex;align-items:center;gap:9px;padding:9px 12px;
+  border-top:1px solid var(--border);font-size:12.5px;}
+.qat .sol{flex:1;min-width:0;}
+.qat .zn{display:block;font-weight:600;font-size:13px;margin-bottom:2px;}
+.eski{color:var(--muted);font-size:10.5px;}
+.ong{text-align:right;font-weight:700;color:var(--gold);font-family:var(--rb);
+  font-variant-numeric:tabular-nums;flex:none;}
+.ong small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;}
+.ong .pul{display:block;font-weight:400;color:var(--muted);font-size:11.5px;}
+.x{width:22px;flex:none;color:var(--muted);font-size:12px;text-align:center;}
+
+/* taklif: har tur o'z qatorida */
+.tr{display:flex;gap:9px;align-items:baseline;padding:1px 0;font-size:10.5px;color:var(--muted);}
+.tr .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tr .g{font-family:var(--rb);font-variant-numeric:tabular-nums;min-width:58px;text-align:right;flex:none;}
+.tr .p{font-family:var(--rb);font-variant-numeric:tabular-nums;min-width:74px;text-align:right;flex:none;}
+
+.jami{display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  padding:9px 12px;border-top:1px solid var(--border);}
+.jami .k{font-size:9.5px;letter-spacing:.11em;color:var(--muted);}
+.jami .v{text-align:right;}
+.jami .v b{font-weight:700;font-size:17px;color:var(--green);font-family:var(--rb);
+  font-variant-numeric:tabular-nums;}
+.jami .v span{font-size:11px;color:var(--muted);}
+.jami .v small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;
+  font-family:var(--rb);font-variant-numeric:tabular-nums;}
+
+.note{margin-top:22px;font-size:13px;color:var(--muted);line-height:1.6;}
+.note b{color:var(--text);}
+</style>
+
+<div class="page">
+  <div class="tp"><h1>Savat qatorlari</h1><span class="mk">MAKET</span></div>
+  <p class="quote">«bir qator bo'sa adashamiz»</p>
+
+  <div class="lbl a">HOZIRGI — hammasi bitta satrda</div>
+  <div class="savat">
+    <div class="sh"><span>SAVAT</span><span class="r">2 zavod · o'zgartirish uchun bosing</span></div>
+    <div class="qat">
+      <span class="sol">
+        <b class="zn">Butterfly</b>
+        <span class="eski">Oddiy 1.20g (104.16 $) · 3D 21.00g (1,881.6 $) · 3DS 2.10g (194.88 $) · Sep 21.00g (1,915.2 $)</span>
+      </span>
+      <span class="ong">45.30 g<small>4 dona</small><span class="pul">≈ 4,095.84 $</span></span>
+      <span class="x">✕</span>
+    </div>
+    <div class="jami"><span class="k">JAMI</span>
+      <span class="v"><b>45.30 g</b> <span>4 dona</span><small>≈ 4,095.84 $</small></span></div>
+  </div>
+
+  <div class="lbl b">TAKLIF — har tur o'z qatorida</div>
+  <div class="savat ok">
+    <div class="sh"><span>SAVAT</span><span class="r">2 zavod · o'zgartirish uchun bosing</span></div>
+
+    <div class="qat">
+      <span class="sol">
+        <b class="zn">Butterfly</b>
+        <span class="tr"><span class="n">Oddiy</span><span class="g">1.20 g</span><span class="p">104.16 $</span></span>
+        <span class="tr"><span class="n">3D</span><span class="g">21.00 g</span><span class="p">1,881.6 $</span></span>
+        <span class="tr"><span class="n">3DS</span><span class="g">2.10 g</span><span class="p">194.88 $</span></span>
+        <span class="tr"><span class="n">Sep</span><span class="g">21.00 g</span><span class="p">1,915.2 $</span></span>
+      </span>
+      <span class="ong">45.30 g<small>4 dona</small><span class="pul">≈ 4,095.84 $</span></span>
+      <span class="x">✕</span>
+    </div>
+
+    <div class="qat">
+      <span class="sol">
+        <b class="zn">Dorika</b>
+        <span class="tr"><span class="n">Oddiy</span><span class="g">6.40 g</span><span class="p">583.68 $</span></span>
+        <span class="tr"><span class="n">Dor S</span><span class="g">3.15 g</span><span class="p">292.32 $</span></span>
+      </span>
+      <span class="ong">9.55 g<small>2 dona</small><span class="pul">≈ 876.00 $</span></span>
+      <span class="x">✕</span>
+    </div>
+
+    <div class="jami"><span class="k">JAMI</span>
+      <span class="v"><b>54.85 g</b> <span>6 dona</span><small>≈ 4,971.84 $</small></span></div>
+  </div>
+
+  <div class="note">
+    Gramm va narx <b>ustun bo'lib tekislanadi</b> — ko'z bilan solishtirasiz.
+    Qavs olib tashlandi, endi kerak emas. O'ng tomondagi zavod jami
+    (<b>45.30 g / 4 dona / ≈ 4,095.84 $</b>) va pastdagi JAMI tegilmadi.
+  </div>
+</div>

@@ -5402,3 +5402,31 @@ bo'yicha ishlaydi, narx bo'yicha emas.
 
 Sinov: `zavtest.js` — 12 ta tekshiruv (narxli/narxsiz zavod, qisman narxli
 zavod, bo'sh holat). Hammasi o'tdi.
+
+## POS v0.15 — savatda har tur alohida qatorda
+
+Ibrohim (rasm bilan): «bir qator bo'sa adashamiz».
+
+v0.11 da turlar bitta uzun satrga tizilib ketardi va o'qib bo'lmasdi:
+
+    Oddiy 1.20g (104.16 $) · 3D 21.00g (1,881.6 $) · 3DS 2.10g (194.88 $) · Sep 21.00g (1,915.2 $)
+
+Endi har tur o'z qatorida, uch ustun bo'lib tekislanadi:
+
+    Oddiy       1.20 g     104.16 $
+    3D         21.00 g   1,881.6 $
+    3DS         2.10 g     194.88 $
+    Sep        21.00 g   1,915.2 $
+
+- Gramm `min-width:58px`, narx `min-width:74px`, ikkalasi ham o'ngga
+  tekislanadi va `tabular-nums` bilan — raqamlar ustun bo'lib turadi
+- Tur nomi uzun bo'lsa `ellipsis` bilan qisqaradi, qator buzilmaydi
+- Qavs olib tashlandi — ustunlar o'zi ajratib turadi
+
+Zavodning o'ng tomonidagi jami (`45.30 g / 4 dona / ≈ 4,095.84 $`) va pastdagi
+umumiy JAMI TEGILMADI. Hisob, chernovik — tegilmadi.
+
+Maket: `mockups/pos-savat-qator.html` (Ibrohim tasdiqladi: «taklifdaka qilur»).
+
+Sinov: `qatortest.js` — 9 ta tekshiruv, Ibrohimning aynan raqamlari bilan
+(kurs 80, Butterfly 4 tur, 45.30 g, 4,095.84 $). Hammasi o'tdi.

@@ -1,4 +1,4 @@
-<!-- v0.14 -->
+<!-- v0.15 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.14';
+var POS_VER = 'v0.15';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -961,14 +961,23 @@ function _pbDraw(){
         var zz=data.zavodlar[s.zi]; if(!zz) return;
         var agg=_pbTurlar(s), g=0;
         s.dona.forEach(function(d){ g+=d.g; });
-        var turlar=agg.tartib.map(function(ti){
+        // v0.15 (Ibrohim): «bir qator bo'sa adashamiz» — turlar bitta uzun
+        // satrga tizilib ketardi. Endi har tur o'z qatorida, gramm va narx
+        // ustun bo'lib tekislanadi.
+        var NR='font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
+        var turHTML=agg.tartib.map(function(ti){
           var tg=agg.m[ti].g, tp = V ? 0 : Math.round(tg*_pbNarx(s.zi,ti)*100)/100;
-          return (zz.turlar[ti]?zz.turlar[ti].nom:'?')+' '+fmtG(tg)+'g'
-            + (tp ? ' ('+fmtD(tp)+' $)' : '');
-        }).join(' · ');
+          return '<div style="display:flex;gap:9px;align-items:baseline;padding:1px 0;'
+            + 'font-size:10.5px;color:var(--muted);">'
+            + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;'
+            + 'white-space:nowrap;">'+_posEsc(zz.turlar[ti]?zz.turlar[ti].nom:'?')+'</span>'
+            + '<span style="'+NR+'min-width:58px;text-align:right;flex:none;">'+fmtG(tg)+' g</span>'
+            + '<span style="'+NR+'min-width:74px;text-align:right;flex:none;">'
+            + (tp ? fmtD(tp)+' $' : '')+'</span></div>';
+        }).join('');
         h+='<div onclick="posBSavatKir('+i+')" style="display:flex;align-items:center;gap:9px;padding:8px 0;font-size:12.5px;border-top:1px solid var(--border);cursor:pointer;">';
         h+='<div style="flex:1;min-width:0;"><b style="display:block;font-weight:500;font-size:13px;">'+_posEsc(zz.nom)+'</b>';
-        h+='<small style="color:var(--muted);font-size:10.5px;">'+_posEsc(turlar)+'</small></div>';
+        h+=turHTML+'</div>';
         h+='<div style="text-align:right;font-weight:700;color:var(--'+C+');font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtG(roundG(g))+' g'
           +'<small style="display:block;font-weight:400;color:var(--muted);font-size:10.5px;">'+s.dona.length+' dona</small>'+_pbPulSatr(V?0:_pbZavodPul(s))+'</div>';
         h+='<div onclick="posBSavatOchir('+i+',event)" style="width:22px;flex:none;color:var(--muted);font-size:12px;text-align:center;cursor:pointer;">✕</div></div>';
