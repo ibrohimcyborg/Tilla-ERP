@@ -1,0 +1,315 @@
+<title>Turni Almashtirish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--ink);margin:0;
+  font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+.col{max-width:720px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+
+header{padding:60px 0 34px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;
+}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.024em;line-height:1.1}
+.lede{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:590px}
+
+section{padding-top:50px}
+.snum{
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:9px;
+}
+h2{font-size:25px;font-weight:700;letter-spacing:-.018em}
+h3{font-size:16.5px;font-weight:700;margin:26px 0 9px}
+p{margin:13px 0}
+.col p{max-width:66ch}
+
+.quote{
+  border-left:2px solid var(--accent);background:var(--panel);
+  padding:14px 18px;margin:20px 0;font-size:15px;border-radius:0 9px 9px 0;
+}
+.quote b{font-weight:600}
+
+/* ---- dialog mock ---- */
+.cmp{display:grid;grid-template-columns:1fr;gap:16px;margin:24px 0}
+@media(min-width:780px){.cmp{grid-template-columns:1fr 1fr}}
+.box{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel)}
+.bhd{
+  padding:10px 15px;font-family:"JetBrains Mono",monospace;font-size:10px;
+  letter-spacing:.13em;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--line);
+}
+.bhd.old{background:var(--bad-soft);color:var(--bad)}
+.bhd.new{background:var(--good-soft);color:var(--good)}
+.dlg{padding:14px}
+.dtitle{font-size:13px;font-weight:700;margin-bottom:11px}
+.card{
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;margin-bottom:9px;
+}
+.crow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+.lab{font-size:11.5px;font-weight:700;color:var(--bad)}
+.lab.voz{color:var(--accent)}
+.sub{font-size:11px;color:var(--muted);text-align:right}
+.fld{
+  display:block;width:100%;padding:8px 10px;border-radius:8px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  font-size:14px;font-family:inherit;
+}
+.fld.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.flab{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ostl{font-size:10.5px;color:var(--good);margin-top:5px;font-family:"JetBrains Mono",monospace}
+.badge{
+  display:inline-block;font-size:9.5px;color:var(--accent);background:var(--accent-soft);
+  border:1px solid var(--accent-line);padding:1px 7px;border-radius:20px;margin-left:5px;white-space:nowrap;
+}
+.readonly{
+  font-size:11px;color:var(--muted);padding:6px 0 0;font-style:italic;
+}
+
+/* ---- flow ---- */
+.flow{margin:22px 0;counter-reset:st}
+.st{position:relative;padding:0 0 20px 42px;counter-increment:st}
+.st::before{
+  content:counter(st);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--accent-line);color:var(--accent);
+  font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.st::after{content:"";position:absolute;left:13px;top:28px;bottom:0;width:1px;background:var(--line)}
+.st:last-child{padding-bottom:0}
+.st:last-child::after{display:none}
+.st b{font-weight:600;font-size:15px;display:block}
+.st span{color:var(--muted);font-size:14px}
+
+/* ---- table ---- */
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:440px}
+th{
+  text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;
+  padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2);
+}
+td{padding:9px 15px;border-bottom:1px solid var(--line2)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+/* ---- decisions ---- */
+.dec{border:1px solid var(--accent-line);border-radius:12px;background:var(--panel);margin:15px 0;overflow:hidden}
+.dhd{
+  background:var(--accent-soft);color:var(--accent);padding:11px 17px;
+  font-weight:700;font-size:14px;border-bottom:1px solid var(--accent-line);
+  display:flex;gap:10px;align-items:baseline;
+}
+.dhd .k{font-family:"JetBrains Mono",monospace;font-size:12px}
+.dbody{padding:5px 17px 13px}
+.opt{display:grid;grid-template-columns:36px 1fr;gap:11px;padding:10px 0;border-top:1px solid var(--line2)}
+.opt:first-child{border-top:0}
+.opt .k{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}
+.opt .d{font-size:14.5px}
+.opt .d em{font-style:normal;color:var(--muted);display:block;font-size:13px;margin-top:2px}
+.rec{
+  display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;
+  color:var(--good);background:var(--good-soft);border:1px solid var(--good-line);
+  border-radius:999px;padding:1px 7px;margin-left:6px;letter-spacing:.05em;vertical-align:1px;
+}
+.done{
+  display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;
+  color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);
+  border-radius:999px;padding:1px 7px;margin-left:6px;letter-spacing:.05em;vertical-align:1px;
+}
+footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla ERP &middot; taklif &middot; 1-vazifa</div>
+  <h1>Tahrirlashda turni ham almashtirish</h1>
+  <p class="lede">Hozir tahrirlash oynasida faqat gramm o'zgaradi. Xato esa ko'pincha grammda emas, <b>turda</b> bo'ladi.</p>
+</header>
+
+<div class="col">
+<div class="quote">
+  <b>Ibrohim:</b> &laquo;Biz <b>Diamond &middot; Polimer</b> da 8.49 g vozvrat qilganmiz, lekin dasturga <b>Diamond &middot; Oddiy</b> bo'lib yozilgan. Grammni tuzatish yordam bermaydi &mdash; tur noto'g'ri.&raquo;
+</div>
+
+<section>
+  <div class="snum">01 &mdash; Hozirgi holat</div>
+  <h2>Oyna qanday ko'rinadi</h2>
+  <p>Zavod va tur oynada <b>faqat yozuv</b> &mdash; ularni bosib bo'lmaydi. O'zgartirish mumkin bo'lgan yagona narsa &mdash; gramm.</p>
+</section>
+</div>
+
+<div class="cmp">
+  <div class="box">
+    <div class="bhd old">Hozir</div>
+    <div class="dlg">
+      <div class="dtitle">Abdulhamid &mdash; 05.09.2026</div>
+      <div class="card">
+        <div class="crow">
+          <span class="lab voz">Vozvrat</span>
+          <span class="sub">Diamond &middot; Oddiy</span>
+        </div>
+        <div class="grid2" style="grid-template-columns:1fr 30px;align-items:center">
+          <input class="fld mono" value="8.49" readonly>
+          <span style="font-size:13px;color:var(--muted)">g</span>
+        </div>
+        <div class="ostl">ostatka: 142.30g</div>
+        <div class="readonly">Tur — o'zgartirib bo'lmaydi</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="bhd new">Taklif</div>
+    <div class="dlg">
+      <div class="dtitle">Abdulhamid &mdash; 05.09.2026</div>
+      <div class="card">
+        <div class="crow">
+          <span class="lab voz">Vozvrat</span>
+          <span class="sub">Diamond<span class="badge">Oddiy &rarr; Polimer</span></span>
+        </div>
+        <div class="flab">Tur</div>
+        <select class="fld sel">
+          <option>Polimer</option>
+          <option>Oddiy</option>
+          <option>Zanjir 585</option>
+          <option>Uzuk 750</option>
+        </select>
+        <div class="flab" style="margin-top:9px">Gramm</div>
+        <div class="grid2" style="grid-template-columns:1fr 30px;align-items:center">
+          <input class="fld mono" value="8.49">
+          <span style="font-size:13px;color:var(--muted)">g</span>
+        </div>
+        <div class="ostl">Oddiy: 133.81g &nbsp;&middot;&nbsp; Polimer: 61.22g</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">02 &mdash; Saqlaganda</div>
+  <h2>Ombor qanday tuzatiladi</h2>
+  <p>Bu eng nozik joy. Tur almashsa, gramm <b>eski turdan qaytarilib, yangisiga o'tkaziladi</b>.</p>
+  <div class="flow">
+    <div class="st"><b>Eski turdagi ta'sir bekor qilinadi</b><span>Vozvrat edi &mdash; ya'ni Oddiy ombori 8.49 g ga oshgan edi. Endi o'sha 8.49 g qaytarib olinadi.</span></div>
+    <div class="st"><b>Yangi turga qo'llanadi</b><span>Polimer ombori 8.49 g ga oshadi.</span></div>
+    <div class="st"><b>Klient qarzi o'zi to'g'rilanadi</b><span>Qarz har zavod&middot;tur bo'yicha tarixdan hisoblanadi. Yozuvdagi tur o'zgargani uchun qarz ham to'g'ri turga ko'chadi &mdash; qo'shimcha kod kerak emas.</span></div>
+    <div class="st"><b>Belgi qo'yiladi</b><span><code class="inl">Oddiy &rarr; Polimer &middot; 05.09 14:20</code> &mdash; tarixda va tahrirlash oynasida ko'rinadi.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">03 &mdash; Sizning qarorlaringiz</div>
+  <h2>Aytganingiz bo'yicha</h2>
+</section>
+</div>
+
+<div class="tw">
+<table>
+  <tbody>
+  <tr><th>Talab</th><th>Qanday bo'ladi</th></tr>
+  <tr><td>Tur ro'yxatdan tanlanadi</td><td><span class="tag t-good">select ochiladi</span></td></tr>
+  <tr><td>Gramm avvalgidek o'zgaradi</td><td>tegilmaydi</td></tr>
+  <tr><td>Qatorni o'chirish qolsin</td><td>grammni bo'shatsangiz o'chadi &mdash; hozirgidek</td></tr>
+  <tr><td>Bir xil tur chiqsa &mdash; qo'shilsin</td><td>ikki qator bitta bo'lib birlashadi, grammlari qo'shiladi</td></tr>
+  <tr><td>Tahrirlangani bilinib tursin</td><td><code>Oddiy &rarr; Polimer &middot; 05.09 14:20</code></td></tr>
+  <tr><td>Butun chek o'chirilmaydi</td><td>faqat ichidagi qatorlar &mdash; hozirgidek</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">04 &mdash; Qaror kerak</div>
+  <h2>Ikkita savol</h2>
+
+  <div class="dec">
+    <div class="dhd"><span class="k">A</span><span>Zavod ham almashsinmi, yoki faqat tur?</span></div>
+    <div class="dbody">
+      <div class="opt"><div class="k">A1</div><div class="d">Faqat <b>tur</b> &mdash; zavod qotib turadi<span class="rec">tavsiya</span><em>Sizning misolingiz aynan shunday: Diamond ichida Oddiy &rarr; Polimer. Xavfsizroq &mdash; noto'g'ri zavodga o'tkazib yuborish mumkin emas.</em></div></div>
+      <div class="opt"><div class="k">A2</div><div class="d">Zavod ham almashsin<em>Ikkita ro'yxat bo'ladi. Kuchliroq, lekin xato qilish osonroq.</em></div></div>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="dhd"><span class="k">B</span><span>Bir xil tur chiqsa &mdash; qo'shilishi qanday bo'lsin?</span></div>
+    <div class="dbody">
+      <div class="opt"><div class="k">B1</div><div class="d">Jimgina qo'shilsin<span class="done">siz aytdingiz</span><em>Ikki qator birlashadi, grammlari qo'shiladi. Hech nima so'ralmaydi.</em></div></div>
+      <div class="opt"><div class="k">B2</div><div class="d">Avval so'ralsin<em>&laquo;Bu turda allaqachon 3.20 g bor. Qo'shilsinmi?&raquo; &mdash; tasdiqlaganingizdan keyin birlashadi.</em></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">05 &mdash; Ochiq aytishim kerak</div>
+  <h2>Bitta cheklov</h2>
+  <p><b>Dona baza</b> alohida joyda saqlanadi &mdash; har donaning og'irligi zavod&middot;tur bo'yicha yozib boriladi. Yozuvdagi turni almashtirsam, <b>dona bazadagi yozuvlar eski turda qoladi</b>.</p>
+  <p>Hozir bu muammo emas: dona baza <b>muzlatilgan</b> (<code class="inl">DONA_BAZA_UI=false</code>), ekranda ko'rinmaydi va hisobga qo'shilmaydi. Lekin keyinchalik yoqilsa, tur almashtirilgan yozuvlar u yerda eski turda turadi.</p>
+  <p>Uni ham ko'chirish mumkin, lekin bu alohida ish. Hozircha shunday qoldiraman &mdash; siz boshqacha desangiz, aytasiz.</p>
+</section>
+
+<section>
+  <div class="snum">06 &mdash; Qamrov</div>
+  <h2>Nimaga tegiladi</h2>
+</section>
+</div>
+
+<div class="tw">
+<table>
+  <tbody>
+  <tr><th>Joy</th><th>O'zgarish</th></tr>
+  <tr><td><code>klientGunTahrir</code> &mdash; oyna chizish</td><td>tur uchun <code>select</code> qo'shiladi</td></tr>
+  <tr><td><code>kopEditSaqla</code> &mdash; saqlash</td><td>tur o'zgarsa: eski turdan qaytar, yangisiga qo'sh; birlashtirish; belgi</td></tr>
+  <tr><td><code>op.tahrir</code> maydoni</td><td><code>eskiTur</code> / <code>yangiTur</code> qo'shiladi</td></tr>
+  <tr><td>Klient tarixi ko'rinishi</td><td>belgi chiqadi</td></tr>
+  <tr><td><code>op.eskiTur</code> (tur nomi o'zgarishi)</td><td><span class="tag t-good">tegilmaydi</span> &mdash; boshqa ma'no</td></tr>
+  <tr><td>Qarz hisobi</td><td><span class="tag t-good">tegilmaydi</span> &mdash; o'zi to'g'rilanadi</td></tr>
+  <tr><td>Abdulhamid rejimi, POS, kassa, PDF</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> <b>A</b> va <b>B</b> bo'yicha tanlovingizni ayting &mdash; masalan <code class="inl">A1 B1</code> &mdash; shundan keyin yozaman. Diff taxminan 70&ndash;90 qator.</p>
+</footer>
+</div>
+</div>

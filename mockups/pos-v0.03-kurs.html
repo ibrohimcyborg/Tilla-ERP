@@ -1,0 +1,215 @@
+<title>POS Kurs Zanjiri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px 80px}
+.col{max-width:680px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px}
+header{padding:54px 0 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+h1{font-size:clamp(26px,4.6vw,37px);font-weight:800;letter-spacing:-.024em;line-height:1.14}
+.lede{font-size:17px;color:var(--muted);margin-top:14px;max-width:560px}
+section{padding-top:44px}
+.snum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+h2{font-size:23px;font-weight:700;letter-spacing:-.018em}
+p{margin:12px 0}.col p{max-width:66ch}
+
+/* zanjir */
+.ch{display:flex;flex-direction:column;gap:0;margin:20px 0;max-width:440px}
+.nd{
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  padding:12px 15px;font-size:14px;
+}
+.nd b{font-weight:700;display:block;font-size:14.5px}
+.nd span{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+.nd.ok{border-color:var(--good-line);background:var(--good-soft)}
+.nd.ok b{color:var(--good)}
+.nd.gap{border-color:var(--bad-line);background:var(--bad-soft);border-style:dashed}
+.nd.gap b{color:var(--bad)}
+.nd.fix{border-color:var(--accent-line);background:var(--accent-soft)}
+.nd.fix b{color:var(--accent)}
+.ar{text-align:center;color:var(--muted);font-size:15px;line-height:1;padding:5px 0}
+.ar.x{color:var(--bad);font-weight:800}
+
+.two{display:grid;grid-template-columns:1fr;gap:16px;margin:22px 0}
+@media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.bx{border:1px solid var(--line);border-radius:13px;background:var(--panel);overflow:hidden}
+.bh{padding:10px 15px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--line)}
+.bh.a{background:var(--good-soft);color:var(--good)}
+.bh.b{background:var(--bad-soft);color:var(--bad)}
+.bb{padding:15px}
+.bb .ch{margin:0;max-width:none}
+
+/* ekran */
+.scr{border:1px solid var(--line);border-radius:14px;background:#EEF1F7;padding:14px;max-width:330px;margin:16px 0}
+.kp{
+  display:flex;align-items:baseline;gap:7px;background:rgba(59,111,224,.10);
+  border:1px solid #C3CFE8;border-radius:999px;padding:7px 15px;width:max-content;
+}
+.kp .l{font-size:10px;color:#3B6FE0;letter-spacing:.06em;font-weight:700}
+.kp .v{font-size:17px;color:#3B6FE0;font-weight:800;font-family:"JetBrains Mono",monospace}
+.kp .c{font-size:10px;color:#3B6FE0}
+.cap{font-size:12.5px;color:var(--muted);margin-top:8px}
+
+.tw{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:440px}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:9px 15px;border-bottom:1px solid var(--line2)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+.dec{border:1px solid var(--accent-line);border-radius:12px;background:var(--panel);margin:14px 0;overflow:hidden}
+.dh{background:var(--accent-soft);color:var(--accent);padding:11px 17px;font-weight:700;font-size:14px;border-bottom:1px solid var(--accent-line);display:flex;gap:10px;align-items:baseline}
+.dh .k{font-family:"JetBrains Mono",monospace;font-size:12px}
+.db{padding:5px 17px 13px}
+.opt{display:grid;grid-template-columns:34px 1fr;gap:11px;padding:10px 0;border-top:1px solid var(--line2)}
+.opt:first-child{border-top:0}
+.opt .k{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}
+.opt .d{font-size:14.5px}.opt .d em{font-style:normal;color:var(--muted);display:block;font-size:13px;margin-top:2px}
+.rec{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;color:var(--good);background:var(--good-soft);border:1px solid var(--good-line);border-radius:999px;padding:1px 7px;margin-left:6px;letter-spacing:.05em;vertical-align:1px}
+footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla POS &middot; v0.03 &middot; tahlil</div>
+  <h1>POS da kurs nega ko'rinmayapti</h1>
+  <p class="lede">Zanjirning bitta halqasi yetishmayapti. Kurs kodi joyida &mdash; unga beriladigan qiymat kelmayapti.</p>
+</header>
+
+<div class="col">
+<section>
+  <div class="snum">01 &mdash; Kurs qayerda yashaydi</div>
+  <h2>Cloudda alohida hujjat</h2>
+  <p>Kurs zavodlar yoki klientlar bilan birga saqlanmaydi. U cloudda <b>o'z hujjatida</b> turadi &mdash; <code class="inl">sozlamalar</code>. Ichida kurs, lom narxi, B ustama va har zavodning foizi.</p>
+</section>
+</div>
+
+<div class="two">
+  <div class="bx">
+    <div class="bh a">Tilla ERP &mdash; ishlaydi</div>
+    <div class="bb">
+      <div class="ch">
+        <div class="nd ok"><b>Cloud</b><span>sozlamalar</span></div>
+        <div class="ar">&darr;</div>
+        <div class="nd ok"><b>ERP o'qiydi</b><span>sozListen / sozQollash</span></div>
+        <div class="ar">&darr;</div>
+        <div class="nd ok"><b>Brauzer xotirasi</b><span>tilla-kurs-bugun</span></div>
+        <div class="ar">&darr;</div>
+        <div class="nd ok"><b>Kurs ko'rinadi</b><span>getKatNarx &middot; kurs paneli</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bx">
+    <div class="bh b">POS &mdash; uzilgan</div>
+    <div class="bb">
+      <div class="ch">
+        <div class="nd ok"><b>Cloud</b><span>sozlamalar &mdash; joyida turibdi</span></div>
+        <div class="ar x">&times;</div>
+        <div class="nd gap"><b>O'qiydigan hech kim yo'q</b><span>pos.html bu hujjatga qaramaydi</span></div>
+        <div class="ar">&darr;</div>
+        <div class="nd gap"><b>Xotira bo'sh</b><span>tilla-kurs-bugun = yo'q</span></div>
+        <div class="ar">&darr;</div>
+        <div class="nd gap"><b>Kurs &mdash; chiziqcha</b><span>&laquo;&mdash;&raquo;</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+<p>Telefonda faqat <code class="inl">pos.html</code> ochgansiz, Tilla ERP hech ochilmagan &mdash; shuning uchun xotirada kurs yo'q.</p>
+
+<div class="scr">
+  <div class="kp"><span class="l">KURS</span><span class="v">&mdash;</span><span class="c">&#9662;</span></div>
+  <div class="cap">Hozir POS da shunday ko'rinadi</div>
+</div>
+<div class="scr">
+  <div class="kp"><span class="l">KURS</span><span class="v">76.5</span><span class="c">&#9662;</span></div>
+  <div class="cap">Tuzatilgandan keyin</div>
+</div>
+
+<section>
+  <div class="snum">02 &mdash; Tuzatish</div>
+  <h2>Yetishmagan halqa qo'yiladi</h2>
+  <p><code class="inl">pos.html</code> ochilganda <code class="inl">sozlamalar</code> hujjatini ham o'qiydi va ichidagi qiymatlarni xotiraga yozadi &mdash; <b>aynan ERP qanday qilsa shunday</b>.</p>
+</section>
+</div>
+
+<div class="col">
+<div class="ch">
+  <div class="nd ok"><b>Cloud</b><span>sozlamalar</span></div>
+  <div class="ar">&darr;</div>
+  <div class="nd fix"><b>POS o'qiydi &mdash; YANGI</b><span>bir marta, ochilganda</span></div>
+  <div class="ar">&darr;</div>
+  <div class="nd ok"><b>Brauzer xotirasi</b><span>tilla-kurs-bugun</span></div>
+  <div class="ar">&darr;</div>
+  <div class="nd ok"><b>Kurs ko'rinadi</b><span>POS kodiga TEGILMAYDI</span></div>
+</div>
+
+<p>POS ning kurs kodi <b>o'zgarmaydi</b>. U avvalgidek xotiradan oladi &mdash; endi xotirada qiymat bo'ladi, xolos.</p>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th>Narsa</th><th>Holat</th></tr>
+  <tr><td><code>pos.html</code> &mdash; <code>sozlamalar</code> o'qish</td><td><span class="tag t-good">~12 qator qo'shiladi</span></td></tr>
+  <tr><td>POS kurs paneli, <code>getKatNarx</code>, narx hisobi</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td><code>index.html</code></td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td><code>hisob.js</code></td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Kursni POS dan o'zgartirish</td><td><span class="tag t-bad">qo'shilmaydi</span> &mdash; kassir faqat ko'radi</td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">03 &mdash; Qaror</div>
+  <h2>Bitta savol</h2>
+
+  <div class="dec">
+    <div class="dh"><span class="k">A</span><span>Kurs qachon yangilanadi?</span></div>
+    <div class="db">
+      <div class="opt"><div class="k">A1</div><div class="d">Faqat ochilganda &mdash; bir marta<span class="rec">tavsiya</span><em>Siz aytdingiz: jonli kerak emas, hamma jarayon Tilla ERP da tekshiriladi. Kurs kun davomida kamdan-kam o'zgaradi; o'zgarsa POS ni qayta ochasiz.</em></div></div>
+      <div class="opt"><div class="k">A2</div><div class="d">Jonli &mdash; ERP da kurs o'zgarsa POS darrov ko'radi<em>Bitta tinglovchi qo'shiladi. Ma'lumot emas, faqat kurs jonli bo'ladi.</em></div></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> <code class="inl">A1</code> yoki <code class="inl">A2</code> &mdash; ayting, yozaman. POS versiyasi <code class="inl">v0.02</code> &rarr; <code class="inl">v0.03</code>.</p>
+</footer>
+</div>
+</div>

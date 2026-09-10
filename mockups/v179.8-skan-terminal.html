@@ -1,0 +1,694 @@
+<title>Zavod Skan Terminali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5; --panel3:#EEF0EA;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+  --blue:#2B5C86; --blue-soft:#E6EEF5; --blue-line:#C2D5E4;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B; --panel3:#282D20;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+    --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B; --panel3:#282D20;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--ink);margin:0;
+  font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+.mono,input,.num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{max-width:1180px;margin:0 auto;padding:0 14px 40px}
+
+/* ---- top bar ---- */
+.bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:16px 0 14px;border-bottom:1px solid var(--line);
+}
+.brand{font-family:"Archivo",sans-serif;font-weight:800;font-size:17px;letter-spacing:-.01em}
+.brand em{
+  font-style:normal;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:2px;
+}
+.rejim{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.rb{
+  padding:9px 20px;font-size:12px;font-weight:700;letter-spacing:.09em;
+  font-family:"JetBrains Mono",monospace;color:var(--muted);
+}
+.rb.on{background:var(--accent-soft);color:var(--accent)}
+.rb.on.out{background:var(--blue-soft);color:var(--blue)}
+
+/* ---- zavod row ---- */
+.zrow{display:flex;align-items:center;gap:12px;padding:16px 0 12px;flex-wrap:wrap}
+.zrow label{
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);
+}
+select{
+  flex:1;min-width:190px;padding:11px 13px;border-radius:10px;font-size:15px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  font-family:"Instrument Sans",sans-serif;
+}
+
+/* ---- tur chips ---- */
+.turswrap{overflow-x:auto;margin:0 -14px;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
+.turs{display:flex;gap:8px;padding-bottom:6px}
+.tchip{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:11px;
+  padding:9px 14px;text-align:left;min-width:126px;transition:border-color .12s,background .12s;
+}
+.tchip:hover{border-color:var(--accent-line)}
+.tchip.on{border-color:var(--accent);background:var(--accent-soft)}
+.tchip .tn{font-size:13.5px;font-weight:600;white-space:nowrap}
+.tchip.on .tn{color:var(--accent)}
+.tchip .tv{
+  font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);
+  margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.tchip.has .tv{color:var(--good);font-weight:700}
+
+/* ---- main grid ---- */
+.main{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+@media(min-width:900px){.main{grid-template-columns:1fr 342px;align-items:start}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.chd{
+  padding:11px 16px;border-bottom:1px solid var(--line);background:var(--panel2);
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:10px;
+}
+.chd b{color:var(--ink);font-weight:700}
+.cbd{padding:16px}
+
+/* ---- scan input ---- */
+.sclab{
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+}
+#inp{
+  width:100%;padding:15px 16px;border-radius:11px;font-size:21px;font-weight:700;
+  border:1.5px solid var(--line);background:var(--panel2);color:var(--ink);
+}
+#inp:disabled{opacity:.45}
+#inp.err{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+@media (prefers-reduced-motion:no-preference){
+  #inp.err{animation:shk .28s}
+  @keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+}
+.actrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.abtn{
+  padding:10px 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);
+  font-size:13px;font-weight:600;
+}
+.abtn:hover{border-color:var(--accent);color:var(--accent)}
+.abtn.warn:hover{border-color:var(--bad);color:var(--bad)}
+
+.rad{
+  margin-top:11px;border:1px solid var(--bad-line);background:var(--bad-soft);color:var(--bad);
+  border-radius:10px;padding:11px 14px;
+}
+.rad .r1{font-weight:700;font-size:14.5px}
+.rad .r1 span{font-family:"JetBrains Mono",monospace}
+.rad .r2{font-size:12.5px;opacity:.85;margin-top:2px}
+
+/* ---- simulator ---- */
+.sim{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+.simlb{
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:9px;
+}
+.simg{display:flex;flex-wrap:wrap;gap:6px}
+.sb{
+  font-family:"JetBrains Mono",monospace;font-size:12px;padding:6px 11px;border-radius:8px;
+  border:1px solid var(--good-line);background:var(--good-soft);color:var(--good);font-weight:500;
+}
+.sb.bad{border-color:var(--bad-line);background:var(--bad-soft);color:var(--bad)}
+.sb:disabled{opacity:.4;cursor:default}
+
+/* ---- rows ---- */
+.rows{margin-top:4px}
+.row{
+  display:grid;grid-template-columns:34px 1fr 84px 34px;gap:8px;align-items:center;
+  padding:10px 4px;border-bottom:1px solid var(--line2);
+}
+.row:last-child{border-bottom:0}
+.row.new{background:var(--accent-soft);border-radius:8px}
+.row .i{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
+.row .g{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.row.neg .g{color:var(--bad)}
+.row .tg{font-size:11px;color:var(--muted)}
+.row .x{text-align:center;color:var(--bad);font-size:17px;line-height:1;padding:4px}
+.bosh{text-align:center;color:var(--muted);font-size:13.5px;padding:26px 0}
+
+/* ---- summary ---- */
+.sline{display:grid;grid-template-columns:1fr 56px 78px;gap:8px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:13.5px}
+.sline:last-of-type{border-bottom:0}
+.sline .n,.sline .g{font-family:"JetBrains Mono",monospace;text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+.sline.zero{opacity:.42}
+.sline.cur{font-weight:700;color:var(--accent)}
+.grand{
+  display:grid;grid-template-columns:1fr 56px 78px;gap:8px;margin-top:10px;padding-top:12px;
+  border-top:1.5px solid var(--line);font-weight:700;font-size:14.5px;
+}
+.grand .n,.grand .g{font-family:"JetBrains Mono",monospace;text-align:right;font-variant-numeric:tabular-nums}
+.grand .g{color:var(--accent);font-size:16px}
+
+.vesbox{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.vesbox label{
+  display:block;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+}
+#ves{
+  width:100%;padding:10px 13px;border-radius:9px;font-size:16px;font-weight:700;
+  border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+}
+.farq{margin-top:9px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;text-align:right}
+.farq.ok{color:var(--good)}
+.farq.no{color:var(--bad)}
+.farq.idle{color:var(--muted);font-weight:400}
+
+.big{
+  display:block;width:100%;margin-top:15px;padding:15px;border-radius:11px;
+  background:var(--accent);color:#fff;font-weight:700;font-size:15px;letter-spacing:.03em;
+}
+:root[data-theme="dark"] .big{color:#1A1508}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .big{color:#1A1508}}
+.big:disabled{opacity:.35;cursor:default}
+.big.out{background:var(--blue);color:#fff}
+
+.radlog{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.radsum{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);width:100%}
+.radsum b{font-family:"JetBrains Mono",monospace;color:var(--bad);font-size:14px}
+.radlist{margin-top:9px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);max-height:150px;overflow-y:auto}
+.radlist div{padding:3px 0;border-bottom:1px solid var(--line2)}
+.radlist div:last-child{border-bottom:0}
+
+.ostw{
+  margin-top:10px;border:1px solid var(--bad-line);background:var(--bad-soft);color:var(--bad);
+  border-radius:9px;padding:9px 12px;font-size:12.5px;
+}
+
+/* ---- modal ---- */
+.modal{
+  position:fixed;inset:0;background:rgba(10,12,8,.62);z-index:50;
+  display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto;
+}
+.sheet{
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  width:100%;max-width:430px;margin:auto;overflow:hidden;
+}
+.shd{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.shd h2{font-size:16px;font-weight:700}
+.shd button{font-size:22px;color:var(--muted);line-height:1;padding:2px 6px}
+.chek{padding:20px;font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.9;overflow-x:auto}
+.chek .ct{font-weight:700;letter-spacing:.07em;font-size:13px}
+.chek .cs{color:var(--muted);font-size:11.5px}
+.chek .cl{border-top:1px dashed var(--line);margin:9px 0}
+.chek .cr{display:grid;grid-template-columns:1fr 62px 82px;gap:8px;white-space:nowrap}
+.chek .cr span:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
+.chek .tot{font-weight:700;color:var(--accent)}
+.chek .okl{color:var(--good);font-weight:700}
+.chek .nol{color:var(--bad);font-weight:700}
+.sft{padding:0 20px 20px;display:flex;gap:9px}
+.sft button{flex:1;padding:13px;border-radius:10px;font-weight:700;font-size:14px}
+.sft .prim{background:var(--good);color:#fff}
+.sft .sec{border:1px solid var(--line);background:var(--panel2)}
+
+.foot{
+  margin-top:24px;padding-top:16px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--muted);
+}
+.foot b{color:var(--ink);font-weight:600}
+.foot code{
+  font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1px 5px;
+}
+</style>
+
+<div class="app">
+
+  <div class="bar">
+    <div class="brand">ZAVOD SKAN<em>sinov maketi</em></div>
+    <div class="rejim">
+      <button class="rb on" id="rk">KIRIM</button>
+      <button class="rb" id="rc">CHIQIM</button>
+    </div>
+  </div>
+
+  <div class="zrow">
+    <label for="zsel">Zavod</label>
+    <select id="zsel"></select>
+  </div>
+
+  <div class="turswrap"><div class="turs" id="turs"></div></div>
+
+  <div class="main">
+
+    <div class="card">
+      <div class="chd"><span id="schd">Skan &mdash; tur tanlang</span><b id="scnt"></b></div>
+      <div class="cbd">
+        <div class="sclab" id="sclab">Gramm skan qiling</div>
+        <input id="inp" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="0.00" disabled>
+        <div class="actrow">
+          <button class="abtn" id="bqosh">Qo&#39;shish</button>
+          <button class="abtn warn" id="boch">&#9003; Oxirgisini o&#39;chir</button>
+          <button class="abtn warn" id="btoza">Turni tozalash</button>
+        </div>
+        <div class="rad" id="rad" hidden></div>
+
+        <div class="sim">
+          <div class="simlb">Skaner sinovi &mdash; bosing, skaner o&#39;qigandek yuboradi</div>
+          <div class="simg" id="simg"></div>
+        </div>
+
+        <div class="rows" id="rows"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chd"><span>Jami</span><b id="znom"></b></div>
+      <div class="cbd">
+        <div id="sumlist"></div>
+        <div class="grand"><span id="glab">JAMI</span><span class="n" id="gdona">0</span><span class="g" id="ggram">0.00 g</span></div>
+        <div id="ostw"></div>
+
+        <div class="vesbox">
+          <label for="ves">Zavod bergani &mdash; nazorat vazni</label>
+          <input id="ves" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="0.00">
+          <div class="farq idle" id="farq">Nazorat vazni kiritilmagan</div>
+        </div>
+
+        <button class="big" id="yak" disabled>YAKUNLASH</button>
+
+        <div class="radlog">
+          <button class="radsum" id="radtog"><span>Rad etilgan skanlar</span><b id="radn">0</b></button>
+          <div class="radlist" id="radlist" hidden></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <p><b>Qoidalar shu maketda:</b> <code>Enter</code> qo&#39;shadi &middot; <code>+</code> faqat yozilgani to&#39;g&#39;ri gramm bo&#39;lsa qo&#39;shadi &middot; <code>&minus;</code> doim oddiy belgi (shuning uchun <code>SU-01</code> qatorni o&#39;chirmaydi, va <code>-5</code> tuzatish yozish mumkin) &middot; o&#39;chirish faqat tugma bilan.</p>
+    <p><b>Qabul qilinadi:</b> <code>2.98</code> <code>2,98</code> <code>2.98 g</code> <code>2.98gr</code> <code>15</code> <code>-5</code> &nbsp;&mdash;&nbsp; <b>rad etiladi:</b> <code>B01</code> <code>1K</code> <code>SU-01</code> <code>585 2.98</code> <code>abc</code></p>
+    <p><b>Tur va rejim alohida savat.</b> Turni yoki KIRIM/CHIQIM ni almashtirsangiz, har biri o&#39;z ro&#39;yxatini saqlab turadi &mdash; aralashib ketmaydi.</p>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet">
+    <div class="shd"><h2>Yakuniy hisobot</h2><button id="mx" aria-label="Yopish">&times;</button></div>
+    <div class="chek" id="chek"></div>
+    <div class="sft">
+      <button class="sec" id="mbek">Orqaga</button>
+      <button class="prim" id="msaq">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ZAVODLAR = [
+    { nom:"BUTTERFLY", turlar:[
+      {nom:"Zanjir 585", ost:412.60},
+      {nom:"Uzuk 585", ost:188.25},
+      {nom:"Bilaguzuk 750", ost:305.10},
+      {nom:"Sirg'a 585", ost:96.40},
+      {nom:"Kulon 585", ost:54.80},
+      {nom:"Braslet 750", ost:127.35}
+    ]},
+    { nom:"ROYAL GOLD", turlar:[
+      {nom:"Zanjir 750", ost:230.00},
+      {nom:"Uzuk 750", ost:145.90},
+      {nom:"Sirg'a 750", ost:61.20}
+    ]}
+  ];
+
+  var S = { zi:0, ti:-1, rejim:"kirim", savat:{}, rad:[], oxirgi:-1 };
+
+  function kalit(zi, ti, rejim){ return rejim + "|" + zi + "|" + ti; }
+  function savat(zi, ti){
+    var k = kalit(zi === undefined ? S.zi : zi, ti === undefined ? S.ti : ti, S.rejim);
+    if (!S.savat[k]) S.savat[k] = [];
+    return S.savat[k];
+  }
+  function rnd(n){ return Math.round(n * 100) / 100; }
+  function fg(n){ return (Math.round(n * 100) / 100).toFixed(2); }
+  function zav(){ return ZAVODLAR[S.zi]; }
+
+  // ---------- TUZATILGAN GRAMM O'QUVCHI ----------
+  function oqi(v){
+    if (v === null || v === undefined) return { ok:false, sabab:"bo'sh" };
+    var s = String(v).trim().replace(/\s+/g, "");
+    if (!s) return { ok:false, sabab:"bo'sh" };
+    var asl = s;
+    s = s.replace(/(gramm|gram|gr|g|гр|г)$/i, "");
+    if (!s) return { ok:false, sabab:"faqat harf — gramm yo'q" };
+    if (!/^[+-]?\d{1,5}([.,]\d{1,3})?$/.test(s)){
+      return { ok:false, sabab:"gramm shaklida emas", asl:asl };
+    }
+    var n = parseFloat(s.replace(",", "."));
+    if (isNaN(n)) return { ok:false, sabab:"son o'qilmadi" };
+    if (n === 0) return { ok:false, sabab:"0 gramm bo'lmaydi" };
+    return { ok:true, n:rnd(n) };
+  }
+
+  var el = {};
+  ["zsel","turs","inp","rad","rows","sumlist","gdona","ggram","glab","znom","ves","farq",
+   "yak","radn","radlist","radtog","modal","chek","mx","mbek","msaq","schd","scnt","sclab",
+   "bqosh","boch","btoza","simg","rk","rc","ostw"].forEach(function(id){
+    el[id] = document.getElementById(id);
+  });
+
+  // ---------- rad etish ----------
+  var radTimer = null;
+  function radKorsat(matn, sabab){
+    el.rad.hidden = false;
+    el.rad.innerHTML = '<div class="r1">✗ Qabul qilinmadi — <span>&laquo;' +
+      esc(matn) + '&raquo;</span></div><div class="r2">' + esc(sabab) +
+      '. Qayta skan qiling.</div>';
+    el.inp.classList.remove("err");
+    void el.inp.offsetWidth;
+    el.inp.classList.add("err");
+    S.rad.unshift({ m:matn, s:sabab, v:vaqt() });
+    if (S.rad.length > 40) S.rad.pop();
+    radLogChiz();
+    if (radTimer) clearTimeout(radTimer);
+    radTimer = setTimeout(function(){ el.inp.classList.remove("err"); }, 400);
+  }
+  function radYop(){ el.rad.hidden = true; el.inp.classList.remove("err"); }
+  function vaqt(){
+    var d = new Date();
+    return ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2) + ":" + ("0"+d.getSeconds()).slice(-2);
+  }
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function radLogChiz(){
+    el.radn.textContent = S.rad.length;
+    el.radlist.innerHTML = S.rad.length
+      ? S.rad.map(function(r){ return "<div>" + r.v + " &nbsp; &laquo;" + esc(r.m) + "&raquo; &nbsp; " + esc(r.s) + "</div>"; }).join("")
+      : "<div>Hali yo'q</div>";
+  }
+
+  // ---------- qo'shish ----------
+  function qosh(v){
+    if (S.ti < 0) return;
+    var r = oqi(v);
+    if (!r.ok){
+      radKorsat(String(v).trim() || "(bo'sh)", r.sabab);
+      el.inp.value = ""; el.inp.focus();
+      return;
+    }
+    var a = savat();
+    a.push(r.n);
+    S.oxirgi = a.length - 1;
+    radYop();
+    el.inp.value = ""; el.inp.focus();
+    chiz();
+  }
+  function ochirOxirgi(){
+    var a = savat();
+    if (!a.length) return;
+    a.pop(); S.oxirgi = -1; chiz(); el.inp.focus();
+  }
+  function ochirIndeks(i){
+    var a = savat();
+    a.splice(i, 1); S.oxirgi = -1; chiz(); el.inp.focus();
+  }
+  function turTozala(){
+    var a = savat();
+    if (!a.length) return;
+    if (!confirm("Shu turdagi " + a.length + " ta qator o'chirilsinmi?")) return;
+    S.savat[kalit(S.zi, S.ti, S.rejim)] = [];
+    S.oxirgi = -1; chiz(); el.inp.focus();
+  }
+
+  // ---------- klaviatura ----------
+  function tugma(e){
+    if (e.key === "Enter"){ e.preventDefault(); qosh(e.target.value); return; }
+    if (e.key === "+"){
+      var r = oqi(e.target.value);
+      if (r.ok){ e.preventDefault(); qosh(e.target.value); }
+      return;
+    }
+    // "-" hech qachon amal emas — oddiy belgi bo'lib matnga tushadi
+  }
+  el.inp.addEventListener("keydown", tugma);
+
+  // ---------- skaner simulyatori ----------
+  var NAMUNA = [
+    { t:"2.98", ok:true }, { t:"3,45", ok:true }, { t:"12.60", ok:true },
+    { t:"2.98 g", ok:true }, { t:"4.15gr", ok:true }, { t:"-1.20", ok:true },
+    { t:"B01", ok:false }, { t:"SU-01", ok:false }, { t:"1K", ok:false },
+    { t:"585 2.98", ok:false }, { t:"0926 000012", ok:false }, { t:"01", ok:false }
+  ];
+  var simIshlayapti = false;
+  function simul(text){
+    if (simIshlayapti || S.ti < 0) return;
+    simIshlayapti = true;
+    setSimDisabled(true);
+    el.inp.value = "";
+    el.inp.focus();
+    var i = 0;
+    var tm = setInterval(function(){
+      if (i >= text.length){
+        clearInterval(tm);
+        var fake = { key:"Enter", target:el.inp, preventDefault:function(){} };
+        tugma(fake);
+        simIshlayapti = false;
+        setSimDisabled(false);
+        return;
+      }
+      var ch = text.charAt(i++);
+      var bosildi = false;
+      var ev = { key:ch, target:el.inp, preventDefault:function(){ bosildi = true; } };
+      tugma(ev);
+      if (!bosildi) el.inp.value += ch;
+    }, 14);
+  }
+  function setSimDisabled(d){
+    Array.prototype.forEach.call(el.simg.children, function(b){ b.disabled = d || S.ti < 0; });
+  }
+  NAMUNA.forEach(function(n){
+    var b = document.createElement("button");
+    b.className = "sb" + (n.ok ? "" : " bad");
+    b.type = "button";
+    b.textContent = n.t;
+    b.addEventListener("click", function(){ simul(n.t); });
+    el.simg.appendChild(b);
+  });
+
+  // ---------- chizish ----------
+  function chiz(){
+    var z = zav();
+    el.znom.textContent = z.nom;
+
+    // tur chiplari
+    el.turs.innerHTML = "";
+    z.turlar.forEach(function(t, ti){
+      var a = S.savat[kalit(S.zi, ti, S.rejim)] || [];
+      var jg = a.reduce(function(x, y){ return x + y; }, 0);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tchip" + (ti === S.ti ? " on" : "") + (a.length ? " has" : "");
+      b.innerHTML = '<div class="tn">' + esc(t.nom) + '</div><div class="tv">' +
+        (a.length ? a.length + " dona &middot; " + fg(jg) + " g" : "&mdash;") + '</div>';
+      b.addEventListener("click", function(){ turTanla(ti); });
+      el.turs.appendChild(b);
+    });
+
+    var a = S.ti >= 0 ? savat() : [];
+    var jamiG = a.reduce(function(x, y){ return x + y; }, 0);
+
+    el.schd.textContent = S.ti < 0 ? "Skan — tur tanlang" : "Skan — " + z.turlar[S.ti].nom;
+    el.scnt.textContent = S.ti < 0 ? "" : a.length + " dona · " + fg(jamiG) + " g";
+    el.sclab.textContent = S.rejim === "kirim" ? "Gramm skan qiling — KIRIM" : "Gramm skan qiling — CHIQIM";
+    el.inp.disabled = S.ti < 0;
+    setSimDisabled(false);
+
+    // qatorlar
+    if (S.ti < 0){
+      el.rows.innerHTML = '<div class="bosh">Yuqoridan tur tanlang</div>';
+    } else if (!a.length){
+      el.rows.innerHTML = '<div class="bosh">Hali skan yo\'q</div>';
+    } else {
+      var out = "";
+      for (var i = a.length - 1; i >= 0; i--){
+        out += '<div class="row' + (i === S.oxirgi ? " new" : "") + (a[i] < 0 ? " neg" : "") + '">' +
+          '<span class="i">' + (i + 1) + '</span>' +
+          '<span class="tg">' + (a[i] < 0 ? "tuzatish" : "") + '</span>' +
+          '<span class="g">' + fg(a[i]) + '</span>' +
+          '<button class="x" data-i="' + i + '" aria-label="O\'chirish">&times;</button></div>';
+      }
+      el.rows.innerHTML = out;
+      Array.prototype.forEach.call(el.rows.querySelectorAll(".x"), function(b){
+        b.addEventListener("click", function(){ ochirIndeks(parseInt(b.getAttribute("data-i"), 10)); });
+      });
+    }
+
+    // jami panel
+    var td = 0, tg = 0, satr = "";
+    z.turlar.forEach(function(t, ti){
+      var s = S.savat[kalit(S.zi, ti, S.rejim)] || [];
+      var g = s.reduce(function(x, y){ return x + y; }, 0);
+      td += s.length; tg += g;
+      satr += '<div class="sline' + (s.length ? "" : " zero") + (ti === S.ti ? " cur" : "") + '">' +
+        "<span>" + esc(t.nom) + '</span><span class="n">' + (s.length || "—") +
+        '</span><span class="g">' + (s.length ? fg(g) : "—") + "</span></div>";
+    });
+    el.sumlist.innerHTML = satr;
+    el.glab.textContent = S.rejim === "kirim" ? "JAMI KIRIM" : "JAMI CHIQIM";
+    el.gdona.textContent = td;
+    el.ggram.textContent = fg(tg) + " g";
+    el.yak.disabled = td === 0;
+    el.yak.className = "big" + (S.rejim === "chiqim" ? " out" : "");
+
+    // chiqimda ostatka ogohlantirishi
+    var ogoh = "";
+    if (S.rejim === "chiqim"){
+      z.turlar.forEach(function(t, ti){
+        var s = S.savat[kalit(S.zi, ti, S.rejim)] || [];
+        var g = s.reduce(function(x, y){ return x + y; }, 0);
+        if (g > t.ost + 0.004){
+          ogoh += "<div>" + esc(t.nom) + " — chiqim " + fg(g) +
+            " g, omborda " + fg(t.ost) + " g</div>";
+        }
+      });
+    }
+    el.ostw.innerHTML = ogoh ? '<div class="ostw"><b>Ostatka yetmaydi</b>' + ogoh + "</div>" : "";
+
+    farqChiz(tg);
+  }
+
+  function farqChiz(tg){
+    var r = oqi(el.ves.value);
+    if (!el.ves.value.trim()){
+      el.farq.className = "farq idle";
+      el.farq.textContent = "Nazorat vazni kiritilmagan";
+      return;
+    }
+    if (!r.ok){
+      el.farq.className = "farq no";
+      el.farq.textContent = "Nazorat vazni o'qilmadi";
+      return;
+    }
+    var f = rnd(r.n - tg);
+    if (Math.abs(f) < 0.005){
+      el.farq.className = "farq ok";
+      el.farq.textContent = "Farq: 0.00 g ✓ to'liq mos";
+    } else {
+      el.farq.className = "farq no";
+      el.farq.textContent = "Farq: " + (f > 0 ? "+" : "") + fg(f) + " g";
+    }
+  }
+  el.ves.addEventListener("input", function(){ chiz(); });
+
+  function turTanla(ti){
+    S.ti = ti; S.oxirgi = -1; radYop(); chiz();
+    setTimeout(function(){ el.inp.focus(); }, 30);
+  }
+
+  // ---------- zavod / rejim ----------
+  ZAVODLAR.forEach(function(z, i){
+    var o = document.createElement("option");
+    o.value = i; o.textContent = z.nom;
+    el.zsel.appendChild(o);
+  });
+  el.zsel.addEventListener("change", function(){
+    S.zi = parseInt(el.zsel.value, 10);
+    S.ti = -1; S.oxirgi = -1; radYop(); chiz();
+  });
+  function rejimQoy(r){
+    S.rejim = r; S.ti = -1; S.oxirgi = -1; radYop();
+    el.rk.className = "rb" + (r === "kirim" ? " on" : "");
+    el.rc.className = "rb" + (r === "chiqim" ? " on out" : "");
+    chiz();
+  }
+  el.rk.addEventListener("click", function(){ rejimQoy("kirim"); });
+  el.rc.addEventListener("click", function(){ rejimQoy("chiqim"); });
+
+  el.bqosh.addEventListener("click", function(){ qosh(el.inp.value); });
+  el.boch.addEventListener("click", ochirOxirgi);
+  el.btoza.addEventListener("click", turTozala);
+  el.radtog.addEventListener("click", function(){ el.radlist.hidden = !el.radlist.hidden; });
+
+  // ---------- yakuniy hisobot ----------
+  function hisobot(){
+    var z = zav();
+    var d = new Date();
+    var sana = ("0"+d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." + d.getFullYear();
+    var h = '<div class="ct">' + esc(z.nom) + " — SKAN " + (S.rejim === "kirim" ? "KIRIM" : "CHIQIM") + "</div>";
+    h += '<div class="cs">' + sana + " &nbsp; " + vaqt().slice(0,5) + "</div>";
+    h += '<div class="cl"></div>';
+    var td = 0, tg = 0, bor = 0;
+    z.turlar.forEach(function(t, ti){
+      var s = S.savat[kalit(S.zi, ti, S.rejim)] || [];
+      if (!s.length) return;
+      bor++;
+      var g = s.reduce(function(x, y){ return x + y; }, 0);
+      td += s.length; tg += g;
+      h += '<div class="cr"><span>' + esc(t.nom) + "</span><span>" + s.length +
+        " dona</span><span>" + fg(g) + " g</span></div>";
+    });
+    if (!bor) h += '<div class="cs">Hech nima skan qilinmagan</div>';
+    h += '<div class="cl"></div>';
+    h += '<div class="cr tot"><span>JAMI</span><span>' + td + " dona</span><span>" + fg(tg) + " g</span></div>";
+
+    var r = oqi(el.ves.value);
+    if (el.ves.value.trim() && r.ok){
+      var f = rnd(r.n - tg);
+      h += '<div class="cr"><span class="cs">Zavod bergani</span><span></span><span>' + fg(r.n) + " g</span></div>";
+      h += Math.abs(f) < 0.005
+        ? '<div class="cr okl"><span>Farq</span><span></span><span>0.00 g ✓</span></div>'
+        : '<div class="cr nol"><span>Farq</span><span></span><span>' + (f > 0 ? "+" : "") + fg(f) + " g</span></div>";
+    } else {
+      h += '<div class="cr"><span class="cs">Zavod bergani</span><span></span><span class="cs">kiritilmagan</span></div>';
+    }
+    if (S.rad.length){
+      h += '<div class="cl"></div><div class="cs">Rad etilgan skanlar: ' + S.rad.length + " ta</div>";
+    }
+    el.chek.innerHTML = h;
+    el.modal.hidden = false;
+  }
+  el.yak.addEventListener("click", hisobot);
+  function modalYop(){ el.modal.hidden = true; }
+  el.mx.addEventListener("click", modalYop);
+  el.mbek.addEventListener("click", modalYop);
+  el.msaq.addEventListener("click", function(){
+    alert("Bu sinov maketi — haqiqiy bazaga yozilmaydi.\n\nHaqiqiy tizimda shu yerda har tur o'z yozuvini oladi.");
+    modalYop();
+  });
+  el.modal.addEventListener("click", function(e){ if (e.target === el.modal) modalYop(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !el.modal.hidden) modalYop(); });
+
+  radLogChiz();
+  chiz();
+})();
+</script>

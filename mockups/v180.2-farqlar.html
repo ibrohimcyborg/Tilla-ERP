@@ -1,0 +1,237 @@
+<title>Farqlar Ekrani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+  --blue:#2B5C86; --blue-soft:#E6EEF5; --blue-line:#C2D5E4;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+    --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 90px}
+.col{max-width:680px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+header{padding:56px 0 30px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1{font-size:clamp(27px,4.8vw,39px);font-weight:800;letter-spacing:-.024em;line-height:1.12}
+.lede{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:580px}
+section{padding-top:46px}
+.snum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+h2{font-size:24px;font-weight:700;letter-spacing:-.018em}
+h3{font-size:16px;font-weight:700;margin:24px 0 8px}
+p{margin:13px 0}.col p{max-width:66ch}
+
+/* ekran */
+.scr{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;margin:20px 0;max-width:600px}
+.shd{padding:14px 17px;border-bottom:1px solid var(--line);background:var(--panel2);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.shd .t{font-weight:700;font-size:16px}
+.shd .x{color:var(--muted);font-size:19px;line-height:1}
+.sbd{padding:17px}
+.btn{display:block;width:100%;padding:13px;border-radius:10px;border:0;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn{color:#1A1508}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#1A1508}}
+.hint{font-size:13px;color:var(--muted);text-align:center;margin-top:9px}
+
+.grp{margin-top:6px}
+.ghd{display:flex;align-items:center;gap:8px;padding:11px 0 8px;font-size:13.5px;font-weight:700}
+.ghd .n{font-family:"JetBrains Mono",monospace;font-size:11px;padding:2px 8px;border-radius:999px}
+.ghd.a{color:var(--bad)} .ghd.a .n{background:var(--bad-soft);border:1px solid var(--bad-line)}
+.ghd.b{color:var(--blue)} .ghd.b .n{background:var(--blue-soft);border:1px solid var(--blue-line)}
+.gsub{font-size:12.5px;color:var(--muted);margin:-4px 0 9px;font-weight:400}
+
+.row{display:grid;grid-template-columns:1fr auto;gap:11px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--panel2);align-items:center}
+.row .info{min-width:0}
+.row .l1{font-size:14px;font-weight:600}
+.row .l1 b{font-family:"JetBrains Mono",monospace;font-weight:700}
+.row .l2{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);margin-top:2px}
+.acts{display:flex;gap:6px;flex-shrink:0}
+.ab{padding:6px 11px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--panel);cursor:pointer;white-space:nowrap;font-family:inherit;color:var(--ink)}
+.ab.keep{border-color:var(--good-line);color:var(--good);background:var(--good-soft)}
+.ab.del{border-color:var(--bad-line);color:var(--bad);background:var(--bad-soft)}
+.done{padding:11px 12px;border-radius:10px;margin-bottom:8px;font-size:13.5px;background:var(--good-soft);border:1px solid var(--good-line);color:var(--good);font-weight:600}
+
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:500px}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:10px 15px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+.warn{border-left:2px solid var(--accent);background:var(--panel);padding:14px 18px;margin:20px 0;font-size:14.5px;border-radius:0 9px 9px 0}
+.warn b{font-weight:700}
+
+.flow{margin:20px 0;counter-reset:st}
+.stp{position:relative;padding:0 0 19px 40px;counter-increment:st}
+.stp::before{content:counter(st);position:absolute;left:0;top:0;width:25px;height:25px;border-radius:50%;background:var(--panel);border:1px solid var(--accent-line);color:var(--accent);font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.stp::after{content:"";position:absolute;left:12.5px;top:27px;bottom:0;width:1px;background:var(--line)}
+.stp:last-child{padding-bottom:0}.stp:last-child::after{display:none}
+.stp b{font-weight:600;font-size:14.5px;display:block}
+.stp span{color:var(--muted);font-size:13.5px}
+footer{margin-top:54px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla ERP &middot; cloud &middot; 3-qadam</div>
+  <h1>Farqlar ekrani</h1>
+  <p class="lede">Yangi farq endi paydo bo'lmaydi. Bu ekran <b>eskisini</b> tozalash uchun &mdash; bir marta.</p>
+</header>
+
+<div class="col">
+<div class="warn">
+  <b>Hech nima yo'qolmagan.</b> O'chirish cloudga aytilmagani uchun yozuvlar u yerda <b>tirik turibdi</b>. Shuning uchun farqni topish mumkin &mdash; taxmin bilan emas, ro'yxat bilan.
+</div>
+
+<section>
+  <div class="snum">01 &mdash; Qayerda</div>
+  <h2>Sozlamalar ichida</h2>
+  <p>Yangi qator: <b>Cloud farqlari</b>. Bosilganda ekran ochiladi.</p>
+</section>
+</div>
+
+<div class="scr">
+  <div class="shd"><span class="t">Cloud farqlari</span><span class="x">&times;</span></div>
+  <div class="sbd">
+    <button class="btn">Solishtirish</button>
+    <div class="hint">Cloud bilan solishtiradi. <b>Hech nima o'zgartirmaydi.</b></div>
+  </div>
+</div>
+
+<div class="col">
+<h3>Bosilgandan keyin</h3>
+</div>
+
+<div class="scr">
+  <div class="shd"><span class="t">Cloud farqlari</span><span class="x">&times;</span></div>
+  <div class="sbd">
+    <div class="grp">
+      <div class="ghd a"><span>Cloudda bor, bu qurilmada yo'q</span><span class="n">17</span></div>
+      <div class="gsub">Bu qurilmada o'chirilgan, lekin cloudga aytilmagan</div>
+
+      <div class="row">
+        <div class="info">
+          <div class="l1">Javohir Aka Jizzax &middot; Vozvrat &middot; <b>+3.62 g</b></div>
+          <div class="l2">06.09.2026 &middot; 10:23 &middot; Simay &middot; Oddiy</div>
+        </div>
+        <div class="acts">
+          <button class="ab keep">Qaytar</button>
+          <button class="ab del">O'chir</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="info">
+          <div class="l1">Dilfuza &middot; Berildi &middot; <b>&minus;12.40 g</b></div>
+          <div class="l2">04.09.2026 &middot; 15:02 &middot; Butterfly &middot; 3D</div>
+        </div>
+        <div class="acts">
+          <button class="ab keep">Qaytar</button>
+          <button class="ab del">O'chir</button>
+        </div>
+      </div>
+
+      <div class="done">&#10003; Madina Opa &middot; To'lov &middot; 08.09 &mdash; hamma joydan o'chirildi</div>
+
+      <div class="row">
+        <div class="info">
+          <div class="l1">Sardor &middot; Berildi &middot; <b>&minus;5.10 g</b></div>
+          <div class="l2">02.09.2026 &middot; 11:40 &middot; Diamond &middot; Polimer</div>
+        </div>
+        <div class="acts">
+          <button class="ab keep">Qaytar</button>
+          <button class="ab del">O'chir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="ghd b"><span>Bu qurilmada bor, cloudda yo'q</span><span class="n">2</span></div>
+      <div class="gsub">Cloudga yetib bormagan &mdash; internet yoki xato</div>
+
+      <div class="row">
+        <div class="info">
+          <div class="l1">Anvar &middot; To'lov &middot; <b>$400</b></div>
+          <div class="l2">05.09.2026 &middot; 16:20</div>
+        </div>
+        <div class="acts">
+          <button class="ab keep">Yubor</button>
+          <button class="ab del">O'chir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">02 &mdash; Tugmalar</div>
+  <h2>Ikkitadan ortiq emas</h2>
+</section>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th>Guruh</th><th>Tugma</th><th>Nima bo'ladi</th></tr>
+  <tr><td rowspan="2">Cloudda bor, menda yo'q</td><td><span class="tag t-good">Qaytar</span></td><td>Yozuv shu qurilmaga qaytadi. Cloudda allaqachon bor &mdash; boshqa qurilmalarda ham turadi.</td></tr>
+  <tr><td><span class="tag t-bad">O'chir</span></td><td><b>Hamma joydan</b> o'chadi &mdash; clouddan ham, boshqa qurilmalardan ham.</td></tr>
+  <tr><td rowspan="2">Menda bor, cloudda yo'q</td><td><span class="tag t-good">Yubor</span></td><td>Cloudga chiqadi, boshqa qurilmalarga ham yetadi.</td></tr>
+  <tr><td><span class="tag t-bad">O'chir</span></td><td>Faqat shu qurilmadan o'chadi &mdash; boshqa joyda u yo'q edi.</td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">03 &mdash; Tartib</div>
+  <h2>Qanday ishlatasiz</h2>
+  <div class="flow">
+    <div class="stp"><b>PC da oching, Solishtirish bosing</b><span>Ro'yxat chiqadi. Hech nima o'zgarmaydi.</span></div>
+    <div class="stp"><b>Har qatorga qarab qaror qiling</b><span>Kerakmi &mdash; Qaytar. Kerakmasmi &mdash; O'chir. Bosilgan qator yashil bo'lib qoladi.</span></div>
+    <div class="stp"><b>Telefonda ham xuddi shunday</b><span>PC da qilganingiz allaqachon cloudga yetgan &mdash; telefonda ro'yxat qisqaroq bo'ladi.</span></div>
+    <div class="stp"><b>Ikkalasi ham bo'sh bo'lguncha</b><span>Ro'yxat bo'shadi &mdash; ikkala qurilmada bir xil raqam.</span></div>
+    <div class="stp"><b>Boshqa takrorlanmaydi</b><span>O'chirish endi tarqalgani uchun bir marta hal qilinsa yetadi.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">04 &mdash; Ochiq aytishim kerak</div>
+  <h2>Uch narsa</h2>
+  <p><b>1.</b> Solishtirish cloudga ~1300 ta so'rov yuboradi. Kunlik chegaraga tegmaydi, lekin har daqiqada bosaverish kerak emas. Kuniga bir-ikki marta yetarli.</p>
+  <p><b>2.</b> Yozuv cloudga <b>umuman yetib bormay</b> o'chirilgan bo'lsa &mdash; u ro'yxatda chiqmaydi, chunki hech qayerda yo'q. Tiklab bo'lmaydi. Sizning holatingizda yozuvlar cloudga yetgan (shuning uchun telefonda turibdi), demak ular chiqadi.</p>
+  <p><b>3.</b> Kassa yozuvlari <b>v180 dan keyin</b> cloudga chiqa boshladi. Undan oldingi kassa farqlari bu ro'yxatda ko'rinmaydi &mdash; ular hech qachon cloudga chiqmagan.</p>
+</section>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> Shu ko'rinish to'g'rimi &mdash; ayting. To'g'ri bo'lsa yozaman, keyin ikkala qurilmada sinaymiz.</p>
+</footer>
+</div>
+</div>

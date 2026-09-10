@@ -98,6 +98,9 @@ va `hisob.js` istisnosi qo'shiladi.
 | 3b | Mobil qobiq: sinxron chipi, pastki kesilish (**POS v0.04**) | ✅ push qilingan |
 | 3c | Kurs jadvali: `_POSG` tuzatildi, ZAVOD ustuni olib tashlandi (**POS v0.05**) | ✅ commit |
 | 3d | Chap chetdan o'ngga surish = orqaga (**POS v0.06**) | ✅ commit |
+| 3e | Ro'yxat 240px ga qotib qolgani (**POS v0.07**) | ✅ push qilingan |
+| 3f | SOTUV olib tashlandi, BERISH da narx (**POS v0.08**) | ✅ push qilingan |
+| 3g | BERISH sarlavhasida kurs, qo'lda o'zgartiriladi (**POS v0.09**) | ✅ push qilingan |
 | 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
 | 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
 
@@ -158,6 +161,71 @@ Ibrohim: «chapdan o'nga swipe qisa back bo'sin — chap ekrandan back bo'ladi»
   surilgan bo'lsa — avval qator qaytadi
 
 ⚠ Hali sinalmagan — Ibrohim telefonda tekshiradi.
+
+---
+
+### 💰 SOTUV — QAROR QABUL QILINDI (Ibrohim, 2026-09-10)
+
+Uzoq muhokamadan keyin Ibrohim **soddaroq yo'lni** tanladi:
+
+> «sotuvni olib tashla. Berishda vazniga o'lchaganda narxini ko'rsatib tursa,
+> kursdan olib — shunda klientga taxminiy narxi aytiladi, manga jo'natiladi,
+> men tekshiraman, to'g'ri bo'lsa berish/to'lov qilaman»
+
+Ya'ni **alohida SOTUV ekrani YO'Q**. Chernovik avvalgidek faqat gramm bilan
+ketadi. Pul, skidka, lom, naqt — hammasi Tilla ERP da.
+
+Rad etilgan takliflar (maketlari `mockups/pos-sotuv-*.html` da):
+- alohida SOTUV ekrani + chernovik `tip:'sotuv'`
+- POS da skidka (Ibrohim: «skidkasiz yozsinde»)
+- chernovik qabul qilinganda ERP da sotuv oynasi ochilishi
+
+⚠ **Skidka haqida aniqlangan fakt** (kod tekshirildi): skidka `k.tarix` da
+faqat `tip:'tolov'` yozuvi ichida yashaydi — `berish` da EMAS. Siz bitta
+umumiy dollar yozasiz, dastur uni qatorlarga **grammga qarab** bo'ladi
+(`index.html:17263`). `summa` maydonida skidka allaqachon ayirilgan.
+
+### 💱 POS KURSI (v0.09)
+
+Kurs BERISH sarlavhasida, `Klient qarzi` dan oldin. Bosilsa o'sha joyda
+tahrirlanadi. Qo'lda yozilsa qizil bo'ladi.
+
+**Uch qoida:**
+1. Cloudga YOZILMAYDI — `sozlamalar` hujjatiga tegilmaydi
+2. Qayta kirilganda / boshqa odam kirganda — `kursOqi()` ERP dagisini qaytaradi
+3. Cloudda kurs bo'lmasa lokal kalit O'CHIRILADI (aks holda eski qo'lda
+   yozilgani qolib ketardi)
+
+### ⚠ QO'NG'IROQCHA PANELI — OCHIQ QOLDI
+
+Ibrohim: «manga shu kelgan narsa tushunarsiz ko'rinvotti» (chernovik
+tekshirish paneli, `index.html:15258`). Oltita muammo aniqlandi va maket
+qilindi (`mockups/pos-chernovik-panel.html`, `pos-chernovik-ishlaydigan.html`),
+lekin Ibrohim maketni ham tushunarsiz dedi. **Qaror yo'q, ish boshlanmagan.**
+
+Aniqlangan muammolar: (1) POS donalari va admin skani bir xil ko'rinadi,
+yorliq yo'q (2) «Mos» tugmasining nomi nima qilishini aytmaydi
+(3) «mos/kam/ortiq» texnik so'zlar (4) jami gramm faqat tasdiq oynasida
+(5) qabul tugmasi nega o'chiqligi ko'rinmaydi (6) tugma nomi o'zgarib turadi.
+
+➡ **Keyingi seans:** Ibrohimdan panelning RASMINI so'ra va «nima
+tushunarsiz» ni o'z so'zi bilan ayttir. Maket chizma — u charchadi.
+
+### 💡 SEANS SABOQLARI (2026-09-10)
+
+- **Maket ko'p bo'ldi.** Bir seansda 6 ta maket chiqdi, Ibrohim ikkitasini
+  «tushunarsiz» dedi. Aniq spetsifikatsiya berilganda TO'G'RIDAN-TO'G'RI
+  kod yoz — TAXMIN BLOKI yetarli.
+- **«Tepada» = qaysi ekranning tepasi?** Kurs tahririni kurs oynasiga
+  qo'yib xato qildim. Ibrohim rasm yubordi: BERISH sarlavhasi ekan.
+  Joylashuv aytilganda QAYSI EKRAN ekanini so'ra.
+- **Bash heredoc backslashni yeydi.** `—` va `'` Python manbasiga
+  YAKKA backslash bo'lib tushadi — `—` haqiqiy tire bo'lib ketadi,
+  `'` esa apostrofga aylanib JS satrini buzadi. Yechim: HTML entity
+  (`&#39;`) yoki `chr(39)` ishlat, satr almashtirishda backslash YOZMA.
+- **`index.html` dan ko'chirilgan kod tekshirilsin.** `_POSG` ko'chmay qolgan
+  (v0.05), `_posBoy` esa ko'chgan-u pos.html da ma'nosiz edi (v0.07) —
+  `.topbar`/`.main-tabs` bu yerda yo'q.
 
 ---
 

@@ -1,0 +1,307 @@
+<title>Kassa Sinxroni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 90px}
+.col{max-width:700px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+header{padding:58px 0 32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.024em;line-height:1.12}
+.lede{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:580px}
+section{padding-top:48px}
+.snum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+h2{font-size:25px;font-weight:700;letter-spacing:-.018em}
+h3{font-size:16.5px;font-weight:700;margin:26px 0 9px}
+p{margin:13px 0}.col p{max-width:66ch}
+
+/* story */
+.story{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0}
+@media(min-width:720px){.story{grid-template-columns:1fr 1fr}}
+.dev{border:1px solid var(--line);border-radius:13px;background:var(--panel);overflow:hidden}
+.dhd{padding:10px 15px;background:var(--panel2);border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.dbd{padding:15px}
+.act{font-size:15px;margin-bottom:12px}
+.act b{font-weight:700}
+.mini{border:1px solid var(--line);border-radius:9px;overflow:hidden;font-family:"JetBrains Mono",monospace;font-size:12.5px}
+.mrow{display:flex;justify-content:space-between;padding:7px 11px;border-bottom:1px solid var(--line2)}
+.mrow:last-child{border-bottom:0}
+.mrow.head{background:var(--panel2);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mrow.miss{background:var(--bad-soft);color:var(--bad)}
+.mrow.new{background:var(--good-soft);color:var(--good)}
+.tot{display:flex;justify-content:space-between;padding:9px 11px;font-weight:700;border-top:1.5px solid var(--line);font-family:"JetBrains Mono",monospace}
+.verdict{margin-top:11px;padding:9px 12px;border-radius:8px;font-size:13.5px;font-weight:600}
+.verdict.bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.verdict.good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+.big{margin:26px 0;padding:24px 26px;border-radius:15px;background:var(--accent-soft);border:1px solid var(--accent-line)}
+.big .b1{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.big .b2{font-family:"Archivo",sans-serif;font-size:clamp(20px,3.6vw,27px);font-weight:800;letter-spacing:-.02em;margin-top:7px;line-height:1.25}
+.big .b3{font-size:15px;color:var(--muted);margin-top:9px}
+
+pre{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 17px;overflow-x:auto;margin:15px 0;font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.7}
+pre .c{color:var(--muted)}
+pre .hi{background:var(--bad-soft);color:var(--bad);border-radius:3px;padding:1px 3px;font-weight:500}
+pre .ok{background:var(--good-soft);color:var(--good);border-radius:3px;padding:1px 3px;font-weight:500}
+.loc{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);margin:-8px 0 13px}
+
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:460px}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:9px 15px;border-bottom:1px solid var(--line2)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+.chk{border:1px solid var(--line);border-radius:11px;background:var(--panel);overflow:hidden;margin:18px 0}
+.ck{display:grid;grid-template-columns:26px 1fr 100px;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line2);font-size:14px;align-items:center}
+.ck:last-child{border-bottom:0}
+.ck .b{width:15px;height:15px;border:1.5px solid var(--line);border-radius:4px}
+.ck .s{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);text-align:right}
+
+.dec{border:1px solid var(--accent-line);border-radius:12px;background:var(--panel);margin:15px 0;overflow:hidden}
+.dhd2{background:var(--accent-soft);color:var(--accent);padding:11px 17px;font-weight:700;font-size:14px;border-bottom:1px solid var(--accent-line);display:flex;gap:10px;align-items:baseline}
+.dhd2 .k{font-family:"JetBrains Mono",monospace;font-size:12px}
+.dbody{padding:5px 17px 13px}
+.opt{display:grid;grid-template-columns:36px 1fr;gap:11px;padding:10px 0;border-top:1px solid var(--line2)}
+.opt:first-child{border-top:0}
+.opt .k{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}
+.opt .d{font-size:14.5px}.opt .d em{font-style:normal;color:var(--muted);display:block;font-size:13px;margin-top:2px}
+.rec{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;color:var(--good);background:var(--good-soft);border:1px solid var(--good-line);border-radius:999px;padding:1px 7px;margin-left:6px;letter-spacing:.05em;vertical-align:1px}
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla ERP &middot; cloud &middot; 1-qadam</div>
+  <h1>Kassa nega ikkinchi qurilmaga bormaydi</h1>
+  <p class="lede">Kassa <b>to'g'ri yozilgan</b>. Muammo yozuvda emas &mdash; ular cloudga <b>umuman jo'natilmaydi</b>.</p>
+</header>
+
+<div class="col">
+<section>
+  <div class="snum">01 &mdash; Bugun nima bo'ladi</div>
+  <h2>Ikki qurilma, ikki pul harakati</h2>
+  <p>Ertalab kassada <b>1000$</b> bor. Kun davomida ikkita ish bo'ldi.</p>
+</section>
+</div>
+
+<div class="story">
+  <div class="dev">
+    <div class="dhd">PC &mdash; soat 10:00</div>
+    <div class="dbd">
+      <div class="act">Kassadan <b>200$</b> chiqim yozdingiz</div>
+      <div class="mini">
+        <div class="mrow head"><span>Kassa</span><span>Summa</span></div>
+        <div class="mrow"><span>Boshlang'ich</span><span>1 000$</span></div>
+        <div class="mrow"><span>Chiqim &mdash; PC</span><span>&minus;200$</span></div>
+        <div class="mrow miss"><span>Kirim &mdash; telefon</span><span>ko'rinmaydi</span></div>
+      </div>
+      <div class="tot"><span>PC ko'rsatadi</span><span>800$</span></div>
+      <div class="verdict bad">Telefondagi kirimni bilmaydi</div>
+    </div>
+  </div>
+  <div class="dev">
+    <div class="dhd">Telefon &mdash; soat 11:00</div>
+    <div class="dbd">
+      <div class="act">Kassaga <b>50$</b> kirim yozdingiz</div>
+      <div class="mini">
+        <div class="mrow head"><span>Kassa</span><span>Summa</span></div>
+        <div class="mrow"><span>Boshlang'ich</span><span>1 000$</span></div>
+        <div class="mrow miss"><span>Chiqim &mdash; PC</span><span>ko'rinmaydi</span></div>
+        <div class="mrow"><span>Kirim &mdash; telefon</span><span>+50$</span></div>
+      </div>
+      <div class="tot"><span>Telefon ko'rsatadi</span><span>1 050$</span></div>
+      <div class="verdict bad">PC dagi chiqimni bilmaydi</div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+<p>To'g'ri javob &mdash; <b>850$</b>. Uni <b>hech bir qurilma ko'rsatmaydi</b>. Ikkalasi ham o'zicha to'g'ri hisoblaydi, faqat ikkinchisining yozuvini ko'rmaydi.</p>
+
+<section>
+  <div class="snum">02 &mdash; Sabab</div>
+  <h2>Daftar bor, pochtachi olmaydi</h2>
+  <p>Kassa <b>allaqachon to'g'ri</b> yozilgan. Har chiqim &mdash; alohida qator, o'z raqami bilan:</p>
+</section>
+</div>
+
+<div class="col">
+<div class="loc">index.html:4145</div>
+<pre><span class="ok">data.kassa.qolda.push</span>({ id:'kc1757...', sana:'05.09.2026', soat:'10:00',
+                        tip:'chiqim', summa:200, kategoriya:'...', izoh:'...' })</pre>
+<p>Qoldiq hech qayerda saqlanmaydi &mdash; har safar shu qatorlarni yurib qo'shiladi. Ya'ni <b>ma'lumot tuzilishi joyida</b>.</p>
+
+<p>Muammo bitta joyda. Cloudga nima yuborilishini <b>bitta funksiya</b> hal qiladi &mdash; u ro'yxatlarni yuradi va har qatorni jo'natadi:</p>
+
+<div class="loc">index.html:8297 &mdash; <code>amalWalk</code></div>
+<pre><span class="c">// Bu uchtasi yuriladi va cloudga ketadi:</span>
+zavodlar &rarr; turlar &rarr; <span class="ok">tarix</span>       <span class="c">&larr; zavod kirim/chiqim</span>
+klientlar &rarr; <span class="ok">tarix</span>                <span class="c">&larr; berish, vozvrat, to'lov</span>
+<span class="ok">lomlar</span>
+
+<span class="hi">// data.kassa — OBYEKT, massiv emas — oplogga kirmaydi</span>   <span class="c">&larr; 8303-qator</span></pre>
+
+<div class="big">
+  <div class="b1">Butun sabab shu</div>
+  <div class="b2">Kassa ro'yxatlari cloudga jo'natiladigan narsalar ro'yxatiga kiritilmagan.</div>
+  <div class="b3">Yozuvlar bor, to'g'ri, o'z raqami bilan turibdi. Ularni olib ketadigan pochtachiga berilmagan.</div>
+</div>
+
+<p>Nega? Chunki qolgan uchtasi <b>to'g'ridan ro'yxat</b>, kassa esa <b>ichida beshta ro'yxat bor quti</b>. Funksiya qutini ochishni bilmaydi &mdash; shuning uchun uni tashlab ketgan.</p>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th>Kassa ichida</th><th>Nima</th><th>Cloudga ketadimi</th></tr>
+  <tr><td><code>qolda</code></td><td>naqd kirim / chiqim</td><td><span class="tag t-bad">yo'q</span></td></tr>
+  <tr><td><code>zlar</code></td><td>zavod hisoblari</td><td><span class="tag t-bad">yo'q</span></td></tr>
+  <tr><td><code>tuzatishlar</code></td><td>qo'lda tuzatish</td><td><span class="tag t-bad">yo'q</span></td></tr>
+  <tr><td><code>zakazlar</code></td><td>zakazlar</td><td><span class="tag t-bad">yo'q</span></td></tr>
+  <tr><td><code>snabAmallar</code></td><td>snabjenets amallari</td><td><span class="tag t-bad">yo'q</span></td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">03 &mdash; Nima qilamiz</div>
+  <h2>Qutini ochamiz</h2>
+  <p>Kassaning beshta ro'yxatini <b>o'sha jo'natiladiganlar ro'yxatiga qo'shamiz</b>. Boshqa hech nima.</p>
+</section>
+</div>
+
+<div class="col">
+<pre>zavodlar &rarr; turlar &rarr; tarix
+klientlar &rarr; tarix
+lomlar
+<span class="ok">kassa &rarr; qolda</span>
+<span class="ok">kassa &rarr; zlar</span>
+<span class="ok">kassa &rarr; tuzatishlar</span>
+<span class="ok">kassa &rarr; zakazlar</span>
+<span class="ok">kassa &rarr; snabAmallar</span></pre>
+
+<p>Shundan keyin kassa yozuvlari <b>berish va vozvrat bilan bir xil yo'ldan</b> yuradi. U yo'l allaqachon ishlaydi &mdash; telefonda berish qilsangiz PC ko'radi. Yangi yo'l qurilmaydi, <b>borига kassa qo'shiladi</b>.</p>
+
+<div class="story">
+  <div class="dev">
+    <div class="dhd">Tuzatilgandan keyin &mdash; PC</div>
+    <div class="dbd">
+      <div class="mini">
+        <div class="mrow head"><span>Kassa</span><span>Summa</span></div>
+        <div class="mrow"><span>Boshlang'ich</span><span>1 000$</span></div>
+        <div class="mrow"><span>Chiqim &mdash; PC</span><span>&minus;200$</span></div>
+        <div class="mrow new"><span>Kirim &mdash; telefon</span><span>+50$</span></div>
+      </div>
+      <div class="tot"><span>PC ko'rsatadi</span><span>850$</span></div>
+      <div class="verdict good">To'g'ri</div>
+    </div>
+  </div>
+  <div class="dev">
+    <div class="dhd">Tuzatilgandan keyin &mdash; telefon</div>
+    <div class="dbd">
+      <div class="mini">
+        <div class="mrow head"><span>Kassa</span><span>Summa</span></div>
+        <div class="mrow"><span>Boshlang'ich</span><span>1 000$</span></div>
+        <div class="mrow new"><span>Chiqim &mdash; PC</span><span>&minus;200$</span></div>
+        <div class="mrow"><span>Kirim &mdash; telefon</span><span>+50$</span></div>
+      </div>
+      <div class="tot"><span>Telefon ko'rsatadi</span><span>850$</span></div>
+      <div class="verdict good">To'g'ri &mdash; bir xil</div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="snum">04 &mdash; Muhim</div>
+  <h2>Nima o'zgarmaydi</h2>
+</section>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th>Narsa</th><th>Holat</th></tr>
+  <tr><td>Kassa yozuvlarining ko'rinishi</td><td><span class="tag t-good">tegilmaydi</span> &mdash; hozirgidek qoladi</td></tr>
+  <tr><td>Qoldiq qanday hisoblanishi</td><td><span class="tag t-good">tegilmaydi</span> &mdash; hozir ham qatorlardan hisoblanadi</td></tr>
+  <tr><td>Kassa ekranlari, tugmalar, hisobot</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Berish / vozvrat / to'lov / sotuv</td><td><span class="tag t-good">tegilmaydi</span> &mdash; ular allaqachon yuradi</td></tr>
+  <tr><td>Abdulhamid rejimi, POS, PDF, chek</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Saqlanadigan balans qo'shish</td><td><span class="tag t-bad">QILINMAYDI</span> &mdash; siz buni v99 da rad etgansiz</td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">05 &mdash; Sinov</div>
+  <h2>Ikki haqiqiy qurilmada</h2>
+  <p>Har qator: birida qilinadi, ikkinchisida <b>ko'z bilan</b> ko'riladi. Siz &laquo;ko'rdim&raquo; deganda yopiladi.</p>
+  <div class="chk">
+    <div class="ck"><div class="b"></div><div>Naqd chiqim</div><div class="s">PC &rarr; tel</div></div>
+    <div class="ck"><div class="b"></div><div>Naqd kirim</div><div class="s">tel &rarr; PC</div></div>
+    <div class="ck"><div class="b"></div><div>Kassa qoldig'i ikkalasida bir xilmi</div><div class="s">ko'z bilan</div></div>
+    <div class="ck"><div class="b"></div><div>Qo'lda tuzatish</div><div class="s">ikki tomon</div></div>
+    <div class="ck"><div class="b"></div><div>Zakaz</div><div class="s">ikki tomon</div></div>
+    <div class="ck"><div class="b"></div><div>Zavod hisobi</div><div class="s">ikki tomon</div></div>
+    <div class="ck"><div class="b"></div><div>Eski kassa yozuvlari joyidami</div><div class="s">yo'qolmadimi</div></div>
+    <div class="ck"><div class="b"></div><div>Kassa hisoboti to'g'rimi</div><div class="s">ko'z bilan</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">06 &mdash; Qaror</div>
+  <h2>Ikkita savol</h2>
+
+  <div class="dec">
+    <div class="dhd2"><span class="k">A</span><span>Eski kassa yozuvlari bilan nima qilamiz?</span></div>
+    <div class="dbody">
+      <div class="opt"><div class="k">A1</div><div class="d">Faqat <b>yangilari</b> cloudga ketsin<span class="rec">tavsiya</span><em>Bugundan keyingi har kassa amali yuradi. Eskilari qurilmada qanday bo'lsa shunday qoladi &mdash; tegilmaydi, yo'qolmaydi. Xavfsiz.</em></div></div>
+      <div class="opt"><div class="k">A2</div><div class="d">Hamma eski yozuv ham bir marta cloudga chiqsin<em>Ikki qurilmada eski yozuvlar boshqa-boshqa bo'lsa, ikkalasi qo'shilib <b>ikki barobar</b> chiqishi mumkin. Xavfli.</em></div></div>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="dhd2"><span class="k">B</span><span>Beshtasining hammasi birdanmi?</span></div>
+    <div class="dbody">
+      <div class="opt"><div class="k">B1</div><div class="d">Avval <b>naqd</b> (<code class="inl">qolda</code>), sinaladi, keyin qolgan to'rttasi<span class="rec">tavsiya</span><em>Eng ko'p ishlatiladigani va zarar shundan. Ishlaganini ko'rgach qolganini bir zarbada qo'shamiz.</em></div></div>
+      <div class="opt"><div class="k">B2</div><div class="d">Beshtasi birdan<em>Tezroq. Xato chiqsa qaysi ro'yxatdan ekani qiyinroq topiladi.</em></div></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> <b>A</b> va <b>B</b> ni ayting &mdash; masalan <code class="inl">A1 B1</code>. Bu yangi tizim emas &mdash; ishlab turgan yo'lga kassani qo'shish.</p>
+</footer>
+</div>
+</div>

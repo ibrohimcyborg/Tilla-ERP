@@ -1,0 +1,400 @@
+<title>Zavod Skan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --card:#FFFFFF; --card2:#FAFAF8;
+  --ink:#191B1D; --muted:#8B9096; --line:#E6E5E1; --line2:#F0EFEC;
+  --grn:#2E7D50; --grn-bg:#D9EEDF; --grn-line:#BCDFC7;
+  --red:#C43B31; --red-bg:#F8DAD7; --red-line:#EEC0BB;
+  --val:#D6483F;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131518; --card:#1C1F23; --card2:#22262A;
+    --ink:#E9EBED; --muted:#8E959C; --line:#2B2F34; --line2:#232629;
+    --grn:#6FC08C; --grn-bg:#1B2E23; --grn-line:#2C4836;
+    --red:#E8837A; --red-bg:#33201E; --red-line:#4C2E2A;
+    --val:#E8837A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131518; --card:#1C1F23; --card2:#22262A;
+  --ink:#E9EBED; --muted:#8E959C; --line:#2B2F34; --line2:#232629;
+  --grn:#6FC08C; --grn-bg:#1B2E23; --grn-line:#2C4836;
+  --red:#E8837A; --red-bg:#33201E; --red-line:#4C2E2A;
+  --val:#E8837A;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;
+}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--val);outline-offset:2px}
+
+.wrap{max-width:520px;margin:0 auto;padding:12px 12px 44px}
+
+/* rejim */
+.rej{display:flex;gap:10px}
+.rb{
+  flex:1;padding:14px 10px;border-radius:11px;font-size:14.5px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+}
+.rb.on.kirim{background:var(--grn-bg);border-color:var(--grn-line);color:var(--grn)}
+.rb.on.chiqim{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
+
+/* sarlavha qatori */
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 10px}
+.hd h1{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em}
+.hd .sub{font-size:12.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.plus{
+  padding:8px 14px;border-radius:9px;font-size:13.5px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);white-space:nowrap;
+}
+.plus:hover{border-color:var(--val);color:var(--val)}
+.back{
+  display:inline-flex;align-items:center;gap:5px;font-size:13.5px;color:var(--muted);
+  padding:6px 0;margin-bottom:2px;font-weight:500;
+}
+.back:hover{color:var(--ink)}
+
+/* qo'shish qatori */
+.addrow{display:none;gap:8px;margin-bottom:10px}
+.addrow.on{display:flex}
+.addrow input{
+  flex:1;min-width:0;padding:12px 13px;border-radius:10px;font-size:15px;font-family:inherit;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+}
+.addrow button{
+  padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;
+  background:var(--ink);color:var(--bg);
+}
+
+/* ro'yxat */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+}
+.item:hover{border-color:var(--muted)}
+.item .nm{flex:1;min-width:0}
+.item .n1{display:block;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .n2{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.item .vl{font-size:15px;font-weight:600;color:var(--val);white-space:nowrap;font-variant-numeric:tabular-nums}
+.item .vl.nol{color:var(--muted);font-weight:400}
+.item .ch{color:var(--muted);font-size:17px;line-height:1}
+.bosh{
+  text-align:center;color:var(--muted);font-size:13.5px;
+  padding:30px 16px;background:var(--card);border:1px dashed var(--line);border-radius:12px;
+}
+
+/* skan */
+.scan{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px}
+.scan input{
+  width:100%;padding:15px 16px;border-radius:11px;font-size:20px;font-weight:600;font-family:inherit;
+  border:1.5px solid var(--line);background:var(--card2);color:var(--ink);font-variant-numeric:tabular-nums;
+}
+.scan input.err{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.scanbtn{
+  width:100%;margin-top:9px;padding:13px;border-radius:10px;font-size:14.5px;font-weight:600;
+  background:var(--grn-bg);border:1px solid var(--grn-line);color:var(--grn);
+}
+.scanbtn.chiqim{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
+.xato{
+  margin-top:9px;padding:10px 12px;border-radius:9px;font-size:13px;
+  background:var(--red-bg);border:1px solid var(--red-line);color:var(--red);
+}
+.xato b{font-weight:600}
+
+.qrow{
+  display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line2);
+}
+.qrow:last-child{border-bottom:0}
+.qrow .i{font-size:12px;color:var(--muted);width:26px;font-variant-numeric:tabular-nums}
+.qrow .g{flex:1;font-size:16px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.qrow.neg .g{color:var(--red)}
+.qrow .x{color:var(--muted);font-size:19px;line-height:1;padding:2px 6px}
+.qrow .x:hover{color:var(--red)}
+.qlist{margin-top:14px;border-top:1px solid var(--line);padding-top:4px}
+
+.jami{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  margin-top:12px;padding:14px 15px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+}
+.jami .jl{font-size:13.5px;color:var(--muted);font-weight:500}
+.jami .jd{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.jami .jg{font-size:19px;font-weight:700;color:var(--val);font-variant-numeric:tabular-nums}
+
+.foot{margin-top:22px;font-size:12px;color:var(--muted);line-height:1.7}
+.foot code{
+  background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1px 5px;
+  font-family:ui-monospace,monospace;font-size:11.5px;
+}
+</style>
+
+<div class="wrap">
+
+  <div class="rej">
+    <button class="rb kirim on" id="rk">Skan kirim</button>
+    <button class="rb chiqim" id="rc">Skan chiqim</button>
+  </div>
+
+  <div id="ekran"></div>
+
+  <div class="foot">
+    <p>Qabul qilinadi: <code>2.98</code> <code>2,98</code> <code>2.98 g</code> <code>15</code> <code>-5</code><br>
+    Rad etiladi: <code>B01</code> <code>1K</code> <code>SU-01</code> <code>585 2.98</code></p>
+    <p>Har tur va har rejim alohida savat &mdash; aralashmaydi.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var S = {
+    rejim: "kirim",
+    ekran: "zavodlar",
+    zi: -1,
+    ti: -1,
+    zavodlar: [
+      { nom:"Butterfly", turlar:["Zanjir 585","Uzuk 585","Bilaguzuk 750"] },
+      { nom:"Diamond",   turlar:["Zanjir 750","Sirg'a 585"] },
+      { nom:"Premium",   turlar:["Braslet 750"] },
+      { nom:"Simay",     turlar:["Kulon 585"] }
+    ],
+    savat: {},
+    xato: null
+  };
+
+  // ---------- gramm o'quvchi ----------
+  function oqi(v){
+    if (v === null || v === undefined) return { ok:false, sabab:"bo'sh" };
+    var s = String(v).trim();
+    if (!s) return { ok:false, sabab:"bo'sh" };
+    s = s.replace(/\s*(gramm|gram|gr|g|гр|г)$/i, "").trim();
+    if (!s) return { ok:false, sabab:"faqat harf, gramm yo'q" };
+    if (/\s/.test(s)) return { ok:false, sabab:"ichida bo'shliq bor" };
+    if (!/^[+-]?\d{1,5}([.,]\d{1,3})?$/.test(s)) return { ok:false, sabab:"gramm shaklida emas" };
+    var n = parseFloat(s.replace(",", "."));
+    if (!isFinite(n)) return { ok:false, sabab:"son o'qilmadi" };
+    n = Math.round(n * 100) / 100;
+    if (n === 0) return { ok:false, sabab:"0 gramm bo'lmaydi" };
+    return { ok:true, n:n };
+  }
+
+  // ---------- yordamchi ----------
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function fg(n){ return (Math.round(n * 100) / 100).toFixed(2); }
+  function kalit(zi, ti){ return S.rejim + "|" + zi + "|" + ti; }
+  function savat(zi, ti){
+    var k = kalit(zi, ti);
+    if (!S.savat[k]) S.savat[k] = [];
+    return S.savat[k];
+  }
+  function turJami(zi, ti){
+    var a = S.savat[kalit(zi, ti)] || [];
+    var g = 0;
+    for (var i = 0; i < a.length; i++) g += a[i];
+    return { d:a.length, g:g };
+  }
+  function zavodJami(zi){
+    var z = S.zavodlar[zi], d = 0, g = 0;
+    for (var ti = 0; ti < z.turlar.length; ti++){
+      var j = turJami(zi, ti); d += j.d; g += j.g;
+    }
+    return { d:d, g:g };
+  }
+
+  var ekran = document.getElementById("ekran");
+
+  // ---------- ekranlar ----------
+  function zavodlarHTML(){
+    var h = "";
+    h += '<div class="hd"><div><h1>Zavodlar</h1><div class="sub">' +
+         S.zavodlar.length + ' ta zavod</div></div>' +
+         '<button class="plus" data-a="zqosh">+ Zavod</button></div>';
+    h += '<div class="addrow" id="addz">' +
+         '<input id="zinp" type="text" placeholder="Zavod nomi" autocomplete="off">' +
+         '<button data-a="zsaqla">Qo&#39;sh</button></div>';
+    h += '<div class="list">';
+    S.zavodlar.forEach(function(z, zi){
+      var j = zavodJami(zi);
+      h += '<button class="item" data-a="zoch" data-i="' + zi + '">' +
+             '<span class="nm"><span class="n1">' + esc(z.nom) + '</span>' +
+             '<span class="n2">' + z.turlar.length + ' ta tur</span></span>' +
+             '<span class="vl' + (j.g ? "" : " nol") + '">' + (j.g ? fg(j.g) + " g" : "&mdash;") + '</span>' +
+             '<span class="ch">&rsaquo;</span></button>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  function turlarHTML(){
+    var z = S.zavodlar[S.zi];
+    var j = zavodJami(S.zi);
+    var h = "";
+    h += '<button class="back" data-a="orqaz">&lsaquo; Zavodlar</button>';
+    h += '<div class="hd"><div><h1>' + esc(z.nom) + '</h1><div class="sub">' +
+         z.turlar.length + ' ta tur &middot; ' + j.d + ' dona</div></div>' +
+         '<button class="plus" data-a="tqosh">+ Tur</button></div>';
+    h += '<div class="addrow" id="addt">' +
+         '<input id="tinp" type="text" placeholder="Tur nomi" autocomplete="off">' +
+         '<button data-a="tsaqla">Qo&#39;sh</button></div>';
+    if (!z.turlar.length){
+      h += '<div class="bosh">Tur yo&#39;q. &laquo;+ Tur&raquo; bilan qo&#39;shing.</div>';
+    } else {
+      h += '<div class="list">';
+      z.turlar.forEach(function(t, ti){
+        var tj = turJami(S.zi, ti);
+        h += '<button class="item" data-a="toch" data-i="' + ti + '">' +
+               '<span class="nm"><span class="n1">' + esc(t) + '</span>' +
+               '<span class="n2">' + (tj.d ? tj.d + " dona" : "hali skan yo&#39;q") + '</span></span>' +
+               '<span class="vl' + (tj.g ? "" : " nol") + '">' + (tj.g ? fg(tj.g) + " g" : "&mdash;") + '</span>' +
+               '<span class="ch">&rsaquo;</span></button>';
+      });
+      h += '</div>';
+    }
+    h += '<div class="jami"><span class="jl">' + (S.rejim === "kirim" ? "Jami kirim" : "Jami chiqim") +
+         '</span><span class="jd">' + j.d + ' dona</span>' +
+         '<span class="jg">' + fg(j.g) + ' g</span></div>';
+    return h;
+  }
+
+  function skanHTML(){
+    var z = S.zavodlar[S.zi];
+    var t = z.turlar[S.ti];
+    var a = savat(S.zi, S.ti);
+    var j = turJami(S.zi, S.ti);
+    var h = "";
+    h += '<button class="back" data-a="orqat">&lsaquo; ' + esc(z.nom) + '</button>';
+    h += '<div class="hd"><div><h1>' + esc(t) + '</h1><div class="sub">' +
+         (S.rejim === "kirim" ? "Skan kirim" : "Skan chiqim") + '</div></div></div>';
+    h += '<div class="scan">';
+    h += '<input id="inp" type="text" inputmode="decimal" placeholder="0.00" ' +
+         'autocomplete="off" autocorrect="off" spellcheck="false"' +
+         (S.xato ? ' class="err"' : '') + '>';
+    h += '<button class="scanbtn' + (S.rejim === "chiqim" ? " chiqim" : "") +
+         '" data-a="qosh">Qo&#39;shish</button>';
+    if (S.xato){
+      h += '<div class="xato"><b>&laquo;' + esc(S.xato.m) + '&raquo;</b> qabul qilinmadi &mdash; ' +
+           esc(S.xato.s) + '</div>';
+    }
+    if (a.length){
+      h += '<div class="qlist">';
+      for (var i = a.length - 1; i >= 0; i--){
+        h += '<div class="qrow' + (a[i] < 0 ? " neg" : "") + '">' +
+               '<span class="i">' + (i + 1) + '</span>' +
+               '<span class="g">' + fg(a[i]) + '</span>' +
+               '<button class="x" data-a="ochir" data-i="' + i + '" aria-label="O&#39;chirish">&times;</button>' +
+             '</div>';
+      }
+      h += '</div>';
+    }
+    h += '</div>';
+    h += '<div class="jami"><span class="jl">' + esc(t) + '</span>' +
+         '<span class="jd">' + j.d + ' dona</span>' +
+         '<span class="jg">' + fg(j.g) + ' g</span></div>';
+    return h;
+  }
+
+  function chiz(){
+    if (S.ekran === "zavodlar") ekran.innerHTML = zavodlarHTML();
+    else if (S.ekran === "turlar") ekran.innerHTML = turlarHTML();
+    else ekran.innerHTML = skanHTML();
+
+    var inp = document.getElementById("inp");
+    if (inp){
+      inp.addEventListener("keydown", function(e){
+        if (e.key === "Enter"){ e.preventDefault(); qosh(inp.value); }
+      });
+      inp.focus();
+    }
+  }
+
+  // ---------- amallar ----------
+  function qosh(v){
+    var r = oqi(v);
+    if (!r.ok){
+      S.xato = { m:String(v).trim() || "(bo'sh)", s:r.sabab };
+      chiz();
+      return;
+    }
+    savat(S.zi, S.ti).push(r.n);
+    S.xato = null;
+    chiz();
+  }
+
+  ekran.addEventListener("click", function(e){
+    var b = e.target.closest("[data-a]");
+    if (!b) return;
+    var a = b.getAttribute("data-a");
+    var i = parseInt(b.getAttribute("data-i"), 10);
+    var box, nom;
+
+    if (a === "zqosh"){
+      box = document.getElementById("addz");
+      box.classList.toggle("on");
+      if (box.classList.contains("on")) document.getElementById("zinp").focus();
+    }
+    else if (a === "zsaqla"){
+      nom = document.getElementById("zinp").value.trim();
+      if (!nom) return;
+      S.zavodlar.push({ nom:nom, turlar:[] });
+      chiz();
+    }
+    else if (a === "zoch"){ S.zi = i; S.ekran = "turlar"; S.xato = null; chiz(); }
+    else if (a === "orqaz"){ S.ekran = "zavodlar"; S.zi = -1; S.xato = null; chiz(); }
+    else if (a === "tqosh"){
+      box = document.getElementById("addt");
+      box.classList.toggle("on");
+      if (box.classList.contains("on")) document.getElementById("tinp").focus();
+    }
+    else if (a === "tsaqla"){
+      nom = document.getElementById("tinp").value.trim();
+      if (!nom) return;
+      S.zavodlar[S.zi].turlar.push(nom);
+      chiz();
+    }
+    else if (a === "toch"){ S.ti = i; S.ekran = "skan"; S.xato = null; chiz(); }
+    else if (a === "orqat"){ S.ekran = "turlar"; S.ti = -1; S.xato = null; chiz(); }
+    else if (a === "qosh"){ qosh(document.getElementById("inp").value); }
+    else if (a === "ochir"){ savat(S.zi, S.ti).splice(i, 1); S.xato = null; chiz(); }
+  });
+
+  ekran.addEventListener("keydown", function(e){
+    if (e.key !== "Enter") return;
+    var t = e.target, nom;
+    if (t.id === "zinp"){
+      e.preventDefault();
+      nom = t.value.trim(); if (!nom) return;
+      S.zavodlar.push({ nom:nom, turlar:[] }); chiz();
+    }
+    if (t.id === "tinp"){
+      e.preventDefault();
+      nom = t.value.trim(); if (!nom) return;
+      S.zavodlar[S.zi].turlar.push(nom); chiz();
+    }
+  });
+
+  // ---------- rejim ----------
+  var rk = document.getElementById("rk"), rc = document.getElementById("rc");
+  function rejimQoy(r){
+    S.rejim = r; S.xato = null;
+    rk.className = "rb kirim" + (r === "kirim" ? " on" : "");
+    rc.className = "rb chiqim" + (r === "chiqim" ? " on" : "");
+    chiz();
+  }
+  rk.addEventListener("click", function(){ rejimQoy("kirim"); });
+  rc.addEventListener("click", function(){ rejimQoy("chiqim"); });
+
+  chiz();
+})();
+</script>

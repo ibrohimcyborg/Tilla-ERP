@@ -1,0 +1,318 @@
+<title>Sotuv Skidkasi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --text:#f0ede6; --muted:#77705f;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --num:"Roboto Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 70px;}
+h1{font-size:25px;line-height:1.2;margin:0 0 6px;color:var(--gold);letter-spacing:-.01em;}
+.sub{color:var(--muted);font-size:13px;margin:0 0 30px;}
+h2{font-size:11px;letter-spacing:.12em;color:var(--muted);margin:38px 0 13px;font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--border);}
+h3{font-size:16px;margin:0 0 8px;font-weight:600;}
+p{margin:0 0 11px;}
+b{font-weight:600;}
+code{font-family:var(--num);font-size:12.5px;color:var(--gold2);background:var(--surf2);
+  padding:1px 5px;border-radius:5px;}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;}
+.q{font-family:var(--num);font-size:11px;color:var(--muted);}
+
+.quote{border-left:3px solid var(--gold);padding:2px 0 2px 15px;margin:0 0 20px;
+  color:var(--gold2);font-size:15.5px;}
+.quote small{display:block;color:var(--muted);font-size:11.5px;margin-top:7px;letter-spacing:.05em;
+  font-family:var(--ui);}
+
+/* formula */
+.form{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;padding:17px;
+  text-align:center;}
+.form .f{font-family:var(--num);font-size:16px;color:var(--gold2);line-height:1.9;}
+.form .f em{color:var(--muted);font-style:normal;font-size:13px;}
+
+.scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:430px;}
+th{text-align:left;font-size:9.5px;letter-spacing:.09em;color:var(--muted);font-weight:500;
+  padding:0 9px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;}
+th.r,td.r{text-align:right;}
+td{padding:9px 9px 9px 0;border-bottom:1px solid var(--border);}
+td.n{font-family:var(--num);font-variant-numeric:tabular-nums;white-space:nowrap;}
+tr.tot td{border-bottom:0;border-top:2px solid var(--gold-bd);font-weight:700;color:var(--gold2);
+  padding-top:11px;}
+.sk{color:var(--red);}
+
+.taklif{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:18px;
+  margin-bottom:14px;}
+.taklif.yaxshi{border-color:var(--gold-bd);}
+.tag{display:inline-block;font-family:var(--num);font-size:10.5px;letter-spacing:.08em;
+  padding:3px 9px;border-radius:6px;margin-bottom:11px;}
+.tA{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+.tB{background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+.tC{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.tD{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);}
+
+ul{margin:11px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:17px;margin-bottom:6px;font-size:13.5px;line-height:1.5;}
+li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;
+  background:var(--muted);}
+li.plus::before{background:var(--green);}
+li.minus::before{background:var(--red);}
+
+.tel{background:var(--surf);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  max-width:320px;margin:14px auto 0;}
+.tel-hd{padding:10px 13px;border-bottom:1px solid var(--border);background:var(--surf2);
+  display:flex;align-items:center;gap:8px;font-size:12px;}
+.tel-bd{padding:12px 13px;}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
+  font-size:10.5px;letter-spacing:.05em;font-weight:600;}
+.p-gold{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.p-on{background:linear-gradient(90deg,#5183FF,#5F84DF);color:#fff;border:0;}
+.p-off{background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+.lr{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:12.5px;}
+.lr .k{color:var(--muted);}
+.jami{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;
+  padding:11px 13px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);}
+.jami .lb{font-size:9.5px;letter-spacing:.09em;color:var(--gold);}
+.jami .vl{font-family:var(--num);font-size:21px;font-weight:700;color:var(--gold2);}
+.inp{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;
+  border-radius:10px;background:var(--surf2);border:1px solid var(--red-bd);margin-top:9px;}
+.inp .k{font-size:12px;color:var(--muted);}
+.inp .v{font-family:var(--num);font-size:15px;color:var(--red);}
+.cap{font-size:11.5px;color:var(--muted);text-align:center;margin-top:9px;}
+
+.ogoh{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:13px 15px;
+  font-size:13.5px;}
+.ogoh b{color:var(--red);}
+
+.qaror{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;padding:15px 17px;
+  margin-bottom:12px;}
+.qaror .s{font-size:15px;color:var(--gold2);font-weight:600;margin-bottom:9px;}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:7px 0;font-size:13.5px;}
+.opt .k{font-family:var(--num);font-size:11px;color:var(--muted);border:1px solid var(--border);
+  border-radius:5px;padding:1px 6px;flex:none;margin-top:2px;}
+</style>
+
+<div class="wrap">
+
+<h1>Sotuv skidkasi</h1>
+<p class="sub">Hozir qanday hisoblanadi · POS da qanday bo'lishi mumkin · 2026-09-09</p>
+
+<div class="quote">
+  «sotuv oynasi tekshirilsa skidka qanaqa hisoblanadi shunda? biza baribir skidka
+  qiberamizu, shunga takliflar ber»
+  <small>IBROHIM, 2026-09-09</small>
+</div>
+
+<h2>1 · HOZIR QANDAY HISOBLANADI</h2>
+
+<p>Siz sotuv oynasida <b>bitta umumiy dollar raqamini</b> yozasiz —
+<code>Skidka: 122,40</code>. Zavod bo'yicha alohida yozilmaydi.</p>
+
+<p>Dastur uni qatorlarga <b>grammga qarab</b> bo'ladi:</p>
+
+<div class="form">
+  <div class="f">
+    bu qatorning skidkasi &nbsp;=&nbsp; jami skidka &nbsp;×&nbsp;
+    <span style="display:inline-block;text-align:center;vertical-align:middle;">
+      <span style="display:block;border-bottom:1px solid var(--gold-bd);padding:0 6px;">shu qator grammi</span>
+      <span style="display:block;padding:0 6px;">jami gramm</span>
+    </span>
+  </div>
+  <div class="q" style="margin-top:9px;">index.html:17263</div>
+</div>
+
+<p style="margin-top:16px;">Misol — 122,40 $ skidka:</p>
+
+<div class="scroll">
+<table>
+  <thead><tr>
+    <th>ZAVOD · TUR</th><th class="r">GRAMM</th><th class="r">SUMMA</th>
+    <th class="r">ULUSH</th><th class="r">SKIDKA</th><th class="r">QOLADI</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Butterfly · 3D</td><td class="n r">42,60</td><td class="n r">3 195,00</td>
+        <td class="n r q">62,5 %</td><td class="n r sk">−76,45</td><td class="n r">3 118,55</td></tr>
+    <tr><td>Butterfly · Zanjir</td><td class="n r">18,20</td><td class="n r">1 365,00</td>
+        <td class="n r q">26,7 %</td><td class="n r sk">−32,66</td><td class="n r">1 332,34</td></tr>
+    <tr><td>Sharq · Uzuk</td><td class="n r">7,40</td><td class="n r">562,40</td>
+        <td class="n r q">10,8 %</td><td class="n r sk">−13,29</td><td class="n r">549,11</td></tr>
+    <tr class="tot"><td>JAMI</td><td class="n r">68,20</td><td class="n r">5 122,40</td>
+        <td class="n r"></td><td class="n r sk">−122,40</td><td class="n r">5 000,00</td></tr>
+  </tbody>
+</table>
+</div>
+
+<ul style="margin-top:14px;">
+  <li><b>Grammga qarab bo'linadi, summaga emas.</b> Uzukning narxi qimmatroq
+      (76 $/g), lekin skidka ulushi grammidan chiqadi.</li>
+  <li>Tiyin yo'qolmasin deb oxirgi tiyin eng katta qoldiqli qatorga beriladi —
+      shuning uchun Uzukda <span class="num">13,29</span>, <span class="num">13,28</span> emas.</li>
+  <li>Har qator <code>k.tarix</code> ga alohida yoziladi:
+      <code>summa: 3 118,55</code> va <code>skidka: 76,45</code> yonma-yon turadi.
+      Shuning uchun foyda hisobotida <span class="sk">sk: −$76,45</span> ko'rinadi.</li>
+</ul>
+
+<h2>2 · MUAMMO</h2>
+
+<div class="ogoh">
+  Siz <b>baribir skidka berasiz</b>. Demak POS ko'rsatgan
+  <span class="num">5 122</span> hech qachon haqiqiy raqam bo'lmaydi — doim
+  yuqori. Klient «siz 5 122 dedingiz-ku?» deydi, kassir esa «yo'q, chegirma
+  bo'ladi» deb izoh berib o'tiradi. Taxminning ma'nosi shunda yo'qoladi.
+</div>
+
+<h2>3 · TAKLIFLAR</h2>
+
+<div class="taklif yaxshi">
+  <span class="tag tC">A · KASSIR SKIDKANI O'ZI YOZADI</span>
+  <p>POS ekranida <b>Skidka $</b> maydoni bo'ladi. Kassir kelishilgan chegirmani
+  yozadi, taxmin darrov kamayadi. Chernovikda skidka ham ketadi — siz uni
+  tayyor ko'rasiz va xohlasangiz o'zgartirasiz.</p>
+
+  <div class="tel">
+    <div class="tel-hd">
+      <span class="pill p-gold">SOTUV</span>
+      <span style="color:var(--muted);">Javohir aka Jizzax</span>
+    </div>
+    <div class="tel-bd">
+      <div class="lr"><span class="k">Mol · 68,20 g</span><span class="num">5 122,40</span></div>
+      <div class="inp"><span class="k">Skidka</span><span class="v">− 122,40</span></div>
+      <div class="jami"><span class="lb">TAXMINIY JAMI</span><span class="vl">5 000 $</span></div>
+      <div style="text-align:center;margin-top:11px;"><span class="pill p-on">TEKSHIRUVGA YUBORISH</span></div>
+    </div>
+  </div>
+  <p class="cap">Klientga aytilgan raqam = siz ko'radigan raqam</p>
+
+  <ul>
+    <li class="plus">Klientga aytilgan son haqiqiyga to'g'ri keladi</li>
+    <li class="plus">Siz kassir qancha va'da qilganini aniq ko'rasiz</li>
+    <li class="minus">Kassirga chegirma berish huquqi ochiladi — cheklovsiz</li>
+  </ul>
+</div>
+
+<div class="taklif">
+  <span class="tag tD">B · TAYYOR CHEGIRMA TUGMALARI</span>
+  <p>Kassir istagan raqamni yozolmaydi — faqat siz ruxsat bergan variantdan
+  tanlaydi. Ro'yxat <code>sozlamalar</code> hujjatida turadi, ERP dan o'zgartiriladi.</p>
+
+  <div class="tel">
+    <div class="tel-hd">
+      <span class="pill p-gold">SOTUV</span>
+      <span style="color:var(--muted);">Javohir aka Jizzax</span>
+    </div>
+    <div class="tel-bd">
+      <div class="lr"><span class="k">Mol · 68,20 g</span><span class="num">5 122,40</span></div>
+      <div style="display:flex;gap:6px;margin:10px 0 3px;">
+        <span class="pill p-off num" style="flex:1;justify-content:center;">0</span>
+        <span class="pill p-off num" style="flex:1;justify-content:center;">1 %</span>
+        <span class="pill p-on num" style="flex:1;justify-content:center;">2 %</span>
+        <span class="pill p-off num" style="flex:1;justify-content:center;">3 %</span>
+      </div>
+      <div class="lr"><span class="k">Skidka 2 %</span><span class="num sk">− 102,45</span></div>
+      <div class="jami"><span class="lb">TAXMINIY JAMI</span><span class="vl">5 019,95 $</span></div>
+    </div>
+  </div>
+  <p class="cap">Foiz jami summadan olinadi, keyin ERP dagidek grammga bo'linadi</p>
+
+  <ul>
+    <li class="plus">Kassir chegaradan chiqolmaydi — chegara sizda</li>
+    <li class="plus">Klientga aniq raqam aytiladi</li>
+    <li class="minus">Bitta yangi sozlama qo'shiladi (chegirma ro'yxati)</li>
+  </ul>
+</div>
+
+<div class="taklif">
+  <span class="tag tD">C · NARXNI TUSHIRISH — skidka emas</span>
+  <p>Kassir narx ustunini tahrirlaydi: <code>75,00</code> o'rniga
+  <code>73,50</code>. Bu savdo tilida tabiiy — «grammiga bir yarim tushaman».</p>
+
+  <div class="ogoh" style="margin-top:12px;">
+    <b>Diqqat:</b> bu ERP ga <b>skidka bo'lib tushmaydi</b> — shunchaki past narx
+    bo'lib tushadi. Foyda hisobotidagi <span class="sk">sk: −$</span> qatori bo'sh
+    qoladi, «qancha chegirma berdik» degan savolga javob yo'qoladi.
+  </div>
+
+  <ul>
+    <li class="plus">Savdo tiliga eng yaqin</li>
+    <li class="minus">Chegirma hisobotdan g'oyib bo'ladi</li>
+    <li class="minus">A/B kategoriya narxining ma'nosi buziladi</li>
+  </ul>
+</div>
+
+<div class="taklif">
+  <span class="tag tB">D · HECH NIMA — hozirgidek</span>
+  <p>POS to'liq narxni ko'rsatadi, skidka faqat sizda. Kassir og'zaki
+  «chegirma bo'ladi» deydi.</p>
+  <ul>
+    <li class="plus">Kod o'zgarmaydi, xavf nol</li>
+    <li class="minus">Yuqoridagi muammo o'z holicha qoladi</li>
+  </ul>
+</div>
+
+<h2>4 · SIZ TEKSHIRGANINGIZDA</h2>
+
+<p>A yoki B tanlansa, qo'ng'iroqcha panelida skidka ham ko'rinadi — va siz uni
+qabul qilishdan oldin <b>o'zgartira olasiz</b>:</p>
+
+<div class="tel" style="max-width:380px;">
+  <div class="tel-hd">
+    <span class="pill p-gold">SOTUV · kutilmoqda</span>
+    <span style="color:var(--muted);">14:22</span>
+  </div>
+  <div class="tel-bd">
+    <div class="lr"><span class="k">Mol · 68,20 g</span><span class="num">5 122,40</span></div>
+    <div class="lr"><span class="k">Kassir yozgan skidka</span><span class="num sk">− 122,40</span></div>
+    <div class="inp" style="border-color:var(--gold-bd);">
+      <span class="k">Sizning skidkangiz</span><span class="v" style="color:var(--gold2);">− 150,00</span></div>
+    <div class="jami"><span class="lb">QABUL QILINSA</span><span class="vl">4 972,40 $</span></div>
+    <div style="display:flex;gap:7px;margin-top:12px;">
+      <span class="pill" style="flex:1;justify-content:center;background:var(--green-bg);
+        border:1px solid var(--green-bd);color:var(--green);">QABUL</span>
+      <span class="pill" style="flex:1;justify-content:center;background:var(--red-bg);
+        border:1px solid var(--red-bd);color:var(--red);">RAD</span>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;">Skidka <b>qabul paytida ham yozilmaydi</b> — u
+chernovikda saqlanib turadi va TO'LOV oynasi ochilganda
+<code>kt-skidka</code> maydoniga tayyor tushadi. Pul yozilganda esa hozirgi
+formula bo'yicha grammga bo'linadi. <b>Hisob mantiqiga tegilmaydi.</b></p>
+
+<h2>5 · QAROR</h2>
+
+<div class="qaror">
+  <div class="s">1. Skidkani kim kiritadi?</div>
+  <div class="opt"><span class="k">A</span><span>Kassir istagan raqamni yozadi</span></div>
+  <div class="opt"><span class="k">B</span><span>Kassir siz belgilagan foizlardan tanlaydi</span></div>
+  <div class="opt"><span class="k">C</span><span>Kassir narxni tushiradi (hisobotda skidka ko'rinmaydi)</span></div>
+  <div class="opt"><span class="k">D</span><span>Hech kim — hozirgidek qoladi</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">2. B bo'lsa — qanaqa chegirmalar bo'lsin?</div>
+  <div class="opt"><span class="k">a</span><span>Foiz: <span class="num">0 · 1 % · 2 % · 3 %</span></span></div>
+  <div class="opt"><span class="k">b</span><span>Grammiga: <span class="num">0 · −0,5 · −1,0 · −1,5 $/g</span></span></div>
+  <div class="opt"><span class="k">c</span><span>Tayyor summa: <span class="num">0 · 50 · 100 · 200 $</span></span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">3. Siz skidkani o'zgartira olasizmi?</div>
+  <div class="opt"><span class="k">a</span><span>Ha — qo'ng'iroqcha panelida tahrirlanadi</span></div>
+  <div class="opt"><span class="k">b</span><span>Yo'q — kassir yozgani TO'LOV oynasiga tushadi, o'sha yerda tuzatasiz</span></div>
+</div>
+
+<p style="margin-top:26px;color:var(--muted);font-size:13px;">
+Javob: masalan <code>B a a</code> — tayyor foizlar, <span class="num">0/1/2/3 %</span>,
+panelda tahrirlanadi. Yoki o'z so'zingiz bilan.
+</p>
+
+</div>

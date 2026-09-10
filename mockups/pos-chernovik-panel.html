@@ -1,0 +1,339 @@
+<title>Chernovik Paneli</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --text:#f0ede6; --muted:#77705f;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --teal:#3fc7bd;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --num:"Roboto Mono",ui-monospace,monospace;
+  --rb:"Roboto",sans-serif;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:820px;margin:0 auto;padding:26px 16px 70px;}
+h1{font-size:25px;line-height:1.2;margin:0 0 6px;color:var(--gold);letter-spacing:-.01em;}
+.sub{color:var(--muted);font-size:13px;margin:0 0 28px;}
+h2{font-size:11px;letter-spacing:.12em;color:var(--muted);margin:38px 0 13px;font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--border);}
+p{margin:0 0 11px;}
+b{font-weight:600;}
+code{font-family:var(--num);font-size:12.5px;color:var(--gold2);background:var(--surf2);
+  padding:1px 5px;border-radius:5px;}
+.q{font-family:var(--num);font-size:11px;color:var(--muted);}
+
+.quote{border-left:3px solid var(--gold);padding:2px 0 2px 15px;margin:0 0 22px;
+  color:var(--gold2);font-size:15.5px;}
+.quote small{display:block;color:var(--muted);font-size:11.5px;margin-top:7px;letter-spacing:.05em;
+  font-family:var(--ui);}
+
+/* muammolar ro'yxati */
+.mlist{display:flex;flex-direction:column;gap:9px;}
+.m{display:grid;grid-template-columns:26px 1fr;gap:11px;align-items:start;
+  background:var(--surf);border:1px solid var(--border);border-radius:13px;padding:12px 14px;}
+.m .n{font-family:var(--num);font-size:12px;color:var(--red);border:1px solid var(--red-bd);
+  background:var(--red-bg);border-radius:7px;text-align:center;padding:1px 0;font-weight:700;}
+.m .t{font-size:14px;font-weight:600;margin-bottom:3px;}
+.m .d{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* panel maketlari */
+.ikki{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+@media(max-width:700px){.ikki{grid-template-columns:1fr;}}
+.pw{min-width:0;}
+.pw .lbl{font-size:10px;letter-spacing:.11em;margin-bottom:9px;font-weight:600;}
+.pw.a .lbl{color:var(--red);}
+.pw.b .lbl{color:var(--green);}
+
+.panel{background:var(--surf);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.p-hd{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.p-hd .bk{width:26px;height:26px;flex:none;border-radius:11px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);display:flex;align-items:center;justify-content:center;
+  font-size:12px;}
+.p-hd .nm{font-size:13.5px;font-weight:700;}
+.p-bd{padding:11px 14px;}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:24px;font-size:10px;
+  letter-spacing:.05em;}
+.c-gold{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.c-blue{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);}
+
+.qat{border:1px solid var(--border);background:var(--surf2);border-radius:16px;padding:10px 12px;
+  margin-bottom:9px;}
+.qat.ok{border-color:var(--green-bd);}
+.qat.xato{border-color:var(--red-bd);}
+.qat-hd{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12.5px;}
+.qat-hd b{font-size:12.5px;}
+.qat-hd .r{margin-left:auto;font-size:10.5px;color:var(--muted);}
+.dchips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;}
+.dc{padding:3px 8px;border-radius:13px;border:1px solid var(--border);background:var(--surf);
+  font-size:11px;font-family:var(--rb);font-variant-numeric:tabular-nums;}
+.dc.sk{border-color:var(--green-bd);background:var(--green-bg);color:var(--green);}
+.dc.x{color:var(--muted);margin-left:4px;}
+.skl{font-size:9px;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;}
+.inrow{display:flex;gap:5px;margin-bottom:6px;}
+.inrow .in{flex:1;min-width:0;height:32px;border-radius:12px;border:1px solid var(--gold-bd);
+  background:var(--bg);color:var(--muted);padding:0 10px;font-size:12px;display:flex;align-items:center;}
+.inrow .bt{width:33px;height:32px;border-radius:12px;background:var(--gold);color:var(--on-gold);
+  font-size:15px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.inrow .bt2{height:32px;padding:0 10px;border-radius:12px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);font-size:10.5px;display:flex;align-items:center;}
+.rec{font-size:10.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.rec b{font-family:var(--rb);}
+.recq{font-size:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+
+.btns{display:flex;gap:7px;margin-top:11px;}
+.bt-ok{flex:1;height:38px;border-radius:14px;border:1px solid var(--green-bd);background:var(--green-bg);
+  color:var(--green);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;}
+.bt-ok.dis{opacity:.35;}
+.bt-ok.warn{border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold);}
+.bt-no{height:38px;padding:0 15px;border-radius:14px;border:1px solid var(--red-bd);
+  background:var(--red-bg);color:var(--red);display:flex;align-items:center;font-size:12.5px;font-weight:600;}
+.hint{font-size:10.5px;color:var(--muted);text-align:center;padding-top:7px;}
+
+.jamiblok{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;
+  border-radius:14px;background:var(--gold-bg);border:1px solid var(--gold-bd);margin-bottom:10px;}
+.jamiblok .k{font-size:9.5px;letter-spacing:.09em;color:var(--gold);}
+.jamiblok .v{font-family:var(--rb);font-size:18px;font-weight:700;color:var(--gold2);
+  font-variant-numeric:tabular-nums;}
+.prog{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-bottom:10px;}
+.prog .bar{flex:1;height:4px;border-radius:3px;background:var(--surf2);overflow:hidden;}
+.prog .bar i{display:block;height:100%;width:66%;background:var(--green);}
+
+ul{margin:10px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:17px;margin-bottom:6px;font-size:13.5px;line-height:1.5;}
+li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;
+  background:var(--green);}
+
+.qaror{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;padding:15px 17px;
+  margin-bottom:12px;}
+.qaror .s{font-size:15px;color:var(--gold2);font-weight:600;margin-bottom:9px;}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:7px 0;font-size:13.5px;}
+.opt .k{font-family:var(--num);font-size:11px;color:var(--muted);border:1px solid var(--border);
+  border-radius:5px;padding:1px 6px;flex:none;margin-top:2px;}
+</style>
+
+<div class="wrap">
+
+<h1>Chernovik paneli</h1>
+<p class="sub">POS dan kelgan chernovikni tekshirish ekrani · nima tushunarsiz va nima qilamiz</p>
+
+<div class="quote">
+  «manga shu kelgan narsa tushunarsiz ko'rinvotti, shuni oldin to'g'irlaylik»
+  <small>IBROHIM, 2026-09-09</small>
+</div>
+
+<h2>OLTITA TUSHUNARSIZ JOY</h2>
+
+<div class="mlist">
+  <div class="m"><span class="n">1</span><div>
+    <div class="t">Ikki qator bir xil ko'rinadi</div>
+    <div class="d">Tepada POS yuborgan donalar, pastda siz skanlaganingiz. Ikkalasi ham
+      dumaloq belgi — <b>qaysi biri qaysi ekani yozilmagan</b>.</div></div></div>
+
+  <div class="m"><span class="n">2</span><div>
+    <div class="t">«Mos» tugmasi nima qilishi noma'lum</div>
+    <div class="d">U aslida POS donalarini pastga nusxa qiladi — ya'ni «tekshirmadim,
+      POS ga ishonaman» degani. Nomidan buni bilib bo'lmaydi.</div></div></div>
+
+  <div class="m"><span class="n">3</span><div>
+    <div class="t">«mos 2 · kam: 15,10 · ortiq: 15,05»</div>
+    <div class="d">Uchta texnik so'z eng mayda shriftda. Nima qilish kerakligi
+      aytilmaydi.</div></div></div>
+
+  <div class="m"><span class="n">4</span><div>
+    <div class="t">Jami gramm hech qayerda yo'q</div>
+    <div class="d">Har qatorning grammi bor, lekin <b>umumiy son</b> faqat qabul
+      bosilganda, tasdiq oynasida chiqadi. Undan oldin ko'rinmaydi.</div></div></div>
+
+  <div class="m"><span class="n">5</span><div>
+    <div class="t">Qabul tugmasi o'chib turadi, sababi ko'rinmaydi</div>
+    <div class="d">Hamma tur skanlanmaguncha bosilmaydi. Sabab eng pastda, kulrang mayda
+      yozuvda — tugma buzuq deb o'ylanadi.</div></div></div>
+
+  <div class="m"><span class="n">6</span><div>
+    <div class="t">Tugma nomi o'zgarib turadi</div>
+    <div class="d">Goh «✓ Qabul qilish», goh «⚠ O'zgarish bilan qabul». Bir xil joyda
+      turgan tugmaning ikki xil nomi chalkashtiradi.</div></div></div>
+</div>
+
+<h2>HOZIRGI VA TAKLIF</h2>
+
+<div class="ikki">
+
+  <div class="pw a">
+    <div class="lbl">HOZIRGI</div>
+    <div class="panel">
+      <div class="p-hd">
+        <span class="bk">←</span>
+        <span class="nm">Javohir aka Jizzax</span>
+        <span class="chip c-gold">BERISH</span>
+      </div>
+      <div class="p-bd">
+
+        <div class="qat xato">
+          <div class="qat-hd"><b>Butterfly · 3D</b>
+            <span class="r">POS: <b style="color:var(--text);font-family:var(--rb);">42,60 g</b> · 3 dona</span></div>
+          <div class="dchips">
+            <span class="dc">14,20</span><span class="dc">15,10</span><span class="dc">13,30</span>
+          </div>
+          <div class="inrow">
+            <span class="in">Skan yoki yozing</span>
+            <span class="bt">+</span>
+            <span class="bt2">Mos</span>
+          </div>
+          <div class="dchips">
+            <span class="dc sk">14,20<span class="dc x">✕</span></span>
+            <span class="dc sk">15,05<span class="dc x">✕</span></span>
+            <span class="dc sk">13,30<span class="dc x">✕</span></span>
+          </div>
+          <div class="rec">
+            <span style="color:var(--green);">mos 2</span>
+            <span style="color:var(--red);">kam: 15,10</span>
+            <span style="color:var(--blue);">ortiq: 15,05</span>
+            <span style="flex:1;"></span><b>42,55 g</b>
+          </div>
+        </div>
+
+        <div class="qat">
+          <div class="qat-hd"><b>Butterfly · Zanjir</b>
+            <span class="r">POS: <b style="color:var(--text);font-family:var(--rb);">18,20 g</b> · 1 dona</span></div>
+          <div class="dchips"><span class="dc">18,20</span></div>
+          <div class="inrow">
+            <span class="in">Skan yoki yozing</span>
+            <span class="bt">+</span>
+            <span class="bt2">Mos</span>
+          </div>
+        </div>
+
+        <div class="btns">
+          <span class="bt-ok dis">✓ Qabul qilish</span>
+          <span class="bt-no">✕ Rad</span>
+        </div>
+        <div class="hint">Hamma tur tekshirilmaguncha qabul qilinmaydi</div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="pw b">
+    <div class="lbl">TAKLIF</div>
+    <div class="panel" style="border-color:var(--green-bd);">
+      <div class="p-hd">
+        <span class="bk">←</span>
+        <span class="nm">Javohir aka Jizzax</span>
+        <span class="chip c-gold">BERISH</span>
+      </div>
+      <div class="p-bd">
+
+        <div class="jamiblok">
+          <span class="k">JAMI</span>
+          <span class="v">42,55 <span style="color:var(--muted);font-size:12px;">/ 60,80 g</span></span>
+        </div>
+        <div class="prog">
+          <span>2 turdan 1 tasi tekshirildi</span>
+          <span class="bar"><i style="width:50%;"></i></span>
+        </div>
+
+        <div class="qat xato">
+          <div class="qat-hd"><b>Butterfly · 3D</b>
+            <span class="r"><span style="color:var(--red);">2 ta to'g'ri, 1 tasi boshqa</span></span></div>
+
+          <div class="skl">POS YUBORGAN &nbsp;·&nbsp; 42,60 g</div>
+          <div class="dchips">
+            <span class="dc">14,20</span>
+            <span class="dc" style="border-color:var(--red-bd);color:var(--red);">15,10</span>
+            <span class="dc">13,30</span>
+          </div>
+
+          <div class="skl" style="color:var(--green);">SIZ O'LCHADINGIZ &nbsp;·&nbsp; 42,55 g</div>
+          <div class="dchips">
+            <span class="dc sk">14,20<span class="dc x">✕</span></span>
+            <span class="dc sk" style="border-color:var(--blue-bd);color:var(--blue);">15,05<span class="dc x">✕</span></span>
+            <span class="dc sk">13,30<span class="dc x">✕</span></span>
+          </div>
+
+          <div class="inrow">
+            <span class="in">Tarozidan o'qing yoki yozing</span>
+            <span class="bt">+</span>
+          </div>
+          <div class="recq">
+            <span style="color:var(--red);">POS da 15,10 bor, sizda yo'q</span>
+          </div>
+        </div>
+
+        <div class="qat">
+          <div class="qat-hd"><b>Butterfly · Zanjir</b>
+            <span class="r"><span style="color:var(--muted);">tekshirilmagan</span></span></div>
+          <div class="skl">POS YUBORGAN &nbsp;·&nbsp; 18,20 g</div>
+          <div class="dchips"><span class="dc">18,20</span></div>
+          <div class="inrow">
+            <span class="in">Tarozidan o'qing yoki yozing</span>
+            <span class="bt">+</span>
+            <span class="bt2" style="border-color:var(--gold-bd);color:var(--gold);">POS ga ishonaman</span>
+          </div>
+        </div>
+
+        <div class="btns">
+          <span class="bt-ok dis">Qabul qilish</span>
+          <span class="bt-no">Rad</span>
+        </div>
+        <div class="hint" style="color:var(--gold);">Butterfly · Zanjir tekshirilmadi</div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<h2>NIMA O'ZGARDI</h2>
+
+<ul>
+  <li><b>Ikki qatorga yorliq qo'yildi</b> — «POS YUBORGAN» va «SIZ O'LCHADINGIZ»,
+      har birining yonida o'z jami grammi</li>
+  <li><b>«Mos» → «POS ga ishonaman»</b> — tugma nima qilishini o'zi aytadi. Faqat
+      tekshirilmagan qatorda ko'rinadi</li>
+  <li><b>Texnik so'zlar odam tiliga o'tdi</b> — «kam: 15,10» o'rniga
+      «POS da 15,10 bor, sizda yo'q». Farq qilgan dona ikkala qatorda ham rangda
+      belgilanadi</li>
+  <li><b>Jami tepaga chiqdi</b> — <span class="q">42,55 / 60,80 g</span>, qabul
+      bosishdan oldin ko'rinadi</li>
+  <li><b>Nechta tur qolgani ko'rsatiladi</b> — chiziq bilan, tugma nega
+      o'chiqligi darrov tushunarli</li>
+  <li><b>Tugma nomi doim bitta</b> — «Qabul qilish». Farq bo'lsa u tasdiq oynasida
+      aytiladi, tugma nomi o'zgarmaydi</li>
+</ul>
+
+<p style="margin-top:15px;"><b>Hisobga tegilmaydi.</b> <code>posChQabul</code> nima
+qilsa, shuni qiladi — faqat ko'rinish o'zgaradi.
+<span class="q">index.html:15258</span></p>
+
+<h2>QAROR</h2>
+
+<div class="qaror">
+  <div class="s">1. Hammasi shundaymi?</div>
+  <div class="opt"><span class="k">a</span><span>Ha — oltitasini ham shunday qil</span></div>
+  <div class="opt"><span class="k">b</span><span>Faqat ba'zilarini — qaysi raqamlarini ayting</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">2. «POS ga ishonaman» tugmasi qayerda tursin?</div>
+  <div class="opt"><span class="k">a</span><span>Faqat tekshirilmagan qatorda</span></div>
+  <div class="opt"><span class="k">b</span><span>Doim ko'rinsin, hozirgidek</span></div>
+  <div class="opt"><span class="k">c</span><span>Umuman olib tashlansin — har doim o'lchansin</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">3. Tasdiq oynasi (confirm) qolsinmi?</div>
+  <div class="opt"><span class="k">a</span><span>Qolsin — farqlarni ro'yxat qilib ko'rsatadi</span></div>
+  <div class="opt"><span class="k">b</span><span>Kerak emas — panelda hammasi ko'rinib turibdi, to'g'ridan-to'g'ri qabul qilinsin</span></div>
+</div>
+
+<p style="margin-top:26px;color:var(--muted);font-size:13px;">
+Javob: masalan <code>a a a</code>. Yoki o'z so'zingiz bilan.
+</p>
+
+</div>

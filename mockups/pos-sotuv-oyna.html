@@ -1,0 +1,310 @@
+<title>Sotuv Oynasi Ochilishi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --text:#f0ede6; --muted:#77705f;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --num:"Roboto Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:780px;margin:0 auto;padding:26px 16px 70px;}
+h1{font-size:25px;line-height:1.2;margin:0 0 6px;color:var(--gold);letter-spacing:-.01em;}
+.sub{color:var(--muted);font-size:13px;margin:0 0 28px;}
+h2{font-size:11px;letter-spacing:.12em;color:var(--muted);margin:36px 0 13px;font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--border);}
+p{margin:0 0 11px;}
+b{font-weight:600;}
+code{font-family:var(--num);font-size:12.5px;color:var(--gold2);background:var(--surf2);
+  padding:1px 5px;border-radius:5px;}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;}
+.q{font-family:var(--num);font-size:11px;color:var(--muted);}
+
+.quote{border-left:3px solid var(--gold);padding:2px 0 2px 15px;margin:0 0 20px;
+  color:var(--gold2);font-size:15.5px;}
+.quote small{display:block;color:var(--muted);font-size:11.5px;margin-top:7px;letter-spacing:.05em;
+  font-family:var(--ui);}
+
+/* oqim */
+.oqim{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px;}
+.step{flex:1;min-width:132px;background:var(--surf);border:1px solid var(--border);
+  border-radius:13px;padding:12px 13px;}
+.step .n{font-family:var(--num);font-size:10px;color:var(--muted);letter-spacing:.09em;}
+.step .t{font-size:13.5px;font-weight:600;margin:5px 0 3px;}
+.step .d{font-size:11.5px;color:var(--muted);line-height:1.45;}
+.step.on{border-color:var(--gold-bd);background:var(--gold-bg);}
+.step.on .t{color:var(--gold2);}
+.arw{display:flex;align-items:center;color:var(--muted);padding:0 7px;font-size:16px;flex:none;}
+
+/* ERP oyna maketi */
+.win{background:var(--surf);border:1px solid var(--gold-bd);border-radius:18px;overflow:hidden;
+  max-width:430px;margin:0 auto;box-shadow:0 20px 50px rgba(0,0,0,.5);}
+.win-hd{padding:12px 15px;border-bottom:1px solid var(--border);background:var(--surf2);
+  display:flex;align-items:center;gap:9px;}
+.win-hd .ttl{font-size:14px;font-weight:600;color:var(--gold);}
+.win-bd{padding:13px 15px;}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+  font-size:9.5px;letter-spacing:.07em;font-weight:600;font-family:var(--num);}
+.c-pos{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);}
+.c-gold{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.c-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);}
+
+.zav{background:var(--surf2);border-radius:12px;margin-bottom:6px;overflow:hidden;}
+.zav-hd{padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
+.zav-hd .zn{font-size:12px;font-weight:600;color:var(--gold);}
+.zav-hd .zr{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.zav-bd{padding:0 12px 10px;}
+.tur{padding:7px 0;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.tur .tn{flex:1;font-size:13px;font-weight:500;}
+.tur .tn small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:2px;}
+.gin{width:76px;padding:6px 8px;border-radius:8px;font-size:14px;text-align:right;font-weight:500;
+  font-family:var(--num);border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);}
+.gin.pos{border-color:var(--gold-bd);background:var(--gold-bg);color:var(--gold2);}
+.gin.bosh{color:var(--muted);}
+
+.lr{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:13px;}
+.lr .k{color:var(--muted);}
+.lr .v{font-family:var(--num);font-variant-numeric:tabular-nums;}
+.inp{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;
+  border-radius:10px;background:var(--surf2);border:1px solid var(--red-bd);margin:8px 0;}
+.inp .k{font-size:12px;color:var(--muted);}
+.inp .v{font-family:var(--num);font-size:15px;color:var(--red);}
+.jami{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;
+  padding:11px 13px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);}
+.jami .lb{font-size:9.5px;letter-spacing:.09em;color:var(--gold);}
+.jami .vl{font-family:var(--num);font-size:21px;font-weight:700;color:var(--gold2);}
+.btn{display:block;text-align:center;padding:11px;border-radius:13px;font-size:13px;font-weight:600;
+  background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);margin-top:12px;}
+.cap{font-size:11.5px;color:var(--muted);text-align:center;margin-top:10px;}
+
+.ogoh{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:13px 15px;
+  font-size:13.5px;}
+.ogoh b{color:var(--red);}
+.yaxshi{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:12px;
+  padding:13px 15px;font-size:13.5px;}
+.yaxshi b{color:var(--green);}
+
+.scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:400px;}
+th{text-align:left;font-size:9.5px;letter-spacing:.09em;color:var(--muted);font-weight:500;
+  padding:0 9px 7px 0;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:9px 9px 9px 0;border-bottom:1px solid var(--border);vertical-align:top;}
+td.n{font-family:var(--num);white-space:nowrap;}
+
+ul{margin:10px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:17px;margin-bottom:6px;font-size:13.5px;line-height:1.5;}
+li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;
+  background:var(--muted);}
+li.plus::before{background:var(--green);}
+li.minus::before{background:var(--red);}
+
+.qaror{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;padding:15px 17px;
+  margin-bottom:12px;}
+.qaror .s{font-size:15px;color:var(--gold2);font-weight:600;margin-bottom:9px;}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:7px 0;font-size:13.5px;}
+.opt .k{font-family:var(--num);font-size:11px;color:var(--muted);border:1px solid var(--border);
+  border-radius:5px;padding:1px 6px;flex:none;margin-top:2px;}
+</style>
+
+<div class="wrap">
+
+<h1>Sotuv oynasi ochilishi</h1>
+<p class="sub">POS skidkasiz yuboradi · ERP oynasi grammlarni joyiga qo'yadi · 2026-09-09</p>
+
+<div class="quote">
+  «skidkasiz yozsinde. tilla erpda window chiqsin — qaysi zavod berilgan bo'sa
+  usha joyida ko'rsatgani yaxshi»
+  <small>IBROHIM, 2026-09-09</small>
+</div>
+
+<h2>OQIM</h2>
+
+<div class="oqim">
+  <div class="step">
+    <div class="n">1 · POS</div>
+    <div class="t">Mol yig'iladi</div>
+    <div class="d">Zavod, tur, gramm.<br>Skidka <b>yo'q</b>.</div>
+  </div>
+  <div class="arw">→</div>
+  <div class="step">
+    <div class="n">2 · CLOUD</div>
+    <div class="t">Chernovik</div>
+    <div class="d">Klientga taxminiy summa aytiladi</div>
+  </div>
+  <div class="arw">→</div>
+  <div class="step on">
+    <div class="n">3 · TILLA ERP</div>
+    <div class="t">Oyna chiqadi</div>
+    <div class="d">Grammlar <b>o'z joyida</b> turadi</div>
+  </div>
+  <div class="arw">→</div>
+  <div class="step">
+    <div class="n">4 · SIZ</div>
+    <div class="t">Skidka, lom, naqt</div>
+    <div class="d">Saqlaysiz — bitta yozuv</div>
+  </div>
+</div>
+
+<h2>3-QADAM — OYNA</h2>
+
+<p>Bu <b>yangi ekran emas</b> — Tilla ERP dagi mavjud sotuv oynasi
+<span class="q">(index.html:14591)</span>. Farqi: POS yuborgan grammlar
+allaqachon o'z qatorlarida turadi va o'sha zavodlar ochilgan bo'ladi.</p>
+
+<div class="win">
+  <div class="win-hd">
+    <span class="ttl">Sotuv — Javohir aka Jizzax</span>
+    <span style="flex:1;"></span>
+    <span class="chip c-pos">POS · 14:22</span>
+  </div>
+  <div class="win-bd">
+
+    <div class="zav">
+      <div class="zav-hd">
+        <span class="zn">Butterfly</span>
+        <span class="zr"><span class="chip c-pos">POS</span><span class="num">248,10g</span> ⌄</span>
+      </div>
+      <div class="zav-bd">
+        <div class="tur">
+          <span class="tn">3D<small>ostatka: 96,40g</small></span>
+          <span class="gin pos">42,60</span>
+        </div>
+        <div class="tur">
+          <span class="tn">Zanjir<small>ostatka: 71,20g</small></span>
+          <span class="gin pos">18,20</span>
+        </div>
+        <div class="tur">
+          <span class="tn">Bilaguzuk<small>ostatka: 80,50g</small></span>
+          <span class="gin bosh">0g</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zav">
+      <div class="zav-hd">
+        <span class="zn">Sharq</span>
+        <span class="zr"><span class="chip c-pos">POS</span><span class="num">54,30g</span> ⌄</span>
+      </div>
+      <div class="zav-bd">
+        <div class="tur">
+          <span class="tn">Uzuk<small>ostatka: 54,30g</small></span>
+          <span class="gin pos">7,40</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zav">
+      <div class="zav-hd">
+        <span class="zn">Oltin Vodiy</span>
+        <span class="zr"><span class="num">112,00g</span> ›</span>
+      </div>
+    </div>
+
+    <div style="margin-top:13px;border-top:1px solid var(--border);padding-top:11px;">
+      <div class="lr"><span class="k">Mol · 68,20 g</span><span class="v">5 122,40</span></div>
+      <div class="inp"><span class="k">Skidka</span><span class="v">− 122,40</span></div>
+      <div class="lr"><span class="k">Lom</span><span class="v" style="color:var(--muted);">0,00</span></div>
+      <div class="lr"><span class="k">Naqt oldi</span><span class="v" style="color:var(--muted);">0,00</span></div>
+      <div class="jami"><span class="lb">YANGI QARZ</span><span class="vl">5 000,00 $</span></div>
+      <div class="btn">SOTUVNI SAQLASH</div>
+    </div>
+
+  </div>
+</div>
+
+<p class="cap">Oltin ko'k qatorlar — POS dan kelgan. Qora qatorlar — bo'sh, o'zingiz yozasiz.</p>
+
+<h2>NEGA BU YAXSHI</h2>
+
+<div class="yaxshi">
+  <b>Ikki marta yozilish muammosi yo'qoladi.</b> Hozir BERISH chernovigi
+  «qabul» qilinganda mol <code>k.tarix</code> ga tushadi. Agar keyin sotuv
+  oynasini ochsangiz — o'sha mol <b>ikkinchi marta</b> yoziladi.
+  Bu yo'lda alohida «qabul» yo'q: sotuvni saqlaganingizda mol ham,
+  pul ham, skidka ham bir yo'la tushadi.
+</div>
+
+<div class="scroll" style="margin-top:15px;">
+<table>
+  <thead><tr><th>&nbsp;</th><th>Hozirgi BERISH chernovigi</th><th>Taklif: SOTUV</th></tr></thead>
+  <tbody>
+    <tr><td class="n">Qabul</td><td>Alohida tugma, mol darrov tushadi</td>
+        <td>Yo'q — oyna ochiladi</td></tr>
+    <tr><td class="n">Pul</td><td>Yozilmaydi</td><td>O'sha oynada</td></tr>
+    <tr><td class="n">Skidka</td><td>Yo'q</td><td>O'sha oynada, sizda</td></tr>
+    <tr><td class="n">Yozuv</td><td><code>berish</code>, keyin alohida <code>tolov</code></td>
+        <td>Bir yo'la — hozirgi <code>saqlashKlientSotuv</code></td></tr>
+    <tr><td class="n">Yangi kod</td><td>—</td><td>Faqat grammni joyiga qo'yish</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>BITTA XAVFLI JOY</h2>
+
+<div class="ogoh">
+  <b>Ostatkasi tugagan tur ko'rinmaydi.</b> Sotuv oynasi faqat ostatkasi
+  bor turlarni chizadi <span class="q">(index.html:14837)</span>. POS
+  <span class="num">42,60g</span> yuborgan bo'lsa-yu, o'sha tur shu orada
+  nolga tushgan bo'lsa — qator umuman chiqmaydi va gramm jimgina yo'qoladi.
+</div>
+
+<p style="margin-top:13px;">Yechim: bunday qator baribir chiziladi, ustiga qizil
+belgi qo'yiladi:</p>
+
+<div class="win" style="max-width:400px;">
+  <div class="win-bd" style="padding:12px 15px;">
+    <div class="zav">
+      <div class="zav-hd">
+        <span class="zn">Butterfly</span>
+        <span class="zr"><span class="chip c-red">YETMAYDI</span> ⌄</span>
+      </div>
+      <div class="zav-bd">
+        <div class="tur">
+          <span class="tn">3D<small style="color:var(--red);">ostatka: 0,00g — POS 42,60g so'ragan</small></span>
+          <span class="gin pos" style="border-color:var(--red-bd);background:var(--red-bg);color:var(--red);">42,60</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="cap">Siz ko'rasiz va o'zingiz hal qilasiz — minusga tushirasizmi yoki tuzatasizmi</p>
+
+<h2>QAROR</h2>
+
+<div class="qaror">
+  <div class="s">1. Oyna qachon chiqsin?</div>
+  <div class="opt"><span class="k">a</span><span>Chernovik kelishi bilan <b>o'zi</b> ochiladi</span></div>
+  <div class="opt"><span class="k">b</span><span>Qo'ng'iroqcha yonadi, siz bosganingizda ochiladi</span></div>
+  <div class="opt"><span class="k">c</span><span>Qo'ng'iroqchada ro'yxat, «SOTUVGA O'TISH» tugmasi bosilsa ochiladi</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">2. POS dan kelgan qatorlar belgilansinmi?</div>
+  <div class="opt"><span class="k">a</span><span>Ha — oltin rang + zavod ustida <b>POS</b> yorlig'i</span></div>
+  <div class="opt"><span class="k">b</span><span>Yo'q — oddiy qator, farqi bilinmasin</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">3. Dona og'irliklari nima bo'lsin?</div>
+  <div class="opt"><span class="k">a</span><span>POS skanlagan donalar skan panelga tushsin — qayta skanlamaysiz</span></div>
+  <div class="opt"><span class="k">b</span><span>Faqat jami gramm tushsin, donalarni o'zingiz skanlaysiz</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">4. Chernovikni rad qilsangiz?</div>
+  <div class="opt"><span class="k">a</span><span>Oynani yopsangiz chernovik <b>kutilmoqda</b> bo'lib turaveradi</span></div>
+  <div class="opt"><span class="k">b</span><span>Oynada «RAD» tugmasi bo'lsin — bosilsa o'chadi</span></div>
+</div>
+
+<p style="margin-top:26px;color:var(--muted);font-size:13px;">
+Javob: masalan <code>c a a b</code>. Yoki o'z so'zingiz bilan.
+</p>
+
+</div>

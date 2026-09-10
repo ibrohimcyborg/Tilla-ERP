@@ -1,0 +1,264 @@
+<title>Ikki Yo'l</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+  --blue:#2B5C86; --blue-soft:#E6EEF5; --blue-line:#C2D5E4;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+    --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  --blue:#7FB0DA; --blue-soft:#1A2733; --blue-line:#2C3F51;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+.col{max-width:700px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+header{padding:58px 0 32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.024em;line-height:1.12}
+.lede{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:580px}
+section{padding-top:48px}
+.snum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+h2{font-size:25px;font-weight:700;letter-spacing:-.018em}
+h3{font-size:16.5px;font-weight:700;margin:24px 0 9px}
+p{margin:13px 0}.col p{max-width:66ch}
+
+.two{display:grid;grid-template-columns:1fr;gap:16px;margin:22px 0}
+@media(min-width:800px){.two{grid-template-columns:1fr 1fr}}
+.way{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.whd{padding:14px 17px;border-bottom:1px solid var(--line)}
+.whd.w2{background:var(--blue-soft);color:var(--blue)}
+.whd.w3{background:var(--good-soft);color:var(--good)}
+.whd .n{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+.whd .t{font-family:"Archivo",sans-serif;font-size:18px;font-weight:700;margin-top:3px;letter-spacing:-.01em}
+.wbd{padding:17px}
+
+/* posilka rasm */
+.pack{border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:11px 13px;font-family:"JetBrains Mono",monospace;font-size:12px;margin:9px 0}
+.pack .pt{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.pack .li{padding:2px 0}
+.pack.big{border-color:var(--blue-line);background:var(--blue-soft)}
+.pack.sm{border-color:var(--good-line);background:var(--good-soft)}
+.arrow{text-align:center;color:var(--muted);font-size:14px;padding:3px 0}
+.wnote{font-size:14px;color:var(--muted);margin-top:12px}
+.wnote b{color:var(--ink);font-weight:600}
+
+/* stsenariy */
+.sc{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;margin:20px 0}
+.schd{padding:12px 17px;background:var(--panel2);border-bottom:1px solid var(--line);font-weight:700;font-size:15px}
+.scbd{padding:0}
+.step{display:grid;grid-template-columns:64px 1fr;gap:0;border-bottom:1px solid var(--line2)}
+.step:last-child{border-bottom:0}
+.step .tm{padding:13px 12px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);border-right:1px solid var(--line2);background:var(--panel2)}
+.step .bd{padding:13px 16px;font-size:14.5px}
+.step .bd b{font-weight:700}
+.res{display:flex;gap:9px;flex-wrap:wrap;margin-top:8px}
+.pill{font-family:"JetBrains Mono",monospace;font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
+.pill.ok{border-color:var(--good-line);background:var(--good-soft);color:var(--good);font-weight:700}
+.pill.no{border-color:var(--bad-line);background:var(--bad-soft);color:var(--bad);font-weight:700}
+.final{padding:14px 17px;font-weight:700;font-size:15px}
+.final.bad{background:var(--bad-soft);color:var(--bad)}
+.final.good{background:var(--good-soft);color:var(--good)}
+
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:10px 15px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+.t-mid{background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-line)}
+
+.warn{border-left:2px solid var(--bad);background:var(--panel);padding:14px 18px;margin:20px 0;font-size:15px;border-radius:0 9px 9px 0}
+.warn b{font-weight:700;color:var(--bad)}
+
+.dec{border:1px solid var(--accent-line);border-radius:12px;background:var(--panel);margin:15px 0;overflow:hidden}
+.dhd2{background:var(--accent-soft);color:var(--accent);padding:11px 17px;font-weight:700;font-size:14px;border-bottom:1px solid var(--accent-line);display:flex;gap:10px;align-items:baseline}
+.dhd2 .k{font-family:"JetBrains Mono",monospace;font-size:12px}
+.dbody{padding:5px 17px 13px}
+.opt{display:grid;grid-template-columns:36px 1fr;gap:11px;padding:10px 0;border-top:1px solid var(--line2)}
+.opt:first-child{border-top:0}
+.opt .k{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}
+.opt .d{font-size:14.5px}.opt .d em{font-style:normal;color:var(--muted);display:block;font-size:13px;margin-top:2px}
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla ERP &middot; cloud &middot; kassa</div>
+  <h1>Ikki yo'l &mdash; qanday ishlaydi</h1>
+  <p class="lede">Maqsad bitta: kassa hamma qurilmada bir xil bo'lsin. Yo'l ikkita, va farqi bitta holatda ko'rinadi.</p>
+</header>
+
+<div class="col">
+<section>
+  <div class="snum">01 &mdash; Prinsip</div>
+  <h2>Posilka yoki xat</h2>
+</section>
+</div>
+
+<div class="two">
+  <div class="way">
+    <div class="whd w2"><div class="n">2-yo'l</div><div class="t">Butun quti jo'natiladi</div></div>
+    <div class="wbd">
+      <p style="margin-top:0;font-size:14.5px">Qurilma <b>butun kassa qutisini</b> cloudga qo'yadi. Boshqasi shu qutini <b>olib, o'zinikining o'rniga qo'yadi</b>.</p>
+      <div class="pack big">
+        <div class="pt">PC jo'natadi</div>
+        <div class="li">quti: kassa</div>
+        <div class="li">&nbsp;&nbsp;chiqim 200$</div>
+        <div class="li">&nbsp;&nbsp;kirim 120$</div>
+        <div class="li">&nbsp;&nbsp;zakaz #7</div>
+      </div>
+      <div class="arrow">&darr; telefon oladi &darr;</div>
+      <div class="pack big">
+        <div class="pt">Telefonda endi</div>
+        <div class="li">quti: kassa &mdash; PC nikining nusxasi</div>
+      </div>
+      <div class="wnote">Telefonning eski qutisi <b>tashlanadi</b>. Yangisi &mdash; PC niki.</div>
+    </div>
+  </div>
+
+  <div class="way">
+    <div class="whd w3"><div class="n">3-yo'l</div><div class="t">Har yozuv alohida xat</div></div>
+    <div class="wbd">
+      <p style="margin-top:0;font-size:14.5px">Qurilma <b>faqat yangi yozuvni</b> jo'natadi. Boshqasi uni <b>o'zinikiga qo'shadi</b>.</p>
+      <div class="pack sm">
+        <div class="pt">PC jo'natadi</div>
+        <div class="li">xat #kc1 &mdash; chiqim 200$</div>
+      </div>
+      <div class="arrow">&darr; telefon qo'shadi &darr;</div>
+      <div class="pack sm">
+        <div class="pt">Telefonda endi</div>
+        <div class="li">#kc1 chiqim 200$ &nbsp;<span style="opacity:.6">&larr; PC dan</span></div>
+        <div class="li">#kc2 kirim 50$ &nbsp;&nbsp;<span style="opacity:.6">&larr; o'ziniki</span></div>
+      </div>
+      <div class="wnote">Telefonning yozuvlari <b>joyida qoladi</b>. Ustiga PC niki qo'shiladi.</div>
+    </div>
+  </div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">02 &mdash; Oddiy kun</div>
+  <h2>Ikkalasi ham to'g'ri ishlaydi</h2>
+  <p>Ketma-ket ishlasangiz &mdash; PC da yozdingiz, telefon oldi, keyin telefonda yozdingiz &mdash; <b>ikki yo'l ham bir xil natija beradi.</b></p>
+</section>
+</div>
+
+<div class="sc">
+  <div class="schd">Ketma-ket &mdash; orasida sinxron bor</div>
+  <div class="scbd">
+    <div class="step"><div class="tm">10:00</div><div class="bd">PC: <b>200$ chiqim</b><div class="res"><span class="pill">PC 800$</span></div></div></div>
+    <div class="step"><div class="tm">10:01</div><div class="bd">Telefon PC nikini oldi<div class="res"><span class="pill">telefon 800$</span></div></div></div>
+    <div class="step"><div class="tm">11:00</div><div class="bd">Telefon: <b>50$ kirim</b><div class="res"><span class="pill">telefon 850$</span></div></div></div>
+    <div class="step"><div class="tm">11:01</div><div class="bd">PC telefonnikini oldi<div class="res"><span class="pill ok">PC 850$</span><span class="pill ok">telefon 850$</span></div></div></div>
+  </div>
+  <div class="final good">Ikki yo'lda ham &mdash; 850$. To'g'ri.</div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">03 &mdash; Farq shu yerda</div>
+  <h2>Ikkalasi bir vaqtda yozsa</h2>
+  <p>Telefon do'konda, internet uzilgan. Yoki ikkalasida deyarli bir vaqtda yozildi &mdash; orasida sinxron bo'lmadi.</p>
+</section>
+</div>
+
+<div class="sc">
+  <div class="schd" style="background:var(--blue-soft);color:var(--blue)">2-YO'L &mdash; butun quti</div>
+  <div class="scbd">
+    <div class="step"><div class="tm">10:00</div><div class="bd">PC: <b>200$ chiqim</b> &rarr; qutisini qo'ydi<div class="res"><span class="pill">PC quti: chiqim 200</span></div></div></div>
+    <div class="step"><div class="tm">10:30</div><div class="bd">Telefon internetsiz: <b>50$ kirim</b><div class="res"><span class="pill">telefon quti: kirim 50</span><span class="pill no">chiqim 200 yo'q</span></div></div></div>
+    <div class="step"><div class="tm">11:00</div><div class="bd">Internet keldi &mdash; telefon <b>o'z qutisini</b> qo'ydi. U yangiroq.<div class="res"><span class="pill">cloud: kirim 50</span></div></div></div>
+    <div class="step"><div class="tm">11:01</div><div class="bd">PC yangi qutini oldi va o'zinikini <b>tashladi</b><div class="res"><span class="pill no">PC 1 050$</span><span class="pill no">200$ chiqim YO'QOLDI</span></div></div></div>
+  </div>
+  <div class="final bad">Natija 1 050$. To'g'risi 850$. PC dagi chiqim butunlay yo'qoldi.</div>
+</div>
+
+<div class="sc">
+  <div class="schd" style="background:var(--good-soft);color:var(--good)">3-YO'L &mdash; alohida xatlar</div>
+  <div class="scbd">
+    <div class="step"><div class="tm">10:00</div><div class="bd">PC: <b>200$ chiqim</b> &rarr; <b>#kc1</b> xatini qo'ydi<div class="res"><span class="pill">cloud: #kc1</span></div></div></div>
+    <div class="step"><div class="tm">10:30</div><div class="bd">Telefon internetsiz: <b>50$ kirim</b> &rarr; <b>#kc2</b> navbatda<div class="res"><span class="pill">navbat: #kc2</span></div></div></div>
+    <div class="step"><div class="tm">11:00</div><div class="bd">Internet keldi &mdash; <b>#kc2</b> ketdi, <b>#kc1</b> keldi<div class="res"><span class="pill">cloud: #kc1 + #kc2</span></div></div></div>
+    <div class="step"><div class="tm">11:01</div><div class="bd">Ikkalasida ham ikkala xat bor<div class="res"><span class="pill ok">PC 850$</span><span class="pill ok">telefon 850$</span></div></div></div>
+  </div>
+  <div class="final good">Natija 850$. Hech narsa yo'qolmadi.</div>
+</div>
+
+<div class="col">
+<div class="warn"><b>Muhim:</b> 2-yo'lda yo'qolgan chiqim <b>hech qayerda qolmaydi</b> &mdash; na PC da, na cloudda. Uni faqat siz eslab qolsangiz bilasiz. Ilova xabar bermaydi.</div>
+
+<section>
+  <div class="snum">04 &mdash; Yonma-yon</div>
+  <h2>Solishtirish</h2>
+</section>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th></th><th>2-yo'l &mdash; butun quti</th><th>3-yo'l &mdash; alohida xatlar</th></tr>
+  <tr><td>Ketma-ket ishlansa</td><td><span class="tag t-good">to'g'ri</span></td><td><span class="tag t-good">to'g'ri</span></td></tr>
+  <tr><td>Bir vaqtda / internetsiz</td><td><span class="tag t-bad">yozuv yo'qoladi</span></td><td><span class="tag t-good">hammasi qoladi</span></td></tr>
+  <tr><td>Ish hajmi</td><td><span class="tag t-good">kichik</span> &mdash; tinglovchiga kassani olish qo'shiladi</td><td><span class="tag t-mid">o'rtacha</span> &mdash; 5 ro'yxat jo'natish yo'liga qo'shiladi</td></tr>
+  <tr><td>Kichik xatlar tizimiga xalaqit</td><td>yo'q &mdash; faqat kassa olinadi</td><td>yo'q &mdash; o'sha tizimning o'zi</td></tr>
+  <tr><td>Har o'zgarishda cloudga</td><td>butun kassa qutisi</td><td>bitta yozuv</td></tr>
+  <tr><td>Ikki kishi ishlasa</td><td><span class="tag t-bad">ishonchsiz</span></td><td><span class="tag t-good">ishonchli</span></td></tr>
+  <tr><td>Zavod ERP shu yo'lda</td><td><span class="tag t-mid">ha</span> &mdash; va u yerda ishlaydi</td><td>yo'q</td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">05 &mdash; Rostini aytish kerak</div>
+  <h2>Nega Zavod ERP da muammo chiqmagan</h2>
+  <p>Zavod ERP 2-yo'lda ishlaydi va siz muammo ko'rmagansiz. Sabab: u yerda <b>bir vaqtda ikki joyda yozilmaydi</b> &mdash; ketma-ket ishlanadi, orasida sinxron bo'ladi.</p>
+  <p>Tillada esa telefon do'konda, PC boshqa joyda. Internet uzilishi, ikkalasida yaqin vaqtda yozish &mdash; bo'lishi mumkin. O'shanda 2-yo'l yozuvni yo'qotadi va <b>hech kim bilmaydi</b>.</p>
+</section>
+
+<section>
+  <div class="snum">06 &mdash; Qaror</div>
+  <h2>Qaysi biri</h2>
+
+  <div class="dec">
+    <div class="dhd2"><span class="k">A</span><span>Qaysi yo'ldan boramiz?</span></div>
+    <div class="dbody">
+      <div class="opt"><div class="k">A2</div><div class="d"><b>2-yo'l</b> &mdash; butun quti<em>Tez. Bugun-ertaga ishlaydi. Internet uzilsa yoki ikkalasida yaqin vaqtda yozilsa &mdash; yozuv jimgina yo'qoladi.</em></div></div>
+      <div class="opt"><div class="k">A3</div><div class="d"><b>3-yo'l</b> &mdash; alohida xatlar<em>Biroz uzunroq. Hech narsa yo'qolmaydi. Kelajakda ikki kishi ishlasa ham buzilmaydi.</em></div></div>
+      <div class="opt"><div class="k">A23</div><div class="d"><b>Avval 2-yo'l, keyin 3-yo'l</b><em>Bugun 2-yo'l bilan kassa yura boshlaydi &mdash; darrov foyda. Keyin 3-yo'lga ko'chiriladi. Ikki marta ish, lekin kutish yo'q.</em></div></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> <code class="inl">A2</code>, <code class="inl">A3</code> yoki <code class="inl">A23</code> &mdash; ayting. Tanlaganingizdan keyin o'sha yo'lning aniq qadamlarini ko'rsataman.</p>
+</footer>
+</div>
+</div>

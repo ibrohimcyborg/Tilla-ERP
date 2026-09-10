@@ -1,0 +1,291 @@
+<title>Uchta Ish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F0; --panel:#FFFFFF; --panel2:#F8F9F5;
+  --ink:#1A1D19; --muted:#6D726A; --line:#DEE0D9; --line2:#EAEBE5;
+  --accent:#8F6606; --accent-soft:#F4EAD2; --accent-line:#E2CE9E;
+  --bad:#AE352A; --bad-soft:#FAE8E5; --bad-line:#EFC9C3;
+  --good:#2C7349; --good-soft:#E5F1E9; --good-line:#BFDCCB;
+  --warn:#9A6B00; --warn-soft:#FBF1D6;
+  --dark:#0f0f0f; --dgold:#c9a84c; --dmuted:#7a7a75; --dline:#262626;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+    --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+    --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+    --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+    --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+    --warn:#E0B44A; --warn-soft:#33290F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15180F; --panel:#1C2016; --panel2:#22261B;
+  --ink:#E9ECE1; --muted:#9AA091; --line:#2F3428; --line2:#272C21;
+  --accent:#D9A93F; --accent-soft:#332913; --accent-line:#4A3C1C;
+  --bad:#E5786A; --bad-soft:#36201C; --bad-line:#4E2C26;
+  --good:#63B98A; --good-soft:#173021; --good-line:#254733;
+  --warn:#E0B44A; --warn-soft:#33290F;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px 90px}
+.col{max-width:700px}
+h1,h2,h3{font-family:"Archivo",system-ui,sans-serif;margin:0;text-wrap:balance}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code.inl{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+header{padding:58px 0 32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.024em;line-height:1.1}
+.lede{font-size:17.5px;color:var(--muted);margin-top:16px;max-width:600px}
+section{padding-top:50px}
+.snum{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+h2{font-size:25px;font-weight:700;letter-spacing:-.018em}
+h3{font-size:16.5px;font-weight:700;margin:26px 0 9px}
+p{margin:13px 0}.col p{max-width:66ch}
+
+.root{margin:26px 0;padding:22px 24px;border-radius:14px;background:var(--accent-soft);border:1px solid var(--accent-line)}
+.root .r1{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.root .r2{font-family:"Archivo",sans-serif;font-size:clamp(19px,3.3vw,25px);font-weight:800;letter-spacing:-.02em;margin-top:7px;line-height:1.3}
+
+.three{display:grid;grid-template-columns:1fr;gap:13px;margin:22px 0}
+@media(min-width:760px){.three{grid-template-columns:1fr 1fr 1fr}}
+.card{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:17px}
+.card .num{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.13em;color:var(--accent);font-weight:700}
+.card .ttl{font-family:"Archivo",sans-serif;font-size:17px;font-weight:700;margin:5px 0 8px;letter-spacing:-.01em}
+.card .now{font-size:13.5px;color:var(--bad);margin-bottom:6px}
+.card .fix{font-size:13.5px;color:var(--good)}
+.card .lbl{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* topbar mock */
+.tb{background:var(--dark);border-radius:12px;padding:11px 15px;display:flex;align-items:center;justify-content:space-between;margin:16px 0;overflow-x:auto}
+.tb .lg{color:var(--dgold);font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.tb .rt{display:flex;align-items:center;gap:9px}
+.ic{width:30px;height:30px;border-radius:8px;border:1px solid var(--dline);display:flex;align-items:center;justify-content:center;color:var(--dmuted);position:relative;flex:0 0 auto}
+.ic.new{border-color:var(--dgold);color:var(--dgold)}
+.ic .cnt{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e05a5a;color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center;font-family:"JetBrains Mono",monospace}
+.tbnote{font-size:13.5px;color:var(--muted);text-align:center;margin-top:-6px}
+
+/* queue panel */
+.qp{border:1px solid var(--line);border-radius:13px;background:var(--panel);overflow:hidden;margin:18px 0;max-width:520px}
+.qhd{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--panel2)}
+.qhd .t{font-weight:700;font-size:15px}
+.qhd .s{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
+.qr{display:grid;grid-template-columns:1fr 92px 30px;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line2);align-items:center}
+.qr:last-of-type{border-bottom:0}
+.qr .who{font-size:14px}
+.qr .who span{display:block;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.st{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;text-align:center;white-space:nowrap}
+.st.kut{background:var(--warn-soft);color:var(--warn);border:1px solid var(--accent-line)}
+.st.ok{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+.st.err{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.qr .x{text-align:center;color:var(--bad);font-size:17px;line-height:1;cursor:pointer}
+.qft{padding:11px 16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);background:var(--panel2)}
+
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:10px 15px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.t-bad{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad-line)}
+.t-good{background:var(--good-soft);color:var(--good);border:1px solid var(--good-line)}
+
+.flow{margin:22px 0;counter-reset:st}
+.stp{position:relative;padding:0 0 20px 42px;counter-increment:st}
+.stp::before{content:counter(st);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--panel);border:1px solid var(--accent-line);color:var(--accent);font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.stp::after{content:"";position:absolute;left:13px;top:28px;bottom:0;width:1px;background:var(--line)}
+.stp:last-child{padding-bottom:0}.stp:last-child::after{display:none}
+.stp b{font-weight:600;font-size:15px;display:block}
+.stp span{color:var(--muted);font-size:14px}
+
+.chk{border:1px solid var(--line);border-radius:11px;background:var(--panel);overflow:hidden;margin:18px 0}
+.ck{display:grid;grid-template-columns:26px 1fr 96px;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line2);font-size:14px;align-items:center}
+.ck:last-child{border-bottom:0}
+.ck .b{width:15px;height:15px;border:1.5px solid var(--line);border-radius:4px}
+.ck .s2{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);text-align:right}
+.ckh{padding:9px 15px;background:var(--panel2);border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+.warn{border-left:2px solid var(--accent);background:var(--panel);padding:14px 18px;margin:20px 0;font-size:14.5px;border-radius:0 9px 9px 0}
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Tilla ERP &middot; cloud &middot; umumiy reja</div>
+  <h1>Uchta ish, bitta ildiz</h1>
+  <p class="lede">Kassa, chek va internet uzilishi &mdash; uchalasi ham bitta sababdan: ma'lumot cloudga to'liq chiqmaydi va qaytib kelmaydi.</p>
+</header>
+
+<div class="col">
+<div class="root">
+  <div class="r1">Ildiz</div>
+  <div class="r2">Yozuv bir qurilmada tug'iladi va o'sha yerda qolib ketadi. Cloudga chiqmaydi, boshqasiga bormaydi.</div>
+</div>
+</div>
+
+<div class="three">
+  <div class="card">
+    <div class="num">1</div>
+    <div class="ttl">Kassa</div>
+    <div class="lbl">Hozir</div>
+    <div class="now">Kassa yozuvlari cloudga <b>umuman jo'natilmaydi</b>. Birida bor, birida yo'q.</div>
+    <div class="lbl">Bo'ladi</div>
+    <div class="fix">Har yozuv bittalab yuradi &mdash; berish va vozvrat kabi.</div>
+  </div>
+  <div class="card">
+    <div class="num">2</div>
+    <div class="ttl">Chek</div>
+    <div class="lbl">Hozir</div>
+    <div class="now">Server o'chiq bo'lsa chek <b>yo'qoladi</b>. Navbatda ham, tarixda ham qolmaydi.</div>
+    <div class="lbl">Bo'ladi</div>
+    <div class="fix">Navbatda kutadi, ko'rinadi, server ishga tushsa chiqadi.</div>
+  </div>
+  <div class="card">
+    <div class="num">3</div>
+    <div class="ttl">Internet</div>
+    <div class="lbl">Hozir</div>
+    <div class="now">Uzilganda sahifa yopilsa, yuborilmagan yozuv <b>yo'qoladi</b>.</div>
+    <div class="lbl">Bo'ladi</div>
+    <div class="fix">Navbat diskda saqlanadi, internet kelganda o'zi ketadi.</div>
+  </div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">01 &mdash; Chek</div>
+  <h2>Yuqori qatorda yangi ikonka</h2>
+  <p>Cloud ikonkasining yonida &mdash; <b>printer ikonkasi</b>. Yonida raqam: nechta chek navbatda turibdi.</p>
+</section>
+</div>
+
+<div class="tb">
+  <div class="lg">&#11041; TILLA HISOB</div>
+  <div class="rt">
+    <div class="ic new"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h12v19l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-19z"/><line x1="9.5" y1="8" x2="14.5" y2="8"/><line x1="9.5" y1="12" x2="14.5" y2="12"/></svg><span class="cnt">2</span></div>
+    <div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0-.42-8.98 6 6 0 1 0-11.06 3.1A3.5 3.5 0 0 0 7 19h10.5z"/></svg></div>
+    <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></div>
+    <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></div>
+    <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+  </div>
+</div>
+<div class="col"><p class="tbnote">Navbat bo'sh bo'lsa raqam ko'rinmaydi. Ikkita chek kutayotgan bo'lsa &mdash; <b>2</b>.</p></div>
+
+<div class="col">
+<h3>Bosilganda &mdash; navbat</h3>
+</div>
+
+<div class="qp">
+  <div class="qhd"><span class="t">Chek navbati</span><span class="s">server: ishlayapti</span></div>
+  <div class="qr">
+    <div class="who">Abdulhamid VIP<span>05.09 &middot; 14:22 &middot; sotuv</span></div>
+    <div class="st kut">kutilmoqda</div>
+    <div class="x">&times;</div>
+  </div>
+  <div class="qr">
+    <div class="who">Dilfuza<span>05.09 &middot; 14:18 &middot; to'lov</span></div>
+    <div class="st kut">kutilmoqda</div>
+    <div class="x">&times;</div>
+  </div>
+  <div class="qr">
+    <div class="who">Madina Opa<span>05.09 &middot; 13:50 &middot; berish</span></div>
+    <div class="st ok">chiqdi</div>
+    <div class="x">&times;</div>
+  </div>
+  <div class="qr">
+    <div class="who">Sardor<span>05.09 &middot; 13:41 &middot; sotuv</span></div>
+    <div class="st err">xato</div>
+    <div class="x">&times;</div>
+  </div>
+  <div class="qft">Server ishga tushganda kutayotganlari <b>o'zi chiqadi</b>. Kerak bo'lmasa &times; bilan o'chirasiz.</div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">02 &mdash; Chek nega yo'qolyapti</div>
+  <h2>Uchta joyda</h2>
+</section>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><th>Joy</th><th>Hozir</th><th>Bo'ladi</th></tr>
+  <tr><td>Chek chiqaradigan qurilma</td><td>navbat <b>yo'q</b> &mdash; to'g'ridan printerga, ishlamasa yo'qoladi</td><td>avval navbatga tushadi</td></tr>
+  <tr><td>Boshqa qurilmadan kelgan chek</td><td><b>90 soniya</b>da olinmasa &laquo;eskirdi&raquo; &mdash; hech qachon chiqmaydi</td><td>muddat yo'q &mdash; kutadi</td></tr>
+  <tr><td>Eski topshiriqlar</td><td><b>1 soat</b>dan keyin butunlay o'chiriladi</td><td>o'zi o'chmaydi &mdash; siz o'chirasiz</td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<div class="warn">Shuning uchun chek &laquo;o'rtada chiqmay qolyapti va tarixda turmayapti&raquo; &mdash; u haqiqatdan ham <b>o'chirib yuborilgan</b>.</div>
+
+<section>
+  <div class="snum">03 &mdash; Internet uzilsa</div>
+  <h2>Uch qadam, tugmasiz</h2>
+  <div class="flow">
+    <div class="stp"><b>Ishlayverasiz</b><span>Berish, sotuv, kassa, chek &mdash; hammasi. Hech narsa bloklanmaydi.</span></div>
+    <div class="stp"><b>Navbat diskka yoziladi</b><span>Sahifani yopsangiz ham, kompyuterni o'chirsangiz ham yozuv joyida qoladi. Hozir bunday emas &mdash; yopilsa yo'qoladi.</span></div>
+    <div class="stp"><b>Internet keldi &mdash; o'zi ketadi</b><span>Tugma yo'q. Cheklar ham, kassa ham.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">04 &mdash; Tartib</div>
+  <h2>Qaysi biridan</h2>
+  <div class="flow">
+    <div class="stp"><b>Kassa yozuvlari cloudga</b><span>Eng katta yoriq. Hisobga zarar shundan.</span></div>
+    <div class="stp"><b>Chek navbati</b><span>Muddat va avtomatik o'chirish olib tashlanadi, navbat ko'rinadigan bo'ladi, ikonka qo'shiladi.</span></div>
+    <div class="stp"><b>Internet navbati</b><span>Bir qator &mdash; Firestore'da bor, yoqilmagan.</span></div>
+    <div class="stp"><b>Ikki qurilmada sinov</b><span>Pastdagi ro'yxat. Ko'z bilan ko'rilmaguncha yopilmaydi.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="snum">05 &mdash; Sinov</div>
+  <h2>Ikki haqiqiy qurilma</h2>
+</section>
+</div>
+
+<div class="chk">
+  <div class="ckh">Kassa</div>
+  <div class="ck"><div class="b"></div><div>Naqd chiqim</div><div class="s2">PC &rarr; tel</div></div>
+  <div class="ck"><div class="b"></div><div>Naqd kirim</div><div class="s2">tel &rarr; PC</div></div>
+  <div class="ck"><div class="b"></div><div>Kassa qoldig'i ikkalasida bir xilmi</div><div class="s2">ko'z bilan</div></div>
+  <div class="ck"><div class="b"></div><div>Qo'lda tuzatish, zakaz, zavod hisobi</div><div class="s2">ikki tomon</div></div>
+  <div class="ckh">Chek</div>
+  <div class="ck"><div class="b"></div><div>Server o'chiq &mdash; chek navbatda turadimi</div><div class="s2">ko'z bilan</div></div>
+  <div class="ck"><div class="b"></div><div>Server yoqildi &mdash; o'zi chiqdimi</div><div class="s2">ko'z bilan</div></div>
+  <div class="ck"><div class="b"></div><div>&times; bosilsa o'chadimi</div><div class="s2">ko'z bilan</div></div>
+  <div class="ck"><div class="b"></div><div>Ikonkadagi raqam to'g'rimi</div><div class="s2">ko'z bilan</div></div>
+  <div class="ckh">Internet</div>
+  <div class="ck"><div class="b"></div><div>Uzib 3 amal &rarr; sahifani yopib ochish &rarr; yoqish</div><div class="s2">yetdimi</div></div>
+  <div class="ck"><div class="b"></div><div>Uzilganda chek navbatda qoldimi</div><div class="s2">ko'z bilan</div></div>
+</div>
+
+<div class="col">
+<section>
+  <div class="snum">06 &mdash; Tegilmaydi</div>
+  <h2>Nima o'zgarmaydi</h2>
+</section>
+</div>
+
+<div class="tw">
+<table><tbody>
+  <tr><td>Kassa ko'rinishi, hisobi, ekranlari, hisoboti</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Chek matni, ko'rinishi, logo</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Berish, vozvrat, sotuv, to'lov</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Abdulhamid rejimi, POS, PDF</td><td><span class="tag t-good">tegilmaydi</span></td></tr>
+  <tr><td>Saqlanadigan balans qo'shish</td><td><span class="tag t-bad">qilinmaydi</span></td></tr>
+</tbody></table>
+</div>
+
+<div class="col">
+<footer>
+  <p style="margin:0"><b style="color:var(--ink)">Kod yozilmadi.</b> Uch ish, shu tartibda. &laquo;Boshla&raquo; desangiz kassadan boshlayman va har qadamdan keyin to'xtab sizga ko'rsataman.</p>
+</footer>
+</div>
+</div>

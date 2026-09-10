@@ -1,0 +1,333 @@
+<title>POS Sotuv Taklifi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --gold:#c9a84c; --gold2:#e8c96a; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --text:#f0ede6; --muted:#77705f;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+  --purple:#c084c0; --purple-bd:#4a2a4a;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --num:"Roboto Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 70px;}
+h1{font-size:25px;line-height:1.2;margin:0 0 6px;color:var(--gold);letter-spacing:-.01em;text-wrap:balance;}
+.sub{color:var(--muted);font-size:13px;margin:0 0 30px;}
+h2{font-size:11px;letter-spacing:.12em;color:var(--muted);margin:38px 0 13px;font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--border);}
+h3{font-size:16px;margin:0 0 8px;color:var(--text);font-weight:600;}
+p{margin:0 0 11px;}
+b{color:var(--text);font-weight:600;}
+code{font-family:var(--num);font-size:12.5px;color:var(--gold2);background:var(--surf2);
+  padding:1px 5px;border-radius:5px;}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;}
+
+.quote{border-left:3px solid var(--gold);padding:2px 0 2px 15px;margin:0 0 18px;
+  color:var(--gold2);font-size:15.5px;line-height:1.6;}
+.quote small{display:block;color:var(--muted);font-size:11.5px;margin-top:7px;
+  letter-spacing:.05em;font-family:var(--ui);}
+
+.hozir{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:14px 16px;}
+.hozir h3{color:var(--red);}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+@media(max-width:620px){.grid2{grid-template-columns:1fr;}}
+
+.fakt{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline;
+  padding:9px 0;border-bottom:1px solid var(--border);}
+.fakt:last-child{border-bottom:0;}
+.fakt .q{font-family:var(--num);font-size:11px;color:var(--muted);white-space:nowrap;}
+.fakt .t{font-size:13.5px;}
+
+/* telefon maketi */
+.tel{background:var(--surf);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  max-width:330px;margin:0 auto;}
+.tel-hd{padding:10px 13px;border-bottom:1px solid var(--border);background:var(--surf2);
+  display:flex;align-items:center;gap:8px;font-size:12px;}
+.tel-bd{padding:11px 13px;}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
+  font-size:10.5px;letter-spacing:.05em;font-weight:600;}
+.p-gold{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.p-on{background:linear-gradient(90deg,#5183FF,#5F84DF);color:#fff;border:0;}
+.p-off{background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+
+.row{display:grid;grid-template-columns:1fr 62px 68px;gap:7px;align-items:baseline;
+  padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+.row .g,.row .s{font-family:var(--num);font-variant-numeric:tabular-nums;text-align:right;}
+.row .s{color:var(--gold);font-weight:600;}
+.row.hdr{font-size:9.5px;letter-spacing:.09em;color:var(--muted);border-bottom:1px solid var(--border);
+  padding-bottom:6px;}
+.jami{display:flex;justify-content:space-between;align-items:baseline;margin-top:11px;
+  padding:11px 13px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-bd);}
+.jami .lb{font-size:9.5px;letter-spacing:.09em;color:var(--gold);}
+.jami .vl{font-family:var(--num);font-size:22px;font-weight:700;color:var(--gold2);}
+
+.taklif{background:var(--surf);border:1px solid var(--border);border-radius:16px;
+  padding:18px;margin-bottom:16px;}
+.taklif.tanlov{border-color:var(--gold-bd);}
+.tag{display:inline-block;font-family:var(--num);font-size:10.5px;letter-spacing:.08em;
+  padding:3px 9px;border-radius:6px;margin-bottom:10px;}
+.t1{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+.t2{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.t3{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue);}
+
+ul{margin:9px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:17px;margin-bottom:6px;font-size:13.5px;line-height:1.5;}
+li::before{content:"";position:absolute;left:3px;top:9px;width:5px;height:5px;border-radius:50%;
+  background:var(--muted);}
+li.plus::before{background:var(--green);}
+li.minus::before{background:var(--red);}
+
+.qaror{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;
+  padding:15px 17px;margin-bottom:12px;}
+.qaror .s{font-size:15px;color:var(--gold2);font-weight:600;margin-bottom:9px;}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:7px 0;font-size:13.5px;}
+.opt .k{font-family:var(--num);font-size:11px;color:var(--muted);border:1px solid var(--border);
+  border-radius:5px;padding:1px 6px;flex:none;margin-top:2px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-size:9.5px;letter-spacing:.09em;color:var(--muted);font-weight:500;
+  padding:0 8px 7px 0;border-bottom:1px solid var(--border);}
+td{padding:9px 8px 9px 0;border-bottom:1px solid var(--border);vertical-align:top;}
+td.n{font-family:var(--num);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.scroll{overflow-x:auto;}
+.cap{font-size:11.5px;color:var(--muted);text-align:center;margin-top:9px;}
+</style>
+
+<div class="wrap">
+
+<h1>POS Sotuv</h1>
+<p class="sub">Taxminiy hisob — takliflar · 2026-09-09 · qaror Ibrohimda</p>
+
+<div class="quote">
+  «sotuv qanaqa disen klientga taxminan nechpul bo'lishini ko'rsatadi, shunga biza uni
+  tekshirganimizda qanaqa bo'ladi»
+  <small>IBROHIM, 2026-09-09</small>
+</div>
+
+<h2>HOZIRGI HOLAT</h2>
+
+<div class="hozir">
+  <h3>SOTUV tugmasi ishlamaydi</h3>
+  <p style="margin:0;font-size:13.5px;">Bosilsa <code>alert('SOTUV - keyingi bosqichda yoziladi')</code>
+  chiqadi. <span class="num" style="color:var(--muted);">pos.html:307</span></p>
+</div>
+
+<div style="margin-top:13px;">
+  <div class="fakt"><span class="t">BERISH / VOZVRAT — savat → chernovik → admin qabul qiladi</span><span class="q">ishlaydi</span></div>
+  <div class="fakt"><span class="t">Chernovikda <b>pul yo'q</b> — faqat zavod, tur, gramm, dona</span><span class="q">pos.html:745</span></div>
+  <div class="fakt"><span class="t">Admin qabul qilsa <code>k.tarix</code> ga <code>tip:'berish'</code> tushadi, ostatka kamayadi</span><span class="q">index.html:15171</span></div>
+  <div class="fakt"><span class="t">POS hisobga <b>hech qachon</b> tegmaydi</span><span class="q">qoida</span></div>
+</div>
+
+<h2>POS ANIQ HISOBLAY OLADIGAN NARSA</h2>
+
+<p>Narx allaqachon POS da bor — kurs paneli shuni ko'rsatyapti (v0.05):</p>
+
+<div class="fakt"><span class="t"><code>getKatNarx(zi,ti)</code> — A yoki B kategoriya narxi, $/g</span><span class="q">hisob.js:92</span></div>
+<div class="fakt"><span class="t"><code>k.kat</code> — klientning kategoriyasi, bazada turadi (yo'q bo'lsa A)</span><span class="q">index.html:11959</span></div>
+<div class="fakt"><span class="t">Savatdagi zavod · tur · gramm</span><span class="q">pos.html:745</span></div>
+
+<p style="margin-top:14px;">Demak <b>gramm × kategoriya narxi</b> — POS buni to'liq to'g'ri hisoblaydi.</p>
+
+<h2>NEGA «TAXMINIY»</h2>
+
+<p>Tilla ERP dagi haqiqiy sotuv yana yetti narsani qo'shadi
+<span class="num" style="color:var(--muted);font-size:12px;">(index.html:16425)</span>:</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>ERP da bor</th><th>POS bila oladimi</th></tr></thead>
+  <tbody>
+    <tr><td>Mol × narx</td><td style="color:var(--green);">Ha</td></tr>
+    <tr><td>Skidka</td><td style="color:var(--red);">Yo'q — admin qaroriga bog'liq</td></tr>
+    <tr><td>Lom (klient topshirgan tilla)</td><td style="color:var(--red);">Yo'q — proba o'lchanadi</td></tr>
+    <tr><td>Vozvrat</td><td style="color:var(--red);">Yo'q — alohida amal</td></tr>
+    <tr><td>Naqt to'lov / sdacha / ortiqcha</td><td style="color:var(--red);">Yo'q — kassada bo'ladi</td></tr>
+    <tr><td>Joriy qarz bilan hisoblashish</td><td style="color:var(--green);">Ha — qarz POS da ko'rinadi</td></tr>
+    <tr><td>C kategoriya (narx qo'lda)</td><td style="color:var(--gold);">Faqat kassir yozsa</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p style="margin-top:14px;">Shuning uchun POS ko'rsatadigan raqam <b>«mol qancha turadi»</b> —
+yakuniy hisob emas. Yakuniysi Tilla ERP da chiqadi.</p>
+
+<h2>TAKLIF 1 — BERISH EKRANIGA NARX QATORI</h2>
+
+<div class="taklif">
+  <span class="tag t1">ENG KAM ISH · ~80 QATOR</span>
+  <p>SOTUV bosilsa BERISH ekranining o'zi ochiladi. Farqi: har savat qatorida narx va summa
+  ko'rinadi, pastda jami turadi. Chernovik <code>tip:'sotuv'</code> bo'lib ketadi.</p>
+
+  <div class="tel" style="margin-top:14px;">
+    <div class="tel-hd">
+      <span class="pill p-gold">SOTUV</span>
+      <span style="color:var(--muted);">Javohir aka Jizzax</span>
+      <span style="flex:1;"></span>
+      <span class="pill p-gold num">A</span>
+    </div>
+    <div class="tel-bd">
+      <div class="row hdr"><span>ZAVOD · TUR</span><span class="g">GRAMM</span><span class="s">SUMMA</span></div>
+      <div class="row"><span>Butterfly · 3D</span><span class="g">42,60</span><span class="s">3 195</span></div>
+      <div class="row"><span>Butterfly · Zanjir</span><span class="g">18,20</span><span class="s">1 365</span></div>
+      <div class="row" style="border-bottom:0;"><span>Sharq · Uzuk</span><span class="g">7,40</span><span class="s">562</span></div>
+      <div class="jami">
+        <span class="lb">TAXMINIY JAMI</span>
+        <span class="vl">5 122 $</span>
+      </div>
+      <div style="text-align:center;margin-top:11px;">
+        <span class="pill p-on">TEKSHIRUVGA YUBORISH</span>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Narx <code>75,00 $/g</code> — A kategoriya, kurs panelidagi bilan bir xil</p>
+
+  <ul>
+    <li class="plus">Kassir bitta ekran o'rganadi</li>
+    <li class="plus">Savat, dona, skan — hammasi hozirgidek ishlaydi</li>
+    <li class="minus">Skidka joyi yo'q — kassir «chegirma bo'ladi» deb og'zaki aytadi</li>
+  </ul>
+</div>
+
+<h2>TAKLIF 2 — ALOHIDA SOTUV EKRANI</h2>
+
+<div class="taklif tanlov">
+  <span class="tag t2">O'RTA ISH · ~200 QATOR</span>
+  <p>Mol tanlash bir xil, lekin tepada <b>A / B / C</b> tugmasi bor va pastda klientning
+  joriy qarzi bilan qo'shib ko'rsatiladi — klient «jami qancha bo'ladi» degan savolga
+  javob oladi.</p>
+
+  <div class="tel" style="margin-top:14px;">
+    <div class="tel-hd">
+      <span class="pill p-gold">SOTUV</span>
+      <span style="color:var(--muted);">Javohir aka Jizzax</span>
+    </div>
+    <div class="tel-bd">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <span class="pill p-on num" style="flex:1;justify-content:center;">A · 75,00</span>
+        <span class="pill p-off num" style="flex:1;justify-content:center;">B · 78,50</span>
+        <span class="pill p-off num" style="flex:1;justify-content:center;">C · qo'lda</span>
+      </div>
+      <div class="row hdr"><span>ZAVOD · TUR</span><span class="g">GRAMM</span><span class="s">SUMMA</span></div>
+      <div class="row"><span>Butterfly · 3D</span><span class="g">42,60</span><span class="s">3 195</span></div>
+      <div class="row" style="border-bottom:0;"><span>Butterfly · Zanjir</span><span class="g">18,20</span><span class="s">1 365</span></div>
+
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:11px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;">
+          <span style="color:var(--muted);">Bu mol</span><span class="num">4 560 $</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;">
+          <span style="color:var(--muted);">Oldingi qarzi</span><span class="num" style="color:var(--red);">1 240 $</span></div>
+      </div>
+      <div class="jami">
+        <span class="lb">TAXMINAN JAMI QARZ</span>
+        <span class="vl">5 800 $</span>
+      </div>
+      <div style="text-align:center;margin-top:11px;">
+        <span class="pill p-on">TEKSHIRUVGA YUBORISH</span>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Skidka, lom, naqt — bu yerda YO'Q, ular Tilla ERP da</p>
+
+  <ul>
+    <li class="plus">Klient darrov «menda jami qancha bo'ladi» ni ko'radi</li>
+    <li class="plus">C kategoriya bo'lsa kassir narxni qo'lda yozadi</li>
+    <li class="minus">Kassir A/B/C ni noto'g'ri bossa — taxmin ham noto'g'ri</li>
+  </ul>
+</div>
+
+<h2>TAKLIF 3 — FAQAT KALKULYATOR</h2>
+
+<div class="taklif">
+  <span class="tag t3">ENG XAVFSIZ · ~60 QATOR</span>
+  <p>SOTUV bosilsa narx kalkulyatori ochiladi. Klientga ko'rsatadi, yopadi.
+  <b>Cloudga hech nima ketmaydi</b>, chernovik yo'q.</p>
+  <ul>
+    <li class="plus">Hech qanaqa yangi ma'lumot oqimi yo'q — buzilishi mumkin bo'lgan joy yo'q</li>
+    <li class="minus">Kelishilgan moldan keyin kassir BERISH orqali qaytadan yig'adi — ikki marta ish</li>
+  </ul>
+</div>
+
+<h2>BIZ TEKSHIRGANIMIZDA NIMA BO'LADI</h2>
+
+<p>Qo'ng'iroqcha paneli (<span class="num" style="color:var(--muted);font-size:12px;">index.html:15167</span>)
+hozirgidek ochiladi, ustiga <b>POS taxmini</b> qo'shiladi:</p>
+
+<div class="tel" style="max-width:400px;margin-top:14px;">
+  <div class="tel-hd">
+    <span class="pill p-gold">SOTUV · kutilmoqda</span>
+    <span style="color:var(--muted);">14:22</span>
+  </div>
+  <div class="tel-bd">
+    <div class="row hdr"><span>ZAVOD · TUR</span><span class="g">POS</span><span class="s">SKAN</span></div>
+    <div class="row"><span>Butterfly · 3D</span><span class="g">42,60</span><span class="s" style="color:var(--green);">42,60</span></div>
+    <div class="row" style="border-bottom:0;"><span>Butterfly · Zanjir</span><span class="g">18,20</span><span class="s" style="color:var(--red);">18,05</span></div>
+
+    <div style="margin-top:12px;padding:11px 13px;border-radius:12px;background:var(--surf2);
+      border:1px solid var(--border);">
+      <div style="font-size:9.5px;letter-spacing:.09em;color:var(--muted);margin-bottom:5px;">POS TAXMINI</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span class="num" style="font-size:19px;color:var(--muted);">4 560 $</span>
+        <span style="font-size:11.5px;color:var(--muted);">A · 75,00 $/g</span>
+      </div>
+    </div>
+
+    <div style="margin-top:9px;padding:10px 13px;border-radius:12px;background:var(--blue-bg);
+      border:1px solid var(--blue-bd);font-size:12.5px;color:var(--blue);">
+      Qabul qilinsa faqat <b>gramm</b> tushadi. Pul, skidka, lom, naqt —
+      Tilla ERP dagi sotuv oynasida.
+    </div>
+
+    <div style="display:flex;gap:7px;margin-top:12px;">
+      <span class="pill" style="flex:1;justify-content:center;background:var(--green-bg);
+        border:1px solid var(--green-bd);color:var(--green);">QABUL</span>
+      <span class="pill" style="flex:1;justify-content:center;background:var(--red-bg);
+        border:1px solid var(--red-bd);color:var(--red);">RAD</span>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;">Ya'ni <b>qabul qilish mantiqi o'zgarmaydi</b> — hozirgi
+<code>posChQabul</code> nima qilsa, shuni qiladi. POS taxmini faqat <b>ko'rish uchun</b>
+turadi: «kassir klientga 4 560 dedi» — siz shuni bilib turasiz.</p>
+
+<h2>QAROR NUQTALARI</h2>
+
+<div class="qaror">
+  <div class="s">1. Qaysi taklif?</div>
+  <div class="opt"><span class="k">1</span><span>BERISH ekraniga narx qatori — eng kam ish</span></div>
+  <div class="opt"><span class="k">2</span><span>Alohida SOTUV ekrani — A/B/C tugmasi + qarz bilan qo'shib</span></div>
+  <div class="opt"><span class="k">3</span><span>Faqat kalkulyator — hech nima yubormaydi</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">2. Kategoriya qayerdan olinadi?</div>
+  <div class="opt"><span class="k">a</span><span>Klientning <code>k.kat</code> idan avtomatik — kassir tegmaydi</span></div>
+  <div class="opt"><span class="k">b</span><span>Kassir A/B/C ni o'zi bosadi</span></div>
+  <div class="opt"><span class="k">c</span><span><code>k.kat</code> dan boshlanadi, kassir o'zgartira oladi</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">3. Chernovikga narx yozilsinmi?</div>
+  <div class="opt"><span class="k">a</span><span>Ha — siz POS taxminini ko'rasiz (yuqoridagi maket)</span></div>
+  <div class="opt"><span class="k">b</span><span>Yo'q — faqat gramm ketadi, hozirgidek</span></div>
+</div>
+
+<div class="qaror">
+  <div class="s">4. Joriy qarz qo'shib ko'rsatilsinmi?</div>
+  <div class="opt"><span class="k">a</span><span>Ha — «taxminan jami qarz 5 800 $»</span></div>
+  <div class="opt"><span class="k">b</span><span>Yo'q — faqat shu molning summasi</span></div>
+</div>
+
+<p style="margin-top:26px;color:var(--muted);font-size:13px;">
+Javob: masalan <code>2c ab</code> — 2-taklif, kategoriya <code>k.kat</code> dan boshlanadi,
+narx chernovikga yozilsin, joriy qarz ko'rsatilsin. Yoki o'z so'zingiz bilan.
+</p>
+
+</div>

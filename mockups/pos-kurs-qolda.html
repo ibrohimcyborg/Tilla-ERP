@@ -1,0 +1,232 @@
+<title>POS Kursi Qo'lda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#FFFFFF;
+  --yellow:#3B6FE0; --yellow-bg:rgba(59,111,224,.10);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --blue:#3B6FE0; --blue-bg:rgba(59,111,224,.10); --blue-bd:#C3CFE8;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --rb:"Roboto",-apple-system,system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --yellow:#e8b84c; --yellow-bg:#2a1f0a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --yellow:#e8b84c; --yellow-bg:#2a1f0a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --blue:#5ab4e8; --blue-bg:#0f1a1f; --blue-bd:#1e3a4a;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:600px;margin:0 auto;padding:16px 13px 60px;}
+.tp{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+.tp h1{font-size:18px;margin:0;font-weight:700;}
+.mk{font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;font-weight:600;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+
+/* POS tepa satri */
+.posbar{display:flex;align-items:center;gap:10px;padding:0 4px 11px;
+  border-bottom:1px solid var(--border);margin-bottom:12px;}
+.posbar .br{font-size:16px;font-weight:700;letter-spacing:.03em;}
+.posbar .br i{color:var(--gold);font-style:normal;}
+.posbar .v{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;
+  padding:2px 8px;}
+.kpill{margin-left:auto;display:flex;align-items:baseline;gap:6px;padding:5px 13px;
+  border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;}
+.kpill .l{font-size:10px;color:var(--gold);letter-spacing:.06em;}
+.kpill b{font-size:16px;color:var(--gold);font-family:var(--rb);font-variant-numeric:tabular-nums;}
+.kpill .c{font-size:10px;color:var(--gold);}
+.kpill.qol{border-color:var(--red-bd);background:var(--red-bg);}
+.kpill.qol .l,.kpill.qol b,.kpill.qol .c{color:var(--red);}
+
+/* kurs oynasi */
+.win{background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.wh{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;}
+.wh .t{font-size:16px;font-weight:700;color:var(--gold);}
+.wh .b{font-size:10.5px;color:var(--muted);border:1px solid var(--border);border-radius:20px;
+  padding:2px 9px;white-space:nowrap;}
+.wh .b.qol{color:var(--red);border-color:var(--red-bd);background:var(--red-bg);font-weight:600;}
+.wh .x{margin-left:auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);font-size:14px;flex:none;}
+.wb{padding:15px 16px;}
+
+.qutlar{display:flex;gap:10px;margin-bottom:11px;}
+.qut{flex:1;border-radius:12px;padding:11px 13px;border:1px solid var(--border);background:var(--surf2);}
+.qut.on{border-color:var(--gold-bd);background:var(--yellow-bg);}
+.qut.on.qol{border-color:var(--red-bd);background:var(--red-bg);}
+.qut .k{font-size:9.5px;letter-spacing:.09em;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.qut.on .k{color:var(--gold);}
+.qut.on.qol .k{color:var(--red);}
+.qut .v{font-size:24px;font-weight:700;font-family:var(--rb);font-variant-numeric:tabular-nums;
+  display:flex;align-items:baseline;gap:5px;}
+.qut.on .v{color:var(--gold);}
+.qut.on.qol .v{color:var(--red);}
+.qut .v small{font-size:11px;color:var(--muted);font-weight:400;}
+.qut input{width:100%;font-size:24px;font-weight:700;font-family:var(--rb);
+  font-variant-numeric:tabular-nums;background:var(--bg);border:1px solid var(--gold);
+  border-radius:9px;padding:2px 8px;color:var(--text);outline:none;}
+.pen{margin-left:auto;font-size:10px;color:var(--gold);border:1px solid var(--gold-bd);
+  background:var(--surf);border-radius:20px;padding:1px 8px;font-weight:600;cursor:pointer;}
+.pen.rev{color:var(--red);border-color:var(--red-bd);}
+
+.manba{font-size:11.5px;color:var(--muted);margin-bottom:11px;}
+.manba b{color:var(--text);}
+.ust{border-radius:12px;padding:10px 13px;border:1px solid var(--blue-bd);background:var(--blue-bg);
+  margin-bottom:14px;}
+.ust .k{font-size:9.5px;letter-spacing:.09em;color:var(--blue);}
+.ust .v{font-size:20px;font-weight:700;color:var(--blue);font-family:var(--rb);}
+.ust .v small{font-size:11px;color:var(--muted);font-weight:400;}
+
+.tbl{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg);}
+.g3{display:grid;grid-template-columns:1fr 84px 84px;align-items:center;gap:6px;}
+.thd{padding:8px 13px;font-size:9.5px;letter-spacing:.09em;color:var(--muted);
+  border-bottom:1px solid var(--border);background:var(--surf2);}
+.thd span:not(:first-child){text-align:right;}
+.zn{padding:9px 13px 4px;font-size:12px;color:var(--gold);}
+.tr{padding:7px 13px;font-size:13.5px;}
+.tr .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tr .a,.tr .b{text-align:right;font-family:var(--rb);font-variant-numeric:tabular-nums;font-weight:600;}
+.tr .a{color:var(--gold);}
+.tr .b{color:var(--blue);}
+.tr+.tr{border-top:1px solid var(--border);}
+.leg{display:flex;gap:13px;padding:9px 13px;border-top:1px solid var(--border);
+  background:var(--surf2);font-size:11px;color:var(--muted);flex-wrap:wrap;}
+.foot{margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+.sim{margin-top:20px;padding:14px 15px;border:1px dashed var(--border);border-radius:14px;
+  background:var(--surf);}
+.sim .t{font-size:13px;font-weight:600;margin-bottom:4px;}
+.sim .d{font-size:12.5px;color:var(--muted);margin-bottom:11px;}
+.sim button{width:100%;height:42px;border-radius:14px;border:1px solid var(--gold-bd);
+  background:var(--gold-bg);color:var(--gold);font-size:13px;font-weight:600;font-family:inherit;}
+button{cursor:pointer;font-family:inherit;}
+.tost{margin-top:10px;font-size:12.5px;color:var(--green);display:none;}
+.tost.on{display:block;}
+</style>
+
+<div class="page">
+  <div class="tp"><h1>POS kursi — qo'lda o'zgartirish</h1><span class="mk">MAKET</span></div>
+
+  <div class="posbar">
+    <span class="br">TILLA <i>POS</i></span>
+    <span class="v">v0.09</span>
+    <span class="kpill" id="pill" onclick="void 0"></span>
+  </div>
+
+  <div class="win">
+    <div class="wh">
+      <span class="t">Kunlik kurs</span>
+      <span class="b" id="wbadge"></span>
+      <span class="x">&#10005;</span>
+    </div>
+    <div class="wb" id="wb"></div>
+  </div>
+
+  <div class="sim">
+    <div class="t">Qayta kirganda nima bo'ladi</div>
+    <div class="d">POS ni yopib qayta ochsangiz yoki boshqa odam kirsa — kurs
+      baribir Tilla ERP dagisiga qaytadi. Qo'lda yozilgani saqlanmaydi.</div>
+    <button onclick="qaytaKir()">Qayta kirishni sinash</button>
+    <div class="tost" id="tost">Tilla ERP dan qayta olindi — 85.00</div>
+  </div>
+</div>
+
+<script>
+// Tilla ERP dagi qiymatlar (cloud `sozlamalar` hujjatidan keladi)
+var ERP = { kurs:85, lom:78.5, bUst:3.5, manba:'Ibrohim · PC · 09:14' };
+var ZAV = [
+  {nom:'Butterfly', turlar:[{nom:'3D',f:12},{nom:'Zanjir',f:10},{nom:'Bilaguzuk',f:11}]},
+  {nom:'Sharq',     turlar:[{nom:'Uzuk',f:13}]}
+];
+
+var kurs = ERP.kurs, qolda = false, tahrir = false;
+
+function fmtD(d){ return parseFloat(d).toLocaleString('en-US',{maximumFractionDigits:2}); }
+// hisob.js:92 getKatNarx bilan aynan: A = kurs*(1+f/100), 1 xonagacha
+function narxA(f){ return Math.round(kurs*(1+f/100)*10)/10; }
+function narxB(f){ return Math.round((narxA(f)+ERP.bUst)*10)/10; }
+
+function tahrirOch(){ tahrir=true; chiz(); }
+function saqla(){
+  var e=document.getElementById('kin');
+  var v=parseFloat(String(e.value).replace(',','.'));
+  if(v>0){ kurs=v; qolda=(Math.abs(v-ERP.kurs)>0.0001); }
+  tahrir=false; chiz();
+}
+function qaytar(){ kurs=ERP.kurs; qolda=false; tahrir=false; chiz(); }
+function qaytaKir(){
+  qaytar();
+  var t=document.getElementById('tost');
+  t.textContent='Tilla ERP dan qayta olindi — '+fmtD(ERP.kurs)+'.00';
+  t.classList.add('on');
+  setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+
+function chiz(){
+  document.getElementById('pill').className = 'kpill'+(qolda?' qol':'');
+  document.getElementById('pill').innerHTML =
+    '<span class="l">KURS</span><b>'+fmtD(kurs)+'</b><span class="c">&#9662;</span>';
+
+  var wb=document.getElementById('wbadge');
+  wb.className = 'b'+(qolda?' qol':'');
+  wb.textContent = qolda ? "QO'LDA YOZILGAN" : 'Tilla ERP dan';
+
+  var h='';
+  h+='<div class="qutlar">';
+  h+='<div class="qut on'+(qolda?' qol':'')+'"><div class="k">KURS';
+  if(tahrir) h+='<button class="pen" onclick="saqla()">Saqlash</button>';
+  else if(qolda) h+='<button class="pen rev" onclick="qaytar()">ERP ga qaytarish</button>';
+  else h+='<button class="pen" onclick="tahrirOch()">O\'zgartirish</button>';
+  h+='</div>';
+  if(tahrir) h+='<input id="kin" inputmode="decimal" value="'+kurs+'" '
+    +'onkeydown="if(event.key===\'Enter\')saqla()">';
+  else h+='<div class="v">'+fmtD(kurs)+'<small>$/g</small></div>';
+  h+='</div>';
+  h+='<div class="qut"><div class="k">LOM</div><div class="v">'+fmtD(ERP.lom)+'<small>$/g</small></div></div>';
+  h+='</div>';
+
+  h+='<div class="manba">'+(qolda
+    ? 'Kursni <b>kassir qo\'lda</b> yozdi. Tilla ERP da <b>'+fmtD(ERP.kurs)+'</b> turibdi.'
+    : 'Kursni qo\'ygan: <b>'+ERP.manba+'</b>')+'</div>';
+
+  h+='<div class="ust"><div class="k">B USTAMA — A NARX USTIGA QO\'SHILADI</div>'
+    +'<div class="v">+ '+fmtD(ERP.bUst)+'<small> $/g</small></div></div>';
+
+  h+='<div class="tbl"><div class="g3 thd"><span>TUR</span><span>A</span><span>B</span></div>';
+  ZAV.forEach(function(z){
+    h+='<div class="zn">'+z.nom+'</div>';
+    z.turlar.forEach(function(t){
+      h+='<div class="g3 tr"><span class="nm">'+t.nom+'</span>'
+        +'<span class="a">'+fmtD(narxA(t.f))+'</span>'
+        +'<span class="b">'+fmtD(narxB(t.f))+'</span></div>';
+    });
+  });
+  h+='<div class="leg"><span><span style="color:var(--gold);">A</span> optom</span>'
+    +'<span><span style="color:var(--blue);">B</span> = A + ustama</span>'
+    +'<span>C — qo\'lda</span></div></div>';
+
+  h+='<div class="foot">'+(qolda
+    ? 'Bu narxlar <b>qo\'lda yozilgan kursdan</b> hisoblanyapti. Tilla ERP ga hech nima yuborilmaydi.'
+    : 'Kurs Tilla ERP dan olinadi. Internet uzilsa yoki kurs shu yerda o\'zgarsa, kassir uni qo\'lda yozib turishi mumkin.')
+    +'</div>';
+
+  document.getElementById('wb').innerHTML=h;
+  if(tahrir){ var e=document.getElementById('kin'); if(e){ e.focus(); e.select(); } }
+}
+chiz();
+</script>
