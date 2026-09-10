@@ -101,6 +101,10 @@ va `hisob.js` istisnosi qo'shiladi.
 | 3e | Ro'yxat 240px ga qotib qolgani (**POS v0.07**) | ✅ push qilingan |
 | 3f | SOTUV olib tashlandi, BERISH da narx (**POS v0.08**) | ✅ push qilingan |
 | 3g | BERISH sarlavhasida kurs, qo'lda o'zgartiriladi (**POS v0.09**) | ✅ push qilingan |
+| 3h | BERISH sarlavhasida A/B kategoriya (**POS v0.10**) | ✅ push qilingan |
+| 3i | Savatda har tur va har zavodning o'z narxi (**POS v0.11**) | ✅ push qilingan |
+| 3j | Lom har doim kursdan −2 (**POS v0.13**) | ✅ push qilingan |
+| 3k | Narxi yo'q zavodlar kurs jadvalida chiqmaydi (**POS v0.14**) | ✅ push qilingan |
 | 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
 | 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
 
@@ -226,6 +230,53 @@ tushunarsiz» ni o'z so'zi bilan ayttir. Maket chizma — u charchadi.
 - **`index.html` dan ko'chirilgan kod tekshirilsin.** `_POSG` ko'chmay qolgan
   (v0.05), `_posBoy` esa ko'chgan-u pos.html da ma'nosiz edi (v0.07) —
   `.topbar`/`.main-tabs` bu yerda yo'q.
+
+---
+
+### 💵 POS NARX KO'RSATISHI — TUGALLANGAN (v0.08–v0.14)
+
+Ibrohimning spetsifikatsiyasi (2026-09-10):
+
+> «sotuvni olib tashla. Berishda vazniga o'lchaganda narxini ko'rsatib tursa,
+> kursdan olib — shunda klientga taxminiy narxi aytiladi, manga jo'natiladi,
+> men tekshiraman, to'g'ri bo'lsa berish/to'lov qilaman»
+
+Hozirgi holat — BERISH sarlavhasi:
+
+    ←  ↑ BERISH  v0.14  <klient>      [A][B]  [KURS 80]  Klient qarzi −408.57 g  ✕
+
+| Element | Nima qiladi | Qayerda |
+|---|---|---|
+| `[A][B]` | narx qaysi kategoriyadan | `_pbKatSatr` |
+| `[KURS]` | bosilsa o'sha joyda tahrirlanadi | `_pbKursSatr` |
+| tur ustida | `omborda 96.40 g · 86.8 $/g` | `_pbNarxSatr` |
+| ekran 2 JAMI | `1419.50 g` + `≈ 1,419.5 $` | `_pbIchPul` |
+| savat qatori | `Oddiy 1.00g (95.2 $) · 3D 2.00g (187 $)` | inline |
+| savat zavod | o'ng tomonda `≈ 282.2 $` | `_pbZavodPul` |
+| savat JAMI | hammasining puli | `_pbSavatPul` |
+
+**Uch qat'iy qoida:**
+1. Narx FAQAT KO'RSATILADI — `posBSaqla` TEGILMAGAN, chernovik avvalgidek
+   faqat gramm bilan ketadi. Pul, skidka, to'lov — hammasi Tilla ERP da.
+2. Kurs qo'lda o'zgartirilsa cloudga YOZILMAYDI. `kursOqi()` qayta kirilganda
+   ERP dagisini qaytaradi (va cloudda kurs yo'q bo'lsa lokal kalitni o'chiradi).
+3. `lom = kurs − 2`, DOIM. `POS_LOM_FARQ = 2`. Clouddagi `tilla-lom-bugun`
+   va `tilla-lom-farq` POS da umuman ishlatilmaydi.
+   ⚠ v0.12 da ERP formulasi (`kurs + farq`) ishlatilgan edi — Ibrohimning
+   bazasida farq −2 emas ekan, kurs 80 da lom 72.4 chiqdi. v0.13 bekor qildi.
+
+**Kategoriya:** `_pbKat` bo'sh bo'lsa klientning `k.kat` i. Har berish
+ochilganda tozalanadi — klient yozuviga TEGILMAYDI (`index.html:11776`).
+
+**Narx manbai:** `hisob.js:92` `getKatNarx`. Nusxa YO'Q — ilova va POS
+bir xil funksiyani chaqiradi.
+
+### 🔧 SINOV FAYLLARI (scratchpad da, repoda emas)
+
+Har versiya Node bilan sinaldi: `narxtest.js` (12), `kurstest.js` (17),
+`kattest.js` (12), `savattest.js` (13), `lom13test.js` (9), `zavtest.js` (12).
+Usul: `pos.html` dan funksiya matnini qavs hisoblab ajratib `eval` qilish +
+`localStorage` stub. Keyingi seansda kerak bo'lsa shu naqshni takrorla.
 
 ---
 
