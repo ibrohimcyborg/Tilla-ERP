@@ -5379,3 +5379,26 @@ Endi POS da qoida bitta va qat'iy:
 `POS_LOM_FARQ = 2` — bitta joyda, o'zgartirish kerak bo'lsa shu yerda.
 
 Sinov: `lom13test.js` — 9 ta tekshiruv. Hammasi o'tdi.
+
+## POS v0.14 — narxi yo'q zavodlar kurs jadvalida chiqmaydi
+
+Ibrohim (rasm bilan): «narxi yo'q zavodla chiqmasin».
+
+Jadvalda hamma zavod va hamma tur chizilardi. Ko'pchiligida foiz qo'yilmagani
+uchun `— —` bo'lib turardi va jadvalni o'qib bo'lmasdi.
+
+- Narxi yo'q **tur** chizilmaydi
+- Hamma turi narxsiz bo'lgan **zavod** ham chizilmaydi
+- Narx bor deb hisoblanadi: A yoki B dan bittasi bo'lsa yetarli
+- Hech qaysi zavodda narx bo'lmasa — bo'sh quti o'rniga
+  «Narx qo'yilgan zavod yo'q» yozuvi
+
+Qatorlar orasidagi chiziq endi filtrlangan ro'yxatning indeksidan olinadi —
+avval `ti` ishlatilardi, filtrdan keyin birinchi qatorda ham chiziq
+chiqib qolardi.
+
+Bu FAQAT KO'RINISH. BERISH ekranidagi zavod ro'yxati TEGILMADI — u ombor
+bo'yicha ishlaydi, narx bo'yicha emas.
+
+Sinov: `zavtest.js` — 12 ta tekshiruv (narxli/narxsiz zavod, qisman narxli
+zavod, bo'sh holat). Hammasi o'tdi.

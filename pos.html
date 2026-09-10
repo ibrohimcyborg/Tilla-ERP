@@ -1,4 +1,4 @@
-<!-- v0.13 -->
+<!-- v0.14 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.13';
+var POS_VER = 'v0.14';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -394,17 +394,28 @@ function posKursOch(){
     h+='<div style="'+_POSG+'padding:8px 13px;font-size:9.5px;letter-spacing:.09em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surf2);">';
     h+='<span>TUR</span>';
     h+='<span style="text-align:right;">A</span><span style="text-align:right;">B</span></div>';
+    // v0.14 (Ibrohim): «narxi yo'q zavodla chiqmasin».
+    // Avval hamma zavod va tur chizilardi — ko'pchiligi «— —» bo'lib
+    // turardi va jadvalni o'qib bo'lmasdi. Endi narxi borlari qoladi.
+    var chizildi = 0;
     (data.zavodlar||[]).forEach(function(z,zi){
+      var bor = [];
+      (z.turlar||[]).forEach(function(t,ti){
+        var n = _posNarxlar(zi,ti);
+        if(n.a || n.b) bor.push({t:t, n:n});
+      });
+      if(!bor.length) return;              // butun zavod narxsiz — chizilmaydi
+      chizildi++;
       h+='<div style="padding:9px 13px 4px;font-size:12px;color:var(--gold);">'+_posEsc(z.nom)+'</div>';
-      (z.turlar||[]).forEach(function(t,ti,arr){
-        var n=_posNarxlar(zi,ti);
+      bor.forEach(function(x,i){
         var NS='text-align:right;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
-        h+='<div style="'+_POSG+'padding:7px 13px;font-size:13.5px;'+(ti?'border-top:1px solid var(--border);':'')+'">';
-        h+='<span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_posEsc(t.nom)+'</span>';
-        h+='<span style="'+NS+'color:var(--gold);font-weight:600;">'+(n.a?fmtD(n.a):'\u2014')+'</span>';
-        h+='<span style="'+NS+'color:var(--blue);font-weight:600;">'+(n.b?fmtD(n.b):'\u2014')+'</span></div>';
+        h+='<div style="'+_POSG+'padding:7px 13px;font-size:13.5px;'+(i?'border-top:1px solid var(--border);':'')+'">';
+        h+='<span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_posEsc(x.t.nom)+'</span>';
+        h+='<span style="'+NS+'color:var(--gold);font-weight:600;">'+(x.n.a?fmtD(x.n.a):'—')+'</span>';
+        h+='<span style="'+NS+'color:var(--blue);font-weight:600;">'+(x.n.b?fmtD(x.n.b):'—')+'</span></div>';
       });
     });
+    if(!chizildi) h+='<div style="padding:22px;text-align:center;color:var(--muted);font-size:13px;">Narx qo&#39;yilgan zavod yo&#39;q.</div>';
     h+='<div style="display:flex;gap:13px;padding:9px 13px;border-top:1px solid var(--border);background:var(--surf2);font-size:11px;color:var(--muted);">';
     h+='<span><span style="color:var(--gold);">A</span> optom</span>';
     h+='<span><span style="color:var(--blue);">B</span> = A + ustama</span>';
