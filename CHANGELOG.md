@@ -5315,3 +5315,24 @@ darhol qaytariladi.
 C qo'shilmadi — Ibrohim «A B» dedi, POS da qo'lda narx kiritish yo'q.
 
 Sinov: `kattest.js` — 12 ta tekshiruv. Hammasi o'tdi.
+
+## POS v0.11 — savatda har turning va har zavodning o'z narxi
+
+Ibrohim (rasm bilan): «zavod turiga qarab umumiy nechi gramm, umumiy narxiyam
+kerak — to'g'ri, o'ziniki».
+
+Savat qatorida avval faqat `Oddiy 1.00g` turardi, narx esa eng pastdagi
+umumiy JAMI da bir marta ko'rinardi.
+
+- **Har tur** o'z puli bilan: `Oddiy 1.00g (95.2 $) · 3D 2.00g (187 $)`.
+  Narx qavs ichida — turlar orasidagi `·` bilan chalkashmasin.
+- **Har zavod** qatorining o'ng tomonida jami puli, `1 dona` ostida: `≈ 282.2 $`
+- Pastdagi umumiy JAMI o'zgarmadi (v0.08 da qo'shilgan)
+
+`_pbZavodPul(s)` qo'shildi — bitta savat qatorining puli. `_pbSavatPul()` endi
+o'shani chaqiradi, bir xil raqam ikki xil yo'l bilan hisoblanmasin.
+
+A/B tugmasiga va qo'lda yozilgan kursga bo'ysunadi — hammasi `_pbNarx` dan.
+Kurs bo'lmasa narx umuman yozilmaydi. Vozvratda yo'q.
+
+Sinov: `savattest.js` — 13 ta tekshiruv. Hammasi o'tdi.
