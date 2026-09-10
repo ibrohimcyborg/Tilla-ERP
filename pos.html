@@ -1,4 +1,4 @@
-<!-- v0.08 -->
+<!-- v0.09 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.08';
+var POS_VER = 'v0.09';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -154,6 +154,11 @@ var _cloudDb = null, _cloudUser = null;
 var _posQ = '', _posKi = -1;
 var _pbMode = 'berish';
 var _pbSavat = [], _pbZi = -1, _pbTi = 0, _pbIch = [], _pbKir = '', _pbNeg = false;
+// v0.09 (Ibrohim): «berishning tepasiga kurs turishi kere — nobodo kurs
+// o'zgarib qolsa, Tilla ERP dan qilib bo'lmasa, o'zi qo'lda o'zgartirolsin».
+// Qo'lda yozilgani HECH QAYERGA saqlanmaydi — cloudga ham, xotiraga ham.
+// Qayta kirilganda yoki boshqa odam kirganda kursOqi() ERP dagisini qaytaradi.
+var _kursQolda = false, _pbKursTahrir = false;
 var _pbQarzKesh = null;
 var _posLockN = 0, _posLockY = 0;
 
@@ -247,6 +252,11 @@ function kursOqi(){
   return _cloudDb.collection(cloudKol()).doc('sozlamalar').get().then(function(d){
     if(!d.exists) return;
     var k = (d.data() || {}).k || {};
+    // Qo'lda yozilgan kurs BEKOR bo'ladi — haqiqat manbai Tilla ERP.
+    _kursQolda = false;
+    if(!('tilla-kurs-bugun' in k)){
+      try{ localStorage.removeItem('tilla-kurs-bugun'); }catch(e){}
+    }
     Object.keys(k).forEach(function(key){
       try{ localStorage.setItem(key, k[key]); }catch(e){}
     });
@@ -670,6 +680,46 @@ function _pbNarxSatr(zi, ti){
   return ' · <b>' + fmtD(n) + ' $/g</b>';
 }
 
+// Berish sarlavhasidagi kurs. Bosilsa o'sha joyning o'zi maydonga aylanadi —
+// yangi oyna ochilmaydi, kassir ekrandan chiqmaydi.
+function _pbKursSatr(){
+  var k = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  var C = _kursQolda ? 'red' : 'gold';
+  if(_pbKursTahrir){
+    return '<span style="display:flex;align-items:center;gap:4px;flex:none;">'
+      + '<input id="pb-kurs" value="'+(k||'')+'" inputmode="decimal" '
+      + 'onkeydown="if(event.key===&quot;Enter&quot;)posBKursSaqla()" '
+      + 'style="width:74px;height:30px;border-radius:12px;padding:0 9px;font-size:14px;'
+      + 'background:var(--bg);border:1px solid var(--gold);color:var(--text);outline:none;'
+      + 'font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'
+      + '<button onclick="posBKursSaqla()" style="width:30px;height:30px;flex:none;'
+      + 'border-radius:12px;border:0;background:var(--gold);color:var(--on-gold);'
+      + 'font-size:13px;cursor:pointer;">✓</button></span>';
+  }
+  return '<span onclick="posBKursTahrir()" title="Kursni qo&#39;lda o&#39;zgartirish" '
+    + 'style="display:flex;align-items:baseline;gap:5px;flex:none;white-space:nowrap;'
+    + 'padding:3px 10px;border-radius:999px;cursor:pointer;'
+    + 'background:var(--'+C+'-bg);border:1px solid var(--'+C+'-bd);">'
+    + '<span style="font-size:9.5px;letter-spacing:.06em;color:var(--'+C+');">KURS</span>'
+    + '<b style="font-size:14px;color:var(--'+C+');font-family:Roboto,sans-serif;'
+    + 'font-variant-numeric:tabular-nums;">'+(k?fmtD(k):'—')+'</b>'
+    + (_kursQolda ? '<span style="font-size:9px;color:var(--red);">qo&#39;lda</span>' : '')
+    + '</span>';
+}
+function posBKursTahrir(){ _pbKursTahrir = true; _pbDraw(); }
+// Faqat SHU qurilmada, faqat SHU seansda. Cloudga yozilmaydi.
+function posBKursSaqla(){
+  var e = document.getElementById('pb-kurs');
+  var v = e ? parseNum(String(e.value).replace(',','.')) : 0;
+  if(v > 0){
+    try{ localStorage.setItem('tilla-kurs-bugun', String(v)); }catch(_){}
+    _kursQolda = true;
+  }
+  _pbKursTahrir = false;
+  _pbDraw();
+  if(typeof posKursUpd === 'function') posKursUpd();   // bosh ekrandagi pill
+}
+
 function _pbOst(zi,ti){
   var z=data.zavodlar[zi], t=z&&z.turlar[ti]; if(!t) return 0;
   try{ return turOst(z.nom,t.nom)||0; }catch(e){ return 0; }
@@ -829,6 +879,7 @@ function _pbDraw(){
   h+='<span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+_posEsc(k.nom)+'</span>';
   h+='<span style="flex:1;min-width:4px;"></span>';
   var jq=0; try{ jq=klientJamiQarz(k)||0; }catch(e){}
+  h+=_pbKursSatr();
   h+='<span style="font-size:11px;color:var(--muted);white-space:nowrap;">Klient qarzi <b style="color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">−'+fmtG(Math.abs(jq))+' g</b></span>';
   h+='<button onclick="posBBekor()" style="width:34px;height:34px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
 
@@ -968,6 +1019,10 @@ function _pbDraw(){
   }
 
   box.innerHTML=h;
+  if(_pbKursTahrir){
+    var kq=document.getElementById('pb-kurs');
+    if(kq){ kq.focus(); kq.select(); return; }
+  }
   var inp=document.getElementById('pb-in');
   if(inp){ inp.focus(); try{ inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} }
 }

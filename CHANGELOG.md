@@ -5264,3 +5264,31 @@ gramm bilan ketadi. Pul, skidka, to'lov — hammasi Tilla ERP da.
 
 Sinov: `narxtest.js` — 12 ta tekshiruv (A/B kategoriya, kat yozilmagan klient,
 `_aktivKat` qaytarilishi, jami pul, kurs 0 holati). Hammasi o'tdi.
+
+## POS v0.09 — BERISH sarlavhasida kurs, qo'lda o'zgartiriladi
+
+Ibrohim (rasm bilan): «berishning tepasiga kurs turishi kere — nobodo kurs
+o'zgarib qolsa, Tilla ERP dan qilib bo'lmasa, o'zi qo'lda o'zgartirolsin.
+Qayta kirib chiqqanda, boshqa odam kirganda baribir kursi Tilla ERP dan
+olinsin».
+
+⚠ Avval NOTO'G'RI tushunilgan edi — tahrir kurs OYNASIGA qo'yilgan edi.
+Ibrohim: «yo'q, noto'g'ri tushunibsan». To'g'risi: BERISH ekranining tepa
+satrida, `Klient qarzi` dan oldin.
+
+- `_pbKursSatr()` — sarlavhadagi KURS pilli. Bosilsa o'sha joyning o'zi
+  maydonga aylanadi, yangi oyna ochilmaydi.
+- `posBKursTahrir()` / `posBKursSaqla()` — qiymat `localStorage` ga yoziladi,
+  `_kursQolda` bayrog'i ko'tariladi. Pill qizil bo'lib «qo'lda» yozuvi chiqadi.
+- Narx darrov qayta hisoblanadi — `_pbNarx` o'sha kalitdan o'qiydi.
+  Bosh ekrandagi KURS pilli ham yangilanadi (`posKursUpd`).
+- 0, bo'sh yoki harf yozilsa eski kurs qoladi. Vergul nuqtaga aylanadi.
+
+**Cloudga YOZILMAYDI.** `sozlamalar` hujjatiga tegilmaydi — Tilla ERP dagi
+kurs o'zgarmaydi.
+
+**Qayta kirilganda bekor bo'ladi.** `kursOqi()` ga ikki qator qo'shildi:
+`_kursQolda` tushiriladi, va cloudda `tilla-kurs-bugun` bo'lmasa lokal kalit
+O'CHIRILADI — aks holda eski qo'lda yozilgani qolib ketardi.
+
+Sinov: `kurstest.js` — 17 ta tekshiruv. Hammasi o'tdi.
