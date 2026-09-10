@@ -5292,3 +5292,26 @@ kurs o'zgarmaydi.
 O'CHIRILADI — aks holda eski qo'lda yozilgani qolib ketardi.
 
 Sinov: `kurstest.js` — 17 ta tekshiruv. Hammasi o'tdi.
+
+## POS v0.10 — BERISH sarlavhasida A / B kategoriya
+
+Ibrohim: «keyin tepada A B».
+
+Kurs pillidan OLDIN ikkita kichik tugma: **A** va **B**. Narx qaysi
+kategoriyadan hisoblanishini kassir tanlaydi.
+
+- Boshlanishida **klientning o'z kategoriyasi** yonadi (`k.kat`, yo'q bo'lsa A)
+- Bosilsa narx darrov qayta hisoblanadi — `$/g`, zavod jami, savat jami
+- **Faqat shu berish uchun.** `_pbOch` da `_pbKat=''` — yangi berish yana
+  klientning kategoriyasidan boshlanadi. Klient yozuviga TEGILMAYDI
+  (`index.html:11776` dagi qoida bilan bir xil: v172.23 da klient bir marta
+  C bosilsa abadiy C bo'lib qolardi, shuning uchun tanlov faqat amalga tegishli).
+- Vozvratda narx yo'q — tugma ham chizilmaydi
+
+`_pbNarx` endi `_pbKat || k.kat || 'A'` ni ishlatadi. `getKatNarx`
+(`hisob.js:92`) TEGILMADI, `_aktivKat` avvalgidek vaqtincha almashtirilib
+darhol qaytariladi.
+
+C qo'shilmadi — Ibrohim «A B» dedi, POS da qo'lda narx kiritish yo'q.
+
+Sinov: `kattest.js` — 12 ta tekshiruv. Hammasi o'tdi.

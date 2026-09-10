@@ -1,4 +1,4 @@
-<!-- v0.09 -->
+<!-- v0.10 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.09';
+var POS_VER = 'v0.10';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -159,6 +159,11 @@ var _pbSavat = [], _pbZi = -1, _pbTi = 0, _pbIch = [], _pbKir = '', _pbNeg = fal
 // Qo'lda yozilgani HECH QAYERGA saqlanmaydi — cloudga ham, xotiraga ham.
 // Qayta kirilganda yoki boshqa odam kirganda kursOqi() ERP dagisini qaytaradi.
 var _kursQolda = false, _pbKursTahrir = false;
+// v0.10 (Ibrohim): «keyin tepada A B» — narx qaysi kategoriyadan
+// hisoblanishini kassir tanlaydi. Bo'sh bo'lsa klientning o'z kategoriyasi
+// (k.kat) ishlatiladi. FAQAT SHU BERISH uchun — klient yozuviga tegmaydi
+// (index.html:11776 dagi qoida bilan bir xil).
+var _pbKat = '';
 var _pbQarzKesh = null;
 var _posLockN = 0, _posLockY = 0;
 
@@ -607,7 +612,7 @@ function posVozvratOch(){ _pbOch('vozvrat'); }
 
 function _pbOch(m){
   if(!data.klientlar[_posKi]) return;
-  _pbMode=m; _pbSavat=[]; _pbZi=-1; _pbTi=0; _pbIch=[]; _pbKir=''; _pbNeg=false;
+  _pbMode=m; _pbSavat=[]; _pbZi=-1; _pbTi=0; _pbIch=[]; _pbKir=''; _pbNeg=false; _pbKat='';
   _pbQarzYangila();
   posBYop();
   var d=document.createElement('div');
@@ -647,7 +652,7 @@ function _pbQarz(zNom,tNom){ return (_pbQarzKesh&&_pbQarzKesh[zNom+'||'+tNom])||
 function _pbNarx(zi, ti){
   var k = data.klientlar[_posKi];
   var eski = _aktivKat, n = '';
-  try{ _aktivKat = (k && k.kat) || 'A'; n = getKatNarx(zi, ti, _posKi); }catch(e){}
+  try{ _aktivKat = _pbKat || (k && k.kat) || 'A'; n = getKatNarx(zi, ti, _posKi); }catch(e){}
   _aktivKat = eski;
   return parseNum(n) || 0;
 }
@@ -706,6 +711,26 @@ function _pbKursSatr(){
     + (_kursQolda ? '<span style="font-size:9px;color:var(--red);">qo&#39;lda</span>' : '')
     + '</span>';
 }
+// A / B tugmasi. Yonganini kassir tanlaydi — boshlanishida klientning
+// o'z kategoriyasi. Vozvratda narx yo'q, shuning uchun tugma ham yo'q.
+function _pbKatSatr(){
+  if(_pbV()) return '';
+  var k = data.klientlar[_posKi];
+  var joriy = _pbKat || (k && k.kat) || 'A';
+  var h = '<span style="display:flex;gap:4px;flex:none;">';
+  ['A','B'].forEach(function(x){
+    var on = joriy === x;
+    h += '<button onclick="posBKat(&quot;'+x+'&quot;)" '
+      + 'title="' + x + ' kategoriya narxi" '
+      + 'style="width:30px;height:26px;border-radius:9px;cursor:pointer;font-size:12px;'
+      + 'font-weight:700;font-family:inherit;'
+      + (on ? 'border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);'
+           : 'border:1px solid var(--border);background:var(--surf2);color:var(--muted);')
+      + '">' + x + '</button>';
+  });
+  return h + '</span>';
+}
+function posBKat(x){ _pbKat = x; _pbDraw(); }
 function posBKursTahrir(){ _pbKursTahrir = true; _pbDraw(); }
 // Faqat SHU qurilmada, faqat SHU seansda. Cloudga yozilmaydi.
 function posBKursSaqla(){
@@ -879,6 +904,7 @@ function _pbDraw(){
   h+='<span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+_posEsc(k.nom)+'</span>';
   h+='<span style="flex:1;min-width:4px;"></span>';
   var jq=0; try{ jq=klientJamiQarz(k)||0; }catch(e){}
+  h+=_pbKatSatr();
   h+=_pbKursSatr();
   h+='<span style="font-size:11px;color:var(--muted);white-space:nowrap;">Klient qarzi <b style="color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">−'+fmtG(Math.abs(jq))+' g</b></span>';
   h+='<button onclick="posBBekor()" style="width:34px;height:34px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
