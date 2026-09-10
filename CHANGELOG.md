@@ -5491,3 +5491,15 @@ Maket: `mockups/pos-savat-narx-g.html`.
 
 Sinov: `s17test.js` — 11 ta tekshiruv (A va B da qatorlar, vozvrat, kurs yo'q,
 JAMI). Hammasi o'tdi.
+
+## POS v0.18 — A/B tugmalari kattalashtirildi
+
+Ibrohim: «A B ni sal kattalashtir».
+
+BERISH sarlavhasidagi kategoriya tugmalari:
+
+    30 × 26 px, shrift 12px, burchak 9px
+    →  38 × 32 px, shrift 14px, burchak 11px
+
+Faqat o'lcham. Rang, joylashuv, mantiq — tegilmadi. Yonidagi KURS pilli
+(30px balandlik) bilan bir qatorda turaveradi.
