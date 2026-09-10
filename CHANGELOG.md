@@ -5238,3 +5238,29 @@ Balandlikni CSS beradi — `html,body{height:100%}` allaqachon bor edi:
 qilardi).
 
 `index.html` dagi `_posBoy` TEGILMADI — u yerda topbar va tablar bor, kerak.
+
+## POS v0.08 — SOTUV olib tashlandi, BERISH da narx ko'rinadi
+
+Ibrohim: «sotuvni olib tashla. Berishda vazniga o'lchaganda narxini ko'rsatib
+tursa, kursdan olib — shunda klientga taxminiy narxi aytiladi, manga
+jo'natiladi, men tekshiraman, to'g'ri bo'lsa berish/to'lov qilaman».
+
+- SOTUV tugmasi `_posAmalPill` dan olib tashlandi. Qolgani: BERISH, VOZVRAT.
+- `_pbNarx(zi,ti)` — klientning kategoriyasidan (`k.kat`, yo'q bo'lsa A) va
+  kunlik kursdan narx. `hisob.js` dagi `getKatNarx` chaqiriladi, narx hisobi
+  QAYTA YOZILMADI. `_aktivKat` vaqtincha almashtirilib darhol qaytariladi.
+- `_pbIchPul()` — ochiq zavoddagi donalarning puli
+- `_pbSavatPul()` — savatdagi hamma zavodning puli
+- `_pbPulSatr(pul)` — `≈ 1,419.5 $`. Pul 0 bo'lsa HECH NIMA chizmaydi —
+  kurs kiritilmaganda «0 $» klientni chalg'itadi.
+- `_pbNarxSatr(zi,ti)` — ombor satrida `· 95.2 $/g`
+
+Uch joyda ko'rinadi: tur ustidagi ombor satri (grammiga narx), ekran 2 ning
+chap ustun JAMI si, ekran 1 dagi savat JAMI si.
+
+**FAQAT BERISHDA** — vozvratda `V?0:` bilan o'chiriladi.
+**FAQAT KO'RSATADI** — `posBSaqla` TEGILMADI, chernovik avvalgidek faqat
+gramm bilan ketadi. Pul, skidka, to'lov — hammasi Tilla ERP da.
+
+Sinov: `narxtest.js` — 12 ta tekshiruv (A/B kategoriya, kat yozilmagan klient,
+`_aktivKat` qaytarilishi, jami pul, kurs 0 holati). Hammasi o'tdi.
