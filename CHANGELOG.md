@@ -5358,3 +5358,24 @@ Lom musbat chiqmasa yozilmaydi — eski qiymat qoladi.
 
 Sinov: `lomtest.js` — 9 ta tekshiruv (farq −2/−3/+1.5/yo'q, yaxlitlash,
 manfiy lom). Hammasi o'tdi.
+
+## POS v0.13 — lom HAR DOIM kursdan −2
+
+Ibrohim: «lom hardoim kursdan −2 $».
+
+**v0.12 bekor qilindi** (u prodga chiqmagan edi). v0.12 Tilla ERP dagi
+o'zgaruvchan `tilla-lom-farq` ni o'qirdi — Ibrohimning bazasida u −2 emas edi,
+shuning uchun kurs 80 bo'lganda lom 72.4 chiqardi.
+
+Endi POS da qoida bitta va qat'iy:
+
+    lom = round((kurs - 2) * 10) / 10
+
+- `tilla-lom-farq` **umuman o'qilmaydi**
+- `tilla-lom-bugun` (cloudda nima bo'lsa ham) POS da **ishlatilmaydi**
+- POS unga **yozmaydi ham** — cloud ifloslanmaydi
+- Kurs yo'q bo'lsa lom ham yo'q; lom manfiy chiqsa 0
+
+`POS_LOM_FARQ = 2` — bitta joyda, o'zgartirish kerak bo'lsa shu yerda.
+
+Sinov: `lom13test.js` — 9 ta tekshiruv. Hammasi o'tdi.

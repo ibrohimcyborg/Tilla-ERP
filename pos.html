@@ -1,4 +1,4 @@
-<!-- v0.12 -->
+<!-- v0.13 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.12';
+var POS_VER = 'v0.13';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -172,6 +172,18 @@ function getRol(){ return 'pos'; }
 function cloudKol(){ return SANDBOX + '_tilla_' + (_cloudUser ? _cloudUser.uid : 'x'); }
 function cloudXato(e){ if (window.console) console.error('cloud:', e); }
 function _verBelgi(){ return POS_VER; }
+
+// v0.13 (Ibrohim): «lom hardoim kursdan -2 $».
+// Tilla ERP da lom alohida saqlanadi (`tilla-lom-bugun`) va o'zgaruvchan
+// farq bilan hisoblanadi. POS da bu YO'Q — qoida bitta va qat'iy.
+// Cloudda kelgan `tilla-lom-bugun` POS da ISHLATILMAYDI, unga YOZILMAYDI ham.
+var POS_LOM_FARQ = 2;
+function _posLom(){
+  var k = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
+  if(!k) return 0;
+  var l = Math.round((k - POS_LOM_FARQ)*10)/10;
+  return l > 0 ? l : 0;
+}
 function sozManba(vaqtBilan){
   try{
     var m = localStorage.getItem('tilla-soz-manba') || '';
@@ -352,7 +364,7 @@ function posKursUpd(){
 function posKursOch(){
   posKursYop();
   var kurs = parseNum(localStorage.getItem('tilla-kurs-bugun')||0);
-  var lom  = parseNum(localStorage.getItem('tilla-lom-bugun')||0);
+  var lom  = _posLom();          // v0.13: kurs − 2, cloudda nima bo'lsa ham
   var bUst = parseNum(localStorage.getItem('tilla-b-ust')||0);
   function qut(yorliq, qiymat, birlik, rang){
     return '<div style="flex:1;border-radius:12px;padding:11px 13px;border:1px solid '
@@ -743,15 +755,6 @@ function posBKursSaqla(){
   var v = e ? parseNum(String(e.value).replace(',','.')) : 0;
   if(v > 0){
     try{ localStorage.setItem('tilla-kurs-bugun', String(v)); }catch(_){}
-    // v0.12: ERP da kurs o'zgarsa lom AVTOMAT qayta hisoblanadi
-    // (index.html:2852 hkUpd): lom = kurs + farq, farq odatda -2.
-    // POS da bu qilinmagani uchun lom eski qiymatda qolib ketardi
-    // — Ibrohim: «lom narxi nega -2 $mas?»
-    // `farq` FAQAT O'QILADI — uni Tilla ERP belgilaydi.
-    var farq = parseNum(localStorage.getItem('tilla-lom-farq'));
-    if(!farq) farq = -2;
-    var lom = Math.round((v + farq)*10)/10;
-    if(lom > 0){ try{ localStorage.setItem('tilla-lom-bugun', String(lom)); }catch(_){} }
     _kursQolda = true;
   }
   _pbKursTahrir = false;
