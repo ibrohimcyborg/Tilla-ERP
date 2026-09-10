@@ -1,4 +1,4 @@
-<!-- v0.16 -->
+<!-- v0.17 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.16';
+var POS_VER = 'v0.17';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -954,9 +954,11 @@ function _pbDraw(){
     // v0.16 (Ibrohim yozib berdi): zavod satrida raqam YO'Q — faqat nom va ✕.
     // Dona endi HAR TURNING yonida. Bitta turli zavod ham, ko'p turli ham
     // bir xil ko'rinadi. JAMI ustunlari tur qatorlari bilan bir chiziqda.
-    var SC_G='min-width:60px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
-    var SC_D='min-width:50px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted);';
-    var SC_P='min-width:78px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
+    var SC_G='min-width:56px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
+    var SC_D='min-width:46px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted);';
+    // v0.17 (Ibrohim): grammiga narx ALOHIDA USTUNDA, hammasi bir qatorda.
+    var SC_KG='min-width:56px;text-align:right;flex:none;font-size:10.5px;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted);';
+    var SC_P='min-width:70px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
     var SC_X='width:20px;flex:none;';
     var SR='display:flex;align-items:baseline;gap:7px;padding:2px 0;font-size:11.5px;';
     h+='<div style="border-top:1px solid var(--border);background:var(--bg);flex:none;max-height:210px;display:flex;flex-direction:column;">';
@@ -978,6 +980,7 @@ function _pbDraw(){
           var tp = V ? 0 : Math.round(tg*_pbNarx(s.zi,ti)*100)/100;
           h+='<div style="'+SR+'">';
           h+='<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_posEsc(zz.turlar[ti]?zz.turlar[ti].nom:'?')+'</span>';
+          h+='<span style="'+SC_KG+'">'+(tp?fmtD(_pbNarx(s.zi,ti))+' $/g':'')+'</span>';
           h+='<span style="'+SC_G+'font-weight:500;">'+fmtG(tg)+' g</span>';
           h+='<span style="'+SC_D+'">'+tn+' dona</span>';
           h+='<span style="'+SC_P+'color:var(--'+C+');font-weight:500;">'+(tp?fmtD(tp)+' $':'')+'</span>';
@@ -989,6 +992,7 @@ function _pbDraw(){
     h+='</div>';
     h+='<div style="display:flex;align-items:baseline;gap:7px;padding:10px 12px;border-top:2px solid var(--border);flex:none;background:var(--surf2);">';
     h+='<span style="flex:1;font-size:9.5px;letter-spacing:.11em;color:var(--muted);font-weight:600;">JAMI</span>';
+    h+='<span style="'+SC_KG+'"></span>';
     h+='<span style="'+SC_G+'font-weight:700;font-size:14px;color:var(--green);">'+fmtG(J.g)+' g</span>';
     h+='<span style="'+SC_D+'font-size:11px;">'+J.n+' dona</span>';
     var _sp = V ? 0 : _pbSavatPul();

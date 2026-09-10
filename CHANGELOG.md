@@ -5463,3 +5463,31 @@ Maket: `mockups/pos-savat-tartib.html`.
 
 Sinov: `s16test.js` — 10 ta tekshiruv, Ibrohimning aynan raqamlari bilan
 (15.11 g, 5 dona). Hammasi o'tdi.
+
+## POS v0.17 — savat qatorida grammiga narx alohida ustunda
+
+Ibrohim: «$/g narxiniyam yozish kere — tepada A yoki B ni bossa o'zgarishi
+kere» → maketdagi ikki yo'ldan **2-yo'l**: «alohida ustun bo'sin, alohida
+ustunlar bir qator ko'rinsin».
+
+Savat qatori endi besh ustun:
+
+    Oddiy      89.9 $/g    3.30 g   2 dona   296.67 $
+    Sep        92.7 $/g    2.14 g   1 dona   198.38 $
+    ─────────────────────────────────────────────────
+    JAMI                   5.44 g   3 dona   495.05 $
+
+- `SC_KG` — yangi ustun, `min-width:56px`, o'ngga tekislangan, kulrang
+- Qolgan ustunlar joy ochish uchun toraytirildi: gramm 60→56, dona 50→46,
+  summa 78→70. Tur nomi `flex:1` bilan siqiladi va `ellipsis` bo'ladi —
+  qator hech qachon ikkiga bo'linmaydi.
+- JAMI qatorida `$/g` katagi bo'sh — ustunlar tekis turadi
+
+Narx `_pbNarx(s.zi, ti)` dan, ya'ni **tepadagi A/B tugmasiga va qo'lda
+yozilgan kursga bo'ysunadi**. Vozvratda ham `$/g`, ham summa bo'sh.
+Kurs kiritilmagan bo'lsa ham bo'sh.
+
+Maket: `mockups/pos-savat-narx-g.html`.
+
+Sinov: `s17test.js` — 11 ta tekshiruv (A va B da qatorlar, vozvrat, kurs yo'q,
+JAMI). Hammasi o'tdi.
