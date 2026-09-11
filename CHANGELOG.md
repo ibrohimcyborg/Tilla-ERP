@@ -5503,3 +5503,45 @@ BERISH sarlavhasidagi kategoriya tugmalari:
 
 Faqat o'lcham. Rang, joylashuv, mantiq — tegilmadi. Yonidagi KURS pilli
 (30px balandlik) bilan bir qatorda turaveradi.
+
+## v180.3 — chernovik qabulidan keyin TO'LOVGA O'TISH
+
+Ibrohim: «to'lov modalini shu bilan qanday birlashtirsa bo'ladi?» → maketdagi
+7-qadam tasdiqlandi: «qani shu bo'yicha qilchi, faqat Tilla ERP da test
+logida ishlasin, qolganlarga ta'sir qilmasin».
+
+Avval chernovik qabul qilingandan keyin panel ro'yxatga qaytardi va klientni
+qaytadan qidirishga to'g'ri kelardi. Endi tasdiq kartasi chiqadi:
+
+    Qabul qilindi
+    Abdulaziz Qashqadaryo
+    5.11 g
+    Mol klient hisobiga tushdi. Endi pulini yozasizmi?
+    [ Keyinroq ]  [ TO'LOVGA O'TISH ]
+
+- `posChTolovOch()` — `openKlientTolov()` (13320) va `ktPickK(ki)` (13367)
+  chaqiriladi. **Yangi ekran yozilmadi**, mavjud to'lov oynasi ochiladi.
+- `posChTolovYop()` — «Keyinroq», panel ro'yxatga qaytadi
+- `posChQabul` ning hisob yozadigan qismiga TEGILMADI — oxirida faqat
+  `_posChTolov={ki,nom,g}` saqlanadi
+- `posChRad` TEGILMADI — rad qilingan mol hisobga tushmagan, to'lov yo'q
+
+### Kafolat — faqat `test` logini
+
+`_posChTestmi()` = `getRol()==='admin' && SANDBOX==='TEST'`. Bu index.html:2237
+dagi `{login:'test', rol:'admin', sandbox:'TEST'}` ga AYNAN mos. Node bilan
+haqiqiy login ro'yxati bo'yicha sinaldi:
+
+| login | rol / sandbox | natija |
+|---|---|---|
+| tilla | admin / — | false |
+| zavod | zavod / — | false |
+| abdulhamid_7777 | hamid / — | false |
+| **test** | **admin / TEST** | **true** |
+| admin | admin / ADMIN | false |
+| kassatest | pos / TEST | false |
+
+Shart ikki joyda: kartani chizishda va `posChTolovOch` ichida.
+Abdulhamid rejimiga TEGILMADI. `pos.html` TEGILMADI.
+
+Sinov: `gatetest.js` — 7 ta tekshiruv, hammasi o'tdi. Node sintaksis — OK.

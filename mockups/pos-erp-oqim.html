@@ -1,0 +1,221 @@
+<title>POS ERP Oqimi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#fff;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --teal:#2E7D8F; --teal-bg:rgba(46,125,143,.10); --teal-bd:rgba(46,125,143,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:460px;margin:0 auto;padding:16px 13px 70px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.sub{font-size:12.5px;color:var(--muted);margin:0 0 20px;}
+.num{font-family:"Roboto",system-ui,sans-serif;font-variant-numeric:tabular-nums;}
+code{font-family:"Roboto",monospace;font-size:11.5px;background:var(--surf2);
+  padding:1px 5px;border-radius:5px;color:var(--gold);}
+
+/* qadam */
+.q{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+  padding:12px 14px;position:relative;}
+.q.pos{border-left:4px solid var(--gold);}
+.q.cloud{border-left:4px solid var(--teal);}
+.q.erp{border-left:4px solid var(--green);}
+.q.yangi{border-color:var(--gold);background:var(--gold-bg);border-left:4px solid var(--gold);}
+.qh{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.qn{width:22px;height:22px;border-radius:7px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-family:"Roboto";font-size:11px;font-weight:700;
+  background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+.qt{font-size:14px;font-weight:600;flex:1;min-width:0;}
+.qb{font-size:9px;letter-spacing:.08em;padding:2px 7px;border-radius:20px;font-weight:700;flex:none;}
+.b-pos{background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);}
+.b-cl{background:var(--teal-bg);border:1px solid var(--teal-bd);color:var(--teal);}
+.b-erp{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+.qd{font-size:12.5px;color:var(--muted);}
+.qd b{color:var(--text);font-weight:600;}
+.kod{margin-top:7px;font-family:"Roboto",monospace;font-size:10.5px;color:var(--muted);
+  background:var(--surf2);border-radius:8px;padding:7px 9px;white-space:pre-wrap;
+  overflow-x:auto;line-height:1.55;}
+.kod .k{color:var(--gold);}
+.ar{text-align:center;color:var(--muted);font-size:16px;line-height:1;padding:5px 0;}
+.oqim{display:flex;flex-direction:column;}
+
+.ogoh{margin-top:7px;font-size:11.5px;color:var(--red);background:var(--red-bg);
+  border:1px solid var(--red-bd);border-radius:9px;padding:7px 9px;}
+.yaxshi{margin-top:7px;font-size:11.5px;color:var(--green);background:var(--green-bg);
+  border:1px solid var(--green-bd);border-radius:9px;padding:7px 9px;}
+
+.tugma{display:inline-block;padding:7px 14px;border-radius:11px;background:var(--gold);
+  color:var(--on-gold);font-size:12.5px;font-weight:700;margin-top:8px;}
+
+h2{font-size:10px;letter-spacing:.11em;color:var(--muted);margin:28px 0 12px;font-weight:700;
+  padding-bottom:7px;border-bottom:1px solid var(--border);}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);
+  margin-bottom:16px;}
+.legend span i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;
+  vertical-align:-1px;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+td{padding:7px 8px 7px 0;border-bottom:1px solid var(--border);vertical-align:top;}
+td:first-child{color:var(--muted);white-space:nowrap;width:96px;}
+</style>
+
+<div class="page">
+  <h1>POS ↔ Tilla ERP</h1>
+  <p class="sub">Bitta berish qanday ketadi — qadamma-qadam, kod bo'yicha</p>
+
+  <div class="legend">
+    <span><i style="background:var(--gold);"></i>POS · kassir</span>
+    <span><i style="background:var(--teal);"></i>Cloud</span>
+    <span><i style="background:var(--green);"></i>Tilla ERP · siz</span>
+  </div>
+
+  <div class="oqim">
+
+    <div class="q pos">
+      <div class="qh"><span class="qn">1</span><span class="qt">Klientni ochadi</span>
+        <span class="qb b-pos">POS</span></div>
+      <div class="qd">Ro'yxatdan bosadi. <b>Qarzi darrov ko'rinadi</b> — raqam
+        <code>hisob.js</code> dan, ERP dagi bilan bir xil funksiya.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q pos">
+      <div class="qh"><span class="qn">2</span><span class="qt">BERISH → mol yig'adi</span>
+        <span class="qb b-pos">POS</span></div>
+      <div class="qd">Zavod → tur → har donani tarozidan kiritadi. Savatga qo'shadi.</div>
+      <div class="kod">Butterfly<span class="k">                          ✕</span>
+  3D      75.95 $/g   3.10 g  1 dona   235.45 $
+  3DS     82.36 $/g   2.01 g  1 dona   165.54 $
+JAMI                  5.11 g  2 dona   400.99 $</div>
+      <div class="qd" style="margin-top:7px;">Tepada <b>A / B</b> va <b>KURS</b> —
+        bosib o'zgartirsa hamma narx qayta hisoblanadi. Kassir klientga
+        <b>taxminiy summani og'zaki aytadi</b>.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q cloud">
+      <div class="qh"><span class="qn">3</span><span class="qt">Tekshiruvga yuboradi</span>
+        <span class="qb b-cl">CLOUD</span></div>
+      <div class="qd"><code>_poschernovik/items</code> ga bitta hujjat yoziladi:</div>
+      <div class="kod">{ tip: <span class="k">'berish'</span>, klient, sana, soat, qurilma,
+  rows: [ { zavod, tur, gramm, dona,
+            donalar: [3.10] } ],
+  holat: <span class="k">'kutilmoqda'</span> }</div>
+      <div class="ogoh">⚠ Pul YO'Q — faqat gramm va dona. POS hisobga hech qachon
+        tegmaydi.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q erp">
+      <div class="qh"><span class="qn">4</span><span class="qt">Qo'ng'iroqcha yonadi</span>
+        <span class="qb b-erp">ERP</span></div>
+      <div class="qd"><code>posChListen</code> cloudni tinglab turadi. Faqat
+        <b>TEST xonasidagi admin</b> eshitadi — POS o'zi tinglamaydi.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q erp">
+      <div class="qh"><span class="qn">5</span><span class="qt">Siz tekshirasiz</span>
+        <span class="qb b-erp">ERP</span></div>
+      <div class="qd">Har tur uchun POS donalari ko'rinadi. Siz o'zingiz skanlaysiz.
+        <code>_posChRecon</code> ikkalasini solishtiradi.</div>
+      <div class="kod">POS:  3.10   3DS: 2.01
+SIZ:  3.10   3DS: 2.05   <span class="k">← farq</span></div>
+      <div class="qd" style="margin-top:7px;"><b>Hamma tur tekshirilmaguncha
+        QABUL bosilmaydi.</b></div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q erp">
+      <div class="qh"><span class="qn">6</span><span class="qt">QABUL</span>
+        <span class="qb b-erp">ERP</span></div>
+      <div class="qd">Siz skanlagan raqam <b>haqiqiy</b> deb olinadi. Shu payt
+        hisob birinchi marta o'zgaradi:</div>
+      <div class="kod">k.tarix  += { tip: <span class="k">'berish'</span>, gramm, pos:1 }
+t.ostatka −= gramm
+t.donaOst −= dona
+dona baza  → <span class="k">'berilgan'</span>
+save()     → cloud oplog</div>
+      <div class="yaxshi">Klient qarzi shu yerda paydo bo'ladi. POS da ham,
+        ERP da ham bir xil raqam.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q yangi">
+      <div class="qh"><span class="qn" style="background:var(--gold);color:var(--on-gold);border-color:var(--gold);">7</span>
+        <span class="qt" style="color:var(--gold);">TAKLIF — bitta tugma</span>
+        <span class="qb b-pos">YANGI</span></div>
+      <div class="qd"><b>Hozir:</b> panel yopiladi, klientni qayta qidirasiz.<br>
+        <b>Bo'ladi:</b> qabuldan keyin tugma chiqadi.</div>
+      <span class="tugma">TO'LOVGA O'TISH</span>
+      <div class="qd" style="margin-top:8px;">Bosilsa o'sha klientning to'lov
+        modali ochiladi. <b>Hisobga tegilmaydi</b> — faqat oyna ochiladi.
+        Xohlamasangiz «Yopish».</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q erp">
+      <div class="qh"><span class="qn">8</span><span class="qt">TO'LOV modali</span>
+        <span class="qb b-erp">ERP</span></div>
+      <div class="qd">Qatorlar <b>klientning qarzidan</b> quriladi — 6-qadamda
+        paydo bo'lgan qator allaqachon turibdi. Qaytadan yozish kerak emas.</div>
+      <div class="kod">Butterfly · 3D    −3.10 g
+  gramm [3.10]  narx [75.95]  summa [235.45]
+Skidka   [        ]
+Lom      [ + ]
+Naqt / Perech / Karta / Sdacha</div>
+      <div class="qd" style="margin-top:7px;">Kategoriya, skidka, lom, naqt —
+        <b>hammasi sizda</b>. Kassir bularga tegmaydi.</div>
+    </div>
+    <div class="ar">↓</div>
+
+    <div class="q erp">
+      <div class="qh"><span class="qn">9</span><span class="qt">Saqlaysiz</span>
+        <span class="qb b-erp">ERP</span></div>
+      <div class="kod">k.tarix += { tip: <span class="k">'tolov'</span>, summa, kurs,
+             ekvivalent, skidka, naqtPul… }</div>
+      <div class="qd" style="margin-top:7px;">Qarz kamayadi. Skidka shu yozuv
+        ichida yashaydi — <b>grammga qarab bo'linadi</b>.</div>
+    </div>
+
+  </div>
+
+  <h2>KIM NIMAGA TEGADI</h2>
+  <table>
+    <tr><td>Kassir</td><td>Mol tanlaydi, tarozida o'lchaydi, taxminiy summani aytadi.
+      <b>Hisobga tegmaydi.</b></td></tr>
+    <tr><td>Cloud</td><td>Chernovikni tashiydi. Ichida pul yo'q.</td></tr>
+    <tr><td>Siz</td><td>Tekshirasiz, qabul qilasiz, pulni yozasiz.
+      <b>Hisob faqat sizdan o'zgaradi.</b></td></tr>
+  </table>
+
+  <h2>TAKLIF NIMA QO'SHADI</h2>
+  <table>
+    <tr><td>Qadam</td><td>7 — qabul bilan to'lov orasiga bitta tugma</td></tr>
+    <tr><td>Kod</td><td>~25 qator, faqat <code>index.html</code></td></tr>
+    <tr><td>Hisob</td><td>Tegilmaydi — <code>posChQabul</code> o'zgarmaydi</td></tr>
+    <tr><td>POS</td><td>Tegilmaydi</td></tr>
+    <tr><td>Yo'qoladi</td><td>Klientni qayta qidirish</td></tr>
+  </table>
+</div>
