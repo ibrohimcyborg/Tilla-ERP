@@ -324,6 +324,45 @@ tushunarsiz» ni o'z so'zi bilan ayttir. Yangi maket chizma — u charchadi.
 
 ---
 
+### ✅ v180.3 — QABULDAN KEYIN TO'LOVGA O'TISH (2026-09-11)
+
+Ibrohim so'radi: «to'lov modalini shu bilan qanday birlashtirsa bo'ladi?»
+→ maket `mockups/pos-erp-oqim.html` (9 qadam) → 7-qadam tasdiqlandi.
+
+Chernovik qabul qilingandan keyin panel ro'yxatga qaytmaydi, tasdiq kartasi
+chiqadi: klient nomi, qabul qilingan gramm, `[Keyinroq]` va `[TO'LOVGA O'TISH]`.
+
+- `posChTolovOch()` — `openKlientTolov()` + `ktPickK(ki)`. Yangi ekran YOZILMADI.
+- `posChQabul` ning hisob qismiga TEGILMADI — oxirida faqat holat saqlanadi
+- `posChRad` TEGILMADI
+
+⚠ **KAFOLAT — faqat `test` logini.** `_posChTestmi()` =
+`getRol()==='admin' && SANDBOX==='TEST'`. Bu `index.html:2237` dagi
+`{login:'test', rol:'admin', sandbox:'TEST'}` ga AYNAN mos.
+`tilla` / `zavod` / `abdulhamid_7777` / `admin` (sandbox ADMIN) /
+`kassatest` (rol pos) — hech biri tushmaydi. Node bilan haqiqiy login
+ro'yxati bo'yicha sinaldi (`gatetest.js`, 7/7).
+Shart IKKI joyda: kartani chizishda va `posChTolovOch` ichida.
+
+### 📐 OQIM — BITTA BERISH QANDAY KETADI
+
+1. POS: klient ochiladi, qarzi ko'rinadi (`hisob.js` — ERP bilan bir xil)
+2. POS: BERISH → zavod/tur/gramm, A/B va KURS, taxminiy summa og'zaki aytiladi
+3. CLOUD: `_poschernovik/items` — `{tip, klient, rows:[{zavod,tur,gramm,dona,donalar}], holat}`
+   ⚠ pul YO'Q
+4. ERP: `posChListen` → qo'ng'iroqcha (faqat admin+TEST tinglaydi)
+5. ERP: admin skanlaydi, `_posChRecon` solishtiradi, hamma tur tekshirilmasa qabul o'chiq
+6. ERP: `posChQabul` → `k.tarix += berish`, `t.ostatka −= g`, dona baza, `save()`
+   ← **hisob BIRINCHI marta shu yerda o'zgaradi**
+7. ERP: `[TO'LOVGA O'TISH]` ← **v180.3**
+8. ERP: to'lov modali — qator qarzdan tayyor quriladi
+9. ERP: `saqlashKlientTolov` → `k.tarix += tolov` (summa, kurs, ekvivalent, skidka)
+
+**Hisob faqat 6 va 9-qadamda o'zgaradi — ikkalasi ham adminda. Kassir hech
+qachon hisobga tegmaydi.**
+
+---
+
 ## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
 
 ### ✅ 1. Chekni tahrirlashda TURNI almashtirish — BAJARILDI (v179.12)
