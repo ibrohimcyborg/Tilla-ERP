@@ -1,0 +1,150 @@
+<title>POS Sinxroni</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:440px;margin:0 auto;padding:16px 13px 60px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.sub{font-size:12.5px;color:var(--muted);margin:0 0 18px;}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:0 0 18px;
+  color:var(--gold);font-size:14px;}
+h2{font-size:10px;letter-spacing:.11em;color:var(--muted);margin:24px 0 11px;font-weight:700;
+  padding-bottom:7px;border-bottom:1px solid var(--border);}
+code{font-family:"Roboto",monospace;font-size:11.5px;background:var(--surf2);
+  padding:1px 5px;border-radius:5px;color:var(--gold);}
+
+.kart{border-radius:14px;padding:12px 14px;margin-bottom:11px;}
+.k-red{background:var(--red-bg);border:1px solid var(--red-bd);}
+.k-ok{background:var(--green-bg);border:1px solid var(--green-bd);}
+.kh{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-bottom:5px;}
+.k-red .kh{color:var(--red);}
+.k-ok .kh{color:var(--green);}
+.kd{font-size:12.5px;color:var(--muted);}
+.kd b{color:var(--text);}
+.bel{font-size:9px;letter-spacing:.07em;padding:2px 7px;border-radius:20px;font-weight:700;
+  margin-left:auto;flex:none;}
+.b-isbot{background:var(--red);color:#fff;}
+.b-tekshir{background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+
+.yol{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+  padding:13px 15px;margin-bottom:11px;}
+.yol.tavsiya{border-color:var(--gold);background:var(--gold-bg);}
+.yh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+.yn{font-family:"Roboto";font-size:11px;font-weight:700;color:var(--muted);
+  border:1px solid var(--border);border-radius:6px;padding:1px 7px;flex:none;}
+.yol.tavsiya .yn{background:var(--gold);color:#fff;border-color:var(--gold);}
+.yt{font-size:14px;font-weight:600;}
+.yq{font-size:11px;color:var(--muted);margin-left:auto;flex:none;font-family:"Roboto";}
+ul{margin:8px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:16px;margin-bottom:5px;font-size:12.5px;line-height:1.5;
+  color:var(--muted);}
+li::before{content:"";position:absolute;left:3px;top:8px;width:5px;height:5px;border-radius:50%;}
+li.p::before{background:var(--green);}
+li.m::before{background:var(--red);}
+
+.savol{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;
+  padding:13px 15px;font-size:13px;}
+.savol b{color:var(--gold);}
+</style>
+
+<div class="page">
+  <h1>Nega refresh kerak</h1>
+  <p class="sub">Va nega sekin — tashxis</p>
+  <p class="quote">«juda sekin ishlavotti, refresh qilganda ko'rinvotti cloud —
+    2ta tarafam srazu ishlamayapti»</p>
+
+  <h2>TASHXIS</h2>
+
+  <div class="kart k-red">
+    <div class="kh">POS o'zini yangilamaydi<span class="bel b-isbot">ISBOTLANDI</span></div>
+    <div class="kd"><code>pos.html</code> bazani <b>bir marta</b> o'qiydi — kirganda.
+      Undan keyin hech nima uni yangilamaydi: na tinglovchi, na taymer.
+      Siz ERP da qabul qilsangiz, POS eski qarzni ko'rsatib turaveradi.</div>
+    <div class="kd" style="margin-top:7px;">Butun faylda <code>onSnapshot</code>
+      <b>bitta ham yo'q</b> — faqat uchta <code>.get()</code>.</div>
+  </div>
+
+  <div class="kart k-ok">
+    <div class="kh">ERP tinglaydi<span class="bel b-tekshir">TEKSHIRISH KERAK</span></div>
+    <div class="kd"><code>posChListen</code> da <code>onSnapshot</code> bor, ikki
+      joydan ishga tushadi, cloud tayyor bo'lmasa 2 soniyada qayta urinadi.
+      Kod bo'yicha <b>jonli ishlashi kerak</b>.</div>
+    <div class="kd" style="margin-top:7px;">Ya'ni ERP tomonida muammo boshqa
+      narsada — pastdagi savolga qarang.</div>
+  </div>
+
+  <h2>NEGA SEKIN</h2>
+  <div class="kd" style="font-size:13px;">
+    POS kirganda <b>butun bazani</b> yuklab oladi — <code>holat</code> hujjati
+    plus <code>holat_b0…bN</code> bo'laklari. Bu bitta katta JSON.
+    Klientlar, zavodlar, kassa, dona bazasi, lom — hammasi.
+    POS ga esa faqat <b>klientlar va zavodlar</b> kerak.
+  </div>
+
+  <h2>YANGILANISH — UCH YO'L</h2>
+
+  <div class="yol tavsiya">
+    <div class="yh"><span class="yn">1</span><span class="yt">holat hujjatini tinglash</span>
+      <span class="yq">~30 qator</span></div>
+    <div class="kd"><code>holat</code> o'zgarsa POS o'zi qayta o'qiydi.
+      Mavjud <code>yukla()</code> qayta ishlatiladi.</div>
+    <ul>
+      <li class="p">Kam kod, xavfi past</li>
+      <li class="p">Qabul qilishingiz bilan POS da qarz o'zgaradi</li>
+      <li class="m">Har o'zgarishda butun baza qayta yuklanadi — sekinlik qoladi</li>
+    </ul>
+  </div>
+
+  <div class="yol">
+    <div class="yh"><span class="yn">2</span><span class="yt">Yangilash tugmasi</span>
+      <span class="yq">~10 qator</span></div>
+    <div class="kd">Tepada tugma. Bosilsa qayta o'qiydi.</div>
+    <ul>
+      <li class="p">Eng arzon, eng xavfsiz</li>
+      <li class="m">Kassir o'zi bosishi kerak — unutsa eski raqam qoladi</li>
+    </ul>
+  </div>
+
+  <div class="yol">
+    <div class="yh"><span class="yn">3</span><span class="yt">Oplog tinglash</span>
+      <span class="yq">katta ish</span></div>
+    <div class="kd">ERP dagidek — faqat o'zgargan yozuv keladi, butun baza emas.</div>
+    <ul>
+      <li class="p">Eng tez, sekinlikni ham hal qiladi</li>
+      <li class="m">ERP ning sinxron dvigatelini POS ga ko'chirish kerak — xavfli</li>
+    </ul>
+  </div>
+
+  <h2>MENDAN SAVOL</h2>
+  <div class="savol">
+    ERP tomonida <b>aynan nima</b> kech ko'rindi?<br><br>
+    <b>a)</b> Qo'ng'iroqcha yonmadi — POS yuborgan chernovik kelmadi<br>
+    <b>b)</b> Qabul qildim, lekin klient qarzi o'zgarmadi<br>
+    <b>c)</b> Boshqa narsa<br><br>
+    Kod bo'yicha ERP jonli ishlashi kerak — shuning uchun qaysi ekranda
+    ko'rganingizni bilishim kerak, taxmin qilib tuzatmayman.
+  </div>
+</div>

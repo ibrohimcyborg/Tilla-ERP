@@ -5586,3 +5586,40 @@ Sotuv cheki (`klientSotuvChekYangiGen`) TEGILMADI. Abdulhamid TEGILMADI.
 
 Sinov: `chektest.js` — 12 ta tekshiruv, Ibrohimning aynan misoli bilan
 (10 / 5 / 13 / 3 / 2). Satr eni 48 dan oshmasligi ham tekshirildi.
+
+## POS v0.19 — ERP o'zgarsa POS o'zi yangilanadi
+
+Ibrohim: «juda sekin ishlavotti, refresh qilganda ko'rinvotti cloud» →
+«oddiy yo'l bilan: ERP da o'zgaradi, POS da o'zgaradi. Faqat hozirgi holatga
+tegmasin, qolgan loglarga tegmasin».
+
+**Sabab:** `pos.html` bazani BIR MARTA o'qirdi — kirganda. Butun faylda
+`onSnapshot` bitta ham yo'q edi, faqat uchta `.get()`. ERP da qabul qilinsa
+POS eski qarzni ko'rsatib turaverardi.
+
+- `holatTingla()` — `holat` hujjatini tinglaydi. U kichkina:
+  `{vaqt, qurilma, bolak, hajm}`. `vaqt` o'zgarsa bo'laklar qayta o'qiladi.
+- `_bolakOqi(meta)` — o'qish `yukla()` dan ajratildi, ikkalasi ham shuni
+  chaqiradi. O'qish mantiqi O'ZGARMADI.
+- **1.5 soniya kutish** — ERP ketma-ket saqlasa bitta o'qish bo'ladi
+- **BERISH oynasi ochiq bo'lsa kutib turiladi.** `_pbSavat[i].zi` zavod
+  INDEKSIGA tayanadi — baza almashsa indeks boshqa zavodga tushib qolardi.
+  `posBYop` yopilganda kechiktirilganini qo'llaydi.
+- **Klient oynasi NOM bo'yicha qayta topiladi**, indeks bo'yicha emas —
+  klient o'chirilgan bo'lsa indeks boshqa odamga ko'chib ketardi.
+  Topilmasa oyna yopiladi.
+- Kurs paneli ochiq bo'lsa qayta chiziladi
+
+### Cloudga tegilmadi
+
+`pos.html` da cloudga yozadigan yagona joy — chernovik (`ref.add`, 949).
+U TEGILMADI. `.set()` / `.update()` / `.delete()` / `batch()` butun faylda
+YO'Q. Oplog, `sozlamalar`, dona bazasi, chek navbati — hech biriga tegilmadi.
+Yangi tinglovchi sof O'QISH. `index.html` TEGILMADI.
+
+⚠ Sekinlik QOLADI — har yangilanishda butun baza (800 KB li bo'laklar)
+qayta yuklanadi. Uni hal qilish alohida ish: ERP kichik POS nusxasini yozishi
+kerak (3-qism, hali qilinmagan).
+
+Sinov: `tinglatest.js` — 13 ta tekshiruv (berish ochiq/yopiq, klient indeksi
+siljishi, klient o'chirilishi, kurs paneli). Hammasi o'tdi.

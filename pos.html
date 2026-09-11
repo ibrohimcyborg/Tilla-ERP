@@ -1,4 +1,4 @@
-<!-- v0.18 -->
+<!-- v0.19 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.18';
+var POS_VER = 'v0.19';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -280,26 +280,86 @@ function kursOqi(){
   }).catch(function(e){ cloudXato(e); });   // kurs kelmasa ham ro'yxat chiziladi
 }
 
+// v0.19 (Ibrohim): «ERP da o'zgaradi, POS da o'zgaradi».
+// `holat` hujjati kichkina — {vaqt, qurilma, bolak, hajm}. Uni tinglash arzon.
+// ⚠ CLOUDGA HECH NIMA YOZILMAYDI. Oplog, chernovik, sozlamalar, dona bazasi
+//   — hech biriga tegilmaydi. POS faqat O'QIYDI.
+var _holatUnsub=null, _holatVaqt=0, _yangiKut=null, _yangiMeta=null;
+
+// Bo'laklarni o'qib `data` ga qo'llash — birinchi yuklashda ham, yangilanishda ham.
+function _bolakOqi(meta){
+  var n = meta.bolak || 1, oq = [];
+  for(var i=0;i<n;i++) oq.push(_cloudDb.collection(cloudKol()).doc('holat_b'+i).get());
+  return Promise.all(oq).then(function(docs){
+    var j = '';
+    for(var i=0;i<docs.length;i++){
+      if(!docs[i].exists) throw new Error('bolak '+i+' yo\'q');
+      j += docs[i].data().j;
+    }
+    data = JSON.parse(j);
+    if(!data.zavodlar) data.zavodlar = [];
+    if(!data.klientlar) data.klientlar = [];
+    if(typeof turOstKeshTozala === 'function') turOstKeshTozala();
+    return kursOqi();
+  });
+}
+
 function yukla(){
   _cloudDb.collection(cloudKol()).doc('holat').get().then(function(d){
     if(!d.exists){ holat('no','baza bo\'sh'); renderPOS(); return; }
-    var meta = d.data() || {}, n = meta.bolak || 1, oq = [];
-    for(var i=0;i<n;i++) oq.push(_cloudDb.collection(cloudKol()).doc('holat_b'+i).get());
-    return Promise.all(oq).then(function(docs){
-      var j = '';
-      for(var i=0;i<docs.length;i++){
-        if(!docs[i].exists) throw new Error('bolak '+i+' yo\'q');
-        j += docs[i].data().j;
-      }
-      data = JSON.parse(j);
-      if(!data.zavodlar) data.zavodlar = [];
-      if(!data.klientlar) data.klientlar = [];
-      if(typeof turOstKeshTozala === 'function') turOstKeshTozala();
-      return kursOqi().then(function(){
-        holat('ok','sinxron');
-        renderPOS();
-      });
+    var meta = d.data() || {};
+    _holatVaqt = meta.vaqt || 0;
+    return _bolakOqi(meta).then(function(){
+      holat('ok','sinxron');
+      renderPOS();
+      holatTingla();
     });
+  }).catch(function(e){ holat('no','o\'qilmadi'); cloudXato(e); });
+}
+
+function holatTingla(){
+  if(_holatUnsub) return;
+  try{
+    _holatUnsub = _cloudDb.collection(cloudKol()).doc('holat').onSnapshot(function(d){
+      if(!d.exists) return;
+      var meta = d.data() || {};
+      if(!meta.vaqt || meta.vaqt === _holatVaqt) return;   // o'zgarmagan
+      _yangiMeta = meta;
+      // 1.5 soniya kutamiz — ERP ketma-ket saqlasa bitta o'qish bo'ladi
+      if(_yangiKut) clearTimeout(_yangiKut);
+      _yangiKut = setTimeout(_yangila, 1500);
+    }, function(e){ cloudXato(e); });
+  }catch(e){}
+}
+
+function _yangila(){
+  _yangiKut = null;
+  var meta = _yangiMeta;
+  if(!meta || !_cloudDb) return;
+  // ⚠ BERISH/VOZVRAT oynasi ochiq bo'lsa TEGMAYMIZ: savat zavod INDEKSIGA
+  // tayanadi (_pbSavat[i].zi). Baza almashsa indeks boshqa zavodga tushib
+  // qolishi mumkin. Oyna yopilganda posBYop qayta chaqiradi.
+  if(document.getElementById('pb-ovl')) return;
+  _yangiMeta = null;
+  _holatVaqt = meta.vaqt;
+  // Klient oynasi ochiq bo'lsa — NOM bo'yicha eslab qolamiz, indeks bo'yicha
+  // emas. Klient o'chirilgan bo'lsa indeks boshqa odamga ko'chib ketardi.
+  var ochiqNom = null;
+  if(document.getElementById('pos-ovl') && _posKi>=0 && data.klientlar[_posKi]){
+    ochiqNom = data.klientlar[_posKi].nom;
+  }
+  var kursOchiq = !!document.getElementById('pos-kurs-ovl');
+  holat('kut','yangilanmoqda');
+  _bolakOqi(meta).then(function(){
+    holat('ok','sinxron');
+    renderPOS();
+    if(ochiqNom){
+      var yi = -1;
+      (data.klientlar||[]).forEach(function(k,i){ if(k && k.nom===ochiqNom) yi=i; });
+      if(yi>=0){ _posKi = yi; _posModal(); }
+      else posModalYop();          // klient o'chirilgan — oyna yopiladi
+    }
+    if(kursOchiq) posKursOch();
   }).catch(function(e){ holat('no','o\'qilmadi'); cloudXato(e); });
 }
 
@@ -627,6 +687,8 @@ function posBYop(){
   _pbOrqa('');
   var km=document.getElementById('pos-ovl'); if(km) km.style.display='flex';
   var av=document.getElementById('app-ver'); if(av) av.style.display='';
+  // v0.19: berish ochiq bo'lgani uchun kechiktirilgan yangilanish bo'lsa — endi qo'llanadi
+  if(_yangiMeta) setTimeout(_yangila, 0);
 }
 
 function posBerishOch(){ _pbOch('berish'); }
