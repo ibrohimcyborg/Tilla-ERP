@@ -363,6 +363,37 @@ qachon hisobga tegmaydi.**
 
 ---
 
+### ✅ v180.4 — TO'LOV CHEKIDA BERILGAN GRAMM (2026-09-11)
+
+Ibrohim: «to'lovga o'tganda klientga nechi gramm berilganini chekda
+ko'rsatishi kerak» → «10g berdik, ostatkasida 5g bor edi, 13g ga to'ladi,
+ostatkadan 3g ga to'ladi, 2g qoldi — juda oddiy narsa».
+
+    Berildi
+     Butterfly Oddiy                          10.00g
+     Jami berildi                             10.00g
+    ================================================
+    To'lov
+     Butterfly Oddiy  13.00g x 80.5        1,046.50#
+       berilganga                             10.00g
+       ostatkadan                              3.00g
+       Qoldi                                    2.00
+
+`berilganga = min(to'langan, berilgan)` ⬛ `ostatkadan = qolgani`
+(nol bo'lsa chizilmaydi) ⬛ `Qoldi` — eski qator, tegilmagan.
+
+**Ma'lumot yo'li:**
+`posChQabul` → `_posChTolov.rows` → `posChTolovOch` → `_ktBerildi`
+→ `kTolovChekUpd` → `kTolovChekGen(d.berildi)`
+
+⚠ `openKlientTolov` boshida `_ktBerildi=null`, saqlashdan keyin ham.
+To'lov oynasi oddiy yo'l bilan ochilsa chek BIR PIKSEL ham o'zgarmaydi —
+`tilla` / `admin` / `abdulhamid` uchun eski holat. Sotuv cheki tegilmagan.
+
+Sinov: `chektest.js` 12/12 (Ibrohimning misoli + satr eni ≤ 48).
+
+---
+
 ## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
 
 ### ✅ 1. Chekni tahrirlashda TURNI almashtirish — BAJARILDI (v179.12)
