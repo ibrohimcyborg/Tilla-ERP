@@ -5545,3 +5545,44 @@ Shart ikki joyda: kartani chizishda va `posChTolovOch` ichida.
 Abdulhamid rejimiga TEGILMADI. `pos.html` TEGILMADI.
 
 Sinov: `gatetest.js` — 7 ta tekshiruv, hammasi o'tdi. Node sintaksis — OK.
+
+## v180.4 — to'lov chekida BERILDI bloki va gramm bo'linishi
+
+Ibrohim: «to'lovga o'tganda klientga nechi gramm berilganini chekda
+ko'rsatishi kerak» → keyin aniqlashtirdi:
+
+> «masalan 10g Butterfly berdik, ostatkasida 5gramm bor edi, 13grammga
+> to'ladi, ostatkadan 3grammga to'ladi, 2gram qoldi degan bo'lishi kerak»
+
+Chek endi shunday chiqadi:
+
+    ================================================
+    Berildi
+     Butterfly Oddiy                          10.00g
+     ...............................................
+     Jami berildi                             10.00g
+    ================================================
+    To'lov
+     Butterfly Oddiy  13.00g x 80.5        1,046.50#
+       berilganga                             10.00g
+       ostatkadan                              3.00g
+     ...............................................
+       Qoldi                                    2.00
+
+- `berilganga` = `min(to'langan gramm, berilgan gramm)`
+- `ostatkadan` = qolgani; nol bo'lsa qator umuman chizilmaydi
+- `Qoldi` — avvalgi qator, TEGILMADI
+
+**Ma'lumot yo'li:** `posChQabul` qabul qilingan qatorlarni `_posChTolov.rows`
+ga yozadi → `posChTolovOch` ularni `_ktBerildi` ga ko'chiradi →
+`kTolovChekUpd` chek generatoriga uzatadi.
+
+⚠ `openKlientTolov` boshida `_ktBerildi=null`. To'lov oynasi **oddiy yo'l
+bilan** ochilsa maydon bo'sh bo'ladi va chek bir piksel ham o'zgarmaydi —
+`tilla`, `admin`, `abdulhamid` uchun hech narsa o'zgarmaydi.
+Saqlangandan keyin ham tozalanadi.
+
+Sotuv cheki (`klientSotuvChekYangiGen`) TEGILMADI. Abdulhamid TEGILMADI.
+
+Sinov: `chektest.js` — 12 ta tekshiruv, Ibrohimning aynan misoli bilan
+(10 / 5 / 13 / 3 / 2). Satr eni 48 dan oshmasligi ham tekshirildi.

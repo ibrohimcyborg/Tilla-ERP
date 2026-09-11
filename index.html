@@ -1,4 +1,4 @@
-<!-- v180.3 -->
+<!-- v180.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2036,7 +2036,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180.3';
+var APP_VER = 'v180.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10731,6 +10731,17 @@ function kTolovChekGen(d){
   // v172.6: offset turlari pastdagi ayirish blokida — bu yerda ko'rinmaydi.
   // v172.7: "Qoldi 0" chiqmaydi; to'liq yopilganlar TEPADA, qoldig'i borlar
   // PASTDA (sotuv cheki bilan bir xil). Guruh ichida asl tartib saqlanadi.
+  // v180.4: klientga endi berilgan mol — chekning eng tepasida.
+  var _bl = (d.berildi && d.berildi.list) || [];
+  if(_bl.length){
+    t+="Berildi\n";
+    var _bj=0;
+    _bl.forEach(function(b){
+      _bj+=(b.g||0);
+      t+=rj(' '+b.zavod+' '+b.tur, fmtG(b.g||0)+'g')+'\n';
+    });
+    t+=DOTS+rj(' Jami berildi', fmtG(Math.round(_bj*100)/100)+'g')+'\n'+EQ;
+  }
   t+="To'lov\n";
   var _ktQ=(d.turlar||[]).filter(function(x){ return !x.off; }).map(function(x){
     return {x:x, q:Math.round(((x.ostatka||0)-(x.tolG||0)-(x.voz||0))*100)/100};
@@ -10739,6 +10750,15 @@ function kTolovChekGen(d){
   _ktQ.forEach(function(o){
     var x=o.x;
     t+=rj(' '+x.nom+'  '+fmtG(x.tolG||0)+'g x '+x.tolN, fmtD(x.tolS||0)+'#')+'\n';
+    // v180.4 (Ibrohim): «13 grammga to'ladi, ostatkadan 3 grammga to'ladi,
+    // 2 gramm qoldi» — to'langan gramm ikkiga bo'linadi.
+    var _bg = (d.berildi && d.berildi.map) ? (d.berildi.map[x.zavod+'||'+x.tur]||0) : 0;
+    if(_bg>0.005 && (x.tolG||0)>0.005){
+      var _yangi = Math.min(x.tolG, _bg);
+      var _eski  = Math.round((x.tolG-_yangi)*100)/100;
+      t+=rj('   berilganga', fmtG(_yangi)+'g')+'\n';
+      if(_eski>0.005) t+=rj('   ostatkadan', fmtG(_eski)+'g')+'\n';
+    }
     if(Math.abs(o.q)>=0.005) t+=DOTS+rj('   Qoldi', fmtG(o.q))+'\n';
   });
 
@@ -13319,6 +13339,7 @@ function saqlashKlientVozvrat(){
 
 function openKlientTolov(){
   chekTozala('kt');   // avval bu YO'Q edi -> oldingi klientning cheki preview'da qolib ketardi
+  _ktBerildi = null;   // v180.4: qo'ng'iroqchadan ochilsa posChTolovOch qayta to'ldiradi
   document.getElementById('kt-klient').value='';
   document.getElementById('kt-q').value='';
   document.getElementById('kt-drop').style.display='none';
@@ -14210,7 +14231,7 @@ function kTolovChekUpd() {
       tolS = Math.round(offIsh*frac*100)/100;
       tolG = r.n > 0 ? -roundG(tolS/r.n) : 0;      // MANFIY: balans nolga qarab siljiydi
     }
-    turlar.push({nom:r.zavod+' '+r.tur, off:r.off, ostatka:r.qarz, oldi:0, voz:r.v,
+    turlar.push({nom:r.zavod+' '+r.tur, zavod:r.zavod, tur:r.tur, off:r.off, ostatka:r.qarz, oldi:0, voz:r.v,
                  tolG:tolG, tolN:r.n, tolS:tolS});
   });
 
@@ -14312,11 +14333,16 @@ function kTolovChekUpd() {
     jamiGramm: Math.round(jamiG*100)/100,
     tolovlar: tolovlar, jamiTolandi: Math.round(jamiTolandi*100)/100,
     sdacha: sd, sdachaPul: _ktSdachaPul, sdachaNaqt: _ktSdNaqt,
-    ostatkalar: ostatkalar, offsetlar: _ktOffsetlar
+    ostatkalar: ostatkalar, offsetlar: _ktOffsetlar, berildi: _ktBerildi
   });
   document.getElementById('kt-chek-body').textContent = chekYakun(_ktChekBody).ekran;
 }
 var _ktChekBody = '';
+// v180.4 (Ibrohim): «to'lovga o'tganda klientga nechi gramm berilganini
+// chekda ko'rsatishi kerak». Faqat qo'ng'iroqchadan — to'lov oynasi oddiy
+// yo'l bilan ochilsa null bo'ladi va chekda hech nima o'zgarmaydi.
+// {list:[{zavod,tur,g}], map:{'Zavod||Tur':g}}
+var _ktBerildi = null;
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
@@ -14572,6 +14598,7 @@ function saqlashKlientTolov(){
     });
   })();
   save('Klient tolov: '+k.nom);
+  _ktBerildi = null;   // v180.4: keyingi to'lovga o'tib ketmasin
   var chekEl = document.getElementById('kt-chek-body');
   if (_ktChekOn && chekEl && chekEl.textContent.trim() && _ktChekBody) {
     chekIkkiChop(chekYakun(_ktChekBody), _ktCnt);
@@ -15250,7 +15277,7 @@ function posChQabul(){
 
   // v180.3: hisob yozilib bo'ldi — endi to'lovga o'tish taklif qilinadi.
   // Bu FAQAT holat saqlash, hisobga hech qanday ta'siri yo'q.
-  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg)};
+  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
   save('POS chernovik qabul: '+k.nom);
   try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
   // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
@@ -15268,7 +15295,14 @@ function posChTolovOch(){
   if(!t || !_posChTestmi()) return;
   posBellYop();
   try{
-    if(typeof openKlientTolov==='function'){ openKlientTolov(); ktPickK(t.ki); }
+    if(typeof openKlientTolov==='function'){
+      openKlientTolov();
+      // v180.4: openKlientTolov tozalaydi — shuning uchun UNDAN KEYIN to'ldiriladi,
+      // ktPickK esa chekni qayta chizadi, demak undan OLDIN.
+      var _bm={}; (t.rows||[]).forEach(function(b){ _bm[b.zavod+'||'+b.tur]=b.g; });
+      if((t.rows||[]).length) _ktBerildi={list:t.rows, map:_bm};
+      ktPickK(t.ki);
+    }
   }catch(e){ if(window.console) console.error('posChTolovOch:', e); }
 }
 function posChTolovYop(){ _posChTolov=null; posBellOch(); }
