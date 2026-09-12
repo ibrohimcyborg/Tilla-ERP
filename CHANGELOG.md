@@ -5962,3 +5962,46 @@ ro'yxati chiqib, skan maydonini to'sib qo'yardi.
 `autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"`
 
 Faqat shu maydon. Boshqa hech nimaga tegilmadi.
+
+## v181 — POS kassir kodi index.html dan OLIB TASHLANDI
+
+Ibrohim: «POS ni Tilla ERP dan chiqarmaganmisan? zoom in/out qilsam chiqib
+qolyapti» → «chiqarvor, bo'ldi, kerak emas».
+
+POS ni ajratish rejasining **4-qadami** bajarildi. `pos.html` mustaqil
+ishlaganidan keyin kassir kodi asosiy fayldan chiqarildi.
+
+**O'chirildi (~724 qator):**
+- 46 ta kassir funksiyasi: `renderPOS`, `_posRoyxat`, `_posModal`, `_pbDraw`,
+  `posBSaqla`, `_pbOch`, `posKursOch`, `_posBoy`, `_pbChekTana` va boshqalar
+- `#main-pos` elementi, `main-tab-pos` tabi, `rol-pos` CSS bloki (45 qator)
+- `applyRol` / `mainTab` / `initPC` dagi POS tarmoqlari
+- `_posBoy` va `_pbDraw` ning `resize` ilgaklari
+- `POS_VER` e'loni va `_verBelgi` dagi POS shoxi
+- `kassatest` logini
+
+**QOLDI (boshqa joy chaqiradi — tekshirildi):**
+- Qo'ng'iroqcha paneli to'liq: `posChListen`, `posChOch`, `posChQabul`,
+  `posChRad`, `posChTolovOch`, `posBellOch`, `_posChRecon` …
+- `_posEsc` (qo'ng'iroqcha ishlatadi)
+- `posKursUpd` (`hkAvtoSaqla`, `hkSaqla`, `zKursSaqla` chaqiradi)
+- `posNusxaObj` / `posNusxaYoz` / `_posNusxaHash` (`cloudSaqlaNow` chaqiradi —
+  POS uchun kichik nusxa shu yerda yoziladi)
+
+### Qanday tekshirildi
+
+1. **Har qadamdan keyin `node --check`** — buzilsa o'sha zahoti to'xtardi.
+   Ikki marta to'xtatdi: `} else if` dagi `}` oldingi tarmoqniki ekan, va
+   konsol shrifti xatosi.
+2. **Qolgan chaqiruv tekshiruvi** — 46 ta o'chirilgan nom bo'yicha butun fayl
+   qidirildi. Himoyasiz qolgan chaqiruv: **0 ta**. Ikkita `typeof` bilan
+   himoyalangan chaqiruv qoldi (`posKursOch`) — ular xavfsiz.
+3. **Brauzerda yuklash** — `python -m http.server` da ochildi.
+   Birinchi urinishda `mainTab` da yetim `mpEl` qoldig'i **runtime xato**
+   berdi — sintaksis tekshiruvi buni ko'rmagan edi. Tuzatildi.
+   Ikkinchi urinish: **konsol toza, 0 xato**, sahifa to'liq chizildi.
+4. **Abdulhamid:** `hamid-x` / `getRol()==='hamid'` — oldin 12, hozir 12.
+   Diffda `rol-hamid` faqat bitta qatorda, u ham joyida qolgan.
+
+⚠ Endi POS faqat `pos.html` da. Tilla ERP da POS ekrani **hech qanday
+zoomda, hech qanday login bilan** ko'rinmaydi — ko'rsatadigan kod yo'q.
