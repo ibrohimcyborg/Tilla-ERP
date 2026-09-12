@@ -5915,3 +5915,40 @@ yopiladi. Savat endi ko'proq joy oladi.
 
 Hisob, chernovik, `_kbChernovik` — TEGILMADI. Yopiq bo'lsa ham yozilgan
 raqamlar saqlanadi va chernovikka ketadi.
+
+## POS v0.29 — qidiruv yonida + Klient
+
+Ibrohim: «POS ga klient qidirishning oldiga + klient qilish kerak, keyin o'sha
+klient Tilla ERP ga qo'shilishi kerak» → «1 xil ot bo'lsa 2 qilib ketsin:
+Aziz Aka, Aziz Aka (2), Aziz Aka (3)».
+
+### Yangi kanal YO'Q
+
+Tilla ERP ning o'zi klient qo'shganda ham shu yerga yozadi:
+
+    _obyektlar/items/klient|<ism>
+    { tip:'klient', nom, tel, vaqt, qurilma }
+
+ERP tomonida `obyektListen` (8356) tinglab turadi, `obyektQabul` (8330)
+qo'shadi — u **mavjudning ustidan yozmaydi**, faqat yo'g'ini qo'shadi.
+Tasdiq so'ralmaydi: klient qo'shish hisobga tegmaydi.
+
+### Bir xil ism
+
+`_posBoshNom(nom)` — band bo'lsa `(2)`, u ham band bo'lsa `(3)`...
+Oraliqda bo'sh raqam bo'lsa o'shani oladi. Ism yozilayotganda
+**oldindan ko'rsatiladi**: «Bu ism band — "Aziz Aka (2)" bo'lib qo'shiladi».
+
+### Qolganlari
+
+- Telefon ixtiyoriy (ERP formasi ham shunday)
+- Kategoriya so'ralmaydi — ERP ham so'ramaydi, `A` bo'lib boshlanadi
+- Klient POS ro'yxatiga **darrov** qo'shiladi va oynasi ochiladi — kassir
+  kutib turmasin. Keyingi sinxronda clouddan kelgani o'rnini oladi.
+
+⚠ **POS HISOBGA TEGMAYDI.** `k.tarix`, `t.ostatka` — hech biriga yozilmaydi.
+`pos.html` da cloudga yozadigan atigi ikki joy bor: chernovik (`ref.add`) va
+shu (`ref.doc().set`). Oplog, `holat`, `sozlamalar` — tegilmagan.
+
+Sinov: `nomtest.js` — 11 ta tekshiruv (Ibrohimning misoli, oraliqdagi bo'sh
+raqam, bo'shliqlar, buzuq yozuvlar). Hammasi o'tdi.

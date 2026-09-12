@@ -1,0 +1,132 @@
+<title>Klientda Bor Zanjiri</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#fff;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:460px;margin:0 auto;padding:16px 13px 60px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.sub{font-size:12.5px;color:var(--muted);margin:0 0 18px;}
+code{font-family:"Roboto",monospace;font-size:11.5px;background:var(--surf2);
+  padding:1px 5px;border-radius:5px;color:var(--gold);}
+
+.q{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+  padding:13px 15px;margin-bottom:10px;border-left:4px solid var(--border);}
+.q.shubha{border-left-color:var(--red);background:var(--red-bg);}
+.qh{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.qn{width:24px;height:24px;border-radius:8px;flex:none;display:flex;align-items:center;
+  justify-content:center;font-family:"Roboto";font-size:12px;font-weight:700;
+  background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+.q.shubha .qn{background:var(--red);color:#fff;border-color:var(--red);}
+.qt{font-size:14.5px;font-weight:600;flex:1;}
+.qd{font-size:13px;color:var(--muted);}
+.qd b{color:var(--text);}
+.tek{margin-top:9px;background:var(--surf2);border-radius:10px;padding:9px 11px;
+  font-size:12.5px;}
+.tek .k{font-size:9px;letter-spacing:.09em;color:var(--muted);font-weight:700;
+  margin-bottom:4px;}
+.ar{text-align:center;color:var(--muted);font-size:15px;padding:2px 0 8px;}
+
+.ogoh{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:13px;
+  padding:13px 15px;margin:20px 0 0;font-size:13.5px;}
+.ogoh b{color:var(--red);}
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:13px;
+  padding:13px 15px;margin-top:12px;font-size:13.5px;}
+.ok b{color:var(--green);}
+h2{font-size:10px;letter-spacing:.11em;color:var(--muted);margin:26px 0 12px;
+  font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--border);}
+</style>
+
+<div class="page">
+  <h1>Klientda bor — zanjir</h1>
+  <p class="sub">Qayerda uzilishi mumkin. Kod tekshirildi — ERP tomoni butun.</p>
+
+  <div class="q shubha">
+    <div class="qh"><span class="qn">1</span><span class="qt">POS da yozdingizmi?</span></div>
+    <div class="qd"><b>Eng ehtimolli sabab.</b> <code>v0.28</code> dan beri panel
+      <b>yopiq</b> turadi — bosmasangiz ochilmaydi. Ochmasdan yubosangiz
+      chernovikka <code>null</code> ketadi.</div>
+    <div class="tek"><div class="k">TEKSHIRISH</div>
+      Yubormasdan oldin savat ostida <b>KLIENTDA BOR</b> qatorining o'ng tomoniga
+      qarang. U yerda summa (<b>2,969.68 $</b>) tursa — yozilgan. Bo'sh bo'lsa —
+      yozilmagan.</div>
+  </div>
+  <div class="ar">↓</div>
+
+  <div class="q shubha">
+    <div class="qh"><span class="qn">2</span><span class="qt">Chernovik qaysi versiyada yuborilgan?</span></div>
+    <div class="qd">Bu maydon <code>POS v0.25</code> da qo'shildi. Undan
+      <b>oldin</b> yuborilgan chernovikda u umuman yo'q — qabul qilsangiz ham
+      bo'sh chiqadi.</div>
+    <div class="tek"><div class="k">TEKSHIRISH</div>
+      Eski chernovikni emas, <b>yangisini</b> yuboring. POS tepasida
+      <code>v0.28</code> turganiga ishonch hosil qiling.</div>
+  </div>
+  <div class="ar">↓</div>
+
+  <div class="q shubha">
+    <div class="qh"><span class="qn">3</span><span class="qt">To'lovni qanday ochdingiz?</span></div>
+    <div class="qd">To'ldirish <b>faqat</b> qo'ng'iroqchadagi
+      <b>TO'LOVGA O'TISH</b> tugmasidan ishlaydi. Menyudan yoki klient
+      kartochkasidan ochsangiz — hech nima to'ldirilmaydi.</div>
+    <div class="tek"><div class="k">TEKSHIRISH</div>
+      Qabul qilgandan keyin chiqadigan yashil kartochkadagi
+      <b>TO'LOVGA O'TISH</b> tugmasini bosing. O'tkazib yuborgan bo'lsangiz
+      qo'ng'iroqcha yopilib qoladi va tugma yo'qoladi.</div>
+  </div>
+  <div class="ar">↓</div>
+
+  <div class="q">
+    <div class="qh"><span class="qn">4</span><span class="qt">ERP versiyasi</span></div>
+    <div class="qd">To'ldirish <code>v180.6</code> da qo'shildi.</div>
+    <div class="tek"><div class="k">TEKSHIRISH</div>
+      Tilla ERP ning o'ng pastida versiya turadi — <code>v180.7</code> yoki
+      undan yangi bo'lishi kerak. Eski bo'lsa sahifani qattiq yangilang.</div>
+  </div>
+
+  <h2>KOD BO'YICHA TEKSHIRILGANI</h2>
+  <div class="ok">
+    <b>ERP tomoni butun.</b> <code>pulPanelReset</code> faqat to'ldirishdan
+    OLDIN ishlaydi (13373, 13408), <code>kTolovCalc</code> esa
+    <code>kt-pp-*</code> maydonlariga umuman tegmaydi.
+    <code>pulPanelUpd</code> panelni majburan ko'rsatadi
+    (<code>display:block</code>). Ya'ni ma'lumot kelsa — ko'rinadi.
+  </div>
+
+  <div class="ogoh">
+    <b>Shuning uchun:</b> uzilish 1, 2 yoki 3-qadamda. Eng ehtimollisi —
+    <b>1-qadam</b>: panel yopiq turgani uchun yozilmagan.
+  </div>
+
+  <h2>MENGA NIMA AYTASIZ</h2>
+  <div class="q" style="border-left-color:var(--gold);">
+    <div class="qd">Yangi chernovik yuboring va shu ikkitasini ayting:<br><br>
+      <b>a)</b> POS da yuborishdan oldin <b>KLIENTDA BOR</b> qatorida summa
+      ko'rindimi?<br>
+      <b>b)</b> To'lovni <b>TO'LOVGA O'TISH</b> tugmasidan ochdingizmi?<br><br>
+      Ikkalasi «ha» bo'lsa-yu ko'rinmasa — muammo kodda, o'shanda chuqurroq
+      qarayman.</div>
+  </div>
+</div>

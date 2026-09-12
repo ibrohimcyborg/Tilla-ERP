@@ -1,4 +1,4 @@
-<!-- v0.28 -->
+<!-- v0.29 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -133,7 +133,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.28';
+var POS_VER = 'v0.29';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -479,6 +479,103 @@ function _posQarz(k){
   try{ return klientJamiQarz(k)||0; } catch(e){ return 0; }
 }
 
+
+// ═════ YANGI KLIENT (v0.29) ═════
+// Ibrohim: «POS ga klient qidirishning oldiga + klient qilish kerak, keyin
+// o'sha klient Tilla ERP ga qo'shilishi kerak».
+//
+// YANGI KANAL YO'Q. Tilla ERP ning o'zi klient qo'shganda ham shu yerga yozadi:
+//   _obyektlar/items/klient|<ism>
+// ERP tomonida obyektListen (index.html:8356) tinglab turadi va obyektQabul
+// (8330) chaqiriladi — u MAVJUDNING USTIDAN YOZMAYDI, faqat yo'g'ini qo'shadi.
+//
+// ⚠ POS HISOBGA TEGMAYDI: k.tarix, t.ostatka — hech biriga yozilmaydi.
+//   Bitta kichik hujjat, xolos.
+function _obyRef(){
+  try{ if(_cloudDb && _cloudUser)
+    return _cloudDb.collection(cloudKol()).doc('_obyektlar').collection('items'); }catch(e){}
+  return null;
+}
+// Ibrohim: «1 xil ot bo'lsa 2 qilib ketsin — Aziz Aka, Aziz Aka (2), Aziz Aka (3)».
+function _posBoshNom(nom){
+  var bor = {};
+  (data.klientlar||[]).forEach(function(k){ if(k && k.nom) bor[String(k.nom).trim()] = 1; });
+  nom = String(nom).trim();
+  if(!bor[nom]) return nom;
+  var n = 2;
+  while(bor[nom + ' (' + n + ')']) n++;
+  return nom + ' (' + n + ')';
+}
+function posKlientYop(){ var m=document.getElementById('pos-yk-ovl'); if(m) m.remove(); }
+function posKlientYangi(){
+  posKlientYop();
+  var IN='width:100%;border:1px solid var(--border);background:var(--surf2);color:var(--text);'
+    + 'border-radius:12px;padding:12px 14px;font-size:16px;outline:none;font-family:inherit;';
+  var h='<div id="pos-yk-ovl" onclick="if(event.target===this)posKlientYop()" '
+    + 'style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;'
+    + 'justify-content:center;padding:20px;z-index:9400;">';
+  h+='<div style="width:100%;max-width:420px;background:var(--surf);border:1px solid var(--gold-bd);'
+    + 'border-radius:18px;overflow:hidden;">';
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">'
+    + '<span style="font-size:16px;font-weight:700;color:var(--gold);">Yangi klient</span>'
+    + '<span style="flex:1;"></span>'
+    + '<button onclick="posKlientYop()" style="width:34px;height:34px;border-radius:9px;'
+    + 'border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;'
+    + 'font-size:14px;">&#10005;</button></div>';
+  h+='<div style="padding:15px 16px;">';
+  h+='<div style="font-size:9px;letter-spacing:.06em;font-weight:700;color:var(--muted);margin-bottom:4px;">ISM</div>';
+  h+='<input id="yk-nom" autocomplete="off" autocapitalize="words" placeholder="Masalan: Aziz Aka" style="'+IN+'">';
+  h+='<div id="yk-ogoh" style="font-size:11.5px;color:var(--gold);min-height:16px;padding:5px 2px 0;"></div>';
+  h+='<div style="font-size:9px;letter-spacing:.06em;font-weight:700;color:var(--muted);margin:8px 0 4px;">TELEFON \u2014 IXTIYORIY</div>';
+  h+='<input id="yk-tel" autocomplete="off" inputmode="tel" placeholder="+998" style="'+IN+'">';
+  h+='<div id="yk-xato" style="font-size:12px;color:var(--red);min-height:17px;padding:6px 2px 0;"></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:8px;">'
+    + '<button onclick="posKlientYop()" style="flex:none;height:46px;padding:0 18px;border-radius:15px;'
+    + 'border:1px solid var(--border);background:var(--surf2);color:var(--text);font-size:13.5px;'
+    + 'cursor:pointer;font-family:inherit;">Bekor</button>'
+    + '<button onclick="posKlientSaqla()" style="flex:1;height:46px;border-radius:15px;border:0;'
+    + 'background:var(--gold);color:var(--on-gold);font-size:13.5px;font-weight:700;cursor:pointer;'
+    + 'font-family:inherit;">Qo&#39;shish</button></div>';
+  h+='</div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
+  var inp=document.getElementById('yk-nom');
+  if(inp){
+    inp.focus();
+    // Ism band bo'lsa qanday yozilishini OLDINDAN ko'rsatamiz
+    inp.addEventListener('input', function(){
+      var v=this.value.trim(), o=document.getElementById('yk-ogoh');
+      if(!o) return;
+      if(!v){ o.textContent=''; return; }
+      var b=_posBoshNom(v);
+      o.textContent = (b===v) ? '' : ('Bu ism band \u2014 «'+b+'» bo\u2018lib qo\u2018shiladi');
+    });
+  }
+}
+function posKlientSaqla(){
+  var nEl=document.getElementById('yk-nom'), tEl=document.getElementById('yk-tel');
+  var xEl=document.getElementById('yk-xato');
+  var nom=(nEl&&nEl.value||'').trim(), tel=(tEl&&tEl.value||'').trim();
+  if(!nom){ if(xEl) xEl.textContent='Ism kiriting'; if(nEl) nEl.focus(); return; }
+  var ref=_obyRef();
+  if(!ref){ if(xEl) xEl.textContent='Cloud ulanmagan \u2014 klient qo\u2018shilmadi'; return; }
+  var bosh=_posBoshNom(nom);
+  var d={ tip:'klient', nom:bosh, tel:tel, vaqt:Date.now(),
+          qurilma:(localStorage.getItem('tilla-qurilma')||'POS') };
+  ref.doc('klient|'+bosh).set(d, {merge:true})
+    .then(function(){ _chekXabar(bosh+' qo\u2018shildi','ok'); })
+    .catch(function(e){ try{ cloudXato(e); }catch(_){}
+                        _chekXabar('Yuborilmadi \u2014 qayta uring','xato'); });
+  // POS ro'yxatiga DARROV qo'shamiz — kassir kutib turmasin. Keyingi sinxronda
+  // clouddan kelgan nusxa buning o'rnini oladi (bir xil ism, bir xil natija).
+  if(!data.klientlar) data.klientlar=[];
+  data.klientlar.push({nom:bosh, tel:tel, kat:'A', tarix:[]});
+  posKlientYop();
+  renderPOS();
+  var yi=-1; (data.klientlar||[]).forEach(function(k,i){ if(k && k.nom===bosh) yi=i; });
+  if(yi>=0) posKlientOch(yi);   // kassir shuning uchun bosgan \u2014 darrov ochamiz
+}
+
 function posQidir(v){ _posQ=v; _posRoyxat(); }
 
 function posSakra(h){
@@ -618,7 +715,10 @@ function renderPOS(){
   h+='<div style="flex:1;display:flex;align-items:center;gap:9px;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:0 18px;height:52px;">';
   h+='<span style="color:var(--muted);font-size:15px;">&#128269;</span>';
   h+='<input id="pos-q" value="'+_posEsc(_posQ)+'" oninput="posQidir(this.value)" autocomplete="off" placeholder="Klient qidirish - ism bo\'yicha" style="flex:1;background:none;border:0;outline:none;color:var(--text);font-size:16px;font-family:inherit;">';
-  h+='</div></div>';
+  h+='</div>';   // qidiruv qutisi tugadi
+  // v0.29: qidiruv yonida + Klient
+  h+='<button onclick="posKlientYangi()" style="flex:none;height:52px;padding:0 18px;border-radius:999px;border:0;background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Klient</button>';
+  h+='</div>';
   h+='<div style="display:flex;gap:8px;min-height:0;flex:1;">';
   h+='<div id="pos-list" style="flex:1;overflow-y:auto;padding-right:4px;"></div>';
   h+='</div>';

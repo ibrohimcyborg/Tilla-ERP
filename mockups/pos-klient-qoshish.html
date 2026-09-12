@@ -1,0 +1,223 @@
+<title>POS Klient Qo'shish</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#fff;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --teal:#2E7D8F; --teal-bg:rgba(46,125,143,.10); --teal-bd:rgba(46,125,143,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:460px;margin:0 auto;padding:16px 13px 60px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.mk{font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;font-weight:600;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);margin-left:8px;}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:12px 0 18px;
+  color:var(--gold);font-size:13.5px;}
+h2{font-size:10px;letter-spacing:.11em;color:var(--muted);margin:26px 0 11px;
+  font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--border);}
+code{font-family:"Roboto",monospace;font-size:11.5px;background:var(--surf2);
+  padding:1px 5px;border-radius:5px;color:var(--gold);}
+
+/* POS ekrani */
+.tel{background:var(--surf);border:1px solid var(--border);border-radius:18px;
+  overflow:hidden;}
+.bar{display:flex;align-items:center;gap:9px;padding:10px 12px;
+  border-bottom:1px solid var(--border);}
+.bar .br{font-size:15px;font-weight:700;}
+.bar .br i{color:var(--gold);font-style:normal;}
+.izl{display:flex;gap:8px;padding:11px 12px;}
+.izl .in{flex:1;display:flex;align-items:center;gap:9px;background:var(--surf2);
+  border:1px solid var(--border);border-radius:999px;padding:0 16px;height:46px;
+  color:var(--muted);font-size:14px;}
+.izl .yangi{flex:none;height:46px;padding:0 16px;border-radius:999px;border:0;
+  background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;}
+.qator{display:flex;align-items:center;gap:11px;padding:11px 14px;
+  border-top:1px solid var(--border);}
+.av{width:38px;height:38px;flex:none;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;border:1px solid var(--border);
+  color:var(--gold);font-weight:600;font-size:16px;}
+.qator .n{flex:1;font-size:14px;font-weight:600;}
+.qator .g{font-family:"Roboto";font-variant-numeric:tabular-nums;font-size:14px;
+  font-weight:700;color:var(--red);}
+.qator.yangi{background:var(--green-bg);}
+.yangiBel{font-size:9px;letter-spacing:.06em;font-weight:700;color:var(--green);
+  border:1px solid var(--green-bd);border-radius:999px;padding:2px 7px;}
+
+/* forma */
+.forma{background:var(--surf);border:1px solid var(--gold-bd);border-radius:18px;
+  padding:15px;margin-top:14px;}
+.forma .t{font-size:15px;font-weight:700;margin-bottom:12px;}
+.maydon{margin-bottom:10px;}
+.maydon .k{font-size:9px;letter-spacing:.06em;font-weight:700;color:var(--muted);
+  margin-bottom:4px;}
+.maydon .v{border:1px solid var(--border);background:var(--surf2);border-radius:11px;
+  padding:11px 13px;font-size:15px;color:var(--muted);}
+.maydon .v.bor{color:var(--text);font-weight:600;}
+.tugmalar{display:flex;gap:8px;margin-top:13px;}
+.tugmalar .b1{flex:none;height:44px;padding:0 18px;border-radius:14px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--text);
+  font-size:13px;display:flex;align-items:center;}
+.tugmalar .b2{flex:1;height:44px;border-radius:14px;border:0;background:var(--gold);
+  color:var(--on-gold);font-size:13px;font-weight:700;display:flex;
+  align-items:center;justify-content:center;}
+
+/* oqim */
+.q{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+  padding:12px 14px;margin-bottom:9px;border-left:4px solid var(--border);}
+.q.pos{border-left-color:var(--gold);}
+.q.cl{border-left-color:var(--teal);}
+.q.erp{border-left-color:var(--green);}
+.qh{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.qn{width:22px;height:22px;border-radius:7px;flex:none;display:flex;
+  align-items:center;justify-content:center;font-family:"Roboto";font-size:11px;
+  font-weight:700;background:var(--surf2);border:1px solid var(--border);color:var(--muted);}
+.qt{font-size:14px;font-weight:600;}
+.qd{font-size:12.5px;color:var(--muted);}
+.qd b{color:var(--text);}
+.kod{margin-top:7px;font-family:"Roboto",monospace;font-size:10.5px;color:var(--muted);
+  background:var(--surf2);border-radius:8px;padding:8px 10px;white-space:pre-wrap;
+  line-height:1.6;overflow-x:auto;}
+.kod .k{color:var(--gold);}
+.ar{text-align:center;color:var(--muted);font-size:14px;padding:0 0 7px;}
+
+.ok{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:13px;
+  padding:12px 14px;font-size:13px;margin-top:8px;}
+.ok b{color:var(--green);}
+.ogoh{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:13px;
+  padding:12px 14px;font-size:13px;margin-top:10px;}
+.ogoh b{color:var(--red);}
+.qaror{background:var(--surf);border:1px solid var(--gold-bd);border-radius:14px;
+  padding:13px 15px;margin-bottom:10px;}
+.qaror .s{font-size:14.5px;color:var(--gold);font-weight:600;margin-bottom:8px;}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:6px 0;font-size:13px;}
+.opt .k{font-family:"Roboto";font-size:11px;color:var(--muted);
+  border:1px solid var(--border);border-radius:5px;padding:1px 6px;flex:none;margin-top:2px;}
+</style>
+
+<div class="page">
+  <h1>POS da klient qo'shish<span class="mk">MAKET</span></h1>
+  <p class="quote">«POS ga klient qidirishning oldiga + klient qilish kerak,
+    keyin o'sha klient Tilla ERP ga qo'shilishi kerak»</p>
+
+  <div class="tel">
+    <div class="bar"><span class="br">TILLA <i>POS</i></span></div>
+    <div class="izl">
+      <span class="in">🔍 Klient qidirish — ism bo'yicha</span>
+      <button class="yangi">+ Klient</button>
+    </div>
+    <div class="qator yangi">
+      <span class="av">O</span><span class="n">Ozoda Opa Andijon</span>
+      <span class="yangiBel">YANGI</span>
+    </div>
+    <div class="qator">
+      <span class="av">A</span><span class="n">Abdulaziz Qashqadaryo</span>
+      <span class="g">−408.57g</span>
+    </div>
+    <div class="qator">
+      <span class="av">A</span><span class="n">Abdulloh Oka TJK</span>
+      <span class="g">−67.97g</span>
+    </div>
+  </div>
+
+  <div class="forma">
+    <div class="t">Yangi klient</div>
+    <div class="maydon"><div class="k">ISM</div>
+      <div class="v bor">Ozoda Opa Andijon</div></div>
+    <div class="maydon"><div class="k">TELEFON — ixtiyoriy</div>
+      <div class="v">+998 90 ...</div></div>
+    <div class="tugmalar"><span class="b1">Bekor</span><span class="b2">Qo'shish</span></div>
+  </div>
+
+  <h2>QANDAY BORADI</h2>
+
+  <div class="q pos">
+    <div class="qh"><span class="qn">1</span><span class="qt">POS</span></div>
+    <div class="qd">Kassir ismni yozadi. POS <b>mavjud ismlarni tekshiradi</b> —
+      bir xil bo'lsa ogohlantiradi.</div>
+  </div>
+  <div class="ar">↓</div>
+
+  <div class="q cl">
+    <div class="qh"><span class="qn">2</span><span class="qt">Cloud</span></div>
+    <div class="qd">Kichkina hujjat yoziladi. <b>Bu yangi kanal emas</b> —
+      Tilla ERP ning o'zi klient qo'shganda ham shu yerga yozadi.</div>
+    <div class="kod">_obyektlar/items/<span class="k">klient|Ozoda Opa Andijon</span>
+{ tip: <span class="k">'klient'</span>, nom: <span class="k">'Ozoda Opa Andijon'</span>,
+  tel: <span class="k">''</span>, vaqt, qurilma: <span class="k">'POS'</span> }</div>
+  </div>
+  <div class="ar">↓</div>
+
+  <div class="q erp">
+    <div class="qh"><span class="qn">3</span><span class="qt">Tilla ERP — o'zi qabul qiladi</span></div>
+    <div class="qd"><code>obyektListen</code> tinglab turadi va
+      <code>obyektQabul</code> chaqiriladi:</div>
+    <div class="kod">if(mavjud) <span class="k">return false</span>;   // ustidan yozilmaydi
+data.klientlar.push({nom, tel, tarix:[]});</div>
+    <div class="qd" style="margin-top:7px;"><b>Tasdiq so'ralmaydi</b> —
+      klient qo'shish hisobga tegmaydi, faqat ro'yxatga qo'shadi.</div>
+  </div>
+
+  <div class="ok">
+    <b>Nega bu xavfsiz:</b> POS hisobga (<code>k.tarix</code>,
+    <code>t.ostatka</code>) tegmaydi. Bitta kichik hujjat yoziladi, xolos.
+    ERP mavjud klientning ustidan <b>hech qachon yozmaydi</b> — faqat yo'g'ini
+    qo'shadi. Bu kanal allaqachon ishlayapti (zavod va tur ham shundan o'tadi).
+  </div>
+
+  <div class="ogoh">
+    <b>Bitta cheklov:</b> ism <b>kalit</b> bo'lib ishlatiladi
+    (<code>klient|&lt;ism&gt;</code>). Ikki xil odam bir xil ismli bo'lsa
+    ikkinchisi qo'shilmaydi. Shuning uchun POS bir xil ismni ogohlantiradi.
+  </div>
+
+  <h2>QAROR</h2>
+
+  <div class="qaror">
+    <div class="s">1. Kassir yangi klientga darrov mol bera olsinmi?</div>
+    <div class="opt"><span class="k">a</span><span>Ha — POS ro'yxatiga darrov
+      qo'shiladi, <b>YANGI</b> belgisi bilan. Cloud 1–2 soniyada yetkazadi</span></div>
+    <div class="opt"><span class="k">b</span><span>Yo'q — Tilla ERP dan
+      qaytgunicha kutadi</span></div>
+  </div>
+
+  <div class="qaror">
+    <div class="s">2. Telefon maydoni kerakmi?</div>
+    <div class="opt"><span class="k">a</span><span>Ha, ixtiyoriy — ERP dagi
+      forma ham shunday</span></div>
+    <div class="opt"><span class="k">b</span><span>Yo'q — faqat ism</span></div>
+  </div>
+
+  <div class="qaror">
+    <div class="s">3. Kategoriya (A / B) so'ralsinmi?</div>
+    <div class="opt"><span class="k">a</span><span>Yo'q — ERP ham so'ramaydi,
+      yangi klient <b>A</b> bo'lib boshlanadi, keyin siz o'zgartirasiz</span></div>
+    <div class="opt"><span class="k">b</span><span>Ha, POS da tanlansin</span></div>
+  </div>
+
+  <p style="margin-top:22px;color:var(--muted);font-size:13px;">
+    Javob: masalan <code>a a a</code>. Kod yozmadim — tasdiqlashingizni kutaman.
+  </p>
+</div>
