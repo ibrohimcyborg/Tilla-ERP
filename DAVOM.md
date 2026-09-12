@@ -4,7 +4,86 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v180.1 · POS 1.33 · 2026-09-06
+**Oxirgi yangilanish:** v185 · POS v0.35 · 2026-09-12
+
+---
+
+## ✅ v183–v185 — 24h soat, 1/2-skan, qabul cheki (2026-09-12)
+
+Uchtasi ham Ibrohim tasdiqlagan, uchta alohida commit. Hammasi push qilindi.
+
+### v183 — 24 soatlik vaqt
+
+**Ibrohim:** «tilla erp 24h sistemada ishlasin hamma hisoboti 12AM 12PM ishlasa
+AMda bogan ishla PM bilan aralashib ketvotti soat hisobiga keyingi bogan ish
+oldinga o'tib qovotti» → «24 soatti qivur».
+
+Yozuvda muammo YO'Q edi — 20 ta soat yozuv joyi allaqachon 24h.
+Ikki haqiqiy sabab:
+
+1. `fdSanaTs` **NaN** qaytarardi: `new Date('2026-09-12T6:06')` = Invalid Date.
+   Nolsiz yoki AM/PM li bitta soat butun kunning tartibini tasodifiy qilardi.
+   → `_soat24()` qo'shildi, har qanday shakl qat'iy `HH:MM` ga keladi.
+2. Uch ekran kun ichida soatni **umuman** hisobga olmasdi:
+   `renderHisobot`, `renderZavodHisobot` (guruhning eng kech soati bilan),
+   `kassaPDFYukor` (`fdSanaTs(a.sana, a.soat)`).
+
+Bulut panelidagi ikki vaqt → `_vaqt24()`, doim 24h.
+
+**Bazaga tegilmadi.** Mockupdagi 4-band (`_soatFix2` migratsiyasi) QILINMADI —
+`_soat24` o'qish paytida normallashtiradi, migratsiya keraksiz.
+Agar Ibrohim baza yozuvlarini ham tozalashni so'rasa — o'shanda qilinadi.
+
+### v184 — POS chernovik tekshiruvida 1-SKAN / 2-SKAN
+
+**Ibrohim:** «donalarga 1-skan 2-skanni qo'shish kere ... tekshirildi bo'b ...
+tilla erpda berish modalidan shablon oson bo'ladi».
+
+`_posChSkan[ri]`: `[2,3]` → `{mode:1, pass1:[2,3], pass2:[]}`.
+Chizishni `_skanChipHTML` qiladi — qo'lda berish/vozvrat/sotuv skanlari bilan
+bitta ko'rinish.
+
+⚠ **Qabulga DOIM 1-skan yoziladi**, 2-skan faqat tekshiruv.
+`hammasiSkan` gate va `farqBor` ham 1-skandan — qabul shartlari o'zgarmadi.
+`POS bilan: mos / kam / ortiq` qatori saqlandi (pastga ko'chdi).
+
+### v185 — «Keyinroq» bosilsa chek o'zi chiqadi
+
+**Ibrohim:** «qabul qilinib bo'gandan kegin to'lov qismiga o'tmasa berish bo'sa
+berish bo'b chek chiqarishi kere vozvrat bo'sayam huddi shunaqa vozvrat chekini
+chiqarishi kere. to'lovga o'tsa uni cheki to'ri unga teymimiz»
+→ «keyinroqqi bossam chek o'zi chiqursin» (tugma YO'Q).
+
+`_posChChekMatn(tip, nom, sana, rows)` — sof funksiya, `posChTolovYop` chaqiradi.
+
+⚠ **Qolip `kBerishUpdateChek` va `kVozvratUpdateChek` bilan AYNAN bir xil** —
+brauzerda haqiqiy funksiyalar bilan solishtirildi, matn **bayt-baytiga teng**.
+O'sha ikkisi kelajakda o'zgarsa, `_posChChekMatn` ham o'zgarishi kerak
+(uchalasida `W = 48`).
+
+To'lov chekiga tegilmadi — `TO'LOVGA O'TISH` yo'lida chek chaqirig'i yo'q.
+
+---
+
+## ⏳ OCHIQ — javob kutilmoqda
+
+**1. Chekda dona ko'rsatilsinmi?** Hozirgi berish cheki faqat grammni
+ko'rsatadi. `Butterfly - Oddiy  2 dona  -5.00g` qilish mumkin, lekin u holda
+**qo'lda berish cheki ham** o'zgaradi — shuning uchun so'ralgan, javob yo'q.
+
+**2. Chernovik RO'YXAT ekranida donalar ko'rinsinmi?** Hozir faqat
+`N tur · M dona · jami g`. Ichiga kirilsa donalar ko'rinadi.
+
+**3. KLIENTDA BOR to'lov panelida ko'rinmagani** — v180.8 dagi tashxis bloki
+qo'yilgan («KLIENTDA BOR — POS DAN» yoki «POS yubormagan»).
+Ibrohim qaysi biri chiqqanini hali aytmagan.
+
+**4. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan.
+⚠ Yangi mockup CHIZMA — avval Ibrohimdan ekran rasmi va o'z so'zlarini ol.
+
+### Mockuplar (bajarilgan, o'chirilishi mumkin)
+`mockups/soat-24h.html` — v183 bajarildi
+`mockups/pos-dona-chek.html` — v184 + v185 bajarildi
 
 ---
 

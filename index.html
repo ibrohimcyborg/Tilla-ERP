@@ -1,4 +1,4 @@
-<!-- v184 -->
+<!-- v185 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v184';
+var APP_VER = 'v185';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15128,7 +15128,8 @@ function posChQabul(){
 
   // v180.3: hisob yozilib bo'ldi — endi to'lovga o'tish taklif qilinadi.
   // Bu FAQAT holat saqlash, hisobga hech qanday ta'siri yo'q.
-  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
+  // v185: chek uchun tip va sana ham kerak
+  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), tip:c.tip, sana:sana, kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
   save('POS chernovik qabul: '+k.nom);
   try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
   // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
@@ -15188,7 +15189,53 @@ function posChTolovOch(){
     }
   }catch(e){ if(window.console) console.error('posChTolovOch:', e); }
 }
-function posChTolovYop(){ _posChTolov=null; posBellOch(); }
+// v185 (Ibrohim): «qabul qilinib bo'gandan kegin to'lov qismiga o'tmasa,
+// berish bo'sa berish bo'b chek chiqarishi kere, vozvrat bo'sayam huddi shunaqa
+// vozvrat chekini chiqarishi kere. to'lovga o'tsa uni cheki to'g'ri, unga
+// tegmaymiz» + «keyinroqqi bossam chek o'zi chiqsin» — tugma yo'q.
+//
+// ⚠ QOLIP qo'lda berish (kBerishUpdateChek) va qo'lda vozvrat
+//   (kVozvratUpdateChek) cheklari bilan AYNAN bir xil — klient qaysi yo'l
+//   bilan olsa ham bitta chek ko'radi. O'sha ikkisi o'zgarsa, bu ham o'zgarsin.
+function _posChChekMatn(tip, nom, sana, rows){
+  var W=48;
+  var ctr=function(s){ var p=Math.max(0,Math.floor((W-s.length)/2)); return Array(p+1).join(' ')+s; };
+  var rj=function(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; };
+  var LINE=Array(W+1).join('-');
+  var jami=Math.round(rows.reduce(function(a,r){ return a+(r.g||0); },0)*100)/100;
+  var t='';
+  t+=ctr(String(nom||''))+'\n';
+  t+=ctr(String(sana||''))+'\n';
+  t+=LINE+'\n';
+  if(tip==='vozvrat'){
+    t+='Vozvrat qilindi\n';
+    rows.forEach(function(r){ t+=rj('  '+r.zavod+' - '+r.tur, '+'+fmtG(r.g)+'g')+'\n'; });
+    t+=LINE+'\n';
+    t+=rj('Jami gramm', '+'+fmtG(jami)+'g')+'\n';
+  } else {
+    t+='Klientga berildi\n';
+    rows.forEach(function(r){
+      var val = r.g>0 ? '-'+fmtG(r.g)+'g' : '+'+fmtG(Math.abs(r.g))+'g';
+      t+=rj('  '+r.zavod+' - '+r.tur, val)+'\n';
+    });
+    if(rows.length>1){
+      var jVal = jami>0 ? '-'+fmtG(jami)+'g' : (jami<0 ? '+'+fmtG(Math.abs(jami))+'g' : '0.00g');
+      t+=LINE+'\n';
+      t+=rj('JAMI', jVal)+'\n';
+    }
+  }
+  return t;
+}
+function posChTolovYop(){
+  var t=_posChTolov; _posChTolov=null;
+  // to'lovga O'TILMADI — demak chek shu yerda chiqadi.
+  // (TO'LOVGA O'TISH bosilsa posChTolovOch ishlaydi, u yerda to'lov cheki bor.)
+  if(t && (t.rows||[]).length){
+    try{ chekIkkiChop(chekYakun(_posChChekMatn(t.tip, t.nom, t.sana, t.rows)), 1); }
+    catch(e){ if(window.console) console.error('posChChek:', e); }
+  }
+  posBellOch();
+}
 
 function posChRad(){
   var c=_posChTop(_posChOchiq); if(!c) return;
@@ -15230,7 +15277,11 @@ function posBellOch(){
       h+='<div style="display:flex;gap:8px;margin-top:14px;">';
       h+='<button onclick="posChTolovYop()" style="height:44px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Keyinroq</button>';
       h+='<button onclick="posChTolovOch()" style="flex:1;height:44px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:700;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-family:inherit;">TO&#39;LOVGA O&#39;TISH</button>';
-      h+='</div></div>';
+      h+='</div>';
+      // v185: yon ta'sir yashirin qolmasin — qaysi chek chiqishi yozib turadi
+      h+='<div style="font-size:11px;color:var(--muted);padding-top:9px;">&#171;Keyinroq&#187; bosilsa '
+        +(_t.tip==='vozvrat'?'vozvrat':'berish')+' cheki chiqadi</div>';
+      h+='</div>';
     } else if(!_posCh.length){
       h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;">Chernovik yo\'q</div>';
     } else {

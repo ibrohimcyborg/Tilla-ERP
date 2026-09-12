@@ -6271,3 +6271,50 @@ Brauzerda: 0 konsol xatosi. POS `[2,3]` yuborgan chernovikda 1-skan «Mos»
 bilan to'ldirildi, 2-skanda `2` va `0.50` kiritildi →
 **«Tekshirildi: 1/2», «ortiqcha: 1ta»**, chiplar `3.00` xira, `2.00 ✓` yashil,
 `0.50` qizil. `POS bilan: mos 2` saqlandi, pass1 buzilmadi.
+
+---
+
+## v185 — qabuldan keyin «Keyinroq» bosilsa chek o'zi chiqadi
+
+Ibrohim: «kegin qabul qilinib bo'gandan kegin to'lov qismiga o'tmasa berish
+bo'sa berish bo'b chek chiqarishi kere vozvrat bo'sayam huddi shunaqa vozvrat
+chekini chiqarishi kere. to'lovga o'tsa uni cheki to'ri unga teymimiz»
+→ «keyinroqqi bossam chek o'zi chiqursin».
+
+Tugma YO'Q — «Keyinroq» ning o'zi chekni chiqaradi.
+
+### Qo'shilgan
+
+`_posChChekMatn(tip, nom, sana, rows)` — sof funksiya, DOM o'qimaydi.
+`posChTolovYop()` endi: chekni chiqaradi → `_posChTolov=null` → panelni chizadi.
+`_posChTolov` ga `tip` va `sana` qo'shildi.
+
+Tasdiq kartasiga bitta qator: «"Keyinroq" bosilsa berish/vozvrat cheki chiqadi»
+— yon ta'sir yashirin qolmasin.
+
+### Qolip — mavjudi bilan AYNAN bir xil
+
+| Chek | Manba |
+|---|---|
+| Berish | `kBerishUpdateChek` bilan bayt-baytiga teng |
+| Vozvrat | `kVozvratUpdateChek` bilan bayt-baytiga teng |
+
+Klient qaysi yo'l bilan olsa ham bitta chek ko'radi.
+⚠ O'sha ikkisi o'zgarsa `_posChChekMatn` ham o'zgarishi kerak (uchalasida `W=48`).
+
+`kBerishUpdateChek` / `kVozvratUpdateChek` / to'lov cheki — **tegilmadi**.
+`TO'LOVGA O'TISH` yo'lida chek chaqirig'i yo'q (Ibrohim: «unga tegmaymiz»).
+
+### Sinov
+
+`tekshir185.js` — 23 ta tekshiruv: sintaksis, berish 1 qator (JAMI yo'q),
+berish 2 qator (JAMI bor), manfiy berish `+` bilan, vozvrat `Jami gramm`,
+uch eski chek chaqirig'i tegilmagani, `TO'LOVGA O'TISH` da chek yo'qligi.
+
+Brauzerda, haqiqiy funksiyalar bilan:
+- `_kbChekBody === _posChChekMatn('berish',...)` → **true**
+- `_kvChekBody === _posChChekMatn('vozvrat',...)` → **true**
+- «Keyinroq» → `chekYubor` **2 marta** (logo + «Tekshirildi» ptichkasi)
+- vozvratda «Vozvrat qilindi», «Klientga berildi» yo'q
+- `rows` bo'sh → chek chiqmaydi
+- 0 konsol xatosi
