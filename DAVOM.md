@@ -424,6 +424,70 @@ sinab ko'rgandan keyin qaror qiladi.
 
 ---
 
+### 🧩 POS v0.22–v0.29 + ERP v180.6–v180.8 (2026-09-11/12)
+
+| | Ish |
+|---|---|
+| POS v0.22 | cloud kirish xatosi aniq (urinilgan pochta ko'rsatiladi) |
+| POS v0.23 | bulut bosilsa kirish ma'lumoti (parol KO'RSATILMAYDI) |
+| POS v0.24 | BERISH/VOZVRAT sarlavhadan pastki satrga |
+| POS v0.25 | berishda KLIENTDA BOR paneli → chernovikka `klientdaBor` |
+| POS v0.26 | planshetda ikki ustun (zavodlar chap, savat o'ng, ≥900px) |
+| POS v0.27 | narxi yo'q va grammi 0 zavodlar yashiriladi (+ ko'rsatish tugmasi) |
+| POS v0.28 | KLIENTDA BOR yig'iladi, bosilsa ochiladi |
+| POS v0.29 | qidiruv yonida **+ Klient** |
+| ERP v180.6 | to'lovga o'tganda KLIENTDA BOR avtomat to'ldiriladi |
+| ERP v180.7 | kun tahriri faqat o'sha protsessni oladi (sana + **soat**) |
+| ERP v180.8 | chernovikdagi KLIENTDA BOR qo'ng'iroqchada ko'rinadi |
+
+**v180.7 — muhim xato tuzatildi.** `klientGunTahrir` guruhni faqat SANA
+bo'yicha yig'ardi, ro'yxatdagi sessiya esa `ki|sana|soat` bo'yicha qurilgan.
+Natijada 14:48 berishni tahrirlasa 14:24 vozvrat ham qo'shilib o'chardi.
+Endi filtr sessiya kaliti bilan aynan bir xil.
+
+**Klient qo'shish — YANGI KANAL YO'Q.** POS `_obyektlar/items/klient|<ism>`
+ga yozadi — ERP ning o'zi ham shu yerga yozadi. `obyektQabul` (8330)
+mavjudning ustidan YOZMAYDI. Bir xil ism bo'lsa `(2)`, `(3)`... (`_posBoshNom`).
+
+⚠ **`pos.html` da cloudga yozish ATIGI IKKI JOY:**
+`ref.doc('klient|'+bosh).set` (565) va chernovik `ref.add` (1320).
+`k.tarix` / `t.ostatka` ga POS hech qachon yozmaydi.
+
+### ⏳ OCHIQ — KLIENTDA BOR to'lovda ko'rinmadi
+
+Ibrohim sinadi: to'lov oynasida panel bo'm-bo'sh chiqdi.
+Kod zanjiri tekshirildi — **ERP tomoni butun**: `pulPanelReset` faqat
+to'ldirishdan OLDIN ishlaydi (13373, 13408), `kTolovCalc` `kt-pp-*` ga
+tegmaydi, `pulPanelUpd` panelni majburan ko'rsatadi.
+
+→ Shuning uchun v180.8 da **qo'ng'iroqcha panelida ko'rsatildi**: chernovik
+ichida nima kelgani ochiq yoziladi, bo'lmasa «POS yubormagan» deb aytadi.
+**Keyingi qadam:** Ibrohim yangi chernovik yuborib, qo'ng'iroqchada nima
+chiqqanini aytadi. Raqam chiqsa-yu to'lovda bo'sh bo'lsa — xato ERP
+to'ldirishida; «POS yubormagan» chiqsa — POS da yozilmagan.
+
+### ⬜ HALI HAM OCHIQ — qo'ng'iroqcha panelining o'zi
+
+Ibrohim: «manga shu kelgan narsa tushunarsiz ko'rinvotti». Oltita muammo
+aniqlangan, ikki maket qilingan — Ibrohim maketni ham tushunarsiz dedi.
+Qaror yo'q. → Rasmini so'ra, o'z so'zi bilan ayttir, yangi maket chizma.
+
+### 💡 SABOQ (2026-09-12)
+
+**Bash heredoc uzun skriptni buzadi** — `cat > file <<'PYEOF'` 100 qatordan
+oshsa «here-document delimited by end-of-file» ogohlantirishi chiqadi va
+fayl yarim yoziladi. Uzun skriptni **Write asbobi** bilan scratchpad ga yoz.
+
+**Heredoc backslashni yeydi** — `\\u2014`, `\\'`, `\\n` Python manbasiga
+YAKKA backslash bo'lib tushadi. Yechim: HTML entity (`&#39;`), `chr(92)`,
+yoki Write asbobi.
+
+**Python o'zgaruvchisi u-satr ICHIDA ishlamaydi** — `u"... '+A+' ..."` matn
+bo'lib qoladi. Bu seansda uch marta shu xato bo'ldi (`BS+Q`, `+AP+`, `chr(39)`).
+Tekshirish: yozgandan keyin `grep -n "+A+\|chr(39)"` qil.
+
+---
+
 ## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
 
 ### ✅ 1. Chekni tahrirlashda TURNI almashtirish — BAJARILDI (v179.12)
