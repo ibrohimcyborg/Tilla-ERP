@@ -6133,3 +6133,32 @@ TEGILMADI.
 
 Sinov: brauzerda uch zavod bilan chizildi — chiziq **ikkitasida** (birinchisida
 yo'q, to'g'ri). 0 konsol xatosi. Ekran rasmi bilan ko'z bilan ham tasdiqlandi.
+
+## POS v0.35 — cloud hisobidan chiqish
+
+Ibrohim: «clouddan ham chiqish qo'shsin, boshqa cloudga ulanib qolyapti».
+
+Tepadagi **Chiqish** faqat POS loginini tozalaydi — Firebase seansi brauzerda
+qoladi va keyingi kirishda o'sha hisob ishlatiladi. Shuning uchun boshqa
+pochtaga o'tib bo'lmasdi.
+
+Bulut oynasiga ikkinchi tugma qo'shildi: **Cloud hisobidan chiqish**.
+
+- Tasdiq matnida **qaysi pochtadan** chiqayotgani yoziladi
+- `firebase.auth().signOut()` + POS logini tozalanadi + sahifa qayta yuklanadi
+- `signOut` xato bersa ham sahifa baribir qayta yuklanadi (`catch` → reload)
+- Pochta noma'lum bo'lsa ham ishlaydi
+
+Endi ikkita chiqish:
+
+| Qayerda | Nima qiladi |
+|---|---|
+| Tepa satr — ikonka | POS logini (tez, xona almashtirish uchun) |
+| Bulut oynasi — tugma | Cloud hisobi ham (pochta almashtirish uchun) |
+
+`posChiqish` TEGILMADI — sinovda tasdiqlandi (`signOut` chaqirmaydi).
+
+Sinov: `cchiqtest.js` — 12 ta tekshiruv (bekor qilish, signOut, uchta kalit,
+boshqa kalitlarga tegmaslik, pochtasiz holat, tepadagi chiqish buzilmagani).
+Brauzerda: 0 konsol xatosi, bulut oynasida faqat cloud chiqish,
+tepada oddiy chiqish.
