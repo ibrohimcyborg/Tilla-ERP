@@ -1,0 +1,275 @@
+<title>Klientda Bor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8; --on-gold:#fff;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+  --teal:#2E7D8F; --teal-bg:rgba(46,125,143,.10); --teal-bd:rgba(46,125,143,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a; --on-gold:#1a1200;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+  --teal:#3fc7bd; --teal-bg:#08201f; --teal-bd:#1c4a47;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.5;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:440px;margin:0 auto;padding:16px 13px 60px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.mk{font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;font-weight:600;
+  background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);margin-left:8px;}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:12px 0 18px;
+  color:var(--gold);font-size:13.5px;}
+.num{font-family:"Roboto",system-ui,sans-serif;font-variant-numeric:tabular-nums;}
+
+.oyna{background:var(--surf);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+  font-size:9.5px;letter-spacing:.11em;color:var(--muted);}
+.zav{padding:7px 12px 8px;border-top:1px solid var(--border);}
+.zn{font-weight:600;font-size:13px;color:var(--gold);margin-bottom:3px;}
+.tr{display:flex;align-items:baseline;gap:7px;padding:2px 0;font-size:11.5px;}
+.tr .n{flex:1;min-width:0;}
+.tr .kg{min-width:54px;text-align:right;flex:none;font-size:10.5px;color:var(--muted);}
+.tr .g{min-width:54px;text-align:right;flex:none;font-weight:500;}
+.tr .d{min-width:44px;text-align:right;flex:none;color:var(--muted);}
+.tr .p{min-width:68px;text-align:right;flex:none;color:var(--gold);font-weight:500;}
+.jami{display:flex;align-items:baseline;gap:7px;padding:10px 12px;
+  border-top:2px solid var(--border);background:var(--surf2);}
+.jami .n{flex:1;font-size:9.5px;letter-spacing:.11em;color:var(--muted);font-weight:600;}
+.jami .kg{min-width:54px;flex:none;}
+.jami .g{min-width:54px;text-align:right;flex:none;font-weight:700;font-size:14px;color:var(--green);}
+.jami .d{min-width:44px;text-align:right;flex:none;font-size:11px;color:var(--muted);}
+.jami .p{min-width:68px;text-align:right;flex:none;font-weight:700;font-size:13px;color:var(--green);}
+
+/* KLIENTDA BOR */
+.kb{border-top:1px solid var(--border);padding:12px;background:var(--gold-bg);}
+.kbh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
+.kbh .t{font-size:10px;letter-spacing:.09em;font-weight:700;color:var(--gold);}
+.kbh .s{font-size:9.5px;color:var(--muted);}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.cell{background:var(--surf);border:1px solid var(--border);border-radius:11px;
+  padding:6px 8px 7px;min-width:0;}
+.cell .k{font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;
+  color:var(--muted);margin-bottom:2px;}
+.cell input{width:100%;border:0;background:transparent;outline:none;padding:0;
+  font-family:"Roboto";font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;
+  text-align:right;}
+.c-naqt{border-color:var(--green-bd);} .c-naqt input{color:var(--green);}
+.c-per{border-color:var(--teal-bd);}   .c-per  input{color:var(--teal);}
+.c-kar{border-color:var(--gold-bd);}   .c-kar  input{color:var(--gold);}
+
+/* LOM qatorlari */
+.lomH{display:flex;justify-content:space-between;align-items:center;margin:13px 0 6px;}
+.lomH .t{font-size:9.5px;letter-spacing:.09em;font-weight:700;color:var(--red);}
+.lomH button{border:1px dashed var(--red-bd);background:transparent;color:var(--red);
+  border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:inherit;}
+.lomQ{background:var(--surf);border:1px solid var(--red-bd);border-radius:12px;
+  padding:7px 8px;margin-bottom:6px;}
+.lomR{display:flex;gap:5px;align-items:center;}
+.lomR select,.lomR input{border:1px solid var(--border);background:var(--surf2);
+  color:var(--text);border-radius:8px;padding:6px 7px;font-size:13px;outline:none;
+  font-family:"Roboto";font-variant-numeric:tabular-nums;min-width:0;}
+.lomR .pr{flex:none;width:70px;font-weight:700;}
+.lomR .g{flex:1;text-align:right;}
+.lomR .n{flex:1;text-align:right;}
+.lomR .x{flex:none;width:26px;height:30px;border:0;background:transparent;
+  color:var(--muted);cursor:pointer;font-size:13px;}
+.lomLbl{display:flex;gap:5px;font-size:8.5px;letter-spacing:.05em;color:var(--muted);
+  font-weight:700;margin-bottom:3px;text-transform:uppercase;}
+.lomLbl .a{width:70px;flex:none;}
+.lomLbl .b{flex:1;text-align:right;}
+.lomLbl .c{flex:1;text-align:right;}
+.lomLbl .d{width:26px;flex:none;}
+.lomRes{text-align:right;font-size:11px;color:var(--red);font-weight:600;margin-top:4px;}
+.lomJami{display:flex;justify-content:space-between;font-size:12px;color:var(--red);
+  font-weight:700;padding:4px 2px 0;}
+
+.hisob{margin-top:12px;border-top:1px solid var(--gold-bd);padding-top:9px;}
+.lr{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:12.5px;}
+.lr .k{color:var(--muted);}
+.natija{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;
+  padding:10px 12px;border-radius:12px;font-weight:700;}
+.natija .k{font-size:9.5px;letter-spacing:.09em;}
+.natija .v{font-size:18px;}
+.n-qarz{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);}
+.n-ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);}
+
+.btns{display:flex;gap:7px;justify-content:flex-end;padding:10px 12px;
+  border-top:1px solid var(--border);}
+.b1{height:42px;padding:0 18px;border-radius:15px;border:1px solid var(--border);
+  background:var(--surf2);color:var(--text);font-size:13px;display:flex;align-items:center;}
+.b2{height:42px;padding:0 18px;border-radius:15px;border:1px solid var(--gold);
+  background:var(--gold);color:var(--on-gold);font-size:13px;font-weight:600;
+  display:flex;align-items:center;}
+
+.note{margin-top:20px;font-size:13px;color:var(--muted);line-height:1.65;}
+.note b{color:var(--text);}
+ul{margin:9px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:16px;margin-bottom:6px;font-size:13px;}
+li::before{content:"";position:absolute;left:3px;top:8px;width:5px;height:5px;
+  border-radius:50%;background:var(--green);}
+.savol{margin-top:18px;background:var(--surf);border:1px solid var(--gold-bd);
+  border-radius:13px;padding:13px 15px;font-size:13px;}
+.savol b{color:var(--gold);}
+</style>
+
+<div class="page">
+  <h1>Klientda bor<span class="mk">MAKET</span></h1>
+  <p class="quote">«lomni bosganda shu chiqadi-de, + + bo'p ketaveradi.
+    Klient qo'lida 585 bilan 375, 750, 999 bo'lishi mumkin — tanlab gramm
+    yozadi, keyin $/g yozadi»</p>
+
+  <div class="oyna">
+    <div class="sh"><span>SAVAT</span><span style="letter-spacing:0;font-size:10px;">1 zavod</span></div>
+    <div class="zav">
+      <div class="zn">Butterfly</div>
+      <div class="tr"><span class="n">Oddiy</span><span class="kg num">90.4 $/g</span>
+        <span class="g num">1.20 g</span><span class="d num">1 dona</span><span class="p num">108.48 $</span></div>
+      <div class="tr"><span class="n">3D</span><span class="kg num">89.6 $/g</span>
+        <span class="g num">21.00 g</span><span class="d num">2 dona</span><span class="p num">1,881.6 $</span></div>
+      <div class="tr"><span class="n">3DS</span><span class="kg num">92.8 $/g</span>
+        <span class="g num">2.10 g</span><span class="d num">1 dona</span><span class="p num">194.88 $</span></div>
+      <div class="tr"><span class="n">Sep</span><span class="kg num">91.2 $/g</span>
+        <span class="g num">21.00 g</span><span class="d num">2 dona</span><span class="p num">1,915.2 $</span></div>
+    </div>
+    <div class="jami"><span class="n">JAMI</span><span class="kg"></span>
+      <span class="g num">45.30 g</span><span class="d num">6 dona</span>
+      <span class="p num">4,100.16 $</span></div>
+
+    <div class="kb">
+      <div class="kbh"><span class="t">KLIENTDA BOR</span>
+        <span class="s">kassir yozadi · hisob o'zgarmaydi</span></div>
+      <div class="grid">
+        <div class="cell c-naqt"><div class="k">Naqt</div>
+          <input id="naqt" inputmode="decimal" value="1200" oninput="hisobla()"></div>
+        <div class="cell c-per"><div class="k">Perech</div>
+          <input id="per" inputmode="decimal" value="0" oninput="hisobla()"></div>
+        <div class="cell c-kar"><div class="k">Karta</div>
+          <input id="kar" inputmode="decimal" value="500" oninput="hisobla()"></div>
+      </div>
+
+      <div class="lomH"><span class="t">LOM</span>
+        <button onclick="lomQosh()">+ qo'shish</button></div>
+      <div id="lomList"></div>
+      <div class="lomJami" id="lomJami" style="display:none;">
+        <span>Lom jami</span><span class="num" id="lomJamiV">0.00 $</span></div>
+
+      <div class="hisob">
+        <div class="lr"><span class="k">Mol</span><span class="num" id="mol"></span></div>
+        <div class="lr"><span class="k">Klientda bor</span><span class="num" id="bor"></span></div>
+        <div class="natija" id="nat"><span class="k" id="natK"></span><span class="v num" id="natV"></span></div>
+      </div>
+    </div>
+
+    <div class="btns"><span class="b1">Bekor</span><span class="b2">Tekshiruvga yuborish</span></div>
+  </div>
+
+  <div class="note">
+    <b>Lom qatorlari:</b>
+    <ul>
+      <li><b>+ qo'shish</b> — klientda bir nechta proba bo'lsa har biriga
+        alohida qator. Ikkinchi, uchinchi... cheklov yo'q</li>
+      <li>Proba ro'yxati <b>Tilla ERP dan</b> keladi (<code>data.lomProbalar</code>) —
+        siz u yerda qo'shgan probalar shu yerda chiqadi</li>
+      <li><b>$/g</b> avtomat kunlik lom narxidan qo'yiladi
+        (<span class="num">78.00</span> = kurs − 2), lekin <b>tahrirlanadi</b> —
+        375 arzonroq, 999 qimmatroq</li>
+      <li>Har qator puli o'ngda, hammasi qo'shilib <b>Lom jami</b> bo'ladi</li>
+      <li>Naqt + Perech + Karta + Lom = <b>Klientda bor</b></li>
+    </ul>
+    <p style="margin-top:12px;">Proba tanlang, gramm va narxni o'zgartiring —
+      pastdagi natija darhol o'zgaradi.</p>
+  </div>
+
+  <div class="savol">
+    <b>Bitta savol:</b> bu raqamlar chernovikka qo'shilib sizga yuborilsinmi,
+    yoki faqat POS ekranida qolsinmi?<br><br>
+    Yuborilsa — Tilla ERP da to'lovga o'tganingizda lom qatorlari tayyor turadi.
+  </div>
+</div>
+
+<script>
+var MOL = 4100.16, LOM_NARX = 78.00;
+var PROBALAR = ['999','750','585','583','375'];   // Tilla ERP dagi data.lomProbalar
+var LOMLAR = [{p:'585', g:12.40, n:78.2}, {p:'375', g:6.00, n:50.0}];
+
+function fd(v){ return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function nn(v){ return parseFloat(String(v).replace(',','.')) || 0; }
+function n(id){ return nn(document.getElementById(id).value); }
+
+function lomQosh(){ LOMLAR.push({p:PROBALAR[0], g:0, n:LOM_NARX}); chiz(); }
+function lomOchir(i){ LOMLAR.splice(i,1); chiz(); }
+function lomSet(i,f,v){ LOMLAR[i][f] = (f==='p') ? v : nn(v); hisobla(); }
+
+function chiz(){
+  var h='';
+  LOMLAR.forEach(function(L,i){
+    var pul = Math.round(L.g*L.n*100)/100;
+    h+='<div class="lomQ">';
+    h+='<div class="lomLbl"><span class="a">Proba</span><span class="b">Gramm</span>'
+      +'<span class="c">$/g</span><span class="d"></span></div>';
+    h+='<div class="lomR">';
+    h+='<select class="pr" onchange="lomSet('+i+',\'p\',this.value)">'
+      + PROBALAR.map(function(p){ return '<option'+(p===L.p?' selected':'')+'>'+p+'</option>'; }).join('')
+      + '</select>';
+    h+='<input class="g" inputmode="decimal" value="'+L.g+'" oninput="lomSet('+i+',\'g\',this.value)">';
+    h+='<input class="n" inputmode="decimal" value="'+L.n+'" oninput="lomSet('+i+',\'n\',this.value)">';
+    h+='<button class="x" onclick="lomOchir('+i+')">&#10005;</button></div>';
+    h+='<div class="lomRes num">'+ (L.g? L.g.toFixed(2)+' g × '+fd(L.n)+' = '+fd(pul)+' $' : '') +'</div>';
+    h+='</div>';
+  });
+  document.getElementById('lomList').innerHTML = h;
+  hisobla();
+}
+
+function hisobla(){
+  var lomJami = 0;
+  LOMLAR.forEach(function(L){ lomJami += Math.round(L.g*L.n*100)/100; });
+  lomJami = Math.round(lomJami*100)/100;
+  var lj = document.getElementById('lomJami');
+  lj.style.display = LOMLAR.length ? 'flex' : 'none';
+  document.getElementById('lomJamiV').textContent = fd(lomJami)+' $';
+  // qator natijalarini yangilaymiz
+  var res = document.querySelectorAll('#lomList .lomRes');
+  LOMLAR.forEach(function(L,i){
+    if(res[i]) res[i].textContent = L.g
+      ? (L.g.toFixed(2)+' g × '+fd(L.n)+' = '+fd(Math.round(L.g*L.n*100)/100)+' $') : '';
+  });
+
+  var bor = Math.round((n('naqt') + n('per') + n('kar') + lomJami)*100)/100;
+  document.getElementById('mol').textContent = fd(MOL)+' $';
+  document.getElementById('bor').textContent = fd(bor)+' $';
+  var farq = Math.round((MOL - bor)*100)/100;
+  var el = document.getElementById('nat');
+  if(farq > 0.005){
+    el.className='natija n-qarz';
+    document.getElementById('natK').textContent='QARZGA QOLADI';
+    document.getElementById('natV').textContent=fd(farq)+' $';
+  } else if(farq < -0.005){
+    el.className='natija n-ok';
+    document.getElementById('natK').textContent='ORTIQCHA';
+    document.getElementById('natV').textContent=fd(-farq)+' $';
+  } else {
+    el.className='natija n-ok';
+    document.getElementById('natK').textContent='TO‘LIQ YOPILDI';
+    document.getElementById('natV').textContent='0.00 $';
+  }
+}
+chiz();
+</script>

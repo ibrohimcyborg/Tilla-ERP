@@ -5758,3 +5758,47 @@ ko'chirilgan). Uzun ism siqilardi, tugmalar barmoqdan uzoq edi.
 - Qarz tarkibi uzun bo'lib siljitilsa ham tugmalar ko'rinib turadi
 
 Faqat joylashuv. `posBerishOch` / `posVozvratOch` / hisob / cloud — TEGILMADI.
+
+## POS v0.25 — berishda KLIENTDA BOR paneli
+
+Ibrohim: «klientda qancha bor — lom, naqt, karta, perech. Shuni POS da
+ko'rsatish kerak, berishda» → «lomni bosganda shu chiqadi-de, + + bo'p
+ketaveradi, klient qo'lida 585 bilan 375, 750, 999 bo'lishi mumkin» →
+«chernovikka qo'shib menga yuborsin».
+
+Savat JAMI sidan keyin yangi panel (faqat BERISHDA, vozvratda yo'q):
+
+    KLIENTDA BOR           kassir yozadi · hisob o'zgarmaydi
+    [NAQT 1200] [PERECH 0] [KARTA 500]
+
+    LOM                                   + qo'shish
+    [585 ▾] [12.40] [78.2] ✕    12.40 g × 78.20 = 969.68 $
+    [375 ▾] [ 6.00] [50.0] ✕     6.00 g × 50.00 = 300.00 $
+    Lom jami                                1,269.68 $
+
+    Mol                                     4,100.16 $
+    Klientda bor                            2,969.68 $
+    [ QARZGA QOLADI                         1,130.48 $ ]
+
+- **Har probaga alohida qator**, cheklov yo'q. Proba ro'yxati
+  `data.lomProbalar` dan (ERP da siz qo'shganingiz), bo'lmasa
+  `999 · 750 · 585 · 583 · 375`
+- Yangi qatorning `$/g` si **kunlik lom narxidan** (`_posLom()` = kurs − 2),
+  keyin tahrirlanadi — 375 arzon, 999 qimmat
+- Yetmasa qizil **QARZGA QOLADI**, oshsa yashil **ORTIQCHA**, teng bo'lsa
+  **YOPILDI**
+
+⚠ **POS hech nima taqsimlamaydi** — nimadan nimaga to'langanini Tilla ERP da
+admin belgilaydi. Bu panel faqat yozib oladi.
+
+⚠ **Fokus muammosi oldi olindi:** `oninput` da `_pbDraw` CHAQIRILMAYDI —
+qiymat o'zgaruvchiga yoziladi va faqat hisob satrlari yangilanadi
+(`_kbHisobUpd`). Aks holda har bosishda maydon qayta yaratilib fokus
+yo'qolardi.
+
+**Chernovikka** `klientdaBor: {naqt, perech, karta, lom:[{proba,gramm,narx,summa}], jami}`
+qo'shiladi. Bo'sh bo'lsa `null` — eski chernoviklar shakli buzilmaydi.
+Grammi yoki narxi yo'q lom qatori yuborilmaydi.
+
+Sinov: `kbtest.js` — 17 ta tekshiruv, Ibrohimning raqamlari bilan
+(1200 + 500 + 969.68 + 300 = 2 969.68). Hammasi o'tdi.
