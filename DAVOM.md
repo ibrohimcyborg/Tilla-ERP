@@ -108,7 +108,7 @@ va `hisob.js` istisnosi qo'shiladi.
 | 3l | Savatda har tur alohida qatorda (**POS v0.15**) | ✅ push qilingan |
 | 3m | Savat Ibrohim yozib bergan tartibda (**POS v0.16**) | ✅ push qilingan |
 | 3n | Savat qatorida grammiga narx alohida ustunda (**POS v0.17**) | ✅ push qilingan |
-| 4 | `index.html` dan kassir kodini o'chirish | ⬜ Ibrohim sinab ko'rgandan keyin |
+| 4 | `index.html` dan kassir kodini o'chirish (**v181**) | ✅ push qilingan |
 | 5 | Sinov: `kassatest` → `pos.html` → chernovik → `test` da qabul | ⬜ |
 
 ⚠ **v0.01 da xato bo'ldi:** Claude yangi, sodda ekran yasagan edi. Ibrohim:
@@ -485,6 +485,52 @@ yoki Write asbobi.
 **Python o'zgaruvchisi u-satr ICHIDA ishlamaydi** — `u"... '+A+' ..."` matn
 bo'lib qoladi. Bu seansda uch marta shu xato bo'ldi (`BS+Q`, `+AP+`, `chr(39)`).
 Tekshirish: yozgandan keyin `grep -n "+A+\|chr(39)"` qil.
+
+---
+
+### ✅ v181 — POS AJRATISH TUGADI (2026-09-12)
+
+Ibrohim: «POS ni Tilla ERP dan chiqarmaganmisan? zoom qilsam chiqib
+qolyapti» → «chiqarvor, bo'ldi, kerak emas».
+
+**`index.html` dan ~726 qator o'chdi.** 46 ta kassir funksiyasi, `#main-pos`,
+`main-tab-pos`, `rol-pos` CSS (45 qator), `applyRol`/`mainTab`/`initPC` dagi
+POS tarmoqlari, `_posBoy` va `_pbDraw` resize ilgaklari, `POS_VER`,
+**`kassatest` logini**.
+
+**QOLDI** (boshqa joy chaqiradi, tekshirilgan):
+qo'ng'iroqcha paneli to'liq (`posCh*`, `posBell*`) ⬛ `_posEsc` ⬛
+`posKursUpd` (`hkAvtoSaqla`/`hkSaqla`/`zKursSaqla`) ⬛
+`posNusxaObj`/`posNusxaYoz`/`_posNusxaHash` (`cloudSaqlaNow`).
+
+⚠ **POS endi FAQAT `pos.html`.** Login: `test` / `test123`.
+`kassatest` yo'q.
+
+### 🧪 SINOV USULI — endi shunday ishlaymiz
+
+Ibrohim: «sinovni o'zim qilaymi?» → cloud sinovi unda, lekin men
+brauzerda yuklash sinovini qo'shdim.
+
+Bu o'zgarishda **uch bosqichli tekshiruv** ishlatildi va ikkitasi xato ushladi:
+
+1. **Har qadamdan keyin `node --check`** — blok kesilgach darhol.
+   Ushladi: `} else if` dagi `}` OLDINGI tarmoqniki ekan.
+2. **Qolgan chaqiruv skaneri** — o'chirilgan 46 nom bo'yicha butun fayl.
+   Natija: himoyasiz chaqiruv 0 ta.
+3. **Brauzerda yuklash** (`python -m http.server` + Browser pane).
+   Ushladi: `mainTab` da yetim `mpEl` — **runtime xato, sintaksis
+   tekshiruvi ko'rmagan**. Har tab almashganda ERP yiqilardi.
+
+➡ **Katta o'zgarishdan keyin 3-bosqich MAJBURIY.** Sintaksis tekshiruvi
+yetmaydi. Yangi yorliqda och — konsol eski xabarni saqlaydi.
+
+### ⏳ OCHIQ
+
+1. **KLIENTDA BOR to'lovda ko'rinmadi** — v180.8 da qo'ng'iroqchaga
+   ko'rsatkich qo'yildi («POS DAN» raqamlar yoki «POS yubormagan»).
+   Ibrohim natijani hali aytmadi.
+2. **Qo'ng'iroqcha panelining o'zi tushunarsiz** — qaror yo'q.
+   Rasmini so'ra, o'z so'zi bilan ayttir, yangi maket chizma.
 
 ---
 
