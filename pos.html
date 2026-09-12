@@ -1,4 +1,4 @@
-<!-- v0.20 -->
+<!-- v0.21 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -72,7 +72,8 @@ body.rol-pos button, body.rol-pos input,
 #kirish .xona{display:inline-block;background:var(--red-bg);color:var(--red);padding:3px 11px;font-size:10.5px;font-weight:800;letter-spacing:.08em;margin-bottom:12px;border-radius:999px}
 /* v0.04: avval yuqori o'ngda edi — renderPOS ning KURS pilli AYNI o'sha joyda,
    ustma-ust tushardi. Endi pastki chap burchakda. */
-#pos-holat{position:fixed;bottom:calc(8px + var(--safe-bot));left:10px;z-index:9500;opacity:.92;display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:5px 11px;font-size:11px;color:var(--muted);font-weight:600}
+/* v0.21: cloud belgisi TEPA SATRGA ko'chdi (Ibrohim: «huddi tilla erpga o'xshab»). */
+#pos-holat{display:none}
 #pos-holat .d{width:7px;height:7px;border-radius:50%;background:var(--muted)}
 #pos-holat .d.ok{background:var(--green)}#pos-holat .d.no{background:var(--red)}#pos-holat .d.wait{background:var(--gold)}
 #chek-xabar{position:fixed;left:50%;top:calc(12px + var(--safe-top));transform:translateX(-50%);z-index:9600;background:var(--surf);border:1px solid var(--border);border-radius:999px;padding:9px 18px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.16);display:none}
@@ -129,7 +130,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.20';
+var POS_VER = 'v0.21';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -208,10 +209,31 @@ function _chekXabar(matn, tur){
 
 // ═════ KIRISH ═════
 function $(id){ return document.getElementById(id); }
+var _holatRang='', _holatMatn='ulanmoqda';
 function holat(t, m){
+  _holatRang = t || ''; _holatMatn = m || '';
   var d = $('ph-d'), x = $('ph-t');
   if(d) d.className = 'd' + (t ? ' ' + t : '');
   if(x) x.textContent = m;
+  _cloudIkonUpd();
+}
+// v0.21: ERP dagi cloudStatus (index.html:19761) bilan bir xil ranglar.
+function _cloudIkonUpd(){
+  var ik = document.getElementById('pos-cloud-ikon');
+  var w  = document.getElementById('pos-cloud');
+  if(w) w.title = 'Cloud: ' + _holatMatn;
+  if(!ik) return;
+  var yashil = _holatRang === 'ok';
+  var c = yashil ? 'var(--green)'
+        : _holatRang === 'wait' ? 'var(--gold)'
+        : _holatRang === 'no'   ? 'var(--red)' : 'var(--muted)';
+  ik.style.stroke = c;
+  ik.style.fill = yashil ? c : 'none';
+  ik.style.fillOpacity = yashil ? '0.25' : '0';
+}
+// Telefonda tooltip yo'q — bosilsa matn xabar bo'lib chiqadi.
+function posCloudBos(){
+  _chekXabar('Cloud: ' + (_holatMatn || '—'), _holatRang === 'no' ? 'xato' : 'ok');
 }
 function xato(m){ $('ke').textContent = m || ''; }
 var _kirdi = false;
@@ -375,7 +397,7 @@ function _yangila(){
     ochiqNom = data.klientlar[_posKi].nom;
   }
   var kursOchiq = !!document.getElementById('pos-kurs-ovl');
-  holat('kut','yangilanmoqda');
+  holat('wait','yangilanmoqda');
   _bolakOqi(meta).then(function(){
     holat('ok',_sinxronMatn());
     renderPOS();
@@ -530,6 +552,10 @@ function renderPOS(){
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
   h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:2px 8px;">'+POS_VER+'</span>';
   h+='<span style="flex:1;"></span>';
+  // v0.21: cloud belgisi — ERP dagi bilan bir xil ikonka va ranglar
+  h+='<span id="pos-cloud" onclick="posCloudBos()" title="Cloud" style="display:flex;align-items:center;cursor:pointer;padding:4px 2px;">'
+    +'<svg id="pos-cloud-ikon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:stroke .3s;display:block;">'
+    +'<path d="M17.5 19a4.5 4.5 0 1 0-.42-8.98 6 6 0 1 0-11.06 3.1A3.5 3.5 0 0 0 7 19h10.5z"/></svg></span>';
   h+='<span onclick="posKursOch()" title="Kurs va narxlarni ko\'rish" style="display:flex;align-items:baseline;gap:6px;padding:5px 13px;border-radius:999px;background:var(--yellow-bg);border:1px solid var(--gold-bd);cursor:pointer;"><span style="font-size:10px;color:var(--gold);letter-spacing:.06em;">KURS</span><b id="pos-kurs-val" style="font-size:16px;color:var(--gold);">'+(kurs?fmtD(kurs):'\u2014')+'</b><span style="font-size:10px;color:var(--gold);">\u25be</span></span>';
   h+='</div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:10px;">';
@@ -543,6 +569,7 @@ function renderPOS(){
   el.innerHTML=h;
   el.style.display='flex'; el.style.flexDirection='column';
   _posRoyxat();
+  _cloudIkonUpd();   // v0.21: qayta chizilgach joriy rangni tiklaymiz
 }
 
 function _posRoyxat(){

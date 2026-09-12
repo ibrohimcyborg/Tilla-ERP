@@ -5668,3 +5668,27 @@ O'zgarmagan bo'lsa qayta yozilmaydi (hash taqqoslanadi).
 
 Yana siqish mumkin (qisqa kalit + zavod/tur indeksi = 8.3 barobar, 1.59 MB) —
 hozircha qilinmadi, keyingi qadamga qoldirildi.
+
+## POS v0.21 — cloud belgisi tepa satrda
+
+Ibrohim: «endi POS ga cloud ulanadigan qilish kerak, top barda, huddi
+Tilla ERP ga o'xshab».
+
+- Tepa satrda, KURS pillining chap tomonida — `index.html:352` dagi
+  **aynan o'sha bulut ikonkasi**
+- Ranglar `cloudStatus` (19761) bilan bir xil:
+  yashil = sinxron (25% to'ldirilgan) · sariq = yangilanmoqda ·
+  qizil = o'qilmadi · kulrang = ulanmoqda
+- Bosilsa matn xabar bo'lib chiqadi — telefonda tooltip yo'q
+- Pastdagi chip (`#pos-holat`) yashirildi — endi faqat tepada
+
+### v0.19 dagi xato tuzatildi
+
+`_yangila` `holat('kut',…)` chaqirardi, CSS da esa `.wait` bor — nuqta sariq
+bo'lmasdi. `'wait'` ga to'g'irlandi.
+
+`_bolakOqi`, `yukla`, `holatTingla`, `posBSaqla` — TEGILMADI.
+`index.html` — TEGILMADI.
+
+Sinov: `cloudtest.js` — 14 ta tekshiruv (to'rt holat rangi, bosish xabari,
+ikonka hali chizilmaganda yiqilmasligi). Hammasi o'tdi.
