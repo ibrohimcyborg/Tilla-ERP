@@ -6098,3 +6098,20 @@ almashtirish uchun ham shu tugma: chiqib, boshqa login bilan kiriladi.
 Sinov: `chiqtest.js` — 9 ta tekshiruv (bekor qilish, uchta kalit tozalanishi,
 qayta yuklash, boshqa kalitlarga tegmasligi, `signOut` chaqirilmasligi).
 Brauzerda: 0 konsol xatosi, oyna ochildi, tugma joyida.
+
+## POS v0.33 — Chiqish tepa satrga ko'chdi
+
+Ibrohim: «clouddan emas, logindan chiqishga log out kerak».
+
+`v0.32` da tugma bulut oynasining ichida edi — ko'rish uchun avval bulutni
+bosish kerak edi. Endi **tepa satrda**, KURS pillining o'ng tomonida,
+chiqish ikonkasi (eshikdan chiqayotgan strelka).
+
+Bulut oynasidan olib tashlandi — ikki joyda turmasin.
+
+`posChiqish()` mantiqi TEGILMADI: tasdiq → uchta kalit tozalanadi →
+sahifa qayta yuklanadi. Cloud hisobidan chiqmaydi.
+
+Sinov: `chiqtest.js` 9/9. Brauzerda: 0 konsol xatosi, tepa satr
+`TILLA POS | v0.33 | ADMIN | KURS | — | ▾` + chiqish ikonkasi,
+bulut oynasida tugma yo'q.
