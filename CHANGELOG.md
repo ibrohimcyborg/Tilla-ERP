@@ -5952,3 +5952,13 @@ shu (`ref.doc().set`). Oplog, `holat`, `sozlamalar` — tegilmagan.
 
 Sinov: `nomtest.js` — 11 ta tekshiruv (Ibrohimning misoli, oraliqdagi bo'sh
 raqam, bo'shliqlar, buzuq yozuvlar). Hammasi o'tdi.
+
+## v180.9 — skan maydonida brauzer taklifi chiqmaydi
+
+Ibrohim (rasm bilan): chernovikni tekshirayotganda «Сохраненные сведения»
+ro'yxati chiqib, skan maydonini to'sib qo'yardi.
+
+`pch-in-<ri>` maydoniga qo'shildi:
+`autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"`
+
+Faqat shu maydon. Boshqa hech nimaga tegilmadi.
