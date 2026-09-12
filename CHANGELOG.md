@@ -5743,3 +5743,18 @@ Ibrohim so'ragan bo'lsa ham yozilmadi.
 
 Sinov: `cltest.js` — 10 ta tekshiruv (ulangan/ulanmagan holat, parol yo'qligi,
 ikki marta HTML-qochirish bo'lmasligi). Hammasi o'tdi.
+
+## POS v0.24 — BERISH / VOZVRAT pastki satrga
+
+Ibrohim: «berish vozvrat pasga qo'yilsin».
+
+Avval tugmalar klient oynasining SARLAVHASIDA edi (POS 1.16 da o'sha yerga
+ko'chirilgan). Uzun ism siqilardi, tugmalar barmoqdan uzoq edi.
+
+- Klient oynasi endi **flex ustun**: sarlavha · siljiydigan kontent ·
+  qotib turgan pastki satr
+- Tugmalar pastda, **48px balandlik**, kenglikni teng bo'lishadi
+- Sarlavhada faqat avatar, ism va `✕` qoldi
+- Qarz tarkibi uzun bo'lib siljitilsa ham tugmalar ko'rinib turadi
+
+Faqat joylashuv. `posBerishOch` / `posVozvratOch` / hisob / cloud — TEGILMADI.

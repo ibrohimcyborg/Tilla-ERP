@@ -1,0 +1,172 @@
+<title>Amallar Pastda</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF1F7; --surf:#FFFFFF; --surf2:#F4F6FB; --border:#D8DEEA;
+  --text:#0F1B33; --muted:#6B7894;
+  --gold:#3B6FE0; --gold-bg:rgba(59,111,224,.10); --gold-bd:#C3CFE8;
+  --green:#1E8F62; --green-bg:rgba(30,143,98,.10); --green-bd:rgba(30,143,98,.34);
+  --red:#D14A2E; --red-bg:rgba(209,74,46,.10); --red-bd:rgba(209,74,46,.34);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --border:#2a2a2a;
+  --text:#f0ede6; --muted:#77705f;
+  --gold:#c9a84c; --gold-bg:#241c0a; --gold-bd:#3a2a0a;
+  --green:#5ab87a; --green-bg:#0f1f10; --green-bd:#1e4a2a;
+  --red:#e05a5a; --red-bg:#1f0f0f; --red-bd:#3a1e1e;
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);line-height:1.5;font-size:15px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.page{max-width:860px;margin:0 auto;padding:16px 13px 60px;}
+h1{font-size:19px;margin:0 0 4px;font-weight:700;}
+.quote{border-left:3px solid var(--gold);padding:1px 0 1px 13px;margin:0 0 20px;
+  color:var(--gold);font-size:14px;}
+.ikki{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+@media(max-width:760px){.ikki{grid-template-columns:1fr;}}
+.lbl{font-size:10px;letter-spacing:.11em;font-weight:700;margin:0 0 9px;}
+.lbl.a{color:var(--red);}
+.lbl.b{color:var(--green);}
+.num{font-family:"Roboto",system-ui,sans-serif;font-variant-numeric:tabular-nums;}
+
+/* telefon */
+.tel{width:100%;max-width:340px;margin:0 auto;height:560px;background:var(--surf);
+  border:1px solid var(--border);border-radius:22px;overflow:hidden;display:flex;
+  flex-direction:column;}
+.tel.ok{border-color:var(--green-bd);}
+.hd{display:flex;align-items:center;gap:9px;padding:11px 13px;
+  border-bottom:1px solid var(--border);flex:none;flex-wrap:wrap;}
+.av{width:38px;height:38px;flex:none;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;background:var(--gold);color:#fff;font-weight:600;font-size:16px;}
+.nm{flex:1;min-width:0;font-size:15px;font-weight:600;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.x{width:32px;height:32px;flex:none;border-radius:50%;border:1px solid var(--border);
+  background:var(--surf2);color:var(--muted);display:flex;align-items:center;
+  justify-content:center;font-size:13px;}
+.bd{flex:1;overflow-y:auto;padding:13px;}
+
+.pills{display:flex;gap:7px;}
+.pill{display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;
+  border:0;background:linear-gradient(90deg,#5183FF,#5F84DF);color:#fff;
+  font-size:11px;font-weight:600;letter-spacing:.05em;
+  box-shadow:0 6px 18px rgba(81,131,255,.32);white-space:nowrap;}
+.pill svg{display:block;}
+.pastki{flex:none;padding:11px 13px calc(13px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border);background:var(--surf2);}
+.pastki .pills{gap:9px;}
+.pastki .pill{flex:1;justify-content:center;height:48px;font-size:12.5px;}
+
+.qblok{border:1px solid var(--border);border-radius:16px;padding:12px 13px;
+  margin-bottom:11px;}
+.qr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.qk{font-size:9.5px;letter-spacing:.09em;color:var(--muted);}
+.qv{font-size:24px;font-weight:700;color:var(--red);line-height:1.2;}
+.qs{font-size:11px;color:var(--muted);text-align:right;}
+.qsv{font-size:14px;font-weight:600;}
+.sek{font-size:9.5px;letter-spacing:.09em;color:var(--muted);margin:14px 0 7px;}
+.tr{display:flex;justify-content:space-between;padding:7px 0;font-size:12.5px;
+  border-top:1px solid var(--border);}
+.tr b{font-weight:600;}
+
+.note{margin-top:22px;font-size:13px;color:var(--muted);line-height:1.65;}
+.note b{color:var(--text);}
+ul{margin:9px 0 0;padding-left:0;list-style:none;}
+li{position:relative;padding-left:16px;margin-bottom:5px;font-size:13px;}
+li::before{content:"";position:absolute;left:3px;top:8px;width:5px;height:5px;
+  border-radius:50%;background:var(--green);}
+</style>
+
+<div class="page">
+  <h1>BERISH / VOZVRAT — pastga</h1>
+  <p class="quote">«berish vozvrat pasga qo'yilsin»</p>
+
+  <div class="ikki">
+    <div>
+      <div class="lbl a">HOZIRGI — sarlavhada</div>
+      <div class="tel">
+        <div class="hd">
+          <span class="av">J</span>
+          <span class="nm">Javohir aka Jizzax</span>
+          <span class="pills">
+            <span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>BERISH</span>
+            <span class="pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>VOZVRAT</span>
+          </span>
+          <span class="x">&#10005;</span>
+        </div>
+        <div class="bd">
+          <div class="qblok">
+            <div class="qr">
+              <div><div class="qk">KLIENT QARZI</div>
+                <div class="qv num">−408.57 g</div></div>
+              <div class="qs">Jami savdo<div class="qsv num">1 240.5 g</div>
+                <div class="num">98 450 $</div></div>
+            </div>
+          </div>
+          <div class="sek">QARZ TARKIBI</div>
+          <div class="tr"><span>Butterfly · Oddiy</span><b class="num">−182.40 g</b></div>
+          <div class="tr"><span>Butterfly · 3D</span><b class="num">−96.20 g</b></div>
+          <div class="tr"><span>Sharq · Uzuk</span><b class="num">−74.31 g</b></div>
+          <div class="tr"><span>Dorika · Oddiy</span><b class="num">−55.66 g</b></div>
+        </div>
+      </div>
+      <p style="font-size:12.5px;color:var(--red);margin-top:10px;text-align:center;">
+        Ism siqilib qoladi, tugmalar barmoqdan uzoq</p>
+    </div>
+
+    <div>
+      <div class="lbl b">TAKLIF — pastda qotib turadi</div>
+      <div class="tel ok">
+        <div class="hd">
+          <span class="av">J</span>
+          <span class="nm">Javohir aka Jizzax</span>
+          <span class="x">&#10005;</span>
+        </div>
+        <div class="bd">
+          <div class="qblok">
+            <div class="qr">
+              <div><div class="qk">KLIENT QARZI</div>
+                <div class="qv num">−408.57 g</div></div>
+              <div class="qs">Jami savdo<div class="qsv num">1 240.5 g</div>
+                <div class="num">98 450 $</div></div>
+            </div>
+          </div>
+          <div class="sek">QARZ TARKIBI</div>
+          <div class="tr"><span>Butterfly · Oddiy</span><b class="num">−182.40 g</b></div>
+          <div class="tr"><span>Butterfly · 3D</span><b class="num">−96.20 g</b></div>
+          <div class="tr"><span>Sharq · Uzuk</span><b class="num">−74.31 g</b></div>
+          <div class="tr"><span>Dorika · Oddiy</span><b class="num">−55.66 g</b></div>
+          <div class="tr"><span>Zmeyka · Oddiy</span><b class="num">−41.10 g</b></div>
+          <div class="tr"><span>Premium · Oddiy</span><b class="num">−28.90 g</b></div>
+        </div>
+        <div class="pastki">
+          <span class="pills">
+            <span class="pill"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>BERISH</span>
+            <span class="pill"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>VOZVRAT</span>
+          </span>
+        </div>
+      </div>
+      <p style="font-size:12.5px;color:var(--green);margin-top:10px;text-align:center;">
+        Ro'yxat uzun bo'lsa ham tugmalar joyida turadi</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Nima o'zgaradi:</b>
+    <ul>
+      <li>Tugmalar sarlavhadan pastki satrga ko'chadi va <b>kengayadi</b> —
+        48px balandlik, barmoq uchun qulay</li>
+      <li>Sarlavhada faqat ism va ✕ qoladi — uzun ism to'liq sig'adi</li>
+      <li>Pastki satr <b>qotib turadi</b> — qarz tarkibi uzun bo'lib scroll
+        qilinsa ham tugmalar ko'rinib turadi</li>
+      <li>Hisobga, cloudga, chernovikka tegilmaydi — faqat joylashuv</li>
+    </ul>
+  </div>
+</div>

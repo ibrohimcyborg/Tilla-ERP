@@ -1,4 +1,4 @@
-<!-- v0.23 -->
+<!-- v0.24 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -46,6 +46,9 @@ body.rol-pos button, body.rol-pos input,
    tushadi (avval avatar/ism bilan bir qatorda siqilib qolardi). */
 #pos-ovl .pos-hd{display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
 #pos-ovl .pos-pills{display:flex;gap:5px;flex:none;}
+/* v0.24: pastki satrdagi amallar DOIM keng — barmoq uchun. */
+#pos-ovl .pos-amal-past .pos-pills{gap:9px;}
+#pos-ovl .pos-amal-past .pos-pills button{flex:1;justify-content:center;height:48px;font-size:12.5px;}
 @media(max-width:700px){
   #pos-ovl .pos-pills{order:3;flex:1 1 100%;}
   #pos-ovl .pos-pills button{flex:1;justify-content:center;padding-left:8px;padding-right:8px;}
@@ -130,7 +133,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.23';
+var POS_VER = 'v0.24';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -688,14 +691,15 @@ function _posModal(){
   try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
   var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
   var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bot));z-index:9000;">';
-  h+='<div style="width:100%;max-width:720px;height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:24px;">';
-  // POS 1.16: amallar pastdan SARLAVHAGA — klient nomi yoniga pill bo'lib chiqdi.
+  // v0.24 (Ibrohim): «berish vozvrat pasga qo'yilsin». Quti flex ustun —
+  // ichki qism siljiydi, tugmalar pastda QOTIB turadi.
+  h+='<div style="width:100%;max-width:720px;height:100%;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--border);border-radius:24px;overflow:hidden;">';
+  // v0.24: sarlavhada faqat ism va ✕ — uzun ism siqilmasin.
   h+='<div class="pos-hd" style="padding:12px 15px;border-bottom:1px solid var(--border);">';
   h+='<div style="width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold);color:#fff;font-weight:600;font-size:17px;">'+_posEsc(_posBosh(k.nom))+'</div>';
   h+='<div style="flex:1;min-width:0;"><div style="font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
-  h+=_posAmalPill();
   h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
-  h+='<div style="padding:16px 17px;">';
+  h+='<div style="flex:1;min-height:0;overflow-y:auto;padding:16px 17px;">';
 
   // ── tepa blok: klient qarzi / jami savdo / bizning qarz
   h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;">';
@@ -745,6 +749,10 @@ function _posModal(){
   if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
   h+='</div>';
 
+  h+='</div>';
+  // v0.24: pastki satr — qotib turadi, qarz tarkibi uzun bo'lsa ham ko'rinadi.
+  h+='<div class="pos-amal-past" style="flex:none;padding:11px 13px calc(13px + var(--safe-bot));border-top:1px solid var(--border);background:var(--surf2);">';
+  h+=_posAmalPill();
   h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
