@@ -6005,3 +6005,54 @@ ishlaganidan keyin kassir kodi asosiy fayldan chiqarildi.
 
 ⚠ Endi POS faqat `pos.html` da. Tilla ERP da POS ekrani **hech qanday
 zoomda, hech qanday login bilan** ko'rinmaydi — ko'rsatadigan kod yo'q.
+
+## v182 + POS v0.30 — POS logini xonani belgilaydi
+
+Ibrohim: «POS sistemani ishlashi yoqdi, endi uni admin logiga o'tkazamiz» →
+«POS logini o'zgarsin: admin/admin123 dan kirilsa admin xonasi,
+test/test123 dan kirilsa test xonasi».
+
+### pos.html (v0.30)
+
+    var CREDS = [
+      { login:'test',  parol:'test123',  sandbox:'TEST'  },
+      { login:'admin', parol:'admin123', sandbox:'ADMIN' }
+    ];
+
+- `SANDBOX` endi **qotirilmagan** — kirishda `CREDS` dan olinadi
+- Xona `localStorage['pos-xona']` ga **saqlanadi**. Qayta ochilganda tiklanadi.
+  ⚠ Saqlanmagan bo'lsa **qayta kirish so'raladi** — taxmin qilib noto'g'ri
+  xonaga ulanmaymiz.
+- Tepa satrda xona **doim ko'rinadi**: `ADMIN` qizil, `TEST` kulrang
+- Kirish ekranidagi yozuv: `test → SINOV · admin → ADMIN`
+
+`cloudKol()` formulasi tegilmadi — `SANDBOX + '_tilla_' + uid` ikkala xona
+uchun ham to'g'ri: `ADMIN_tilla_<uid>`, `TEST_tilla_<uid>`. ERP dagi
+`(TEST_MODE?SANDBOX+'_':'')+'tilla_'+uid` bilan bir xil natija (sinovda
+tasdiqlandi).
+
+### index.html (v182)
+
+Xona sharti **to'rt joyda nusxa** edi — biri unutilsa qo'ng'iroqcha jimgina
+ishlamay qolardi. Endi bitta joyda:
+
+    function _posChTestmi(){
+      return getRol()==='admin' && (SANDBOX==='TEST' || SANDBOX==='ADMIN');
+    }
+
+Qolgan uchtasi (`posBellUpd` ko'rinishi, `posChListen` kirishi va qayta
+urinishi) shu funksiyani chaqiradi.
+
+⚠ TEST xonasi **ham ishlayveradi** — zaxira yo'l yopilmadi.
+
+⚠ **POS Tilla ERP dagi o'sha xona bilan bir xil Firebase hisobiga ulanishi
+SHART** — `cloudKol()` `uid` ga tayanadi, boshqa hisob = boshqa kolleksiya.
+
+### Sinov
+
+- `xonatest.js` — 27 ta tekshiruv: CREDS, kirish, xona saqlanishi va
+  tiklanishi, saqlanmagan holat, kolleksiya nomlari, ERP formulasi bilan
+  moslik, `_posChTestmi` olti rol/xona juftligida
+- **Brauzerda yuklash:** `index.html` va `pos.html` — ikkalasi ham
+  **0 konsol xatosi**. `cloudKol()` jonli tekshirildi: `ADMIN_tilla_x`,
+  `TEST_tilla_x`.

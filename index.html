@@ -1,4 +1,4 @@
-<!-- v181 -->
+<!-- v182 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v181';
+var APP_VER = 'v182';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -2211,7 +2211,9 @@ function applyRol(){
     document.body.classList.add('rol-hamid');
   }   // POS 1.18: qo'ng'iroqcha FAQAT test loginida (rol admin + SANDBOX TEST).
   var _bw=document.getElementById('pos-bell-wrap');
-  if(_bw) _bw.style.display=(rol==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')?'':'none';
+  // v182: shart BITTA joyda — _posChTestmi. Avval to'rt nusxa edi,
+  // biri unutilsa qo'ng'iroqcha jimgina ishlamay qolardi.
+  if(_bw) _bw.style.display=(typeof _posChTestmi==='function' && _posChTestmi())?'':'none';
   if(typeof posBellUpd==='function') posBellUpd();
   if(typeof posChListen==='function') posChListen();
   // POS 1.17 (Ibrohim, 2026-08-23): «keremas manga POS, man telimdan
@@ -14900,12 +14902,14 @@ var _posChUnsub=null, _posCh=[], _posChOchiq=null, _posChSkan={}, _posChKir={};
 // yerda saqlanadi va tasdiq kartasida «TO'LOVGA O'TISH» tugmasi chiqadi.
 // ⚠ FAQAT test logida — pastdagi _posChTestmi() ga qara.
 var _posChTolov=null;
-// test logini AYNAN shu: {login:'test', rol:'admin', sandbox:'TEST'} (2237-qator).
+// v182: IKKI xona — test {rol:'admin', sandbox:'TEST'} va
+// admin {rol:'admin', sandbox:'ADMIN'}. POS ham shu ikkisiga kiradi.
 // tilla (sandbox yo'q), admin (sandbox ADMIN), abdulhamid_7777 (rol hamid),
 // zavod (rol zavod) — hech biri bu shartga tushmaydi.
 // (kassatest logini v181 da olib tashlandi — POS endi pos.html.)
 function _posChTestmi(){
-  try{ return getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST'; }
+  try{ return getRol()==='admin' && typeof SANDBOX!=='undefined'
+      && (SANDBOX==='TEST' || SANDBOX==='ADMIN'); }
   catch(e){ return false; }
 }
 // POS 1.33 (Ibrohim): har skandan keyin panel qayta chizilib, maydon o'chib
@@ -14922,11 +14926,11 @@ var _posChKut=null;
 function posChListen(){
   try{
     if(_posChUnsub) return;
-    if(!(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')) return;
+    if(!_posChTestmi()) return;
     var ref=_posChRef();
     if(!ref){                                   // cloud hali ulanmagan — kutamiz
       if(!_posChKut) _posChKut=setInterval(function(){
-        if(_posChUnsub || !(getRol()==='admin' && typeof SANDBOX!=='undefined' && SANDBOX==='TEST')){
+        if(_posChUnsub || !_posChTestmi()){
           clearInterval(_posChKut); _posChKut=null; return; }
         if(_posChRef()){ clearInterval(_posChKut); _posChKut=null; posChListen(); }
       }, 2000);

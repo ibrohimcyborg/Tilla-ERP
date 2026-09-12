@@ -1,4 +1,4 @@
-<!-- v0.29 -->
+<!-- v0.30 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -95,7 +95,7 @@ body.rol-pos button, body.rol-pos input,
   <div class="box">
     <div class="brand"><b>⬡ TILLA POS</b><span>planshet kassa</span></div>
     <div class="card">
-      <div style="text-align:center"><span class="xona">SINOV XONASI</span></div>
+      <div style="text-align:center"><span class="xona">test → SINOV &nbsp;·&nbsp; admin → ADMIN</span></div>
       <div class="t" id="k-t">Kirish</div>
       <div id="k1">
         <input id="ku" placeholder="Login" autocomplete="off" autocapitalize="none">
@@ -127,19 +127,27 @@ body.rol-pos button, body.rol-pos input,
 // 51 funksiya, CSS palitrasi va element id lari — hammasi AYNI o'sha.
 //
 // ⚠ QAMROV:
-//   • SINOV XONASI QOTIRILGAN — `SANDBOX` o'zgarmas.
+//   • XONANI LOGIN belgilaydi (v0.30): test→TEST, admin→ADMIN.
 //   • Cloudga YOZADIGAN yagona joy: `posBSaqla` → `_poschernovik` (chernovik).
 //     `holat`, `holat_bN`, `_amallar` ga YOZILMAYDI — hisobga tegmaydi.
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.29';
+var POS_VER = 'v0.30';
 
-// ── SINOV XONASI — QOTIRILGAN ────────────────────
-var SANDBOX = 'TEST';
+// ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
+// Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
+// kirilsa test xonasi».
+// cloudKol() = SANDBOX + '_tilla_' + uid  →  ADMIN_tilla_<uid> / TEST_tilla_<uid>
+// ⚠ POS Tilla ERP dagi O'SHA xona bilan BIR XIL Firebase hisobiga
+//   ulanishi SHART — uid boshqa bo'lsa boshqa kolleksiyaga tushadi.
+var SANDBOX = '';   // kirishda to'ldiriladi
 // ───────────────────────────────────────────
 
-var CREDS = [{ login:'test', parol:'test123' }];
+var CREDS = [
+  { login:'test',  parol:'test123',  sandbox:'TEST'  },
+  { login:'admin', parol:'admin123', sandbox:'ADMIN' }
+];
 var FB = {
   apiKey: "AIzaSyAfZ45TmFvDRIOos19eG8msyiDFTJuc0PE",
   authDomain: "tilla-erp-8b357.firebaseapp.com",
@@ -281,11 +289,13 @@ var _kirdi = false, _posLogin = '';
 
 $('kb').addEventListener('click', function(){
   var u = $('ku').value.trim().toLowerCase(), p = $('kp').value;
-  if(!CREDS.filter(function(c){ return c.login===u && c.parol===p; })[0]){
-    xato('Login yoki parol notogri'); return;
-  }
+  var _c = CREDS.filter(function(c){ return c.login===u && c.parol===p; })[0];
+  if(!_c){ xato('Login yoki parol notogri'); return; }
   xato(''); _kirdi = true; _posLogin = u;   // v0.23: bulut oynasida ko'rsatiladi
-  try{ localStorage.setItem('pos-kirdi','1'); }catch(e){}
+  SANDBOX = _c.sandbox;                     // v0.30: xonani LOGIN belgilaydi
+  try{ localStorage.setItem('pos-kirdi','1');
+       localStorage.setItem('pos-xona', SANDBOX);
+       localStorage.setItem('pos-login', u); }catch(e){}
   fbBoshla();
 });
 $('kp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('kb').click(); });
@@ -704,6 +714,11 @@ function renderPOS(){
   h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:var(--safe-top) 2px 11px;border-bottom:1px solid var(--border);margin-bottom:11px;">';
   h+='<span style="font-size:16px;font-weight:700;letter-spacing:.03em;">TILLA <span style="color:var(--gold);">POS</span></span>';
   h+='<span style="font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:2px 8px;">'+POS_VER+'</span>';
+  // v0.30: ikki xona bor — qaysi birida ekani DOIM ko'rinib tursin
+  h+='<span style="font-size:9.5px;letter-spacing:.06em;font-weight:700;border-radius:24px;padding:2px 8px;'
+    + (SANDBOX==='ADMIN' ? 'color:var(--red);border:1px solid var(--red-bd);background:var(--red-bg);'
+                         : 'color:var(--muted);border:1px solid var(--border);')
+    + '">'+_posEsc(SANDBOX||'?')+'</span>';
   h+='<span style="flex:1;"></span>';
   // v0.21: cloud belgisi — ERP dagi bilan bir xil ikonka va ranglar
   h+='<span id="pos-cloud" onclick="posCloudBos()" title="Cloud" style="display:flex;align-items:center;cursor:pointer;padding:4px 2px;">'
@@ -1609,8 +1624,16 @@ document.addEventListener('touchend', function(e){
 
 // ═════ BOSHLANISH ═════
 try{
-  if(localStorage.getItem('pos-kirdi') === '1'){ _kirdi = true; fbBoshla(); }
-  else setTimeout(function(){ $('ku').focus(); }, 80);
+  // v0.30: xona ham tiklanadi. Saqlanmagan bo'lsa QAYTA KIRISH so'raladi —
+  // taxmin qilib noto'g'ri xonaga ulanmaymiz.
+  var _x = localStorage.getItem('pos-xona');
+  var _l = localStorage.getItem('pos-login');
+  if(localStorage.getItem('pos-kirdi') === '1' && _x){
+    SANDBOX = _x; _posLogin = _l || ''; _kirdi = true; fbBoshla();
+  } else {
+    try{ localStorage.removeItem('pos-kirdi'); }catch(e){}
+    setTimeout(function(){ $('ku').focus(); }, 80);
+  }
 }catch(e){}
 </script>
 </body>
