@@ -1,4 +1,4 @@
-<!-- v180.5 -->
+<!-- v180.6 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2036,7 +2036,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180.5';
+var APP_VER = 'v180.6';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15277,7 +15277,7 @@ function posChQabul(){
 
   // v180.3: hisob yozilib bo'ldi — endi to'lovga o'tish taklif qilinadi.
   // Bu FAQAT holat saqlash, hisobga hech qanday ta'siri yo'q.
-  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
+  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
   save('POS chernovik qabul: '+k.nom);
   try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
   // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
@@ -15290,6 +15290,37 @@ function posChQabul(){
 }
 // v180.3: mavjud to'lov oynasi ochiladi — yangi ekran YOZILMAYDI.
 // openKlientTolov (13320) tozalaydi, ktPickK (13367) klientni tanlaydi.
+// v180.6 (Ibrohim): «to'lovga o'tganimda avtomat Klientda borda ko'rinishi kerak».
+// POS kassiri yozgan naqt/perech/karta/lom shu yerda to'lov oynasiga tushadi.
+// ⚠ FAQAT TO'LDIRADI — hech qanday hisob qilmaydi, saqlamaydi. Admin
+//   raqamlarni ko'radi, xohlasa o'zgartiradi, keyin o'zi saqlaydi.
+function _ktKbToldir(kb){
+  if(!kb) return;
+  var qoy = function(id, v){
+    var e = document.getElementById(id);
+    if(e && v) e.value = v;
+  };
+  qoy('kt-pp-naqd',   kb.naqt);
+  qoy('kt-pp-perech', kb.perech);
+  qoy('kt-pp-karta',  kb.karta);
+  (kb.lom || []).forEach(function(l){
+    if(typeof kTolovAddLom !== 'function') return;
+    kTolovAddLom();
+    var i = (window._ktLomIdx || 1) - 1;
+    var p = document.getElementById('kt-lp-'+i);
+    if(p && l.proba){
+      // POS dagi proba ro'yxati ERP dagidan boy bo'lishi mumkin — yo'q bo'lsa qo'shamiz
+      var bor = false;
+      for(var q=0;q<p.options.length;q++) if(p.options[q].value===String(l.proba)) bor=true;
+      if(!bor){ var op=document.createElement('option'); op.text=String(l.proba); p.add(op); }
+      p.value = String(l.proba);
+    }
+    var g = document.getElementById('kt-lg-'+i); if(g) g.value = l.gramm || '';
+    var n = document.getElementById('kt-lk-'+i); if(n) n.value = l.narx  || '';
+  });
+  try{ if(typeof pulPanelUpd === 'function') pulPanelUpd('kt'); }catch(e){}
+  try{ if(typeof kTolovCalc  === 'function') kTolovCalc(); }catch(e){}
+}
 function posChTolovOch(){
   var t=_posChTolov; _posChTolov=null;
   if(!t || !_posChTestmi()) return;
@@ -15302,6 +15333,7 @@ function posChTolovOch(){
       var _bm={}; (t.rows||[]).forEach(function(b){ _bm[b.zavod+'||'+b.tur]=b.g; });
       if((t.rows||[]).length) _ktBerildi={list:t.rows, map:_bm};
       ktPickK(t.ki);
+      _ktKbToldir(t.kb);   // v180.6: POS yozgan naqt/perech/karta/lom
     }
   }catch(e){ if(window.console) console.error('posChTolovOch:', e); }
 }

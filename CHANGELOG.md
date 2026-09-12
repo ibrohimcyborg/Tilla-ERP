@@ -5802,3 +5802,30 @@ Grammi yoki narxi yo'q lom qatori yuborilmaydi.
 
 Sinov: `kbtest.js` — 17 ta tekshiruv, Ibrohimning raqamlari bilan
 (1200 + 500 + 969.68 + 300 = 2 969.68). Hammasi o'tdi.
+
+## v180.6 — to'lovga o'tganda KLIENTDA BOR avtomat to'ldiriladi
+
+Ibrohim: «chernovikka qo'shib menga yuborsin, men to'lovga o'tganimda avtomat
+Klientda borda ko'rinishi kerak».
+
+POS kassiri yozgan naqt / perech / karta / lom endi «TO'LOVGA O'TISH» bosilganda
+to'lov oynasiga tushadi:
+
+- `kt-pp-naqd`, `kt-pp-perech`, `kt-pp-karta` — to'ldiriladi (nol bo'lsa tegilmaydi)
+- Har lom uchun `kTolovAddLom()` chaqirilib `kt-lp-<i>` (proba),
+  `kt-lg-<i>` (gramm), `kt-lk-<i>` ($/g) to'ldiriladi
+- POS dagi proba ERP ro'yxatida bo'lmasa (masalan 916) — **option qo'shiladi**,
+  aks holda jimgina 585 bo'lib qolardi
+- Oxirida `pulPanelUpd('kt')` va `kTolovCalc()` chaqiriladi
+
+⚠ **FAQAT TO'LDIRADI.** Hech qanday hisob qilmaydi, hech qayerga saqlamaydi.
+Admin raqamlarni ko'radi, xohlasa o'zgartiradi, keyin o'zi saqlaydi.
+
+⚠ **Faqat `test` logida.** `_ktKbToldir` faqat `posChTolovOch` dan chaqiriladi,
+u esa `_posChTestmi()` bilan qulflangan. `tilla`, `admin`, `abdulhamid`,
+`zavod` — to'lov oynasini oddiy yo'l bilan ochsa hech nima o'zgarmaydi.
+
+`saqlashKlientTolov`, `kTolovCalc`, chek — TEGILMADI. Abdulhamid TEGILMADI.
+
+Sinov: `toldirtest.js` — 15 ta tekshiruv (null holat, Ibrohimning raqamlari,
+ro'yxatda yo'q proba). Hammasi o'tdi.
