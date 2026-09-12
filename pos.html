@@ -1,4 +1,4 @@
-<!-- v0.22 -->
+<!-- v0.23 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -130,7 +130,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.22';
+var POS_VER = 'v0.23';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -232,18 +232,56 @@ function _cloudIkonUpd(){
   ik.style.fillOpacity = yashil ? '0.25' : '0';
 }
 // Telefonda tooltip yo'q — bosilsa matn xabar bo'lib chiqadi.
+// v0.23 (Ibrohim): «clouddi bossa qaysi login bilan kirganini ko'rsatsin».
+// ⚠ PAROL KO'RSATILMAYDI — brauzerda ochiq turgan parol xavfli.
+function posCloudYop(){ var m=document.getElementById('pos-cl-ovl'); if(m) m.remove(); }
 function posCloudBos(){
-  _chekXabar('Cloud: ' + (_holatMatn || '—'), _holatRang === 'no' ? 'xato' : 'ok');
+  posCloudYop();
+  var pochta = '';
+  try{ pochta = (_cloudUser && _cloudUser.email) || ''; }catch(e){}
+  var xona = (typeof SANDBOX!=='undefined' && SANDBOX) ? SANDBOX : '—';
+  var manba = _nusxadan ? 'POS nusxasi (tez)' : 'butun baza';
+  var vaqt = '—';
+  try{ if(_holatVaqt) vaqt = new Date(_holatVaqt).toLocaleString('ru-RU'); }catch(e){}
+  var rang = _holatRang==='ok' ? 'green' : _holatRang==='no' ? 'red' : 'gold';
+  var qator = function(k, v, c){
+    return '<div style="display:flex;justify-content:space-between;align-items:baseline;'
+      + 'gap:12px;padding:9px 0;border-top:1px solid var(--border);font-size:13px;">'
+      + '<span style="color:var(--muted);flex:none;">'+k+'</span>'
+      + '<b style="text-align:right;min-width:0;overflow-wrap:anywhere;'
+      + (c?'color:var(--'+c+');':'')+'">'+_posEsc(v)+'</b></div>';
+  };
+  var h='<div id="pos-cl-ovl" onclick="if(event.target===this)posCloudYop()" '
+    + 'style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;'
+    + 'align-items:center;justify-content:center;padding:20px;z-index:9300;">';
+  h+='<div style="width:100%;max-width:420px;background:var(--surf);border:1px solid var(--border);border-radius:16px;overflow:hidden;">';
+  h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">';
+  h+='<span style="font-size:16px;font-weight:700;color:var(--'+rang+');">Cloud</span>';
+  h+='<span style="flex:1;"></span>';
+  h+='<button onclick="posCloudYop()" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
+  h+='<div style="padding:4px 16px 15px;">';
+  h+=qator('POS login', _posLogin || '—');
+  h+=qator('Cloud pochta', pochta || 'ulanmagan', pochta?'':'red');
+  h+=qator('Xona', xona);
+  h+=qator('Holat', _holatMatn || '—', rang);
+  h+=qator('Ma&#39;lumot', manba);
+  h+=qator('Oxirgi yangilanish', vaqt);
+  h+='<div style="margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.6;">'
+    + 'Parol ko&#39;rsatilmaydi. Cloud pochtasi Tilla ERP bilan bir xil — '
+    + 'bir brauzerda bir marta kiritiladi.</div>';
+  h+='</div></div></div>';
+  var d=document.createElement('div'); d.innerHTML=h;
+  document.body.appendChild(d.firstChild);
 }
 function xato(m){ $('ke').textContent = m || ''; }
-var _kirdi = false;
+var _kirdi = false, _posLogin = '';
 
 $('kb').addEventListener('click', function(){
   var u = $('ku').value.trim().toLowerCase(), p = $('kp').value;
   if(!CREDS.filter(function(c){ return c.login===u && c.parol===p; })[0]){
     xato('Login yoki parol notogri'); return;
   }
-  xato(''); _kirdi = true;
+  xato(''); _kirdi = true; _posLogin = u;   // v0.23: bulut oynasida ko'rsatiladi
   try{ localStorage.setItem('pos-kirdi','1'); }catch(e){}
   fbBoshla();
 });

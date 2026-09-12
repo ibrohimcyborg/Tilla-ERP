@@ -5711,3 +5711,35 @@ Parol maydoni, `index.html`, cloud — TEGILMADI.
 
 Sinov: `kirtest.js` — 12 ta tekshiruv (sakkiz xato kodi, buzilgan pochta
 ko'rinishi, maydon atributlari). Hammasi o'tdi.
+
+## POS v0.23 — bulut bosilsa kirish ma'lumoti ko'rinadi
+
+Ibrohim: «POS da tepada qaysi login bilan kirganini ko'rsatadigan qil,
+cloudni bossa».
+
+Avval bulut bosilsa qisqa xabar chiqardi. Endi kichik oyna ochiladi:
+
+    Cloud                                    ✕
+    ─────────────────────────────────────────
+    POS login              test
+    Cloud pochta           test@tilla.uz
+    Xona                   TEST
+    Holat                  sinxron
+    Ma'lumot               POS nusxasi (tez)
+    Oxirgi yangilanish     11.09.2026, 18:13
+
+    Parol ko'rsatilmaydi. Cloud pochtasi Tilla ERP
+    bilan bir xil — bir brauzerda bir marta kiritiladi.
+
+⚠ **PAROL KO'RSATILMAYDI.** Brauzerda ochiq turgan parol xavfli —
+Ibrohim so'ragan bo'lsa ham yozilmadi.
+
+- Sarlavha rangi holatga qarab: yashil / sariq / qizil
+- Cloudga ulanmagan bo'lsa `ulanmagan` deb qizil chiqadi
+- «Ma'lumot» qatori manbani aytadi — `POS nusxasi (tez)` yoki `butun baza`.
+  Shu bilan v0.20 dagi tez yo'l ishlayotganini ko'rish mumkin.
+
+`_posLogin` kirishda eslab qolinadi. Cloud, hisob, `index.html` — TEGILMADI.
+
+Sinov: `cltest.js` — 10 ta tekshiruv (ulangan/ulanmagan holat, parol yo'qligi,
+ikki marta HTML-qochirish bo'lmasligi). Hammasi o'tdi.
