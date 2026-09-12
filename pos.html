@@ -1,4 +1,4 @@
-<!-- v0.33 -->
+<!-- v0.34 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.33';
+var POS_VER = 'v0.34';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -699,7 +699,10 @@ function posKursOch(){
       });
       if(!bor.length) return;              // butun zavod narxsiz — chizilmaydi
       chizildi++;
-      h+='<div style="padding:9px 13px 4px;font-size:12px;color:var(--gold);">'+_posEsc(z.nom)+'</div>';
+      // v0.34 (Ibrohim): «chiziq bilan zavodlarni ham ajrat, topish osonroq
+      // bo'ladi» — birinchisidan boshqa har zavod ustida ajratuvchi chiziq.
+      h+='<div style="padding:'+(chizildi>1?'13px':'9px')+' 13px 4px;font-size:12px;color:var(--gold);font-weight:600;'
+        +(chizildi>1?'border-top:2px solid var(--border);margin-top:4px;':'')+'">'+_posEsc(z.nom)+'</div>';
       bor.forEach(function(x,i){
         var NS='text-align:right;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
         h+='<div style="'+_POSG+'padding:7px 13px;font-size:13.5px;'+(i?'border-top:1px solid var(--border);':'')+'">';

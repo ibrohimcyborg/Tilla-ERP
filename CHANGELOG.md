@@ -6115,3 +6115,21 @@ sahifa qayta yuklanadi. Cloud hisobidan chiqmaydi.
 Sinov: `chiqtest.js` 9/9. Brauzerda: 0 konsol xatosi, tepa satr
 `TILLA POS | v0.33 | ADMIN | KURS | — | ▾` + chiqish ikonkasi,
 bulut oynasida tugma yo'q.
+
+## POS v0.34 — kurs jadvalida zavodlar chiziq bilan ajratildi
+
+Ibrohim (rasm bilan): «chiziq bilan zavodlarni ham ajrat, topish osonroq
+bo'ladi».
+
+Avval turlar orasida ingichka chiziq bor edi, zavodlar orasida esa yo'q —
+uzun ro'yxatda qayerda yangi zavod boshlangani bilinmasdi.
+
+- Har zavod sarlavhasi ustida **2px ajratuvchi chiziq** (birinchisidan boshqa)
+- Zavod nomi endi **qalin** (`font-weight:600`)
+- Guruhlar orasida ko'proq bo'shliq (`13px` yuqori otstup)
+
+Faqat kurs jadvali ko'rinishi. Narx hisobi, filtr, boshqa ekranlar —
+TEGILMADI.
+
+Sinov: brauzerda uch zavod bilan chizildi — chiziq **ikkitasida** (birinchisida
+yo'q, to'g'ri). 0 konsol xatosi. Ekran rasmi bilan ko'z bilan ham tasdiqlandi.
