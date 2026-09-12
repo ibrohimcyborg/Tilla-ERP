@@ -1,4 +1,4 @@
-<!-- v0.25 -->
+<!-- v0.27 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -133,7 +133,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.25';
+var POS_VER = 'v0.27';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -969,6 +969,25 @@ function _kbHisobUpd(){
   if(v) v.textContent = fmtD(Math.abs(farq))+' $';
 }
 // Berish ekranidagi panel. Vozvratda YO'Q — u yerda pul harakati boshqacha.
+// v0.27 (Ibrohim): «narxi yo'q, grammi 0 zavodla ko'rinmasin».
+// ⚠ Butunlay yashirilmaydi — pastda «yashirilgan N ta» tugmasi qoladi.
+//   Aks holda omborda mol bo'lmagan zavoddan berish KERAK bo'lib qolsa
+//   (minusga tushirib) unga yo'l topib bo'lmasdi.
+// ⚠ FAQAT BERISHDA. Vozvratda klient molni qaytaradi — ombor ahamiyatsiz,
+//   u yerda hamma zavod ko'rinadi.
+var _pbHammasi = false;
+function posBHammasi(){ _pbHammasi = !_pbHammasi; _pbDraw(); }
+// Zavodda birorta turda mol BOR yoki narx BOR bo'lsa — ko'rinadi.
+function _pbZavodKerak(zi){
+  var z = data.zavodlar[zi]; if(!z) return false;
+  var t = z.turlar || [];
+  for(var i=0;i<t.length;i++){
+    if(_pbOst(zi,i) > 0.001) return true;
+    if(_pbNarx(zi,i) > 0) return true;
+  }
+  return false;
+}
+
 function _kbSatr(V){
   if(V) return '';
   var h='<div style="border-top:1px solid var(--border);padding:12px;background:var(--gold-bg);flex:none;">';
@@ -1244,16 +1263,27 @@ function _pbDraw(){
 
   if(!z){
     // ══ EKRAN 1 — zavod tanlash ══
-    h+='<div style="flex:1;min-height:0;display:flex;flex-direction:column;">';
-    h+='<div style="flex:1;overflow-y:auto;padding:12px;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;">';
+    // v0.26 (Ibrohim, planshetdan): «zavodla chapda savat o'ng tarafda
+    // bo'sa to'g'ri bo'larkan». Keng ekranda ikki ustun, telefonda avvalgidek.
+    var KENG = window.innerWidth >= 900;
+    h+='<div style="flex:1;min-height:0;display:flex;flex-direction:'+(KENG?'row':'column')+';">';
+    h+='<div style="flex:1;min-width:0;overflow-y:auto;padding:12px;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;">';
+    // v0.27: berishda keraksiz zavodlar chizilmaydi
+    var _yash = 0;
     (data.zavodlar||[]).forEach(function(zz,i){
+      if(!V && !_pbHammasi && !_pbZavodKerak(i) && _pbSIdx(i) < 0){ _yash++; return; }
       var j=_pbZavodJami(i);
       h+='<div onclick="posBZavod('+i+')" style="position:relative;border:1px solid var(--border);background:var(--surf2);border-radius:18px;padding:14px 13px;cursor:pointer;min-height:74px;display:flex;flex-direction:column;justify-content:center;gap:3px;">';
       if(j) h+='<span style="position:absolute;top:8px;right:9px;font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);">'+fmtG(j.g)+' g · '+j.n+' dona</span>';
       h+='<b style="font-size:16px;font-weight:600;color:var(--'+C+');">'+_posEsc(zz.nom)+'</b>';
       h+='<span style="font-size:11px;color:var(--muted);">'+((zz.turlar||[]).length)+' ta tur</span></div>';
     });
-    h+='</div></div>';
+    if(_yash || _pbHammasi) h+='<div style="text-align:center;padding:10px 0 2px;">'
+      + '<button onclick="posBHammasi()" style="border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:999px;padding:6px 15px;font-size:11.5px;cursor:pointer;font-family:inherit;">'
+      + (_pbHammasi ? 'keraksizlarini yashirish' : _yash+' ta zavod yashirilgan — ko&#39;rsatish') + '</button></div>';
+    h+='</div></div>';                      // chap ustun tugadi
+    // O'NG USTUN: savat + KLIENTDA BOR. Telefonda oddiy pastki blok.
+    h+='<div style="'+(KENG?'width:45%;max-width:620px;flex:none;border-left:1px solid var(--border);overflow-y:auto;':'flex:none;')+'display:flex;flex-direction:column;min-height:0;">';
     // savat
     var J=_pbSavatJami();
     // v0.16 (Ibrohim yozib berdi): zavod satrida raqam YO'Q — faqat nom va ✕.
@@ -1266,7 +1296,7 @@ function _pbDraw(){
     var SC_P='min-width:70px;text-align:right;flex:none;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
     var SC_X='width:20px;flex:none;';
     var SR='display:flex;align-items:baseline;gap:7px;padding:2px 0;font-size:11.5px;';
-    h+='<div style="border-top:1px solid var(--border);background:var(--bg);flex:none;max-height:210px;display:flex;flex-direction:column;">';
+    h+='<div style="'+(KENG?'':'border-top:1px solid var(--border);max-height:210px;')+'background:var(--bg);flex:none;display:flex;flex-direction:column;">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;flex:none;">';
     h+='<span style="font-size:9.5px;letter-spacing:.11em;color:var(--muted);">SAVAT</span>';
     h+='<span style="font-size:10.5px;color:var(--muted);">'+(_pbSavat.length?_pbSavat.length+' zavod · o\'zgartirish uchun bosing':'')+'</span></div>';
@@ -1304,6 +1334,7 @@ function _pbDraw(){
     h+='<span style="'+SC_P+'font-weight:700;font-size:13px;color:var(--green);">'+(_sp?fmtD(_sp)+' $':'')+'</span>';
     h+='<span style="'+SC_X+'"></span></div></div>';   // JAMI + savat konteyner
     h+=_kbSatr(V);                                       // v0.25: KLIENTDA BOR
+    h+='</div>';                                         // o'ng ustun
     h+='</div>';                                         // ekran 1 o'rami
     h+='<div style="display:flex;gap:7px;justify-content:flex-end;padding:'+(PAST?'5px 9px':'9px 11px')+';border-top:1px solid var(--border);flex:none;">';
     h+='<button onclick="posBBekor()" style="height:'+(PAST?38:44)+'px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Bekor</button>';

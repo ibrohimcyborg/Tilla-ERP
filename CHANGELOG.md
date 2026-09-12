@@ -5829,3 +5829,39 @@ u esa `_posChTestmi()` bilan qulflangan. `tilla`, `admin`, `abdulhamid`,
 
 Sinov: `toldirtest.js` — 15 ta tekshiruv (null holat, Ibrohimning raqamlari,
 ro'yxatda yo'q proba). Hammasi o'tdi.
+
+## POS v0.26 — planshetda zavodlar chapda, savat o'ngda
+
+Ibrohim (planshet rasmi bilan): «shuni ustun noto'g'ri bo'p qolgan — zavodlar
+chapda, savat o'ng tarafda bo'lsa to'g'ri bo'larkan».
+
+Berish ekranining 1-qismi endi **keng ekranda ikki ustun**:
+
+- `var KENG = window.innerWidth >= 900`
+- Chap: zavod to'ri (`flex:1;min-width:0`)
+- O'ng: savat + KLIENTDA BOR (`45%`, eng ko'pi `620px`, chap chegarasi bilan)
+- Keng ekranda savatning `max-height:210px` cheklovi olib tashlanadi —
+  o'ng ustun o'zi siljiydi
+
+Telefonda (< 900px) avvalgidek: hammasi ustma-ust. `<div>` muvozanati
+tekshirildi — ekran 1 da 14/14, `_kbSatr` da 16/16.
+
+## POS v0.27 — keraksiz zavodlar berish ro'yxatida ko'rinmaydi
+
+Ibrohim: «narxi yo'q, grammi 0 zavodlar ko'rinmasin zavodlarda».
+
+Zavod **ko'rinadi**, agar birorta turida mol BOR **yoki** narx BOR bo'lsa.
+Ikkalasi ham yo'q bo'lsa — chizilmaydi.
+
+⚠ **Butunlay yo'qotilmaydi.** Pastda `N ta zavod yashirilgan — ko'rsatish`
+tugmasi chiqadi. Omborda mol bo'lmagan zavoddan berish kerak bo'lib qolsa
+(minusga tushirib — kod buni taqiqlamaydi), unga yo'l qoladi.
+
+⚠ **Faqat berishda.** Vozvratda klient molni qaytaradi, ombor ahamiyatsiz —
+u yerda hamma zavod ko'rinadi (`!V` sharti).
+
+⚠ **Savatdagi zavod hech qachon yashirilmaydi** (`_pbSIdx(i) < 0`) — aks holda
+savatga qo'shilgan zavod ro'yxatdan yo'qolib, tahrirlab bo'lmasdi.
+
+Sinov: `filtrtest.js` — 9 ta tekshiruv (narxli/molli/bo'sh zavod, kurs yo'q
+holati, vozvrat sharti, savat himoyasi). Hammasi o'tdi.
