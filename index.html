@@ -1,4 +1,4 @@
-<!-- v183 -->
+<!-- v184 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v183';
+var APP_VER = 'v184';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15012,20 +15012,44 @@ function _posChSum(a){ var s=0; (a||[]).forEach(function(x){ s+=x; }); return ro
 function _posChTop(id){ for(var i=0;i<_posCh.length;i++) if(_posCh[i]._id===id) return _posCh[i]; return null; }
 
 function posChKir(ri,v){ _posChKir[ri]=v; }
+// v184 (Ibrohim): «donalarga 1-skan 2-skanni qo'shish kerak ... shunaqa
+// tekshirildiga o'xshab ishlasin, tilla erpda berish modalidan shablon oson
+// bo'ladi». Avval bitta tekis ro'yxat edi; endi qo'lda berish skani bilan
+// AYNAN bir xil — o'sha _skanChipHTML chizadi.
+// ⚠ Qabulga DOIM 1-skan yoziladi (kbSkanApplyToField bilan bir xil qoida).
+//   2-skan faqat tekshiruv — hisobga tegmaydi.
+function _posChSt(ri){
+  if(!_posChSkan[ri] || !_posChSkan[ri].pass1) _posChSkan[ri]={mode:1, pass1:[], pass2:[]};
+  return _posChSkan[ri];
+}
+function _posChArr(ri){ var st=_posChSt(ri); return st.mode===1 ? st.pass1 : st.pass2; }
+function posChSkanMode(ri,m){
+  _posChSt(ri).mode=m;
+  _posChFokus=ri; posBellOch();
+}
 function posChSkanQosh(ri){
   var v=parseNum(_posChKir[ri]||'');
   if(!v){ var e=document.getElementById('pch-in-'+ri); if(e){ e.style.borderColor='var(--red)'; e.focus(); } return; }
-  if(!_posChSkan[ri]) _posChSkan[ri]=[];
-  _posChSkan[ri].push(roundG(v)); _posChKir[ri]='';
+  _posChArr(ri).push(roundG(v)); _posChKir[ri]='';
   _posChFokus=ri; posBellOch();
 }
 function posChSkanOchir(ri,j){
-  if(_posChSkan[ri]) _posChSkan[ri].splice(j,1);
+  var a=_posChArr(ri);
+  if(j>=0 && j<a.length) a.splice(j,1);
+  _posChFokus=ri; posBellOch();
+}
+// yashil ✓ bosilsa — 2-skandan o'sha gramm olinadi, belgi bekor bo'ladi
+function posChSkanTick(ri,k){
+  var st=_posChSt(ri);
+  for(var i=st.pass2.length-1;i>=0;i--){
+    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
+  }
   _posChFokus=ri; posBellOch();
 }
 function posChNusxa(ri){
   var c=_posChTop(_posChOchiq); if(!c) return;
-  _posChSkan[ri]=(c.rows[ri].donalar||[]).slice();
+  var st=_posChSt(ri), nusxa=((c.rows[ri]||{}).donalar||[]).slice();
+  if(st.mode===1) st.pass1=nusxa; else st.pass2=nusxa;
   _posChFokus=ri; posBellOch();
 }
 function posChOch(id){ _posChOchiq=id; _posChSkan={}; _posChKir={}; _posChFokus=0; posBellOch(); }
@@ -15042,7 +15066,9 @@ function posChQabul(){
   // Admin skanlagani BOR bo'lsa — HAQIQIY o'sha (Ibrohim qarori).
   var satrlar=[], xato=[];
   (c.rows||[]).forEach(function(r,ri){
-    var arr=(_posChSkan[ri] && _posChSkan[ri].length) ? _posChSkan[ri].slice() : (r.donalar||[]).slice();
+    // v184: qabulga DOIM 1-skan yoziladi (2-skan faqat tekshiruv)
+    var _s1=(_posChSkan[ri]||{}).pass1;
+    var arr=(_s1 && _s1.length) ? _s1.slice() : (r.donalar||[]).slice();
     var g=arr.length ? _posChSum(arr) : roundG(r.gramm);
     var zi=-1, ti=-1;
     (data.zavodlar||[]).forEach(function(z,i){
@@ -15227,7 +15253,8 @@ function posBellOch(){
     var hammasiSkan=true, farqBor=false;
     (c.rows||[]).forEach(function(r,ri){
       var pos=(r.donalar||[]);
-      var skan=_posChSkan[ri]||[];
+      var st=_posChSt(ri);
+      var skan=st.pass1;                       // v184: gate va POS-farq DOIM 1-skandan
       var x=_posChRecon(pos, skan);
       var mos = skan.length && !x.kam.length && !x.ortiq.length;
       if(!skan.length) hammasiSkan=false;
@@ -15246,24 +15273,46 @@ function posBellOch(){
       else h+='<span style="font-size:11.5px;color:var(--muted);">POS donalarni yubormagan</span>';
       h+='</div>';
 
+      // v184: 1-SKAN / 2-SKAN — qo'lda berishdagi kbSkanSetModeUI bilan bir xil rang
+      var _mbS='flex:1;height:34px;border-radius:12px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border);';
+      var _mbOn='background:var(--gold);color:var(--on-gold);border-color:var(--gold);';
+      var _mbOff='background:var(--surf2);color:var(--muted);';
+      h+='<div style="display:flex;gap:6px;margin-bottom:7px;">';
+      h+='<button onclick="posChSkanMode('+ri+',1)" style="'+_mbS+(st.mode===1?_mbOn:_mbOff)+'">1-SKAN</button>';
+      h+='<button onclick="posChSkanMode('+ri+',2)" style="'+_mbS+(st.mode===2?_mbOn:_mbOff)+'">2-SKAN</button>';
+      h+='</div>';
+
       // Admin skani
       h+='<div style="display:flex;gap:6px;margin-bottom:7px;">';
-      h+='<input id="pch-in-'+ri+'" value="'+_posEsc(_posChKir[ri]||'')+'" oninput="posChKir('+ri+',this.value)" onkeydown="if(event.key===\'Enter\')posChSkanQosh('+ri+')" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Skan yoki yozing" style="flex:1;min-width:0;height:38px;border-radius:14px;border:1px solid var(--gold-bd);background:var(--bg);color:var(--text);padding:0 11px;font-size:14px;outline:none;font-family:inherit;">';
+      h+='<input id="pch-in-'+ri+'" value="'+_posEsc(_posChKir[ri]||'')+'" oninput="posChKir('+ri+',this.value)" onkeydown="if(event.key===\'Enter\')posChSkanQosh('+ri+')" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="'+(st.mode===1?'1-skan — gramm':'2-skan — tekshirish')+'" style="flex:1;min-width:0;height:38px;border-radius:14px;border:1px solid var(--gold-bd);background:var(--bg);color:var(--text);padding:0 11px;font-size:14px;outline:none;font-family:inherit;">';
       h+='<button onclick="posChSkanQosh('+ri+')" style="width:40px;height:38px;border-radius:14px;border:0;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;">+</button>';
       h+='<button onclick="posChNusxa('+ri+')" style="height:38px;padding:0 11px;border-radius:14px;border:1px solid var(--border);background:var(--surf);color:var(--muted);font-size:11.5px;cursor:pointer;font-family:inherit;">Mos</button></div>';
 
+      // v184: chip ro'yxati — berish/vozvrat/sotuv skanlari bilan bitta ko'rinish
+      var _res=_skanChipHTML(st.pass1, st.pass2, st.mode, {
+        del:'posChSkanOchir('+ri+',',
+        tick:'posChSkanTick('+ri+','
+      });
+      h+=_res.html;
+
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;margin-top:7px;">';
+      if(st.mode===1){
+        h+='<span style="color:var(--muted);">Dona: <b style="color:var(--text);">'+st.pass1.length+'</b></span>';
+        h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.pass1))+' g</b>';
+      } else {
+        h+='<span style="color:var(--muted);">Tekshirildi: <b style="color:var(--green);">'+_res.matched+'</b> / '+st.pass1.length+'</span>';
+        h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.pass2))+' g</b>';
+      }
+      h+='</div>';
+
+      // POS bilan solishtirish — avvalgidek, faqat endi 1-skan bilan
       if(skan.length){
-        h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;">';
-        skan.forEach(function(g,j){
-          h+='<span style="padding:4px 5px 4px 9px;border-radius:14px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:12px;font-family:Roboto,sans-serif;">'+fmtG(g)
-            +'<span onclick="posChSkanOchir('+ri+','+j+')" style="margin-left:6px;cursor:pointer;color:var(--muted);">✕</span></span>';
-        });
-        h+='</div>';
-        h+='<div style="font-size:11.5px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;">';
+        h+='<div style="font-size:11.5px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
+        h+='<span style="color:var(--muted);">POS bilan:</span>';
         h+='<span style="color:var(--green);">mos '+x.matched+'</span>';
         if(x.kam.length) h+='<span style="color:var(--red);">kam: '+x.kam.map(function(o){return o.g+(o.n>1?'×'+o.n:'');}).join(', ')+'</span>';
         if(x.ortiq.length) h+='<span style="color:var(--blue);">ortiq: '+x.ortiq.map(function(o){return o.g+(o.n>1?'×'+o.n:'');}).join(', ')+'</span>';
-        h+='<span style="flex:1;"></span><b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(skan))+' g</b></div>';
+        h+='</div>';
       }
       h+='</div>';
     });

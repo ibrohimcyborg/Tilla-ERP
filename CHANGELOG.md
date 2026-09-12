@@ -6219,3 +6219,55 @@ saralash joylari yangilangani, `toLocaleTimeString` qolmagani.
 Brauzerda: 0 konsol xatosi. Bir kunda uch amal (`09:14`, `6:06 PM`, `12:50`)
 sinaldi — ikkala hisobotda ham **Vozvrat(18:06) → Kirim(12:50)** tartibida
 chiqdi. Eski kodda tartib yozilish tartibida qolardi.
+
+---
+
+## v184 — POS chernovik tekshiruvida 1-SKAN / 2-SKAN
+
+Ibrohim (ikki ekran rasmi bilan): «donalarga 1-skan 2-skanni qo'shish kere ...
+tekshirildi bo'b ... shunaqa tekshirildiga o'xshab ishlasin, tilla erpda berish
+modalidan shablon oson bo'ladi».
+
+Mockup: `mockups/pos-dona-chek.html` (ishlaydigan) — tasdiqlandi.
+
+### Nima o'zgardi
+
+Avval admin skani BITTA tekis ro'yxat edi. Endi qo'lda berish skani bilan
+**aynan bir xil** — o'sha `_skanChipHTML` chizadi, o'sha ranglar, o'sha
+`✓` / `!` mantiq.
+
+`_posChSkan[ri]` shakli: `[2,3]` → `{mode:1, pass1:[2,3], pass2:[]}`.
+Eski tekis massiv kelsa `_posChSt` uni jimgina yangi shaklga tiklaydi.
+
+| Funksiya | Nima qiladi |
+|---|---|
+| `_posChSt(ri)` | holatni yaratadi/qaytaradi |
+| `_posChArr(ri)` | joriy rejimning massivi |
+| `posChSkanMode(ri,m)` | 1-skan ↔ 2-skan |
+| `posChSkanTick(ri,k)` | yashil ✓ bosilsa belgini bekor qiladi |
+| `posChNusxa(ri)` | «Mos» — endi JORIY rejimga tushadi |
+
+### Hisobga ta'sir — YO'Q
+
+Qabulga **doim 1-skan** yoziladi (`kbSkanApplyToField` bilan bir xil qoida).
+2-skan faqat tekshiruv. `hammasiSkan` gate va `farqBor` ham 1-skandan
+o'qiydi — ya'ni qabul shartlari o'zgarmadi.
+
+### Saqlangan
+
+`POS bilan: mos N / kam / ortiq` qatori **olib tashlanmadi** — POS yuborgan
+donalar bilan solishtirish shu panelning asosiy vazifasi. Faqat pastga
+ko'chdi va oldiga «POS bilan:» yorlig'i qo'shildi (avval oxiridagi umumiy
+gramm takrorlanardi — u endi sanagich qatorida).
+
+### Sinov
+
+`tekshir184.js` — 31 ta tekshiruv: sintaksis, holat tuzilishi, eski shakldan
+tiklanish, har rejimga qo'shish/o'chirish, `tick` faqat pass2 ga tegishi,
+«Mos» ning rejimga qarab ishlashi, qabul 1-skandan olishi, eski kod
+qolmagani.
+
+Brauzerda: 0 konsol xatosi. POS `[2,3]` yuborgan chernovikda 1-skan «Mos»
+bilan to'ldirildi, 2-skanda `2` va `0.50` kiritildi →
+**«Tekshirildi: 1/2», «ortiqcha: 1ta»**, chiplar `3.00` xira, `2.00 ✓` yashil,
+`0.50` qizil. `POS bilan: mos 2` saqlandi, pass1 buzilmadi.
