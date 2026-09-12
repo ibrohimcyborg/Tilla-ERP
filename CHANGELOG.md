@@ -6077,3 +6077,24 @@ To'rt maydonga qo'yildi:
 
 Sinov: brauzerda yuklandi, 0 konsol xatosi. Atributlar jonli tekshirildi:
 `ku: autocomplete=off`, `kp: new-password`, `name` — to'rttasida ham YO'Q.
+
+## POS v0.32 — bulut oynasida CHIQISH
+
+Ibrohim: «log out qo'sh».
+
+Bulut oynasining pastida qizil **Chiqish** tugmasi. U yerda login, cloud
+pochtasi va xona allaqachon ko'rinadi — chiqish uchun tabiiy joy.
+
+- `pos-kirdi`, `pos-xona`, `pos-login` tozalanadi
+- **Sahifa qayta yuklanadi** — eski tinglovchi (`_holatUnsub`), eski `data`
+  va ochiq oynalar qolib ketmasin. Xona almashsa ular boshqa xonanikini
+  ko'rsatib turardi.
+- Tasdiq so'raladi — tasodifan bosilmasin
+
+⚠ **Cloud hisobidan CHIQMAYDI** (`signOut` chaqirilmaydi). Keyingi kirishda
+faqat login va parol so'raladi, pochta-parol qayta so'ralmaydi. Xonani
+almashtirish uchun ham shu tugma: chiqib, boshqa login bilan kiriladi.
+
+Sinov: `chiqtest.js` — 9 ta tekshiruv (bekor qilish, uchta kalit tozalanishi,
+qayta yuklash, boshqa kalitlarga tegmasligi, `signOut` chaqirilmasligi).
+Brauzerda: 0 konsol xatosi, oyna ochildi, tugma joyida.

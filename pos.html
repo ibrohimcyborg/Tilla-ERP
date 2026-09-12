@@ -1,4 +1,4 @@
-<!-- v0.31 -->
+<!-- v0.32 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.31';
+var POS_VER = 'v0.32';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -253,6 +253,20 @@ function _cloudIkonUpd(){
 // Telefonda tooltip yo'q — bosilsa matn xabar bo'lib chiqadi.
 // v0.23 (Ibrohim): «clouddi bossa qaysi login bilan kirganini ko'rsatsin».
 // ⚠ PAROL KO'RSATILMAYDI — brauzerda ochiq turgan parol xavfli.
+// v0.32 (Ibrohim): «log out qo'sh».
+// Cloud hisobidan CHIQMAYDI — faqat POS logini tozalanadi, shunda
+// keyingi kirishda pochta-parol qayta so'ralmaydi.
+// Sahifa qayta yuklanadi: eski tinglovchi, eski baza va ochiq oynalar
+// qolib ketmasin — xona almashsa ular boshqa xonanikini ko'rsatardi.
+function posChiqish(){
+  if(!confirm('POS dan chiqasizmi?\n\nCloud hisobi saqlanadi — keyingi\nkirishda faqat login va parol so\u2018raladi.')) return;
+  try{
+    localStorage.removeItem('pos-kirdi');
+    localStorage.removeItem('pos-xona');
+    localStorage.removeItem('pos-login');
+  }catch(e){}
+  location.reload();
+}
 function posCloudYop(){ var m=document.getElementById('pos-cl-ovl'); if(m) m.remove(); }
 function posCloudBos(){
   posCloudYop();
@@ -288,6 +302,11 @@ function posCloudBos(){
   h+='<div style="margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.6;">'
     + 'Parol ko&#39;rsatilmaydi. Cloud pochtasi Tilla ERP bilan bir xil — '
     + 'bir brauzerda bir marta kiritiladi.</div>';
+  // v0.32: chiqish — xonani almashtirish uchun ham shu yerdan
+  h+='<button onclick="posChiqish()" style="width:100%;height:44px;margin-top:13px;'
+    + 'border-radius:14px;border:1px solid var(--red-bd);background:var(--red-bg);'
+    + 'color:var(--red);font-size:13.5px;font-weight:600;cursor:pointer;'
+    + 'font-family:inherit;">Chiqish</button>';
   h+='</div></div></div>';
   var d=document.createElement('div'); d.innerHTML=h;
   document.body.appendChild(d.firstChild);
