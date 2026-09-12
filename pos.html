@@ -1,4 +1,4 @@
-<!-- v0.21 -->
+<!-- v0.22 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -100,7 +100,7 @@ body.rol-pos button, body.rol-pos input,
         <button class="go" id="kb">Kirish</button>
       </div>
       <div id="k2" hidden>
-        <input id="fe" placeholder="Cloud pochta" autocomplete="off" autocapitalize="none" inputmode="email">
+        <input id="fe" placeholder="Cloud pochta" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email">
         <input id="fp" type="password" placeholder="Cloud parol">
         <button class="go" id="fb">Cloudga ulanish</button>
       </div>
@@ -130,7 +130,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.21';
+var POS_VER = 'v0.22';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -269,13 +269,28 @@ function fbBoshla(){
     }
   });
 }
+// v0.22 (Ibrohim planshetdan): «pochta yoki parol notori» — sababi
+// ko'rinmasdi. Endi Firebase xato kodi odam tiliga o'giriladi va URINILGAN
+// POCHTA ko'rsatiladi — planshet klaviaturasi buzib yuborganini ko'rasiz.
 $('fb').addEventListener('click', function(){
-  var em = $('fe').value.trim(), pa = $('fp').value;
+  var em = $('fe').value.trim().toLowerCase(), pa = $('fp').value;
   if(!em || !pa){ xato('Pochta va parolni kiriting'); return; }
   var b = $('fb'); b.disabled = true; b.textContent = '...';
   firebase.auth().signInWithEmailAndPassword(em, pa)
     .then(function(){ b.disabled=false; b.textContent='Cloudga ulanish'; xato(''); })
-    .catch(function(){ b.disabled=false; b.textContent='Cloudga ulanish'; xato('Pochta yoki parol notogri'); });
+    .catch(function(e){
+      b.disabled=false; b.textContent='Cloudga ulanish';
+      var k = (e && e.code) || '';
+      var m;
+      if(k==='auth/network-request-failed')      m='Internet yo\'q';
+      else if(k==='auth/too-many-requests')      m='Juda ko\'p urinish — biroz kuting';
+      else if(k==='auth/invalid-email')          m='Pochta shakli noto\'g\'ri';
+      else if(k==='auth/user-not-found')         m='Bunday pochta yo\'q';
+      else if(k==='auth/wrong-password')         m='Parol noto\'g\'ri (pochta to\'g\'ri)';
+      else if(k==='auth/invalid-credential')     m='Pochta yoki parol noto\'g\'ri';
+      else                                      m='Kirmadi ('+(k||'sabab noma\'lum')+')';
+      xato(m + ' — ' + em);   // urinilgan pochta ko'rsatiladi
+    });
 });
 $('fp').addEventListener('keydown', function(e){ if(e.key==='Enter') $('fb').click(); });
 

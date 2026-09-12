@@ -5692,3 +5692,22 @@ bo'lmasdi. `'wait'` ga to'g'irlandi.
 
 Sinov: `cloudtest.js` — 14 ta tekshiruv (to'rt holat rangi, bosish xabari,
 ikonka hali chizilmaganda yiqilmasligi). Hammasi o'tdi.
+
+## POS v0.22 — cloud kirish xatosi aniq ko'rsatiladi
+
+Ibrohim planshetdan: «pochta yoki parol notori». Sababi ko'rinmasdi —
+pochta xatomi, parolmi, internetmi, bilib bo'lmasdi.
+
+- Firebase xato kodi odam tiliga o'giriladi: internet yo'q · juda ko'p
+  urinish · pochta shakli noto'g'ri · bunday pochta yo'q · parol noto'g'ri
+  (pochta to'g'ri) · pochta yoki parol noto'g'ri
+- **Urinilgan pochta xato yoniga yoziladi** — planshet klaviaturasi uni
+  buzib yuborganini darhol ko'rasiz
+- Pochta maydoniga `autocorrect="off"` va `spellcheck="false"` qo'shildi —
+  planshet uni o'zgartirmasin (`autocapitalize="none"` avvaldan bor edi)
+- Pochta kichik harfga o'tkaziladi
+
+Parol maydoni, `index.html`, cloud — TEGILMADI.
+
+Sinov: `kirtest.js` — 12 ta tekshiruv (sakkiz xato kodi, buzilgan pochta
+ko'rinishi, maydon atributlari). Hammasi o'tdi.
