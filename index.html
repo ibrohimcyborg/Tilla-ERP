@@ -1,4 +1,4 @@
-<!-- v180.4 -->
+<!-- v180.5 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2036,7 +2036,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180.4';
+var APP_VER = 'v180.5';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -19546,6 +19546,69 @@ var CLOUD_CONFIG = {
   appId: "1:876933095476:web:a9fbf2c66fb496be0baa61"
 };
 var CLOUD_BOLAK = 800000; // ~800KB — Firestore 1MB hujjat limitidan pastda
+
+// ═════ POS NUSXASI (v180.5) ═════
+// Ibrohim: «nega sekin judayam». POS butun bazani tortardi — kassa, lom,
+// dona registri, narx maydonlari. Unga faqat qarz va ostatka hisobi uchun
+// kerak bo'lgan maydonlar kerak.
+//
+// hisob.js TEKSHIRILDI — u tarix yozuvidan FAQAT shularni o'qiydi:
+//   tip, zavod, tur, gramm, ekvivalent, summa, _kdYopish, inventar
+// klientdan: nom, kat, tarix ⬛ zavoddan: nom, turlar[].nom, turlar[].tarix
+//
+// ⚠ ASOSIY SAQLASHGA TEGILMAYDI. Alohida batch, asosiysi MUVAFFAQIYATLI
+//   tugagandan keyin, o'z catch i bilan. Xato bersa faqat shu nusxa yozilmaydi,
+//   ERP sinxroni zarracha ta'sirlanmaydi. POS esa `holat` ga qaytadi.
+var POS_NUSXA_BOLAK = 700000;
+var _posNusxaImzo = 0;
+function _posNusxaHash(s){
+  var h=0; for(var i=0;i<s.length;i++){ h=((h<<5)-h+s.charCodeAt(i))|0; }
+  return h;
+}
+function posNusxaObj(){
+  var kop = function(o){
+    var r = {tip:o.tip};
+    if(o.zavod) r.zavod=o.zavod;
+    if(o.tur) r.tur=o.tur;
+    if(o.gramm) r.gramm=o.gramm;
+    if(o.ekvivalent) r.ekvivalent=o.ekvivalent;
+    if(o.summa) r.summa=o.summa;
+    if(o._kdYopish) r._kdYopish=1;
+    if(o.inventar) r.inventar=o.inventar;
+    return r;
+  };
+  var top = function(o){
+    var r = {tip:o.tip};
+    if(o.gramm) r.gramm=o.gramm;
+    if(o.inventar) r.inventar=o.inventar;
+    return r;
+  };
+  return {
+    klientlar: (data.klientlar||[]).map(function(k){
+      return {nom:k.nom, kat:k.kat||'A', tarix:(k.tarix||[]).map(kop)};
+    }),
+    zavodlar: (data.zavodlar||[]).map(function(z){
+      return {nom:z.nom, turlar:(z.turlar||[]).map(function(t){
+        return {nom:t.nom, tarix:(t.tarix||[]).map(top)};
+      })};
+    })
+  };
+}
+function posNusxaYoz(vaqt){
+  try{
+    if(!_cloudDb || !_cloudUser) return;
+    var json = JSON.stringify(posNusxaObj());
+    var imzo = _posNusxaHash(json);
+    if(imzo === _posNusxaImzo) return;          // o'zgarmagan — kvota behuda ketmasin
+    var b=[];
+    for(var i=0;i<json.length;i+=POS_NUSXA_BOLAK) b.push(json.substr(i,POS_NUSXA_BOLAK));
+    var pb = _cloudDb.batch();
+    b.forEach(function(x,i){ pb.set(_cloudDb.collection(cloudKol()).doc('pos_nusxa_b'+i), {j:x}); });
+    pb.set(_cloudDb.collection(cloudKol()).doc('pos_nusxa'), {vaqt:vaqt, bolak:b.length, hajm:json.length});
+    pb.commit().then(function(){ _posNusxaImzo = imzo; })
+      .catch(function(e){ if(window.console) console.warn('posNusxa yozilmadi:', e); });
+  }catch(e){ if(window.console) console.warn('posNusxa:', e); }
+}
 var _cloudDb = null, _cloudUser = null, _cloudUnsub = null;
 var _cloudPending = false, _cloudBusy = false, _cloudRemoteNewer = false;
 var _cloudTimer = null;
@@ -20126,6 +20189,9 @@ function cloudSaqlaNow(){
     _cloudBusy = false;
     cloudVaqtSet(vaqt);
     localStorage.removeItem('tilla-cloud-dirty'); // hammasi cloudga yetdi
+    // v180.5: POS nusxasi — ASOSIY SAQLASH TUGAGANDAN KEYIN, alohida.
+    // Bu yerda xato bo'lsa yuqoridagi hech nimaga ta'sir qilmaydi.
+    try{ posNusxaYoz(vaqt); }catch(e){}
     if (_cloudPending) { cloudSaqlaNow(); return; }
     cloudStatus('green','sinxron');
   }).catch(function(e){

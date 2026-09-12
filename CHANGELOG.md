@@ -5623,3 +5623,48 @@ kerak (3-qism, hali qilinmagan).
 
 Sinov: `tinglatest.js` — 13 ta tekshiruv (berish ochiq/yopiq, klient indeksi
 siljishi, klient o'chirilishi, kurs paneli). Hammasi o'tdi.
+
+## v180.5 + POS v0.20 — POS uchun kichik nusxa
+
+Ibrohim: «nega sekin judayam» → POS butun bazani internetdan tortardi.
+O'lchandi: JSON parse va qarz hisobi tez (15 MB da ~140 ms). Sekinlik —
+YUKLASHDA.
+
+`hisob.js` tekshirildi — u tarix yozuvidan FAQAT sakkiz maydonni o'qiydi:
+`tip, zavod, tur, gramm, ekvivalent, summa, _kdYopish, inventar`.
+Klientdan `nom, kat, tarix`; zavoddan `nom, turlar[].nom, turlar[].tarix`.
+
+### index.html (v180.5)
+
+- `posNusxaObj()` — shu maydonlardan kichik nusxa yig'adi
+- `posNusxaYoz(vaqt)` — `pos_nusxa` + `pos_nusxa_bN` hujjatlariga yozadi
+
+⚠ **ASOSIY SAQLASHGA TEGILMADI.** Nusxa alohida `batch` da, asosiy
+`batch.commit()` MUVAFFAQIYATLI tugagandan keyin, o'z `catch` i bilan
+yoziladi. U yerda xato bo'lsa ERP sinxroniga zarracha ta'siri yo'q.
+O'zgarmagan bo'lsa qayta yozilmaydi (hash taqqoslanadi).
+
+### pos.html (v0.20)
+
+- `_oqiBolak(pref, n)` — bo'laklarni birlashtiradi
+- `_bolakOqi` avval `pos_nusxa` ni sinaydi. Yo'q bo'lsa YOKI `holat` dan
+  ESKI bo'lsa — `holat_bN` ga qaytadi. Ya'ni noto'g'ri raqam ko'rsatilmaydi,
+  faqat sekinroq bo'ladi.
+- Sinxron yozuvi manbani ko'rsatadi: `sinxron` (nusxadan) /
+  `sinxron · to'liq` (eski yo'l) — ishlayotganini ko'rish uchun
+
+### Sinov — `nusxatest.js`
+
+200 klient × 400 tarix, 12 zavod × 4 tur (dona registri bilan):
+
+| | |
+|---|---|
+| QARZ raqamlari | **aynan bir xil** |
+| SAVDO raqamlari | **aynan bir xil** |
+| OSTATKA raqamlari | **aynan bir xil** |
+| To'liq baza | 13.19 MB |
+| POS nusxasi | 5.13 MB |
+| Tejaldi | **61% — 2.6 barobar kichik** |
+
+Yana siqish mumkin (qisqa kalit + zavod/tur indeksi = 8.3 barobar, 1.59 MB) —
+hozircha qilinmadi, keyingi qadamga qoldirildi.

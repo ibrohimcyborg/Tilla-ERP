@@ -1,4 +1,4 @@
-<!-- v0.19 -->
+<!-- v0.20 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -129,7 +129,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.19';
+var POS_VER = 'v0.20';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -287,15 +287,40 @@ function kursOqi(){
 var _holatUnsub=null, _holatVaqt=0, _yangiKut=null, _yangiMeta=null;
 
 // Bo'laklarni o'qib `data` ga qo'llash — birinchi yuklashda ham, yangilanishda ham.
-function _bolakOqi(meta){
-  var n = meta.bolak || 1, oq = [];
-  for(var i=0;i<n;i++) oq.push(_cloudDb.collection(cloudKol()).doc('holat_b'+i).get());
+// v0.20: bo'laklarni birlashtirib qaytaradi (pos_nusxa_bN yoki holat_bN).
+function _oqiBolak(pref, n){
+  var oq = [];
+  for(var i=0;i<n;i++) oq.push(_cloudDb.collection(cloudKol()).doc(pref+i).get());
   return Promise.all(oq).then(function(docs){
     var j = '';
     for(var i=0;i<docs.length;i++){
-      if(!docs[i].exists) throw new Error('bolak '+i+' yo\'q');
+      if(!docs[i].exists) throw new Error(pref+i+' yo\'q');
       j += docs[i].data().j;
     }
+    return j;
+  });
+}
+
+// v0.20 (Ibrohim: «nega sekin judayam»): avval KICHIK NUSXANI sinaymiz.
+// Tilla ERP uni har saqlashda yozadi — ichida faqat qarz va ostatka hisobiga
+// kerak bo'lgan maydonlar bor (kassa, lom, dona registri yo'q).
+// Nusxa yo'q bo'lsa yoki `holat` dan ESKI bo'lsa — eski yo'lga qaytamiz.
+// Ya'ni noto'g'ri raqam ko'rsatilmaydi, faqat sekinroq bo'ladi.
+var _nusxadan = false;
+function _bolakOqi(meta){
+  var ref = _cloudDb.collection(cloudKol());
+  return ref.doc('pos_nusxa').get().then(function(pd){
+    var pm = pd.exists ? (pd.data()||{}) : null;
+    if(pm && pm.bolak && (pm.vaqt||0) >= (meta.vaqt||0)){
+      _nusxadan = true;
+      return _oqiBolak('pos_nusxa_b', pm.bolak);
+    }
+    _nusxadan = false;
+    return _oqiBolak('holat_b', meta.bolak||1);
+  }).catch(function(){
+    _nusxadan = false;                       // nusxa o'qilmadi — to'liq bazaga qaytamiz
+    return _oqiBolak('holat_b', meta.bolak||1);
+  }).then(function(j){
     data = JSON.parse(j);
     if(!data.zavodlar) data.zavodlar = [];
     if(!data.klientlar) data.klientlar = [];
@@ -303,6 +328,7 @@ function _bolakOqi(meta){
     return kursOqi();
   });
 }
+function _sinxronMatn(){ return _nusxadan ? 'sinxron' : 'sinxron · to\'liq'; }
 
 function yukla(){
   _cloudDb.collection(cloudKol()).doc('holat').get().then(function(d){
@@ -310,7 +336,7 @@ function yukla(){
     var meta = d.data() || {};
     _holatVaqt = meta.vaqt || 0;
     return _bolakOqi(meta).then(function(){
-      holat('ok','sinxron');
+      holat('ok',_sinxronMatn());
       renderPOS();
       holatTingla();
     });
@@ -351,7 +377,7 @@ function _yangila(){
   var kursOchiq = !!document.getElementById('pos-kurs-ovl');
   holat('kut','yangilanmoqda');
   _bolakOqi(meta).then(function(){
-    holat('ok','sinxron');
+    holat('ok',_sinxronMatn());
     renderPOS();
     if(ochiqNom){
       var yi = -1;
