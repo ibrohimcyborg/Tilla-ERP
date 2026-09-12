@@ -1,4 +1,4 @@
-<!-- v182 -->
+<!-- v183 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v182';
+var APP_VER = 'v183';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -4225,10 +4225,42 @@ function fdDavrBoshi(){
   if(_fdDavr==='yil') return new Date(n.getFullYear(),0,1).getTime();
   return 0;
 }
+// v183 (Ibrohim): «tilla erp 24h sistemada ishlasin ... AM da bo'lgan ishlar
+// PM bilan aralashib ketvotti, keyingi bo'lgan ish oldinga o'tib qolyapti».
+// Sabab: new Date('2026-09-12T6:06') — Invalid Date. Nolsiz yoki AM/PM li
+// BITTA soat NaN qaytarib, saralagichni tasodifiy qilib yuborardi.
+// Endi har qanday shakl qat'iy 24h HH:MM ga keltiriladi.
+function _soat24(s){
+  if(s===undefined || s===null) return '00:00';
+  s = String(s).trim();
+  if(!s) return '00:00';
+  var pm = /p\.?\s*m\.?$/i.test(s), am = /a\.?\s*m\.?$/i.test(s);
+  var m = s.match(/(\d{1,2})\s*[:.]\s*(\d{1,2})/);
+  if(!m) return '00:00';
+  var h = parseInt(m[1],10), mi = parseInt(m[2],10);
+  if(isNaN(h) || isNaN(mi)) return '00:00';
+  if(pm && h < 12) h += 12;
+  if(am && h === 12) h = 0;
+  if(h > 23) h = 23;
+  if(mi > 59) mi = 59;
+  return String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
+}
+// Bulut panelidagi vaqt — brauzer tili en-US bo'lsa toLocaleString AM/PM
+// chiqarardi. Endi doim 24h.
+function _vaqt24(ts, faqatSoat){
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return '\u2014';
+  var t = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')
+        + ':'+String(d.getSeconds()).padStart(2,'0');
+  if(faqatSoat) return t;
+  return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')
+       + '.'+d.getFullYear()+' '+t;
+}
 function fdSanaTs(sana, soat){
   if(!sana) return 0;
   var p=sana.split('.'); if(p.length!==3) return 0;
-  return new Date(p[2]+'-'+p[1]+'-'+p[0]+'T'+(soat||'00:00')).getTime();
+  var t=new Date(p[2]+'-'+p[1]+'-'+p[0]+'T'+_soat24(soat)).getTime();
+  return isNaN(t) ? 0 : t;
 }
 // ==== FIFO MODEL: har sotuv o'z kunlik-kurs-asosidagi kirim narxini (kirimNarx) abadiy saqlaydi.
 // Marja sotuv zahoti qotadi (Section A, o'zgarmaydi). Qolgan "kurs farqi" esa TO'LANMAGUNCHA
@@ -5210,10 +5242,13 @@ function renderHisobot() {
   allOps.forEach(function(item) {
     var op = item.op;
     var key = op.tip + '|' + (op.kimga||'') + '|' + item.zavod + '|' + op.sana;
-    if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', zavod:item.zavod, sana:op.sana, turlar:[]}; groupOrder.push(key); }
+    if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', zavod:item.zavod, sana:op.sana, soat:'00:00', turlar:[]}; groupOrder.push(key); }
+    // v183: guruh KALITI o'zgarmaydi (ko'rinish o'sha) — faqat ichidagi eng
+    // kech soat eslab qolinadi, kun ichidagi tartib shunga qarab chiqadi.
+    var _gs = _soat24(op.soat); if(_gs > groups[key].soat) groups[key].soat = _gs;
     groups[key].turlar.push(item);
   });
-  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
+  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana, groups[b].soat) - fdSanaTs(groups[a].sana, groups[a].soat); });
   var expanded = {};
   var _hBugun=_khBugun();
   if(_hOchiq===null){ _hOchiq={}; _hOchiq[_hBugun]=true; }
@@ -6158,10 +6193,12 @@ function renderZavodHisobot() {
   allOps.forEach(function(item) {
     var op = item.op;
     var key = op.tip + '|' + (op.kimga||'') + '|' + op.sana;
-    if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', sana:op.sana, turlar:[]}; groupOrder.push(key); }
+    if (!groups[key]) { groups[key] = {tip:op.tip, kimga:op.kimga||'', sana:op.sana, soat:'00:00', turlar:[]}; groupOrder.push(key); }
+    // v183: renderHisobot bilan bir xil — kun ichida soat bo'yicha
+    var _gs = _soat24(op.soat); if(_gs > groups[key].soat) groups[key].soat = _gs;
     groups[key].turlar.push(item);
   });
-  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana) - fdSanaTs(groups[a].sana); });
+  groupOrder.sort(function(a,b){ return fdSanaTs(groups[b].sana, groups[b].soat) - fdSanaTs(groups[a].sana, groups[a].soat); });
   var zExp = {};
   function renderZH() {
     var out = '';
@@ -11113,7 +11150,7 @@ function kassaPDFYukor(dan, gacha) {
       // v136: to'lov turlari alohida ustun (avval faqat jami summa bor edi)
       var _pN = _opNaqtPul(op);   // v174.1
       allOps.push({
-        sana: op.sana, klient: k.nom,
+        sana: op.sana, soat: op.soat||'', klient: k.nom,
         zavod: op.zavod||'', tur: op.tur||'',
         gramm: op.ekvivalent||0, kurs: op.kurs||0, summa: op.summa||0,
         naqt: Math.round(_pN*100)/100,
@@ -11127,7 +11164,8 @@ function kassaPDFYukor(dan, gacha) {
       jamiGramm += op.ekvivalent||0;
     });
   });
-  allOps.sort(function(a,b){return fdSanaTs(a.sana)-fdSanaTs(b.sana);});
+  // v183: kun ichida ham soat bo'yicha (avval faqat sana solishtirilardi)
+  allOps.sort(function(a,b){return fdSanaTs(a.sana,a.soat)-fdSanaTs(b.sana,b.soat);});
   var label = (dan&&gacha) ? (dan.split('-').reverse().join('.')+' - '+gacha.split('-').reverse().join('.')) : 'Hammasi';
   var payload = {
     tip: 'kassa', ops: allOps, dan: dan, gacha: gacha, label: label,
@@ -19167,7 +19205,7 @@ function cloudChipClick(){
         + (!_qurilmaHamid() && qurilmaRaqam() ? ' <span style="font-size:11px;color:var(--muted);">\u00b7 raqam '+qurilmaRaqam()+'</span>' : '')
         + (!_qurilmaHamid() ? ' <span onclick="qurilmaNomOzgartir()" style="font-size:11px;color:var(--gold);cursor:pointer;margin-left:6px;">nomni o\'zgartirish</span>' : '')
         + '<br>'
-      + 'Oxirgi sinxron: <b>'+(v? new Date(v).toLocaleString() : '—')+'</b><br>'
+      + 'Oxirgi sinxron: <b>'+(v? _vaqt24(v) : '—')+'</b><br>'
       + 'Holat: '+(_cloudPending?'<span style="color:var(--gold);">yozish kutilmoqda</span>':'<span style="color:var(--green);">sinxron</span>');
     document.getElementById('cloud-info-body').innerHTML = body;
     document.getElementById('modal-cloud-info').classList.add('open');
@@ -19234,7 +19272,7 @@ var _cloudTanlovMeta = null;
 function cloudTanlovOch(meta){
   _cloudTanlovMeta = meta;
   var el = document.getElementById('cloud-tanlov-qurilma');
-  if (el) el.textContent = (meta.qurilma||'?') + ' \u00b7 ' + new Date(meta.vaqt).toLocaleTimeString();
+  if (el) el.textContent = (meta.qurilma||'?') + ' \u00b7 ' + _vaqt24(meta.vaqt, true);
   cloudStatus('yellow','tanlov kutilmoqda');
   var m = document.getElementById('modal-cloud-tanlov');
   if (m) m.classList.add('open');

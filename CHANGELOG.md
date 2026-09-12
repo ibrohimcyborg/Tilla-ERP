@@ -6162,3 +6162,60 @@ Sinov: `cchiqtest.js` — 12 ta tekshiruv (bekor qilish, signOut, uchta kalit,
 boshqa kalitlarga tegmaslik, pochtasiz holat, tepadagi chiqish buzilmagani).
 Brauzerda: 0 konsol xatosi, bulut oynasida faqat cloud chiqish,
 tepada oddiy chiqish.
+
+---
+
+## v183 — 24 soatlik vaqt: kun ichidagi tartib
+
+Ibrohim (ekran rasmi bilan): «tilla erp 24h sistemada ishlasin hamma hisoboti
+12AM 12PM ishlasa AMda bogan ishla PM bilan aralashib ketvotti soat hisobiga
+keyingi bogan ish oldinga o'tib qovotti».
+
+Mockup: `mockups/soat-24h.html` — Ibrohim: «24 soatti qivur».
+
+### Tashxis — yozuvda muammo YO'Q
+
+`soat` yoziladigan 20 ta joyning hammasi `String(n.getHours()).padStart(2,'0')`,
+ya'ni allaqachon 24h. `pos.html:1374` ham shunday. Butun loyihada `hour12`,
+`%12`, `AM` — bitta ham yo'q. Muammo SARALASH va KO'RSATISHda edi.
+
+### Ikki buzuqlik
+
+**1. `fdSanaTs` NaN qaytarardi.** `new Date('2026-09-12T6:06')` — Invalid Date.
+Nolsiz yoki AM/PM li BITTA soat NaN berib, saralagichni tasodifiy qilardi —
+«aralashib ketvotti» aynan shu.
+
+**2. Uch ekran kun ichida soatni umuman hisobga olmasdi:**
+
+| Ekran | Eski | Yangi |
+|---|---|---|
+| Umumiy hisobot `renderHisobot` | `fdSanaTs(sana)` — faqat sana | guruhning eng kech soati bilan |
+| Zavod hisoboti `renderZavodHisobot` | `fdSanaTs(sana)` — faqat sana | guruhning eng kech soati bilan |
+| Kassa PDF `kassaPDFYukor` | `fdSanaTs(a.sana)` | `fdSanaTs(a.sana, a.soat)` |
+
+Guruh KALITI o'zgarmadi — ko'rinish o'sha, faqat tartib to'g'rilandi.
+
+### Qo'shilgan
+
+`_soat24(s)` — har qanday shaklni qat'iy `HH:MM` 24h ga keltiradi
+(`6:06`→`06:06`, `6:06 PM`→`18:06`, `12:30 AM`→`00:30`, axlat→`00:00`).
+`fdSanaTs` endi NaN o'rniga 0 qaytaradi.
+
+`_vaqt24(ts, faqatSoat)` — bulut panelidagi ikki vaqt (`toLocaleString` /
+`toLocaleTimeString`) en-US brauzerda AM/PM chiqarardi. Endi doim 24h.
+
+### Bazaga TEGILMADI
+
+Mockupdagi 4-band (bir martalik `_soatFix2` migratsiyasi) QILINMADI —
+`_soat24` o'qish paytida normallashtiradi, shuning uchun keraksiz.
+Baza yozuvlari o'zgarmadi.
+
+### Sinov
+
+`tekshir24.js` — 33 ta tekshiruv: sintaksis, `_soat24` ning 14 ta kiritmasi,
+NaN qaytmasligi, tartib (`18:06 > 12:50 > 09:14`), eski xulq buzilmagani,
+saralash joylari yangilangani, `toLocaleTimeString` qolmagani.
+
+Brauzerda: 0 konsol xatosi. Bir kunda uch amal (`09:14`, `6:06 PM`, `12:50`)
+sinaldi — ikkala hisobotda ham **Vozvrat(18:06) → Kirim(12:50)** tartibida
+chiqdi. Eski kodda tartib yozilish tartibida qolardi.

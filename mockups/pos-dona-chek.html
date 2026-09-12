@@ -1,0 +1,392 @@
+<title>Dona va chek</title>
+<style>
+  :root{
+    --bg:#0e0f13; --surf:#16181f; --surf2:#1d2029; --border:#282c38;
+    --text:#e8e9ee; --muted:#8b90a0; --gold:#d4af37; --gold-bg:#2a2312;
+    --gold-bd:#4a3d16; --red:#e05a5a; --red-bg:#2a1414; --red-bd:#4a1f1f;
+    --green:#4caf7d; --green-bg:#12251b; --green-bd:#1e4230;
+    --teal:#3fb5a8; --blue:#5b8def;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f5f7; --surf:#ffffff; --surf2:#f0f1f4; --border:#dfe1e7;
+    --text:#1b1d23; --muted:#6b7080; --gold:#a8841c; --gold-bg:#fbf3d8;
+    --gold-bd:#e0cf90; --red:#c33; --red-bg:#fde9e9; --red-bd:#f0c0c0;
+    --green:#2e8b5f; --green-bg:#e4f4ec; --green-bd:#b6ddc8;
+    --teal:#1f8f85; --blue:#3667d6;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f4f5f7; --surf:#ffffff; --surf2:#f0f1f4; --border:#dfe1e7;
+      --text:#1b1d23; --muted:#6b7080; --gold:#a8841c; --gold-bg:#fbf3d8;
+      --gold-bd:#e0cf90; --red:#c33; --red-bg:#fde9e9; --red-bd:#f0c0c0;
+      --green:#2e8b5f; --green-bg:#e4f4ec; --green-bd:#b6ddc8;
+      --teal:#1f8f85; --blue:#3667d6;
+    }
+  }
+  body{background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:14px;line-height:1.5;}
+  .wrap{max-width:420px;margin:0 auto;}
+  h1{font-size:17px;margin:0 0 4px;}
+  .sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .card{background:var(--surf);border:1px solid var(--border);
+    border-radius:14px;padding:13px;margin-bottom:13px;}
+  .card h2{font-size:13.5px;margin:0 0 4px;display:flex;align-items:center;
+    gap:7px;flex-wrap:wrap;}
+  .tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;
+    letter-spacing:.04em;}
+  .t-bor{background:var(--green-bg);color:var(--green);}
+  .t-yoq{background:var(--red-bg);color:var(--red);}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.65;}
+  code{font-family:"Roboto Mono",Consolas,monospace;font-size:10.5px;
+    background:var(--surf2);padding:1px 5px;border-radius:4px;color:var(--gold);}
+
+  /* ── tekshiruv qatori (haqiqiy ko'rinish) */
+  .chk{border:1px solid var(--border);background:var(--surf2);
+    border-radius:16px;padding:11px 12px;margin-top:10px;}
+  .chk .top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .chk .top b{font-size:13px;}
+  .chk .pos{font-size:10.5px;color:var(--muted);margin-left:auto;
+    text-align:right;}
+  .chk .pos b{color:var(--text);font-family:Roboto,sans-serif;}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{padding:4px 10px;border-radius:14px;border:1px solid var(--border);
+    background:var(--surf);font-size:12px;font-family:Roboto,sans-serif;}
+  .chip.sk{border-color:var(--green-bd);background:var(--green-bg);
+    color:var(--green);}
+  .lbl{font-size:9px;letter-spacing:.09em;color:var(--muted);
+    font-weight:700;margin:9px 0 5px;}
+
+  /* ── chek */
+  pre.chek{font-family:"Roboto Mono",Consolas,monospace;font-size:9px;
+    line-height:1.45;background:var(--surf2);border:1px solid var(--border);
+    border-radius:10px;padding:11px 9px;overflow-x:auto;margin:8px 0 0;
+    color:var(--text);}
+
+  /* ── tasdiq kartasi */
+  .conf{border:1px solid var(--green-bd);background:var(--green-bg);
+    border-radius:16px;padding:14px;text-align:center;margin-top:9px;}
+  .conf .t1{font-size:12.5px;color:var(--green);font-weight:600;}
+  .conf .t2{font-size:16px;font-weight:700;margin-top:3px;}
+  .conf .t3{font-size:21px;font-weight:700;color:var(--green);
+    font-family:Roboto,sans-serif;}
+  .btns{display:flex;gap:7px;margin-top:12px;}
+  .btn{height:42px;border-radius:14px;font-size:12.5px;font-weight:600;
+    display:flex;align-items:center;justify-content:center;padding:0 13px;
+    border:1px solid var(--border);background:var(--surf2);color:var(--text);}
+  .btn.g{border-color:var(--gold);background:var(--gold);color:#1b1608;flex:1;}
+  .btn.n{border-color:var(--blue);color:var(--blue);background:transparent;flex:1;}
+  .yangi{position:relative;}
+  .yangi::after{content:"YANGI";position:absolute;top:-8px;right:-4px;
+    font-size:7.5px;font-weight:700;letter-spacing:.06em;
+    background:var(--blue);color:#fff;padding:1px 5px;border-radius:8px;}
+
+  .q{border:1px solid var(--gold-bd);background:var(--gold-bg);
+    border-radius:14px;padding:12px;margin-bottom:13px;}
+  .q b{color:var(--gold);font-size:12.5px;}
+  .q ol{margin:8px 0 0;padding-left:17px;font-size:12px;}
+  .q li{margin-bottom:9px;}
+  .hr{height:1px;background:var(--border);margin:11px 0;}
+  .t-yeni{background:var(--gold-bg);color:var(--gold);}
+
+  /* ── 1/2-skan boshqaruvi */
+  .mb{flex:1;height:34px;border-radius:11px;font-size:11.5px;font-weight:600;
+    font-family:inherit;cursor:pointer;border:1px solid var(--border);
+    background:var(--surf2);color:var(--muted);}
+  .mb.on{background:var(--gold);color:#1b1608;border-color:var(--gold);}
+  #inp{flex:1;min-width:0;height:36px;border-radius:12px;padding:0 11px;
+    font-size:14px;font-family:inherit;background:var(--bg);
+    border:1px solid var(--gold-bd);color:var(--text);outline:none;}
+  .pl{width:38px;height:36px;flex:none;border-radius:12px;border:0;
+    background:var(--gold);color:#1b1608;font-size:18px;cursor:pointer;}
+  .ms{height:36px;flex:none;padding:0 10px;border-radius:12px;
+    border:1px solid var(--border);background:var(--surf);color:var(--muted);
+    font-size:11px;font-family:inherit;cursor:pointer;}
+  .box{display:flex;flex-wrap:wrap;gap:4px;background:var(--surf);
+    border-radius:8px;border:1px solid var(--border);padding:7px;
+    min-height:34px;}
+  .ch{display:inline-flex;align-items:center;gap:5px;border-radius:7px;
+    padding:4px 5px 4px 8px;font-size:12.5px;white-space:nowrap;
+    background:var(--surf2);border:1px solid var(--border);
+    font-family:Roboto,sans-serif;}
+  .ch.last{background:var(--gold-bg);border-color:var(--gold-bd);}
+  .ch.ok{background:var(--green-bg);border-color:var(--green-bd);}
+  .ch.dim{opacity:.38;}
+  .ch.ex{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
+  .ch .n{color:var(--muted);font-size:9.5px;}
+  .ch .x{width:16px;height:16px;border-radius:4px;background:var(--red-bg);
+    color:var(--red);font-size:11px;line-height:16px;text-align:center;
+    cursor:pointer;}
+  .ch .tk{width:16px;height:16px;border-radius:4px;background:var(--green);
+    color:#fff;font-size:10px;line-height:16px;text-align:center;
+    cursor:pointer;}
+  .bar{height:5px;border-radius:3px;background:var(--border);
+    overflow:hidden;margin-bottom:6px;}
+  .bar i{display:block;height:100%;background:var(--green);}
+</style>
+
+<div class="wrap">
+
+<h1>Donalar va chek</h1>
+<div class="sub">Ikki so'rov — biri allaqachon bor, biri yo'q</div>
+
+<!-- ═══ 1 ═══ -->
+<div class="card">
+  <h2>1 · Donalar tekshiruvda <span class="tag t-bor">ALLAQACHON BOR</span></h2>
+  <div class="note">
+    POS har donani alohida yuboradi (<code>pos.html:1388</code>), ERP esa
+    tekshiruvda ularni katakcha qilib chizadi (<code>index.html:15203</code>).
+    Chernovikni <b>bosib ichiga kirilsa</b> — aynan sizning misolingiz shunday chiqadi:
+  </div>
+
+  <div class="lbl">HOZIR — bitta tekis skan ro'yxati</div>
+  <div class="chk">
+    <div class="top">
+      <b>Butterfly · Oddiy</b>
+      <span class="pos">POS: <b>5.00 g</b> · 2 dona</span>
+    </div>
+    <div class="chips"><span class="chip">2.00</span><span class="chip">3.00</span></div>
+    <div class="lbl" style="margin-top:9px;">ADMIN SKANI</div>
+    <div class="chips"><span class="chip sk">2.00 ✕</span><span class="chip sk">3.00 ✕</span></div>
+    <div style="font-size:11px;color:var(--green);margin-top:7px;">mos 2
+      <span style="float:right;color:var(--text);font-family:Roboto,sans-serif;font-weight:600;">5.00 g</span></div>
+  </div>
+</div>
+
+<!-- ═══ 1b — YANGI ═══ -->
+<div class="card" style="border-color:var(--gold-bd);">
+  <h2>1-SKAN / 2-SKAN qo'shiladi <span class="tag t-yeni">TAKLIF</span></h2>
+  <div class="note">
+    Qo'lda berishdagi bilan <b>aynan bir xil</b> — o'sha
+    <code>_skanChipHTML</code> (13042) chizadi. Tugmalarni bosib ko'ring:
+  </div>
+
+  <div class="chk">
+    <div class="top">
+      <b>Butterfly · Oddiy</b>
+      <span class="pos">POS: <b>5.00 g</b> · 2 dona</span>
+    </div>
+    <div class="chips"><span class="chip">2.00</span><span class="chip">3.00</span></div>
+
+    <div style="display:flex;gap:6px;margin:10px 0 8px;">
+      <button class="mb" id="m1" onclick="setMode(1)">1-SKAN</button>
+      <button class="mb" id="m2" onclick="setMode(2)">2-SKAN</button>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <input id="inp" placeholder="Skan yoki yozing" inputmode="decimal"
+        onkeydown="if(event.key==='Enter')qosh()">
+      <button class="pl" onclick="qosh()">+</button>
+      <button class="ms" onclick="mos()">Mos</button>
+    </div>
+
+    <div id="rows"></div>
+
+    <div style="display:flex;justify-content:space-between;font-size:11px;
+      margin-top:8px;padding-top:7px;border-top:1px solid var(--border);">
+      <span style="color:var(--muted);"><span id="cl">Dona</span>:
+        <b id="cnt" style="color:var(--text);">0</b></span>
+      <b id="sum" style="font-family:Roboto,sans-serif;">0.00 g</b>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:10px;">
+    <b style="color:var(--text);">1-SKAN</b> — molni skanlaysiz, chiplar oqim
+    bo'lib tushadi (oxirgisi oltin). Shu ro'yxat <b>qabulga yoziladi</b>.<br>
+    <b style="color:var(--text);">2-SKAN</b> — qaytadan skanlaysiz,
+    1-skan chiplari xira turadi va mos kelgani <span style="color:var(--green);">yashil ✓</span>
+    bo'ladi. 1-skanda yo'q gramm <span style="color:var(--red);">qizil !</span>
+    bo'lib chiqadi. Yashil ✓ bosilsa belgisi bekor bo'ladi.
+  </div>
+
+  <div class="hr"></div>
+  <div class="note">
+    <b style="color:var(--text);">Diqqat — endi uch ro'yxat bo'ladi:</b>
+    POS donalari · admin 1-skan · admin 2-skan.
+    Hozirgi <code>mos / kam / ortiq</code> qatori o'rniga
+    2-skan chek-ro'yxati turadi.
+    <br><br>
+    Agar «uchta ko'p, POS donalarining o'zi 1-skan bo'lsin» desangiz —
+    aytasiz, o'zgartiraman.
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="font-size:12.5px;">Ro'yxat ekrani</h2>
+  <div class="note">
+    <b style="color:var(--text);">Ro'yxat ekranida donalar YO'Q</b> — faqat
+    <code>2 tur · 4 dona · 15.11 g</code> chiqadi. Ichiga kirmasdan ham
+    ko'rinsin desangiz — aytasiz, qo'shaman.
+    <br><br>
+    Agar <b>ichiga kirganda ham</b> donalar chiqmasa —
+    <span style="color:var(--red);">«POS donalarni yubormagan»</span> deb
+    yozilgan bo'ladi. Shunda ekran rasmini yuboring.
+  </div>
+</div>
+
+<!-- ═══ 2 ═══ -->
+<div class="card">
+  <h2>2 · Berish / Vozvrat cheki <span class="tag t-yoq">YO'Q</span></h2>
+  <div class="note">
+    Qabuldan keyin hozir faqat ikki tugma bor — <b>Keyinroq</b> va
+    <b>TO'LOVGA O'TISH</b>. Chek umuman chiqmaydi.
+  </div>
+
+  <div class="conf">
+    <div class="t1">Qabul qilindi</div>
+    <div class="t2">Aziz Aka</div>
+    <div class="t3">5.00 g</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+      Mol klient hisobiga tushdi.</div>
+    <div class="btns">
+      <div class="btn">Keyinroq</div>
+      <div class="btn n yangi">⎙ BERISH CHEKI</div>
+    </div>
+    <div class="btns" style="margin-top:7px;">
+      <div class="btn g">TO&#39;LOVGA O&#39;TISH</div>
+    </div>
+  </div>
+
+  <div class="lbl">BERISH CHEKI — chiqadigan matn</div>
+<pre class="chek">                    Aziz Aka
+                   12.09.2026
+------------------------------------------------
+Klientga berildi
+  Butterfly - Oddiy                         -5.00g
+  Diamond - 3D                             -10.00g
+------------------------------------------------
+JAMI                                       -15.00g
+------------------------------------------------
+                     Rahmat</pre>
+
+  <div class="lbl">VOZVRAT CHEKI — chiqadigan matn</div>
+<pre class="chek">                    Aziz Aka
+                   12.09.2026
+------------------------------------------------
+Vozvrat qilindi
+  Butterfly - Oddiy                         +5.00g
+------------------------------------------------
+Jami gramm                                  +5.00g
+------------------------------------------------
+                     Rahmat</pre>
+
+  <div class="note" style="margin-top:9px;">
+    Bu <b>yangi qolip emas</b> — qo'lda berish
+    (<code>12393</code>) va qo'lda vozvrat (<code>13160</code>) hozir
+    aynan shu chekni chiqaradi. POS qabuli ham xuddi shu funksiyani
+    chaqiradi, shunda klient qo'liga <b>bir xil chek</b> tushadi.
+    Ikki nusxa + «Tekshirildi» ptichkasi — hammasi o'z-o'zidan ishlaydi
+    (<code>chekIkkiChop</code>).
+    <br><br>
+    To'lov chekiga <b>tegilmaydi</b>.
+  </div>
+</div>
+
+<!-- ═══ QAROR ═══ -->
+<div class="q">
+  <b>QAROR KERAK — 3 ta</b>
+  <ol>
+    <li><b>Chek o'zi chiqsinmi yoki tugma bilanmi?</b><br>
+      <span style="color:var(--muted);font-size:11.5px;">
+      Mockupda tugma qilib qo'ydim — qabul qilganda har doim chek kerak
+      bo'lmasligi mumkin. «O'zi chiqsin» desangiz tugma olib tashlanadi.</span></li>
+    <li><b>Chekda dona ko'rsatilsinmi?</b><br>
+      <span style="color:var(--muted);font-size:11.5px;">
+      Hozirgi qo'lda-berish cheki donani ko'rsatmaydi — faqat gramm.
+      <code>Butterfly - Oddiy  2 dona  -5.00g</code> qilib qo'shsa ham bo'ladi,
+      lekin u holda qo'lda-berish cheki ham o'zgaradi (ikkalasi bitta funksiya).</span></li>
+    <li><b>Ro'yxat ekranida donalar ko'rinsinmi?</b> (1-band)</li>
+  </ol>
+</div>
+
+<div class="card" style="border-color:var(--blue);">
+  <h2 style="color:var(--blue);font-size:12.5px;">Kutib turgan ish</h2>
+  <div class="note">
+    <b>24h soat tartibi</b> — mockup tayyor, javobingizni kutyapman.
+    Bu ish bilan bog'liq emas, alohida.
+  </div>
+</div>
+
+</div>
+
+<script>
+// index.html:13042 _skanChipHTML bilan bir xil mantiq
+var POS = [2, 3];          // POS yuborgan donalar
+var p1 = [], p2 = [], mode = 1;
+var G = function (v) { return (Math.round(v * 100) / 100).toFixed(2); };
+var sum = function (a) { return a.reduce(function (s, x) { return s + x; }, 0); };
+
+function setMode(m) { mode = m; draw(); foc(); }
+function foc() { var i = document.getElementById('inp'); if (i) i.focus(); }
+
+function qosh() {
+  var i = document.getElementById('inp');
+  var v = parseFloat(String(i.value).replace(',', '.'));
+  if (!v || v <= 0) { i.value = ''; foc(); return; }
+  (mode === 1 ? p1 : p2).push(Math.round(v * 100) / 100);
+  i.value = ''; draw(); foc();
+}
+function mos() { (mode === 1 ? p1 : p2).length = 0; POS.forEach(function (g) { (mode === 1 ? p1 : p2).push(g); }); draw(); foc(); }
+function del(i) { (mode === 1 ? p1 : p2).splice(i, 1); draw(); foc(); }
+function tick(k) {
+  for (var i = p2.length - 1; i >= 0; i--) if (G(p2[i]) === k) { p2.splice(i, 1); break; }
+  draw(); foc();
+}
+
+function draw() {
+  document.getElementById('m1').className = 'mb' + (mode === 1 ? ' on' : '');
+  document.getElementById('m2').className = 'mb' + (mode === 2 ? ' on' : '');
+  var el = document.getElementById('rows'), out = '';
+
+  if (mode === 1) {
+    if (!p1.length) out = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:10px 0;">Hali skan yo&#39;q</div>';
+    else {
+      out = '<div class="box">';
+      for (var i = p1.length - 1; i >= 0; i--)
+        out += '<span class="ch' + (i === p1.length - 1 ? ' last' : '') + '"><span class="n">' + (i + 1)
+          + '</span>' + G(p1[i]) + '<span class="x" onclick="del(' + i + ')">&#215;</span></span>';
+      out += '</div>';
+    }
+    document.getElementById('cl').textContent = 'Dona';
+    document.getElementById('cnt').textContent = p1.length;
+    document.getElementById('sum').textContent = G(sum(p1)) + ' g';
+  } else {
+    var kv = {}; p2.forEach(function (g) { var k = G(g); kv[k] = (kv[k] || 0) + 1; });
+    var used = {}, rows = [], matched = 0;
+    p1.forEach(function (g, i) {
+      var k = G(g); used[k] = used[k] || 0;
+      var ok = used[k] < (kv[k] || 0);
+      if (ok) { used[k]++; matched++; }
+      rows.push({ ok: ok, k: k, g: g, i: i });
+    });
+    var extras = [];
+    p2.forEach(function (g, j) {
+      var k = G(g), cap = 0, seen = 0;
+      p1.forEach(function (x) { if (G(x) === k) cap++; });
+      for (var t = 0; t <= j; t++) if (G(p2[t]) === k) seen++;
+      if (seen > cap) extras.push({ k: k, j: j });
+    });
+    var pc = p1.length ? Math.round(matched / p1.length * 100) : 0;
+    out += '<div style="font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px;">'
+      + '<span>Tekshirildi: <b style="color:var(--green);">' + matched + ' / ' + p1.length + '</b></span>'
+      + (extras.length ? '<span style="color:var(--red);font-weight:600;">ortiqcha: ' + extras.length + ' ta</span>' : '') + '</div>';
+    out += '<div class="bar"><i style="width:' + pc + '%"></i></div><div class="box">';
+    for (var r = rows.length - 1; r >= 0; r--) {
+      var w = rows[r];
+      out += '<span class="ch ' + (w.ok ? 'ok' : 'dim') + '"><span class="n">' + (w.i + 1) + '</span>' + G(w.g)
+        + (w.ok ? '<span class="tk" onclick="tick(&#39;' + w.k + '&#39;)">&#10003;</span>' : '') + '</span>';
+    }
+    for (var e = extras.length - 1; e >= 0; e--)
+      out += '<span class="ch ex"><span class="n" style="color:var(--red);opacity:.7;">!</span>' + extras[e].k
+        + '<span class="x" onclick="del(' + extras[e].j + ')">&#215;</span></span>';
+    out += '</div>';
+    if (p1.length && matched === p1.length && !extras.length)
+      out += '<div style="text-align:center;font-size:11px;color:var(--green);padding:6px 0 2px;">Ikkala skan to&#39;liq mos &#10003;</div>';
+    document.getElementById('cl').textContent = 'Tekshirildi';
+    document.getElementById('cnt').innerHTML = matched + ' <span style="font-size:11px;color:var(--muted);font-weight:400;">/ ' + p1.length + '</span>';
+    document.getElementById('sum').textContent = G(sum(p2)) + ' g';
+  }
+  el.innerHTML = out;
+}
+draw();
+</script>
