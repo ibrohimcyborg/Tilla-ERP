@@ -394,6 +394,36 @@ Sinov: `chektest.js` 12/12 (Ibrohimning misoli + satr eni ≤ 48).
 
 ---
 
+### ✅ POS SINXRONI VA TEZLIGI (2026-09-11/12)
+
+Ibrohim: «juda sekin, refresh qilganda ko'rinvotti cloud» → «nega sekin
+judayam» → «top barda cloud, huddi tilla erpga o'xshab».
+
+**POS v0.19 — jonli yangilanish.** `pos.html` bazani BIR MARTA o'qirdi;
+butun faylda `onSnapshot` yo'q edi. Endi `holat` hujjati tinglanadi
+(`holatTingla`), `vaqt` o'zgarsa 1.5 s kutib qayta o'qiydi.
+⚠ BERISH oynasi ochiq bo'lsa KUTIB TURADI — `_pbSavat[i].zi` zavod
+INDEKSIGA tayanadi. `posBYop` yopilganda qo'llaydi.
+⚠ Klient oynasi NOM bo'yicha qayta topiladi, indeks bo'yicha emas.
+
+**v180.5 + POS v0.20 — kichik nusxa.** `hisob.js` tekshirildi: u tarixdan
+FAQAT `tip, zavod, tur, gramm, ekvivalent, summa, _kdYopish, inventar` ni
+o'qiydi. ERP endi `pos_nusxa` + `pos_nusxa_bN` yozadi (`posNusxaObj`).
+⚠ ASOSIY SAQLASHGA TEGILMAGAN — alohida batch, asosiysi tugagandan keyin,
+o'z catch i bilan. POS nusxa yo'q/eski bo'lsa `holat` ga QAYTADI.
+O'lchov (200 klient × 400 tarix): 13.19 MB → 5.13 MB, **2.6 barobar**.
+Qarz/savdo/ostatka raqamlari AYNAN bir xil (`nusxatest.js`).
+
+**POS v0.21 — cloud belgisi tepa satrda.** ERP dagi aynan o'sha ikonka va
+ranglar. Bosilsa matn chiqadi. Pastdagi `#pos-holat` yashirildi.
+Matn manbani aytadi: `sinxron` = nusxadan, `sinxron · to'liq` = eski yo'l.
+
+⬜ **QOLDI:** nusxani yana siqish — qisqa kalit + zavod/tur indeksi
+= 1.59 MB (**8.3 barobar**). O'lchangan, kod yozilmagan. Ibrohim tezlikni
+sinab ko'rgandan keyin qaror qiladi.
+
+---
+
 ## 🔴 UCHTA YANGI VAZIFA (Ibrohim, 2026-09-05)
 
 ### ✅ 1. Chekni tahrirlashda TURNI almashtirish — BAJARILDI (v179.12)
