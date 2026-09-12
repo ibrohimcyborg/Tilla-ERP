@@ -1,4 +1,4 @@
-<!-- v0.27 -->
+<!-- v0.28 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -133,7 +133,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.27';
+var POS_VER = 'v0.28';
 
 // ── SINOV XONASI — QOTIRILGAN ────────────────────
 var SANDBOX = 'TEST';
@@ -882,8 +882,12 @@ function _pbSavatPul(){
 // ⚠ POS HECH NIMA TAQSIMLAMAYDI — nimadan nimaga to'langanini Tilla ERP da
 //   admin belgilaydi. Bu yer faqat yozib oladi va chernovikka qo'shadi.
 var _kbNaqt=0, _kbPerech=0, _kbKarta=0, _kbLom=[];
+// v0.28 (Ibrohim): «klientda borni bossa chiqsin, bo'lmasa pastda tursin».
+// Yopiq boshlanadi — savat ko'rinib tursin, panel joy egallamasin.
+var _kbOchiq = false;
+function posKbOch(){ _kbOchiq = !_kbOchiq; _pbDraw(); }
 var KB_PROBA = ['999','750','585','583','375'];   // data.lomProbalar bo'lmasa
-function _kbTozala(){ _kbNaqt=0; _kbPerech=0; _kbKarta=0; _kbLom=[]; }
+function _kbTozala(){ _kbNaqt=0; _kbPerech=0; _kbKarta=0; _kbLom=[]; _kbOchiq=false; }
 function _kbProbalar(){
   var p = (data && data.lomProbalar) || [];
   p = p.map(String).filter(function(x){ return x; });
@@ -991,9 +995,17 @@ function _pbZavodKerak(zi){
 function _kbSatr(V){
   if(V) return '';
   var h='<div style="border-top:1px solid var(--border);padding:12px;background:var(--gold-bg);flex:none;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;">'
+  // Sarlavha bosiladi. Yopiq holatda jami o'ngda ko'rinib turadi — kassir
+  // ochmasdan ham qancha yozilganini biladi.
+  var _kbJ = _kbJami();
+  h+='<div onclick="posKbOch()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;'
+    + (_kbOchiq?'margin-bottom:9px;':'')+'">'
     + '<span style="font-size:10px;letter-spacing:.09em;font-weight:700;color:var(--gold);">KLIENTDA BOR</span>'
-    + '<span style="font-size:9.5px;color:var(--muted);">kassir yozadi \u00b7 hisob o&#39;zgarmaydi</span></div>';
+    + '<span style="display:flex;align-items:center;gap:9px;">'
+    + (_kbJ ? '<b style="font-size:14px;color:var(--gold);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+fmtD(_kbJ)+' $</b>'
+            : '<span style="font-size:9.5px;color:var(--muted);">kassir yozadi \u00b7 hisob o&#39;zgarmaydi</span>')
+    + '<span style="font-size:11px;color:var(--gold);">'+(_kbOchiq?'▴':'▾')+'</span></span></div>';
+  if(!_kbOchiq) return h+'</div>';   // yopiq — faqat sarlavha qatori
   h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">';
   h+='<div style="background:var(--surf);border:1px solid var(--border);border-radius:11px;padding:6px 8px 7px;min-width:0;border-color:var(--green-bd);"><div style="font-size:8.5px;letter-spacing:.05em;font-weight:700;color:var(--muted);margin-bottom:2px;">NAQT</div>'
     + '<input inputmode="decimal" value="'+(_kbNaqt||'')+'" oninput="posKbSet(&quot;naqt&quot;,this.value)" style="width:100%;border:0;background:transparent;outline:none;padding:0;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;font-size:14px;font-weight:700;text-align:right;color:var(--green);"></div>';

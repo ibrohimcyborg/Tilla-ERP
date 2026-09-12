@@ -5895,3 +5895,23 @@ o'qiydi, ro'yxat to'g'rilangach ikkalasi ham to'g'ri ishlaydi.
 
 Sinov: `guntest.js` — 9 ta tekshiruv, Ibrohimning aynan ma'lumoti bilan
 (14:24 vozvrat ×2, 14:48 berish ×3). Hammasi o'tdi.
+
+## POS v0.28 — KLIENTDA BOR yig'iladi
+
+Ibrohim: «klientda borni bossa chiqsin, bo'lmasa pastda tursin».
+
+Panel endi **yopiq boshlanadi** — faqat bitta sarlavha qatori ko'rinadi:
+
+    KLIENTDA BOR                kassir yozadi · hisob o'zgarmaydi  ▾
+
+Bosilsa ochiladi (naqt/perech/karta, lom qatorlari, hisob), yana bosilsa
+yopiladi. Savat endi ko'proq joy oladi.
+
+- Yopiq holatda **jami o'ngda ko'rinib turadi** (`2,969.68 $`) — kassir
+  ochmasdan ham qancha yozilganini biladi. Hech nima yozilmagan bo'lsa
+  o'rniga eslatma matni turadi.
+- `_kbOchiq` — har berish ochilganda `_kbTozala()` uni yopadi
+- `<div>` muvozanati ikkala yo'lda ham tekshirildi: yopiqda 2/2, ochiqda 16/16
+
+Hisob, chernovik, `_kbChernovik` — TEGILMADI. Yopiq bo'lsa ham yozilgan
+raqamlar saqlanadi va chernovikka ketadi.
