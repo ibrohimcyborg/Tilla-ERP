@@ -5865,3 +5865,33 @@ savatga qo'shilgan zavod ro'yxatdan yo'qolib, tahrirlab bo'lmasdi.
 
 Sinov: `filtrtest.js` — 9 ta tekshiruv (narxli/molli/bo'sh zavod, kurs yo'q
 holati, vozvrat sharti, savat himoyasi). Hammasi o'tdi.
+
+## v180.7 — kun tahriri faqat o'sha protsessni oladi
+
+Ibrohim (ikki rasm bilan): «klient umumiy hisobotida tahrirlasa umumiy kunlik
+jarayon bo'lyapti — agar o'chirib tashlasa hammasi o'chib ketyapti. Faqat o'sha
+protsess: berishni tahrirlasa yoki o'chirsa berish o'chsin, hozir hammasi
+o'chadi vozvratga qo'shib».
+
+**Sabab:** `klientGunTahrir` guruhni FAQAT SANA bo'yicha yig'ardi:
+
+    k.tarix.forEach(function(op, oi){ if(op.sana===sana) gunOps.push(...); });
+
+Ro'yxatdagi sessiya esa `ki | sana | soat` bo'yicha qurilgan (10263-qator).
+Shuning uchun 14:48 dagi berish va 14:24 dagi vozvrat ro'yxatda ALOHIDA
+ko'rinardi, lekin ✏ bosilganda tahrir oynasi ikkalasini birga olardi —
+va 🗑 hammasini o'chirardi.
+
+- Tugma endi `data-soat` ham beradi (11343)
+- `klientGunTahrir(ki, sana, soat)` — filtr **sessiya kaliti bilan aynan bir xil**
+- Soat uzatilmasa avvalgidek kun bo'yicha — soatsiz eski yozuvlar uchun
+  xatti-harakat o'zgarmaydi
+
+`kopEditSaqla` va `kopEditOchir` TEGILMADI — ikkalasi ham `kop-oi-list` dan
+o'qiydi, ro'yxat to'g'rilangach ikkalasi ham to'g'ri ishlaydi.
+
+`klientTarixTahrir` (klient kartochkasidagi ikkinchi ✏) allaqachon
+`sana + soat + tip` bo'yicha filtrlardi — TEGILMADI, sinovda tasdiqlandi.
+
+Sinov: `guntest.js` — 9 ta tekshiruv, Ibrohimning aynan ma'lumoti bilan
+(14:24 vozvrat ×2, 14:48 berish ×3). Hammasi o'tdi.

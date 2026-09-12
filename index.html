@@ -1,4 +1,4 @@
-<!-- v180.6 -->
+<!-- v180.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2036,7 +2036,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v180.6';
+var APP_VER = 'v180.7';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11340,7 +11340,7 @@ function renderKlientHisobot() {
       html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?(isNegBerish?'+':'−'):'+')+fmtG(Math.abs(jamiG))+'g</div>';
       if(tip==='tolov'&&jamiS>0) html+='<div style="font-size:11px;color:var(--muted);">$'+fmtD(jamiS)+'</div>';
       html+='</div>';
-      html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
+      html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" data-soat="'+(sess.soat||'')+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana,this.dataset.soat)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
       html+='</div></div>';
 
       if(sess.ops.length>1){
@@ -11408,10 +11408,23 @@ function _shaklMi(ops){
   if(!ops || !ops.length) return false;
   return ops.every(function(x){ var o=(x && x.op)?x.op:x; return o && o.inventar==='boshlangich'; });
 }
-function klientGunTahrir(ki, sana) {
+function klientGunTahrir(ki, sana, soat) {
   var k = data.klientlar[ki];
   var gunOps = [];
-  k.tarix.forEach(function(op, oi){ if(op.sana===sana) gunOps.push({op:op, oi:oi}); });
+  // v180.7 (Ibrohim): «berishni tahrirlasa yoki o'chirsa FAQAT berish o'chsin —
+  // hozir hammasi o'chadi, vozvratga qo'shib».
+  // Sabab: guruh faqat SANA bo'yicha yig'ilardi. Ro'yxatdagi sessiya esa
+  // `ki | sana | soat` bo'yicha qurilgan (10263) — 14:48 berish va 14:24
+  // vozvrat alohida ko'rinardi, lekin tahrir ikkalasini birga olardi.
+  // Endi filtr sessiya kaliti bilan AYNAN bir xil.
+  // Soat uzatilmasa (eski chaqiruv) avvalgidek kun bo'yicha — soatsiz
+  // eski yozuvlar uchun xatti-harakat o'zgarmaydi.
+  var soatFiltr = (soat !== undefined && soat !== null);
+  k.tarix.forEach(function(op, oi){
+    if(op.sana !== sana) return;
+    if(soatFiltr && (op.soat||'') !== String(soat)) return;
+    gunOps.push({op:op, oi:oi});
+  });
   if(!gunOps.length) return;
 
   _kopKi = ki; _kopOi = -1;
