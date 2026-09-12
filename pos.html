@@ -1,4 +1,4 @@
-<!-- v0.30 -->
+<!-- v0.31 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -98,13 +98,21 @@ body.rol-pos button, body.rol-pos input,
       <div style="text-align:center"><span class="xona">test → SINOV &nbsp;·&nbsp; admin → ADMIN</span></div>
       <div class="t" id="k-t">Kirish</div>
       <div id="k1">
-        <input id="ku" placeholder="Login" autocomplete="off" autocapitalize="none">
-        <input id="kp" type="password" placeholder="Parol">
+        <input id="ku" placeholder="Login" autocomplete="off" autocapitalize="none"
+               autocorrect="off" spellcheck="false" data-lpignore="true"
+               data-form-type="other">
+        <input id="kp" type="password" placeholder="Parol"
+               autocomplete="new-password" data-lpignore="true"
+               data-form-type="other">
         <button class="go" id="kb">Kirish</button>
       </div>
       <div id="k2" hidden>
-        <input id="fe" placeholder="Cloud pochta" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email">
-        <input id="fp" type="password" placeholder="Cloud parol">
+        <input id="fe" placeholder="Cloud pochta" autocomplete="off" autocapitalize="none"
+               autocorrect="off" spellcheck="false" inputmode="email"
+               data-lpignore="true" data-form-type="other">
+        <input id="fp" type="password" placeholder="Cloud parol"
+               autocomplete="new-password" data-lpignore="true"
+               data-form-type="other">
         <button class="go" id="fb">Cloudga ulanish</button>
       </div>
       <div class="err" id="ke"></div>
@@ -133,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.30';
+var POS_VER = 'v0.31';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan

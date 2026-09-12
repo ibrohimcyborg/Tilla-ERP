@@ -6056,3 +6056,24 @@ SHART** — `cloudKol()` `uid` ga tayanadi, boshqa hisob = boshqa kolleksiya.
 - **Brauzerda yuklash:** `index.html` va `pos.html` — ikkalasi ham
   **0 konsol xatosi**. `cloudKol()` jonli tekshirildi: `ADMIN_tilla_x`,
   `TEST_tilla_x`.
+
+## POS v0.31 — kirishda brauzer parol menejeri chiqmaydi
+
+Ibrohim (rasm bilan): kirish oynasida Chrome saqlangan parollar ro'yxatini
+ochib, formani to'sib qo'yardi.
+
+To'rt maydonga qo'yildi:
+
+| Maydon | Qo'shildi |
+|---|---|
+| `ku` (login) | `autocorrect="off"` `spellcheck="false"` `data-lpignore` `data-form-type="other"` |
+| `kp` (parol) | `autocomplete="new-password"` + yuqoridagilar |
+| `fe` (cloud pochta) | `data-lpignore` `data-form-type="other"` |
+| `fp` (cloud parol) | `autocomplete="new-password"` + yuqoridagilar |
+
+⚠ Parol maydonlarida Chrome `autocomplete="off"` ni **mensimaydi** —
+`new-password` ishlatildi, u saqlangan parollarni taklif qilishni to'xtatadi.
+`name` atributi berilmagan — nomsiz maydonni brauzer eslab qolmaydi.
+
+Sinov: brauzerda yuklandi, 0 konsol xatosi. Atributlar jonli tekshirildi:
+`ku: autocomplete=off`, `kp: new-password`, `name` — to'rttasida ham YO'Q.
