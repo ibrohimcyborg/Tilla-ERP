@@ -1,4 +1,4 @@
-<!-- v187.1 -->
+<!-- v187.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v187.1';
+var APP_VER = 'v187.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11749,6 +11749,7 @@ function renderKlientlar() {
     topHTML='<div class="empty" style="padding:24px 20px;"><div class="empty-icon">🔍</div>"'+qFilter+'" topilmadi.</div>';
   } else { filteredTop.forEach(function(item,rank){
     var k=item.k,ki=item.i,qarz=klientJamiQarz(k),savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
+    var _qy = qarz<=0.001;                       // v187.2: qarzi yopilgan
     var dc=holat.rang==='green'?'#5ab87a':holat.rang==='yellow'?'var(--yellow)':'#e05a5a';
     var ini=k.nom.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
     topHTML+='<div class="hrow" style="cursor:pointer;margin-bottom:6px;" onclick="openKlientDetail('+ki+')">'
@@ -11757,8 +11758,8 @@ function renderKlientlar() {
       +'<div style="width:34px;height:34px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--muted);">'+ini+'</div>'
       +'<div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+k.nom+'</div>'
       +'<div style="font-size:11px;color:var(--muted);">'+fmtG(savdo.g)+'g · '+fmtD(savdo.pul)+'$</div></div>'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:'+dc+';flex-shrink:0;"></div>'
-      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(qarz>0?'var(--red)':'var(--green)')+';">'+(qarz>0?'−':'+')+fmtG(Math.abs(qarz))+'g</div>'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:'+(_qy?'var(--border)':dc)+';flex-shrink:0;"></div>'
+      +'<div style="font-family:Roboto,sans-serif;font-size:13px;font-weight:600;color:'+(_qy?'var(--muted)':'var(--red)')+';">'+(_qy?'':'−')+fmtG(qarz)+'g</div>'
       +'</div></div>';
   });
   } // end filteredTop
@@ -12000,9 +12001,13 @@ function openKlientDetail(ki) {
   var _jr = _qarzJamiRows(_ktQarz.qarz_tarkib);
   var qarz=_jr.ostatka, bizQarz=_jr.bizQarz;
   var savdo=klientJamiSavdo(k),holat=klientQarzHolat(k);
+  // v187.2 (Ibrohim): «0.00 bo'b tursin, "-" "+" keremas, kegin muddat
+  // ko'rsatmasin» — qarzi yopilgan klientda − belgisi ham, qizil rang ham,
+  // muddat nishoni ham chiqmaydi. (klientJamiQarz/ostatka doim >= 0.)
+  var _qYoq = qarz<=0.001;
   var qEl=document.getElementById('kd-qarz');
-  qEl.textContent='−'+fmtG(qarz)+' g';
-  qEl.style.color='var(--red)';
+  qEl.textContent=(_qYoq?'':'−')+fmtG(qarz)+' g';
+  qEl.style.color=_qYoq?'var(--muted)':'var(--red)';
   var bqRow=document.getElementById('kd-bizqarz-row');
   var bqEl=document.getElementById('kd-bizqarz');
   if(bizQarz>0.001){ bqRow.style.display='block'; bqEl.textContent='+'+fmtG(bizQarz)+'g'; }
@@ -12013,7 +12018,8 @@ function openKlientDetail(ki) {
   var bg=holat.rang==='green'?'var(--green-bg)':holat.rang==='yellow'?'var(--yellow-bg)':'var(--red-bg)';
   var icon=holat.rang==='green'?'🟢':holat.rang==='yellow'?'🟡':'🔴';
   var st=document.getElementById('kd-status');
-  if(holat.kun>0){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
+  // v187.2: qarzi yo'q odamning «muddati» ham yo'q
+  if(holat.kun>0 && !_qYoq){st.textContent=icon+' '+holat.kun+' kun';st.style.background=bg;st.style.color=dc;st.style.display='inline-block';}
   else st.style.display='none';
   var byZavod={};
   _ktQarz.qarz_tarkib.forEach(function(b){
@@ -12026,7 +12032,7 @@ function openKlientDetail(ki) {
   bHTML+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
   bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;">';
   bHTML+='<div style="font-size:12px;color:var(--muted);">Klient ostatkasi</div>';
-  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:var(--red);">−'+fmtG(_jr.ostatka)+'</div>';
+  bHTML+='<div style="font-family:Roboto,sans-serif;font-size:20px;font-weight:600;color:var('+(_qYoq?'--muted':'--red')+');">'+(_qYoq?'':'−')+fmtG(_jr.ostatka)+'</div>';
   bHTML+='</div>';
   if(_jr.bizQarz>0.001){
     bHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">';

@@ -4,7 +4,25 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v187 · POS v0.36 · 2026-09-13
+**Oxirgi yangilanish:** v187.2 · POS v0.36 · 2026-09-13
+
+---
+
+## ✅ v187.1 – v187.2 — qarz kun nishoni (2026-09-13)
+
+### v187.1 — sanagich oxirgi oldi-berdidan  *(push qilindi)*
+Ibrohim: «nega qarzzi 25 kun ko‘rsatvotti» → «B ni qil».
+`klientQarzHolat` avval faqat vozvrat/tolov dan sanardi — endi
+**berish ham** tiklaydi. Ranglar tegilmadi (0-3/4-7/8+).
+⚠ Sana MATN bo‘lib solishtirilardi (`'19.08.2026' > '13.09.2026'` = rost)
+— endi `fdSanaTs`. ⚠ `inventar` yozuvlari tashlanadi.
+⚠ Ibrohim «185.1» dedi, loyiha v187 da edi → v187.1 qilindi.
+
+### v187.2 — qarzi yopilgan klient  *(commit)*
+«0.00 bo‘ptursin, "-" "+" keremas, kegin muddat ko‘rsatmasin».
+Uch joyda belgi qat’iy yozilgan edi → `_qYoq` / `_qy` (`qarz<=0.001`).
+Nishon endi `holat.kun>0 && !_qYoq`. Ro‘yxatdagi nuqta ham kulrang.
+Qidiruv ro‘yxatlari (12421, 14693) TEGILMADI — u yerda belgi yo‘q.
 
 ---
 

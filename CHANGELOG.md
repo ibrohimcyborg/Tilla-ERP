@@ -6540,3 +6540,52 @@ bugungi berishsiz klient → **🔴 25 kun**. `renderKlientlar` va
 
 ⚠ Versiya: Ibrohim «185.1» dedi, lekin loyiha v187 da edi — orqaga qaytsa
 versiya tarixi buziladi, shuning uchun **v187.1** qilindi.
+
+---
+
+## v187.2 — qarzi yopilgan klient: belgisiz 0.00, muddat nishonsiz
+
+Ibrohim: «kegin ostatkasi 0 odamda muddat 0 bo'b ko'rinishi kere,
+−0.00 +0.00 0.00 bopqoladi usha holatda» → «0.00 bo'ptursin, "-" "+" keremas,
+kegin muddat ko'rsatmasin».
+
+### Sabab
+
+Belgi va rang uch joyda **qat'iy yozilgan** edi — qiymat nol bo'lsa ham
+minus qo'yilardi:
+
+| Joy | Eski | Yangi |
+|---|---|---|
+| Klient ekrani, katta raqam | `−0.00 g` qizil | `0.00 g` kulrang |
+| QARZ TARKIBI sarhisobi | `−0.00` qizil | `0.00` kulrang |
+| Klientlar ro'yxati | `+0.00g` yashil | `0.00g` kulrang |
+| Ro'yxatdagi rangli nuqta | qizil/sariq | kulrang |
+| Muddat nishoni | `🔴 25 kun` | **ko'rinmaydi** |
+
+Nishon avval qarzga **umuman qaramasdi**, faqat sanaga. Endi
+`holat.kun>0 && !_qYoq` — qarzi yo'q odamning «muddati» ham yo'q.
+
+`klientJamiQarz` / `_jr.ostatka` doim `>= 0` qaytaradi, shuning uchun
+chegara `qarz<=0.001`.
+
+### TEGILMADI
+
+Klient qidiruv ro'yxatlari (`_klientDropHTML` 12421, `ksSearFilter` 14693)
+`qarz: 0.00g` ni yashil ko'rsatadi — u yerda **belgi yo'q**, faqat rang, va
+yashil «qarzi yo'q» degan ataylab qo'yilgan signal. Ibrohim aytmadi.
+
+Hisob-kitobga tegilmadi — `klientQarzHolat` mantiqiga ham. Faqat ko'rsatish.
+
+### Sinov
+
+Sintaksis 0 xato. Brauzerda ikki klient bilan (biri qarzi to'liq yopilgan,
+biri 5g qarzli, ikkalasining oxirgi amali 19.08 = 25 kun):
+
+| | Yopiq | Qarzli |
+|---|---|---|
+| Katta raqam | `0.00 g` · `var(--muted)` | `−5.00 g` · `var(--red)` |
+| Nishon | **YO'Q** | `🔴 25 kun` |
+| Tarkib | `Klient ostatkasi 0.00` | — |
+| Ro'yxatda | `0.00g` | `−5.00g` |
+
+Sahifada `+0.00g` ham, `−0.00` ham **qolmadi**. 0 konsol xatosi.
