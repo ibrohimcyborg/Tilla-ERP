@@ -1,4 +1,4 @@
-<!-- v187 -->
+<!-- v187.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v187';
+var APP_VER = 'v187.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -9783,13 +9783,41 @@ function pdfDavrTanla(tip) {
 }
 var curKlientIdx = -1;
 
+// v187.1 (Ibrohim): «shunchaki oxirgi oldi-berdi bo'gandan keyin yoki to'lov
+// bo'gandan keyin hisoblashi kerak muddati o'tishini» → «B ni qil».
+// Mockup: mockups/qarz-kun.html — B varianti tanlandi.
+//
+// AVVAL: sanagich faqat VOZVRAT va TO'LOV dan boshlanardi. Bugun berish
+//   qilingan klientda ham eski nishon turib qolardi (Mirshohid Aka 23:
+//   bugun 13.09 da berish bo'lgan, nishon esa «25 kun» — 19.08 dagi
+//   to'lovdan sanardi).
+// ENDI: har qanday oldi-berdi tiklaydi — berish, vozvrat, tolov.
+//
+// ⚠ ESKI XATO: sana MATN bo'lib solishtirilardi —
+//   '19.08.2026' > '13.09.2026' JavaScriptda ROST ('1'='1', keyin '9'>'3'),
+//   ya'ni avgust sentabrdan keyin deb qaralardi. Bir nechta amal bo'lganda
+//   noto'g'ri sana tanlanardi. Endi fdSanaTs bilan haqiqiy vaqtga
+//   aylantiriladi.
+//
+// ⚠ inventar yozuvlari (boshlang'ich ostatka shakllantirish, tekshiruv)
+//   HISOBGA OLINMAYDI — ular klient bilan bo'lgan oldi-berdi emas, o'z
+//   sanog'imiz. Aks holda ostatka shakllantirish hamma klientning
+//   muddatini nolga tushirib yuborardi.
+//
+// Ranglar TEGILMADI: 0-3 yashil, 4-7 sariq, 8+ qizil — Ibrohim aytgan
+// qoida allaqachon shunday edi.
 function klientQarzHolat(k) {
-  var lastDate=null;
-  k.tarix.forEach(function(op){ if(op.tip==='vozvrat'||op.tip==='tolov'){ if(!lastDate||op.sana>lastDate) lastDate=op.sana; } });
-  if(!lastDate){ var hasBerish=k.tarix.some(function(op){return op.tip==='berish';}); if(!hasBerish) return {kun:0,rang:'green'}; lastDate=k.tarix.filter(function(op){return op.tip==='berish';}).map(function(op){return op.sana;}).sort().pop(); }
-  var p=lastDate.split('.');
-  var last=new Date(p[2]+'-'+p[1]+'-'+p[0]);
-  var kun=Math.floor((new Date()-last)/86400000);
+  var eng=0;
+  (k.tarix||[]).forEach(function(op){
+    if(!op || op.inventar) return;
+    if(op.tip!=='berish' && op.tip!=='vozvrat' && op.tip!=='tolov') return;
+    var ts=fdSanaTs(op.sana);          // soatsiz — kun boshiga tenglashtiriladi
+    if(ts>eng) eng=ts;
+  });
+  if(!eng) return {kun:0, rang:'green'};
+  var n=new Date();
+  var bugun=new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
+  var kun=Math.round((bugun-eng)/86400000);
   return {kun:kun, rang:kun<=3?'green':kun<=7?'yellow':'red'};
 }
 // v175.2 (Ibrohim: "manga to'g'ri ko'rsatsin"): ro'yxat/qidiruv endi klient ekrani

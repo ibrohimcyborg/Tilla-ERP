@@ -6474,3 +6474,69 @@ Brauzerda: 0 konsol xatosi.
   xatoni o'chirib `3` skan `2/2 to'liq mos`, `pass1=[2,3]`
 - Eski chernovik (donalarsiz): `Dona: 1`, «ortiqcha» chiqmadi
 - 2-SKAN: `1/2` → `2/2`, keyin 1-SKANga qaytganda yana POS ga qarab `2/2`
+
+---
+
+## v187.1 — qarz kun sanagichi oxirgi oldi-berdidan boshlanadi
+
+Ibrohim (ekran rasmi bilan): «tilla erpda nega qarzzi 25 kun ko'rsatvotti,
+mexanizm qanaqa ishlidi? shunchaki oxirgi oldi-berdi bo'gandan keyin yoki
+to'lov bo'gandan keyin hisoblashi kere muddati o'tishini» → «B ni qil».
+
+Mockup: `mockups/qarz-kun.html` — uch variant ko'rsatildi, **B** tanlandi.
+
+### Nega 25 kun chiqardi
+
+`klientQarzHolat` sanagichni **faqat VOZVRAT va TO'LOV** dan boshlardi.
+Mirshohid Aka 23 da bugun (13.09) berish bo'lgan, lekin oxirgi to'lov
+19.08 da edi → 25 kun. Berish sanagichni tiklamasdi.
+
+### B varianti
+
+Endi **har qanday oldi-berdi** tiklaydi: `berish`, `vozvrat`, `tolov`.
+
+| Holat | Eski | Yangi |
+|---|---|---|
+| Bugun berish, to'lov 19.08 | 🔴 25 kun | nishon yo'q |
+| Faqat 19.08 dagi to'lov | 🔴 25 kun | 🔴 25 kun |
+| 11.09 da vozvrat | 🔴 25 kun | 🟢 2 kun |
+
+**Ranglar TEGILMADI** — `0–3 yashil · 4–7 sariq · 8+ qizil`. Ibrohim aytgan
+qoida allaqachon shunday edi.
+
+### Yo'l-yo'lakay: sana MATN bo'lib solishtirilardi
+
+```js
+if(op.sana > lastDate) lastDate = op.sana;      // eski
+```
+
+`'19.08.2026' > '13.09.2026'` JavaScriptda **rost** — `'1'`=`'1'`, keyin
+`'9'` > `'3'`. Ya'ni avgust sentabrdan keyin deb qaralardi. Bir nechta
+to'lov bo'lganda noto'g'ri sana tanlanardi (19.08 va 09.09 → 19.08 olinardi,
+`25 kun` o'rniga `4 kun` bo'lishi kerak edi).
+
+Endi `fdSanaTs(op.sana)` bilan haqiqiy vaqtga aylantiriladi. Ikki tomon ham
+kun boshiga tenglashtiriladi (`Math.round`), shunda natija eski xulq bilan
+bir xil chiqadi — faqat to'g'ri sanadan.
+
+### `inventar` yozuvlari tashlanadi
+
+Boshlang'ich ostatka shakllantirish (`inventar:'boshlangich'`) va tekshiruv
+tuzatishi `tip:'berish'` bo'lib yoziladi. Ular klient bilan bo'lgan
+oldi-berdi **emas** — o'z sanog'imiz. Hisobga olinsa, ostatka shakllantirish
+hamma klientning muddatini nolga tushirib yuborardi. CLAUDE.md §10 dagi
+`inventar` tuzog'i.
+
+### Sinov
+
+`tekshir1871.js` — 27 ta tekshiruv (bugun 13.09.2026 ga qotirilgan):
+Mirshohidning haqiqiy tarixi, ikki to'lovli matn-solishtiruv holati,
+`inventar` yozuvlarining tashlanishi, beshta rang chegarasi
+(0/3/4/7/8 kun), bo'sh tarix, tarixsiz obyekt.
+
+Brauzerda: 0 konsol xatosi. Mirshohid → nishon **ko'rinmaydi**,
+bugungi berishsiz klient → **🔴 25 kun**. `renderKlientlar` va
+`openKlientDetail` ishladi.
+
+⚠ Versiya: Ibrohim «185.1» dedi, lekin loyiha v187 da edi — orqaga qaytsa
+versiya tarixi buziladi, shuning uchun **v187.1** qilindi.
