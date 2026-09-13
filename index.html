@@ -1,4 +1,4 @@
-<!-- v186 -->
+<!-- v187 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v186';
+var APP_VER = 'v187';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15038,11 +15038,13 @@ function posChSkanOchir(ri,j){
   if(j>=0 && j<a.length) a.splice(j,1);
   _posChFokus=ri; posBellOch();
 }
-// yashil ✓ bosilsa — 2-skandan o'sha gramm olinadi, belgi bekor bo'ladi
+// yashil ✓ bosilsa — o'sha gramm skandan olinadi, belgi bekor bo'ladi.
+// v187: JORIY rejimdan oladi — 1-skanda pass1, 2-skanda pass2
+// (avval doim pass2 dan olardi, endi 1-skan ham chek-ro'yxat).
 function posChSkanTick(ri,k){
-  var st=_posChSt(ri);
-  for(var i=st.pass2.length-1;i>=0;i--){
-    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
+  var a=_posChArr(ri);
+  for(var i=a.length-1;i>=0;i--){
+    if(roundG(a[i]).toFixed(2)===k){ a.splice(i,1); break; }
   }
   _posChFokus=ri; posBellOch();
 }
@@ -15359,21 +15361,28 @@ function posBellOch(){
       h+='<button onclick="posChSkanQosh('+ri+')" style="width:40px;height:38px;border-radius:14px;border:0;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;">+</button>';
       h+='<button onclick="posChNusxa('+ri+')" style="height:38px;padding:0 11px;border-radius:14px;border:1px solid var(--border);background:var(--surf);color:var(--muted);font-size:11.5px;cursor:pointer;font-family:inherit;">Mos</button></div>';
 
-      // v184: chip ro'yxati — berish/vozvrat/sotuv skanlari bilan bitta ko'rinish
-      var _res=_skanChipHTML(st.pass1, st.pass2, st.mode, {
-        del:'posChSkanOchir('+ri+',',
-        tick:'posChSkanTick('+ri+','
-      });
+      // v184: chip ro'yxati — berish/vozvrat/sotuv skanlari bilan bitta ko'rinish.
+      // v187 (Ibrohim): «skan 1-gayam skan 2dagidek tekshirildi qo'shsang
+      // bo'larkan — POS dan kelganini tekshiradi, to'g'ri bo'sa to'g'ri
+      // ko'rsatadi, o'zgarsa skan 2 qilamiz».
+      //   1-SKAN: o'lchov = POS DONALARI, skan = admin 1-skani
+      //   2-SKAN: o'lchov = 1-skan,       skan = 2-skan   (o'zgarmadi)
+      // POS donalarni yubormagan bo'lsa (eski chernovik) 1-skan avvalgidek
+      // oddiy oqim bo'lib qoladi — aks holda har skan «ortiqcha» bo'lib
+      // qizarib ketardi.
+      var _oc={ del:'posChSkanOchir('+ri+',', tick:'posChSkanTick('+ri+',' };
+      var _birChek = (st.mode===1 && pos.length>0);
+      var _chek    = _birChek || st.mode===2;
+      var _olchov  = _birChek ? pos : st.pass1;
+      var _skanArr = _birChek ? st.pass1 : st.pass2;
+      var _res = _chek ? _skanChipHTML(_olchov, _skanArr, 2, _oc)
+                       : _skanChipHTML(st.pass1, [], 1, _oc);
       h+=_res.html;
 
       h+='<div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;margin-top:7px;">';
-      if(st.mode===1){
-        h+='<span style="color:var(--muted);">Dona: <b style="color:var(--text);">'+st.pass1.length+'</b></span>';
-        h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.pass1))+' g</b>';
-      } else {
-        h+='<span style="color:var(--muted);">Tekshirildi: <b style="color:var(--green);">'+_res.matched+'</b> / '+st.pass1.length+'</span>';
-        h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.pass2))+' g</b>';
-      }
+      if(_chek) h+='<span style="color:var(--muted);">Tekshirildi: <b style="color:var(--green);">'+_res.matched+'</b> / '+_olchov.length+'</span>';
+      else      h+='<span style="color:var(--muted);">Dona: <b style="color:var(--text);">'+st.pass1.length+'</b></span>';
+      h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.mode===1?st.pass1:st.pass2))+' g</b>';
       h+='</div>';
 
       // POS bilan solishtirish — avvalgidek, faqat endi 1-skan bilan

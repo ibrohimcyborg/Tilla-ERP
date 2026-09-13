@@ -4,7 +4,27 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v186 · POS v0.35 · 2026-09-13
+**Oxirgi yangilanish:** v187 · POS v0.36 · 2026-09-13
+
+---
+
+## ✅ v187 + POS v0.36 (2026-09-13)
+
+### POS v0.36 — klient qarzi kursdan pulda  *(push qilindi)*
+«posda klientga kirganda ostatkasini nechpulligini kursdan ko‘rsatadigan
+qiber» + «A B ker, sal enini kottalashtir» + «bizning qarz ham».
+`_pmNarx` / `_pmKatSatr` / `posModalKat` / `_pmQarzHTML`.
+A/B bosilganda faqat `#pm-qarz` qayta chiziladi — skroll joyida qoladi.
+Narxsiz tur: pul o‘rnida `—`, summaga qo‘shilmaydi, ogohlantiriladi.
+`_pmKat` `_pbKat` dan ALOHIDA — berish ekranidagi A/B tegilmaydi.
+
+### v187 — 1-SKAN ham chek-ro‘yxat  *(commit, PUSH QILINMAGAN)*
+«skan 1-gayam skan 2dagidek tekshirildi qo‘shsang bo‘larkan».
+1-SKAN o‘lchovi = **POS donalari**, 2-SKAN o‘lchovi = 1-skan (o‘zgarmadi).
+POS donalar yubormagan bo‘lsa 1-SKAN avvalgidek oqim.
+`posChSkanTick` endi rejimga qarab (`_posChArr`).
+⚠ Qabulga hali ham DOIM 1-skan yoziladi — hisobga ta’sir yo‘q.
+⚠ `kbSkanRender` va `uniSkanRender` TEGILMADI.
 
 ---
 

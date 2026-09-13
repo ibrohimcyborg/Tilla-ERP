@@ -6413,3 +6413,64 @@ Brauzerda (kurs 80, B ustama 2):
 
 ⚠ Pul `fmtD` bilan yoziladi (POS ning o'z formati) — `160 $`, `1,208.8 $`.
 Mockupda `160.00` edi; butun POS shu formatda, shuning uchun o'zgartirilmadi.
+
+---
+
+## v187 — 1-SKAN ham chek-ro'yxat (POS donalariga qarab)
+
+Ibrohim: «skan 1-gayam skan 2dagidek tekshirildi qo'shsang bo'larkan —
+POS dan kelganini tekshiradi, to'g'ri bo'sa to'g'ri ko'rsatadi, o'zgarsa
+skan 2 qilamiz; skan 2 skan 1 bilan bir xil chiqsa o'sha bo'yicha
+o'zgartiriladi» → «shunaqa, uniyam to'g'irla».
+
+### Nima o'zgardi
+
+v184 da 1-SKAN oddiy chip oqimi edi (`Dona: N`), POS bilan solishtiruv esa
+faqat pastdagi bitta qatorda ko'rinardi. Endi:
+
+| Rejim | O'lchov | Skan |
+|---|---|---|
+| **1-SKAN** | **POS yuborgan donalar** | admin 1-skani |
+| **2-SKAN** | 1-skan | 2-skan *(o'zgarmadi)* |
+
+Ya'ni admin skanlagan sari POS donalari yashil `✓` bo'lib boradi,
+POS da yo'q gramm qizil `!` bo'lib chiqadi, tepada `Tekshirildi: m / N`
+va yurish chizig'i turadi — 2-SKAN bilan bir xil ko'rinish.
+
+### Eski chernoviklar
+
+POS `donalar` yubormagan bo'lsa (`pos.length===0`) 1-SKAN **avvalgidek
+oddiy oqim** bo'lib qoladi. Aks holda har skan «ortiqcha» bo'lib qizarib
+ketardi — o'lchov bo'sh bo'lgani uchun.
+
+### `posChSkanTick` endi rejimga qarab ishlaydi
+
+Avval doim `pass2` dan olardi. Endi `_posChArr(ri)` — 1-skanda `pass1`,
+2-skanda `pass2`. Aks holda 1-skandagi yashil `✓` bosilganda hech nima
+o'zgarmasdi.
+
+### Hisobga ta'sir — YO'Q
+
+Qabulga **hali ham doim 1-skan** yoziladi, `hammasiSkan` gate va `farqBor`
+ham `pass1` dan o'qiydi. Ibrohim aytgan oqim («skan 2 skan 1 bilan bir xil
+chiqsa o'sha bo'yicha») allaqachon shunday ishlaydi — o'zgarish kerak emas.
+
+`POS bilan: mos / kam / ortiq` qatori **saqlandi** — 2-SKANda u POS bilan
+yagona solishtiruv bo'lib qoladi.
+
+⚠ `kbSkanRender` (qo'lda berish) va `uniSkanRender` (umumiy skan)
+**tegilmadi** — ular o'sha `_skanChipHTML(st.pass1, st.pass2, st.mode)` bilan
+qoldi.
+
+### Sinov
+
+`tekshir187.js` — 30 ta tekshiruv: sintaksis, `tick` ning rejimga qarab
+ishlashi, `_skanChipHTML` ning 0/2 → 1/2 → 2/2 va ortiqcha holatlari,
+POS donalarsiz oqim rejimi, qabul yo'lining tegilmagani, boshqa ikki skan
+ekranining o'zgarmagani.
+
+Brauzerda: 0 konsol xatosi.
+- 1-SKAN: bo'sh `0/2` → `2` skan `1/2` → `0.50` skan `1/2 + ortiqcha` →
+  xatoni o'chirib `3` skan `2/2 to'liq mos`, `pass1=[2,3]`
+- Eski chernovik (donalarsiz): `Dona: 1`, «ortiqcha» chiqmadi
+- 2-SKAN: `1/2` → `2/2`, keyin 1-SKANga qaytganda yana POS ga qarab `2/2`
