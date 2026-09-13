@@ -155,39 +155,20 @@ To'lov chekiga tegilmadi — `TO'LOVGA O'TISH` yo'lida chek chaqirig'i yo'q.
 
 ## ⏳ OCHIQ — javob kutilmoqda
 
-**1. KLIENTDA BOR to'lov panelida ko'rinmagani** — YAGONA ochiq texnik savol.
-v180.8 da tekshiruv ekraniga («Qabul qilish» tugmasi tepasida) tashxis qutisi
-qo'yilgan. Ibrohimga 2026-09-13 da tushuntirildi:
-
-| Chiqsa | Ma'nosi |
-|---|---|
-| «KLIENTDA BOR — POS DAN» + raqamlar | POS yuborgan → muammo **ERP** tomonda |
-| «KLIENTDA BOR — POS yubormagan» | POS yubormagan → muammo **POS** tomonda |
-
-→ Keyingi POS berishida Ibrohim chernovikni ochib qaysi biri chiqqanini
-aytishi kerak. **Javob kelmaguncha kod yozilmaydi** — qaysi tomonni
-tuzatish kerakligi aniq emas.
-
-**2. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan.
+**1. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan (2026-09).
 ⚠ Yangi mockup CHIZMA — avval Ibrohimdan ekran rasmi va o'z so'zlarini ol.
-(v184–v188.3 dan keyin panel butunlay o'zgardi: 1/2-skan, POS ga qarab
-tekshirish, donalar, chek. Shikoyat o'z-o'zidan yopilgan bo'lishi mumkin —
-avval so'ra.)
+v184–v188.3 dan keyin panel butunlay o'zgardi: 1/2-skan, POS ga qarab
+tekshirish, donalar, chek, KLIENTDA BOR. Shikoyat o'z-o'zidan yopilgan
+bo'lishi mumkin — avval so'ra, keyin chiz.
 
 ### Yopilgan savollar
 ✓ Chekda dona — kerak emas
 ✓ Ro'yxatda dona — A varianti, v186
 ✓ PDF: kimlar kirsin — qarzi bor hamma, v188
 ✓ POS'da numpad «+» — kerak emas (barcode skaner Enter yuboradi)
-
-### Hal bo'lgan savollar
-✓ Chekda dona — **kerak emas** (2026-09-13)
-✓ Ro'yxatda dona — **A varianti**, v186 da bajarildi (2026-09-13)
-
-### Mockuplar
-`mockups/royxat-dona.html` — A varianti bajarildi, lekin ichida KLIENTDA BOR
-tushuntirishi bor — 1-savol yopilguncha SAQLANADI.
-(`soat-24h.html` va `pos-dona-chek.html` o'chirildi — bajarilgan.)
+✓ **KLIENTDA BOR** — Ibrohim (2026-09-13): «to'g'ri ishlayotti, muammo yo'q
+  hozircha». v180.8 tashxis bloki («POS DAN» / «POS yubormagan») O'RNIDA
+  QOLADI — u faqat tashxis emas, POS yuborgan raqamlarni ham ko'rsatadi.
 
 ---
 
