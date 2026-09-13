@@ -1,4 +1,4 @@
-<!-- v0.35 -->
+<!-- v0.36 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.35';
+var POS_VER = 'v0.36';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -639,7 +639,9 @@ function posSakra(h){
   if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function posKlientOch(ki){ _posKi=ki; _posModal(); }
+// v0.36: boshqa klient ochilsa A/B tanlovi o'sha klientning o'z
+// kategoriyasidan qayta boshlanadi (_pmQarzHTML to'ldiradi).
+function posKlientOch(ki){ _posKi=ki; _pmKat=''; _posModal(); }
 
 function posModalYop(){
   var m=document.getElementById('pos-ovl');
@@ -854,15 +856,148 @@ function _posAmalPill(){
   return h+'</div>';
 }
 
-function _posModal(){
-  posModalYop();
-  var k=data.klientlar[_posKi]; if(!k){ return; }
-  // POS 1.04: qarz bloki klient ekranining (openKlientDetail 11780) AYNAN nusxasi.
-  // Ibrohim: «klientga bosib kirganda qarzdorligini shunaqa ko'rsatsin».
-  // Hisob qayta yozilmadi — _qarzTarkib (17057) va _qarzJamiRows (16980) chaqiriladi.
+// ═════ v0.36 — QARZ PULDA ═════
+// Ibrohim: «posda klientga kirganda ostatkasini nechpulligini kursdan
+// ko'rsatadigan qiber» + «A B ker» + «bizning qarz ham ko'rsatsin»
+// + «narxi yo'q tur ... ko'rsatishi shartamas, nu ogohlantirsin».
+// Mockup: mockups/pos-qarz-pul.html — tasdiqlangan.
+//
+// ⚠ FAQAT KO'RSATADI. Hech qayerga yozilmaydi — na hisobga, na chernovikka,
+//   na cloudga. Kurs o'zgarsa raqam ham o'zgaradi, shuning uchun ≈ belgisi.
+//   Narx _pbNarx bilan BIR XIL yo'ldan olinadi (getKatNarx, hisob.js) —
+//   hisob-kitob qayta yozilmadi.
+var _pmKat = '';
+// _qarzTarkibRows zavod/tur NOMINI beradi, getKatNarx esa INDEKS so'raydi.
+function _pmNarx(zNom, tNom){
+  var zi=-1, ti=-1;
+  (data.zavodlar||[]).forEach(function(z,i){
+    if(z.nom!==zNom) return;
+    (z.turlar||[]).forEach(function(t,j){ if(t.nom===tNom){ zi=i; ti=j; } });
+  });
+  if(zi<0 || ti<0) return 0;
+  var eski=_aktivKat, n='';           // _pbNarx bilan aynan bir xil naqsh
+  try{ _aktivKat=(_pmKat==='B'?'B':'A'); n=getKatNarx(zi, ti, _posKi); }catch(e){}
+  _aktivKat=eski;
+  return parseNum(n)||0;
+}
+// A / B — berish ekranidagidek, faqat kengroq (Ibrohim: «sal enini kottalashtir»)
+function _pmKatSatr(){
+  var kv=0; try{ kv=parseNum(localStorage.getItem('tilla-kurs-bugun')||0); }catch(e){}
+  var h='<div style="display:flex;align-items:center;gap:7px;margin-top:11px;">';
+  ['A','B'].forEach(function(x){
+    var on=_pmKat===x;
+    h+='<button onclick="posModalKat(&quot;'+x+'&quot;)" title="'+x+' kategoriya narxi" '
+      +'style="width:62px;height:34px;border-radius:12px;cursor:pointer;font-size:14px;'
+      +'font-weight:700;font-family:inherit;'
+      +(on?'border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);'
+          :'border:1px solid var(--border);background:var(--surf2);color:var(--muted);')
+      +'">'+x+'</button>';
+  });
+  h+='<span style="margin-left:auto;font-size:11px;color:var(--muted);">kurs '
+    +'<b style="font-family:Roboto,sans-serif;color:var(--'+(_kursQolda?'red':'text')+');">'
+    +(kv?fmtD(kv):'\u2014')+'</b> $/g</span>';
+  return h+'</div>';
+}
+function posModalKat(x){
+  _pmKat = x;
+  var e=document.getElementById('pm-qarz');
+  if(e) e.innerHTML=_pmQarzHTML();   // butun modal qayta chizilmaydi — skroll joyida qoladi
+}
+function _pmQarzHTML(){
+  var k=data.klientlar[_posKi]; if(!k) return '';
   var _t=null, rows=[], jr={ostatka:0,bizQarz:0};
   try{ _t=_qarzTarkib(_posKi); rows=(_t&&_t.qarz_tarkib)||[]; jr=_qarzJamiRows(rows); }catch(e){}
   var sav={g:0,pul:0}; try{ sav=klientJamiSavdo(k)||sav; }catch(e){}
+  if(_pmKat!=='A' && _pmKat!=='B') _pmKat=(k.kat==='B'?'B':'A');
+
+  // Narxi yo'q turlar pulga QO'SHILMAYDI — faqat sanaladi va ogohlantiriladi.
+  var ostPul=0, bizPul=0, narxsiz=0;
+  rows.forEach(function(b){
+    if(Math.abs(b.qarz)<=0.01) return;
+    var n=_pmNarx(b.zavod, b.tur);
+    if(!n){ narxsiz++; return; }
+    var p=Math.abs(b.qarz)*n;
+    if(b.qarz<0) bizPul+=p; else ostPul+=p;
+  });
+  ostPul=Math.round(ostPul*100)/100; bizPul=Math.round(bizPul*100)/100;
+  var RB='font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;';
+
+  var h='';
+  // ── tepa blok
+  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">';
+  h+='<div><div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">KLIENT QARZI</div>';
+  h+='<div style="font-size:27px;font-weight:700;color:var(--red);'+RB+'line-height:1.2;">\u2212'+fmtG(jr.ostatka)+' g</div>';
+  h+='<div style="font-size:15px;font-weight:700;color:var(--gold);'+RB+'">\u2248 \u2212'+fmtD(ostPul)+' $</div></div>';
+  h+='<div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Jami savdo</div>';
+  h+='<div style="font-size:15px;font-weight:600;color:var(--gold);font-family:Roboto,sans-serif;">'+fmtG(sav.g)+'g</div>';
+  h+='<div style="font-size:11.5px;color:var(--muted);font-family:Roboto,sans-serif;">'+fmtD(sav.pul)+'$</div></div>';
+  h+='</div>';
+  h+=_pmKatSatr();
+  if(jr.bizQarz>0.001){
+    h+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">';
+    h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">BIZNING QARZ</div>';
+    h+='<div style="font-size:19px;font-weight:700;color:var(--green);'+RB+'">+'+fmtG(jr.bizQarz)+'g</div>';
+    h+='<div style="font-size:13px;font-weight:700;color:var(--green);'+RB+'">\u2248 +'+fmtD(bizPul)+' $</div></div>';
+  }
+  h+='</div>';
+
+  // ── qarz tarkibi
+  h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);margin:15px 0 7px;">QARZ TARKIBI</div>';
+  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;background:var(--bg);">';
+  h+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+  h+='<span style="font-size:12px;color:var(--muted);">Klient ostatkasi</span>';
+  h+='<span style="text-align:right;">'
+    +'<span style="display:block;'+RB+'font-size:19px;font-weight:600;color:var(--red);">\u2212'+fmtG(jr.ostatka)+' g</span>'
+    +'<span style="display:block;'+RB+'font-size:12.5px;font-weight:600;color:var(--gold);">\u2248 \u2212'+fmtD(ostPul)+' $</span></span></div>';
+  if(jr.bizQarz>0.001){
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:7px;">';
+    h+='<span style="font-size:12px;color:var(--muted);">Bizning qarz</span>';
+    h+='<span style="text-align:right;">'
+      +'<span style="display:block;'+RB+'font-size:16px;font-weight:600;color:var(--green);">+'+fmtG(jr.bizQarz)+' g</span>'
+      +'<span style="display:block;'+RB+'font-size:12px;font-weight:600;color:var(--green);">\u2248 +'+fmtD(bizPul)+' $</span></span></div>';
+  }
+  h+='</div>';
+
+  var byZ={}, tartib=[];
+  rows.forEach(function(b){ if(!byZ[b.zavod]){ byZ[b.zavod]=[]; tartib.push(b.zavod); } byZ[b.zavod].push(b); });
+  var bor=false;
+  tartib.forEach(function(zn){
+    var turs=byZ[zn].filter(function(b){ return Math.abs(b.qarz)>0.01; });
+    if(!turs.length) return;
+    bor=true;
+    h+='<div style="margin-bottom:11px;"><div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:7px;">'+_posEsc(zn)+'</div>';
+    turs.forEach(function(b){
+      var neg=b.qarz<0, mg=Math.abs(b.qarz), bel=neg?'+':'\u2212';
+      var rng=neg?'var(--green)':'var(--red)';
+      var n=_pmNarx(b.zavod,b.tur);
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;font-size:13px;background:'
+        +(neg?'var(--green-bg)':'var(--surf2)')+';border-radius:14px;margin-bottom:4px;'
+        +(n?'':'border:1px solid var(--red-bd);')+'">';
+      h+='<span style="color:var(--muted);min-width:0;">'+_posEsc(b.tur)
+        +(neg?' <span style="font-size:10px;color:var(--green);">\u21a9 biz qarzdor</span>':'')
+        +' <span style="font-size:9.5px;color:var(--'+(n?'muted':'red')+');">'+(n?fmtD(n)+' $/g':'narxi yo\u2018q')+'</span></span>';
+      h+='<span style="text-align:right;white-space:nowrap;">'
+        +'<span style="display:block;font-weight:600;'+RB+'color:'+rng+';">'+bel+fmtG(mg)+' g</span>'
+        +'<span style="display:block;font-size:11px;font-weight:600;'+RB+'color:'+(n?rng:'var(--muted)')+';">'
+        +(n?bel+fmtD(Math.round(mg*n*100)/100)+' $':'\u2014')+'</span></span></div>';
+    });
+    h+='</div>';
+  });
+  if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\u2018q</div>';
+  if(narxsiz) h+='<div style="font-size:10.5px;color:var(--red);padding:3px 2px 0;">'
+    +narxsiz+' ta tur narxsiz \u2014 pulga qo\u2018shilmadi</div>';
+  h+='</div>';
+  return h;
+}
+
+function _posModal(){
+  posModalYop();
+  var k=data.klientlar[_posKi]; if(!k){ return; }
+  // POS 1.04: qarz bloki klient ekranining AYNAN nusxasi.
+  // v0.36: hisob va chizish _pmQarzHTML ga ko'chdi — A/B bosilganda butun
+  //        modal emas, faqat o'sha bo'lak qayta chiziladi (skroll joyida qoladi).
   var h='<div id="pos-ovl" onclick="if(event.target===this)posModalYop()" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:calc(6px + var(--safe-top)) 6px calc(6px + var(--safe-bot));z-index:9000;">';
   // v0.24 (Ibrohim): «berish vozvrat pasga qo'yilsin». Quti flex ustun —
   // ichki qism siljiydi, tugmalar pastda QOTIB turadi.
@@ -874,53 +1009,8 @@ function _posModal(){
   h+='<button onclick="posModalYop()" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:15px;">&#10005;</button></div>';
   h+='<div style="flex:1;min-height:0;overflow-y:auto;padding:16px 17px;">';
 
-  // ── tepa blok: klient qarzi / jami savdo / bizning qarz
-  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">';
-  h+='<div><div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">KLIENT QARZI</div>';
-  h+='<div style="font-size:27px;font-weight:700;color:var(--red);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;line-height:1.2;">\u2212'+fmtG(jr.ostatka)+' g</div></div>';
-  h+='<div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Jami savdo</div>';
-  h+='<div style="font-size:15px;font-weight:600;color:var(--gold);font-family:Roboto,sans-serif;">'+fmtG(sav.g)+'g</div>';
-  h+='<div style="font-size:11.5px;color:var(--muted);font-family:Roboto,sans-serif;">'+fmtD(sav.pul)+'$</div></div>';
-  h+='</div>';
-  if(jr.bizQarz>0.001){
-    h+='<div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--border);">';
-    h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);">BIZNING QARZ</div>';
-    h+='<div style="font-size:19px;font-weight:700;color:var(--green);font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">+'+fmtG(jr.bizQarz)+'g</div></div>';
-  }
-  h+='</div>';
-
-  // ── qarz tarkibi
-  h+='<div style="font-size:10px;letter-spacing:.09em;color:var(--muted);margin:15px 0 7px;">QARZ TARKIBI</div>';
-  h+='<div style="border:1px solid var(--border);border-radius:20px;padding:13px 15px;background:var(--bg);">';
-  h+='<div style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--border);">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-  h+='<span style="font-size:12px;color:var(--muted);">Klient ostatkasi</span>';
-  h+='<span style="font-family:Roboto,sans-serif;font-size:19px;font-weight:600;color:var(--red);font-variant-numeric:tabular-nums;">\u2212'+fmtG(jr.ostatka)+'</span></div>';
-  if(jr.bizQarz>0.001){
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">';
-    h+='<span style="font-size:12px;color:var(--muted);">Bizning qarz</span>';
-    h+='<span style="font-family:Roboto,sans-serif;font-size:16px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums;">+'+fmtG(jr.bizQarz)+'</span></div>';
-  }
-  h+='</div>';
-  var byZ={}, tartib=[];
-  rows.forEach(function(b){ if(!byZ[b.zavod]){ byZ[b.zavod]=[]; tartib.push(b.zavod); } byZ[b.zavod].push(b); });
-  var bor=false;
-  tartib.forEach(function(zn){
-    var turs=byZ[zn].filter(function(b){ return Math.abs(b.qarz)>0.01; });
-    if(!turs.length) return;
-    bor=true;
-    h+='<div style="margin-bottom:11px;"><div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:7px;">'+_posEsc(zn)+'</div>';
-    turs.forEach(function(b){
-      var neg=b.qarz<0;
-      h+='<div style="display:flex;justify-content:space-between;padding:6px 10px;font-size:13px;background:'+(neg?'var(--green-bg)':'var(--surf2)')+';border-radius:14px;margin-bottom:4px;">';
-      h+='<span style="color:var(--muted);">'+_posEsc(b.tur)+(neg?' <span style="font-size:10px;color:var(--green);">\u21a9 biz qarzdor</span>':'')+'</span>';
-      h+='<span style="font-weight:600;font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;color:'+(neg?'var(--green)':'var(--red)')+';">'+(neg?'+':'\u2212')+fmtG(Math.abs(b.qarz))+'</span></div>';
-    });
-    h+='</div>';
-  });
-  if(!bor) h+='<div style="color:var(--muted);font-size:13px;text-align:center;padding:8px;">Qarz yo\'q</div>';
-  h+='</div>';
+  // v0.36: butun qarz bo'lagi — A/B bosilganda faqat shu qayta chiziladi
+  h+='<div id="pm-qarz">'+_pmQarzHTML()+'</div>';
 
   h+='</div>';
   // v0.24: pastki satr — qotib turadi, qarz tarkibi uzun bo'lsa ham ko'rinadi.

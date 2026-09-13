@@ -6355,3 +6355,61 @@ Sintaksis: 0 xato. Brauzerda ikki chernovik (biri donalar bilan, biri
 donalarsiz) ro'yxatda chizildi — `Butterfly · Oddiy`, katakchalar
 `2.00` `3.00`, `Diamond · 3D` → `6.11` `4.00`, jami `2 tur · 4 dona` /
 `15.11 g`. Donalarsiz chernovik ham to'g'ri chiqdi. 0 konsol xatosi.
+
+---
+
+## POS v0.36 — klient ekranida qarz kursdan pulda
+
+Ibrohim: «posda klientga kirganda ostatkasini nechpulligini kursdan
+ko'rsatadigan qiber» → «A B ker, shunaqa qil, sal enini kottalashtir A Bni»
+→ «bizning qarz ham ko'rsatsin» → «narxi yo'q tur bo'yicha ostatka odatta
+bo'maydi, uni ko'rsatishi shartamas, nu ogohlantirsin buni narxi yo'q deb».
+
+Mockup: `mockups/pos-qarz-pul.html` — tasdiqlangan.
+
+### Qo'shilgan
+
+| Funksiya | Nima qiladi |
+|---|---|
+| `_pmNarx(zNom,tNom)` | nom → indeks → `getKatNarx` (`_pbNarx` bilan bir xil naqsh) |
+| `_pmKatSatr()` | A / B tugmasi + kurs. Eni **62px** (berishdagi 38px tegilmadi) |
+| `posModalKat(x)` | faqat `#pm-qarz` bo'lagini qayta chizadi — **skroll joyida qoladi** |
+| `_pmQarzHTML()` | butun qarz bo'lagi (tepa blok + QARZ TARKIBI) |
+
+Pul uch joyda: tepa blokda, QARZ TARKIBI sarhisobida, har tur qatorida.
+Bizning qarz yashil, klient qarzi qizil. Hammasida `≈` — kurs o'zgarsa
+raqam ham o'zgaradi.
+
+### Narxi yo'q turlar
+
+`getKatNarx` C kategoriyada yoki foiz kiritilmaganda **bo'sh** qaytaradi.
+Bunday tur: gramm ko'rinadi, pul o'rnida `—`, qatorida qizil «narxi yo'q»,
+qizil ramka. **Summaga qo'shilmaydi**, pastda `N ta tur narxsiz` deb
+ogohlantiriladi.
+
+### Hisobga ta'sir — YO'Q
+
+Faqat ko'rsatadi. `_pmQarzHTML` da birorta `.set` / `.add` /
+`localStorage.setItem` yo'q. Narx `getKatNarx` (hisob.js) dan olinadi —
+hisob-kitob qayta yozilmadi. `_aktivKat` chaqiruvdan keyin tiklanadi.
+
+`_pmKat` `_pbKat` dan **alohida** — berish ekranidagi A/B tanlovi
+o'zgarmaydi. Boshqa klient ochilganda `posKlientOch` uni tozalaydi,
+`_pmQarzHTML` esa klientning o'z `k.kat` idan to'ldiradi.
+
+### Sinov
+
+`tekshir036.js` — 27 ta tekshiruv: sintaksis, `_pmNarx` nom→indeks
+xaritasi, A/B narxi, narxsiz tur 0 qaytarishi, `_aktivKat` tiklanishi,
+berish A/B tugmasi tegilmagani, eski hisob blokining qolmagani.
+
+Brauzerda (kurs 80, B ustama 2):
+- A → ostatka `≈ −1,208.8 $`, bizning qarz `≈ +160 $`
+- B → `≈ −1,239.02 $` / `≈ +164 $`  (5+10.11 g × 82; 2 g × 82)
+- A/B bosilganda **skroll joyida qoldi**
+- `kat:'B'` klient ochilganda B, qaytgach A — `_pmKat` to'g'ri tiklandi
+- Gold Star · Maxsus → `—` va `1 ta tur narxsiz`
+- 0 konsol xatosi
+
+⚠ Pul `fmtD` bilan yoziladi (POS ning o'z formati) — `160 $`, `1,208.8 $`.
+Mockupda `160.00` edi; butun POS shu formatda, shuning uchun o'zgartirilmadi.
