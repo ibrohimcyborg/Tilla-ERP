@@ -4,7 +4,45 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.3 · POS v0.36 · 2026-09-13
+**Oxirgi yangilanish:** v188.4 · POS v0.36 · 2026-09-13
+
+---
+
+## ✅ v188.4 — qo'ng'iroqcha: gramm tepadan pastga tushadi (2026-09-13)
+
+Ibrohim rasm yubordi: «shunaqa hunu turipti kegin tegida kam» →
+«oddiy posdan tekshiruvga kegan grammla tepada skan ursa pasga tushadi».
+
+Tepadagi POS donalari qatori endi **faqat hali skanlanmaganlarini** ko'rsatadi.
+Skan urilsa raqam tepadan o'chadi, pastdagi yashil ro'yxatga tushadi —
+bitta raqam ekranda ikki marta turmaydi. Takror «Tekshirildi» va 1-SKAN dagi
+«POS bilan» qatori o'chdi.
+
+`_skanChipHTML` ga 5-argument `yashirXira` qo'shildi.
+⚠ U **uch joyda** ishlatiladi — `kbSkan` (12670) va `uniSkan` (13252)
+4 argument beradi, ular tegilmadi. Node bilan isbotlandi: 4 argumentda
+xira chiplar SAQLANADI.
+
+⚠ 2-SKAN da «POS bilan» QOLADI — `skan` doim `st.pass1` (15439), ya'ni
+u yerda POS bilan taqqoslash boshqa hech qayerda yo'q.
+
+Maket: `mockups/v188.4-tekshirildi-takror.html`.
+
+### ⏳ KEYINGI QADAM — skrol tepaga sakraydi
+
+Ibrohim: «skan ursam spiska kotta bosa man scroll qilib pasga tushsam
+tepaga chiqib qomasin».
+
+**Tashxis tayyor, kod YOZILMAGAN.** `posBellOch` (15360) har chaqirilganda
+`posBellYop()` bilan butun panelni DOM dan **o'chirib, qaytadan quradi**
+(15361 va 15549) → skrol qiladigan element yangi, `scrollTop` **0** ga tushadi.
+Har skanda chaqiriladi (`posChSkanQosh` 15143). Faqat **fokus** tiklanadi
+(15552), skrol emas.
+Ikkinchi sabab: bulut yangilanishida (15096) `_posChFokus` **null** bo'ladi
+→ fokus **0-qatorga**, ya'ni eng tepaga.
+
+Keyingi qadam: qayta chizishdan oldin `scrollTop` saqlanib, chizilgandan
+keyin qaytarilsin.
 
 ---
 

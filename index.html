@@ -1,4 +1,4 @@
-<!-- v188.3 -->
+<!-- v188.4 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.3';
+var APP_VER = 'v188.4';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13186,7 +13186,12 @@ function uniSkanDelAt(fid,i){
    Tasdiqlangan qarorlar: (1) yashil ✓ bosilsa tekshiruv bekor bo'ladi;
    (2) bir xil grammlar tartib bilan belgilanadi — soni to'g'ri bo'lsa yetadi.
    MUHIM: bu faqat KO'RINISH. Saqlash o'zgarmagan — dona/gramm doim 1-skandan. */
-function _skanChipHTML(p1, p2, mode, oc){
+// v188.4: yashirXira — chek-ro'yxatda HALI SKANLANMAGAN (xira) chiplar
+// chizilmaydi. Faqat qo'ng'iroqcha 1-SKAN da beriladi: u yerda o'sha
+// donalar kartaning TEPASIDA turadi, ikki marta ko'rinmasin.
+// Qolgan ikki chaqiruvchi (12670 kbSkan, 13252 uniSkan) 4 argument
+// beradi — ular uchun undefined, ya'ni hech narsa o'zgarmaydi.
+function _skanChipHTML(p1, p2, mode, oc, yashirXira){
   var bx='display:flex;flex-wrap:wrap;gap:4px;background:var(--surf);border-radius:8px;border:1px solid var(--border);padding:7px;max-height:150px;overflow-y:auto;';
   var ch='display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:4px 5px 4px 8px;font-size:12.5px;white-space:nowrap;';
   var xs='width:16px;height:16px;border-radius:4px;background:var(--red-bg);color:var(--red);font-size:11px;line-height:16px;text-align:center;cursor:pointer;user-select:none;';
@@ -13226,8 +13231,11 @@ function _skanChipHTML(p1, p2, mode, oc){
   out+='<div style="font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px;"><span>Tekshirildi: <b style="color:var(--green);">'+matched+' / '+p1.length+'</b></span>'+(extras.length?'<span style="color:var(--red);font-weight:600;">ortiqcha: '+extras.length+' ta</span>':'')+'</div>';
   out+='<div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:'+pc+'%;background:var(--green);"></div></div>';
   out+='<div style="'+bx+'">';
+  if(yashirXira && !matched && !extras.length)
+    out+='<span style="color:var(--muted);font-size:12px;">Hali skan yo\'q</span>';
   for(var r=rows.length-1;r>=0;r--){
     var rw=rows[r], neg2=rw.g<0;
+    if(yashirXira && !rw.ok) continue;
     var st2=ch+(rw.ok?'background:var(--green-bg);border:1px solid var(--green-bd);':'background:var(--surf2);border:1px solid var(--border);opacity:.38;')+(neg2?'color:var(--red);':'');
     out+='<span style="'+st2+'"><span style="'+ns+'">'+(rw.i+1)+'</span>'+(neg2?'\u2212':'')+fmtG(Math.abs(rw.g))
        + (rw.ok?'<span onclick="'+oc.tick+'\''+rw.k+'\')" style="'+ts+'">\u2713</span>':'')
@@ -15448,12 +15456,22 @@ function posBellOch(){
       h+='<span style="font-size:11px;color:var(--muted);">POS: <b style="color:var(--text);font-family:Roboto,sans-serif;">'+fmtG(r.gramm)+' g</b> · '+(r.dona||0)+' dona</span></div>';
 
       // POS donalari
-      h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
-      if(pos.length) pos.forEach(function(g){
-        h+='<span style="padding:4px 9px;border-radius:14px;border:1px solid var(--border);background:var(--surf);font-size:12px;font-family:Roboto,sans-serif;">'+fmtG(g)+'</span>';
-      });
-      else h+='<span style="font-size:11.5px;color:var(--muted);">POS donalarni yubormagan</span>';
-      h+='</div>';
+      // v188.4 (Ibrohim): «posdan tekshiruvga kegan grammla tepada skan ursa
+      // pasga tushadi» — tepada faqat HALI SKANLANMAGAN donalar qoladi.
+      // POS tartibi saqlanadi (_posChRecon ni ishlatmaymiz — u saralab yuboradi).
+      // Hammasi skanlansa qator butunlay chizilmaydi.
+      var _qoldi=[], _ish={};
+      skan.forEach(function(g){ var _k=fmtG(g); _ish[_k]=(_ish[_k]||0)+1; });
+      pos.forEach(function(g){ var _k=fmtG(g); if(_ish[_k]>0) _ish[_k]--; else _qoldi.push(g); });
+      if(!pos.length){
+        h+='<div style="margin-bottom:8px;"><span style="font-size:11.5px;color:var(--muted);">POS donalarni yubormagan</span></div>';
+      } else if(_qoldi.length){
+        h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
+        _qoldi.forEach(function(g){
+          h+='<span style="padding:4px 9px;border-radius:14px;border:1px solid var(--border);background:var(--surf);font-size:12px;font-family:Roboto,sans-serif;">'+fmtG(g)+'</span>';
+        });
+        h+='</div>';
+      }
 
       // v184: 1-SKAN / 2-SKAN — qo'lda berishdagi kbSkanSetModeUI bilan bir xil rang
       var _mbS='flex:1;height:34px;border-radius:12px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid var(--border);';
@@ -15484,18 +15502,22 @@ function posBellOch(){
       var _chek    = _birChek || st.mode===2;
       var _olchov  = _birChek ? pos : st.pass1;
       var _skanArr = _birChek ? st.pass1 : st.pass2;
-      var _res = _chek ? _skanChipHTML(_olchov, _skanArr, 2, _oc)
+      var _res = _chek ? _skanChipHTML(_olchov, _skanArr, 2, _oc, _birChek)
                        : _skanChipHTML(st.pass1, [], 1, _oc);
       h+=_res.html;
 
       h+='<div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;margin-top:7px;">';
-      if(_chek) h+='<span style="color:var(--muted);">Tekshirildi: <b style="color:var(--green);">'+_res.matched+'</b> / '+_olchov.length+'</span>';
+      // v188.4: sanoq chip blokining TEPASIDA (13226) — bu qatorda takrorlanmaydi.
+      if(_chek) h+='<span></span>';
       else      h+='<span style="color:var(--muted);">Dona: <b style="color:var(--text);">'+st.pass1.length+'</b></span>';
       h+='<b style="font-family:Roboto,sans-serif;">'+fmtG(_posChSum(st.mode===1?st.pass1:st.pass2))+' g</b>';
       h+='</div>';
 
-      // POS bilan solishtirish — avvalgidek, faqat endi 1-skan bilan
-      if(skan.length){
+      // POS bilan solishtirish — avvalgidek, faqat endi 1-skan bilan.
+      // v188.4: 1-SKAN da chizilmaydi — o'sha «kam» ro'yxati kartaning
+      // TEPASIDA turibdi. 2-SKAN da va POS donalarsiz chernovikda QOLADI:
+      // u yerda POS bilan taqqoslash boshqa hech qayerda yo'q.
+      if(skan.length && !_birChek){
         h+='<div style="font-size:11.5px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
         h+='<span style="color:var(--muted);">POS bilan:</span>';
         h+='<span style="color:var(--green);">mos '+x.matched+'</span>';

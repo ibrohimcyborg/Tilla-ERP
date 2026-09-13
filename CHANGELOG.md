@@ -6822,3 +6822,65 @@ Brauzerda haqiqiy `KeyboardEvent` bilan:
 
 `pos.html:1678` (`posBQoshDona`, POS berish ekrani) ham faqat `Enter` ni
 tinglaydi. Ibrohim POS haqida aytmadi — **tegilmadi**, so'ralsa qo'shiladi.
+
+## v188.4 — qo'ng'iroqcha: skanlangan gramm tepadan pastga tushadi
+
+**Ibrohim** (rasm bilan): «shunaqa hunu turipti kegin tegida kam» →
+«sanoq tepada tursinde, usha gramm urilsa pasga tushsin, tepadan yoqoldsin» →
+«oddiy posdan tekshiruvga kegan grammla tepada skan ursa pasga tushadi».
+
+Maket: `mockups/v188.4-tekshirildi-takror.html` (4 qadam + ortiqcha holat).
+
+### Muammo
+
+Bitta solishtirish natijasi kartada uch marta yozilardi, beshta raqam esa
+ikki marta turardi:
+
+| | Joy |
+|---|---|
+| POS donalari qatori | tepada, HAMMASI |
+| chip ro'yxati | o'sha beshta raqam yana — yashil ✓ yoki xira |
+| «Tekshirildi: 3 / 5» | chip blokining tepasida (13226) |
+| «Tekshirildi: 3 / 5» | yana pastda (15492) — **aynan bir xil raqam** |
+| «POS bilan: mos 3 / kam: 2.42, 2.85» | uchinchi marta (15498) |
+
+### Qilindi
+
+1. **Tepa** — endi faqat HALI SKANLANMAGAN POS donalari. Gramm skan qilinsa
+   tepadan o'chadi, pastdagi yashil ro'yxatga tushadi. Hammasi skanlansa
+   qator butunlay chizilmaydi. POS tartibi saqlanadi — `_posChRecon` emas,
+   alohida `_qoldi` halqasi (u saralab yuborardi).
+2. **`_skanChipHTML`** ga 5-argument `yashirXira` — xira (skanlanmagan)
+   chiplar chizilmaydi. Hech narsa skanlanmagan bo'lsa «Hali skan yo'q».
+   Faqat qo'ng'iroqcha 1-SKAN da beriladi (`_birChek`).
+   Qolgan ikki chaqiruvchi — `kbSkan` (12670) va `uniSkan` (13252) —
+   4 argument beradi, ular uchun `undefined`: **hech narsa o'zgarmadi**.
+3. Pastdagi **takror «Tekshirildi»** o'chdi, o'sha qatorda faqat gramm qoldi.
+4. **«POS bilan»** qatori 1-SKAN da chizilmaydi — o'sha «kam» ro'yxati
+   endi kartaning tepasida turibdi. **2-SKAN da QOLADI**: u yerda chip bloki
+   1-skan ↔ 2-skanni ko'rsatadi, POS bilan taqqoslash boshqa hech qayerda
+   yo'q (`skan` DOIM `st.pass1`, 15439). POS donalarsiz eski chernovikda
+   ham qoladi.
+
+### Tegilmadi
+
+`hammasiSkan`, `farqBor`, `posChQabul`, `posChRad`, qabul/rad tugmalari,
+1/2-SKAN tugmalari, `Mos` tugmasi, KLIENTDA BOR bloki, ro'yxat ekrani,
+`_posChRecon` ning o'zi. Hisob-kitobga umuman tegilmadi — faqat chizish.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Funksional (haqiqiy `_skanChipHTML` fayldan olinib):
+
+    POS=[2.42, 2.85, 5.42, 2.66, 5.26]   SKAN=[5.26, 2.66, 5.42]
+    yashirXira=true  → matched 3, xira 2.85 chizilmaydi, 5.26 yashil,
+                       sarlavha «3 / 5»
+    skan yo'q       → «Hali skan yo'q»
+    +3.10 ortiqcha   → qizil chip qoldi, extraN=1
+    4 argument       → 2.85 xira chip SAQLANDI, matched 3  (eski ekranlar)
+    tepada qolgan    → «2.42, 2.85» — POS tartibida
+
+⚠ Tuzoq takrorlandi: heredoc backslashni yedi, `Hali skan yo'q` ichidagi
+`'` qochirilmay qoldi va JS satri buzildi. Node sinovi tutdi.
+Yechim `DAVOM.md` da yozilgan edi — `chr(92)+chr(39)`.

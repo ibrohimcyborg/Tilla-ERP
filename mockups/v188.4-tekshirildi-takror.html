@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v188.4 — gramm pastga tushsin</title>
+<style>
+:root{
+ --bg:#f4f2ee; --surf:#fff; --surf2:#f8f6f2; --border:#e4dfd6;
+ --text:#2b2722; --muted:#8e8880;
+ --gold:#8a6520; --gold-bg:#f7f0e0; --gold-bd:#e0cda0; --on-gold:#fff;
+ --green:#2e7d4f; --green-bg:#e8f5ec; --green-bd:#a9d7bb;
+ --red:#bf3b2b; --red-bg:#fdeceb; --red-bd:#e8b0a8;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:14px 12px 60px;background:var(--bg);color:var(--text);
+ font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:600px;margin:0 auto}
+h1{font-size:17px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+h2{font-size:13.5px;margin:24px 0 8px}
+.step{font-size:11px;color:var(--muted);margin:0 0 6px;letter-spacing:.04em;font-weight:700}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+ padding:12px 13px;font-size:12.5px;margin-bottom:12px}
+code{font-family:Consolas,monospace;font-size:11.5px;
+ background:var(--surf2);border:1px solid var(--border);border-radius:5px;padding:1px 5px}
+
+.card{border:1px solid var(--border);background:var(--surf2);border-radius:18px;
+ padding:11px 13px;margin-bottom:6px}
+.card.red{border-color:var(--red-bd)}
+.crow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.crow b{font-size:13.5px}
+.sp{flex:1}
+.pos{font-size:11px;color:var(--muted)}
+.pos b{color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:26px;align-items:center}
+.pchip{padding:4px 9px;border-radius:14px;border:1px solid var(--border);
+ background:var(--surf);font-size:12px}
+.empty{font-size:11.5px;color:var(--green)}
+.modes{display:flex;gap:6px;margin-bottom:7px}
+.mb{flex:1;height:34px;border-radius:12px;font-size:11.5px;font-weight:600;
+ border:1px solid var(--border);background:var(--surf2);color:var(--muted);
+ display:flex;align-items:center;justify-content:center}
+.mb.on{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+.inrow{display:flex;gap:6px;margin-bottom:7px}
+.inp{flex:1;min-width:0;height:38px;border-radius:14px;border:1px solid var(--gold-bd);
+ background:var(--surf);color:var(--muted);padding:0 11px;font-size:13px;
+ display:flex;align-items:center}
+.inp.typed{color:var(--text)}
+.plus{width:40px;flex:none;height:38px;border-radius:14px;background:var(--gold);
+ color:var(--on-gold);font-size:18px;display:flex;align-items:center;justify-content:center}
+.mos{height:38px;flex:none;padding:0 11px;border-radius:14px;border:1px solid var(--border);
+ background:var(--surf);color:var(--muted);font-size:11.5px;display:flex;align-items:center}
+.hdr{font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px}
+.hdr b{color:var(--green)}
+.bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;background:var(--green)}
+.box{display:flex;flex-wrap:wrap;gap:4px;background:var(--surf);border-radius:8px;
+ border:1px solid var(--border);padding:7px;min-height:34px;align-items:center}
+.ch{display:inline-flex;align-items:center;gap:5px;border-radius:7px;
+ padding:4px 5px 4px 8px;font-size:12.5px;white-space:nowrap;
+ background:var(--green-bg);border:1px solid var(--green-bd)}
+.ch.bad{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.ch i{color:var(--muted);font-size:9.5px;font-style:normal}
+.tick{width:16px;height:16px;border-radius:4px;background:var(--green);color:#fff;
+ font-size:10px;line-height:16px;text-align:center}
+.xx{width:16px;height:16px;border-radius:4px;background:var(--red-bg);color:var(--red);
+ font-size:11px;line-height:16px;text-align:center}
+.hech{font-size:12px;color:var(--muted)}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;margin-top:7px}
+.foot .g{font-weight:700}
+.less{font-size:11.5px;color:var(--muted);margin:0 0 4px}
+.less b{color:var(--text)}
+.ar{text-align:center;font-size:19px;color:var(--gold);margin:2px 0 8px}
+.qaror{background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:14px;
+ padding:12px 13px;font-size:12.5px;margin-top:16px}
+.qaror b{color:var(--gold)}
+.tax{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:14px;
+ padding:12px 13px;font-size:12.5px;margin-bottom:16px}
+.tax b{color:var(--red)}
+.old{opacity:.55}
+</style></head><body><div class="wrap">
+
+<h1>Gramm urilsa — tepadan pastga tushadi</h1>
+<div class="sub">v188.3 ustiga taklif · <code>posBellOch</code> index.html:15360</div>
+
+<div class="tax">
+<b>⚠ TAXMINIM — tasdiqla yoki tuzat</b><br>
+«Sanoq tepada tursin, o'sha gramm urilsa pastga tushsin, tepadan yo'qolsin» —
+men buni shunday tushundim:<br><br>
+<b>Tepadagi POS donalari qatori</b> = hali tekshirilmagan donalar.
+Bitta gramm skan qilinsa — u <b>tepadan o'chadi</b> va pastdagi yashil
+ro'yxatga <b>tushadi</b>. Ya'ni bitta raqam ekranda ikki marta turmaydi.<br><br>
+Bu to'g'rimi? Noto'g'ri bo'lsa ayt — boshqa qilaman.
+</div>
+
+<h2>1-QADAM — hali hech narsa skanlanmagan</h2>
+<div class="card red">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips">
+    <span class="pchip">2.42</span><span class="pchip">2.85</span>
+    <span class="pchip">5.42</span><span class="pchip">2.66</span><span class="pchip">5.26</span>
+  </div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp typed">5.26</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>0 / 5</b></span></div>
+  <div class="bar"><i style="width:0%"></i></div>
+  <div class="box"><span class="hech">Hali skan yo'q</span></div>
+  <div class="foot"><span></span><span class="g">0.00 g</span></div>
+</div>
+<div class="less">Tepada beshta POS donasi turibdi. Pastdagi ro'yxat bo'sh.</div>
+
+<div class="ar">↓ <span style="font-size:12px;">5.26 urildi</span></div>
+
+<h2>2-QADAM — bittasi skanlandi</h2>
+<div class="card red">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips">
+    <span class="pchip">2.42</span><span class="pchip">2.85</span>
+    <span class="pchip">5.42</span><span class="pchip">2.66</span>
+  </div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp">1-skan — gramm</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>1 / 5</b></span></div>
+  <div class="bar"><i style="width:20%"></i></div>
+  <div class="box">
+    <span class="ch"><i>1</i>5.26<span class="tick">✓</span></span>
+  </div>
+  <div class="foot"><span></span><span class="g">5.26 g</span></div>
+</div>
+<div class="less"><b>5.26</b> tepadan yo'qoldi, pastda yashil bo'lib turibdi.
+Tepada endi <b>4 ta</b> qoldi.</div>
+
+<h2>3-QADAM — uchtasi skanlandi</h2>
+<div class="card red">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips">
+    <span class="pchip">2.42</span><span class="pchip">2.85</span>
+  </div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp">1-skan — gramm</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>3 / 5</b></span></div>
+  <div class="bar"><i style="width:60%"></i></div>
+  <div class="box">
+    <span class="ch"><i>3</i>5.42<span class="tick">✓</span></span>
+    <span class="ch"><i>2</i>2.66<span class="tick">✓</span></span>
+    <span class="ch"><i>1</i>5.26<span class="tick">✓</span></span>
+  </div>
+  <div class="foot"><span></span><span class="g">13.34 g</span></div>
+</div>
+<div class="less">Rasmingdagi holat. Tepada qolgani ko'rinib turibdi — <b>2.42</b> va <b>2.85</b>.
+Pastda «kam: 2.42, 2.85» yozishning keragi yo'q, tepaning o'zi aytyapti.</div>
+
+<h2>4-QADAM — hammasi skanlandi</h2>
+<div class="card">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips"><span class="empty">✓ Hammasi tekshirildi</span></div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp">1-skan — gramm</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>5 / 5</b></span></div>
+  <div class="bar"><i style="width:100%"></i></div>
+  <div class="box">
+    <span class="ch"><i>5</i>2.42<span class="tick">✓</span></span>
+    <span class="ch"><i>4</i>2.85<span class="tick">✓</span></span>
+    <span class="ch"><i>3</i>5.42<span class="tick">✓</span></span>
+    <span class="ch"><i>2</i>2.66<span class="tick">✓</span></span>
+    <span class="ch"><i>1</i>5.26<span class="tick">✓</span></span>
+  </div>
+  <div class="foot"><span></span><span class="g">18.61 g</span></div>
+</div>
+<div class="less">Tepa bo'shadi, karta ramkasi yashilga o'tadi (hozirgidek).</div>
+
+<h2>ORTIQCHA — POS da yo'q gramm urilsa</h2>
+<div class="card red">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips">
+    <span class="pchip">2.42</span><span class="pchip">2.85</span>
+  </div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp">1-skan — gramm</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>3 / 5</b></span>
+    <span style="color:var(--red);font-weight:600;">ortiqcha: 1 ta</span></div>
+  <div class="bar"><i style="width:60%"></i></div>
+  <div class="box">
+    <span class="ch bad"><i style="color:var(--red)">!</i>3.10<span class="xx">✕</span></span>
+    <span class="ch"><i>3</i>5.42<span class="tick">✓</span></span>
+    <span class="ch"><i>2</i>2.66<span class="tick">✓</span></span>
+    <span class="ch"><i>1</i>5.26<span class="tick">✓</span></span>
+  </div>
+  <div class="foot"><span></span><span class="g">16.44 g</span></div>
+</div>
+<div class="less">Tepaga tushmaydi (POS da yo'q), pastda <b>qizil</b> bo'lib qoladi —
+hozirgidek. <code>✕</code> bosilsa o'chadi.</div>
+
+<h2>HOZIRGI — solishtirish uchun</h2>
+<div class="card red old">
+  <div class="crow"><b>Dorika · Oddiy</b><span class="sp"></span>
+    <span class="pos">POS: <b>18.61 g</b> · 5 dona</span></div>
+  <div class="chips">
+    <span class="pchip">2.42</span><span class="pchip">2.85</span>
+    <span class="pchip">5.42</span><span class="pchip">2.66</span><span class="pchip">5.26</span>
+  </div>
+  <div class="modes"><div class="mb on">1-SKAN</div><div class="mb">2-SKAN</div></div>
+  <div class="inrow"><div class="inp">1-skan — gramm</div><div class="plus">+</div><div class="mos">Mos</div></div>
+  <div class="hdr"><span>Tekshirildi: <b>3 / 5</b></span></div>
+  <div class="bar"><i style="width:60%"></i></div>
+  <div class="box">
+    <span class="ch"><i>5</i>5.26<span class="tick">✓</span></span>
+    <span class="ch"><i>4</i>2.66<span class="tick">✓</span></span>
+    <span class="ch"><i>3</i>5.42<span class="tick">✓</span></span>
+    <span class="ch" style="background:var(--surf2);border-color:var(--border);opacity:.38"><i>2</i>2.85</span>
+    <span class="ch" style="background:var(--surf2);border-color:var(--border);opacity:.38"><i>1</i>2.42</span>
+  </div>
+  <div class="foot"><span style="color:var(--muted)">Tekshirildi: <b style="color:var(--green)">3</b> / 5</span>
+    <span class="g">13.34 g</span></div>
+  <div style="font-size:11.5px;display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+    <span style="color:var(--muted)">POS bilan:</span>
+    <span style="color:var(--green)">mos 3</span>
+    <span style="color:var(--red)">kam: 2.42, 2.85</span></div>
+</div>
+<div class="less">Beshta raqam <b>ikki marta</b> turibdi (tepada + pastda xira),
+«Tekshirildi» <b>ikki marta</b>, «kam» esa uchinchi marta.</div>
+
+<div class="qaror">
+<b>QAROR NUQTALARI</b>
+<div style="margin-top:9px;"><b>1.</b> 4-qadamda tepa bo'shaganda
+<b>«✓ Hammasi tekshirildi»</b> yozilsinmi, yoki qator butunlay yo'qolsinmi?</div>
+<div style="margin-top:8px;"><b>2.</b> Pastdagi <b>«POS bilan: mos / kam»</b> qatori
+1-SKAN da endi keraksiz — tepaning o'zi «kam» ni ko'rsatyapti. O'chirilsinmi?
+(2-SKAN da qoladi — u yerda yagona joy.)</div>
+<div style="margin-top:8px;"><b>3.</b> ⚠ <b>Muhim.</b> Chip chizuvchi
+<code>_skanChipHTML</code> (13189) <b>uchta joyda</b> ishlatiladi:
+qo'ng'iroqcha (15487), qo'lda berish/vozvrat (12670), universal skan (13252).
+Bu o'zgarish <b>faqat qo'ng'iroqchaga</b> tushsinmi, yoki uchalasiga ham?<br>
+<span style="color:var(--muted)">Tavsiyam: faqat qo'ng'iroqcha. Boshqa ikkitasida
+POS donalari yo'q — u yerda «tepa» degan narsaning o'zi yo'q.</span></div>
+</div>
+
+<div class="note" style="margin-top:12px;">
+<b>Nima O'ZGARMAYDI</b> — qabul/rad tugmalari, <code>hammasiSkan</code> va
+<code>farqBor</code> hisobi, 1/2-SKAN tugmalari, <code>Mos</code> tugmasi,
+2-SKAN ko'rinishi, KLIENTDA BOR bloki, ro'yxat ekrani.
+Faqat <b>chizish</b> o'zgaradi — hisob-kitobga tegilmaydi.
+</div>
+
+</div></body></html>
