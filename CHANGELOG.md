@@ -6769,3 +6769,56 @@ bo'sh tarix, beshta rang chegarasi.
 
 Brauzerda: 0 konsol xatosi. Humayra `{kun:41, rang:'red'}`,
 bugun amali bo'lgan klient `{kun:0, rang:'green'}`.
+
+---
+
+## v188.3 — chernovik skan maydoni numpad «+» ni qabul qilmasdi
+
+Ibrohim (ekran rasmi bilan, maydonda `7.12+` turibdi): «enter bossa ishlavotti,
+numpadda + bossam ishlamayapti».
+
+### Sabab
+
+Chernovik tekshiruv maydoni faqat `Enter` ni tinglardi:
+
+```js
+onkeydown="if(event.key==='Enter')posChSkanQosh(ri)"
+```
+
+Numpad `+` esa oddiy belgi bo'lib **maydonga yozilib** qolardi — `7.12+`.
+
+### Bu loyihada allaqachon QOIDA edi
+
+To'rtta skan maydoni `+` ni qabul qiladi, faqat shu bittasi qolib ketgan
+(POS 1.27 da qo'shilganda):
+
+| Joy | `Enter` | `+` |
+|---|---|---|
+| `ostSkAdd` (1444) | ✓ | ✓ |
+| `donaBazaSkanAdd` (6967) | ✓ | ✓ |
+| `kbSkanAdd` (12785) | ✓ | ✓ |
+| `uniSkanAdd` (13085) | ✓ | ✓ |
+| `posChSkanQosh` (15469) | ✓ | **yo'q edi** |
+
+Endi `uniSkanAdd` bilan **aynan bir xil** naqsh:
+`Enter || +` → `preventDefault` + `stopPropagation` → qo'shish.
+
+`-` (o'chirish) qo'shilmadi — chernovik panelida «oxirgisini o'chirish»
+funksiyasi yo'q, faqat indeks bo'yicha `posChSkanOchir`.
+
+### Sinov
+
+Diff **3 qator** (1-qator, `APP_VER`, bitta input) — boshqa skan maydonlariga
+tegilmagani `git diff` bilan isbotlandi.
+
+Brauzerda haqiqiy `KeyboardEvent` bilan:
+- numpad `+` (`key:'+', code:'NumpadAdd'`) → `pass1=[7.12]`,
+  `defaultPrevented=true` (maydonga `+` yozilmaydi), maydon tozalandi
+- `Enter` hali ham ishlaydi → `pass1=[7.12,3]`
+- oddiy raqam `5` **bekor qilinmaydi** — yozish buzilmadi
+- 0 konsol xatosi
+
+### Qolgan joy
+
+`pos.html:1678` (`posBQoshDona`, POS berish ekrani) ham faqat `Enter` ni
+tinglaydi. Ibrohim POS haqida aytmadi — **tegilmadi**, so'ralsa qo'shiladi.
