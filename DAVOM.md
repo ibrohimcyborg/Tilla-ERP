@@ -4,7 +4,23 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v185 · POS v0.35 · 2026-09-12
+**Oxirgi yangilanish:** v186 · POS v0.35 · 2026-09-13
+
+---
+
+## ✅ v186 — chernovik ro‘yxatida donalar (2026-09-13)
+
+**Ibrohim:** «ro‘yxatda dona ko‘rinsin» → mockup `royxat-dona.html`,
+**A varianti** tanlandi («A»).
+
+Qo‘ng‘iroqcha ro‘yxatida endi kartani bosmasdan ham ko‘rinadi:
+har zavod·tur alohida qator (`5.00 g · 2 dona`), tagida dona
+katakchalari (`2.00` `3.00`). Pastda chiziq, keyin avvalgi jami.
+
+Eski chernovikda `donalar` bo‘lmasa — faqat tur qatori chiqadi,
+katakcha bo‘lmaydi (brauzerda sinaldi, yiqilmadi).
+
+**Chekda dona QO‘SHILMADI** — Ibrohim: «chekda dona keremas».
 
 ---
 
@@ -67,23 +83,32 @@ To'lov chekiga tegilmadi — `TO'LOVGA O'TISH` yo'lida chek chaqirig'i yo'q.
 
 ## ⏳ OCHIQ — javob kutilmoqda
 
-**1. Chekda dona ko'rsatilsinmi?** Hozirgi berish cheki faqat grammni
-ko'rsatadi. `Butterfly - Oddiy  2 dona  -5.00g` qilish mumkin, lekin u holda
-**qo'lda berish cheki ham** o'zgaradi — shuning uchun so'ralgan, javob yo'q.
+**1. KLIENTDA BOR to'lov panelida ko'rinmagani** — YAGONA ochiq texnik savol.
+v180.8 da tekshiruv ekraniga («Qabul qilish» tugmasi tepasida) tashxis qutisi
+qo'yilgan. Ibrohimga 2026-09-13 da tushuntirildi:
 
-**2. Chernovik RO'YXAT ekranida donalar ko'rinsinmi?** Hozir faqat
-`N tur · M dona · jami g`. Ichiga kirilsa donalar ko'rinadi.
+| Chiqsa | Ma'nosi |
+|---|---|
+| «KLIENTDA BOR — POS DAN» + raqamlar | POS yuborgan → muammo **ERP** tomonda |
+| «KLIENTDA BOR — POS yubormagan» | POS yubormagan → muammo **POS** tomonda |
 
-**3. KLIENTDA BOR to'lov panelida ko'rinmagani** — v180.8 dagi tashxis bloki
-qo'yilgan («KLIENTDA BOR — POS DAN» yoki «POS yubormagan»).
-Ibrohim qaysi biri chiqqanini hali aytmagan.
+→ Keyingi POS berishida Ibrohim chernovikni ochib qaysi biri chiqqanini
+aytishi kerak. **Javob kelmaguncha kod yozilmaydi** — qaysi tomonni
+tuzatish kerakligi aniq emas.
 
-**4. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan.
+**2. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan.
 ⚠ Yangi mockup CHIZMA — avval Ibrohimdan ekran rasmi va o'z so'zlarini ol.
+(v184–v186 dan keyin panel ancha o'zgardi — balki bu shikoyat o'z-o'zidan
+yopilgandir, avval so'ra.)
 
-### Mockuplar (bajarilgan, o'chirilishi mumkin)
-`mockups/soat-24h.html` — v183 bajarildi
-`mockups/pos-dona-chek.html` — v184 + v185 bajarildi
+### Hal bo'lgan savollar
+✓ Chekda dona — **kerak emas** (2026-09-13)
+✓ Ro'yxatda dona — **A varianti**, v186 da bajarildi (2026-09-13)
+
+### Mockuplar
+`mockups/royxat-dona.html` — A varianti bajarildi, lekin ichida KLIENTDA BOR
+tushuntirishi bor — 1-savol yopilguncha SAQLANADI.
+(`soat-24h.html` va `pos-dona-chek.html` o'chirildi — bajarilgan.)
 
 ---
 

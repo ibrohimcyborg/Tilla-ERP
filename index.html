@@ -1,4 +1,4 @@
-<!-- v185 -->
+<!-- v186 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v185';
+var APP_VER = 'v186';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15294,7 +15294,27 @@ function posBellOch(){
         h+='<span style="font-size:10.5px;padding:1px 7px;border-radius:24px;background:var(--surf);color:'+(x.tip==='vozvrat'?'var(--teal)':'var(--gold)')+';border:1px solid var(--border);">'+(x.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
         h+='<span style="flex:1;"></span>';
         h+='<span style="font-size:11px;color:var(--muted);">'+_posEsc(x.sana||'')+' '+_posEsc(x.soat||'')+'</span></div>';
-        h+='<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">';
+
+        // v186 (Ibrohim): «ro'yxatda dona ko'rinsin» — kartani bosib ichiga
+        // kirmasdan ham qaysi zavod, qaysi dona ko'rinadi.
+        // Mockup royxat-dona.html, A varianti — tanlandi.
+        // Eski chernovikda donalar bo'lmasligi mumkin — shunda faqat tur qatori.
+        (x.rows||[]).forEach(function(r){
+          h+='<div style="display:flex;align-items:center;gap:7px;margin-top:6px;font-size:11.5px;">';
+          h+='<span>'+_posEsc(r.zavod||'')+' \u00b7 '+_posEsc(r.tur||'')+'</span>';
+          h+='<span style="margin-left:auto;font-family:Roboto,sans-serif;font-weight:600;white-space:nowrap;">'
+            + fmtG(r.gramm||0)+' g \u00b7 '+(r.dona||0)+' dona</span></div>';
+          var _dn=(r.donalar||[]);
+          if(_dn.length){
+            h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
+            _dn.forEach(function(g){
+              h+='<span style="padding:2px 7px;border-radius:11px;border:1px solid var(--border);background:var(--surf);font-size:10.5px;font-family:Roboto,sans-serif;color:var(--muted);">'+fmtG(g)+'</span>';
+            });
+            h+='</div>';
+          }
+        });
+
+        h+='<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:7px;border-top:1px solid var(--gold-bd);">';
         h+='<span style="font-size:11.5px;color:var(--muted);">'+((x.rows||[]).length)+' tur · '+jd+' dona</span><span style="flex:1;"></span>';
         h+='<span style="font-size:15px;font-weight:700;font-family:Roboto,sans-serif;">'+fmtG(roundG(jg))+' g</span></div></div>';
       });

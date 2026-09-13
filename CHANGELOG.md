@@ -6318,3 +6318,40 @@ Brauzerda, haqiqiy funksiyalar bilan:
 - vozvratda «Vozvrat qilindi», «Klientga berildi» yo'q
 - `rows` bo'sh → chek chiqmaydi
 - 0 konsol xatosi
+
+---
+
+## v186 — chernovik ro'yxatida donalar
+
+Ibrohim: «ro'yxatda dona ko'rinsin» → mockup `royxat-dona.html`, **A varianti**.
+Shu bilan birga: «chekda dona keremas» → chekka **tegilmadi**.
+
+### Nima o'zgardi
+
+Qo'ng'iroqcha ro'yxatida (chernovikni bosmasdan) endi har zavod·tur alohida
+qator bo'lib chiqadi, tagida dona katakchalari:
+
+```
+Aziz Aka  [BERISH]              12.09.2026 18:07
+Butterfly · Oddiy                   5.00 g · 2 dona
+  (2.00) (3.00)
+Diamond · 3D                       10.11 g · 2 dona
+  (6.11) (4.00)
+────────────────────────────────────────────────
+2 tur · 4 dona                              15.11 g
+```
+
+Avvalgi jami qatori saqlandi — faqat tepasiga ajratuvchi chiziq qo'shildi.
+
+### Eski chernoviklar
+
+`donalar` maydoni yo'q bo'lsa (POS v0.02 dan oldingi yoki boshqa manba) —
+faqat tur qatori chiqadi, katakcha bo'lmaydi. Brauzerda ataylab shunday
+chernovik bilan sinaldi: yiqilmadi.
+
+### Sinov
+
+Sintaksis: 0 xato. Brauzerda ikki chernovik (biri donalar bilan, biri
+donalarsiz) ro'yxatda chizildi — `Butterfly · Oddiy`, katakchalar
+`2.00` `3.00`, `Diamond · 3D` → `6.11` `4.00`, jami `2 tur · 4 dona` /
+`15.11 g`. Donalarsiz chernovik ham to'g'ri chiqdi. 0 konsol xatosi.
