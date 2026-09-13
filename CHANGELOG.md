@@ -6725,3 +6725,47 @@ ta'sir yo'q.
 
 Brauzerda: 0 konsol xatosi. Vozvrat oynasida «biz qarz» yozuvi umuman
 chiqmadi, `12.60` yo'q, Butterfly `0.36` turibdi.
+
+---
+
+## v188.2 — ostatkadan qo'shilgan klient «0 kun» bo'lib turardi
+
+Ibrohim (Humayra 23 ekran rasmi bilan): «nega ostatkadan qo'shilgan lekin
+oldi-berdi bo'maganni muddatini o'tgan qilib ko'rsatmayapsan».
+
+### Sabab — v187.1 dagi o'z qarorim
+
+v187.1 da `inventar` yozuvlari (boshlang'ich ostatka, tekshiruv) sanagichdan
+**butunlay** chiqarilgan edi. Sabab to'g'ri edi: ostatka shakllantirish hamma
+klientning muddatini nolga tushirib yubormasin. O'shanda bu ochiq aytilgan va
+«noto'g'ri deb hisoblasangiz — aytasiz» deyilgan edi.
+
+Ammo Humayra 23 da **yagona yozuv** o'sha edi — 03.08.2026 dagi boshlang'ich
+ostatka, `−1.54 g` qarz. Boshqa hech nima yo'q → `eng=0` → `{kun:0}` →
+ro'yxatda **yashil «0 kun»**. Bir oydan oshgan qarz «bugungi» bo'lib turardi.
+
+### Yechim — zaxira sana
+
+`inventar` yozuvlari alohida `invEng` ga yig'iladi. Haqiqiy oldi-berdi bo'lsa
+u **ishlatilmaydi** (v187.1 qoidasi saqlanadi). Hech nima bo'lmasa —
+sanagich o'shandan boshlanadi.
+
+```js
+if(op.inventar){ if(ts>invEng) invEng=ts; return; }
+...
+if(!eng) eng=invEng;          // faqat boshqa hech nima bo'lmasa
+```
+
+Humayra 23: `03.08.2026 → 13.09.2026` = **41 kun 🔴** (avval `0 kun 🟢`).
+
+Ranglar tegilmadi.
+
+### Sinov
+
+`tekshir1882.js` — 21 ta tekshiruv: Humayra holati, aralash holat
+(`boshlangich` + haqiqiy to'lov → inventar tiklamaydi, `25 kun`),
+`tekshiruv` bilan ham shunday, faqat-inventar ikki sanada eng keyingisi,
+bo'sh tarix, beshta rang chegarasi.
+
+Brauzerda: 0 konsol xatosi. Humayra `{kun:41, rang:'red'}`,
+bugun amali bo'lgan klient `{kun:0, rang:'green'}`.

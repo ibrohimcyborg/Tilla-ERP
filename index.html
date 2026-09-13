@@ -1,4 +1,4 @@
-<!-- v188.1 -->
+<!-- v188.2 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.1';
+var APP_VER = 'v188.2';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -9807,13 +9807,21 @@ var curKlientIdx = -1;
 // Ranglar TEGILMADI: 0-3 yashil, 4-7 sariq, 8+ qizil — Ibrohim aytgan
 // qoida allaqachon shunday edi.
 function klientQarzHolat(k) {
-  var eng=0;
+  var eng=0, invEng=0;
   (k.tarix||[]).forEach(function(op){
-    if(!op || op.inventar) return;
+    if(!op) return;
     if(op.tip!=='berish' && op.tip!=='vozvrat' && op.tip!=='tolov') return;
     var ts=fdSanaTs(op.sana);          // soatsiz — kun boshiga tenglashtiriladi
+    if(op.inventar){ if(ts>invEng) invEng=ts; return; }
     if(ts>eng) eng=ts;
   });
+  // v188.2 (Ibrohim): «nega ostatkadan qo'shilgan lekin oldi-berdi bo'maganni
+  // muddatini o'tgan qilib ko'rsatmayapsan» — Humayra 23 da yagona yozuv
+  // 03.08.2026 dagi boshlang'ich ostatka edi, nishon esa «0 kun» chiqardi.
+  // v187.1 qoidasi SAQLANADI: haqiqiy oldi-berdi bo'lsa, ostatka shakllantirish
+  // sanagichni tiklamaydi. Lekin boshqa hech nima bo'lmasa — sanagich
+  // o'sha yozuvdan boshlanadi, aks holda qarzdor «0 kun» bo'lib turadi.
+  if(!eng) eng=invEng;
   if(!eng) return {kun:0, rang:'green'};
   var n=new Date();
   var bugun=new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
