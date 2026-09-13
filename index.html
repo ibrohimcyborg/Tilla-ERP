@@ -1,4 +1,4 @@
-<!-- v188 -->
+<!-- v188.1 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188';
+var APP_VER = 'v188.1';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -12963,16 +12963,16 @@ function kVozvratKlientChange(){
   var ki=parseInt(document.getElementById('kv-klient').value);
   if(isNaN(ki)){document.getElementById('kv-turlar-cont').style.display='none';return;}
   var k=data.klientlar[ki];
-  var bal={};
-  k.tarix.forEach(function(op){
-    if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'||'+op.tur;
-    if(bal[key]===undefined) bal[key]=0;
-    if(op.tip==='berish')        bal[key]+=op.gramm;
-    else if(op.tip==='vozvrat')  bal[key]-=op.gramm;
-    else if(op.tip==='tolov')    bal[key]-=(op.ekvivalent||0);
-    else if(op.tip==='klientda') bal[key]-=op.gramm;
-  });
+  // v188.1 (Ibrohim): «klient ostatkasi vozvrat bo'gandan kegin offset qilinsa
+  // ... vozvrattan bizani qarz ko'rsatvotti ... shunchaki vozvratta ko'rsatmasin,
+  // offset bo'ganda o'chib ketsin».
+  // Bu yerda ALOHIDA hisob halqasi bor edi va u offset yopilishini
+  // (tolov + _kdYopish) oddiy to'lov deb −ekvivalent qilardi. Aslida u
+  // vozvratning manfiyini QAYTARADI: +ekvivalent. Belgi teskari bo'lgani uchun
+  // xato offsetning IKKI BAROBARI chiqardi — 6.30 g offset → «biz qarz +12.60g».
+  // Endi alohida halqa yo'q: butun ilovada bitta manba — _klientTurQarzMap,
+  // u _kdYopish ni to'g'ri o'qiydi (17229) va _qarzTarkibRows bilan mos keladi.
+  var bal = _klientTurQarzMap(k);
   function balLblOf(q){
     if(q>0.001) return '<span style="color:var(--red);">qarz: \u2212'+fmtG(q)+'g</span>';
     if(q<-0.001) return '<span style="color:var(--green);">biz qarz: +'+fmtG(-q)+'g</span>';
@@ -13602,16 +13602,16 @@ function ktVozvratAll(ki){
   uniSkanReset('kt-vz-'); // modal qayta chizilganda eski skan holati tozalanadi
   if(isNaN(ki)) return;
   var k=data.klientlar[ki];
-  var bal={};
-  k.tarix.forEach(function(op){
-    if(!op.zavod||!op.tur) return;
-    var key=op.zavod+'||'+op.tur;
-    if(bal[key]===undefined) bal[key]=0;
-    if(op.tip==='berish') bal[key]+=op.gramm;
-    else if(op.tip==='vozvrat') bal[key]-=op.gramm;
-    else if(op.tip==='tolov') bal[key]-=(op.ekvivalent||0);
-    else if(op.tip==='klientda') bal[key]-=op.gramm;
-  });
+  // v188.1 (Ibrohim): «klient ostatkasi vozvrat bo'gandan kegin offset qilinsa
+  // ... vozvrattan bizani qarz ko'rsatvotti ... shunchaki vozvratta ko'rsatmasin,
+  // offset bo'ganda o'chib ketsin».
+  // Bu yerda ALOHIDA hisob halqasi bor edi va u offset yopilishini
+  // (tolov + _kdYopish) oddiy to'lov deb −ekvivalent qilardi. Aslida u
+  // vozvratning manfiyini QAYTARADI: +ekvivalent. Belgi teskari bo'lgani uchun
+  // xato offsetning IKKI BAROBARI chiqardi — 6.30 g offset → «biz qarz +12.60g».
+  // Endi alohida halqa yo'q: butun ilovada bitta manba — _klientTurQarzMap,
+  // u _kdYopish ni to'g'ri o'qiydi (17229) va _qarzTarkibRows bilan mos keladi.
+  var bal = _klientTurQarzMap(k);
   function lblOf(q){
     if(q>0.001) return '<span style="color:var(--red);">qarz: \u2212'+fmtG(q)+'g</span>';
     if(q<-0.001) return '<span style="color:var(--green);">biz qarz: +'+fmtG(-q)+'g</span>';

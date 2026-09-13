@@ -6664,3 +6664,64 @@ Bo'sh ro'yxat va butunlay `null` qiymatlar bilan ham yiqilmadi.
 
 Brauzerda: 0 konsol xatosi. Tab ochilganda `2 ta qarzdor` + tugma chiqdi,
 payload `23.11g / A 1608.8 / B 1649.02 / narxsiz 1`.
+
+---
+
+## v188.1 — offsetdan keyin vozvrat oynasida soxta «biz qarz»
+
+Ibrohim: «judayam katta xato topdim — klient ostatkasi vozvrat bo'gandan
+kegin offset qilinsa sistemada ko'rsatvottide, lekin vozvratdan bizning qarz
+ko'rsatvotti. Slojniylashtirvorma, shunchaki vozvratda ko'rsatmasin, offset
+bo'ganda o'chib ketsin».
+
+Mockup: `mockups/offset-vozvrat-xato.html` — tasdiqlangan.
+
+### Sabab
+
+Offset yopilishi `tip:'tolov'` + `_kdYopish:true` bo'lib yoziladi. U vozvratning
+manfiyini **qaytaradi**, ya'ni `+ekvivalent` bo'lishi kerak. Ikkita vozvrat
+oynasi esa o'zining **alohida** hisob halqasini yuritardi va uni oddiy to'lov
+deb `−ekvivalent` qilardi. Belgi teskari bo'lgani uchun xato offsetning
+**ikki barobari** chiqardi.
+
+Shafoat Opa TJK · Dorika·Oddiy:
+
+| | vozvrat | offset | natija |
+|---|---|---|---|
+| Klient ekrani | −6.30 | **+6.30** | `0.00` ✓ |
+| Vozvrat oynasi | −6.30 | **−6.30** | `−12.60` ✗ |
+
+`6.30 × 2 = 12.60` — Merrit·Oddiy dagi `+9.54g` ham shunday (offset `4.77 g`).
+
+### Loyihada TO'RTTA hisoblagich bor edi
+
+| Funksiya | offset | holat |
+|---|---|---|
+| `_qarzTarkibRows` (hisob.js:131) | `+` | to'g'ri |
+| `_klientTurQarzMap` (17229) | `+` | to'g'ri |
+| `kVozvratKlientChange` (12960) | `−` | **XATO** |
+| `ktVozvratAll` (13601) | `−` | **XATO** |
+
+### Yechim
+
+Yangi mantiq yozilmadi. Ikkita buzuq halqa **o'chirildi**, o'rniga
+`_klientTurQarzMap(k)` chaqiriladi — butun ilovada bitta manba.
+**−18 qator, +2 qator** (izohsiz hisobda).
+
+Bu v175.2 dagi xatoning takrori edi: «bir klientga uch xil raqam chiqardi».
+
+### Bazaga TEGILMADI
+
+Bitta yozuv ham o'zgarmadi — xato faqat **o'qishda** edi. Klient qarzi
+(`−0.36 g`) to'g'ri edi va o'zgarmadi. Offset mexanizmi soz.
+`hisob.js` ga tegilmadi.
+
+### Sinov
+
+`tekshir1881.js` — 16 ta tekshiruv. Ibrohimning haqiqiy tarixi bilan:
+eski halqa `−12.60` berdi, yangisi `0` beradi; Butterfly ikkalasida `0.36`;
+offsetsiz holatda eski va yangi **bir xil** (`1/1`) — ya'ni oddiy klientlarga
+ta'sir yo'q.
+
+Brauzerda: 0 konsol xatosi. Vozvrat oynasida «biz qarz» yozuvi umuman
+chiqmadi, `12.60` yo'q, Butterfly `0.36` turibdi.
