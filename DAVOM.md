@@ -155,13 +155,16 @@ To'lov chekiga tegilmadi — `TO'LOVGA O'TISH` yo'lida chek chaqirig'i yo'q.
 
 ## ⏳ OCHIQ — javob kutilmoqda
 
-**1. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan (2026-09).
-⚠ Yangi mockup CHIZMA — avval Ibrohimdan ekran rasmi va o'z so'zlarini ol.
-v184–v188.3 dan keyin panel butunlay o'zgardi: 1/2-skan, POS ga qarab
-tekshirish, donalar, chek, KLIENTDA BOR. Shikoyat o'z-o'zidan yopilgan
-bo'lishi mumkin — avval so'ra, keyin chiz.
+Ochiq ish YO'Q.
 
 ### Yopilgan savollar
+✓ **Qo'ng'iroqcha paneli «tushunarsiz»** — YOPILDI. Ibrohim (2026-09-13):
+  «bula uje to'g'irlangan, san orqaga qarama». v184–v188.3 panelni
+  butunlay o'zgartirgan (1/2-skan, POS ga qarab tekshirish, donalar, chek,
+  KLIENTDA BOR) — shikoyat o'z-o'zidan yopilgan.
+  ⚠ Bu joyni QAYTA KOVLAMA. Eski ikki maket
+  (`pos-chernovik-panel.html`, `pos-chernovik-ishlaydigan.html`) o'sha
+  yopilgan shikoyatdan qolgan — ular DALIL EMAS.
 ✓ Chekda dona — kerak emas
 ✓ Ro'yxatda dona — A varianti, v186
 ✓ PDF: kimlar kirsin — qarzi bor hamma, v188
@@ -367,20 +370,11 @@ tahrirlanadi. Qo'lda yozilsa qizil bo'ladi.
 3. Cloudda kurs bo'lmasa lokal kalit O'CHIRILADI (aks holda eski qo'lda
    yozilgani qolib ketardi)
 
-### ⚠ QO'NG'IROQCHA PANELI — OCHIQ QOLDI
+### ✅ QO'NG'IROQCHA PANELI — YOPILDI (2026-09-13)
 
-Ibrohim: «manga shu kelgan narsa tushunarsiz ko'rinvotti» (chernovik
-tekshirish paneli, `index.html:15258`). Oltita muammo aniqlandi va maket
-qilindi (`mockups/pos-chernovik-panel.html`, `pos-chernovik-ishlaydigan.html`),
-lekin Ibrohim maketni ham tushunarsiz dedi. **Qaror yo'q, ish boshlanmagan.**
-
-Aniqlangan muammolar: (1) POS donalari va admin skani bir xil ko'rinadi,
-yorliq yo'q (2) «Mos» tugmasining nomi nima qilishini aytmaydi
-(3) «mos/kam/ortiq» texnik so'zlar (4) jami gramm faqat tasdiq oynasida
-(5) qabul tugmasi nega o'chiqligi ko'rinmaydi (6) tugma nomi o'zgarib turadi.
-
-➡ **Keyingi seans:** Ibrohimdan panelning RASMINI so'ra va «nima
-tushunarsiz» ni o'z so'zi bilan ayttir. Maket chizma — u charchadi.
+*(Bu blok 2026-09-10 dagi holatni yozgan edi — endi kuchda emas.)*
+Ibrohim (2026-09-13): «bula uje to'g'irlangan, san orqaga qarama».
+O'sha oltita muammo va ikki maket — **DALIL EMAS, qayta ishlatilmaydi**.
 
 ### 💡 SEANS SABOQLARI (2026-09-10)
 
@@ -474,17 +468,11 @@ Uch urinishdan keyin Ibrohim tartibni O'ZI yozib berdi. Hozirgi holat:
 telefonda ikki ustun bir-biriga tiqilib qoldi va Ibrohim «judayam tartibsiz»
 dedi. Bu seansda ikki marta shu xato bo'ldi.
 
-### ⬜ KEYINGI ISH — QO'NG'IROQCHA PANELI
+### ✅ QO'NG'IROQCHA PANELI — YOPILDI (2026-09-13)
 
-Yagona ochiq ish. Ibrohim: «manga shu kelgan narsa tushunarsiz ko'rinvotti»
-(`index.html:15258` `posBellOch` — POS chernovigini tekshirish ekrani).
-
-Oltita muammo aniqlangan, ikkita maket qilingan
-(`mockups/pos-chernovik-panel.html`, `pos-chernovik-ishlaydigan.html`) —
-lekin Ibrohim maketni ham tushunarsiz dedi. **Qaror yo'q, kod yozilmagan.**
-
-➡ Boshlash yo'li: Ibrohimdan o'sha panelning RASMINI so'ra va «nima
-tushunarsiz» ni o'z so'zi bilan ayttir. Yangi maket chizma — u charchadi.
+Ibrohim: «bula uje to'g'irlangan, san orqaga qarama».
+Eski «tushunarsiz» shikoyati v184–v188.3 bilan hal bo'lgan.
+**Bu joyni qayta ochma**, eski ikki maketga ham qarama.
 
 ---
 
