@@ -6589,3 +6589,78 @@ biri 5g qarzli, ikkalasining oxirgi amali 19.08 = 25 kun):
 | Ro'yxatda | `0.00g` | `−5.00g` |
 
 Sahifada `+0.00g` ham, `−0.00` ham **qolmadi**. 0 konsol xatosi.
+
+---
+
+## v188 — «Muddati otgan» tabiga PDF
+
+Ibrohim: «muddati o'tgan klientlaga PDF qo'shamiz bosib qancha kimmi ostatkasi
+bor usha kungi kursadan chiqarberishi kere» → «PDF A B kategoriyada nechpul
+qarz borliginiyam ko'rsatsin» → «klient nimaladan nechpul va umumiy nechpul
+qarzligiyam chiqsin» → «shunaqa».
+
+Mockup: `mockups/muddat-pdf.html` — tasdiqlangan.
+
+### Tugma
+
+`renderKlientlar` ichida, «Muddati otgan» ro'yxati tepasida:
+`N ta qarzdor` ... `⎙ PDF`. Qarzdor bo'lmasa tugma ham chiqmaydi.
+
+### PDF tuzilishi
+
+```
+TILLA HISOB — MUDDATI O'TGAN QARZLAR
+13.09.2026 · kunlik kurs 80.0 $/g
+
+KLIENT 2 ta | JAMI QARZ −23.11g | A NARXIDA −$1,608.80 | B NARXIDA −$1,649.02
+
+# Klient / zavod · tur            Kun    Kat  Ostatka    A ($)      B ($)
+1 Mirshohid Aka                   25 kun  A   −5.00g    −400.00    −410.00
+    Butterfly · Oddiy                         −5.00g    −400.00    −410.00
+2 Aziz Aka *                      12 kun  B  −18.11g  −1,208.80  −1,239.02
+    Diamond · 3D                             −10.11g    −808.80    −829.02
+    Butterfly · Oddiy                         −5.00g    −400.00    −410.00
+    Gold Star · Maxsus (narxi yo'q)           −3.00g          —          —
+  UMUMIY QARZ                               −23.11g  −1,608.80  −1,649.02
+
+* 1 ta klientda narxi yo'q tur bor — o'sha gramm A va B summasiga qo'shilmadi.
+```
+
+Klient qatori kulrang, uning **o'z kategoriyasi** sariq katak bilan.
+Tartib — eng ko'p kun kutgani tepada (ekrandagi tab bilan bir xil).
+
+### Kimlar kiradi
+
+Qarzi bor **hamma** klient — hozirgi tab bilan aynan bir xil.
+Qarzi yopilganlar (`ostatka<=0.001`) kirmaydi, manfiy qatorlar
+(biz qarzdormiz) ham hisobga olinmaydi.
+
+### Yangi kod
+
+| Joy | Nima |
+|---|---|
+| `_muddatNarx(zNom,tNom,kat)` | nom → indeks → `getKatNarx`, `_aktivKat` tiklanadi |
+| `muddatQarzPDF()` | payload yig'adi va `/api/pdf.py` ga yuboradi |
+| `api/pdf.py` `build_muddat_qarz` | oltinchi PDF turi (`muddat_qarz`) |
+
+Hisob-kitob **qayta yozilmadi** — `_qarzTarkibRows`, `_qarzJamiRows`,
+`klientQarzHolat`, `getKatNarx` chaqiriladi. Bazaga hech nima yozilmaydi.
+
+### Sinovda topilgan xato
+
+Birinchi urinishda pastdagi **«UMUMIY QARZ» yozuvi PDF da yo'q edi**.
+Sabab: `SPAN (0,r)-(1,r)` faqat **chap-yuqori** katak matnini saqlaydi, yozuv
+esa 1-ustunda edi. 0-ustunga ko'chirildi.
+
+### Sinov
+
+`tekshir188.js` — 28 ta tekshiruv: narx xaritasi, `_aktivKat` tiklanishi,
+qarzsiz klientning tashlanishi, tartib, narxsiz tur `null` bo'lishi,
+jami hisoblari.
+
+Python: `build_muddat_qarz` **haqiqiy reportlab bilan chaqirildi** —
+3459 bayt `%PDF-1.4`. Chiqqan matn ochib tekshirildi (yuqoridagi jadval).
+Bo'sh ro'yxat va butunlay `null` qiymatlar bilan ham yiqilmadi.
+
+Brauzerda: 0 konsol xatosi. Tab ochilganda `2 ta qarzdor` + tugma chiqdi,
+payload `23.11g / A 1608.8 / B 1649.02 / narxsiz 1`.

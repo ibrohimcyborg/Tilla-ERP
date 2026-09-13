@@ -689,6 +689,120 @@ def build_klientlar_tarix(ops, dan, gacha, jami_berildi, jami_vozvrat, jami_tolo
     doc.build(story); return buf.getvalue()
 
 
+# v188 (Ibrohim): «muddati o'tgan klientlaga PDF qo'shamiz, bosib qancha
+# kimmi ostatkasi bor usha kungi kursdan chiqarberishi kere» +
+# «A B kategoriyada nechpul qarz borliginiyam ko'rsatsin» +
+# «klient nimalardan nechpul va umumiy nechpul qarzligiyam chiqsin».
+# Maket: mockups/muddat-pdf.html — tasdiqlangan.
+#
+# Har klient KULRANG sarlavha qatori (jami qarz + A + B), tagida zavod·tur
+# bo'yicha tafsilot. Klientning O'Z kategoriyasi sariq katak bilan.
+# Narxi yo'q tur (getKatNarx bo'sh qaytargan) pul o'rniga "—" oladi va
+# summaga qo'shilmaydi — nomi yonida * va pastda ogohlantirish.
+C_SHADE = colors.HexColor('#EEF0F4')
+C_OWN   = colors.HexColor('#FFF6D8')
+
+def build_muddat_qarz(sana, kurs, klientlar, jami_g, jami_a, jami_b, narxsiz_soni):
+    kurs = _num(kurs)
+    jami_g = _num(jami_g); jami_a = _num(jami_a); jami_b = _num(jami_b)
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=10*mm, rightMargin=10*mm,
+                            topMargin=10*mm, bottomMargin=10*mm)
+    story = []
+    W_total = A4[0] - 20*mm
+
+    story.append(title_p("TILLA HISOB — MUDDATI O'TGAN QARZLAR"))
+    story.append(sub_p("{}  ·  kunlik kurs {:,.1f} $/g".format(sana, kurs)))
+    story.append(Spacer(1, 4*mm))
+
+    # ── sarhisob
+    stat = [[P("KLIENT", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+             P("JAMI QARZ", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+             P("A NARXIDA", 'Helvetica-Bold', 8, C_WHITE, 'CENTER'),
+             P("B NARXIDA", 'Helvetica-Bold', 8, C_WHITE, 'CENTER')],
+            [P("{} ta".format(len(klientlar)), 'Helvetica-Bold', 13, C_DARK, 'CENTER'),
+             P("-{:,.2f}g".format(jami_g), 'Helvetica-Bold', 13, C_RED, 'CENTER'),
+             P("-${:,.2f}".format(jami_a), 'Helvetica-Bold', 13, C_BLUE, 'CENTER'),
+             P("-${:,.2f}".format(jami_b), 'Helvetica-Bold', 13, C_GREEN, 'CENTER')]]
+    st = Table(stat, colWidths=[W_total/4]*4)
+    st.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,0), C_HDR),
+        ('BACKGROUND', (0,1), (-1,1), colors.HexColor('#F8F6F0')),
+        ('GRID', (0,0), (-1,-1), 0.4, colors.HexColor('#dddddd')),
+        ('TOPPADDING', (0,0), (-1,-1), 6), ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'MIDDLE')]))
+    story.append(st); story.append(Spacer(1, 5*mm))
+
+    # ── asosiy jadval
+    HDR = ["#", "Klient / zavod · tur", "Kun", "Kat", "Ostatka", "A ($)", "B ($)"]
+    CW = [x*mm for x in [8, 62, 16, 12, 30, 31, 31]]
+    tdata = [[P(h, 'Helvetica-Bold', 8, C_WHITE, 'CENTER') for h in HDR]]
+    rstyles = []
+    ri = 0
+    for i, k in enumerate(klientlar, 1):
+        kat = (k.get('kat') or 'A')
+        kun = int(_num(k.get('kun')))
+        rang = C_RED if kun >= 8 else (C_AMBER if kun >= 4 else C_GREEN)
+        nom = str(k.get('nom') or '')
+        if k.get('narxsiz'):
+            nom += " *"
+        ri += 1
+        tdata.append([
+            P(str(i), 'Helvetica-Bold', 8, C_DARK, 'CENTER'),
+            P(nom, 'Helvetica-Bold', 9, C_DARK),
+            P("{} kun".format(kun), 'Helvetica-Bold', 8, rang, 'CENTER'),
+            P(kat, 'Helvetica-Bold', 8, C_DARK, 'CENTER'),
+            P("-{:,.2f}g".format(_num(k.get('jami_g'))), 'Helvetica-Bold', 9, C_RED, 'RIGHT'),
+            P("-{:,.2f}".format(_num(k.get('jami_a'))), 'Helvetica-Bold', 9, C_BLUE, 'RIGHT'),
+            P("-{:,.2f}".format(_num(k.get('jami_b'))), 'Helvetica-Bold', 9, C_GREEN, 'RIGHT')])
+        rstyles.append(('BACKGROUND', (0, ri), (-1, ri), C_SHADE))
+        # klientning o'z kategoriyasi — sariq katak
+        oc = 5 if kat == 'A' else 6
+        rstyles.append(('BACKGROUND', (oc, ri), (oc, ri), C_OWN))
+
+        for t in (k.get('turlar') or []):
+            ri += 1
+            a = t.get('a'); b = t.get('b')
+            nomi = "    {} · {}".format(t.get('zavod') or '', t.get('tur') or '')
+            if a is None:
+                nomi += "   (narxi yo'q)"
+            tdata.append([
+                P("", size=8),
+                P(nomi, size=8, color=C_MUTED),
+                P("", size=8), P("", size=8),
+                P("-{:,.2f}g".format(_num(t.get('gramm'))), size=8, color=C_RED, align='RIGHT'),
+                P("—" if a is None else "-{:,.2f}".format(_num(a)), size=8,
+                  color=C_MUTED if a is None else C_BLUE, align='RIGHT'),
+                P("—" if b is None else "-{:,.2f}".format(_num(b)), size=8,
+                  color=C_MUTED if b is None else C_GREEN, align='RIGHT')])
+
+    # ── umumiy
+    ri += 1
+    # ⚠ SPAN faqat CHAP-YUQORI katak matnini saqlaydi — yozuv 0-ustunda
+    #   turishi shart, aks holda yo'qoladi (sinovda topildi).
+    tdata.append([P("UMUMIY QARZ", 'Helvetica-Bold', 9, C_WHITE),
+        P("", size=9),
+        P("", size=9), P("", size=9),
+        P("-{:,.2f}g".format(jami_g), 'Helvetica-Bold', 9, colors.HexColor('#FF8A80'), 'RIGHT'),
+        P("-{:,.2f}".format(jami_a), 'Helvetica-Bold', 9, colors.HexColor('#90CAF9'), 'RIGHT'),
+        P("-{:,.2f}".format(jami_b), 'Helvetica-Bold', 9, colors.HexColor('#A5D6A7'), 'RIGHT')])
+    rstyles.append(('BACKGROUND', (0, ri), (-1, ri), C_HDR))
+    rstyles.append(('SPAN', (0, ri), (1, ri)))
+
+    mt = Table(tdata, colWidths=CW, repeatRows=1)
+    mt.setStyle(TableStyle(base_style() + rstyles))
+    story.append(mt)
+
+    if narxsiz_soni:
+        story.append(Spacer(1, 3*mm))
+        story.append(P("* {} ta klientda narxi yo'q tur bor — o'sha gramm A va B "
+                       "summasiga qo'shilmadi. Gramm jami to'g'ri.".format(int(narxsiz_soni)),
+                       size=8, color=C_RED))
+
+    doc.build(story)
+    buf.seek(0)
+    return buf.read()
+
+
 def build_kassa(ops, dan, gacha, jami_summa, jami_gramm, label):
     jami_summa = _num(jami_summa); jami_gramm = _num(jami_gramm)   # v179.7
     buf = io.BytesIO()
@@ -761,6 +875,13 @@ class handler(BaseHTTPRequestHandler):
                     body.get("jami_berildi",0), body.get("jami_vozvrat",0),
                     body.get("jami_tolov_g",0), body.get("jami_tolov_pul",0),
                     body.get("qarz_tarkib",[])); return self._send_pdf(pdf, "klientlar-tarix.pdf")
+
+            if tip == "muddat_qarz":
+                pdf = build_muddat_qarz(body.get("sana",""), body.get("kurs",0),
+                    body.get("klientlar",[]), body.get("jami_g",0),
+                    body.get("jami_a",0), body.get("jami_b",0),
+                    body.get("narxsiz_soni",0))
+                return self._send_pdf(pdf, "muddat-qarz.pdf")
 
             if tip == "kassa":
                 pdf = build_kassa(body.get("ops",[]), body.get("dan"), body.get("gacha"),

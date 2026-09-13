@@ -1,4 +1,4 @@
-<!-- v187.2 -->
+<!-- v188 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v187.2';
+var APP_VER = 'v188';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -9820,6 +9820,67 @@ function klientQarzHolat(k) {
   var kun=Math.round((bugun-eng)/86400000);
   return {kun:kun, rang:kun<=3?'green':kun<=7?'yellow':'red'};
 }
+// ═════ v188 — MUDDATI O'TGANLAR PDF ═════
+// Ibrohim: «muddati o'tgan klientlaga PDF qo'shamiz bosib qancha kimmi
+// ostatkasi bor usha kungi kursdan chiqarberishi kere» +
+// «A B kategoriyada nechpul qarz borliginiyam ko'rsatsin» +
+// «klient nimalardan nechpul va umumiy nechpul qarzligiyam chiqsin».
+// Maket: mockups/muddat-pdf.html — tasdiqlangan.
+//
+// ⚠ HECH NIMA YOZILMAYDI — na bazaga, na cloudga. Hisob-kitob qayta
+//   yozilmadi: _qarzTarkibRows / _qarzJamiRows / klientQarzHolat / getKatNarx
+//   chaqiriladi. Kurs bugungi — ertaga boshqa raqam chiqadi.
+//
+// _qarzTarkibRows zavod/tur NOMINI beradi, getKatNarx esa INDEKS so'raydi.
+function _muddatNarx(zNom, tNom, kat){
+  var zi=-1, ti=-1;
+  (data.zavodlar||[]).forEach(function(z,i){
+    if(z.nom!==zNom) return;
+    (z.turlar||[]).forEach(function(t,j){ if(t.nom===tNom){ zi=i; ti=j; } });
+  });
+  if(zi<0 || ti<0) return 0;
+  var eski=_aktivKat, n='';
+  try{ _aktivKat=kat; n=getKatNarx(zi, ti, -1); }catch(e){}
+  _aktivKat=eski;
+  return parseNum(n)||0;
+}
+function muddatQarzPDF(){
+  var kurs=parseFloat(localStorage.getItem('tilla-kurs-bugun')||'0')||0;
+  var kl=[], jG=0, jA=0, jB=0, narxsizSoni=0;
+  (data.klientlar||[]).forEach(function(k){
+    var rows=[]; try{ rows=_qarzTarkibRows(k)||[]; }catch(e){ return; }
+    var jr=_qarzJamiRows(rows);
+    if(jr.ostatka<=0.001) return;                  // qarzi yopilgan — kirmaydi
+    var holat=klientQarzHolat(k);
+    var turlar=[], kG=0, kA=0, kB=0, yoq=false;
+    rows.forEach(function(b){
+      if(b.qarz<=0.01) return;                     // faqat KLIENT qarzi (manfiy = biz qarzdor)
+      var na=_muddatNarx(b.zavod,b.tur,'A'), nb=_muddatNarx(b.zavod,b.tur,'B');
+      var a = na ? Math.round(b.qarz*na*100)/100 : null;
+      var bb= nb ? Math.round(b.qarz*nb*100)/100 : null;
+      kG+=b.qarz;
+      if(a===null){ yoq=true; } else { kA+=a; kB+=(bb===null?a:bb); }
+      turlar.push({zavod:b.zavod, tur:b.tur, gramm:roundG(b.qarz), a:a, b:bb});
+    });
+    if(!turlar.length) return;
+    kG=roundG(kG); kA=Math.round(kA*100)/100; kB=Math.round(kB*100)/100;
+    jG+=kG; jA+=kA; jB+=kB;
+    if(yoq) narxsizSoni++;
+    kl.push({nom:k.nom, kun:holat.kun, kat:(k.kat||'A'), narxsiz:yoq,
+             jami_g:kG, jami_a:kA, jami_b:kB, turlar:turlar});
+  });
+  if(!kl.length){ alert('Qarzdor klient yo\u2018q.'); return; }
+  kl.sort(function(a,b){ return b.kun-a.kun; });   // ekrandagi tab bilan bir xil
+  var payload={ tip:'muddat_qarz', sana:today(), kurs:kurs, klientlar:kl,
+    jami_g:roundG(jG), jami_a:Math.round(jA*100)/100, jami_b:Math.round(jB*100)/100,
+    narxsiz_soni:narxsizSoni };
+  fetch('/api/pdf.py',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){ throw new Error(t); }); return r.blob(); })
+    .then(function(blob){ var u=URL.createObjectURL(blob); window.open(u,'_blank');
+      setTimeout(function(){ URL.revokeObjectURL(u); },10000); })
+    .catch(function(e){ alert('PDF xato: '+e.message); });
+}
+
 // v175.2 (Ibrohim: "manga to'g'ri ko'rsatsin"): ro'yxat/qidiruv endi klient ekrani
 // bilan BIR XIL manbadan o'qiydi — _qarzTarkibRows. Avval klientQarzSplit dan
 // o'qirdi, natijada bir klientga uch xil raqam chiqardi (Madina Opa: ro'yxat
@@ -11768,6 +11829,12 @@ function renderKlientlar() {
   if(qFilter) qSorted=qSorted.filter(function(x){return x.k.nom.toLowerCase().indexOf(qFilter)>=0;});
   qSorted.sort(function(a,b){return b.holat.kun-a.holat.kun;});
   var qHTML='';
+  // v188 (Ibrohim): «muddati o'tgan klientlaga PDF qo'shamiz»
+  if(qSorted.length){
+    qHTML+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">'
+      +'<span style="font-size:11.5px;color:var(--muted);">'+qSorted.length+' ta qarzdor</span>'
+      +'<button onclick="muddatQarzPDF()" style="background:var(--surf2);border:0.5px solid var(--gold-bd);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">⎙ PDF</button></div>';
+  }
   if(!qSorted.length){qHTML='<div class="empty">Barcha klientlar faol!</div>';}
   else{qSorted.forEach(function(item){
     var k=item.k,ki=item.i,holat=item.holat,qarz=item.qarz;
