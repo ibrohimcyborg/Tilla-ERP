@@ -4,7 +4,41 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v187.2 · POS v0.36 · 2026-09-13
+**Oxirgi yangilanish:** v188.3 · POS v0.36 · 2026-09-13
+
+---
+
+## ✅ v188 – v188.3 (2026-09-13)
+
+### v188 — «Muddati otgan» tabiga PDF
+Tugma ro'yxat tepasida. Har klient kulrang sarlavha qatori (jami qarz + A + B),
+tagida zavod·tur tafsiloti, pastda UMUMIY QARZ. Klientning o'z kategoriyasi
+sariq katak. Kiradi: qarzi bor hamma klient.
+`_muddatNarx` + `muddatQarzPDF` + `api/pdf.py` `build_muddat_qarz`.
+⚠ Sinovda topilgan: `SPAN` faqat CHAP-YUQORI katak matnini saqlaydi —
+«UMUMIY QARZ» yozuvi yo'qolgandi, 0-ustunga ko'chirildi.
+
+### v188.1 — offsetdan keyin soxta «biz qarz»  ⭐ KATTA XATO
+Ibrohim topdi. Offset yopilishi (`tolov` + `_kdYopish`) vozvratning manfiyini
+QAYTARADI (`+ekvivalent`), lekin ikkita vozvrat oynasi o'z halqasida uni
+`−ekvivalent` qilardi → xato offsetning IKKI BAROBARI.
+`kVozvratKlientChange` (12960) va `ktVozvratAll` (13601) halqalari o'chirildi,
+o'rniga `_klientTurQarzMap(k)`.
+⚠ **Loyihada per-tur qarz hisoblagichi TO'RTTA edi** — endi ikkitasi
+(`_qarzTarkibRows`, `_klientTurQarzMap`). Yangi ekran yozganda ULARDAN BIRINI
+chaqir, yangi halqa YOZMA — bu xato v175.2 da ham bo'lgan.
+
+### v188.2 — ostatkadan qo'shilgan klient «0 kun» edi
+v187.1 dagi qarorim juda qattiq edi: `inventar` yozuvlari butunlay tashlangandi.
+Humayra 23 da yagona yozuv o'sha edi → `0 kun` yashil. Endi `invEng` zaxira:
+haqiqiy oldi-berdi bo'lsa ishlatilmaydi, bo'lmasa — o'shandan sanaydi.
+
+### v188.3 — chernovik skan maydoni numpad «+»
+`Enter || +` → `preventDefault` + `stopPropagation`. Loyihada bu allaqachon
+qoida edi (`ostSkAdd`, `donaBazaSkanAdd`, `kbSkanAdd`, `uniSkanAdd`), faqat
+`posChSkanQosh` qolib ketgandi.
+✓ POS (`pos.html:1678`) TEGILMADI — Ibrohim: «unga keremas, u faqat barcode
+skaner bilan qo'lda yozadi». Skaner Enter yuboradi, u ishlaydi.
 
 ---
 
@@ -136,8 +170,15 @@ tuzatish kerakligi aniq emas.
 
 **2. Qo'ng'iroqcha paneli «tushunarsiz»** — ikki mockup rad etilgan.
 ⚠ Yangi mockup CHIZMA — avval Ibrohimdan ekran rasmi va o'z so'zlarini ol.
-(v184–v186 dan keyin panel ancha o'zgardi — balki bu shikoyat o'z-o'zidan
-yopilgandir, avval so'ra.)
+(v184–v188.3 dan keyin panel butunlay o'zgardi: 1/2-skan, POS ga qarab
+tekshirish, donalar, chek. Shikoyat o'z-o'zidan yopilgan bo'lishi mumkin —
+avval so'ra.)
+
+### Yopilgan savollar
+✓ Chekda dona — kerak emas
+✓ Ro'yxatda dona — A varianti, v186
+✓ PDF: kimlar kirsin — qarzi bor hamma, v188
+✓ POS'da numpad «+» — kerak emas (barcode skaner Enter yuboradi)
 
 ### Hal bo'lgan savollar
 ✓ Chekda dona — **kerak emas** (2026-09-13)
