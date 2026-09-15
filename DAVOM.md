@@ -5,7 +5,59 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.5 · POS v0.36 · 2026-09-15
-**Ochiq ish YO'Q.**
+**Ochiq ish YO'Q.** (Vercel Hobby'ga tushdi — PDF sinalmagan, pastda.)
+
+---
+
+## 🟢 VERCEL — PRO dan HOBBY ga tushirildi (2026-09-15)
+
+**Ibrohim:** «vercel pul so'rab ezdi» → «boldi hal boldi vercel tekin endi».
+
+Oyiga **$20** to'lanardi. Sabab hosting emas, **Pro obunasi** (seat) edi —
+xizmatdan foydalanish amalda nol: `WEPXND6H-0005` hisobida
+`Subtotal $0.11 / Credits -$0.11 / Total $0.00`, $20 lik bepul limitdan
+$0 sarflangan.
+
+Yo'l: Vercel support → refund/cancel formasi → `WEPXND6H-0005` bekor
+qilindi ($20, 2026-09-15) → downgrade ochildi → **Hobby**.
+
+**Kod O'ZGARMADI.** Hosting ko'chirilmadi, domen o'sha-o'sha
+(`tilla-erp.vercel.app`), Firebase tegilmadi.
+
+### O'lchangan tuzilma (ko'chirish kerak bo'lsa asqotadi)
+
+| Kim | Nima qiladi |
+|---|---|
+| Vercel | FAQAT ikki ish: statik fayl tarqatish + `api/pdf.py` |
+| Firebase | auth + firestore — butun baza. **Vercelga bog'liq EMAS** |
+| Lokal | `print_server.py` (termal chek), localhost:5000 |
+
+- `api/pdf.py` — 920 qator, index.html dan **8 joydan** chaqiriladi
+  (2961, 9779, 9885, 11219, 11276, 17855, 18219, 18417)
+- `pos.html` da API chaqirig'i **0 ta** — POS toza statik
+- Ilova **URL yo'liga bog'liq emas** (`pushState` / `location.pathname` yo'q)
+  → `vercel.json` dagi SPA rewrite aslida KERAK EMAS
+- Kodda vercel.app manzili yozilmagan
+- ⚠ `vercel.json` da `/api/excel → api/excel.py` bor, lekin **fayl yo'q**
+  va uni hech kim chaqirmaydi — o'lik sozlama. Tegilmadi.
+
+Maket: `mockups/vercelsiz-exe.html` (exe / ko'chirish variantlari).
+⚠ Exe fikri **yopildi** — POS planshetda, ERP iPhone'da ishlatiladi,
+`.exe` ularga tushmaydi. Sayt bo'lib qolgani to'g'ri.
+
+### ⏳ SINALMAGAN — PDF
+
+Hobby'da funksiya vaqti chegarasi pastroq bo'lishi mumkin, `vercel.json` da esa:
+
+    "functions": { "api/pdf.py": { "maxDuration": 60 } }
+
+Katta hisobot (klient tarixi, muddati o'tganlar) uzilib qolishi ehtimoli bor.
+**Ibrohim hali sinamadi.** Agar PDF ishlamay qolsa — sabab birinchi navbatda
+SHU, kodda emas. Yechim: Cloudflare Pages'ga ko'chirish yoki PDF ni
+lokal Python'ga olish.
+
+⚠ Hobby tarifi shaxsiy foydalanish uchun mo'ljallangan. Vercel kelajakda
+e'tiroz qilsa — Cloudflare Pages (bepul, savdoga ruxsat) tayyor variant.
 
 ---
 

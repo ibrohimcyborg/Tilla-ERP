@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vercelsiz — exe va cloud variantlari</title>
+<style>
+:root{
+ --bg:#f4f2ee;--surf:#fff;--surf2:#f8f6f2;--border:#e4dfd6;
+ --text:#2b2722;--muted:#8e8880;
+ --gold:#8a6520;--gold-bg:#f7f0e0;--gold-bd:#e0cda0;
+ --green:#2e7d4f;--green-bg:#e8f5ec;--green-bd:#a9d7bb;
+ --red:#bf3b2b;--red-bg:#fdeceb;--red-bd:#e8b0a8;
+ --blue:#2a5fa8;--blue-bg:#eaf1fa;--blue-bd:#b6cbe8;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:14px 12px 60px;background:var(--bg);color:var(--text);
+ font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.55}
+.wrap{max-width:620px;margin:0 auto}
+h1{font-size:18px;margin:0 0 3px}
+.sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+h2{font-size:14px;margin:28px 0 8px}
+code{font-family:Consolas,monospace;font-size:11.5px;background:var(--surf2);
+ border:1px solid var(--border);border-radius:5px;padding:1px 5px}
+.note{background:var(--surf);border:1px solid var(--border);border-radius:14px;
+ padding:12px 13px;font-size:12.5px;margin:12px 0}
+.warn{background:var(--red-bg);border-color:var(--red-bd)}
+.okb{background:var(--green-bg);border-color:var(--green-bd)}
+.qb{background:var(--gold-bg);border-color:var(--gold-bd)}
+
+/* tuzilma diagrammasi */
+.arch{border:1px solid var(--border);border-radius:16px;background:var(--surf);
+ padding:14px;margin:10px 0}
+.lane{display:flex;align-items:stretch;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+.node{flex:1;min-width:130px;border:1px solid var(--border);border-radius:12px;
+ padding:9px 11px;background:var(--surf2);font-size:12px}
+.node b{display:block;font-size:12.5px;margin-bottom:2px}
+.node small{color:var(--muted);font-size:11px;display:block}
+.n-v{background:var(--red-bg);border-color:var(--red-bd)}
+.n-f{background:var(--blue-bg);border-color:var(--blue-bd)}
+.n-g{background:var(--green-bg);border-color:var(--green-bd)}
+.n-x{background:var(--surf2);opacity:.55}
+.lbl{font-size:9.5px;letter-spacing:.09em;color:var(--muted);font-weight:700;margin:4px 0 5px}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:10px;letter-spacing:.06em;color:var(--muted);font-weight:700}
+td b{white-space:nowrap}
+.yes{color:var(--green);font-weight:700}
+.no{color:var(--red);font-weight:700}
+.may{color:var(--gold);font-weight:700}
+
+.var{border:1px solid var(--border);border-radius:16px;padding:13px 14px;margin:10px 0;
+ background:var(--surf)}
+.var h3{margin:0 0 4px;font-size:14px}
+.var .tagl{font-size:9.5px;font-weight:700;letter-spacing:.07em;padding:2px 9px;
+ border-radius:20px;display:inline-block;margin-bottom:8px}
+.t-a{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.t-b{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.t-c{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd)}
+.pm{font-size:12.5px;margin:7px 0 0;padding-left:0;list-style:none}
+.pm li{padding-left:20px;position:relative;margin:4px 0}
+.pm li:before{position:absolute;left:0;font-weight:700}
+.pm li.p:before{content:"+";color:var(--green)}
+.pm li.m:before{content:"\2212";color:var(--red)}
+.less{font-size:11.5px;color:var(--muted);margin:6px 0 0}
+</style></head><body><div class="wrap">
+
+<h1>Vercelsiz ishlash — nima mumkin</h1>
+<div class="sub">Kodni o&#39;lchab chiqdim. <b>Kod yozilmadi</b> — bu faqat variantlar.</div>
+
+<div class="note okb">
+<b>Qisqa javob: HA, bo&#39;ladi.</b> Va o&#39;ylagandan osonroq —
+chunki <b>Vercel bu loyihada atigi ikkita ish qilyapti</b>.
+Ma&#39;lumot, login, sinxron — hammasi <b>Firebase</b> da, u Vercelga umuman
+bog&#39;liq emas. Vercel o&#39;chsa ham bazangga hech narsa bo&#39;lmaydi.
+</div>
+
+<h2>HOZIRGI TUZILMA — nima qayerda</h2>
+<div class="arch">
+  <div class="lbl">VERCEL &#8212; faqat shu ikkitasi</div>
+  <div class="lane">
+    <div class="node n-v"><b>Fayl tarqatish</b>
+      <small>index.html · pos.html · hisob.js<br>oddiy statik fayllar</small></div>
+    <div class="node n-v"><b>PDF generator</b>
+      <small><code>api/pdf.py</code> &#8212; 920 qator<br>8 joydan chaqiriladi</small></div>
+  </div>
+  <div class="lbl">FIREBASE &#8212; Vercelga bog&#39;liq EMAS</div>
+  <div class="lane">
+    <div class="node n-f"><b>Auth</b><small>login</small></div>
+    <div class="node n-f"><b>Firestore</b><small>butun baza<br><code>tilla_&lt;uid&gt;</code></small></div>
+  </div>
+  <div class="lbl">SENING KOMPYUTERINGDA</div>
+  <div class="lane">
+    <div class="node n-g"><b>print_server.py</b>
+      <small>termal chek printer<br>localhost:5000 &#8212; allaqachon lokal</small></div>
+  </div>
+</div>
+
+<div class="note warn">
+<b>Demak yagona haqiqiy tugun &#8212; <code>api/pdf.py</code>.</b>
+Statik fayllarni istalgan joyda turadi, lekin PDF Python talab qiladi.
+O&#39;lchandi: <b>920 qator, 55 KB</b>, index.html dan <b>8 joydan</b> chaqiriladi
+(2961, 9779, 9885, 11219, 11276, 17855, 18219, 18417).<br><br>
+<b>POS esa mutlaqo toza</b> &#8212; <code>pos.html</code> da API chaqirig&#39;i
+<b>0 ta</b>. POS ni hoziroq istalgan bepul joyga qo&#39;ysa bo&#39;ladi.
+</div>
+
+<div class="note">
+<b>Yo&#39;l-yo&#39;lakay topildi:</b> <code>vercel.json</code> da
+<code>/api/excel &#8594; api/excel.py</code> yozilgan, lekin
+<b>bunday fayl yo&#39;q</b> va uni hech kim chaqirmaydi. O&#39;lik sozlama.
+Tegilmadi &#8212; so&#39;ramading.
+</div>
+
+<h2>⚠ ENG MUHIM SAVOL — exe kimga?</h2>
+<div class="note warn">
+<b>POS planshetda ishlaydi.</b> <code>.exe</code> Windows fayli &#8212;
+planshetga (Android/iPad) <b>tushmaydi</b>.<br><br>
+Ya&#39;ni exe faqat <b>senga, admin kompyuteriga</b> yaraydi.
+Kassirning POS ekraniga baribir <b>internetdagi manzil</b> kerak bo&#39;ladi
+&#8212; yoki alohida Android ilova.<br><br>
+Shuning uchun pastdagi variantlar ikkiga bo&#39;linadi: <b>admin tomoni</b>
+va <b>POS tomoni</b>.
+</div>
+
+<h2>VARIANTLAR</h2>
+
+<div class="var">
+  <span class="tagl t-a">A</span>
+  <h3>Faqat hostingni ko&#39;chirish &#8212; exe YO&#39;Q</h3>
+  <div class="less">Vercel o&#39;rniga boshqa bepul statik joy. Ilovada
+  <b>hech narsa o&#39;zgarmaydi</b>, manzil o&#39;zgaradi.</div>
+  <ul class="pm">
+    <li class="p">Eng oson va eng tez &#8212; bir kunlik ish</li>
+    <li class="p">Yangilanish avvalgidek: <code>git push</code> &#8594; o&#39;zi chiqadi</li>
+    <li class="p">Planshet ham, telefon ham, kompyuter ham &#8212; hammasi ishlaydi</li>
+    <li class="p">Sening kodingga tegilmaydi (faqat <code>vercel.json</code> o&#39;rniga boshqa sozlama)</li>
+    <li class="m"><code>api/pdf.py</code> ni qayergadir joylash kerak &#8212; pastdagi jadvalga qara</li>
+    <li class="m">Bepul tarif shartlarini tekshirish kerak (savdo uchun ruxsatmi?)</li>
+  </ul>
+</div>
+
+<div class="var">
+  <span class="tagl t-b">B</span>
+  <h3>EXE (admin) + bepul hosting (POS)</h3>
+  <div class="less">Sening kompyuteringda ilova exe bo&#39;lib turadi, kassir
+  POS ni baribir brauzerdan ochadi.</div>
+  <ul class="pm">
+    <li class="p">Admin tomoni hech qanday hostingga bog&#39;liq emas</li>
+    <li class="p"><code>print_server.py</code> va PDF ni <b>exe ichiga qo&#39;shsa bo&#39;ladi</b> &#8212;
+      alohida ishga tushirish shart emas</li>
+    <li class="p">Firebase o&#39;z ishini qiladi &#8212; online, sinxron, hammasi joyida</li>
+    <li class="m">POS uchun baribir hosting kerak &#8212; ya&#39;ni A ham qilinadi</li>
+    <li class="m">Yangilanish o&#39;zi kelmaydi &#8212; mexanizm yozish kerak (pastda C)</li>
+    <li class="m">Har kompyuterga o&#39;rnatish kerak</li>
+  </ul>
+</div>
+
+<div class="var">
+  <span class="tagl t-c">C</span>
+  <h3>EXE + yangilanish Firebase orqali</h3>
+  <div class="less">Aynan so&#39;raganing: exe, lekin o&#39;zini o&#39;zi yangilaydi,
+  hech qanday hosting hisobisiz.</div>
+  <div class="note" style="margin:8px 0;font-size:12px;background:var(--surf2)">
+  Qanday ishlaydi: exe ochilganda Firestore dan <b>versiya raqamini</b> o&#39;qiydi.
+  Ichkarisidagidan yangiroq bo&#39;lsa &#8212; yangi <code>index.html</code> ni
+  Firebase&#39;dan yuklab oladi va keyingi ochilishda o&#39;shani ko&#39;rsatadi.
+  Sen esa avvalgidek fayl yuklaysan.
+  </div>
+  <ul class="pm">
+    <li class="p">Hosting umuman kerak emas (admin tomoni uchun)</li>
+    <li class="p">Yangilanish bir joydan &#8212; hamma qurilma o&#39;zi oladi</li>
+    <li class="p">Firebase allaqachon bor, yangi xizmat qo&#39;shilmaydi</li>
+    <li class="m">Eng ko&#39;p yangi kod &#8212; exe qobig&#39;i + yangilash mexanizmi</li>
+    <li class="m">POS planshet baribir alohida hal qilinadi</li>
+    <li class="m">Yangi kod = yangi xato joyi. Hozirgi tizim buzilmasligi kerak</li>
+  </ul>
+</div>
+
+<h2>PDF ni qayerga qo&#39;yamiz</h2>
+<table>
+<tr><th>Yo&#39;l</th><th>Ishlaydi?</th><th>Nima kerak</th></tr>
+<tr><td><b>Lokal Python</b><br><small>exe ichida yoki yonida</small></td>
+    <td class="yes">ha</td>
+    <td>Kodni deyarli o&#39;zgartirmaydi &#8212; <code>/api/pdf.py</code> o&#39;rniga
+        <code>localhost</code>. <code>print_server.py</code> allaqachon shunday ishlaydi.
+        <b>Lekin faqat o&#39;sha kompyuterda.</b></td></tr>
+<tr><td><b>Brauzerda JS</b><br><small>Python&#39;siz</small></td>
+    <td class="may">ha, lekin</td>
+    <td>920 qator Python qaytadan yoziladi. Hamma joyda ishlaydi, hech narsaga
+        bog&#39;liq emas. <b>Eng ko&#39;p ish, xato xavfi katta</b> &#8212;
+        hisobotlar raqamlari o&#39;zgarib ketmasligi kerak.</td></tr>
+<tr><td><b>Boshqa bepul funksiya</b><br><small>hosting</small></td>
+    <td class="may">tekshirish kerak</td>
+    <td>Python&#39;ni bepul ishga tushiradigan joy topiladi. Kod o&#39;zgarmaydi,
+        faqat manzil. Lekin yana birovga bog&#39;liq bo&#39;lasan &#8212;
+        Vercel bilan bo&#39;lgani takrorlanishi mumkin.</td></tr>
+</table>
+
+<div class="note qb">
+<b>QAROR NUQTALARI</b>
+<div style="margin-top:9px"><b>1.</b> Vercel <b>aynan nima dedi?</b>
+Pul so&#39;rashi uch xil bo&#39;lishi mumkin: (a) savdo uchun ishlatyapsan deb
+Pro talab qilyapti, (b) limitdan oshding, (c) sinov muddati tugadi.
+<b>Javob variantni tanlaydi</b> &#8212; (a) bo&#39;lsa boshqa bepul joylarning
+shartini ham tekshirish kerak, (b)/(c) bo&#39;lsa ko&#39;chish osonroq.</div>
+<div style="margin-top:8px"><b>2.</b> Kassir POS ni <b>nimadan</b> ochadi &#8212;
+planshetdanmi, telefondanmi, kompyuterdanmi? Exe unga tushmaydi.</div>
+<div style="margin-top:8px"><b>3.</b> Admin ekrani <b>nechta kompyuterda</b>
+ochiladi? Bittada bo&#39;lsa exe oson, ko&#39;p bo&#39;lsa yangilanish muammo bo&#39;ladi.</div>
+<div style="margin-top:8px"><b>4.</b> PDF hisobotlari <b>qanchalik kerak?</b>
+Kunda ishlatasanmi yoki kamdan-kam? Kam bo&#39;lsa &#8212; lokal Python yetadi.</div>
+</div>
+
+<div class="note">
+<b>Mening tavsiyam</b> (qaror seniki): avval <b>A</b> &#8212; hostingni ko&#39;chirish.
+U bir kunlik ish, ilovaga tegmaydi, POS ham, admin ham darrov ishlaydi va
+pul to&#39;lash to&#39;xtaydi. Exe kerak bo&#39;lsa <b>keyin</b>, tinch holatda
+qilinadi &#8212; shoshilinch qaror ostida emas.
+</div>
+
+</div></body></html>
