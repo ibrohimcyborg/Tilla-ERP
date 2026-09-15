@@ -5,6 +5,47 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.4 · POS v0.36 · 2026-09-13
+**⏳ Ochiq:** numpad «+» hali ishlamayapti — Ibrohimdan javob kutilmoqda (pastda).
+
+---
+
+## ⏳ YARIM QOLDI — numpad «+» HALI ISHLAMAYAPTI (2026-09-13)
+
+**Ibrohim:** «numpaddigi "+" da qabul qimayapti yana tekshir, enterri bossam
+vesi qo'shilvotti, "+" bossam kirmayapti».
+(«vesi» = вес, tarozi og'irligi.)
+
+Ya'ni **v188.3 muammoni HAL QILMAGAN.** Ustiga ikkinchi tuzatish yozilmadi.
+
+### Qilingan — faqat tekshiruv, kod O'ZGARMADI
+
+1. Kod joyida: `index.html:15487` da
+   `onkeydown="if(event.key==='Enter'||event.key==='+'){...posChSkanQosh(ri);}"`
+   — v188.3 tuzatishi o'chib ketmagan, v188.4 ham unga tegmagan.
+2. Prodda bor: `origin/main` da v188.3 (`3cb71d6`) turibdi.
+   «Push qilinmagan ekan» degan sabab EMAS.
+3. Global `keydown` tinglovchilari (9252 skaner tezligi, 9262 Escape/Enter)
+   `+` ni to'smaydi — tekshirildi.
+
+### ⚠ v188.3 SINOVIDAGI XATO — asosiy sabab shu
+
+Sinov **sun'iy** `KeyboardEvent({key:'+'})` bilan qilingan va «ishladi»
+deyilgan. Bu faqat *agar klaviatura `'+'` yuborsa* ishlashini isbotlaydi,
+**Ibrohimning klaviaturasi nima yuborishini emas**.
+Ya'ni sinov haqiqiy sababni umuman tekshirmagan.
+
+### Keyingi qadam — Ibrohimdan JAVOB kutilmoqda
+
+Undan so'raldi: maydonga `7.12` yozib numpad `+` bosilsa ekranda nima bo'ladi?
+
+| Javob | Sabab | Qayerga qaraladi |
+|---|---|---|
+| maydonda `7.12+` qolsa | hodisa ushlanmayapti | `event.key` boshqa nom (`'Add'`?) — `event.code==='NumpadAdd'` zaxira |
+| ramka qizarsa, qo'shilmasa | ushlangan, qiymat bo'sh | `posChSkanQosh` (15146) `_posChKir[ri]` ni o'qiydi, DOM `.value` ni emas |
+| hech narsa bo'lmasa | uchinchi sabab | qaytadan qaraladi |
+
+⚠ **Javob kelmaguncha kod YOZMA.** Tekshirilmagan tuzatish ustiga
+tekshirilmagan tuzatish qo'yilmaydi (CLAUDE.md 7.1).
 
 ---
 
