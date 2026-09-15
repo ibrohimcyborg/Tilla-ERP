@@ -6938,3 +6938,75 @@ kursori boshqa maydonga ko'chadi. So'ralsa alohida qadam.
 
 POS (`pos.html`), asosiy sahifa skroli, klient modali, boshqa oynalar —
 tegilmadi.
+
+## v188.6 — sotuv: yangi gramm qarzni bosib ketsa offset o'chadi, ✓ chiqadi
+
+**Ibrohim** (rasm bilan): «man Simay oddiy 5g berdim, biza 1.74g bovotti,
+shunda offset tongle qopketvotti - usha o'chsin, yonida galochkaga o'zgarsin.
+oddiy narsa chunki -3.26+5=1.74 bo'ladi, klient bizani qarzidan endi o'zi
+qarz bo'ladi. oddiy matematika, qiyinlashtirma».
+
+Maket: `mockups/sotuv-offset-yoqolsin.html` - tasdiqlandi («taklif to'ri»).
+
+### Sabab
+
+`kSotuvRenderTolov` (15660) da:
+
+    var bizQarz = turQarz < -0.001;
+
+`bizQarz` FAQAT eski qarzdan hisoblanadi - **yangi berilgan grammni
+ko'rmaydi**. Uchta tugma o'shanga qarardi:
+
+| Tugma | Qator | Shart edi |
+|---|---|---|
+| offset `$` | 15766 | `bizQarz ? ko'rsat : yashir` |
+| `✓` qarzni yop | 15770 | `bizQarz ? yashir : ko'rsat` |
+| `$` pulni yoz | 15756 | `bizQarz ? yashir : ko'rsat` |
+
+Natijada bizda +3.26g bo'lib yangi 5g berilsa, net +1.74g (klient qarzdor)
+bo'lsa ham offset tugmasi turaverardi va `✓` chiqmasdi.
+Offsetning o'zi ham bekor edi: `data-oqarz = max(0, |−3.26| − 5) = 0`.
+
+### Qilindi
+
+`bizQarzNet` qo'shildi (15707) - **yig'indidan**:
+
+    var bizQarzNet = obshiy < -0.001;      // obshiy = turQarz + yangiG2
+
+Uchala shart o'shanga o'tdi (15756, 15766, 15770).
+
+⚠ **`bizQarz` ning o'zi TEGILMADI** - yozuv matni (`lblHtml`) unga tayanadi,
+«bizda: +3.26g + yangi: 5.00g = 1.74g» o'sha holicha qoladi.
+15766 dagi `data-oqarz` ham `bizQarz` da qoldi - tugma yashirilganda u
+o'qilmaydi, keraksiz o'zgarish qilinmadi.
+
+### `✓` qaysi raqamni yozadi
+
+Ibrohim: «✓ bosganda 1.74 kirsin, adashib 5 yoki 3.26la kirib qomasin».
+
+**Hech narsa o'zgartirilmadi - allaqachon to'g'ri edi.** `kstHammasi`
+(15821) unga uzatilgan `obshiy` ni **ishlatmaydi**, o'zi qayta hisoblaydi:
+
+    var tolovG = Math.round(Math.max(0, turQarz + yangiG - vozG) * 100) / 100;
+
+Eski qarz manfiy bo'lib qatnashadi: `max(0, -3.26 + 5 - 0) = 1.74`.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Shart mantig'i olti holatda (haqiqiy ifodalar fayldan ko'chirilgan):
+
+    bizda 3.26 + yangi 5       net   1.74  offset yo'q  ✓ BOR   -> 1.74
+    bizda 3.26 + yangi 2       net  -1.26  offset BOR   ✓ yo'q  -> 0
+    bizda 31.62, yangi yo'q   net -31.62  offset BOR   ✓ yo'q  -> 0
+    oddiy qarz 43.19           net  43.19  offset yo'q  ✓ BOR   -> 43.19
+    bizda 3.26 + yangi 3.26    net      0  offset yo'q  ✓ yo'q  -> 0
+    qarz 10 + yangi 5 - voz 3  net     15  offset yo'q  ✓ BOR   -> 12
+
+⚠ Net aynan **0** bo'lganda uchala tugma ham chiqmaydi. Ibrohim bu savolga
+javob bermadi, hozirgi kod shunday edi - **o'zgartirilmadi**.
+
+### Tegilmadi
+
+`kstHammasi`, `ksOffsetToggle`, yozuv matni, narx, hisob, saqlash, chek,
+to'lov modali, vozvrat modali. Faqat **qaysi tugma ko'rinishi** o'zgardi.

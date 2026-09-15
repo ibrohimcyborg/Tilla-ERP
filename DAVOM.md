@@ -4,8 +4,52 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.5 · POS v0.36 · 2026-09-15
+**Oxirgi yangilanish:** v188.6 · POS v0.36 · 2026-09-15
 **Ochiq ish YO'Q.**
+
+---
+
+## ✅ v188.6 — sotuv: net musbat bo'lsa offset o'chadi (2026-09-15)
+
+**Ibrohim:** «Simay oddiy 5g berdim, biza 1.74g bovotti, offset tongle
+qopketvotti - usha o'chsin, galochkaga o'zgarsin».
+
+`bizQarz` (15706) FAQAT eski qarzdan hisoblanardi, yangi grammni ko'rmasdi.
+`bizQarzNet = obshiy < -0.001` qo'shildi (15707), uchala tugma shunga o'tdi:
+offset `$` (15766), `✓` (15770), pul-yozish `$` (15756).
+
+⚠ `bizQarz` TEGILMADI - yozuv matni unga tayanadi.
+⚠ `✓` ning raqami o'zgartirilmadi - `kstHammasi` (15821) o'zi qayta
+hisoblaydi va `max(0, turQarz + yangiG - vozG)` beradi, ya'ni 1.74. To'g'ri edi.
+⚠ Net aynan **0** bo'lsa uchala tugma ham chiqmaydi - Ibrohim javob bermadi,
+hozirgi holat saqlandi.
+
+Maket: `mockups/sotuv-offset-yoqolsin.html`.
+
+### ⚠ SOTUV MODALIDA OLTITA QARZ HALQASI BOR — tozalanmagan
+
+Tahlilda topildi. Har biri `k.tarix` ni qaytadan o'ib, o'sha beshta qoidani
+takrorlaydi (`berish` +, `vozvrat` −, `tolov` −, `_kdYopish` +, `klientda` −):
+
+    15687  kSotuvRenderTolov   qarzMap
+    15845  kstHammasi          turQarz
+    15936  kSotuvTolovCalc     turQarz
+    16289  kSotuvCalc          turQarz_sc
+    16515  kSotuvCalc          qarz
+    16979  _sotuvDavomEt       bizQarz
+
+Tayyor umumiy funksiya bor: `_klientTurQarzMap` (17279) - AYNAN shu mantiq.
+Hozir oltalasi bir xil natija beradi (tekshirildi), lekin birini tuzatsak
+qolgani eskiligicha qoladi. **v188.1 dagi «soxta biz qarz» xatosi aynan
+shundan chiqqandi.** Ibrohim hali tozalashni so'ramadi.
+
+### Klient ostatkasi — tepadagi raqam YALPI
+
+`ksSotuvPickK` (14811) `klientJamiQarz(k)` ni ko'rsatadi, u esa
+`_qarzJamiRows(...).ostatka` - **faqat musbat tomon**.
+Misol (Nina Opa Namangan): tepada `qarz: 135.52g`, lekin biz unga **34.88g**
+qarzdormiz. Sof holat **100.64g** - sotuv modalida hech qayerda yozilmagan.
+POS modalida «BIZNING QARZ» qatori bor, bu yerda yo'q. Ibrohim so'ramadi.
 
 ---
 
@@ -933,7 +977,11 @@ Mockup: HOZIRGI vs TAKLIF, kassa birinchi. Ibrohim ko'radi, qaror qiladi.
 
 ---
 
-### ⏳ 2. SINXRONIZATSIYA — tekshiruv natijalari (kod yozilmadi)
+### ✅ 2. SINXRONIZATSIYA — YOPILDI (2026-09-15)
+
+Ibrohim: «sinxronizatsiyayam ishladi hozircha». Kod yozilmadi — muammo
+v180.x dagi bulut o'zgarishlari bilan o'z-o'zidan hal bo'lgan.
+Pastdagi tekshiruv natijalari arxiv sifatida qoldi.
 
 **Ibrohim (2026-09-05):** «clouddi to'g'irlamasa bo'lmaydi, umuman sistemani
 adashtirib tashavotti teldan ishlatsak». Bir qurilmada tahrirlangandan keyin
