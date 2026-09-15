@@ -49,7 +49,7 @@ tekshirilmagan tuzatish qo'yilmaydi (CLAUDE.md 7.1).
 
 ---
 
-## ✅ v188.4 — qo'ng'iroqcha: gramm tepadan pastga tushadi (2026-09-13)
+## ✅ v188.4 — qo'ng'iroqcha: gramm tepadan pastga tushadi (2026-09-13)  *(push qilindi)*
 
 Ibrohim rasm yubordi: «shunaqa hunu turipti kegin tegida kam» →
 «oddiy posdan tekshiruvga kegan grammla tepada skan ursa pasga tushadi».
