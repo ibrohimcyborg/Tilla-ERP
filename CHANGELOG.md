@@ -6884,3 +6884,57 @@ Funksional (haqiqiy `_skanChipHTML` fayldan olinib):
 ⚠ Tuzoq takrorlandi: heredoc backslashni yedi, `Hali skan yo'q` ichidagi
 `'` qochirilmay qoldi va JS satri buzildi. Node sinovi tutdi.
 Yechim `DAVOM.md` da yozilgan edi — `chr(92)+chr(39)`.
+
+## v188.5 — qo'ng'iroqcha paneli skroli joyida qoladi
+
+**Ibrohim:** «skan ursam spiska kotta bosa man scroll qilib pasga tushsam
+tepaga chiqib qomasin» → «scrolli tuzat».
+
+### Sabab
+
+`posBellOch` (15368) har chaqirilganda birinchi qatori `posBellYop()` —
+u `#pos-bell-ovl` ni DOM dan **butunlay o'chiradi**, keyin yangi element
+quriladi va `body` ga qo'shiladi. Skrol qiladigan quti ham yangi, demak
+`scrollTop` = **0**. Faqat **fokus** tiklanardi (15576), skrol emas.
+
+Panel 12 joydan qayta chizilади: bulut yangilanishi (15104), beshta skan
+amali (15145–15172), ochish/orqaga (15174/15175), qabul (15260), to'lov
+(15356), rad (15365), qo'ng'iroqcha tugmasi (305).
+Shuning uchun tuzatish **markazda** — `posBellOch` ning o'zida.
+
+### Qilindi
+
+1. Ichki skrol qutisiga `id="pos-bell-skroll"` va `data-v` berildi.
+   `data-v` = ochiq chernovikning `_id` si, ro'yxatda bo'sh satr.
+2. `posBellYop()` dan **OLDIN** `scrollTop` va `data-v` o'qib olinadi.
+3. Chizilgandan keyin: yangi `data-v` eskisi bilan **teng bo'lsa** —
+   `scrollTop` tiklanadi. Teng bo'lmasa (ro'yxat ↔ karta, boshqa
+   chernovik) — tepadan boshlanadi.
+4. Fokus endi `focus({preventScroll:true})` bilan. Qo'llamaydigan
+   brauzerda `scrollTop` tiklash **fokusdan keyin** bajariladi va baribir
+   joyiga qaytaradi.
+5. `var c=...` ikki qator tepaga ko'chdi — `data-v` ni yozish uchun
+   `c` div dan oldin kerak. Mantiq o'zgarmadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Brauzerda (`posBellOch` naqshining aniq ko'chirmasi, 12 qatorli panel):
+
+    1. birinchi chizish              scrollTop = 0
+    2. qo'lda pastga surildi        scrollTop = 179   (quti eng pasti)
+    3. skan, o'sha chernovik        scrollTop = 179   ✓ saqlandi
+       fokus = pch-in-5
+    4. bulut yangilanishi            scrollTop = 179   ✓ saqlandi
+       fokus = pch-in-0  (eski xatti-harakat, tegilmadi)
+    5. BOSHQA chernovik ochildi      scrollTop = 0     ✓ tepadan
+    6. ro'yxatga qaytildi           scrollTop = 0     ✓ tepadan
+
+### Tegilmadi
+
+Bulut yangilanishida fokus **0-qatorga** sakraydi (`_posChFokus` null
+bo'lgani uchun). Ibrohim buni aytmadi — endi ekranni surmaydi, lekin matn
+kursori boshqa maydonga ko'chadi. So'ralsa alohida qadam.
+
+POS (`pos.html`), asosiy sahifa skroli, klient modali, boshqa oynalar —
+tegilmadi.

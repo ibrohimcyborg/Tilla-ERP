@@ -4,48 +4,45 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.4 · POS v0.36 · 2026-09-13
-**⏳ Ochiq:** numpad «+» hali ishlamayapti — Ibrohimdan javob kutilmoqda (pastda).
+**Oxirgi yangilanish:** v188.5 · POS v0.36 · 2026-09-15
+**Ochiq ish YO'Q.**
 
 ---
 
-## ⏳ YARIM QOLDI — numpad «+» HALI ISHLAMAYAPTI (2026-09-13)
+## ✅ v188.5 — qo'ng'iroqcha skroli joyida qoladi (2026-09-15)
 
-**Ibrohim:** «numpaddigi "+" da qabul qimayapti yana tekshir, enterri bossam
-vesi qo'shilvotti, "+" bossam kirmayapti».
-(«vesi» = вес, tarozi og'irligi.)
+**Ibrohim:** «skan ursam spiska kotta bosa man scroll qilib pasga tushsam
+tepaga chiqib qomasin» → «scrolli tuzat».
 
-Ya'ni **v188.3 muammoni HAL QILMAGAN.** Ustiga ikkinchi tuzatish yozilmadi.
+`posBellOch` HAR chaqiriqda `posBellYop()` bilan butun panelni DOM dan
+o'chirib, yangisini quradi — skrol qiladigan element yangi bo'lgani uchun
+`scrollTop` **0** ga tushardi. Faqat fokus tiklanardi, skrol emas.
 
-### Qilingan — faqat tekshiruv, kod O'ZGARMADI
+Endi: o'chirishdan OLDIN `scrollTop` saqlanadi, qayta chizilgach tiklanadi.
+Ichki quti `id="pos-bell-skroll"` va `data-v` (ochiq chernovik `_id`) oldi —
+**AYNAN o'sha ko'rinish** qayta chizilgandagina tiklanadi.
+Fokus `preventScroll:true` bilan beriladi; qo'llamaydigan brauzerda
+`scrollTop` tiklash baribir joyiga qaytaradi (fokusdan KEYIN bajariladi).
 
-1. Kod joyida: `index.html:15487` da
-   `onkeydown="if(event.key==='Enter'||event.key==='+'){...posChSkanQosh(ri);}"`
-   — v188.3 tuzatishi o'chib ketmagan, v188.4 ham unga tegmagan.
-2. Prodda bor: `origin/main` da v188.3 (`3cb71d6`) turibdi.
-   «Push qilinmagan ekan» degan sabab EMAS.
-3. Global `keydown` tinglovchilari (9252 skaner tezligi, 9262 Escape/Enter)
-   `+` ni to'smaydi — tekshirildi.
+⚠ Ro'yxat ↔ karta almashsa yoki BOSHQA chernovik ochilsa — tepadan
+boshlanadi. Bu **atayin**, Ibrohim tasdiqlamadi, men qaror qildim.
 
-### ⚠ v188.3 SINOVIDAGI XATO — asosiy sabab shu
+⚠ **Tegilmadi:** bulut yangilanishida fokus 0-qatorga sakrashi
+(`_posChFokus` null bo'lgani uchun, 15104). Ibrohim aytmadi.
+Endi u ekranni surmaydi, lekin matn kursori boshqa maydonga ko'chadi.
 
-Sinov **sun'iy** `KeyboardEvent({key:'+'})` bilan qilingan va «ishladi»
-deyilgan. Bu faqat *agar klaviatura `'+'` yuborsa* ishlashini isbotlaydi,
-**Ibrohimning klaviaturasi nima yuborishini emas**.
-Ya'ni sinov haqiqiy sababni umuman tekshirmagan.
+Sinov brauzerda (`posBellOch` naqshining ko'chirmasi bilan):
+surildi 179 → skan 179 → bulut 179 → boshqa chernovik 0 → ro'yxat 0.
 
-### Keyingi qadam — Ibrohimdan JAVOB kutilmoqda
+### ✓ Numpad «+» — YOPILDI
 
-Undan so'raldi: maydonga `7.12` yozib numpad `+` bosilsa ekranda nima bo'ladi?
+Ibrohim (2026-09-15): «numpad yopildi». Oxirgi rasmida `+` ishlagan
+(1.20 qo'shilgan). v188.3 dagi tuzatish o'rnida, sabab eski kesh bo'lgan
+ko'rinadi — prodda o'shanda hali v188.3 emas, eskisi turgan edi.
 
-| Javob | Sabab | Qayerga qaraladi |
-|---|---|---|
-| maydonda `7.12+` qolsa | hodisa ushlanmayapti | `event.key` boshqa nom (`'Add'`?) — `event.code==='NumpadAdd'` zaxira |
-| ramka qizarsa, qo'shilmasa | ushlangan, qiymat bo'sh | `posChSkanQosh` (15146) `_posChKir[ri]` ni o'qiydi, DOM `.value` ni emas |
-| hech narsa bo'lmasa | uchinchi sabab | qaytadan qaraladi |
-
-⚠ **Javob kelmaguncha kod YOZMA.** Tekshirilmagan tuzatish ustiga
-tekshirilmagan tuzatish qo'yilmaydi (CLAUDE.md 7.1).
+⚠ Sabog'i: v188.3 sinovi **sun'iy** `KeyboardEvent({key:'+'})` bilan
+qilingan edi — u haqiqiy klaviaturani tekshirmaydi. Bunday sinovni
+«isbot» deb yozma.
 
 ---
 
@@ -69,21 +66,7 @@ u yerda POS bilan taqqoslash boshqa hech qayerda yo'q.
 
 Maket: `mockups/v188.4-tekshirildi-takror.html`.
 
-### ⏳ KEYINGI QADAM — skrol tepaga sakraydi
-
-Ibrohim: «skan ursam spiska kotta bosa man scroll qilib pasga tushsam
-tepaga chiqib qomasin».
-
-**Tashxis tayyor, kod YOZILMAGAN.** `posBellOch` (15360) har chaqirilganda
-`posBellYop()` bilan butun panelni DOM dan **o'chirib, qaytadan quradi**
-(15361 va 15549) → skrol qiladigan element yangi, `scrollTop` **0** ga tushadi.
-Har skanda chaqiriladi (`posChSkanQosh` 15143). Faqat **fokus** tiklanadi
-(15552), skrol emas.
-Ikkinchi sabab: bulut yangilanishida (15096) `_posChFokus` **null** bo'ladi
-→ fokus **0-qatorga**, ya'ni eng tepaga.
-
-Keyingi qadam: qayta chizishdan oldin `scrollTop` saqlanib, chizilgandan
-keyin qaytarilsin.
+*(Skrol masalasi v188.5 da hal qilindi — yuqoriga qara.)*
 
 ---
 

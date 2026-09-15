@@ -1,4 +1,4 @@
-<!-- v188.4 -->
+<!-- v188.5 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.4';
+var APP_VER = 'v188.5';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15366,12 +15366,21 @@ function posChRad(){
 }
 
 function posBellOch(){
+  // v188.5 (Ibrohim): «skan ursam spiska kotta bosa man scroll qilib pasga
+  // tushsam tepaga chiqib qomasin». Panel HAR chaqiriqda butunlay qayta
+  // quriladi (posBellYop + yangi element), shuning uchun skrol 0 ga tushardi.
+  // Endi o'chirishdan OLDIN saqlanadi va AYNAN o'sha ko'rinish qayta
+  // chizilganda tiklanadi — data-v solishtiriladi, ro'yxat<->karta almashsa
+  // tepadan boshlanadi.
+  var _eskiSk = document.getElementById('pos-bell-skroll');
+  var _sY = _eskiSk ? _eskiSk.scrollTop : 0;
+  var _sV = _eskiSk ? (_eskiSk.getAttribute('data-v')||'') : null;
   posBellYop();
-  var h='<div id="pos-bell-ovl" onclick="if(event.target===this)posBellYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-start;justify-content:center;padding:50px 14px 20px;z-index:9400;">';
-  h+='<div style="width:100%;max-width:620px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:24px;">';
-
   var c=_posChOchiq?_posChTop(_posChOchiq):null;
   if(!c) _posChOchiq=null;
+  var _v = c ? String(c._id) : '';
+  var h='<div id="pos-bell-ovl" onclick="if(event.target===this)posBellYop()" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-start;justify-content:center;padding:50px 14px 20px;z-index:9400;">';
+  h+='<div id="pos-bell-skroll" data-v="'+_posEsc(_v)+'" style="width:100%;max-width:620px;max-height:100%;overflow-y:auto;background:var(--surf);border:1px solid var(--border);border-radius:24px;">';
 
   // ── sarlavha
   h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">';
@@ -15574,8 +15583,14 @@ function posBellOch(){
   if(c){
     var _fi = (_posChFokus!=null) ? _posChFokus : 0;
     var _fe = document.getElementById('pch-in-'+_fi) || document.getElementById('pch-in-0');
-    if(_fe){ _fe.focus(); try{ _fe.setSelectionRange(_fe.value.length,_fe.value.length); }catch(e){} }
+    // v188.5: fokus ekranni SURMASIN. preventScroll ni qo'llamaydigan
+    // brauzerda pastdagi scrollTop tiklash baribir joyiga qaytaradi.
+    if(_fe){ try{ _fe.focus({preventScroll:true}); }catch(e){ _fe.focus(); }
+             try{ _fe.setSelectionRange(_fe.value.length,_fe.value.length); }catch(e){} }
   }
+  // v188.5: skrol tiklanadi — fokusdan KEYIN, ko'rinish o'zgarmagan bo'lsa.
+  var _yangiSk = document.getElementById('pos-bell-skroll');
+  if(_yangiSk && _sV!==null && _sV===_v) _yangiSk.scrollTop=_sY;
   _posChFokus=null;
 }
 
