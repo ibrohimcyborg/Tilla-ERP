@@ -5,7 +5,7 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.5 · POS v0.36 · 2026-09-15
-**Ochiq ish YO'Q.** (Vercel Hobby'ga tushdi — PDF sinalmagan, pastda.)
+**Ochiq ish YO'Q.**
 
 ---
 
@@ -45,19 +45,18 @@ Maket: `mockups/vercelsiz-exe.html` (exe / ko'chirish variantlari).
 ⚠ Exe fikri **yopildi** — POS planshetda, ERP iPhone'da ishlatiladi,
 `.exe` ularga tushmaydi. Sayt bo'lib qolgani to'g'ri.
 
-### ⏳ SINALMAGAN — PDF
+### ✅ PDF SINALDI — ishlaydi (2026-09-15)
 
-Hobby'da funksiya vaqti chegarasi pastroq bo'lishi mumkin, `vercel.json` da esa:
+Hobby'ga o'tgandan keyin eng OG'IR PDF sinaldi: «Muddati o'tgan»
+(`muddatQarzPDF`, qarzi bor hamma klient) — **6 sahifa, 52 klient,
+UMUMIY QARZ qatorigacha to'liq chiqdi**. Uzilish yo'q.
 
-    "functions": { "api/pdf.py": { "maxDuration": 60 } }
+`vercel.json` dagi `maxDuration: 60` xavfi **ro'y bermadi** — tegilmadi,
+o'sha holicha qoldi.
 
-Katta hisobot (klient tarixi, muddati o'tganlar) uzilib qolishi ehtimoli bor.
-**Ibrohim hali sinamadi.** Agar PDF ishlamay qolsa — sabab birinchi navbatda
-SHU, kodda emas. Yechim: Cloudflare Pages'ga ko'chirish yoki PDF ni
-lokal Python'ga olish.
-
-⚠ Hobby tarifi shaxsiy foydalanish uchun mo'ljallangan. Vercel kelajakda
-e'tiroz qilsa — Cloudflare Pages (bepul, savdoga ruxsat) tayyor variant.
+Agar kelajakda biror PDF uzilib qolsa — avval qaysi hisobot ekanini aniqla:
+eng og'iri (muddat) ishlagan, demak sabab vaqt chegarasi emas, o'sha
+hisobotning o'zida.
 
 ---
 
