@@ -5,7 +5,53 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.13 · POS v0.36 · 2026-09-16
-**⏳ Ochiq:** to'lov chekida Vozvrat bo'limi, sodda Ostatka, `Qoldi` ga `g` (kelishilgan, kod yozilmagan).
+**⏳ Ochiq:** (1) sotuv chekida OSTATKA HISOBOTI + tartib — maket tayyor;
+(2) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
+(3) to'lov chekida sodda Ostatka; (4) `Qoldi` ga `g`.
+
+---
+
+## ⚠ IBROHIM ESLATDI (2026-09-16) — TO'LOV CHEKIGA VOZVRAT
+
+> «biza chek ustida ishlavotudim, shuni davomida vozvrat qo'shish eslagin»
+
+**Ikkita boshqa-boshqa chek dvigateli bor — ADASHMA:**
+
+| Chek | Funksiya | Vozvrat holati |
+|---|---|---|
+| **sotuv cheki** (sotuv modali) | `klientSotuvChekYangiGen` | ✅ v188.13 da qo'shildi |
+| **to'lov cheki** (POS → qabul → TO'LOVGA O'TISH) | `kTolovChekGen` | ❌ **HALI YO'Q** — shu eslatma |
+
+v188.13 **faqat sotuv chekini** tuzatdi. To'lov cheki hali vozvratni
+ko'rsatmaydi — maketi `mockups/chek-qolgan-ishlar.html` da 1-ish.
+
+Shakli sotuv chekidagidek: `Berildi` yonida alohida `Vozvrat` bloki,
+minus bilan, `JAMI vozvrat` qatori. Berilmagan turdan qaytarsa ham o'z
+qatorini oladi (Ibrohim: «alohida tur bo'sayam farqi yo, alohida bo'vursin»).
+
+---
+
+## ⏳ KELISHILDI, KOD YOZILMAGAN — sotuv chekida OSTATKA HISOBOTI (2026-09-16)
+
+Maket: `mockups/sotuv-chek-ostatka.html`.
+
+**Ibrohim:** «nega ostatkani ko'rsatmayapti, shunda klientda oldingi
+ostatkasi ko'rsatmayapti, shuniyam ustida ishlavotudiku».
+
+**Ikki sabab:**
+1. v188.13 da **Claude o'zi** qaror qildi: hammasi yopilsa oxirgi
+   `Ostatka` bloki chiqmasin. Blok bilan birga **oldingi ostatka ustuni
+   ham** yo'qoldi — xato.
+2. Sotuv chekida `OSTATKA HISOBOTI` (amaldan oldingi holat) **hech qachon
+   bo'lmagan**. Ma'lumot bor: `_eskiQarzMap` — `index.html:17056`,
+   birinchi `k.tarix.push` (17087) dan OLDIN olinadi.
+
+**Taklif (tasdiq kutilyapti):**
+- Ikkala blok **DOIM** chiqadi. Bo'sh bo'lsa `Ostatka yo'q` /
+  `Qolmadi ✓`.
+- Tartib: `OSTATKA HISOBOTI` → `Vozvrat` → `Berildi` → `To'lov` → `Ostatka`.
+  Hozir `Vozvrat` `Berildi` dan KEYIN — v188.13 da Claude o'sha yerga qo'ygan.
+- ~30 qator, faqat `klientSotuvChekYangiGen` ichida.
 
 ---
 
