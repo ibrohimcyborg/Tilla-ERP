@@ -1,4 +1,4 @@
-<!-- v188.7 -->
+<!-- v188.8 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.7';
+var APP_VER = 'v188.8';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10923,22 +10923,80 @@ function kassaChek(ki, sana) {
   var DASH = Array(Math.floor(W/2)+1).join('-');
   var now = new Date();
   var soat = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  // v188.8 (Ibrohim): «offset bo'gani qancha, N-naqt L-lom P-perech
+  // bo'ganlari qanaqa bo'gan - shuniyam ko'rsatadigan qilgin» +
+  // «skidkasiniyam qo'shber tegida, hammasi ustuni bir tekis bo'sin» +
+  // «Oni Offset dib yozur, umumiy gramm bilan umumiy summasi keremas» +
+  // «n 0.00 kere bo'sa ko'rsatishi keremas».
+  // Avval hamma yozuv bitta «TOLOVLAR» ro'yxatiga tushardi - offset ham
+  // oddiy to'lovday ko'rinardi va Jami ga qo'shilib ketardi (4694.35 chiqib,
+  // kartadagi 3978.64 ga mos kelmasdi).
+  var sotuv = ops.filter(function(op){ return !op._kdYopish; });
+  var offs  = ops.filter(function(op){ return !!op._kdYopish; });
+
   var t = '\n'+center('HISOB')+'\n'+LINE+'\n';
   t += center(k.nom)+'\n';
   t += center(sana+' - '+soat)+'\n'+LINE+'\n';
-  t += 'TOLOVLAR\n';
-  var jamiSumma = 0;
-  ops.forEach(function(op){
+
+  // SOTILDI - qator narxi SKIDKASIZ. Bazada op.summa skidka AYRILGAN
+  // qiymat (17125: sNet = s - sSk), skidka esa pastda alohida qator
+  // bo'ladi - shuning uchun bu yerda qaytarib qo'shiladi, aks holda
+  // skidka ikki marta ayrilgan bo'lardi.
+  t += 'SOTILDI\n';
+  var jami = 0, skidka = 0;
+  sotuv.forEach(function(op){
+    var sk = parseNum(op.skidka||0);
+    var sof = Math.round(((op.summa||0) + sk)*100)/100;
+    jami += sof; skidka += sk;
     var turStr = (op.zavod&&op.tur) ? op.zavod+'  '+op.tur : 'Naqt';
-    var left = '  '+turStr;
-    var right = fmtG(op.ekvivalent||0)+'g x '+(op.kurs||0)+' = '+fmtD(op.summa)+'#';
-    var sp = W-left.length-right.length; if(sp<1)sp=1;
-    t += left+Array(sp+1).join(' ')+right+'\n';
-    jamiSumma += op.summa||0;
+    t += rjust('  '+turStr, fmtG(op.ekvivalent||0)+'g x '+(op.kurs||0)+' = '+fmtD(sof)+'#')+'\n';
   });
-  t += LINE+'\n';
-  t += rjust('Jami', fmtD(jamiSumma)+'#')+'\n';
-  t += LINE+'\n';
+  jami = Math.round(jami*100)/100; skidka = Math.round(skidka*100)/100;
+  t += LINE+'\n'+rjust('  Jami', fmtD(jami)+'#')+'\n'+LINE+'\n';
+
+  // QANDAY TO'LANDI - N/K/P faqat harf, Offset so'z bilan.
+  t += 'QANDAY TO\'LANDI\n';
+  var lom=0, lomG=0, lomK=0, karta=0, perech=0, naqt=0;
+  sotuv.forEach(function(op){
+    naqt   += _opNaqtPul(op);
+    karta  += parseNum(op.kartaPul||0);
+    perech += parseNum(op.perechPul||0);
+    if(op.lomPul||op.lomGramm){
+      lom += parseNum(op.lomPul||0); lomG += parseNum(op.lomGramm||0);
+      lomK = op.lomKurs||lomK;
+    }
+  });
+  lom=Math.round(lom*100)/100; lomG=roundG(lomG);
+  karta=Math.round(karta*100)/100; perech=Math.round(perech*100)/100;
+  naqt=Math.round(naqt*100)/100;
+
+  if(lom>0.005)    t += rjust('  L  '+fmtG(lomG)+'g x '+(lomK||0), fmtD(lom)+'#')+'\n';
+  if(karta>0.005)  t += rjust('  K', fmtD(karta)+'#')+'\n';
+  if(perech>0.005) t += rjust('  P', fmtD(perech)+'#')+'\n';
+  var offJami = 0;
+  if(offs.length){
+    t += '  Offset\n';   // umumiy gramm va summa YOZILMAYDI - Ibrohim
+    offs.forEach(function(op){
+      offJami += parseNum(op.summa||0);
+      var oTur = (op.zavod&&op.tur) ? op.zavod+'  '+op.tur : '-';
+      t += rjust('       '+oTur, fmtG(op.ekvivalent||0)+'g x '+(op.kurs||0)+' = '+fmtD(op.summa||0)+'#')+'\n';
+    });
+    offJami = Math.round(offJami*100)/100;
+  }
+  // N: skidkadan OLDINGI qiymat = haqiqiy naqt + skidka.
+  // Nol bo'lgan qatorlar chizilmaydi.
+  var nBosh = Math.round((naqt+skidka)*100)/100;
+  if(nBosh>0.005){
+    t += rjust('  N', fmtD(nBosh)+'#')+'\n';
+    // «N kerak» FAQAT skidka bo'lganda - aks holda bir xil raqam ikki
+    // marta chiqadi (sinovda topildi).
+    if(skidka>0.005){
+      t += rjust('     skidka', '-'+fmtD(skidka)+'#')+'\n';
+      if(naqt>0.005) t += rjust('  N  kerak', fmtD(naqt)+'#')+'\n';
+    }
+  }
+  var jamiTolov = Math.round((lom+karta+perech+offJami+naqt)*100)/100;
+  t += LINE+'\n'+rjust('  Jami to\'lov', fmtD(jamiTolov)+'#')+'\n'+LINE+'\n';
   t += center('RAHMAT!')+'\n\n';
   chekYubor(t, true);
 }

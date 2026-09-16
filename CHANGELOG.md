@@ -7105,3 +7105,101 @@ qo'shimcha tuzatish talab qilinmaydi.
 alohida tegilmadi: `kassaOqim` (3359), 4162, 4511, 10015, `naqtJami` (10341),
 10464, 10491, foyda ekrani (10590), 11137, 11248, 11971.
 Saqlash kodi, offset yozuvlari, foyda hisobi — tegilmadi.
+
+## v188.8 — kassa cheki: SOTILDI / QANDAY TO'LANDI, offset va skidka ko'rinadi
+
+**Ibrohim:** «chek shuni offset bo'ganini print bossam ko'rsatmidi» →
+«offset bo'gani qancha, N-naqt L-lom P-perech bo'ganlari qanaqa bo'gan,
+shuniyam ko'rsatadigan qilgin» → «skidkasiniyam qo'shber tegida, hammasi
+ustuni bir tekis bo'sin» → «n 0.00 kere bo'sa ko'rsatishi keremas,
+naqt karta perech qilib ko'rsatmasin faqat oldidigi harfi tursin» →
+«Oni Offset dib yozur, umumiy gramm bilan umumiy summasi keremas».
+
+Maket: `mockups/kassa-chek-offset.html` — tasdiqlangan.
+
+⚠ **Faqat `kassaChek` (10914).** U BITTA joydan chaqiriladi: kassa/foyda
+kartasidagi 🖨 tugmasi (10506) — ya'ni **qayta chiqarish** cheki.
+Sotuv paytidagi chek, to'lov cheki, ostatka cheki — TEGILMADI.
+
+### Nima buzuq edi
+
+Chek hamma `tolov` yozuvini bitta «TOLOVLAR» ro'yxatiga bosardi —
+offset (`_kdYopish`) yozuvlari ham. Uch oqibat:
+
+1. Offset oddiy to'lovday ko'rinardi — qaysi biri pul, qaysi biri mol
+   bilan yopilgani bilinmasdi.
+2. `Jami` ga offset ham qo'shilardi: Ruslan Aka'da **4694.35#** chiqardi,
+   foyda kartasida esa **3978.64$** — mos kelmasdi.
+3. Qanday to'langani (naqt / lom / karta / perech) umuman yozilmasdi,
+   skidka ham yo'q edi.
+
+### Yangi ko'rinish
+
+    SOTILDI
+      Premium  Oddiy       17.69g x 90.2 = 1,595.64#
+      ...
+    ------------------------------------------------
+      Jami                                 3,978.87#
+    ------------------------------------------------
+    QANDAY TO'LANDI
+      L  41.94g x 77.8                     3,262.93#
+      Offset
+           Jilva  Oddiy       2.85g x 90.2 = 257.07#
+           Sepochka  Sep        5.04g x 91 = 458.64#
+      N                                        0.23#
+         skidka                               -0.23#
+    ------------------------------------------------
+      Jami to'lov                          3,978.64#
+
+**Qoidalar (Ibrohim aytgan):**
+- `N` / `K` / `P` — **faqat harf**, «Naqt/Karta/Perech» so'zi yozilmaydi
+- `Offset` — **so'z bilan**, umumiy grammi va umumiy summasi **yozilmaydi**,
+  faqat qaysi mol qaytgani qatorlari
+- `L` da gramm va kurs qoladi (`41.94g x 77.8`) — so'z emas, ma'lumot
+- **Nol chiqmaydi** — turi bo'lmasa qator umuman yozilmaydi
+- `N kerak` — faqat skidka bo'lganda (aks holda bir xil raqam ikki marta)
+
+### Skidka qanday ishlaydi (Ibrohim tushuntirdi)
+
+«Klient lom beradi, oxiri to'liq son bo'maydi. Masalan N 282.71$ qoladi.
+Men 2.71 ni skidkaga yozsam, N 280$ kerak deb ko'rsatishi kerak.»
+
+To'lov ekrani buni **allaqachon shunday hisoblaydi** (16356):
+
+    kerakliNaqt = kerakliNarxi - lomPulJami - skidka - offsetPul
+
+Ya'ni hisobda xato yo'q edi — faqat chekda ko'rinmasdi.
+Chekda: `N` = haqiqiy naqt + skidka, keyin `skidka`, keyin `N kerak`.
+
+⚠ **Qator narxi endi SKIDKASIZ.** Bazada `op.summa` skidka AYRILGAN qiymat
+(17125: `sNet = s - sSk`). Skidka pastda alohida qator bo'lgani uchun
+qatorda `summa + skidka` chiqadi — aks holda skidka ikki marta ayrilardi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Haqiqiy `kassaChek` fayldan olinib, yozuvlar 17125/17116 qanday yozsa
+shunday qurilib ishga tushirildi:
+
+    1. Ruslan Aka (lom + offset + skidka 0.23)
+       Jami 3,978.87 / L 3,262.93 / Offset 2 qator / N 0.23 / skidka -0.23
+       Jami to'lov 3,978.64   = foyda kartasidagi raqam ✓
+       «N kerak 0.00» chiqmadi ✓
+    2. Sof naqt, skidkasiz    -> N bitta qator (takror yo'q) ✓
+    3. Skidka bilan           -> N 282.71 / skidka -2.71 / N kerak 280 ✓
+    4. Eski yozuv (naqtPul yo'q) -> yiqilmadi ✓
+
+Har chekning raqamli qatorlari **48 belgi** ekani tekshirildi —
+hammasida `tekis emas: 0`.
+
+⚠ Sinovda topilgan va tuzatilgan: skidka bo'lmaganda `N` va `N kerak`
+bir xil raqam bilan **ikki marta** chiqardi.
+
+### Tegilmadi
+
+Sotuv cheki, to'lov cheki, ostatka cheki, klient kartasidagi Printer
+tugmasi, foyda kartasi, hisob-kitob, to'lov ekranidagi hisob,
+bazadagi yozuvlar.
+
+⚠ `fmtD` butun sonlarda kasr qismini yozmaydi (`2,723#`, `280#`).
+Eski chek ham shunday edi — o'zgartirilmadi.

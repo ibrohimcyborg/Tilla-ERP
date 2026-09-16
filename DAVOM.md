@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.7 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.8 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** sotuv cheki — ostatka hisoboti (kelishilgan, kod yozilmagan).
 
 ---
@@ -40,6 +40,31 @@ Offset xatosi (v188.7) chiqib qolgani uchun kod yozilmadi.
 
 ⚠ Sotuv modalida allaqachon **oltita** qarz halqasi bor — yettinchisini
 yozma, `_qarzTarkib` ni chaqir.
+
+---
+
+## ✅ v188.8 — kassa cheki: SOTILDI / QANDAY TO'LANDI (2026-09-16)
+
+**Ibrohim:** «chek shuni offset bo'ganini print bossam ko'rsatmidi».
+
+Chek hamma yozuvni bitta «TOLOVLAR» ro'yxatiga bosardi — offset ham.
+`Jami` 4694.35# chiqib, foyda kartasidagi 3978.64$ ga mos kelmasdi.
+
+Endi ikki bo'lim: **SOTILDI** (nima sotilgani, skidkasiz narx) va
+**QANDAY TO'LANDI** (L / K / P harflar, `Offset` so'z bilan, `N` + skidka).
+`Jami to'lov` foyda kartasidagi raqam bilan mos.
+
+⚠ **Faqat `kassaChek` (10914)** — kassa kartasidagi 🖨, ya'ni QAYTA
+chiqarish cheki. BITTA joydan chaqiriladi (10506). Sotuv cheki, to'lov
+cheki, ostatka cheki tegilmadi.
+
+⚠ Qator narxi endi skidkasiz (`summa + skidka`) — bazada `summa` skidka
+ayrilgan turadi (17125), skidka esa pastda alohida qator.
+
+⚠ Skidka qoidasi: to'lov ekrani uni allaqachon naqtdan ayiradi (16356).
+Xato yo'q edi — chekda ko'rinmasdi.
+
+Maket: `mockups/kassa-chek-offset.html`.
 
 ---
 
