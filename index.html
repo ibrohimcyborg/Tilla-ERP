@@ -1,4 +1,4 @@
-<!-- v188.13 -->
+<!-- v188.14 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.13';
+var APP_VER = 'v188.14';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17548,7 +17548,10 @@ function klientSotuvChekYangiGen(opts){
       // v188.13: shu turning vozvrati BIR MARTA ayiriladi (keyin 0 qilinadi).
       // Qoldi = berildi - vozvrat - to'landi.
       var _vz=vozQoldi[_kq]||0; if(_vz) vozQoldi[_kq]=0;
-      return {r:r, q:Math.round((b-_vz-r.gramm)*100)/100};
+      // q  = ekrandagi "Qoldi" qatori uchun (vozvrat ayirilgan)
+      // qy = Ostatka jadvalining "yangi" ustuni uchun (vozvratsiz) - v188.14
+      return {r:r, q:Math.round((b-_vz-r.gramm)*100)/100,
+              qy:Math.round((b-r.gramm)*100)/100, vz:_vz};
     });
     _sotQ=_sotQ.filter(function(x){return x.q<=0.001;}).concat(_sotQ.filter(function(x){return x.q>0.001;}));
     _sotQ.forEach(function(x){
@@ -17559,17 +17562,18 @@ function klientSotuvChekYangiGen(opts){
       // farq klient qarzi emas, bizning eski qarzimizdan yopilgan. O'rniga izoh.
       var _ek=(o.eskiOstMap||{})[r.zavod+'||'+r.tur]||0;
       var _ber=(o.berildiMap||{})[r.zavod+'||'+r.tur];
+      // v188.14 XATO TUZATISH. v188.13 da "yangi" ustuniga manfiy q ham
+      // qo'shilgandi - lekin sotildi>berildi bo'lgan qism `_eskiTolandi` da
+      // ALLAQACHON ayiriladi (tl). Natijada IKKI MARTA ketardi:
+      //   eski 12.40 + berildi 10 - to'landi 20  ->  2.40 o'rniga -7.60
+      // To'g'ri qoida: "yangi" = (berildi - to'landi, 0 dan past emas) - vozvrat.
+      // Vozvrat `tl` ga kirmaydi (u to'lov emas), shuning uchun shu yerda ayiriladi.
+      var _yo=Math.round((Math.max(0,x.qy)-x.vz)*100)/100;
+      if(Math.abs(_yo)>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+_yo;
       if(_ek<-0.001 && _ber>0.001){
         t+=DOTS+' '+fmtG(_ber)+' - '+fmtG(Math.abs(_ek))+' (qarzimiz) = '+fmtG(Math.round((_ber+_ek)*100)/100)+'\n';
-        // Ostatka jadvali uchun "yangi" ustuni baribir to'ldiriladi (Qoldi qatori
-        // ko'rinmasa ham) — aks holda jami noto'g'ri chiqadi.
-        if(Math.abs(x.q)>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
       } else if(x.q>0.001){
-        t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
-      } else if(x.q<-0.001){
-        // v188.13: vozvrat berilgandan ko'p - ortig'i eski ostatkadan kamayadi.
-        // Qoldi qatori yozilmaydi (klientda qolgani yo'q), lekin jadval to'g'ri chiqsin.
-        yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
+        t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n';
       }
     });
     jamiS=Math.round(jamiS*100)/100;

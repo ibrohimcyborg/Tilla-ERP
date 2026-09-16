@@ -7573,3 +7573,66 @@ kassa cheki.
 ⚠ Ostatka **rasmi** (`_ostJadvalUstunlar`) tegilmadi — kerak emas: u
 `k.tarix` dan o'qiydi va `tip==='vozvrat'` ni allaqachon minus qiladi,
 `save()` dan keyin chaqiriladi.
+
+## v188.14 — v188.13 REGRESSIYASI: ostatkadan to'langan gramm ikki marta ayirilardi
+
+⚠ Bu **Claude kiritgan xato**, Ibrohim so'ramagan. v188.13 prodda turgan
+vaqtda topildi.
+
+### Nima buzilgandi
+
+Vozvrat **umuman yo'q** holatda ham:
+
+    eski 12.40g + berildi 10.00g - to'landi 20.00g = 2.40g bo'lishi kerak
+
+    v188.12    Butterfly Oddiy  12.40g    0.00g    2.40g   TO'G'RI
+    v188.13    Butterfly Oddiy  12.40g  -10.00g   -7.60g   XATO
+
+Ya'ni klient **ostatkasidan to'lasa** — kundalik holat — chek manfiy
+qoldiq chiqarardi.
+
+### Sabab
+
+v188.13 da `Qoldi` hisobiga vozvrat qo'shilgan edi:
+
+    q = berildi - vozvrat - to'landi
+
+va manfiy `q` ham Ostatka jadvalining «yangi» ustuniga yozilardi.
+Lekin `sotildi > berildi` bo'lgan qism `_eskiTolandi` (tl) da
+**allaqachon** ayiriladi. Natijada bir xil gramm ikki marta ketardi:
+
+    j = e + y - tl = 12.40 + (-10) - 10 = -7.60
+
+### To'g'ri qoida
+
+    "yangi" ustuni = max(0, berildi - to'landi) - vozvrat
+
+`max(0, ...)` — eski mantiq: ortiqcha to'lov `tl` ning ishi.
+`- vozvrat` — vozvrat to'lov emas, `tl` ga kirmaydi, shuning uchun shu
+yerda ayiriladi.
+
+`Qoldi` qatori (ekranda ko'rinadigan) o'z hisobida qoladi:
+`berildi - vozvrat - to'landi`. Ikkisi ajratildi — `_sotQ` endi `q`
+(Qoldi uchun) va `qy` (jadval uchun) ni alohida qaytaradi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Yetti holat, uchtasi v188.12 bilan **qator-ba-qator solishtirildi**:
+
+    1 ostatkadan to'landi   12.40+10-20      =  2.40   v188.12 bilan AYNAN
+    2 oddiy sotuv           0+10-5           =  5.00   v188.12 bilan AYNAN
+    3 tegilmagan tur        8.15             =  8.15   v188.12 bilan AYNAN
+    4 10 ber / 5 voz / 5 to'l                =  0.00   blok chiqmaydi
+    5 aralash tur           5-3=2 / 10-7=3   ikkalasi to'g'ri
+    6 vozvrat berilgandan ko'p  10+4-9-2     =  3.00
+    7 ostatkadan to'landi + vozvrat  12.40+10-3-20 = -0.60
+
+**Vozvratsiz holatlarda eski yo'ldan farq: 0.**
+
+### Saboq
+
+v188.13 sinovida vozvratli holatlar tekshirildi, lekin
+**vozvratsiz + ostatkadan to'lash** holati sinalmadi — aynan o'sha
+buzilgandi. Yangi shart qo'shilganda eski yo'lni ham solishtirish kerak,
+faqat yangi yo'lni emas.

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.13 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.14 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** (1) sotuv chekida OSTATKA HISOBOTI + tartib — maket tayyor;
 (2) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
 (3) to'lov chekida sodda Ostatka; (4) `Qoldi` ga `g`.
@@ -28,6 +28,31 @@ ko'rsatmaydi — maketi `mockups/chek-qolgan-ishlar.html` da 1-ish.
 Shakli sotuv chekidagidek: `Berildi` yonida alohida `Vozvrat` bloki,
 minus bilan, `JAMI vozvrat` qatori. Berilmagan turdan qaytarsa ham o'z
 qatorini oladi (Ibrohim: «alohida tur bo'sayam farqi yo, alohida bo'vursin»).
+
+---
+
+## ✅ v188.14 — v188.13 REGRESSIYASI tuzatildi (2026-09-16)
+
+⚠ **Claude kiritgan xato**, Ibrohim so'ramagan. v188.13 prodda turganda topildi.
+
+Vozvratsiz holatda ham chek buzilgandi:
+
+    eski 12.40 + berildi 10 - to'landi 20 = 2.40 bo'lishi kerak
+    v188.13 esa -7.60 chiqarardi
+
+Sabab: v188.13 manfiy `q` ni «yangi» ustuniga yozardi, lekin
+`sotildi > berildi` qismi `_eskiTolandi` (tl) da allaqachon ayirilardi —
+ikki marta ketardi. Ya'ni klient **ostatkasidan to'lasa** (kundalik holat)
+chek manfiy qoldiq chiqarardi.
+
+To'g'ri qoida: `"yangi" = max(0, berildi - to'landi) - vozvrat`.
+`Qoldi` qatori o'z hisobida qoldi (`q`), jadval alohida (`qy`).
+
+Sinov: 7 holat; 3 tasi v188.12 bilan qator-ba-qator solishtirildi —
+**vozvratsiz holatlarda farq 0**.
+
+**Saboq:** yangi shart qo'shilganda ESKI yo'lni ham solishtirish kerak.
+v188.13 da faqat vozvratli holatlar sinalgan edi.
 
 ---
 
