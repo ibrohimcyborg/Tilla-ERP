@@ -4,8 +4,8 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.10 · POS v0.36 · 2026-09-16
-**⏳ Ochiq:** to'lov cheki — Vozvrat bo'limi + Ostatka ro'yxati (kelishilgan, kod yozilmagan).
+**Oxirgi yangilanish:** v188.11 · POS v0.36 · 2026-09-16
+**⏳ Ochiq:** to'lov chekida Vozvrat bo'limi, sodda Ostatka, `Qoldi` ga `g` (kelishilgan, kod yozilmagan).
 
 ---
 
@@ -108,6 +108,31 @@ yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
 Ibrohimga aytildi, qaror kutilmoqda.
+
+---
+
+## ✅ v188.11 — sotuv modalida vozvrat offsetga qo'shilmasdi (2026-09-16)
+
+**Ibrohim:** «ishlavotganimizaniyam sababi shu — sotuv modali bunaqa
+ishlamasdi». Uning ish tartibi: vozvrat → gramm ber → offset.
+
+`bizQarzNet` `obshiy` (= turQarz + yangiG2) ga qarardi — **vozvratni
+ko'rmasdi**. Shuning uchun sotuv modalida vozvrat kiritilsa ham offset
+tugmasi chiqmasdi; vozvratni alohida ekranda qilishga to'g'ri kelardi.
+
+⚠ Ikkinchi yarim xato: tugmaning MIQDORI ham eski `bizQarz` dan olinardi
+— faqat gating tuzatilsa tugma chiqib **nol** yozardi.
+
+Tuzatildi: `bizQarzNet`, `_qolganBtnG`, `_qolganG`, `data-qarzg` —
+to'rttasi ham `netT2` (vozvrat ayirilgan) dan. `-netT2` =
+`kSotuvVozUpd` dagi `bizQ` bilan aynan bir xil miqdor, ya'ni jonli
+yangilash va qayta chizish endi mos.
+
+Sinov: olti holat — eski yo'l buzilmadi, yangi yo'l ishladi.
+
+⚠ **Chekda `Vozvrat` bo'limi hali YO'Q** — alohida ish.
+
+Maket: `mockups/chek-qolgan-ishlar.html`.
 
 ---
 

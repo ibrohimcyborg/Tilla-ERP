@@ -1,4 +1,4 @@
-<!-- v188.10 -->
+<!-- v188.11 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.10';
+var APP_VER = 'v188.11';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15773,9 +15773,20 @@ function kSotuvRenderTolov() {
       // bizQarz FAQAT eski qarzdan hisoblanadi - yangi berilgan grammni
       // ko'rmaydi. Tugmalar endi YIG'INDIDAN qaraydi.
       // bizQarz ning o'zi TEGILMADI - yozuv matni (lblHtml) o'shanga tayanadi.
-      var bizQarzNet = obshiy < -0.001;
       var vozG2 = ksVozOf(zi, ti);
       var netT2 = Math.round((turQarz + yangiG2 - vozG2) * 100) / 100;
+      // v188.11 (Ibrohim): «oldin vozvratga kirib vozvrat qivomman klientdan,
+      // sotuvga kirib berib grammi, kegin offset qilib chiqarvvomman ...
+      // sotuv modali bunaqa ishlamasdi».
+      // Sabab: bizQarzNet `obshiy` ga qarardi, `obshiy` esa VOZVRATNI
+      // ko'rmaydi (turQarz + yangiG2). Shuning uchun sotuv modalida vozvrat
+      // kiritilib balans manfiyga o'tsa ham offset tugmasi CHIQMASDI —
+      // vozvratni alohida ekranda qilishga to'g'ri kelardi.
+      // Endi netT2 (vozvrat ayirilgan) ga qaraydi: vozvrat + gramm + offset
+      // BITTA modalda.
+      // ⚠ Qolgan ikki tugma (✓ va pul-yozish $) shartida bizQarzNet BIRINCHI
+      //   turadi, shuning uchun ular o'z-o'zidan moslashadi — tegilmadi.
+      var bizQarzNet = netT2 < -0.001;
 
       var lblHtml;
       if (!bizQarz && vozG2 > 0.001 && obshiy > 0.001) {
@@ -15832,14 +15843,14 @@ function kSotuvRenderTolov() {
       out += '<span style="font-size:9px;color:var(--gold-bd);flex-shrink:0;">$/g</span>';
       out += '</div>';
       out += '<div style="display:flex;align-items:center;gap:1px;border:0.5px solid var(--green-bd);background:var(--green-bg);border-radius:6px;padding:0 5px;height:32px;flex:1;">';
-      { var _qolganBtnG=bizQarz?Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100):0; out += '<button onclick="event.stopPropagation();ksOffsetToggle('+zi+','+ti+',this)" id="kso-btn-'+zi+'-'+ti+'" data-oqarz="'+_qolganBtnG+'" data-baseoq="'+_qolganBtnG+'" style="font-size:10px;font-weight:600;padding:0 6px;height:22px;border-radius:5px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);cursor:pointer;flex-shrink:0;'+(bizQarzNet?'':'display:none;')+'">$</button>'; }
+      { /* v188.11: miqdor ham netT2 dan - vozvrat bilan. Avval bizQarz (faqat tarix) dan olinardi, shuning uchun vozvratdan kelgan 'biz qarz' da tugma chiqsa ham NOL yozardi. -netT2 = kSotuvVozUpd dagi bizQ bilan AYNAN bir xil miqdor. */ var _qolganBtnG=Math.max(0,Math.round((-netT2)*100)/100); out += '<button onclick="event.stopPropagation();ksOffsetToggle('+zi+','+ti+',this)" id="kso-btn-'+zi+'-'+ti+'" data-oqarz="'+_qolganBtnG+'" data-baseoq="'+_qolganBtnG+'" style="font-size:10px;font-weight:600;padding:0 6px;height:22px;border-radius:5px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);cursor:pointer;flex-shrink:0;'+(bizQarzNet?'':'display:none;')+'">$</button>'; }
       out += '<input type="number" id="kst-g-'+zi+'-'+ti+'" placeholder="0" oninput="kSotuvTolovUpd(\'g\','+zi+','+ti+')" style="flex:1;border:none;background:transparent;font-size:12px;color:var(--green);text-align:right;outline:none;min-width:0;width:0;">';
       out += '<span style="font-size:9px;color:var(--green-bd);flex-shrink:0;">g</span>';
       out += '</div>';
       out += (bizQarzNet || !(obshiy > 0.001)) ? '' : '<button onclick="kstHammasi('+zi+','+ti+','+obshiy.toFixed(2)+')" title="Qarzni toliq yop" style="flex:none;width:28px;height:32px;border-radius:6px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:12px;font-weight:600;cursor:pointer;padding:0;">\u2713</button>';
       out += '</div>';
       out += '<div id="kst-res-'+zi+'-'+ti+'" style="font-size:11px;margin-top:3px;min-height:14px;"></div>';
-      { var _oNarx=getKatNarx(zi,ti,_ksSotuvKi)||0; var _qolganG=bizQarz?Math.max(0,Math.round((Math.abs(turQarz)-yangiG2)*100)/100):0; var _oSum=Math.round(_qolganG*_oNarx*100)/100; out += '<div id="kso-blok-'+zi+'-'+ti+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:8px 10px;margin-top:4px;" data-qarzg="'+(bizQarz?Math.abs(turQarz):0)+'" data-narx="'+_oNarx+'"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;"><span id="kso-lbl-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">O  '+fmtG(_qolganG)+'g × '+_oNarx+'$/g</span><span id="kso-sum-'+zi+'-'+ti+'" style="font-size:12px;font-weight:600;color:var(--green);">'+fmtD(_oSum)+'$ → boshqa to\'lovdan ayiriladi</span></div></div>'; }
+      { var _oNarx=getKatNarx(zi,ti,_ksSotuvKi)||0; var _qolganG=Math.max(0,Math.round((-netT2)*100)/100); var _oSum=Math.round(_qolganG*_oNarx*100)/100; out += '<div id="kso-blok-'+zi+'-'+ti+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:8px 10px;margin-top:4px;" data-qarzg="'+Math.max(0,Math.round((-(turQarz-vozG2))*100)/100)+'" data-narx="'+_oNarx+'"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;"><span id="kso-lbl-'+zi+'-'+ti+'" style="font-size:12px;font-weight:500;color:var(--green);">O  '+fmtG(_qolganG)+'g × '+_oNarx+'$/g</span><span id="kso-sum-'+zi+'-'+ti+'" style="font-size:12px;font-weight:600;color:var(--green);">'+fmtD(_oSum)+'$ → boshqa to\'lovdan ayiriladi</span></div></div>'; }
       out += '</div>';
     });
   });

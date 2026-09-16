@@ -7377,3 +7377,76 @@ Haqiqiy `kTolovChekGen` fayldan olinib, uch holatda:
 
 Saqlash kodi, offset hisobi, sdacha mexanizmi, `offIsh`, klient tarixi,
 bazadagi yozuvlar, sotuv cheki, kassa cheki.
+
+## v188.11 — sotuv modalida vozvrat offsetga qo'shilmasdi
+
+**Ibrohim** (ish tartibini tushuntirib): «oldin vozvratga kirib vozvrat
+qivomman klientdan, sotuvga kirib berib grammi, kegin offset qilib
+chiqarvvomman sotuv modalida. Ishlavotganimizaniyam sababi shu —
+**sotuv modali bunaqa ishlamasdi**».
+
+### Sabab
+
+`kSotuvRenderTolov` da tugmalar `bizQarzNet` ga qaraydi, u esa `obshiy`
+dan kelardi:
+
+    obshiy     = turQarz + yangiG2          <- VOZVRAT YO'Q
+    bizQarzNet = obshiy < -0.001
+    vozG2      = ksVozOf(zi, ti)            <- vozvrat KEYIN o'qiladi
+    netT2      = turQarz + yangiG2 - vozG2  <- faqat YOZUVDA ishlatilardi
+
+Ya'ni sotuv modalida vozvrat kiritilib balans manfiyga o'tsa ham
+**offset tugmasi chiqmasdi**. Shuning uchun Ibrohim vozvratni ALOHIDA
+ekranda qilib, keyin sotuvga kirardi — o'shanda vozvrat tarixga
+yozilgan bo'lib, `turQarz` manfiy chiqardi.
+
+⚠ **Ikkinchi yarim xato ham bor edi.** Tugmaning MIQDORI ham eski
+`bizQarz` (faqat tarix) dan olinardi:
+
+    _qolganBtnG = bizQarz ? max(0, |turQarz| - yangiG2) : 0
+
+Vozvratdan kelgan «biz qarz» da `bizQarz` **false** — demak tugma
+ko'rinsa ham `data-oqarz = 0` bo'lib, bosilganda **nol** yozardi.
+Faqat gating tuzatilsa, tugma chiqib hech narsa qilmasdi.
+
+### Qilindi
+
+`vozG2` / `netT2` e'loni yuqoriga ko'chdi, uchta joy netT2 ga o'tdi:
+
+    var bizQarzNet  = netT2 < -0.001;
+    var _qolganBtnG = Math.max(0, -netT2);      // tugma miqdori
+    var _qolganG    = Math.max(0, -netT2);      // blok yorlig'i
+    data-qarzg      = Math.max(0, -(turQarz - vozG2));
+
+`-netT2` — `kSotuvVozUpd` (16232) dagi `bizQ` bilan **aynan bir xil
+miqdor**: u ham `net = totalQarz - vozG` dan keladi va `totalQarz`
+ichida yangi gramm bor. Ya'ni jonli yangilash va qayta chizish endi
+**bir xil raqamni** beradi — avval ular ajralib ketardi.
+
+⚠ Qolgan ikki tugma (`✓` va pul-yozish `$`) shartida `bizQarzNet`
+BIRINCHI turadi, shuning uchun ular o'z-o'zidan moslashdi — tegilmadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Shart mantig'i olti holatda (ifodalar fayldan):
+
+    holat                                    net    offset  miqdor  galochka
+    tarixdan biz qarz: -3.26                -3.26   BOR      3.26    yo'q
+    SENING YO'LING: qarz 2.85, voz 8        -5.15   BOR      5.15    yo'q
+    qarz 2.85, voz 8, keyin 5g berildi      -0.15   BOR      0.15    yo'q
+    oddiy qarz 43.19                        43.19   yo'q        0    BOR
+    voz qarzdan kam: qarz 10, voz 3          7.00   yo'q        0    BOR
+    voz aynan qarzcha: qarz 10, voz 10       0.00   yo'q        0    BOR
+
+Eski yo'l (tarixdan kelgan «biz qarz») buzilmadi, yangi yo'l ishladi.
+
+### Endi ish tartibi
+
+Bitta sotuv modalida: **vozvrat kirit → gramm ber → offset bos**.
+Alohida vozvrat ekraniga kirish shart emas.
+
+### Tegilmadi
+
+Vozvrat paneli, saqlash, hisob-kitob, chek. ⚠ **Chekda `Vozvrat`
+bo'limi hali YO'Q** — u alohida ish (qolgan ishlar 1-bandi).
