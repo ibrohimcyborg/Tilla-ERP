@@ -7503,3 +7503,73 @@ Node: 1 script bloki, 0 sintaksis xatosi.
 ### Tegilmadi
 
 Vozvrat hisobi, saqlash, chek, offset mantiqi.
+
+## v188.13 — sotuv cheki vozvratni umuman ko'rmasdi
+
+**Ibrohim:** «berishga 10g vozvratga 5 gramm yozsam chekda yo'q, shu jarayon
+ostatkada 5g ko'rsatvotti, lekin 5 gramm vozvrat hisobiga yo'q bo'lishi
+keregidi».
+
+**Baza to'g'ri edi, chek yolg'on chiqarardi.**
+
+### Sabab
+
+`klientSotuvChekYangiGen` ga vozvrat **uzatilmasdi** — na ekran preview
+(16987), na print (17314) chaqiruvida. Formula:
+
+    q = berildi - to'landi          <- VOZVRAT YO'Q
+
+Saqlash esa vozvratni `k.tarix` ga to'liq yozadi (17277-17288), demak
+klientning haqiqiy balansi to'g'ri. Faqat chek adashardi.
+Tekshirildi: `isBadVozvrat` (2295) faqat `gramm < 0.01` yoki zavod/tursizni
+tashlaydi — haqiqiy yozuvga tegmaydi.
+
+### Qilindi
+
+**1.** Ikkala chaqiruvchi endi `vozlar` beradi. Print tomonda massiv
+allaqachon bor edi (`vozlar`), preview tomonda `_vozPrev` yig'iladi.
+
+**2.** Chekda yangi `Vozvrat` bloki — `Berildi` dan keyin, minus bilan.
+Ibrohim: «alohida tur bo'sayam farqi yo, alohida bo'vursin» — shu
+sotuvda berilmagan turdan qaytarsa ham o'z qatorini oladi.
+
+**3.** Hisob:
+
+    q = berildi - vozvrat - to'landi
+
+`vozQoldi` — hali «yangi» ustuniga singdirilmagan qoldiq. To'lov qatori
+bor tur uni **bir marta** yeydi; qolgani (berilmagan/sotilmagan tur)
+oxirida `yangiOst` ga minus bo'lib tushadi, shunda o'sha tur jadvalga
+kiradi va ostatkasi kamayadi.
+
+**4.** `q` manfiy bo'lsa (vozvrat berilgandan ko'p) `Qoldi` qatori
+yozilmaydi — klientda qolgani yo'q — lekin jadvalga baribir tushadi,
+aks holda `jami` noto'g'ri chiqardi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Haqiqiy `klientSotuvChekYangiGen` fayldan olinib, to'rt holatda:
+
+    A. 10 berildi / 5 vozvrat / 5 to'landi
+       Vozvrat  Diamond Oddiy  -5.00g
+       Qoldi qatori YO'Q, Ostatka bloki ham YO'Q      <- hammasi yopildi
+
+    B. aralash tur (Butterfly qaytardi, Diamond oldi)
+       Butterfly  5.00g  -3.00g   2.00g
+       Diamond    0.00g   3.00g   3.00g
+       JAMI       5.00g   0.00g   5.00g
+
+    C. vozvrat berilgandan ko'p (berildi 4, voz 9, eski 10)
+       Diamond   10.00g  -7.00g   3.00g               <- 10+4-9-2 = 3
+
+    D. vozvratsiz - ESKI YO'L buzilmadi (aynan avvalgidek)
+
+### Tegilmadi
+
+Saqlash, baza, klient tarixi, offset, skidka, sdacha, to'lov cheki,
+kassa cheki.
+
+⚠ Ostatka **rasmi** (`_ostJadvalUstunlar`) tegilmadi — kerak emas: u
+`k.tarix` dan o'qiydi va `tip==='vozvrat'` ni allaqachon minus qiladi,
+`save()` dan keyin chaqiriladi.

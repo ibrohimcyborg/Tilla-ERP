@@ -1,0 +1,303 @@
+<title>Sotuv Vozvrat Tashxisi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --cool:#2a5a9e; --cool-bg:#eaf0f9; --cool-bd:#b4c8e4;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --cool:#9dbde8; --cool-bg:#161f2c; --cool-bd:#2d4265;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --cool:#9dbde8; --cool-bg:#161f2c; --cool-bd:#2d4265;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+h3{font-size:15.5px;margin:0}
+
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.lead{font-size:13.5px;color:var(--ink2)}
+
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+
+.code{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+.chek{font-family:var(--mono);font-size:10.5px;line-height:1.62;white-space:pre;
+  background:var(--card);border:1px solid var(--edge);border-radius:9px;
+  padding:12px;overflow-x:auto;color:var(--ink);font-variant-numeric:tabular-nums}
+mark{background:var(--bad-bg);color:var(--bad);border-radius:3px;padding:0 3px;font-weight:700}
+mark.y{background:var(--good-bg);color:var(--good)}
+mark.n{background:var(--gold-bg);color:var(--gold)}
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.pair > div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cap{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.cap.a{color:var(--bad)} .cap.b{color:var(--good)}
+
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 13px;font-size:13.5px}
+dt{color:var(--ink3);white-space:nowrap}
+dd{margin:0}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.cool code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+
+ol.q{margin:0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:9px}
+ol.q b{color:var(--gold)}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+
+.budget{display:flex;gap:9px;flex-wrap:wrap}
+.chip{font-size:12px;border:1px solid var(--edge2);border-radius:999px;
+  padding:4px 11px;color:var(--ink2);background:var(--card)}
+.chip b{color:var(--ink);font-variant-numeric:tabular-nums}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Tilla ERP &middot; v188.11 ustiga</div>
+  <h1>Sotuv modalida vozvrat &mdash; ikkita alohida buzuqlik</h1>
+  <p>Ikkalasi ham topildi. Kod hali yozilmadi &mdash; bu taklif.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;vozvratga gramm yozib berishga yozsam boshida vozvrat o&rsquo;chib qoldi &hellip;
+  kegin berishga 10g vozvratga 5 gramm yozsam chekda yo&rsquo;q, shu jarayon ostatkada 5g
+  ko&rsquo;rsatvotti, lekin 5 gramm vozvrat hisobiga yo&rsquo;q bo&rsquo;lishi keregidi&raquo;</div>
+  <div class="box">
+    <p>Bular <b>bitta emas, ikkita</b> muammo. Birinchisi ikkinchisini sinab ko&rsquo;rishga ham
+    qo&rsquo;ymaydi, shuning uchun ularni ajratib yozdim.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Muammo 1 &mdash; vozvrat qiymati o&rsquo;chib ketadi</h2>
+  <h3>Berish katagiga yozsang, vozvrat paneli noldan qayta chiziladi</h3>
+  <div class="code">kSotuvGUpdate(el)            <span style="color:var(--ink3)">// berish katagining har bosilishi</span>
+  &hellip;
+  kSotuvRenderTolov();
+  <mark>kSotuvRenderVozvrat(_ksSotuvKi);</mark>   <span style="color:var(--ink3)">index.html:16135</span>
+
+kSotuvRenderVozvrat(ki)
+  <mark>uniSkanReset('ks-voz-');</mark>                    <span style="color:var(--ink3)">16140  skan o&rsquo;chadi</span>
+  &hellip;
+  <mark>ks-voz-cont.innerHTML = out;</mark>                <span style="color:var(--ink3)">16184  HAMMASI qaytadan</span></div>
+  <div class="box bad">
+    <p><code>innerHTML</code> almashgani uchun o&rsquo;sha paneldagi <b>hamma narsa yo&rsquo;qoladi</b>:</p>
+    <dl style="margin-top:9px">
+      <dt>yozilgan gramm</dt><dd>o&rsquo;chadi</dd>
+      <dt>ochilgan panel</dt><dd>yana yopiladi</dd>
+      <dt>skan qilingan dona</dt><dd>o&rsquo;chadi</dd>
+    </dl>
+    <p style="margin-top:10px">Shuning uchun <b>avval vozvrat, keyin berish</b> tartibida ishlamaydi.
+    Faqat <b>avval berish, keyin vozvrat</b> tartibida omon qoladi &mdash; sen ham ikkinchi marta
+    shunday qilgansan.</p>
+  </div>
+  <div class="box good">
+    <p class="cap b" style="margin-bottom:6px">Taklif</p>
+    <p>Panel qayta chizilmaydi. Berish o&rsquo;zgarganda faqat <b>&laquo;qarz: &hellip;&raquo; yozuvlari</b> joyida
+    yangilanadi &mdash; kataklar, ochiq holat va skan tegilmaydi.</p>
+    <p class="hint">Ikkinchi yo&rsquo;l bor edi: qayta chizishdan oldin qiymatlarni saqlab, keyin
+    qaytarish. Undan voz kechdim &mdash; skan donasi baribir yo&rsquo;qoladi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Muammo 2 &mdash; chek vozvratni ko&rsquo;rmaydi</h2>
+  <h3>Chek yasovchiga vozvrat umuman uzatilmaydi</h3>
+  <div class="code">klientSotuvChekYangiGen({
+  oldilar, lomlar, berildiMap, eskiOstMap,
+  skidka, ortiqcha, tanlov, offsetlar,
+  naqt, karta, perech          <mark>&larr; vozlar YO&rsquo;Q</mark>
+})
+<span style="color:var(--ink3)">chaqiruvchilar:  16987 (ekran preview)   17314 (print)</span></div>
+  <div class="box cool">
+    <p><b>Baza to&rsquo;g&rsquo;ri, chek yolg&rsquo;on.</b> Saqlashda vozvrat 5g <code>k.tarix</code> ga
+    yoziladi (17277&ndash;17288), klientning haqiqiy balansi <b>0.00g</b>. Chek esa vozvratni
+    bilmagani uchun uni <b>ostatka</b> qilib ko&rsquo;rsatyapti.</p>
+    <p class="hint">Bu v188.10 dagi bilan bir xil turdagi xato: baza bir xil hisoblaydi, chek boshqacha.</p>
+  </div>
+
+  <div class="pair">
+    <div>
+      <span class="cap a">Hozir &mdash; sening cheking</span>
+      <div class="chek">                Tojik Klient
+                 16.09.2026
+================================================
+Berildi
+ Diamond Oddiy                            10.00g
+------------------------------------------------
+ JAMI berildi                             10.00g
+================================================
+To'lov
+ Diamond Oddiy  5.00g x 90.8              454.00#
+ ...............................................
+   Qoldi                                 <mark>5.00</mark>
+================================================
+Jami to'landi
+ N                                       454.00#
+================================================
+ Umumiy Summa                            454.00#
+ Umumiy g                                  5.00g
+================================================
+Ostatka
+                  Ostatka     yangi      jami
+ Diamond Oddiy      0.00g    <mark>5.00g</mark>    <mark>5.00g</mark>
+------------------------------------------------
+ JAMI               0.00g    <mark>5.00g</mark>    <mark>5.00g</mark>
+================================================</div>
+    </div>
+    <div>
+      <span class="cap b">Taklif</span>
+      <div class="chek">                Tojik Klient
+                 16.09.2026
+================================================
+Berildi
+ Diamond Oddiy                            10.00g
+------------------------------------------------
+ JAMI berildi                             10.00g
+================================================
+<mark class="y">Vozvrat
+ Diamond Oddiy                            -5.00g
+------------------------------------------------
+ JAMI vozvrat                             -5.00g</mark>
+================================================
+To'lov
+ Diamond Oddiy  5.00g x 90.8              454.00#
+================================================
+Jami to'landi
+ N                                       454.00#
+================================================
+ Umumiy Summa                            454.00#
+ Umumiy g                                  5.00g
+================================================
+<mark class="n">(Ostatka bloki chiqmaydi &mdash; hech narsa qolmadi)</mark>
+
+
+</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <p class="cap" style="color:var(--ink3);margin-bottom:7px">Hisob</p>
+    <div class="code" style="border:0;padding:0;background:transparent">0.00 eski + 10.00 berildi - 5.00 vozvrat - 5.00 to'landi = <b>0.00g</b></div>
+    <p class="hint" style="margin-top:9px">Hozirgi formula vozvratni tashlab ketadi:
+    <code>qoldi = berildi - to'landi</code>. Yangisi: <code>qoldi = berildi - vozvrat - to'landi</code>.</p>
+  </div>
+
+  <div class="box good">
+    <p class="cap b" style="margin-bottom:6px">Tasdiqlading</p>
+    <p>&laquo;alohida tur bo&rsquo;sayam farqi yo&rsquo;, alohida bo&rsquo;vursin&raquo; &mdash;
+    <code>Vozvrat</code> bloki qaytarilgan turni <b>o&rsquo;zi qator qilib</b> chiqaradi,
+    o&rsquo;sha kuni berilgan-berilmaganidan qat&rsquo;i nazar.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Aralash misol</h2>
+  <h3>Butterfly qaytardi, Diamond oldi</h3>
+  <dl>
+    <dt>eski ostatka</dt><dd>Butterfly Oddiy <b>5.00g</b></dd>
+    <dt>berildi</dt><dd>Diamond Oddiy <b>10.00g</b></dd>
+    <dt>vozvrat</dt><dd>Butterfly Oddiy <b>3.00g</b> &mdash; berilmagan turdan</dd>
+    <dt>to&rsquo;landi</dt><dd>Diamond Oddiy <b>7.00g</b> &times; 90.8</dd>
+  </dl>
+  <div class="chek">                     Klient
+                   16.09.2026
+================================================
+Berildi
+ Diamond Oddiy                            10.00g
+------------------------------------------------
+ JAMI berildi                             10.00g
+================================================
+<mark class="y">Vozvrat
+ Butterfly Oddiy                          -3.00g
+------------------------------------------------
+ JAMI vozvrat                             -3.00g</mark>
+================================================
+To'lov
+ Diamond Oddiy  7.00g x 90.8             635.60#
+ ...............................................
+   Qoldi                                    3.00
+================================================
+Jami to'landi
+ N                                       635.60#
+================================================
+ Umumiy Summa                            635.60#
+ Umumiy g                                  7.00g
+================================================
+Ostatka
+                     Ostatka     yangi      jami
+ Butterfly Oddiy       5.00g<mark class="y">    -3.00g</mark>     2.00g
+ Diamond Oddiy         0.00g     3.00g     3.00g
+------------------------------------------------
+ JAMI                  5.00g     0.00g     5.00g
+================================================</div>
+  <div class="box">
+    <div class="code" style="border:0;padding:0;background:transparent">Butterfly   5.00 eski - 3.00 vozvrat              = <b>2.00g</b>
+Diamond     0.00 eski + 10.00 berildi - 7.00 to'landi = <b>3.00g</b></div>
+    <p class="hint" style="margin-top:9px">Vozvrat <code>yangi</code> ustuniga <b>minus</b> bo&rsquo;lib tushadi &mdash;
+    shuning uchun berilmagan tur ham jadvalda o&rsquo;z qatorini oladi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Kelishildi</h2>
+  <div class="box good">
+    <p>Hammasi yopilib <b>0.00g</b> qolsa &mdash; oxirgi <code>Ostatka</code> bloki
+    <b>umuman chiqmaydi</b>. Sen &laquo;soddalashtir&raquo; deding, shuni oldim.</p>
+    <p class="hint">Qolgani bo&rsquo;lsa &mdash; yuqoridagi aralash misoldagidek &mdash; jadval odatdagidek chiqadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Diff budjeti</h2>
+  <div class="budget">
+    <span class="chip">Muammo 1 &mdash; <b>~25</b> qator</span>
+    <span class="chip">Muammo 2 &mdash; <b>~40</b> qator</span>
+    <span class="chip">tegilmaydi: saqlash, baza, hisobot</span>
+  </div>
+  <p class="lead">Ikkalasi <b>ikkita alohida versiya</b> bo&rsquo;ladi &mdash; v188.12 va v188.13.
+  Bitta commitga qo&rsquo;shmayman.</p>
+</section>
+
+</div>

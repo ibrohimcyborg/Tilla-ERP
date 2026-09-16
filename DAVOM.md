@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.12 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.13 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** to'lov chekida Vozvrat bo'limi, sodda Ostatka, `Qoldi` ga `g` (kelishilgan, kod yozilmagan).
 
 ---
@@ -108,6 +108,30 @@ yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
 Ibrohimga aytildi, qaror kutilmoqda.
+
+---
+
+## ✅ v188.13 — sotuv cheki vozvratni ko'rmasdi (2026-09-16)
+
+**Ibrohim:** «berishga 10g vozvratga 5 gramm yozsam chekda yo'q, ostatkada
+5g ko'rsatvotti». → **Baza to'g'ri, chek yolg'on.**
+
+`klientSotuvChekYangiGen` ga vozvrat umuman uzatilmasdi (16987 preview,
+17314 print). Endi ikkalasi `vozlar` beradi, chekda `Berildi` dan keyin
+`Vozvrat` bloki chiqadi, hisob `berildi - vozvrat - to'landi` bo'ldi.
+
+Ibrohim: «alohida tur bo'sayam farqi yo, alohida bo'vursin» — berilmagan
+turdan qaytarsa ham o'z qatorini oladi va Ostatka jadvalidan kamayadi.
+
+Hammasi yopilsa oxirgi `Ostatka` bloki umuman chiqmaydi (Ibrohim:
+«soddalashtir»).
+
+Sinov: 4 holat — sening holating / aralash tur / vozvrat berilgandan ko'p /
+vozvratsiz eski yo'l.
+
+⚠ Ostatka rasmi tegilmadi — u tarixdan o'qiydi, allaqachon to'g'ri.
+
+Maket: `mockups/sotuv-vozvrat-chek.html`.
 
 ---
 

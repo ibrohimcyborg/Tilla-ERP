@@ -1,4 +1,4 @@
-<!-- v188.12 -->
+<!-- v188.13 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.12';
+var APP_VER = 'v188.13';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17016,6 +17016,14 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         var _lk=parseNum((document.getElementById('ks-lk-'+_li)||{}).value)||0;
         if(_lg>0&&_lk>0) _lomPrev.push({gramm:_lg,kurs:_lk,pul:Math.round(_lg*_lk*100)/100});
       });
+      // v188.13: preview ham vozvratni ko'rsin - print bilan bir xil bo'lsin
+      var _vozPrev=[];
+      document.querySelectorAll('input[id^="ks-voz-"]').forEach(function(el){
+        var _vg=parseNum(el.value)||0; if(_vg<=0) return;
+        var _vk=el.dataset.key; if(!_vk) return;
+        var _vp=_vk.split('||'); if(_vp.length<2) return;
+        _vozPrev.push({zavod:_vp[0], tur:_vp[1], gramm:_vg});
+      });
       var _sanaPrev=(document.getElementById('ks-sana')&&document.getElementById('ks-sana').value)?document.getElementById('ks-sana').value.split('-').reverse().join('.'):today();
       var _cPrev=klientSotuvChekYangiGen({
         klientNom:_kPrev.nom, sana:_sanaPrev, soat:'',
@@ -17023,6 +17031,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         skidka:parseNum((document.getElementById('ks-skidka')||{}).value)||0,
         ortiqcha:(window._ksSotuvOrtiqcha||0), tanlov:(window._ksSotuvOrtiqchaTanlov||null),
         offsetlar:_ksChekOffsetRows(_eqm),
+        vozlar:_vozPrev,                               // v188.13
         naqt:parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0,
         karta:parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0,
         perech:parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0
@@ -17350,6 +17359,7 @@ function saqlashKlientSotuv() {
       berildiMap:_berildiMap, eskiOstMap:_eskiOstMap,
       skidka:_skidka, ortiqcha:_chekOrtiqcha, tanlov:_chekTanlov,
       offsetlar:_ksChekOffsetRows(_eskiQarzMap),
+      vozlar:vozlar,                                   // v188.13
       naqt:_naqtBerdiSave, karta:_kartaBerdiSave, perech:_perechBerdiSave
     });
     for(var _ci=0;_ci<(_ksSotuvCnt||1);_ci++){
@@ -17474,6 +17484,7 @@ function klientSotuvChekYangiGen(opts){
   //   lomlar:  [{gramm,kurs,pul}]
   //   berildiMap: {'zavod||tur': asl berilgan gramm}  (shu sotuvda tegilgan turlar)
   //   eskiOstMap: {'zavod||tur': sotuvdan OLDINGI ostatka gramm}
+  //   vozlar:  [{zavod,tur,gramm}] shu sotuvda qaytarilgan (v188.13)
   var W=48;
   function center(s){var p=Math.max(0,Math.floor((W-s.length)/2));return Array(p+1).join(' ')+s;}
   function rjust(l,r){var sp=W-l.length-r.length;if(sp<1)sp=1;return l+Array(sp+1).join(' ')+r;}
@@ -17507,6 +17518,24 @@ function klientSotuvChekYangiGen(opts){
       t+=rjust(' '+k.split('||').join(' '), fmtG(b)+'g')+'\n';
     });
     t+=DASH+rjust(' JAMI berildi', fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
+    // v188.13: VOZVRAT - alohida blok. Ibrohim: «alohida tur bo'sayam farqi yo,
+    // alohida bo'vursin» - shu sotuvda berilmagan turdan qaytarsa ham o'z qatorini
+    // oladi. vozQoldi: hali "yangi" ustuniga singdirilmagan qoldiq.
+    var vozQoldi={}, jamiV=0;
+    (o.vozlar||[]).forEach(function(v){
+      var g=Math.round((v.gramm||0)*100)/100; if(!(g>0.001)) return;
+      var kk=v.zavod+'||'+v.tur;
+      vozQoldi[kk]=Math.round(((vozQoldi[kk]||0)+g)*100)/100;
+      jamiV=Math.round((jamiV+g)*100)/100;
+    });
+    if(jamiV>0.001){
+      t+='Vozvrat\n';
+      (o.vozlar||[]).forEach(function(v){
+        var g=Math.round((v.gramm||0)*100)/100; if(!(g>0.001)) return;
+        t+=rjust(' '+v.zavod+' '+v.tur, '-'+fmtG(g)+'g')+'\n';
+      });
+      t+=DASH+rjust(' JAMI vozvrat', '-'+fmtG(jamiV)+'g')+'\n'+LINE;
+    }
     // 2) TO'LOV (sotildi)
     t+="To'lov\n";
     var jamiS=0,jamiG=0;
@@ -17514,8 +17543,12 @@ function klientSotuvChekYangiGen(opts){
     // v172.7: to'liq yopilganlar (Qoldi yo'q) TEPADA, qoldig'i borlar PASTDA —
     // to'lov cheki bilan bir xil tartib. Guruh ichida asl tartib saqlanadi.
     var _sotQ=(o.oldilar||[]).map(function(r){
-      var b=o.berildiMap[r.zavod+'||'+r.tur]; if(b===undefined) b=r.gramm;
-      return {r:r, q:Math.round((b-r.gramm)*100)/100};
+      var _kq=r.zavod+'||'+r.tur;
+      var b=o.berildiMap[_kq]; if(b===undefined) b=r.gramm;
+      // v188.13: shu turning vozvrati BIR MARTA ayiriladi (keyin 0 qilinadi).
+      // Qoldi = berildi - vozvrat - to'landi.
+      var _vz=vozQoldi[_kq]||0; if(_vz) vozQoldi[_kq]=0;
+      return {r:r, q:Math.round((b-_vz-r.gramm)*100)/100};
     });
     _sotQ=_sotQ.filter(function(x){return x.q<=0.001;}).concat(_sotQ.filter(function(x){return x.q>0.001;}));
     _sotQ.forEach(function(x){
@@ -17530,9 +17563,13 @@ function klientSotuvChekYangiGen(opts){
         t+=DOTS+' '+fmtG(_ber)+' - '+fmtG(Math.abs(_ek))+' (qarzimiz) = '+fmtG(Math.round((_ber+_ek)*100)/100)+'\n';
         // Ostatka jadvali uchun "yangi" ustuni baribir to'ldiriladi (Qoldi qatori
         // ko'rinmasa ham) — aks holda jami noto'g'ri chiqadi.
-        if(x.q>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
+        if(Math.abs(x.q)>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
       } else if(x.q>0.001){
         t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n'; yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
+      } else if(x.q<-0.001){
+        // v188.13: vozvrat berilgandan ko'p - ortig'i eski ostatkadan kamayadi.
+        // Qoldi qatori yozilmaydi (klientda qolgani yo'q), lekin jadval to'g'ri chiqsin.
+        yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+x.q;
       }
     });
     jamiS=Math.round(jamiS*100)/100;
@@ -17541,6 +17578,13 @@ function klientSotuvChekYangiGen(opts){
     Object.keys(o.berildiMap||{}).forEach(function(k){
       if(soldKeys[k]) return;
       var b=o.berildiMap[k]; if(b>0.001) yangiOst[k]=(yangiOst[k]||0)+b;
+    });
+    // v188.13: to'lov qatoriga tushmagan vozvrat (berilmagan yoki sotilmagan tur)
+    // "yangi" ustuniga MINUS bo'lib tushadi - shunda o'sha tur jadvalga kiradi
+    // va ostatkasi kamayadi.
+    Object.keys(vozQoldi).forEach(function(k){
+      var vz=vozQoldi[k]; if(!(vz>0.001)) return;
+      yangiOst[k]=Math.round(((yangiOst[k]||0)-vz)*100)/100;
     });
     // 3) JAMI TO'LANDI (L + N)
     var lomPul=0; (o.lomlar||[]).forEach(function(l){ lomPul+=(l.pul||Math.round((l.gramm||0)*(l.kurs||0)*100)/100); });
