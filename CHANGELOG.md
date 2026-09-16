@@ -7450,3 +7450,56 @@ Alohida vozvrat ekraniga kirish shart emas.
 
 Vozvrat paneli, saqlash, hisob-kitob, chek. ⚠ **Chekda `Vozvrat`
 bo'limi hali YO'Q** — u alohida ish (qolgan ishlar 1-bandi).
+
+## v188.12 — sotuv modalida vozvrat kiritilgan gramm o'chib ketardi
+
+**Ibrohim:** «vozvratga gramm yozib berishga yozsam boshida vozvrat o'chib qoldi».
+
+### Sabab
+
+`kSotuvGUpdate` (berish katagining `oninput`) har bosilishda
+`kSotuvRenderVozvrat` ni chaqiradi, u esa:
+
+    uniSkanReset('ks-voz-');                  <- skan holati o'chadi
+    ...
+    ks-voz-cont.innerHTML = out;              <- BUTUN panel qaytadan
+
+`innerHTML` almashgani uchun panelda yozilgan hamma narsa yo'qolardi:
+
+| | |
+|---|---|
+| yozilgan gramm | o'chardi |
+| ochilgan panel | yana yopilardi |
+| skan qilingan dona | o'chardi |
+
+Natijada **avval vozvrat, keyin berish** tartibi ishlamasdi. Faqat
+**avval berish, keyin vozvrat** tartibida omon qolardi.
+
+### Qilindi
+
+`kSotuvRenderVozvrat(ki, faqatYangila)` — ikkinchi parametr qo'shildi.
+Berishdan kelganda (`true`) panel **qayta chizilmaydi**: balans (`bd`)
+qayta hisoblanadi, `window._ksSotuvVozBD` yangilanadi, keyin faqat
+yozuvlar joyida almashadi.
+
+    kSotuvGUpdate:       kSotuvRenderVozvrat(_ksSotuvKi, true);
+    kSotuvRenderVozvrat: if(_vYangilaFaqat){ _ksVozLblUpd(bd); return; }
+    yangi:               _ksVozLblUpd(bd)
+
+`_ksVozLblUpd` ko'rinishi `kSotuvVozUpd` dagi bilan **aynan bir xil**
+qilib yozildi — ikkisi ajralib qolmasin.
+
+⚠ Boshqa ikki chaqiruvchi (`ksSotuvPickK` 14898, 14928) parametrsiz
+qoladi — ular klient almashganda **to'liq qayta chizishi kerak**.
+Shuning uchun `faqatYangila` aniq parametr qilindi, avtomatik emas.
+
+⚠ `uniSkanReset` endi faqat to'liq chizishda ishlaydi — skan donasi
+berish yozilganda saqlanib qoladi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+
+### Tegilmadi
+
+Vozvrat hisobi, saqlash, chek, offset mantiqi.

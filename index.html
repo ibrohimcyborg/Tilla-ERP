@@ -1,4 +1,4 @@
-<!-- v188.11 -->
+<!-- v188.12 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.11';
+var APP_VER = 'v188.12';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -16132,12 +16132,22 @@ function kSotuvGUpdate(el) {
     ostEl.innerHTML = 'ostatka: '+fmtG(ostatka)+'g';
   }
   kSotuvRenderTolov();
-  kSotuvRenderVozvrat(_ksSotuvKi);
+  kSotuvRenderVozvrat(_ksSotuvKi, true);   // v188.12: panel qayta chizilmasin
   kSotuvTolovCalc();
 }
 
-function kSotuvRenderVozvrat(ki) {
-  uniSkanReset('ks-voz-'); // modal qayta chizilganda eski skan holati tozalanadi
+// v188.12 (Ibrohim): «vozvratga gramm yozib berishga yozsam boshida vozvrat
+// o'chib qoldi». Sabab: berish katagining HAR bosilishida bu funksiya
+// ks-voz-cont.innerHTML ni butunlay almashtirardi - yozilgan gramm, ochilgan
+// panel va skan qilingan dona yo'qolardi. Shuning uchun faqat «avval berish,
+// keyin vozvrat» tartibida ishlardi.
+// Endi berishdan kelganda (faqatYangila=true) panel QAYTA CHIZILMAYDI -
+// balans qayta hisoblanadi, faqat «qarz: ...» yozuvlari joyida yangilanadi.
+function kSotuvRenderVozvrat(ki, faqatYangila) {
+  var _vCont = document.getElementById('ks-voz-cont');
+  var _vBor  = !!(_vCont && _vCont.querySelector('input[id^="ks-voz-"]'));
+  var _vYangilaFaqat = !!(faqatYangila && _vBor);
+  if(!_vYangilaFaqat) uniSkanReset('ks-voz-'); // modal qayta chizilganda eski skan holati tozalanadi
   var k = data.klientlar[ki];
   var bd = {};
   k.tarix.forEach(function(op) {
@@ -16157,6 +16167,7 @@ function kSotuvRenderVozvrat(ki) {
     if(yangiG>0) bd[key].qarz=Math.round((bd[key].qarz+yangiG)*100)/100;
   }); });
   window._ksSotuvVozBD = bd;
+  if(_vYangilaFaqat){ _ksVozLblUpd(bd); return; }   // v188.12
   var out = '<div style="background:var(--blue-bg);border-radius:12px;margin-bottom:8px;overflow:hidden;">';
   out += '<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=this.nextElementSibling.style.display===\'none\'?\'\u203a\':\'\u2304\'" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer;">';
   out += '<div style="font-size:11px;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;">Vozvrat (ixtiyoriy) \u2014 istalgan tur</div>';
@@ -16184,6 +16195,28 @@ function kSotuvRenderVozvrat(ki) {
   document.getElementById('ks-voz-cont').innerHTML = out;
 }
 
+// v188.12: panelni QAYTA CHIZMASDAN faqat «qarz: ...» yozuvlarini yangilaydi.
+// Ko'rinish kSotuvVozUpd dagi bilan aynan bir xil - ikkisi ajralib qolmasin.
+function _ksVozLblUpd(bd){
+  document.querySelectorAll('input[id^="ks-voz-"]').forEach(function(el){
+    var key = el.dataset.key; if(!key) return;
+    var b = bd[key]; if(!b) return;
+    var q = Math.round((b.qarz||0)*100)/100;
+    el.dataset.qarz = q;
+    var lbl = el.previousElementSibling && el.previousElementSibling.querySelector('div:last-child');
+    if(!lbl) return;
+    var vozG = parseNum(el.value)||0;
+    if(vozG>0){
+      var net = Math.round((q-vozG)*100)/100;
+      var natija = net < -0.001
+        ? '<b style="color:var(--green);">biz qarz: +'+fmtG(-net)+'g</b>'
+        : '<b style="color:'+(net>0?'var(--red)':'var(--green)')+';">'+fmtG(Math.max(0,net))+'g</b>';
+      lbl.innerHTML = 'qarz: <b style="color:var(--red);">'+fmtG(q)+'g</b> − <b style="color:var(--gold);">'+fmtG(vozG)+'g</b> vozvrat = '+natija;
+    } else {
+      lbl.textContent = q>0.001 ? 'qarz: '+fmtG(q)+'g' : (q<-0.001 ? 'biz qarz: +'+fmtG(-q)+'g' : 'balans: 0g');
+    }
+  });
+}
 function ksVozOf(zi, ti) {
   var el = document.getElementById('ks-voz-'+zi+'-'+ti);
   return el ? (parseNum(el.value)||0) : 0;

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.11 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.12 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** to'lov chekida Vozvrat bo'limi, sodda Ostatka, `Qoldi` ga `g` (kelishilgan, kod yozilmagan).
 
 ---
@@ -108,6 +108,26 @@ yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
 Ibrohimga aytildi, qaror kutilmoqda.
+
+---
+
+## ✅ v188.12 — sotuv modalida vozvrat grammi o'chib ketardi (2026-09-16)
+
+**Ibrohim:** «vozvratga gramm yozib berishga yozsam boshida vozvrat o'chib qoldi».
+
+Berish katagining har bosilishida `kSotuvRenderVozvrat` panelning
+`innerHTML` ini butunlay almashtirardi — yozilgan gramm, ochiq holat va
+skan donasi yo'qolardi. Shuning uchun faqat «avval berish, keyin vozvrat»
+tartibi ishlardi.
+
+Tuzatildi: `kSotuvRenderVozvrat(ki, faqatYangila)`. Berishdan kelganda
+panel qayta chizilmaydi — balans qayta hisoblanadi, yangi `_ksVozLblUpd`
+faqat «qarz: ...» yozuvlarini joyida yangilaydi.
+
+⚠ Klient almashganda (14898, 14928) baribir to'liq qayta chiziladi —
+`faqatYangila` aniq parametr, avtomatik emas.
+
+Maket: `mockups/sotuv-vozvrat-chek.html` (Muammo 1).
 
 ---
 
