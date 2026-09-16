@@ -1,4 +1,4 @@
-<!-- v188.6 -->
+<!-- v188.7 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.6';
+var APP_VER = 'v188.7';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -3338,14 +3338,17 @@ function sanaKey(s){ // 'dd.mm.yyyy' -> 'yyyymmdd' (taqqoslash uchun)
 // naqt haqiqatan 0, unga tegilmaydi.
 function _opNaqtPul(op){
   if(!op) return 0;
+  // Eski yozuvda naqtPul maydoni umuman yo'q — o'shanda summa naqt deb olinadi.
   if(op.naqtPul===undefined) return (op.kartaPul||op.perechPul) ? 0 : parseNum(op.summa||0);
-  var n = parseNum(op.naqtPul)||0;
-  if(n > 0.005) return n;                      // yozuvda haqiqiy naqt bor — U USTUN
-  var lom = parseNum(op.lomPul||0);
-  if(!(lom > 0.005)) return n;                 // lom yo'q — tegmaymiz
-  var q = Math.round((parseNum(op.summa||0) - lom
-        - parseNum(op.kartaPul||0) - parseNum(op.perechPul||0))*100)/100;
-  return q > 0.005 ? q : n;
+  // v188.7 (Ibrohim): «nega offset qilingan summa naqt qilib ko'rsatvotti —
+  // bu bizani kassani chalg'itadi». Bu yerda QOLDIQ qoidasi bor edi:
+  //     q = summa - lom - karta - perech;  q>0 bo'lsa NAQT deb qaytarardi.
+  // Offset ayrilmasdi, chunki u ALOHIDA yozuvda turadi (_kdYopish:true).
+  // Natijada lom+offset bilan yopilgan sotuvda offset summasi «naqt» bo'lib
+  // kassaga kirib ketardi. Ibrohim bazasida 40 yozuv, jami $25 978.62.
+  // Saqlash kodi naqtni to'g'ri yozadi (17135) — shuning uchun yozuvdagi
+  // qiymatga ISHONAMIZ, qayta hisoblamaymiz.
+  return parseNum(op.naqtPul)||0;
 }
 function kassaOqim(limitSana){ // limitSana: 'dd.mm.yyyy' — shu kungacha (shu kun ham kiradi); bo'lmasa hammasi
   var t = limitSana || today();

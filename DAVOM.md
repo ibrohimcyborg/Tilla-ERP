@@ -4,8 +4,34 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.6 · POS v0.36 · 2026-09-15
+**Oxirgi yangilanish:** v188.7 · POS v0.36 · 2026-09-16
 **Ochiq ish YO'Q.**
+
+---
+
+## ✅ v188.7 — offset summasi «naqt» bo'lib kassaga kirardi (2026-09-16)  ⭐
+
+**Ibrohim:** «nega offset qilingan summa naqt qilib ko'rsatvotti, bu bizani
+kassani chalg'itadi».
+
+`_opNaqtPul` (3339) naqtni qoldiqdan topardi:
+`summa - lom - karta - perech`. **Offset bu ayirmada yo'q** — u alohida
+yozuvda (`_kdYopish:true`). Shuning uchun lom+offset bilan yopilgan sotuvda
+offset summasi «naqt» bo'lib kassaga kirib ketardi.
+
+**Bazadagi yozuvlar TO'G'RI edi** (`naqtPul: 0`) — xato faqat o'qishda.
+
+O'lchandi: **42 yozuv, 14 klient, jami $25 978.99**. Har klientniki aynan
+uning offset summasiga teng.
+
+Tuzatish: qoldiq qoidasi olib tashlandi, `naqtPul` ga ishoniladi.
+`naqtPul` yo'q eski yozuvlar uchun 1-shox qoldi ($0.37).
+
+⚠ **Kassa naqdi $25 978.62 ga kamaydi** — to'g'ri kamayish.
+Kassa qo'lda tahrirlanmaydi, tarixdan hisoblanadi.
+
+⚠ `_opNaqtPul` **11 joydan** chaqiriladi — markazda tuzatildi, birortasiga
+alohida tegilmadi.
 
 ---
 

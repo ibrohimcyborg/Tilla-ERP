@@ -7010,3 +7010,98 @@ javob bermadi, hozirgi kod shunday edi - **o'zgartirilmadi**.
 
 `kstHammasi`, `ksOffsetToggle`, yozuv matni, narx, hisob, saqlash, chek,
 to'lov modali, vozvrat modali. Faqat **qaysi tugma ko'rinishi** o'zgardi.
+
+## v188.7 — offset summasi «naqt» bo'lib kassaga kirib ketardi  ⭐ KATTA XATO
+
+**Ibrohim** (foyda ekrani rasmi bilan): «nega offset qilingan summa naqt qilib
+ko'rsatvotti» → «korsatmasin bo'ldi, bu bizani kassani chalg'itadi»
+→ «tuzatish kere albatta, bu qayta bo'lishi keremas».
+
+### Sabab
+
+`_opNaqtPul` (3339) naqtni **qoldiq usulida** topardi:
+
+    var q = summa - lom - kartaPul - perechPul;
+    return q > 0.005 ? q : n;
+
+**Offset bu ayirmada yo'q**, chunki u ALOHIDA yozuvda turadi
+(`_kdYopish:true`, 14589 va 17116). Natijada lom bilan qisman to'langan va
+qolgani offset bilan yopilgan sotuvda offset summasi «naqt» bo'lib qaytardi.
+
+Saqlash kodi **to'g'ri ishlagan**: 17135 da `_aralash` rost bo'lganda
+`naqtPul = _naqtBerdiSave * _naqtFrac`, ya'ni naqt berilmagan bo'lsa
+bazaga `naqtPul: 0` yoziladi. Xato faqat O'QISHDA edi.
+
+### Isbot — koddan qayta yuritildi
+
+Ruslan Aka Buxoro, 15.09.2026 (haqiqiy `_opNaqtPul` fayldan olinib,
+yozuvlar 17135 qanday yozsa shunday qurildi):
+
+    yozuv                  summa    naqtPul   lomPul   _kdYopish -> natija
+    Premium Oddiy        1595.41      0.00   1308.53     false  ->  286.88
+    Dorika Oddiy          559.65      0.00    458.95     false  ->  100.70
+    Butterfly 3D          871.65      0.00    714.81     false  ->  156.84
+    Butterfly 3DS         951.93      0.00    780.64     false  ->  171.29
+    Jilva Oddiy           257.07      0.00      0.00      true  ->    0.00
+    Sepochka Sep          458.64      0.00      0.00      true  ->    0.00
+    -------------------------------------------------------------------
+    KASSAGA QO'SHILGAN:  715.71 $   |  HAQIQIY NAQT: 0.00 $
+    OFFSET SUMMASI:      715.71 $   <- AYNAN TENG
+
+Lom har yozuvga ulush bilan tarqatilgani uchun qoldiq ham ulushga bo'linadi:
+`286.88 + 100.70 + 156.84 + 171.29 = 715.71`.
+
+### Ibrohim bazasidagi ko'lam (konsol bilan o'lchandi)
+
+    42 yozuv, 14 klient
+    JAMI SOXTA NAQT:  $25 978.99
+      eski yozuvlardan (naqtPul yo'q):  $0.37
+      lom+offset dan:                  $25 978.62
+
+Har klientning soxta naqti **aynan uning offset summasiga teng** — raqamlar
+dumaloq chiqdi: Dilobar $6850.00, Shavkatxon $4925.00, Dilrabo $3345.00,
+Dilorom $1765.00, Ruslan $715.71.
+
+### Qilindi
+
+Qoldiq qoidasi **butunlay olib tashlandi**. `naqtPul` yozilgan bo'lsa —
+o'sha qiymat qaytariladi, qayta hisoblanmaydi:
+
+    return parseNum(op.naqtPul)||0;
+
+`naqtPul` umuman yo'q eski yozuvlar uchun 1-shox **qoldi** — bazada ular
+2 ta, jami $0.37.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Haqiqiy yangi funksiya fayldan olinib, eski bilan yonma-yon:
+
+    holat                            ESKI     YANGI   kutilgan
+    Ruslan Premium (lom+offset)    286.88      0.00      0.00   OK
+    Ruslan Dorika                  100.67      0.00      0.00   OK
+    Ruslan Butterfly 3D            156.79      0.00      0.00   OK
+    Ruslan Butterfly 3DS           171.23      0.00      0.00   OK
+    offset yozuvi (_kdYopish)        0.00      0.00      0.00   OK
+    ESKI yozuv (naqtPul yo'q)       0.16      0.16      0.16   OK
+    ESKI yozuv + karta               0.00      0.00      0.00   OK
+    HAQIQIY naqt + lom             400.00    400.00    400.00   OK
+    sof naqt sotuv                1000.00   1000.00   1000.00   OK
+    naqt yo'q, lom yo'q            0.00      0.00      0.00   OK
+
+Soxta naqt yo'qoldi, haqiqiy naqt tegilmadi.
+
+### ⚠ Kassaga ta'siri
+
+Deploydan keyin kassa naqdi **$25 978.62 ga kamayadi**. Bu TO'G'RI kamayish
+— o'sha pul hech qachon kelmagan, offset bilan yopilgan.
+
+Kassa qo'lda tahrirlanmaydi (tarixdan hisoblanadi), shuning uchun
+qo'shimcha tuzatish talab qilinmaydi.
+
+### Tegilmadi
+
+`_opNaqtPul` chaqiriladigan 11 joy — markazda tuzatilgani uchun birortasiga
+alohida tegilmadi: `kassaOqim` (3359), 4162, 4511, 10015, `naqtJami` (10341),
+10464, 10491, foyda ekrani (10590), 11137, 11248, 11971.
+Saqlash kodi, offset yozuvlari, foyda hisobi — tegilmadi.
