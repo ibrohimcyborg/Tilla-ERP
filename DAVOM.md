@@ -5,11 +5,48 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.7 · POS v0.36 · 2026-09-16
-**Ochiq ish YO'Q.**
+**⏳ Ochiq:** sotuv cheki — ostatka hisoboti (kelishilgan, kod yozilmagan).
 
 ---
 
-## ✅ v188.7 — offset summasi «naqt» bo'lib kassaga kirardi (2026-09-16)  ⭐
+## ⏳ KELISHILDI, KOD YOZILMAGAN — sotuv chekida ostatka hisoboti
+
+Maket tasdiqlangan: `mockups/ostatka-chek-korinsin.html`.
+Offset xatosi (v188.7) chiqib qolgani uchun kod yozilmadi.
+
+**Ibrohim nima dedi:**
+1. «ostatka cheki ... bossa oldingi holatini ko'rsatishi kere» — hozir
+   `ostatka` tugmachasi bosilsa faqat rangi o'zgaradi, hech narsa ko'rinmaydi.
+2. «shunaqa chiqishi kere» + bosilgan chek rasmi — ya'ni **OSTATKA HISOBOTI**
+   shakli (klient kartasidagi «🖨 Printer» tugmasi chiqaradigan chek).
+3. «1-chi ostatka, kegin Berildi» — **bitta chek**, sarlavha bir marta.
+4. Pastdagi jadval ustunlari: `Ostatka | yangi | jami` → **`Jami | To'lov | Ostatka`**
+   - `Jami    = eski qarz + yangi berilgan`   (−3.26 + 5 = 1.74)
+   - `To'lov  = shu turga to'langan gramm`   (1.74)
+   - `Ostatka = Jami − To'lov`               (0.00)
+5. Biz qarzdor qator **minus bilan**: `-31.62  -31.62  0.00`.
+6. ⏳ **Javobsiz:** «chekda pasda nima nechpuldan offset bo'ganini ko'rsatishi
+   kere» — buni maketda ko'rsatmadim, savol ochiq.
+
+**Reja (yozilganda):**
+- `klientQarzChekPrint` (17866) dan matn quruvchi ALOHIDA ajratilsin
+  (`_ostatkaChekMatn(ki)`), sotuv modali SHU matnni chaqirsin — shunda
+  klient kartasidagi chek bilan sotuvdagi chek bayt-baytiga bir xil bo'ladi.
+- Matn **saqlashdan OLDIN** olinsin — saqlangandan keyin `_qarzTarkib` yangi
+  sotuvni ham qo'shib yuboradi.
+- Preview `#ks-chek-body` ga, `ksOstToggle` (14889) bosilganda darhol yangilansin.
+- Eski rasm-jadval (`_ostJadvalUstunlar` 14899 + `chekJadvalYubor` 2085)
+  chaqirilmay qoladi — **o'chirilmaydi**, so'ralmadi.
+
+⚠ Sotuv modalida allaqachon **oltita** qarz halqasi bor — yettinchisini
+yozma, `_qarzTarkib` ni chaqir.
+
+---
+
+## ✅ v188.7 — offset summasi «naqt» bo'lib kassaga kirardi (2026-09-16)  ⭐  *(push qilindi)*
+
+Ibrohim (2026-09-16): «tuzaldi manimcha». ⚠ Haqiqiy naqt berilgan
+sotuvda NAQT yorlig'i qolgani ALOHIDA tasdiqlanmadi.
 
 **Ibrohim:** «nega offset qilingan summa naqt qilib ko'rsatvotti, bu bizani
 kassani chalg'itadi».
