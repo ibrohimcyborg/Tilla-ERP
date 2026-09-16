@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.15 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.16 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** (1) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
 (2) to'lov chekida sodda Ostatka; (3) `Qoldi` ga `g`.
 
@@ -52,6 +52,44 @@ Sinov: 7 holat; 3 tasi v188.12 bilan qator-ba-qator solishtirildi —
 
 **Saboq:** yangi shart qo'shilganda ESKI yo'lni ham solishtirish kerak.
 v188.13 da faqat vozvratli holatlar sinalgan edi.
+
+---
+
+## ✅ v188.16 — SOTUV CHEKI NOLDAN QAYTA QURILDI (2026-09-16)
+
+Maket: `mockups/chek-noldan.html`. Ibrohim: **«shunaqa qilchi»**.
+To'rt qadamda kelishildi, `klientSotuvChekYangiGen` ning `tana()` si
+to'liq qayta yozildi (240 → 208 qator).
+
+**Tuzilish:**
+
+    OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLDI
+            -> TO'LOV -> TO'LOV USULI -> QOLGAN OSTATKA
+
+Har amaldan keyin balans. Oxirgi balans `QOLGAN OSTATKA`, oraliqdagilari
+`QOLDI`. Bo'sh blok chiqmaydi.
+
+**Ishoralar:** `VOZVRAT`/`BERILDI` da minus yo'q. Balansda oddiy son =
+klient qarzdor, `+` bilan = BIZ qarzdormiz («mana +dasiz»).
+
+**To'lov:** `TO'LOV` da pul minus, `TO'LOV USULI` da musbat (Offset ham).
+`berilganga` / `ostatkadan` ajratmasi `TO'LOV` ichida.
+
+**Balans daftari** eski `yangiOst` + `_eskiTolandi` juftligini almashtirdi:
+`bal = eski - vozvrat + berildi - to'landi + offset`.
+
+⚠ **Preview va printer AJRATILDI:** `tana(bosiladi)`. `body` — ekran uchun,
+buyruqsiz; `pbody` — printer uchun, sarlavhalar `GS ! 0x11` bilan katta.
+Aks holda previewda `!` chiqib qolardi.
+
+⚠ **Yo'qolgan ko'rinishlar** (ma'lumot yo'qolmadi, shakli o'zgardi):
+`... ostatkadan to'landi ✓` izohi va `Bizda (offset)` guruhi.
+
+⚠ **Saqlandi:** `L` (lom) va `SDACHA` — Ibrohim aytmagan, lekin olib
+tashlansa ma'lumot yo'qolardi.
+
+Sinov: 7 holat; 3 tasi maket bilan qator-ba-qator; `body` toza, `chek1` da
+5 katta sarlavha, hech bir qator 48 dan uzun emas.
 
 ---
 

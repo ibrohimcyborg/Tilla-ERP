@@ -1,4 +1,4 @@
-<!-- v188.15 -->
+<!-- v188.16 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.15';
+var APP_VER = 'v188.16';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17497,243 +17497,211 @@ function klientSotuvChekYangiGen(opts){
   var DOTS=' '+Array(W).join('.')+'\n';
 
   var o=opts;
-  // TANA (logosiz gavda)
-  function tana(){
+
+  // v188.16: CHEK NOLDAN QAYTA QURILDI. Maket: mockups/chek-noldan.html,
+  // Ibrohim: «shunaqa qilchi». Tuzilishi:
+  //
+  //   OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLDI -> TO'LOV
+  //           -> TO'LOV USULI -> QOLGAN OSTATKA
+  //
+  // Har amaldan keyin balans bloki keladi. Nomi joyiga qarab o'zgaradi:
+  // chekdagi OXIRGI balans «QOLGAN OSTATKA», oraliqdagilari «QOLDI».
+  // Ibrohim: «agar berildidan kegin to'lov bosa unda berildidayam qolgan
+  // ostatkamasde qoldi chiqadi».
+  //
+  // ISHORALAR (Ibrohim):
+  //   VOZVRAT / BERILDI - minus YO'Q, blok nomining o'zi aytadi.
+  //   Balansda musbat = klient qarzdor. BIZ qarzdor bo'lsak «+» bilan:
+  //   «-10.00 mas, +10.00 bo'sa klientga mana +dasiz dib tushuntiramiz».
+  //
+  // Bo'sh blok chiqmaydi: «ostatkasi bo'masa korsatmidi».
+
+  // printer qo'sh o'lchami. FAQAT bosiladigan nusxada - ekran previewda
+  // bu baytlar matn bo'lib ko'rinib qolardi (\x21 = '!').
+  function KATTA(x){ return '\x1D\x21\x11'+x+'\x1D\x21\x00'; }
+
+  // balans grammi: manfiy = BIZ qarzdormiz -> klientga «+» bo'lib ko'rinadi
+  function balG(v){
+    v=Math.round(v*100)/100;
+    return v < -0.001 ? '+'+fmtG(-v)+'g' : fmtG(v)+'g';
+  }
+
+  function tana(bosiladi){
+    var SARL = bosiladi ? KATTA : function(x){ return x; };
     var t='';
     t+=center(o.klientNom)+'\n';
     t+=center(o.sana+(o.soat?' - '+o.soat:''))+'\n'+LINE;
-    // v188.15: 0) OSTATKA HISOBOTI - klient amaldan OLDIN nima bilan kelgan.
-    // Ibrohim: «nega ostatkani ko'rsatmayapti, klientda oldingi ostatkasi
-    // ko'rsatmayapti». Manba: _eskiQarzMap (17056) - birinchi k.tarix.push dan
-    // OLDIN olinadi, demak haqiqiy "oldingi holat".
-    // Faqat MUSBAT (klientda turgan) turlar - manfiysi "Bizda (offset)" blokida.
-    // Ibrohim: «ostatkasi bo'masa ko'rsatmasin» - bo'sh bo'lsa blok chiqmaydi.
-    var ostBosh=[], jamiOB=0;
-    Object.keys(o.eskiOstMap||{}).forEach(function(k){
-      var e=Math.round(((o.eskiOstMap||{})[k]||0)*100)/100;
-      if(!(e>0.001)) return;
-      ostBosh.push({nom:k.split('||').join(' '), g:e});
-      jamiOB=Math.round((jamiOB+e)*100)/100;
-    });
-    if(ostBosh.length){
-      t+='OSTATKA HISOBOTI\n';
-      ostBosh.forEach(function(x){ t+=rjust(' '+x.nom, fmtG(x.g)+'g')+'\n'; });
-      t+=DASH+rjust(' JAMI', fmtG(jamiOB)+'g')+'\n'+LINE;
-    }
-    // v188.15: 1) VOZVRAT - endi BERILDI dan OLDIN. Ibrohim aytgan tartib:
-    // ostatka -> vozvrat -> berildi -> to'lov -> ostatka.
-    // (v188.13 da Berildi dan KEYIN qo'yilgandi - noto'g'ri joy edi.)
-    // v188.13: VOZVRAT - alohida blok. Ibrohim: «alohida tur bo'sayam farqi yo,
-    // alohida bo'vursin» - shu sotuvda berilmagan turdan qaytarsa ham o'z qatorini
-    // oladi. vozQoldi: hali "yangi" ustuniga singdirilmagan qoldiq.
-    var vozQoldi={}, jamiV=0;
+
+    // ─── manbalar
+    var vozMap={}, jamiVoz=0;
     (o.vozlar||[]).forEach(function(v){
       var g=Math.round((v.gramm||0)*100)/100; if(!(g>0.001)) return;
-      var kk=v.zavod+'||'+v.tur;
-      vozQoldi[kk]=Math.round(((vozQoldi[kk]||0)+g)*100)/100;
-      jamiV=Math.round((jamiV+g)*100)/100;
+      var k=v.zavod+'||'+v.tur;
+      vozMap[k]=Math.round(((vozMap[k]||0)+g)*100)/100;
+      jamiVoz=Math.round((jamiVoz+g)*100)/100;
     });
-    if(jamiV>0.001){
-      t+='Vozvrat\n';
-      (o.vozlar||[]).forEach(function(v){
-        var g=Math.round((v.gramm||0)*100)/100; if(!(g>0.001)) return;
-        t+=rjust(' '+v.zavod+' '+v.tur, '-'+fmtG(g)+'g')+'\n';
-      });
-      t+=DASH+rjust(' JAMI vozvrat', '-'+fmtG(jamiV)+'g')+'\n'+LINE;
-    }
-    // BERILDI ro'yxati = berildiMap dagi HAMMA tur (sotilgan + sotilmagan)
-    // tartib: avval oldilar tartibida, keyin qolgan berildiMap turlari
-    var berKeys=[]; var seenB={};
-    o.oldilar.forEach(function(r){ var k=r.zavod+'||'+r.tur; if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
-    Object.keys(o.berildiMap||{}).forEach(function(k){ if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
-    // 2) BERILDI
-    t+='Berildi\n';
-    var jamiB=0;
-    berKeys.forEach(function(k){
-      var b=o.berildiMap[k]; if(b===undefined) b=0;
-      if(b<=0.001) return;
-      jamiB+=b;
-      // v172.12: minussiz — blok nomi allaqachon "Berildi", minus chalg'itardi
-      t+=rjust(' '+k.split('||').join(' '), fmtG(b)+'g')+'\n';
-    });
-    t+=DASH+rjust(' JAMI berildi', fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
-    // 3) TO'LOV (sotildi)
-    t+="To'lov\n";
-    var jamiS=0,jamiG=0;
-    var yangiOst={};
-    // v172.7: to'liq yopilganlar (Qoldi yo'q) TEPADA, qoldig'i borlar PASTDA —
-    // to'lov cheki bilan bir xil tartib. Guruh ichida asl tartib saqlanadi.
-    var _sotQ=(o.oldilar||[]).map(function(r){
-      var _kq=r.zavod+'||'+r.tur;
-      var b=o.berildiMap[_kq]; if(b===undefined) b=r.gramm;
-      // v188.13: shu turning vozvrati BIR MARTA ayiriladi (keyin 0 qilinadi).
-      // Qoldi = berildi - vozvrat - to'landi.
-      var _vz=vozQoldi[_kq]||0; if(_vz) vozQoldi[_kq]=0;
-      // q  = ekrandagi "Qoldi" qatori uchun (vozvrat ayirilgan)
-      // qy = Ostatka jadvalining "yangi" ustuni uchun (vozvratsiz) - v188.14
-      return {r:r, q:Math.round((b-_vz-r.gramm)*100)/100,
-              qy:Math.round((b-r.gramm)*100)/100, vz:_vz};
-    });
-    _sotQ=_sotQ.filter(function(x){return x.q<=0.001;}).concat(_sotQ.filter(function(x){return x.q>0.001;}));
-    _sotQ.forEach(function(x){
-      var r=x.r;
-      var s=Math.round(r.gramm*r.narx*100)/100; jamiS+=s; jamiG+=r.gramm;
-      t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(r.gramm)+'g x '+r.narx, fmtD(s)+'#')+'\n';
-      // v172.12: shu turda BIZ qarzdor bo'lgan bo'lsak, "Qoldi" chalg'itadi —
-      // farq klient qarzi emas, bizning eski qarzimizdan yopilgan. O'rniga izoh.
-      var _ek=(o.eskiOstMap||{})[r.zavod+'||'+r.tur]||0;
-      var _ber=(o.berildiMap||{})[r.zavod+'||'+r.tur];
-      // v188.14 XATO TUZATISH. v188.13 da "yangi" ustuniga manfiy q ham
-      // qo'shilgandi - lekin sotildi>berildi bo'lgan qism `_eskiTolandi` da
-      // ALLAQACHON ayiriladi (tl). Natijada IKKI MARTA ketardi:
-      //   eski 12.40 + berildi 10 - to'landi 20  ->  2.40 o'rniga -7.60
-      // To'g'ri qoida: "yangi" = (berildi - to'landi, 0 dan past emas) - vozvrat.
-      // Vozvrat `tl` ga kirmaydi (u to'lov emas), shuning uchun shu yerda ayiriladi.
-      var _yo=Math.round((Math.max(0,x.qy)-x.vz)*100)/100;
-      if(Math.abs(_yo)>0.001) yangiOst[r.zavod+'||'+r.tur]=(yangiOst[r.zavod+'||'+r.tur]||0)+_yo;
-      if(_ek<-0.001 && _ber>0.001){
-        t+=DOTS+' '+fmtG(_ber)+' - '+fmtG(Math.abs(_ek))+' (qarzimiz) = '+fmtG(Math.round((_ber+_ek)*100)/100)+'\n';
-      } else if(x.q>0.001){
-        t+=DOTS+rjust('   Qoldi', fmtG(x.q))+'\n';
-      }
-    });
-    jamiS=Math.round(jamiS*100)/100;
-    // Sotilmagan (oldilarda yo'q, berildiMapda bor) -> to'liq qoldi (yangi ostatka)
-    var soldKeys={}; o.oldilar.forEach(function(r){ soldKeys[r.zavod+'||'+r.tur]=1; });
+    var berMap={}, jamiBer=0;
     Object.keys(o.berildiMap||{}).forEach(function(k){
-      if(soldKeys[k]) return;
-      var b=o.berildiMap[k]; if(b>0.001) yangiOst[k]=(yangiOst[k]||0)+b;
+      var g=Math.round((o.berildiMap[k]||0)*100)/100; if(!(g>0.001)) return;
+      berMap[k]=g; jamiBer=Math.round((jamiBer+g)*100)/100;
     });
-    // v188.13: to'lov qatoriga tushmagan vozvrat (berilmagan yoki sotilmagan tur)
-    // "yangi" ustuniga MINUS bo'lib tushadi - shunda o'sha tur jadvalga kiradi
-    // va ostatkasi kamayadi.
-    Object.keys(vozQoldi).forEach(function(k){
-      var vz=vozQoldi[k]; if(!(vz>0.001)) return;
-      yangiOst[k]=Math.round(((yangiOst[k]||0)-vz)*100)/100;
+    var sotMap={};
+    (o.oldilar||[]).forEach(function(r){
+      var k=r.zavod+'||'+r.tur;
+      sotMap[k]=Math.round(((sotMap[k]||0)+(r.gramm||0))*100)/100;
     });
-    // 3) JAMI TO'LANDI (L + N)
-    var lomPul=0; (o.lomlar||[]).forEach(function(l){ lomPul+=(l.pul||Math.round((l.gramm||0)*(l.kurs||0)*100)/100); });
-    lomPul=Math.round(lomPul*100)/100;
-    t+=LINE+"Jami to'landi\n";
-    if(lomPul>0.001){
-      // lom qatorlari L
-      (o.lomlar||[]).forEach(function(l){
-        var lp=l.pul||Math.round((l.gramm||0)*(l.kurs||0)*100)/100;
-        t+=rjust(' L  '+fmtG(l.gramm)+'g x '+l.kurs, fmtD(lp)+'#')+'\n';
-      });
-    }
-    // v172.6: offset "Jami to'landi" da EMAS — pastdagi ayirish blokida
-    // (Umumiy Summa - Skidka - Offset = Kerakli summa), to'lov cheki bilan bir xil.
-    var offPul=0; (o.offsetlar||[]).forEach(function(x){ offPul+=(x.summa||0); });
-    offPul=Math.round(offPul*100)/100;
-    // v172.5: naqt/karta/perech ALOHIDA (avval hammasi bitta N bo'lib chiqardi).
-    // Uchala maydon ham bo'sh bo'lsa — sof naqt sotuv, avvalgi mantiq saqlanadi.
-    var _nb=Math.round((o.naqt||0)*100)/100;
-    var _kb=Math.round((o.karta||0)*100)/100;
-    var _pb=Math.round((o.perech||0)*100)/100;
-    var naqd=Math.round((jamiS-lomPul-offPul)*100)/100;
-    if(_nb<0.001 && _kb<0.001 && _pb<0.001){
-      t+=rjust(' N', fmtD(naqd)+'#')+'\n';
-    } else {
-      if(_nb>0.001) t+=rjust(' N', fmtD(_nb)+'#')+'\n';
-      if(_kb>0.001) t+=rjust(' K', fmtD(_kb)+'#')+'\n';
-      if(_pb>0.001) t+=rjust(' P', fmtD(_pb)+'#')+'\n';
-    }
-    // v172.6: Umumiy Summa -> Skidka -> Offset -> Kerakli summa (to'lov cheki bilan bir xil).
-    // Ayirma bo'lmasa "Kerakli summa" chiqmaydi — bir xil raqam takrorlanmasin.
-    var sk=Math.round((o.skidka||0)*100)/100;
-    t+=LINE;
-    t+=rjust(' Umumiy Summa', fmtD(jamiS)+'#')+'\n';
-    if(sk>0.001) t+=rjust(' Skidka','-'+fmtD(sk)+'#')+'\n';
+    var offMap={};
     (o.offsetlar||[]).forEach(function(x){
-      t+=rjust(' Offset  '+x.zavod+' '+x.tur+' '+fmtG(x.gramm)+'g x '+x.kurs, '-'+fmtD(x.summa)+'#')+'\n';
+      var k=x.zavod+'||'+x.tur;
+      offMap[k]=Math.round(((offMap[k]||0)+(x.gramm||0))*100)/100;
     });
-    if(sk>0.001 || offPul>0.001) t+=DOTS+rjust(' Kerakli summa', fmtD(Math.round((jamiS-sk-offPul)*100)/100)+'#')+'\n';
-    t+=rjust(' Umumiy g', fmtG(jamiG)+'g')+'\n';
-    // Ortiqcha pul: naqd qaytsa SDACHA, zavod turidan yopilsa Qolgan summa
+
+    // ─── balans daftari: eski ostatka + shu chekda tegilgan turlar
+    var bal={}, tartib=[];
+    function qosh(k){ if(bal[k]===undefined){ bal[k]=0; tartib.push(k); } }
+    Object.keys(o.eskiOstMap||{}).forEach(function(k){
+      qosh(k); bal[k]=Math.round((o.eskiOstMap[k]||0)*100)/100;
+    });
+    [vozMap, berMap, sotMap, offMap].forEach(function(m){ Object.keys(m).forEach(qosh); });
+
+    function balBlok(nom){
+      var q='', j=0, bor=false;
+      tartib.forEach(function(k){
+        var v=Math.round(bal[k]*100)/100;
+        if(Math.abs(v)<=0.001) return;          // qolmagan tur yozilmaydi
+        q+=rjust(' '+k.split('||').join(' '), balG(v))+'\n';
+        j=Math.round((j+v)*100)/100; bor=true;
+      });
+      if(!bor) return '';                       // bo'sh blok umuman chiqmaydi
+      return SARL(nom)+'\n'+q+DASH+rjust(' JAMI', balG(j))+'\n'+LINE;
+    }
+    function amalBlok(nom, m, jami){
+      if(!(jami>0.001)) return '';
+      var s2=SARL(nom)+'\n';
+      tartib.forEach(function(k){
+        var g=m[k]; if(!(g>0.001)) return;
+        s2+=rjust(' '+k.split('||').join(' '), fmtG(g)+'g')+'\n';   // minus YO'Q
+      });
+      return s2+DASH+rjust(' JAMI', fmtG(jami)+'g')+'\n'+LINE;
+    }
+
+    // ─── pul
+    var tolRows=[], jamiSotG=0, jamiPul=0;
+    (o.oldilar||[]).forEach(function(r){
+      var g=Math.round((r.gramm||0)*100)/100; if(!(g>0.001)) return;
+      var pul=Math.round((r.pul!==undefined?r.pul:g*(r.narx||0))*100)/100;
+      tolRows.push({r:r, g:g, pul:pul});
+      jamiSotG=Math.round((jamiSotG+g)*100)/100;
+      jamiPul=Math.round((jamiPul+pul)*100)/100;
+    });
+    var sk=Math.round((o.skidka||0)*100)/100;
+    var offPul=0;
+    (o.offsetlar||[]).forEach(function(x){ offPul=Math.round((offPul+(x.summa||0))*100)/100; });
+    var lomlar=[];
+    (o.lomlar||[]).forEach(function(l){
+      var lp=Math.round((l.pul!==undefined?l.pul:(l.gramm||0)*(l.kurs||0))*100)/100;
+      if(lp>0.001) lomlar.push({g:l.gramm||0, kurs:l.kurs||0, pul:lp});
+    });
+    var lomPul=0; lomlar.forEach(function(l){ lomPul=Math.round((lomPul+l.pul)*100)/100; });
+    var nb=Math.round((o.naqt||0)*100)/100;
+    var kb=Math.round((o.karta||0)*100)/100;
+    var pb=Math.round((o.perech||0)*100)/100;
+    // eski xulq: uchala maydon bo'sh bo'lsa qolgani sof naqt
+    if(nb<0.001 && kb<0.001 && pb<0.001){
+      nb=Math.max(0, Math.round((jamiPul-sk-offPul-lomPul)*100)/100);
+    }
+
+    var berBor=jamiBer>0.001;
+    var tolBor=tolRows.length>0 || offPul>0.001 || lomPul>0.001;
+    var amalBor=jamiVoz>0.001 || berBor || tolBor;
+
+    // ─── 1) OSTATKA (amaldan oldingi holat)
+    t+=balBlok('OSTATKA');
+
+    // ─── 2) VOZVRAT
+    if(jamiVoz>0.001){
+      t+=amalBlok('VOZVRAT', vozMap, jamiVoz);
+      Object.keys(vozMap).forEach(function(k){ bal[k]=Math.round((bal[k]-vozMap[k])*100)/100; });
+      if(berBor||tolBor) t+=balBlok('QOLDI');
+    }
+
+    // ─── 3) BERILDI
+    if(berBor){
+      t+=amalBlok('BERILDI', berMap, jamiBer);
+      Object.keys(berMap).forEach(function(k){ bal[k]=Math.round((bal[k]+berMap[k])*100)/100; });
+      if(tolBor) t+=balBlok('QOLDI');
+    }
+
+    // ─── 4) TO'LOV. Ibrohim: «qaysi turri nechi gram nechi g/$dan minus
+    //     jami nechpul minus bo'ganini skidkasiniyam qoshib» +
+    //     «to'lovda ostatkadan berilgandan qilib boganlarini ko'rsat».
+    //     Qoida: avval bugun BERILGANiga, oshgani ESKI ostatkadan.
+    if(tolRows.length){
+      t+=SARL("TO'LOV")+'\n';
+      tolRows.forEach(function(x){
+        var r=x.r, k=r.zavod+'||'+r.tur;
+        t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(x.g)+'g x '+r.narx, '-'+fmtD(x.pul)+'#')+'\n';
+        var ber=Math.min(x.g, berMap[k]||0);
+        var est=Math.round((x.g-ber)*100)/100;
+        if(ber>0.001) t+=rjust('   berilganga', fmtG(ber)+'g')+'\n';
+        if(est>0.001) t+=rjust('   ostatkadan', fmtG(est)+'g')+'\n';
+      });
+      t+=DASH+rjust(' JAMI  '+fmtG(jamiSotG)+'g', '-'+fmtD(jamiPul)+'#')+'\n';
+      if(sk>0.001) t+=rjust(' Skidka', '-'+fmtD(sk)+'#')+'\n';
+      t+=LINE;
+    }
+    Object.keys(sotMap).forEach(function(k){ bal[k]=Math.round((bal[k]-sotMap[k])*100)/100; });
+
+    // ─── 5) TO'LOV USULI. Bu yerda hammasi MUSBAT - pul qayerdan kelgani.
+    var usul=[];
+    (o.offsetlar||[]).forEach(function(x){
+      var su=Math.round((x.summa||0)*100)/100; if(!(su>0.001)) return;
+      usul.push([' Offset  '+x.zavod+' '+x.tur+' '+fmtG(x.gramm||0)+'g x '+x.kurs, su]);
+    });
+    lomlar.forEach(function(l){ usul.push([' L  '+fmtG(l.g)+'g x '+l.kurs, l.pul]); });
+    if(nb>0.001) usul.push([' N', nb]);
+    if(kb>0.001) usul.push([' K', kb]);
+    if(pb>0.001) usul.push([' P', pb]);
     var ort=Math.round((o.ortiqcha||0)*100)/100, tn=o.tanlov||null;
-    // v160: SDACHA faqat ANIQ tanlanganda yoziladi. Avval tanlov null bo'lsa ham
-    // else tarmog'iga tushib "SDACHA" chiqarardi - sistemada hech narsa saqlanmasa
-    // ham chekda pul qaytarilgandek ko'rinardi.
-    if(ort>0.01 && tn){
-      if(tn.tip==='tur' && tn.narx>0){
-        t+=DOTS+rjust(' Qolgan summa -> '+tn.zavod+' '+tn.tur, '+'+fmtG(Math.round(ort/tn.narx*100)/100)+'g')+'\n';
-      } else if(tn.tip==='bizda'){
-        t+=DOTS+rjust(' Qolgan summa', fmtD(ort)+'#')+'\n';
-      } else if(tn.tip==='sdacha'){
-        t+=DOTS+rjust(' SDACHA', fmtD(ort)+'#')+'\n';
-      }
-    }
-    // 4) OSTATKA (Ostatka/yangi/jami)
-    var zlar={};
-    Object.keys(o.eskiOstMap||{}).forEach(function(k){ zlar[k]=1; });
-    Object.keys(yangiOst).forEach(function(k){ zlar[k]=1; });
-    var keys=Object.keys(zlar);
-    if(keys.length || (o.offsetlar||[]).length){
-      // v172.33: eski ostatkadan SHU SOTUVDA to'langan qism. Avval "jami" ustuni
-      // e+y edi — to'lov hisobga olinmasdi va to'liq yopilgan qarz chekda hali
-      // ham turardi (Juma Aka: 1.17 eski + 4.00 yangi = 5.17 to'landi, chek esa
-      // "jami 1.17g" deb yozardi -> klient qarzim bor deb tushunardi).
-      // Hisob: to'lov grammi - berilgan gramm, [0 .. eski] oralig'iga qisiladi.
-      // eski<0 (BIZ qarzdormiz) bu yerda emas — pastdagi "Bizda (offset)" blokida.
-      var sotildiMap={};
-      (o.oldilar||[]).forEach(function(r){
-        var kk=r.zavod+'||'+r.tur;
-        sotildiMap[kk]=(sotildiMap[kk]||0)+(r.gramm||0);
+    if(usul.length){
+      t+=SARL("TO'LOV USULI")+'\n';
+      var ju=0;
+      usul.forEach(function(u){
+        t+=rjust(u[0], fmtD(u[1])+'#')+'\n'; ju=Math.round((ju+u[1])*100)/100;
       });
-      function _eskiTolandi(k, e){
-        if(!(e>0.001)) return 0;
-        var v=Math.round(((sotildiMap[k]||0)-((o.berildiMap||{})[k]||0))*100)/100;
-        if(v<0.001) return 0;
-        return Math.min(v, e);
-      }
-      // v188.15: avval qatorlar HISOBLANADI, keyin chiqariladi - chunki qolmagan
-      // tur (jami 0.00) yozilmaydi va blok butunlay bo'sh qolishi mumkin.
-      // Ibrohim: «ostatkasi bo'masa ko'rsatmasin chek».
-      var ostQator=[], te=0,ty=0,tj=0, ostIzoh=[];
-      keys.forEach(function(k){
-        var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0;
-        var tl=_eskiTolandi(k,e), j=Math.round((e+y-tl)*100)/100;
-        var nom=k.split('||').join(' ');
-        if(tl>0.001){
-          if(tl>=e-0.001) ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatka ham to'landi ✓\n");
-          // qisman: qolgani ALOHIDA qatorda — bitta qatorga sig'maydi (chek eni 48)
-          else ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatkadan to'landi\n"
-                            +rjust('', 'qoldi '+fmtG(j)+'g')+'\n');
+      t+=DASH+rjust(' JAMI', fmtD(ju)+'#')+'\n';
+      // v160: SDACHA faqat ANIQ tanlanganda - tanlovsiz yozilsa sistemada
+      // saqlanmagan pul qaytarilgandek ko'rinardi.
+      if(ort>0.01 && tn){
+        if(tn.tip==='tur' && tn.narx>0){
+          t+=rjust(' Qolgan summa -> '+tn.zavod+' '+tn.tur, '+'+fmtG(Math.round(ort/tn.narx*100)/100)+'g')+'\n';
+        } else if(tn.tip==='bizda'){
+          t+=rjust(' Qolgan summa', fmtD(ort)+'#')+'\n';
+        } else if(tn.tip==='sdacha'){
+          t+=rjust(' SDACHA', fmtD(ort)+'#')+'\n';
         }
-        if(Math.abs(j)<=0.001) return;   // v188.15: qolmagan tur chiqmaydi
-        te+=e;ty+=y;tj+=j;
-        ostQator.push(padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n');
-      });
-      if(ostQator.length || ostIzoh.length || (o.offsetlar||[]).length){
-      t+=LINE+'Ostatka\n';
-      if(ostQator.length){
-        t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
-        ostQator.forEach(function(x){ t+=x; });
-        t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
       }
-      ostIzoh.forEach(function(s){ t+=s; });   // v172.33: "... ostatka ham to'landi ✓"
-      // v172.5: offset manbai — BIZ qarzdor bo'lgan tur. JAMI ga qo'shilmaydi
-      // (u klient qarzi, bu bizniki — bir ustunda qo'shilsa ma'nosi buziladi).
-      // "(bizda)" nom ustuniga sig'maydi (18 belgi), shuning uchun guruh sarlavhasida.
-      if((o.offsetlar||[]).length){
-        t+=' Bizda (offset)\n';
-        (o.offsetlar||[]).forEach(function(x){
-          var e=Math.abs(Math.round((x.eskiQarz||0)*100)/100);
-          var y=-Math.round((x.gramm||0)*100)/100;
-          t+=padL(' '+x.zavod+' '+x.tur,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(Math.round((e+y)*100)/100)+'g',10)+'\n';
-        });
-      }
-      }   // v188.15: bo'sh Ostatka bloki umuman chiqmaydi
+      t+=LINE;
     }
+    // offset BIZNING qarzimizni yeydi -> manfiy balans nolga yaqinlashadi
+    Object.keys(offMap).forEach(function(k){ bal[k]=Math.round((bal[k]+offMap[k])*100)/100; });
+    // ortiqcha pul turga o'tkazilsa - o'sha turdagi qarzi kamayadi
+    if(ort>0.01 && tn && tn.tip==='tur' && tn.narx>0){
+      var ok=tn.zavod+'||'+tn.tur; qosh(ok);
+      bal[ok]=Math.round((bal[ok]-Math.round(ort/tn.narx*100)/100)*100)/100;
+    }
+
+    // ─── 6) QOLGAN OSTATKA (chekdagi oxirgi balans)
+    if(amalBor) t+=balBlok('QOLGAN OSTATKA');
     return t;
   }
 
-  var body=tana();
+  var body=tana(false);    // ekran preview - printer buyruqlarisiz
+  var pbody=tana(true);    // bosiladigan nusxa - sarlavhalar qo'sh o'lchamda
   // CHEK 1 (klient, logo) + CHEK 2 (o'zimizga, logosiz, ptichka)
   // oxirida feed (bo'sh qatorlar) - printer kesish chizig'i oxirgi matnni kesmasin
-  var chek1=body+LINE+center('Rahmat')+'\n\n\n\n';
-  var chek2=body+LINE+'\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00'+'\n\n\n\n';
+  var chek1=pbody+LINE+center('Rahmat')+'\n\n\n\n';
+  var chek2=pbody+LINE+'\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00'+'\n\n\n\n';
   return {chek1:chek1, chek2:chek2, body:body};
 }
 function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan, chekTanlov, chekOrtiqcha) {

@@ -7687,3 +7687,100 @@ faqat ko'rinish.
 
 Saqlash, baza, klient tarixi, hisob-kitob, to'lov cheki, kassa cheki,
 ostatka rasmi.
+
+## v188.16 — sotuv cheki NOLDAN qayta qurildi
+
+**Ibrohim:** «chekni o'zgartiramiz, ketma-ket tuzamiz, san manga ko'rsatasan
+mockupda... rasmga qarama, 0dan tuzamiz» → to'rt qadam maket → **«shunaqa qilchi»**.
+
+Maket: `mockups/chek-noldan.html`.
+
+### Yangi tuzilish
+
+    OSTATKA  ->  VOZVRAT  ->  QOLDI  ->  BERILDI  ->  QOLDI
+             ->  TO'LOV   ->  TO'LOV USULI  ->  QOLGAN OSTATKA
+
+Har **amal**dan keyin **balans** bloki keladi. Balans blokining nomi joyiga
+qarab o'zgaradi: chekdagi **oxirgi** balans `QOLGAN OSTATKA`, oraliqdagilari
+`QOLDI`. Ibrohim: «agar berildidan kegin to'lov bosa unda berildidayam qolgan
+ostatkamasde qoldi chiqadi».
+
+### Ishoralar
+
+| | |
+|---|---|
+| `VOZVRAT` / `BERILDI` | minus **YO'Q** — blok nomining o'zi aytadi |
+| balansda oddiy son | klient qarzdor |
+| balansda `+` bilan | **BIZ** qarzdormiz |
+
+Ibrohim: «-10.00 mas, +10.00 bo'sa biza klientga mana +dasiz dib
+tushuntiramiz». Shu bilan avvalgi savol ham yopildi — `-5.00g` ham,
+`(bizda)` ham emas, **`+5.00g`**.
+
+### To'lov
+
+`TO'LOV` da pul **minus** (qarzdan nima ayrilgani), `TO'LOV USULI` da
+**musbat** (pul qayerdan kelgani) — shuning uchun Offset ham musbat.
+
+    TO'LOV
+     Diamond Oddiy  13.00g x 92           -1,196.00#
+       berilganga                             10.00g
+       ostatkadan                              3.00g
+     JAMI  15.00g                         -1,375.00#
+     Skidka                                   -5.00#
+
+`berilganga` / `ostatkadan`: avval bugun **berilganiga**, oshgani **eski
+ostatkadan**.
+
+### Balans daftari — eski mexanizm olib tashlandi
+
+Avvalgi `yangiOst` + `_eskiTolandi` (tl) juftligi o'rniga oddiy daftar:
+
+    bal = eski - vozvrat + berildi - to'landi + offset
+
+⚠ Shu bilan birga **yo'qoldi**:
+- `... ostatkadan to'landi ✓` izoh qatorlari — endi `ostatkadan` qatori
+  `TO'LOV` ning ichida turadi
+- `Bizda (offset)` guruhi — endi biz qarzdor tur balans blokida `+` bilan
+  ko'rinadi
+
+Ikkalasi ham yangi shaklda boshqacha ko'rsatiladi, ma'lumot yo'qolmadi.
+
+### Katta sarlavhalar
+
+Ibrohim: «OSTATKA VOZVRAT QOLGAN OSTATKALANI kottalashtir klient ko'rishi
+uchun». Printerning qo'sh o'lcham buyrug'i (`GS ! 0x11`).
+
+⚠ **Ekran previewi bilan bosiladigan nusxa ajratildi.** `tana(bosiladi)`:
+
+    body  = tana(false)   -> ekran (ks-chek-body.textContent) - buyruqsiz
+    pbody = tana(true)    -> printer - sarlavhalar qo'sh o'lchamda
+
+Aks holda previewda `\x21` = `!` matn bo'lib chiqib qolardi.
+
+### Saqlandi
+
+`L` (lom) to'lov usuli va `SDACHA` / `Qolgan summa` — Ibrohim ularni
+aytmagan edi, lekin olib tashlansa ma'lumot yo'qolardi. v160 sharti ham
+o'z joyida: SDACHA faqat aniq tanlanganda.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Yetti holat, uchtasi maketdagi misollar bilan **qator-ba-qator** solishtirildi:
+
+    1 vozvrat+berildi+aralash to'lov+skidka   maketdagidek
+    2 klient plusda, offset hammasini yopdi   maketdagidek, QOLGAN OSTATKA chiqmadi
+    3 offset yetdi, klient hali +5.00g        maketdagidek
+    4 faqat vozvrat                           QOLDI yo'q, to'g'ri
+    5 ostatkasi yo'q                          OSTATKA bloki chiqmadi
+    6 ostatkadan to'landi 12.40+10-20         2.40g - v188.14 tuzatishi saqlandi
+    7 lom + sdacha                            L va SDACHA joyida
+
+Har holatda tekshirildi: `body` da boshqaruv bayti **yo'q**, `chek1` da
+**5 ta** qo'sh o'lchamli sarlavha bor, hech bir qator **48 dan uzun emas**.
+
+### Tegilmadi
+
+Saqlash, baza, klient tarixi, hisob-kitob, to'lov cheki (`kTolovChekGen`),
+kassa cheki, ostatka rasmi.
