@@ -1,4 +1,4 @@
-<!-- v188.8 -->
+<!-- v188.9 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.8';
+var APP_VER = 'v188.9';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10858,10 +10858,10 @@ function kTolovChekGen(d){
   // (_ktSdachaPul faqat tanlov.tip==='sdacha' bo'lganda to'ldiriladi)
   if(d.sdacha) t+=DOTS+rj(' Qolgan summa -> '+d.sdacha.qayerga,'+'+fmtG(d.sdacha.g)+'g')+'\n';
   else if(d.sdachaPul>0.01) t+=DOTS+rj(' SDACHA', fmtD(d.sdachaPul)+'#')+'\n';
-  // v176.5 (Ibrohim): offset naqt qilib qaytarilgan bo'lsa — qaysi turdan qaytgani
-  (d.sdachaNaqt||[]).forEach(function(x){
-    t+=rj(' Naqt qaytarildi -> '+x.nom, fmtG(x.g||0)+'g')+'\n';
-  });
+  // v188.9 (Ibrohim): «naqt qaytarildi keremas, pulini ko'rsatsa bo'ldi,
+  // grami keremas» — bu yerda «Naqt qaytarildi -> <tur>  Xg» qatorlari
+  // chizilardi. Endi SDACHA summasi yetarli.
+  // d.sdachaNaqt hisobi TEGILMADI — faqat chizish olib tashlandi.
 
   // v172.6: offset turlari asosiy jadvaldan chiqarildi — ular "Bizda (offset)"
   // guruhida, JAMI ga qo'shilmaydi (u klient qarzi, bu bizniki).
@@ -18548,6 +18548,19 @@ function ktOffsetToggle(idx, qarzG, btn) {
     ktoLbl.textContent = 'O  ' + fmtG(gNow) + 'g \u00d7 ' + nNow + '$/g';
     ktoSum.textContent = '= ' + fmtD(sumNow) + '$';
   }
+  // v188.9 (Ibrohim): offset bosilgach «kerakli summa» o'zgaradi, lekin
+  // to'lov kataklari ESKI qiymat bilan qolib ketardi.
+  // ShoMuhammad 16.09.2026: offsetdan OLDIN biz-qarzdor qatori oddiy to'lov
+  // bo'lib sanaladi (14177), shuning uchun kerakli = 507.78 + 554.59 =
+  // 1,062.37 chiqib, o'sha Naqt katagiga tushgan. Offset bosilgach kerakli
+  // 0 bo'lgan, Naqt esa 1,062.37 bo'lib qolgan -> chekda soxta
+  // «N 1,062.37#» va «SDACHA 1,109.18#».
+  // Endi offset holati o'zgarganda uchala katak tozalanadi va qayta
+  // hisoblanadi. Kassir naqtni offsetni hal qilgandan KEYIN yozadi.
+  ['naqt','karta','perech'].forEach(function(_f){
+    var _e = document.getElementById('kt-'+_f+'-berildi');
+    if(_e){ _e.value = ''; _e.dataset.userEdited = ''; }
+  });
   kTolovCalc();
 }
 

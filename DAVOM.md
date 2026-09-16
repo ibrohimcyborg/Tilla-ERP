@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.8 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.9 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** to'lov cheki — Vozvrat bo'limi + Ostatka ro'yxati (kelishilgan, kod yozilmagan).
 
 ---
@@ -108,6 +108,30 @@ yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
 Ibrohimga aytildi, qaror kutilmoqda.
+
+---
+
+## ✅ v188.9 — offsetdan keyin qolgan naqt soxta SDACHA yasardi (2026-09-16)  ⭐
+
+**Ibrohim:** «sdachini 1109.18# ko'rsatvotti».
+
+Qator «offset» deb sanalishi tugma bosilganiga bog'liq (14177). Bosishdan
+OLDIN biz-qarzdor qatori oddiy to'lov bo'lib sanaladi →
+`kerakli = 507.78 + 554.59 = 1,062.37` → Naqt katagiga tushadi.
+Offset bosilgach `kerakli = 0`, lekin **katak o'zgarmay qoladi** →
+chekda soxta `N 1,062.37#` va `SDACHA 1,109.18#`.
+
+Tuzatildi: `ktOffsetToggle` da, `kTolovCalc()` dan oldin uchala to'lov
+katagi tozalanadi. Kassir naqtni offsetdan KEYIN yozadi.
+
+Yana: chekdan `Naqt qaytarildi -> <tur> Xg` qatorlari olib tashlandi —
+Ibrohim: «pulini ko'rsatsa bo'ldi, grami keremas».
+`d.sdachaNaqt` hisobi tegilmadi.
+
+⚠ Sdacha naqt berish MEXANIZMI ishlaydi — kassir ataylab ortiqcha bersa
+sdacha avvalgidek chiqadi (sinovda: 100$ → 146.81).
+
+Maket: `mockups/sdacha-xato-tahlil.html`.
 
 ---
 

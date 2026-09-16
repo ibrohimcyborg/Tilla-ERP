@@ -7203,3 +7203,106 @@ bazadagi yozuvlar.
 
 ⚠ `fmtD` butun sonlarda kasr qismini yozmaydi (`2,723#`, `280#`).
 Eski chek ham shunday edi — o'zgartirilmadi.
+
+## v188.9 — offsetdan keyin qolgan naqt soxta SDACHA yasardi  ⭐ KATTA XATO
+
+**Ibrohim** (bosilgan chek rasmi bilan): «nimasi to'g'ri, unaqa bo'lishi
+keremas ... sdachini 1109.18# ko'rsatvotti».
+
+### Nima bo'lgan
+
+ShoMuhammad, 16.09.2026. Simay Oddiy berilgan (5.58g x 91 = 507.78$),
+Butterfly Oddiy da biz qarzdor edik (6.36g x 87.2 = 554.59$), u offset
+qilib Simay'ni yopgan. Chekda:
+
+    Jami to'landi
+     N                                      1,062.37#   <- SOXTA
+     ...
+     SDACHA                                 1,109.18#   <- SOXTA
+
+Klient **naqt bermagan**. To'g'risi: `N` qatori umuman bo'lmasligi,
+SDACHA esa ishlatilmagan offset — `554.59 - 507.78 = 46.81$`.
+
+### Sabab
+
+Qator «offset» deb sanalishi **offset tugmasi bosilganiga** bog'liq
+(`index.html:14177`):
+
+    var isKtOffset = ktoBlok && ktoBlok.style.display !== 'none';
+    if(isKtOffset) ktOffsetPulRaw+=s; else jamiSummaKt+=s;
+
+Demak **bosishdan OLDIN** biz-qarzdor qatori oddiy to'lov bo'lib sanaladi:
+
+    offsetdan OLDIN:  jamiSummaKt = 507.78 + 554.59 = 1,062.37
+                      ktKerakli   = 1,062.37   -> Naqt katagiga tushadi
+    offsetdan KEYIN:  jamiSummaKt = 507.78
+                      ktKerakli   = 0.00       -> katak O'ZGARMAY QOLADI
+
+Keyin qolgani o'z-o'zidan kelib chiqadi:
+
+    N       = 1,062.37                         (katakdan, 14432)
+    SDACHA  = max(0, 1062.37 - 0) + 46.81      (14244)
+            = 1,109.18                         <- qog'ozdagi raqam, AYNAN
+
+### Rad etilgan gumonlar (tekshirildi)
+
+| Gumon | Natija |
+|---|---|
+| `jamiSummaKt` offsetni qo'shib yuboradi | YO'Q — 14179 da ajratilgan |
+| `kerakli summa` noto'g'ri | YO'Q — `507.78-507.78=0`, chekda ham 0.00 |
+| POS `_ktKbToldir` yozgan | YO'Q — boshqa kataklarga (`kt-pp-*`) yozadi |
+| `_tolovAvto` yozgan | YO'Q — kerakli 0 bo'lgani uchun 0 yozardi |
+| Saqlashdagi `jamiSummaKt2` (14689) | YO'Q — faqat sdacha TURGA taqsimlanganda ishlaydi |
+
+**Chek va sdacha formulasi ham aybdor emas** — Naqt katagi bo'sh bo'lsa
+o'sha formula `0 - 507.78 + 507.78 = 0`, ustiga `46.81` beradi, ya'ni
+to'g'ri raqamni. Ular yomon katakni sodiqlik bilan ko'rsatgan.
+
+### Qilindi
+
+**1.** `ktOffsetToggle` (18470 atrofida) oxirida, `kTolovCalc()` dan OLDIN
+uchala to'lov katagi tozalanadi:
+
+    ['naqt','karta','perech'].forEach(function(_f){
+      var _e = document.getElementById('kt-'+_f+'-berildi');
+      if(_e){ _e.value = ''; _e.dataset.userEdited = ''; }
+    });
+
+Kassir naqtni offsetni hal qilgandan KEYIN yozadi — tabiiy tartib.
+
+**2.** Chekdan `Naqt qaytarildi -> <tur>  Xg` qatorlari olib tashlandi
+(`kTolovChekGen`, 10862). Ibrohim: «naqt qaytarildi keremas, pulini
+ko'rsatsa bo'ldi, grami keremas».
+⚠ `d.sdachaNaqt` **hisobi tegilmadi** — faqat chizish olib tashlandi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+
+Haqiqiy `kTolovChekGen` fayldan olinib, ShoMuhammad ma'lumoti bilan
+ishga tushirildi (kataklar tozalangan holat):
+
+    Jami to'landi
+    ================================================
+     Umumiy Summa                            507.78#
+     Offset  Butterfly Oddiy 5.82g x 87.2   -507.78#
+     Kerakli summa                             0.00#
+     Umumiy g                                  5.58g
+     SDACHA                                   46.81#
+
+    N qatori:               yo'q   OK
+    Naqt qaytarildi qatori: yo'q   OK
+    SDACHA:                 46.81  OK
+
+Sdacha formulasi (14244) uch holatda:
+
+    Naqtda 1062.37 qolgan  -> 1,109.18   (eski xato, qog'ozdagi raqam)
+    kataklar tozalangan    ->    46.81   (tuzatilgan)
+    kassir ataylab 100$    ->   146.81   (sdacha ishlashda QOLDI)
+
+### Tegilmadi
+
+Sdacha naqt berish mexanizmi, offset hisobi, `jamiSummaKt`, `ktKerakli`,
+chekning qolgan qismi, sotuv cheki, kassa cheki, klient tarixi, bazadagi
+yozuvlar. Sotuv chekidagi o'xshash `Naqt qaytarildi` qatori (16818) ham
+TEGILMADI — so'ralmadi.
