@@ -7784,3 +7784,67 @@ Har holatda tekshirildi: `body` da boshqaruv bayti **yo'q**, `chek1` da
 
 Saqlash, baza, klient tarixi, hisob-kitob, to'lov cheki (`kTolovChekGen`),
 kassa cheki, ostatka rasmi.
+
+## v188.17 — 2-chek (o'zimizga) ostatkasiz + qo'sh chiziq tuzatildi
+
+**Ibrohim:** «2chi chek bizani tekshiradganimizga ostatka hisoblari keremas,
+shuni obtashash kere, vozvrat berish to'lovvi ko'rsatsa bo'ldi» →
+maketda ikki variant ko'rsatildi → **«B qivur, to'lovvi obshiysi bo'vursin»**.
+
+Maket: `mockups/chek2-ostatkasiz.html`.
+
+### Qilindi
+
+`tana(bosiladi)` → `tana(bosiladi, qisqa)`. `qisqa=true` bo'lganda:
+
+| | |
+|---|---|
+| `OSTATKA` / `QOLDI` / `QOLGAN OSTATKA` | chiqmaydi |
+| `TO'LOV` dagi `berilganga` / `ostatkadan` | chiqmaydi (**B** varianti) |
+| `VOZVRAT` / `BERILDI` / `TO'LOV` / `TO'LOV USULI` | qoladi |
+
+Uchta gavda:
+
+    body   = tana(false, false)   ekran preview - TO'LIQ
+    pbody  = tana(true,  false)   1-chek klientga - TO'LIQ
+    pbody2 = tana(true,  true)    2-chek o'zimizga - qisqa
+
+⚠ 1-chek va ekran previewi **hech o'zgarmadi**.
+
+### ⚠ v188.16 dagi qo'sh chiziq tuzatildi
+
+Chek oxirida **ikkita** `====` chiqardi. Sabab: yangi bloklar har biri o'zi
+`LINE` bilan yopiladi, lekin `chek1`/`chek2` qurilishida yana `LINE` qo'shilardi.
+v188.15 bilan solishtirib topildi:
+
+    v188.15  ... JAMI ... / ====  / Rahmat
+    v188.16  ... ====     / ====  / Rahmat   <- ortiqcha
+    v188.17  ... JAMI ... / ====  / Rahmat   <- v188.15 dagidek
+
+Bu Claude kiritgan xato edi, Ibrohim so'ramagan — o'zi tuzatildi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Bitta boy holat (ostatka + vozvrat + berildi + ikki turga to'lov + lom +
+skidka + N/K/P) uch nusxada tekshirildi:
+
+    blok             1-chek   2-chek   preview
+    OSTATKA           BOR      yo'q     BOR
+    QOLDI             BOR      yo'q     BOR
+    QOLGAN OSTATKA    BOR      yo'q     BOR
+    berilganga        BOR      yo'q     BOR
+    ostatkadan        BOR      yo'q     BOR
+    VOZVRAT           BOR      BOR      BOR
+    BERILDI           BOR      BOR      BOR
+    TO'LOV            BOR      BOR      BOR
+    TO'LOV USULI      BOR      BOR      BOR
+
+2-chek **33 qator**, 1-chek **59 qator**.
+`JAMI 15.00g -1,375.00#` 2-chekda ham to'g'ri, ptichka joyida,
+previewda boshqaruv bayti yo'q, chek oxiri v188.15 bilan **aynan bir xil**.
+
+### Tegilmadi
+
+To'lov cheki (`kTolovChekGen`) — u hali eski tuzilishda, qayta yozish
+maketi tasdiq kutyapti. Saqlash, baza, hisob-kitob, kassa cheki.

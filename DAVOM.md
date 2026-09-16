@@ -4,9 +4,9 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.16 · POS v0.36 · 2026-09-16
-**⏳ Ochiq:** (1) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
-(2) to'lov chekida sodda Ostatka; (3) `Qoldi` ga `g`.
+**Oxirgi yangilanish:** v188.17 · POS v0.36 · 2026-09-16
+**⏳ Ochiq:** to'lov cheki (`kTolovChekGen`) sotuv chekidagidek qayta yozilsin —
+maket tayyor (`mockups/tolov-chek-noldan.html`), Ibrohim hali «shunaqa qil» demadi.
 
 ---
 
@@ -52,6 +52,52 @@ Sinov: 7 holat; 3 tasi v188.12 bilan qator-ba-qator solishtirildi —
 
 **Saboq:** yangi shart qo'shilganda ESKI yo'lni ham solishtirish kerak.
 v188.13 da faqat vozvratli holatlar sinalgan edi.
+
+---
+
+## ✅ v188.17 — 2-chek ostatkasiz + qo'sh chiziq tuzatildi (2026-09-16)
+
+Maket: `mockups/chek2-ostatkasiz.html`. Ibrohim: **«B qivur, to'lovvi obshiysi
+bo'vursin»**.
+
+`tana(bosiladi, qisqa)`. `qisqa=true` — 2-chek (o'zimizga):
+`OSTATKA` / `QOLDI` / `QOLGAN OSTATKA` chiqmaydi, `TO'LOV` dagi
+`berilganga`/`ostatkadan` ham chiqmaydi (**B** varianti). Qoladi:
+`VOZVRAT`, `BERILDI`, `TO'LOV`, `TO'LOV USULI`.
+
+Uch gavda: `body` (preview, to'liq), `pbody` (1-chek, to'liq),
+`pbody2` (2-chek, qisqa). 1-chek va preview o'zgarmadi.
+
+⚠ **v188.16 dagi qo'sh `====` tuzatildi** — Claude kiritgan xato edi.
+Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
+Endi oxiri v188.15 bilan aynan bir xil.
+
+Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ⏳ KELISHILMAGAN — to'lov cheki qayta yozilsin (2026-09-16)
+
+Maket: `mockups/tolov-chek-noldan.html`. **Ibrohim hali tasdiqlamadi.**
+
+Hozirgi `kTolovChekGen` haqiqiy chiqishi tekshirildi — **to'rtta buzuqlik**:
+
+1. Faqat vozvrat qilingan tur `Butterfly Oddiy 0.00g x 0 -> 0.00#` bo'lib chiqadi
+2. Vozvrat alohida ko'rinmaydi — `Qoldi` va jadval ichiga singib ketadi
+3. Jadval ustuni `to'landi` deb turadi, aslida u vozvrat — pul to'lanmagan
+4. `kt-vz-` («Vozvrat — istalgan tur») **chekka umuman yetmaydi**;
+   bazaga yoziladi (14748), `kTolovChekUpd` (14346–14512) esa o'qimaydi.
+   Sotuv chekidagi bilan aynan bir xil xato edi
+
+⚠ Ma'lumot farqi: to'lov yo'lida `bd.qarz` ichida **bugungi berildi ALLAQACHON bor**
+(POS qabuli tarixga yozilgan). Sotuv chekida esa `eskiOstMap` berildidan OLDINGI holat.
+Demak `OSTATKA` = `qarz - berildi`.
+
+⚠ Javobsiz savol: POS yo'lida berildi avval bo'lgan, vozvrat keyin.
+Chekda tartib sotuv chekidagidek (`vozvrat → berildi`) bo'lsinmi yoki
+haqiqiy tartibda (`berildi → vozvrat`)? Maketda birinchisi olindi.
+
+⚠ 2-chek qoidasi (v188.17) bu chekka ham tushishi kerak.
 
 ---
 

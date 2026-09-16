@@ -1,0 +1,254 @@
+<title>To'lov Cheki POSdan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.chek{font-family:var(--mono);font-size:10.5px;line-height:1.62;white-space:pre;
+  background:var(--card);border:1px solid var(--edge);border-radius:9px;
+  padding:12px;overflow-x:auto;color:var(--ink);font-variant-numeric:tabular-nums}
+mark{background:var(--bad-bg);color:var(--bad);border-radius:3px;padding:0 2px;font-weight:700}
+mark.g{background:var(--good-bg);color:var(--good)}
+.big{font-size:2em;font-weight:700;line-height:1.08;display:inline-block}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.mm{font-family:var(--mono);font-size:12px;white-space:pre;overflow-x:auto;
+  color:var(--ink2);margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+td{padding:7px 9px;border-bottom:1px solid var(--edge);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.k{width:24px;font-weight:700;color:var(--bad)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
+.pair > div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cap{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.cap.a{color:var(--bad)} .cap.b{color:var(--good)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">To&rsquo;lov cheki &middot; POS &rarr; qabul &rarr; to&rsquo;lovga o&rsquo;tish</div>
+  <h1>To&rsquo;lov modalining cheki</h1>
+  <p>Boshqa dvigatel: <code>kTolovChekGen</code>. Hozirgi holat haqiqiy funksiyadan olindi.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;to&rsquo;lov modalidayam shu ishlarni qo&rsquo;sh, tekshir &mdash;
+  POSdan kelgan ma&rsquo;lumotdan to&rsquo;lovga o&rsquo;tsa chek qanaqa bo&rsquo;ladi&raquo;</div>
+</section>
+
+<section>
+  <h2>Misol</h2>
+  <div class="box">
+    <div class="mm">klientda eski ostatka   Butterfly Oddiy   4.00g
+POS qabul qildi         Diamond Oddiy    12.00g
+to'lov modalida         Butterfly dan     1.00g vozvrat
+                        Diamond ga       10.00g to'lov (x90)
+                        lom 3g x 80, naqt 700, skidka 10</div>
+  </div>
+</section>
+
+<section>
+  <h2>Chek</h2>
+  <div class="pair">
+    <div>
+      <span class="cap a">Hozir</span>
+      <div class="chek">                     Klient
+               16.09.2026 - 14:20
+================================================
+Berildi
+ Diamond Oddiy                            12.00g
+ ...............................................
+ Jami berildi                             12.00g
+================================================
+To'lov
+<mark class="r"> Butterfly Oddiy  0.00g x 0                0.00#</mark>
+ ...............................................
+   Qoldi                                    3.00
+ Diamond Oddiy  10.00g x 90              900.00#
+   berilganga                             10.00g
+ ...............................................
+   Qoldi                                    2.00
+================================================
+Jami to'landi
+ L  3.00 x 80 =                          240.00#
+ N                                       700.00#
+================================================
+ Umumiy Summa                            900.00#
+ Skidka                                  -10.00#
+ ...............................................
+ Kerakli summa                           890.00#
+ Umumiy g                                 10.00g
+ ...............................................
+ SDACHA                                   30.00#
+================================================
+Ostatka
+                     Ostatka  to'landi     qoldi
+ Butterfly Oddiy       4.00g<mark class="r">    -1.00g</mark>     3.00g
+ Diamond Oddiy        12.00g   -10.00g     2.00g
+------------------------------------------------
+ JAMI                 16.00g   -11.00g     5.00g</div>
+    </div>
+    <div>
+      <span class="cap b">Taklif</span>
+      <div class="chek">                     Klient
+               16.09.2026 - 14:20
+================================================
+<mark class="g"><span class="big">OSTATKA</span>
+ Butterfly Oddiy                           4.00g
+------------------------------------------------
+ JAMI                                      4.00g</mark>
+================================================
+<mark class="g"><span class="big">VOZVRAT</span>
+ Butterfly Oddiy                           1.00g
+------------------------------------------------
+ JAMI                                      1.00g</mark>
+================================================
+<span class="big">QOLDI</span>
+ Butterfly Oddiy                           3.00g
+------------------------------------------------
+ JAMI                                      3.00g
+================================================
+<span class="big">BERILDI</span>
+ Diamond Oddiy                            12.00g
+------------------------------------------------
+ JAMI                                     12.00g
+================================================
+<span class="big">QOLDI</span>
+ Butterfly Oddiy                           3.00g
+ Diamond Oddiy                            12.00g
+------------------------------------------------
+ JAMI                                     15.00g
+================================================
+<span class="big">TO'LOV</span>
+ Diamond Oddiy  10.00g x 90             -900.00#
+   berilganga                             10.00g
+------------------------------------------------
+ JAMI  10.00g                           -900.00#
+ Skidka                                  -10.00#
+================================================
+<span class="big">TO'LOV USULI</span>
+ L  3.00g x 80                           240.00#
+ N                                       700.00#
+------------------------------------------------
+ JAMI                                    940.00#
+ SDACHA                                   30.00#
+================================================
+<span class="big">QOLGAN OSTATKA</span>
+ Butterfly Oddiy                           3.00g
+ Diamond Oddiy                             2.00g
+------------------------------------------------
+ JAMI                                      5.00g
+================================================</div>
+    </div>
+  </div>
+  <div class="box good">
+    <p class="hint" style="margin:0">Yakuniy raqamlar <b>bir xil</b>:
+    Butterfly 3.00g, Diamond 2.00g, jami 5.00g. Faqat ko&rsquo;rinish o&rsquo;zgaradi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Nima buzuq &mdash; to&rsquo;rtta</h2>
+  <div class="box bad">
+    <table>
+      <tr><td class="k">1</td><td><b>Bo&rsquo;sh to&rsquo;lov qatori.</b> Faqat vozvrat qilingan tur
+        <code>Butterfly Oddiy 0.00g x 0 &rarr; 0.00#</code> bo&rsquo;lib chiqyapti.
+        Klient buni o&rsquo;qib hech nima tushunmaydi.</td></tr>
+      <tr><td class="k">2</td><td><b>Vozvrat hech qayerda yozilmagan.</b> 1.00g raqamlar
+        ichiga singib ketgan &mdash; <code>Qoldi 3.00</code> va jadvaldagi
+        <code>-1.00g</code>.</td></tr>
+      <tr><td class="k">3</td><td><b>Ustun nomi yolg&rsquo;on.</b> Jadvalda
+        <code>to&rsquo;landi -1.00g</code> deb turibdi, aslida u <b>vozvrat</b> &mdash;
+        pul to&rsquo;lanmagan.</td></tr>
+      <tr><td class="k">4</td><td><b>Ikkinchi vozvrat paneli chekka umuman yetmaydi.</b>
+        &laquo;Vozvrat &mdash; istalgan tur&raquo; katagi (<code>kt-vz-</code>) bazaga
+        yoziladi, lekin chek uni o&rsquo;qimaydi. Sotuv chekidagi bilan
+        <b>aynan bir xil</b> xato edi &mdash; o&rsquo;sha v188.13 da tuzatilgan.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Bitta savol &mdash; tartib</h2>
+  <div class="box gold">
+    <p>Sotuv modalida vozvrat va berildi <b>bir vaqtda</b> bo&rsquo;ladi, shuning uchun
+    tartibni biz tanlagan edik: <code>vozvrat &rarr; berildi</code>.</p>
+    <p>POS yo&rsquo;lida esa <b>berildi avval bo&rsquo;lgan</b> (POS qabul qilgan), vozvrat
+    keyin &mdash; to&rsquo;lov modalida yozilyapti.</p>
+    <p><b>Maketda sotuv cheki bilan bir xil tartibni oldim</b>
+    (<code>OSTATKA &rarr; VOZVRAT &rarr; BERILDI</code>) &mdash; ikkala chek bir xil
+    ko&rsquo;rinsin. Yakuniy raqam ikkala tartibda ham bir xil, faqat oraliq
+    <code>QOLDI</code> lar farq qiladi.</p>
+    <p class="hint">Haqiqiy tartib kerak bo&rsquo;lsa &mdash;
+    <code>OSTATKA &rarr; BERILDI &rarr; QOLDI &rarr; VOZVRAT</code> &mdash; ayt, shunday qilaman.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Hajmi</h2>
+  <div class="box">
+    <p><code>kTolovChekGen</code> 116 qator &mdash; to&rsquo;liq qayta yoziladi.
+    Chaqiruvchi tomonga uchta yangi ma&rsquo;lumot kerak:
+    <b>amaldan oldingi ostatka</b> (<code>qarz &minus; berildi</code>),
+    <b>vozvrat ro&rsquo;yxati</b> (<code>kt-v-</code> va yetishmayotgan
+    <code>kt-vz-</code>).</p>
+    <p class="hint">Taxminan <b>~170 qator</b>. Tegilmaydi: saqlash, baza,
+    hisob-kitob, sotuv cheki, kassa cheki.</p>
+  </div>
+</section>
+
+<section>
+  <h2></h2>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang kodga tushiraman.</p>
+  </div>
+</section>
+
+</div>

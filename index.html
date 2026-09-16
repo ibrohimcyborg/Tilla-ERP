@@ -1,4 +1,4 @@
-<!-- v188.16 -->
+<!-- v188.17 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.16';
+var APP_VER = 'v188.17';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17526,7 +17526,13 @@ function klientSotuvChekYangiGen(opts){
     return v < -0.001 ? '+'+fmtG(-v)+'g' : fmtG(v)+'g';
   }
 
-  function tana(bosiladi){
+  // v188.17 (Ibrohim): «2chi chek bizani tekshiradganimizga ostatka hisoblari
+  // keremas, shuni obtashash kere, vozvrat berish to'lovvi ko'rsatsa bo'ldi»
+  // + «B qivur, to'lovvi obshiysi bo'vursin».
+  // qisqa=true -> OSTATKA / QOLDI / QOLGAN OSTATKA bloklari CHIQMAYDI va
+  // TO'LOV ichidagi berilganga/ostatkadan ajratmasi ham yozilmaydi.
+  // 1-chek (klientga) va ekran previewi TO'LIQ qoladi.
+  function tana(bosiladi, qisqa){
     var SARL = bosiladi ? KATTA : function(x){ return x; };
     var t='';
     t+=center(o.klientNom)+'\n';
@@ -17616,20 +17622,20 @@ function klientSotuvChekYangiGen(opts){
     var amalBor=jamiVoz>0.001 || berBor || tolBor;
 
     // ─── 1) OSTATKA (amaldan oldingi holat)
-    t+=balBlok('OSTATKA');
+    if(!qisqa) t+=balBlok('OSTATKA');
 
     // ─── 2) VOZVRAT
     if(jamiVoz>0.001){
       t+=amalBlok('VOZVRAT', vozMap, jamiVoz);
       Object.keys(vozMap).forEach(function(k){ bal[k]=Math.round((bal[k]-vozMap[k])*100)/100; });
-      if(berBor||tolBor) t+=balBlok('QOLDI');
+      if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI');
     }
 
     // ─── 3) BERILDI
     if(berBor){
       t+=amalBlok('BERILDI', berMap, jamiBer);
       Object.keys(berMap).forEach(function(k){ bal[k]=Math.round((bal[k]+berMap[k])*100)/100; });
-      if(tolBor) t+=balBlok('QOLDI');
+      if(!qisqa && tolBor) t+=balBlok('QOLDI');
     }
 
     // ─── 4) TO'LOV. Ibrohim: «qaysi turri nechi gram nechi g/$dan minus
@@ -17643,8 +17649,8 @@ function klientSotuvChekYangiGen(opts){
         t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(x.g)+'g x '+r.narx, '-'+fmtD(x.pul)+'#')+'\n';
         var ber=Math.min(x.g, berMap[k]||0);
         var est=Math.round((x.g-ber)*100)/100;
-        if(ber>0.001) t+=rjust('   berilganga', fmtG(ber)+'g')+'\n';
-        if(est>0.001) t+=rjust('   ostatkadan', fmtG(est)+'g')+'\n';
+        if(!qisqa && ber>0.001) t+=rjust('   berilganga', fmtG(ber)+'g')+'\n';
+        if(!qisqa && est>0.001) t+=rjust('   ostatkadan', fmtG(est)+'g')+'\n';
       });
       t+=DASH+rjust(' JAMI  '+fmtG(jamiSotG)+'g', '-'+fmtD(jamiPul)+'#')+'\n';
       if(sk>0.001) t+=rjust(' Skidka', '-'+fmtD(sk)+'#')+'\n';
@@ -17692,16 +17698,19 @@ function klientSotuvChekYangiGen(opts){
     }
 
     // ─── 6) QOLGAN OSTATKA (chekdagi oxirgi balans)
-    if(amalBor) t+=balBlok('QOLGAN OSTATKA');
+    if(!qisqa && amalBor) t+=balBlok('QOLGAN OSTATKA');
     return t;
   }
 
-  var body=tana(false);    // ekran preview - printer buyruqlarisiz
-  var pbody=tana(true);    // bosiladigan nusxa - sarlavhalar qo'sh o'lchamda
+  var body  = tana(false, false);   // ekran preview - to'liq, printer buyruqlarisiz
+  var pbody = tana(true,  false);   // 1-chek: klientga - TO'LIQ
+  var pbody2= tana(true,  true);    // 2-chek: o'zimizga - ostatkasiz (v188.17)
   // CHEK 1 (klient, logo) + CHEK 2 (o'zimizga, logosiz, ptichka)
   // oxirida feed (bo'sh qatorlar) - printer kesish chizig'i oxirgi matnni kesmasin
-  var chek1=pbody+LINE+center('Rahmat')+'\n\n\n\n';
-  var chek2=pbody+LINE+'\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00'+'\n\n\n\n';
+  // v188.17: gavda allaqachon LINE bilan tugaydi (har blok o'zi yopadi), shuning
+  // uchun bu yerda yana LINE qo'shilmaydi - v188.16 da ikkita '====' chiqib qolgandi.
+  var chek1=pbody+center('Rahmat')+'\n\n\n\n';
+  var chek2=pbody2+'\x1B\x61\x01\x1D\x21\x11[  ] Tekshirildi\x1D\x21\x00\x1B\x61\x00'+'\n\n\n\n';
   return {chek1:chek1, chek2:chek2, body:body};
 }
 function klientSotuvChekPrint(k, sana, oldilar, naqt, kurs, lomlar, vozlar, cnt, jamiQarz, qarz_tarkib, skidkaMan, chekTanlov, chekOrtiqcha) {
