@@ -4,9 +4,9 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.17 · POS v0.36 · 2026-09-16
-**⏳ Ochiq:** to'lov cheki (`kTolovChekGen`) sotuv chekidagidek qayta yozilsin —
-maket tayyor (`mockups/tolov-chek-noldan.html`), Ibrohim hali «shunaqa qil» demadi.
+**Oxirgi yangilanish:** v188.18 · POS v0.36 · 2026-09-16
+**⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
+Keyingi ish Ibrohimdan.
 
 ---
 
@@ -76,28 +76,34 @@ Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
 
 ---
 
-## ⏳ KELISHILMAGAN — to'lov cheki qayta yozilsin (2026-09-16)
+## ✅ v188.18 — TO'LOV CHEKI ham noldan qayta qurildi (2026-09-16)
 
-Maket: `mockups/tolov-chek-noldan.html`. **Ibrohim hali tasdiqlamadi.**
+Maket: `mockups/tolov-chek-noldan.html`. Ibrohim: **«yoz man tekshiraman»**.
 
-Hozirgi `kTolovChekGen` haqiqiy chiqishi tekshirildi — **to'rtta buzuqlik**:
+Endi **ikkala chek ham bir xil**:
 
-1. Faqat vozvrat qilingan tur `Butterfly Oddiy 0.00g x 0 -> 0.00#` bo'lib chiqadi
-2. Vozvrat alohida ko'rinmaydi — `Qoldi` va jadval ichiga singib ketadi
-3. Jadval ustuni `to'landi` deb turadi, aslida u vozvrat — pul to'lanmagan
-4. `kt-vz-` («Vozvrat — istalgan tur») **chekka umuman yetmaydi**;
-   bazaga yoziladi (14748), `kTolovChekUpd` (14346–14512) esa o'qimaydi.
-   Sotuv chekidagi bilan aynan bir xil xato edi
+    OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLDI
+            -> TO'LOV -> TO'LOV USULI -> QOLGAN OSTATKA
 
-⚠ Ma'lumot farqi: to'lov yo'lida `bd.qarz` ichida **bugungi berildi ALLAQACHON bor**
-(POS qabuli tarixga yozilgan). Sotuv chekida esa `eskiOstMap` berildidan OLDINGI holat.
-Demak `OSTATKA` = `qarz - berildi`.
+**Tartib A** (vozvrat berildidan oldin) — Ibrohim tanladi.
+**BERILDI bo'sh bo'lsa blok chiqmaydi** — klient ekranidagi `To'lov`
+tugmasi bilan ochilganda (`_ktBerildi` null). Ibrohim: «faqat BERILDI
+bo'midi, qogani bir xil».
 
-⚠ Javobsiz savol: POS yo'lida berildi avval bo'lgan, vozvrat keyin.
-Chekda tartib sotuv chekidagidek (`vozvrat → berildi`) bo'lsinmi yoki
-haqiqiy tartibda (`berildi → vozvrat`)? Maketda birinchisi olindi.
+Tuzatilgan to'rt buzuqlik: bo'sh `0.00g x 0` qatori; vozvratning
+ko'rinmasligi; jadvaldagi yolg'on `to'landi` ustuni; **`kt-vz-` ning
+chekka umuman yetmasligi**.
 
-⚠ 2-chek qoidasi (v188.17) bu chekka ham tushishi kerak.
+⚠ Ma'lumot farqi eslab qolinsin: to'lov yo'lida `bd.qarz` ichida bugungi
+berildi ALLAQACHON bor — shuning uchun `OSTATKA = qarz - berildi`.
+
+⚠ `chekYakun(body, W, opt)` — `opt.body2` va `opt.chiziqsiz` qo'shildi.
+Eski bir argumentli chaqiruvlar (kb, kv, POS) o'zgarmadi.
+
+⚠ `ostatkalar` / `turlar` / `_ktSdNaqt` endi o'lik kod — belgilandi,
+o'chirilmadi (so'ralmagan).
+
+Sinov: 5 holat, 1-si maket bilan qator-ba-qator.
 
 ---
 

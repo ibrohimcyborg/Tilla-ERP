@@ -7848,3 +7848,83 @@ previewda boshqaruv bayti yo'q, chek oxiri v188.15 bilan **aynan bir xil**.
 
 To'lov cheki (`kTolovChekGen`) — u hali eski tuzilishda, qayta yozish
 maketi tasdiq kutyapti. Saqlash, baza, hisob-kitob, kassa cheki.
+
+## v188.18 — TO'LOV CHEKI ham noldan qayta qurildi
+
+**Ibrohim:** «to'lov modalidayam shu ishlani qo'sh» → maket → **«A»** (tartib) →
+«to'lov modaliniyam chekini shunaqa qil sotuv modaliga o'zgartir,
+**faqat BERILDI bo'midi**, qogani bir xil» → **«yoz man tekshiraman»**.
+
+Maket: `mockups/tolov-chek-noldan.html`.
+
+### Yangi tuzilish — sotuv cheki bilan AYNAN bir xil
+
+    OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLDI
+            -> TO'LOV -> TO'LOV USULI -> QOLGAN OSTATKA
+
+**Tartib A:** vozvrat `BERILDI` dan **oldin** — POS yo'lida berildi aslida
+avval bo'lgan, lekin ikkala chek bir xil ko'rinsin. Yakuniy raqam
+ikkala tartibda ham bir xil.
+
+**BERILDI bo'sh bo'lsa blok o'z-o'zidan chiqmaydi** — klient ekranidagi
+`To'lov` tugmasi bilan ochilganda `_ktBerildi` null bo'ladi.
+
+### Nima buzuq edi (haqiqiy chiqishdan olindi)
+
+1. Faqat vozvrat qilingan tur `Butterfly Oddiy 0.00g x 0 -> 0.00#` bo'lib chiqardi
+2. Vozvrat alohida ko'rinmasdi — `Qoldi` va jadval ichiga singib ketardi
+3. Jadval ustuni `to'landi -1.00g` deb turardi, aslida u **vozvrat** — pul to'lanmagan
+4. `kt-vz-` («Vozvrat — istalgan tur») **chekka umuman yetmasdi**: bazaga
+   yoziladi (14748), `kTolovChekUpd` esa o'qimasdi
+
+### Qilindi
+
+**1. `kTolovChekGen(d, qisqa, bosiladi)`** — 117 → 170 qator.
+Balans daftari: `bal = ostatka - vozvrat + berildi - to'landi + offset - sdachaTur`.
+
+**2. Chaqiruvchi tomonda uchta yangi ma'lumot:**
+
+    _chOst = bd[k].qarz - berildi[k]     amaldan OLDINGI balans
+    _chVoz = kt-v- + kt-vz-              IKKALA vozvrat manbai
+    _chTol = qatorlar (off bo'lmagan)    to'lov qatorlari
+
+⚠ To'lov yo'lida `bd.qarz` ichida **bugungi berildi allaqachon bor** (POS
+qabuli tarixga yozilgan). Sotuv chekida esa `eskiOstMap` berildidan oldingi
+holat. Shuning uchun bu yerda ayirish kerak.
+
+**3. Uch gavda** — sotuv chekidagidek:
+
+    _ktChekBody  = kTolovChekGen(_chD, false, true)    1-chek, printer
+    _ktChekBody2 = kTolovChekGen(_chD, true,  true)    2-chek, qisqa
+    _ktChekEkran = kTolovChekGen(_chD, false, false)   ekran preview
+
+**4. `chekYakun(body, W, opt)`** — `opt.body2` (2-chek boshqa gavdadan) va
+`opt.chiziqsiz` (gavda allaqachon `====` bilan tugaydi). Eski chaqiruvlar
+bir argument bilan ishlaydi — o'zgarmadi.
+
+**5. `_ktOffsetlar`** ga `zavod` va `tur` qo'shildi — balans daftari uchun
+kerak, avval faqat birlashgan `nom` bor edi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Besh holat, birinchisi maket bilan **qator-ba-qator**:
+
+    1 POS: ostatka 4 + berildi 12, voz 1, to'lov 10, lom, sdacha  maketdagidek
+      2-chek: VOZVRAT / BERILDI / TO'LOV / TO'LOV USULI  (ostatkasiz)
+    2 POSsiz To'lov tugmasi                    BERILDI bloki YO'Q
+    3 klient plusda (+7.00g), offset yopdi     oxirida hech nima qolmadi
+    4 faqat vozvrat                            QOLDI yo'q
+    5 ortiqcha pul turga                       Qolgan summa -> tur +1.00g
+
+Har holatda: previewda boshqaruv bayti **yo'q**, bosiladigan nusxada
+qo'sh o'lchamli sarlavha **bor**, hech bir qator **48 dan uzun emas**.
+
+### Tegilmadi
+
+Saqlash, baza, klient tarixi, hisob-kitob, sotuv cheki, kassa cheki,
+POS qabul cheki (`_posChChekMatn` — to'lovga o'tilmagan tarmoq).
+
+⚠ `ostatkalar`, `turlar`, `_ktSdNaqt` bloklari endi chekka uzatilmaydi —
+o'lik kod bo'lib qoldi. Belgilab qo'yildi, lekin **o'chirilmadi**:
+Ibrohim so'ramagan.
