@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.9 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.10 · POS v0.36 · 2026-09-16
 **⏳ Ochiq:** to'lov cheki — Vozvrat bo'limi + Ostatka ro'yxati (kelishilgan, kod yozilmagan).
 
 ---
@@ -108,6 +108,25 @@ yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
 Ibrohimga aytildi, qaror kutilmoqda.
+
+---
+
+## ✅ v188.10 — chek offsetni kam ko'rsatib soxta qoldiq yasardi (2026-09-16)
+
+**Ibrohim:** «ostatkayam qopketvotti ... sistemada musor bo'bmi yoki chek
+xatosi» → **chek xatosi, bazada musor yo'q.**
+
+Saqlash (14642) offset qatorini **to'liq** yozadi (`_ktRowUsed = s`,
+ortig'i sdachaga), chek esa (14411) **qisqartirilgan** ulushni ko'rsatardi.
+Natijada chekda `6.36 - 5.82 = 0.54g` soxta qoldiq chiqardi, bazada esa 0.
+
+Tuzatildi: chek ham `r.summa` ni to'liq oladi. `Kerakli summa` noldan
+pastga tushmaydi (offset oshsa 0.00, ortig'i SDACHA da).
+
+⚠ `offIsh` TEGILMADI — sdacha formulasi undan foydalanadi.
+⚠ `_ktOffsetlar` faqat chekka ketadi — bazaga yo'li yo'q.
+
+Sinov: offset ko'p / yetmaydi / yo'q — uchalasi to'g'ri.
 
 ---
 

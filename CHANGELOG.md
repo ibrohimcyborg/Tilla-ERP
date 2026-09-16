@@ -7306,3 +7306,74 @@ Sdacha naqt berish mexanizmi, offset hisobi, `jamiSummaKt`, `ktKerakli`,
 chekning qolgan qismi, sotuv cheki, kassa cheki, klient tarixi, bazadagi
 yozuvlar. Sotuv chekidagi o'xshash `Naqt qaytarildi` qatori (16818) ham
 TEGILMADI — so'ralmadi.
+
+## v188.10 — chek offsetni KAM ko'rsatib, soxta qoldiq yasardi
+
+**Ibrohim** (chek rasmi bilan): «ostatkayam qopketvottiyu, uyam qomasin.
+bu sistemada musor bo'bmi bizishi mn yoki chek xatosi».
+
+**Javob: chek xatosi. Bazada musor yo'q.**
+
+### Nima bo'lgan
+
+ShoMuhammad cheki oxirida:
+
+    Bizda (offset)
+     Butterfly Oddiy       6.36g    -5.82g     0.54g   <- SOXTA QOLDIQ
+
+Go'yo 0.54g biz qarzdor bo'lib qolgandek. Aslida bazada **0**.
+
+### Sabab
+
+Ikki joy bir xil qatorni **har xil** hisoblardi:
+
+| | Nima yozadi/ko'rsatadi |
+|---|---|
+| **Saqlash** (14642) | `bizQarzdorSave` bo'lsa qator **TO'LIQ**: `_ktRowUsed = s` = 554.59 = 6.36g. Ortig'i sdachaga chiqadi. |
+| **Chek** (14411) | **QISQARTIRILGAN** ulush: `us = offIsh * frac` = 507.78 = 5.82g |
+
+Shuning uchun chek `6.36 - 5.82 = 0.54g` qoldi deb yozardi, baza esa
+`6.36 - 6.36 = 0` qilib yopgan edi.
+
+⚠ Shartlar **bir xil** ekani tekshirildi: saqlashda `bizQarzdorSave =
+b.qarz < -0.001` (14623), chekda `off = b.qarz < -0.001` (14364).
+Ya'ni saqlash offset qatorini **doim** to'liq yozadi.
+
+### Qilindi
+
+**1.** Chek endi qatorni TO'LIQ oladi (14411):
+
+    var us = Math.round(r.summa*100)/100;   // avval: offIsh*frac
+
+**2.** `Kerakli summa` noldan pastga tushmaydi (10855) — offset summadan
+oshsa manfiy chiqardi:
+
+    fmtD(Math.max(0, Math.round((gross-sk-offJ)*100)/100))
+
+⚠ `offIsh` **TEGILMADI** — sdacha formulasi (14444) undan foydalanadi.
+⚠ `_ktOffsetlar` faqat chekka ketadi (14408, 14413, 14501) — bazaga,
+saqlashga, hisobga yo'li yo'q. Tekshirildi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Haqiqiy `kTolovChekGen` fayldan olinib, uch holatda:
+
+    A. ShoMuhammad (offset kerakdan KO'P)
+       Offset  Butterfly Oddiy 6.36g x 87.2   -554.59#
+       Kerakli summa                             0.00#
+       SDACHA                                   46.81#
+       Bizda (offset)  6.36g  -6.36g  0.00g      <- qoldiq YO'Q
+
+    B. offset YETMAYDI (200$)
+       Offset  Butterfly Oddiy 2.29g x 87.2   -200.00#
+       Kerakli summa                           307.78#   <- musbat, buzilmadi
+       Bizda (offset)  2.29g  -2.29g  0.00g
+
+    C. offset umuman yo'q, skidka 1$
+       Kerakli summa                           506.78#   <- buzilmadi
+
+### Tegilmadi
+
+Saqlash kodi, offset hisobi, sdacha mexanizmi, `offIsh`, klient tarixi,
+bazadagi yozuvlar, sotuv cheki, kassa cheki.

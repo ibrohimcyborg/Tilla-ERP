@@ -1,4 +1,4 @@
-<!-- v188.9 -->
+<!-- v188.10 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.9';
+var APP_VER = 'v188.10';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10852,7 +10852,9 @@ function kTolovChekGen(d){
   (d.offsetlar||[]).forEach(function(x){
     t+=rj(' Offset  '+x.nom+' '+fmtG(x.gramm||0)+'g x '+x.kurs, '-'+fmtD(x.summa||0)+'#')+'\n';
   });
-  if(sk>0.001 || offJ>0.001) t+=DOTS+rj(' Kerakli summa', fmtD(Math.round((gross-sk-offJ)*100)/100)+'#')+'\n';
+  // v188.10: offset summadan oshsa manfiy chiqardi — 0 dan pastga tushmaydi,
+  // ortig'i pastda SDACHA bo'lib ko'rinadi.
+  if(sk>0.001 || offJ>0.001) t+=DOTS+rj(' Kerakli summa', fmtD(Math.max(0,Math.round((gross-sk-offJ)*100)/100))+'#')+'\n';
   t+=rj(' Umumiy g', fmtG(d.jamiGramm||0)+'g')+'\n';
   // v160: sotuv cheki bilan bir xil - SDACHA faqat aniq tanlanganda
   // (_ktSdachaPul faqat tanlov.tip==='sdacha' bo'lganda to'ldiriladi)
@@ -14408,8 +14410,14 @@ function kTolovChekUpd() {
   var _ktOffsetlar = [];
   qatorlar.forEach(function(r){
     if (!r.off) return;
-    var frac = offJami > 0 ? r.summa/offJami : 0;
-    var us = Math.round(offIsh*frac*100)/100;
+    // v188.10 (Ibrohim): «offset Butterfly Oddiy 6.36x87.2=554.59 ko'rsatishi
+    // kere» + «ostatkayam qopketvotti, uyam qomasin».
+    // Chek QISQARTIRILGAN ulushni (offIsh) ko'rsatardi, saqlash esa qatorni
+    // TO'LIQ yozadi (14642: bizQarzdorSave -> _ktRowUsed = s, ortig'i sdachaga).
+    // Shuning uchun chekda «Bizda (offset)» da soxta qoldiq chiqardi:
+    // 6.36g - 5.82g = 0.54g, holbuki bazada 0. Endi chek ham TO'LIQ ko'rsatadi.
+    // ⚠ offIsh TEGILMADI - sdacha formulasi (14444) undan foydalanadi.
+    var us = Math.round(r.summa*100)/100;
     if (us > 0.001) _ktOffsetlar.push({nom:r.zavod+' '+r.tur, gramm:(r.n>0?roundG(us/r.n):0),
                                        kurs:r.n, summa:us, eskiQarz:r.qarz});
   });
