@@ -4,10 +4,9 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.14 · POS v0.36 · 2026-09-16
-**⏳ Ochiq:** (1) sotuv chekida OSTATKA HISOBOTI + tartib — maket tayyor;
-(2) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
-(3) to'lov chekida sodda Ostatka; (4) `Qoldi` ga `g`.
+**Oxirgi yangilanish:** v188.15 · POS v0.36 · 2026-09-16
+**⏳ Ochiq:** (1) **to'lov chekiga Vozvrat bo'limi** — Ibrohim aniq eslatdi;
+(2) to'lov chekida sodda Ostatka; (3) `Qoldi` ga `g`.
 
 ---
 
@@ -56,27 +55,22 @@ v188.13 da faqat vozvratli holatlar sinalgan edi.
 
 ---
 
-## ⏳ KELISHILDI, KOD YOZILMAGAN — sotuv chekida OSTATKA HISOBOTI (2026-09-16)
+## ✅ v188.15 — sotuv chekida OSTATKA HISOBOTI + tartib (2026-09-16)
 
-Maket: `mockups/sotuv-chek-ostatka.html`.
+Maket: `mockups/sotuv-chek-ostatka.html`. Ibrohim: **«shunaqa qil»**.
 
-**Ibrohim:** «nega ostatkani ko'rsatmayapti, shunda klientda oldingi
-ostatkasi ko'rsatmayapti, shuniyam ustida ishlavotudiku».
+1. **`OSTATKA HISOBOTI`** chek boshida — klient amaldan oldin nima bilan
+   kelgan. Faqat musbat turlar, bo'sh bo'lsa blok chiqmaydi.
+2. **Tartib:** `OSTATKA HISOBOTI → Vozvrat → Berildi → To'lov → Ostatka`.
+   v188.13 da `Vozvrat` `Berildi` dan keyin turgandi — tuzatildi.
+3. **Qolmagan tur chiqmaydi** (`|jami| <= 0.001`), `JAMI` faqat chiqqan
+   qatorlarni qo'shadi. Ibrohim: «ostatkasi bo'masa ko'rsatmasin chek».
 
-**Ikki sabab:**
-1. v188.13 da **Claude o'zi** qaror qildi: hammasi yopilsa oxirgi
-   `Ostatka` bloki chiqmasin. Blok bilan birga **oldingi ostatka ustuni
-   ham** yo'qoldi — xato.
-2. Sotuv chekida `OSTATKA HISOBOTI` (amaldan oldingi holat) **hech qachon
-   bo'lmagan**. Ma'lumot bor: `_eskiQarzMap` — `index.html:17056`,
-   birinchi `k.tarix.push` (17087) dan OLDIN olinadi.
+`ostIzoh` («... ostatkadan to'landi») saqlandi — u qoldiq emas, izoh.
 
-**Taklif (tasdiq kutilyapti):**
-- Ikkala blok **DOIM** chiqadi. Bo'sh bo'lsa `Ostatka yo'q` /
-  `Qolmadi ✓`.
-- Tartib: `OSTATKA HISOBOTI` → `Vozvrat` → `Berildi` → `To'lov` → `Ostatka`.
-  Hozir `Vozvrat` `Berildi` dan KEYIN — v188.13 da Claude o'sha yerga qo'ygan.
-- ~30 qator, faqat `klientSotuvChekYangiGen` ichida.
+Sinov: 7 holat v188.14 bilan solishtirildi, 6 tasida raqamli qatorlar aynan
+bir xil; 7-chisi ataylab farq qiladi (0.00g qatori olib tashlandi), `jami`
+yakuni o'zgarmadi.
 
 ---
 

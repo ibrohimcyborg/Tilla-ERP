@@ -1,4 +1,4 @@
-<!-- v188.14 -->
+<!-- v188.15 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.14';
+var APP_VER = 'v188.15';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17502,22 +17502,27 @@ function klientSotuvChekYangiGen(opts){
     var t='';
     t+=center(o.klientNom)+'\n';
     t+=center(o.sana+(o.soat?' - '+o.soat:''))+'\n'+LINE;
-    // BERILDI ro'yxati = berildiMap dagi HAMMA tur (sotilgan + sotilmagan)
-    // tartib: avval oldilar tartibida, keyin qolgan berildiMap turlari
-    var berKeys=[]; var seenB={};
-    o.oldilar.forEach(function(r){ var k=r.zavod+'||'+r.tur; if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
-    Object.keys(o.berildiMap||{}).forEach(function(k){ if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
-    // 1) BERILDI
-    t+='Berildi\n';
-    var jamiB=0;
-    berKeys.forEach(function(k){
-      var b=o.berildiMap[k]; if(b===undefined) b=0;
-      if(b<=0.001) return;
-      jamiB+=b;
-      // v172.12: minussiz — blok nomi allaqachon "Berildi", minus chalg'itardi
-      t+=rjust(' '+k.split('||').join(' '), fmtG(b)+'g')+'\n';
+    // v188.15: 0) OSTATKA HISOBOTI - klient amaldan OLDIN nima bilan kelgan.
+    // Ibrohim: «nega ostatkani ko'rsatmayapti, klientda oldingi ostatkasi
+    // ko'rsatmayapti». Manba: _eskiQarzMap (17056) - birinchi k.tarix.push dan
+    // OLDIN olinadi, demak haqiqiy "oldingi holat".
+    // Faqat MUSBAT (klientda turgan) turlar - manfiysi "Bizda (offset)" blokida.
+    // Ibrohim: «ostatkasi bo'masa ko'rsatmasin» - bo'sh bo'lsa blok chiqmaydi.
+    var ostBosh=[], jamiOB=0;
+    Object.keys(o.eskiOstMap||{}).forEach(function(k){
+      var e=Math.round(((o.eskiOstMap||{})[k]||0)*100)/100;
+      if(!(e>0.001)) return;
+      ostBosh.push({nom:k.split('||').join(' '), g:e});
+      jamiOB=Math.round((jamiOB+e)*100)/100;
     });
-    t+=DASH+rjust(' JAMI berildi', fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
+    if(ostBosh.length){
+      t+='OSTATKA HISOBOTI\n';
+      ostBosh.forEach(function(x){ t+=rjust(' '+x.nom, fmtG(x.g)+'g')+'\n'; });
+      t+=DASH+rjust(' JAMI', fmtG(jamiOB)+'g')+'\n'+LINE;
+    }
+    // v188.15: 1) VOZVRAT - endi BERILDI dan OLDIN. Ibrohim aytgan tartib:
+    // ostatka -> vozvrat -> berildi -> to'lov -> ostatka.
+    // (v188.13 da Berildi dan KEYIN qo'yilgandi - noto'g'ri joy edi.)
     // v188.13: VOZVRAT - alohida blok. Ibrohim: «alohida tur bo'sayam farqi yo,
     // alohida bo'vursin» - shu sotuvda berilmagan turdan qaytarsa ham o'z qatorini
     // oladi. vozQoldi: hali "yangi" ustuniga singdirilmagan qoldiq.
@@ -17536,7 +17541,23 @@ function klientSotuvChekYangiGen(opts){
       });
       t+=DASH+rjust(' JAMI vozvrat', '-'+fmtG(jamiV)+'g')+'\n'+LINE;
     }
-    // 2) TO'LOV (sotildi)
+    // BERILDI ro'yxati = berildiMap dagi HAMMA tur (sotilgan + sotilmagan)
+    // tartib: avval oldilar tartibida, keyin qolgan berildiMap turlari
+    var berKeys=[]; var seenB={};
+    o.oldilar.forEach(function(r){ var k=r.zavod+'||'+r.tur; if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
+    Object.keys(o.berildiMap||{}).forEach(function(k){ if(!seenB[k]){ seenB[k]=1; berKeys.push(k); } });
+    // 2) BERILDI
+    t+='Berildi\n';
+    var jamiB=0;
+    berKeys.forEach(function(k){
+      var b=o.berildiMap[k]; if(b===undefined) b=0;
+      if(b<=0.001) return;
+      jamiB+=b;
+      // v172.12: minussiz — blok nomi allaqachon "Berildi", minus chalg'itardi
+      t+=rjust(' '+k.split('||').join(' '), fmtG(b)+'g')+'\n';
+    });
+    t+=DASH+rjust(' JAMI berildi', fmtG(Math.round(jamiB*100)/100)+'g')+'\n'+LINE;
+    // 3) TO'LOV (sotildi)
     t+="To'lov\n";
     var jamiS=0,jamiG=0;
     var yangiOst={};
@@ -17649,8 +17670,6 @@ function klientSotuvChekYangiGen(opts){
     Object.keys(yangiOst).forEach(function(k){ zlar[k]=1; });
     var keys=Object.keys(zlar);
     if(keys.length || (o.offsetlar||[]).length){
-      t+=LINE+'Ostatka\n';
-      t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
       // v172.33: eski ostatkadan SHU SOTUVDA to'langan qism. Avval "jami" ustuni
       // e+y edi — to'lov hisobga olinmasdi va to'liq yopilgan qarz chekda hali
       // ham turardi (Juma Aka: 1.17 eski + 4.00 yangi = 5.17 to'landi, chek esa
@@ -17668,11 +17687,13 @@ function klientSotuvChekYangiGen(opts){
         if(v<0.001) return 0;
         return Math.min(v, e);
       }
-      var te=0,ty=0,tj=0, ostIzoh=[];
+      // v188.15: avval qatorlar HISOBLANADI, keyin chiqariladi - chunki qolmagan
+      // tur (jami 0.00) yozilmaydi va blok butunlay bo'sh qolishi mumkin.
+      // Ibrohim: «ostatkasi bo'masa ko'rsatmasin chek».
+      var ostQator=[], te=0,ty=0,tj=0, ostIzoh=[];
       keys.forEach(function(k){
         var e=(o.eskiOstMap&&o.eskiOstMap[k])||0, y=yangiOst[k]||0;
         var tl=_eskiTolandi(k,e), j=Math.round((e+y-tl)*100)/100;
-        te+=e;ty+=y;tj+=j;
         var nom=k.split('||').join(' ');
         if(tl>0.001){
           if(tl>=e-0.001) ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatka ham to'landi ✓\n");
@@ -17680,9 +17701,17 @@ function klientSotuvChekYangiGen(opts){
           else ostIzoh.push(' '+nom+' '+fmtG(tl)+"g ostatkadan to'landi\n"
                             +rjust('', 'qoldi '+fmtG(j)+'g')+'\n');
         }
-        t+=padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n';
+        if(Math.abs(j)<=0.001) return;   // v188.15: qolmagan tur chiqmaydi
+        te+=e;ty+=y;tj+=j;
+        ostQator.push(padL(' '+nom,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(j)+'g',10)+'\n');
       });
-      t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
+      if(ostQator.length || ostIzoh.length || (o.offsetlar||[]).length){
+      t+=LINE+'Ostatka\n';
+      if(ostQator.length){
+        t+=padL('',18)+pad('Ostatka',10)+pad('yangi',10)+pad('jami',10)+'\n';
+        ostQator.forEach(function(x){ t+=x; });
+        t+=DASH+padL(' JAMI',18)+pad(fmtG(Math.round(te*100)/100)+'g',10)+pad(fmtG(Math.round(ty*100)/100)+'g',10)+pad(fmtG(Math.round(tj*100)/100)+'g',10)+'\n';
+      }
       ostIzoh.forEach(function(s){ t+=s; });   // v172.33: "... ostatka ham to'landi ✓"
       // v172.5: offset manbai — BIZ qarzdor bo'lgan tur. JAMI ga qo'shilmaydi
       // (u klient qarzi, bu bizniki — bir ustunda qo'shilsa ma'nosi buziladi).
@@ -17695,6 +17724,7 @@ function klientSotuvChekYangiGen(opts){
           t+=padL(' '+x.zavod+' '+x.tur,18)+pad(fmtG(e)+'g',10)+pad(fmtG(y)+'g',10)+pad(fmtG(Math.round((e+y)*100)/100)+'g',10)+'\n';
         });
       }
+      }   // v188.15: bo'sh Ostatka bloki umuman chiqmaydi
     }
     return t;
   }

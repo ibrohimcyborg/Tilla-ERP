@@ -7636,3 +7636,54 @@ v188.13 sinovida vozvratli holatlar tekshirildi, lekin
 **vozvratsiz + ostatkadan to'lash** holati sinalmadi — aynan o'sha
 buzilgandi. Yangi shart qo'shilganda eski yo'lni ham solishtirish kerak,
 faqat yangi yo'lni emas.
+
+## v188.15 — sotuv cheki: OSTATKA HISOBOTI, tartib, bo'sh qator yo'q
+
+**Ibrohim:** «nega ostatkani ko'rsatmayapti, shunda klientda oldingi ostatkasi
+ko'rsatmayapti» → keyin: «ostatkasi bo'masa ko'rsatmasin chek» → maket
+ko'rgach: **«shunaqa qil»**.
+
+Maket: `mockups/sotuv-chek-ostatka.html`.
+
+### Uchta o'zgarish
+
+**1. `OSTATKA HISOBOTI` — chek boshida.**
+Klient amaldan OLDIN nima bilan kelgani. Manba `o.eskiOstMap`
+(= `_eskiQarzMap`, 17056 — birinchi `k.tarix.push` dan oldin olinadi,
+demak haqiqiy «oldingi holat»).
+Faqat **musbat** turlar — manfiysi «Bizda (offset)» blokida.
+Bo'sh bo'lsa blok **chiqmaydi**.
+
+**2. Tartib: `Vozvrat` endi `Berildi` dan OLDIN.**
+
+    OSTATKA HISOBOTI -> Vozvrat -> Berildi -> To'lov -> Ostatka
+
+Ibrohim aynan shunday aytgan edi. v188.13 da `Berildi` dan keyin
+qo'yilgandi — noto'g'ri joy.
+
+**3. Oxirgi `Ostatka`: qolmagan tur chiqmaydi.**
+`|jami| <= 0.001` bo'lgan qator yozilmaydi, `JAMI` faqat **chiqqan**
+qatorlarni qo'shadi. Hech narsa qolmasa blok butunlay chiqmaydi.
+
+Buning uchun qatorlar avval **hisoblanadi** (`ostQator`), keyin
+chiqariladi — sarlavha bo'sh blokka yozilib qolmasin.
+`ostIzoh` («... ostatkadan to'landi») saqlanadi: u qoldiq emas, izoh —
+qator yashirinsa ham chiqadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Ettita holat v188.14 bilan solishtirildi — **oltitasida raqamli qatorlar
+aynan bir xil**. Yettinchisi (maketdagi boy klient) ataylab farq qiladi:
+
+    v188.14   Butterfly 3D   5.00g   -5.00g    0.00g   <- endi chiqmaydi
+              JAMI          25.55g   -5.00g   10.55g
+    v188.15   JAMI          20.55g    0.00g   10.55g   <- faqat qolganlar
+
+`jami` yakuni **10.55g** ikkalasida ham bir xil — hisob o'zgarmadi,
+faqat ko'rinish.
+
+### Tegilmadi
+
+Saqlash, baza, klient tarixi, hisob-kitob, to'lov cheki, kassa cheki,
+ostatka rasmi.

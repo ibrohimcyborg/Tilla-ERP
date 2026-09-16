@@ -1,4 +1,4 @@
-<title>Chekda Ostatka Ko'rinishi</title>
+<title>Ostatkasi Ko'p Klient</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
 <style>
 :root{
@@ -33,7 +33,7 @@
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
   padding-inline:16px;padding-block:22px 64px}
-.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+.wrap{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
 header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
 header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
 .tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
@@ -41,11 +41,9 @@ header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
 section{display:flex;flex-direction:column;gap:11px}
 h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
   margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
-h3{font-size:15.5px;margin:0}
 .box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
 .box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
 .box.good{background:var(--good-bg);border-color:var(--good-bd)}
-.box.cool{background:var(--cool-bg);border-color:var(--cool-bd)}
 .box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
 .box p{margin:0}
 .box p + p{margin-top:8px}
@@ -54,18 +52,26 @@ h3{font-size:15.5px;margin:0}
 .chek{font-family:var(--mono);font-size:10.5px;line-height:1.62;white-space:pre;
   background:var(--card);border:1px solid var(--edge);border-radius:9px;
   padding:12px;overflow-x:auto;color:var(--ink);font-variant-numeric:tabular-nums}
-mark{background:var(--good-bg);color:var(--good);border-radius:3px;padding:0 3px;font-weight:700}
+mark{background:var(--good-bg);color:var(--good);border-radius:3px;padding:0 2px;font-weight:700}
+mark.r{background:var(--bad-bg);color:var(--bad)}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-@media (max-width:560px){.pair{grid-template-columns:1fr}}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
 .pair > div{display:flex;flex-direction:column;gap:7px;min-width:0}
 .cap{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
 .cap.a{color:var(--bad)} .cap.b{color:var(--good)}
 code{font-family:var(--mono);font-size:12px;background:var(--card2);
   border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
-.box.bad code,.box.good code,.box.cool code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
 .hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
-ol.steps{margin:0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:7px}
-ol.steps b{color:var(--gold)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;font-size:13px;width:100%;
+  font-variant-numeric:tabular-nums;background:var(--card);
+  border:1px solid var(--edge);border-radius:12px}
+th,td{padding:8px 11px;border-bottom:1px solid var(--edge);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;color:var(--ink3)}
+thead th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tbody tr:last-child td{border-bottom:0;font-weight:700}
+td.plus{color:var(--good)} td.minus{color:var(--bad)} td.zero{color:var(--ink3)}
 .chip{display:inline-block;font-size:12px;border:1px solid var(--edge2);border-radius:999px;
   padding:4px 11px;color:var(--ink2);background:var(--card)}
 .chip b{color:var(--ink);font-variant-numeric:tabular-nums}
@@ -74,169 +80,157 @@ ol.steps b{color:var(--gold)}
 <div class="wrap">
 
 <header>
-  <div class="tag">Tilla ERP &middot; v188.13 ustiga</div>
-  <h1>Chekda ostatka ko&rsquo;rinmayapti</h1>
-  <p>Ikki sabab bor. Birinchisi mening qarorim edi &mdash; noto&rsquo;g&rsquo;ri chiqdi.</p>
+  <div class="tag">Tilla ERP &middot; v188.14 ustiga</div>
+  <h1>Ostatkasi ko&rsquo;p klient &mdash; butun jarayon</h1>
+  <p>Uch turda ostatka bor, bittasini qaytardi, bittasiga mol oldi, ostatkasidan to&rsquo;ladi.</p>
 </header>
 
 <section>
+  <h2>Avval: prodda turgan xato tuzatildi</h2>
+  <div class="box good">
+    <p><b>v188.14 push qilindi.</b> v188.13 da <b>men</b> kiritgan xato edi:
+    klient <b>ostatkasidan to&rsquo;lasa</b> chek manfiy qoldiq chiqarardi
+    (<code>2.40g</code> o&rsquo;rniga <code>-7.60g</code>) &mdash; vozvrat yo&rsquo;q holatda ham.
+    Bir xil gramm ikki marta ayirilardi.</p>
+    <p class="hint">7 holat sinaldi, 3 tasi eski kod bilan qator-ba-qator solishtirildi &mdash;
+    vozvratsiz holatlarda farq 0.</p>
+  </div>
+</section>
+
+<section>
   <h2>Sen aytding</h2>
-  <div class="said">&laquo;nega ostatkani ko&rsquo;rsatmayapti, shunda klientda oldingi ostatkasi
-  ko&rsquo;rsatmayapti, shuniyam ustida ishlavotudiku&raquo;</div>
-</section>
-
-<section>
-  <h2>Sabab 1 &mdash; men olib tashlagandim</h2>
-  <div class="box bad">
-    <p>v188.13 da <b>men</b> shunday qildim: hammasi yopilsa oxirgi <code>Ostatka</code>
-    bloki umuman chiqmasin. Sen &laquo;soddalashtir&raquo; deganing uchun shunday oldim &mdash;
-    lekin buni sen aytmagan eding, <b>mening qarorim edi</b>.</p>
-    <p>Natijada blok bilan birga <b>oldingi ostatka ustuni ham</b> yo&rsquo;qoldi. Xato.</p>
+  <div class="said">&laquo;ostatkasi bo&rsquo;masa ko&rsquo;rsatmasin chek, endi ostatkasi
+  ko&rsquo;proq qilib jarayonda ko&rsquo;rsat mockupi&raquo;</div>
+  <div class="box">
+    <p>Tushundim: <b>bo&rsquo;sh qator yozilmaydi.</b> &laquo;Ostatka yo&rsquo;q&raquo; /
+    &laquo;Qolmadi&raquo; degan to&rsquo;ldiruvchi qatorlar taklifimdan olib tashlandi.</p>
   </div>
 </section>
 
 <section>
-  <h2>Sabab 2 &mdash; boshida hech qachon bo&rsquo;lmagan</h2>
-  <div class="box cool">
-    <p>Sotuv chekida <code>OSTATKA HISOBOTI</code> (amaldan <b>oldingi</b> holat) bloki
-    <b>hech qachon bo&rsquo;lmagan</b>. Ma&rsquo;lumot bor &mdash; <code>_eskiQarzMap</code>
-    <code>index.html:17056</code> da, birinchi yozuvdan oldin olinadi &mdash; lekin chekka
-    berilmaydi.</p>
-    <p class="hint">Bu o&rsquo;sha &laquo;yakuniy ko&rsquo;rinish&raquo;dagi ko&rsquo;k blok edi &mdash;
-    to&rsquo;lov chekida kelishilgan, sotuv chekiga hech qachon tushmagan.</p>
+  <h2>Jarayon</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Bosqich</th><th>Butterfly Oddiy</th><th>Butterfly 3D</th><th>Diamond Oddiy</th></tr></thead>
+    <tbody>
+      <tr><td>boshida bor edi</td><td>12.40g</td><td>5.00g</td><td>8.15g</td></tr>
+      <tr><td>vozvrat qildi</td><td class="zero">&mdash;</td><td class="minus">&minus;5.00g</td><td class="zero">&mdash;</td></tr>
+      <tr><td>mol oldi</td><td class="plus">+10.00g</td><td class="zero">&mdash;</td><td class="zero">&mdash;</td></tr>
+      <tr><td>to&rsquo;lov qildi</td><td class="minus">&minus;20.00g</td><td class="zero">&mdash;</td><td class="zero">&mdash;</td></tr>
+      <tr><td>qoldi</td><td>2.40g</td><td>0.00g</td><td>8.15g</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box">
+    <p class="hint" style="margin:0">Butterfly Oddiy da <b>20g</b> to&rsquo;ladi, lekin bugun
+    <b>10g</b> olgan &mdash; qolgan <b>10g</b> eski ostatkasidan yopildi. Aynan shu
+    hisob v188.13 da buzilgandi.</p>
   </div>
 </section>
 
 <section>
-  <h2>Sening holating</h2>
+  <h2>Chek</h2>
   <div class="pair">
     <div>
-      <span class="cap a">Hozir &mdash; v188.13</span>
-      <div class="chek">                  Tojik Klient
-                   16.09.2026
+      <span class="cap a">Hozir &mdash; v188.14</span>
+      <div class="chek">                     Klient
+               16.09.2026 - 14:20
 ================================================
 Berildi
- Diamond Oddiy                            10.00g
+ Butterfly Oddiy                          10.00g
 ------------------------------------------------
  JAMI berildi                             10.00g
 ================================================
 Vozvrat
- Diamond Oddiy                            -5.00g
+ Butterfly 3D                             -5.00g
 ------------------------------------------------
  JAMI vozvrat                             -5.00g
 ================================================
 To'lov
- Diamond Oddiy  5.00g x 90.8             454.00#
+ Butterfly Oddiy  20.00g x 89.5        1,790.00#
 ================================================
 Jami to'landi
- N                                       454.00#
+ N                                     1,790.00#
 ================================================
- Umumiy Summa                            454.00#
- Umumiy g                                  5.00g
+ Umumiy Summa                          1,790.00#
+ Umumiy g                                 20.00g
 ================================================
-
-      <mark class="y">(ostatka haqida BIRORTA qator yo'q)</mark>
-</div>
+Ostatka
+                     Ostatka     yangi      jami
+ Butterfly Oddiy      12.40g     0.00g     2.40g
+<mark class="r"> Butterfly 3D          5.00g    -5.00g     0.00g</mark>
+ Diamond Oddiy         8.15g     0.00g     8.15g
+------------------------------------------------
+ JAMI                 25.55g    -5.00g    10.55g
+ Butterfly Oddiy 10.00g ostatkadan to'landi
+                                     qoldi 2.40g</div>
     </div>
     <div>
       <span class="cap b">Taklif</span>
-      <div class="chek">                  Tojik Klient
-                   16.09.2026
+      <div class="chek">                     Klient
+               16.09.2026 - 14:20
 ================================================
 <mark class="y">OSTATKA HISOBOTI
- Ostatka yo'q</mark>
+ Butterfly Oddiy                          12.40g
+ Butterfly 3D                              5.00g
+ Diamond Oddiy                             8.15g
+------------------------------------------------
+ JAMI                                     25.55g</mark>
 ================================================
 <mark class="y">Vozvrat
- Diamond Oddiy                            -5.00g
+ Butterfly 3D                             -5.00g
 ------------------------------------------------
  JAMI vozvrat                             -5.00g</mark>
 ================================================
 Berildi
- Diamond Oddiy                            10.00g
+ Butterfly Oddiy                          10.00g
 ------------------------------------------------
  JAMI berildi                             10.00g
 ================================================
 To'lov
- Diamond Oddiy  5.00g x 90.8             454.00#
+ Butterfly Oddiy  20.00g x 89.5        1,790.00#
 ================================================
 Jami to'landi
- N                                       454.00#
+ N                                     1,790.00#
 ================================================
- Umumiy Summa                            454.00#
- Umumiy g                                  5.00g
-================================================
-<mark class="y">Ostatka
- Qolmadi ✓</mark>
-================================================</div>
-    </div>
-  </div>
-  <div class="box good">
-    <p><b>Qoida oddiy: ikkala blok DOIM chiqadi.</b> Bo&rsquo;sh bo&rsquo;lsa
-    <code>Ostatka yo&rsquo;q</code> / <code>Qolmadi &#10003;</code> deb yozadi &mdash; shunda
-    &laquo;nega ko&rsquo;rsatmayapti&raquo; degan savol qolmaydi.</p>
-  </div>
-</section>
-
-<section>
-  <h2>Ostatkasi bor klient</h2>
-  <p class="hint" style="margin:0">Butterfly 5g bor edi, 3g qaytardi, Diamond 10g oldi, 7g ga to&rsquo;ladi.</p>
-  <div class="chek">                     Klient
-                   16.09.2026
-================================================
-<mark class="y">OSTATKA HISOBOTI
- Butterfly Oddiy                           5.00g</mark>
-================================================
-<mark class="y">Vozvrat
- Butterfly Oddiy                          -3.00g
-------------------------------------------------
- JAMI vozvrat                             -3.00g</mark>
-================================================
-Berildi
- Diamond Oddiy                            10.00g
-------------------------------------------------
- JAMI berildi                             10.00g
-================================================
-To'lov
- Diamond Oddiy  7.00g x 90.8             635.60#
- ...............................................
-   Qoldi                                    3.00
-================================================
-Jami to'landi
- N                                       635.60#
-================================================
- Umumiy Summa                            635.60#
- Umumiy g                                  7.00g
+ Umumiy Summa                          1,790.00#
+ Umumiy g                                 20.00g
 ================================================
 Ostatka
                      Ostatka     yangi      jami
- Butterfly Oddiy       5.00g    -3.00g     2.00g
- Diamond Oddiy         0.00g     3.00g     3.00g
+ Butterfly Oddiy      12.40g     0.00g     2.40g
+ Diamond Oddiy         8.15g     0.00g     8.15g
 ------------------------------------------------
- JAMI                  5.00g     0.00g     5.00g
-================================================</div>
+<mark class="y"> JAMI                 20.55g     0.00g    10.55g</mark>
+ Butterfly Oddiy 10.00g ostatkadan to'landi
+                                     qoldi 2.40g</div>
+    </div>
+  </div>
 </section>
 
 <section>
-  <h2>Tartib ham o&rsquo;zgaradi</h2>
+  <h2>Uch farq</h2>
   <div class="box gold">
-    <p>Sening aytganing: <b>ostatka &rarr; vozvrat &rarr; berildi &rarr; to&rsquo;lov</b>.
-    Hozir <code>Vozvrat</code> <code>Berildi</code> dan <b>keyin</b> turibdi &mdash; buni
-    men v188.13 da o&rsquo;sha yerga qo&rsquo;ygandim.</p>
-    <ol class="steps" style="margin-top:9px">
-      <li><b>OSTATKA HISOBOTI</b> &mdash; oldingi holat</li>
-      <li><b>Vozvrat</b> &mdash; ostatkadan ayiradi</li>
-      <li><b>Berildi</b> &mdash; qo&rsquo;shiladi</li>
-      <li><b>To&rsquo;lov</b> &mdash; berilganga / ostatkadan</li>
-      <li><b>Ostatka</b> &mdash; qolgani</li>
-    </ol>
+    <p><b>1. <code>OSTATKA HISOBOTI</code> boshida.</b> Klient nima bilan kelgani
+    darrov ko&rsquo;rinadi. Hozir bu ma&rsquo;lumot faqat oxirgi jadvalning birinchi
+    ustunida turibdi &mdash; bor, lekin ko&rsquo;zga tashlanmaydi.</p>
+    <p><b>2. Tartib:</b> <code>Vozvrat</code> endi <code>Berildi</code> dan
+    <b>oldin</b>. Sening aytganing shunday edi:
+    ostatka &rarr; vozvrat &rarr; berildi &rarr; to&rsquo;lov &rarr; ostatka.
+    Hozir teskari &mdash; men v188.13 da noto&rsquo;g&rsquo;ri joyga qo&rsquo;ygandim.</p>
+    <p><b>3. <code>0.00g</code> qatori chiqmaydi.</b> Butterfly 3D to&rsquo;liq
+    qaytarildi &mdash; qizil bilan belgiladim, taklifda u yo&rsquo;q. JAMI ham faqat
+    qolganini qo&rsquo;shadi: <code>20.55 &rarr; 10.55</code>.</p>
   </div>
 </section>
 
 <section>
   <h2>Hajmi</h2>
-  <span class="chip">taxminan <b>~30</b> qator</span>
-  <p class="hint">Tegilmaydi: saqlash, baza, hisob-kitob, to&rsquo;lov cheki, kassa cheki.
-  Faqat <code>klientSotuvChekYangiGen</code> ichidagi chiqarish tartibi.</p>
+  <span class="chip">taxminan <b>~35</b> qator</span>
+  <p class="hint">Faqat <code>klientSotuvChekYangiGen</code> ichidagi chiqarish tartibi.
+  Tegilmaydi: saqlash, baza, hisob-kitob, to&rsquo;lov cheki, kassa cheki.</p>
+  <div class="box">
+    <p><b>Agar <code>OSTATKA HISOBOTI</code> keraksiz desang</b> &mdash; ma&rsquo;lumot
+    baribir oxirgi jadvalda bor &mdash; u holda faqat 2 va 3 qoladi, <b>~12 qator</b>.</p>
+  </div>
 </section>
 
 </div>
