@@ -8408,3 +8408,66 @@ Aralash sotuv tarmog'i, saqlanadigan yozuvlar, kassa, to'lov modali.
 
 ⚠ `_naqtTolovPulSave` endi hech qayerda ishlatilmaydi — belgilab qo'yildi,
 **o'chirilmadi** (so'ralmagan).
+
+## v188.26 — foizli turlarda qulf umuman ishlamas edi
+
+**Ibrohim**: «qisman qanaqa ishlidi? 4-5ta zavodning narsasi har xil puldan
+sotilgan bo'ladi — foyda-zararni qanday hisoblidi?» → keyin: **«ulushdan olishi
+kere, qancha ko'p gramm shuncha ko'p ulush — shunaqa ishlashi kere formula,
+huddi skidkaga o'xshab»**.
+
+Maket: `mockups/qisman-qanday-ishlaydi.html`.
+
+### Formula allaqachon to'g'ri edi
+
+`kassaPulNavbati` sessiya (`ki|sana|soat`) ichida ulushni gramm nisbatida
+sochadi: `qopEkv = ekv × ulush × shr`. Ya'ni 40g → 10g, 10g → 2.5g, 25g → 6.25g
+(hammasi 25%). Aynan Ibrohim aytgan narsa.
+
+### Lekin ishga tushmasdi — 10214
+
+    var _qatiy = (_znMan2!==''  &&  parseFloat(_znMan2)>0);
+                       ^ getZavodNarx(zi, ti)
+
+`getZavodNarx` (hisob.js:121) **foizli turga ham** raqam qaytaradi:
+
+    if (manual[ti]) return manual[ti];
+    return pct > 0 ? kurs*(1+pct/100) : '';
+
+→ har qanday **foizli** tur «qat'iy narx» deb hisoblanib qulfdan chiqarilardi
+(`_q = _qatiy ? null : _qop.get(s.op)`, 10231).
+
+**Yopiq halqa:** sotuvdagi `kirimNarx` ham SHU funksiyadan yoziladi (17474,
+14872, 14142, 14767, 17323). Foyda ko'rsatadigan har sotuvda `kirimNarx>0`
+⟹ o'sha tur `_qatiy` ham ⟹ **qulf hech qachon tushmasdi**. Shuning uchun
+klient qatorlarida `TO'LDI` / `QISMAN` yorlig'i hech qachon chiqmagan va
+hamma sotuv ▼ suzib turardi.
+
+Istisno: foizi sotuvdan KEYIN o'chirilgan turlar.
+
+### Qilindi
+
+    var _manQ={}; try{ _manQ=JSON.parse(localStorage.getItem('tilla-manual-'+zi)||'{}'); }catch(e){}
+    var _qatiy = !!_manQ[ti];
+
+«Qat'iy» endi = faqat **qo'lda qo'yilgan narx**. Foizli tur kurs bilan
+o'ynaydi — demak qulflanadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+4 tur (foiz 0 / 10 / 25 / qat'iy 150), grammlar 40 / 10 / 25 / 5,
+jami naqt $7,695, 999 xaridi $1,923.75 (= 25%):
+
+    eski   Diamond·Oddiy 25%  |  3D 0%     |  B·Oddiy 0%     |  jami 10.00g  $840.00
+    yangi  Diamond·Oddiy 25%  |  3D 25%    |  B·Oddiy 25%    |  jami 18.75g  $1,726.25
+    qat'iy narxli tur: 0% (ikkalasida ham)
+    suzuvchi  -28.50  ->  -24.37
+
+Gramm nisbati: 40g→10.00g, 10g→2.50g, 25g→6.25g.
+
+### Tegilmadi
+
+`getZavodNarx` ning qolgan 7 chaqiruvi, `kirimNarxHozir` hisobi,
+`kassaFifoModel` (u pul navbatini umuman ko'rmaydi — kassa foyda paneli
+o'zgarmaydi), formulaning o'zi.

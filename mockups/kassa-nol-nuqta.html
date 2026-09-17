@@ -1,0 +1,197 @@
+<title>Kassa Nol Nuqtasi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--bad);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.said + .said{margin-top:9px}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+.ok::before{content:"\2713\00a0";color:var(--good);font-weight:700}
+.no::before{content:"\2715\00a0";color:var(--bad);font-weight:700}
+.q{display:flex;gap:10px;align-items:flex-start}
+.q b{flex-shrink:0;font-family:var(--mono);color:var(--gold)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Kassa &middot; 3-ish</div>
+  <h1>$1.75 mln qayerdan qoldi va uni qanday kesamiz</h1>
+  <p>Avval savolingga javob, keyin haqiqiy koddan olingan isbot.</p>
+</header>
+
+<section>
+  <h2>&laquo;Navbat kun bilan yopilmasin &mdash; nega deding?&raquo;</h2>
+  <div class="box good">
+    <p><b>Haqli &mdash; yopilmasligi kerak.</b> Men ekraningdagi bugungi qatorlarda
+    qulf yorlig&rsquo;i yo&rsquo;qligini ko&rsquo;rib, navbat orqada qolgan deb o&rsquo;yladim va
+    ikki variantni qo&rsquo;ydim. Sen sababini tushuntirding:</p>
+    <div class="said">&laquo;1 kun ushlanadi &mdash; tilla kursi tushishi ehtimolidan.
+    Qoldirib, keyin chiqim qilib foydamizni ko&rsquo;paytiramiz&raquo;</div>
+    <p style="margin-top:9px">Ya&rsquo;ni <b>pul ataylab kechadan ertaga o&rsquo;tadi</b> &mdash;
+    bu sizning savdo usulingiz, xato emas. Navbat kun bilan yopilsa bu buziladi.
+    <b>Variant B bekor.</b> Navbat kunlar oshib boraveradi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Unda muammo nimada</h2>
+  <div class="box bad">
+    <div class="said">&laquo;buni ishlatmoqchi bo&rsquo;lganimiz uchun bizda 1.758.000 cha
+    dollar yig&rsquo;ilib ketgan&hellip; nimadir qilib shu pulni yo&rsquo;qotish kerak&raquo;</div>
+    <p style="margin-top:10px">Muammo &mdash; kunlik o&rsquo;tish emas, <b>tarixiy qoldiq</b>.
+    Navbat birinchi kundan beri yig&rsquo;ilgan va hech qachon kesilmagan. Shuning uchun
+    bugun 999 olsang, u <b>bugungi Mamuraga emas, oylar oldingi sovdaga</b> tushadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Isbot &mdash; kodda yurgizildi</h2>
+  <div class="box">
+    <div class="mm">SOVDALAR  01.08  $24,000     <- eski, qulflanmagan
+          15.08  $16,000     <- eski, qulflanmagan
+          17.09  $ 1,480     Mamura
+          17.09  $ 4,360.01  Maqsadjon
+
+AMAL      17.09  $1,614 ga 999 olindi (80.00 dan)</div>
+    <div class="tw"><table>
+      <tr><th>Sovda</th><th class="n">Z siz</th><th class="n">16.09 da kun yopilgan</th></tr>
+      <tr><td>Kassa naqd</td><td class="n">$44,226.01</td><td class="n y">$4,226.01</td></tr>
+      <tr><td>ESKI 01.08</td><td class="n e">$1,614 &middot; 6.7%</td><td class="n e">$1,614 &middot; 6.7%</td></tr>
+      <tr><td>ESKI 15.08</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+      <tr><td>Mamura 17.09</td><td class="n">0%</td><td class="n">0%</td></tr>
+      <tr><td>Maqsadjon 17.09</td><td class="n">0%</td><td class="n">0%</td></tr>
+    </table></div>
+    <p style="margin-top:10px"><b>Kun yopish naqt raqamini tuzatdi</b>
+    ($44,226 &rarr; $4,226), <b>lekin navbatga tegmadi</b> &mdash; $1,614 baribir
+    01.08 sovdasiga tushdi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>&laquo;Sozlamalarga naqtni 0 qilish qo&rsquo;shish kerakmi?&raquo;</h2>
+  <div class="box">
+    <p><b>Yangi sozlama kerak emas</b> &mdash; naqtni nolga tushiradigan tugma
+    allaqachon bor: <b>&laquo;&check; Kunni yopish&raquo;</b>. Haqiqiy naqtni kiritsang,
+    farqni tuzatish yozuvi sifatida yozadi.</p>
+    <div class="tw"><table>
+      <tr><th>Kun yopish nima qiladi</th><th></th></tr>
+      <tr><td class="ok">Naqt raqamini haqiqiyga tenglaydi</td><td class="n y">bor</td></tr>
+      <tr><td class="ok">Tuzatish yozuvi qoldiradi (izlanadi)</td><td class="n y">bor</td></tr>
+      <tr><td class="no">Pul navbatini keseydi</td><td class="n e">YO&rsquo;Q</td></tr>
+    </table></div>
+    <p class="hint">Ekrandagi &laquo;birinchi kun yopish nol nuqta bo&rsquo;ladi&raquo; yozuvi
+    (index.html:5119) &mdash; hozircha faqat yozuv. Kodda navbat uchun nol nuqta yo&rsquo;q.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Taklif &mdash; navbatga nol nuqta</h2>
+  <div class="box good">
+    <p><b>Birinchi kun yopish navbatni ham keseydi.</b> Undan oldingi sovdalar va
+    amallar navbatdan chiqadi. Bir marta, qaytarilmaydi.</p>
+    <div class="mm">NOL NUQTA (birinchi Z)
+        |
+  eski  |  yangi
+  ------+--------------------------
+  X     |  17.09 Mamura      $1,480
+  X     |  17.09 Maqsadjon   $4,360
+        |  18.09 ...
+        |
+  navbatga kirmaydi    navbat shu yerdan</div>
+    <p style="margin-top:10px">Shundan keyin $1,614 lik 999 xaridi <b>Mamuraga</b>
+    tushadi &mdash; sen kutganday.</p>
+    <p class="hint">Kunlik o&rsquo;tish saqlanadi: kechagi pul ertaga chiqim qilinsa,
+    o&rsquo;sha kungi kursdan qulflanadi. Faqat <b>birinchi</b> Z kesadi, keyingilari emas.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qaror kerak &mdash; eski sovdalar</h2>
+  <div class="box gold">
+    <p>Nol nuqtadan oldingi sovdalar navbatdan chiqadi. Ularning foydasi bilan nima qilamiz?</p>
+    <div class="q"><b>A)</b><span>Suzganicha qolsin &mdash; kurs o&rsquo;zgarsa ular ham
+    o&rsquo;zgaraveradi. Hech narsa muhrlanmaydi.</span></div>
+    <div class="q" style="margin-top:8px"><b>B)</b><span>Nol nuqta kunidagi kursda
+    <b>qotsin</b> &mdash; o&rsquo;sha kundan keyin ularga kurs ta&rsquo;sir qilmaydi.</span></div>
+    <p class="hint" style="margin-top:9px"><b>B</b> toza ko&rsquo;rinadi &mdash; eski davr
+    yopiladi, foyda muzlaydi, yangi davr toza boshlanadi. Lekin qaror seniki.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Tushunmadim &mdash; aniqlashtirib ber</h2>
+  <div class="box">
+    <div class="said">&laquo;kassamiz to&rsquo;liq yopilmasa qisman yopiladi,
+    shuniyam tuzatishimiz kerak&raquo;</div>
+    <p style="margin-top:10px">Bu qaysi biri?</p>
+    <div class="q"><b>1)</b><span>Kassadagi pulning bir qismi topshiriladi, qolgani
+    ertaga qoladi &mdash; qisman qulf. <b>Bu hozir ishlaydi.</b></span></div>
+    <div class="q" style="margin-top:8px"><b>2)</b><span>&laquo;Kunni yopish&raquo; kunning
+    hammasini yopadi &mdash; senga <b>qismini</b> yopadigan kerak.</span></div>
+    <div class="q" style="margin-top:8px"><b>3)</b><span>Boshqa narsa &mdash; yozib ber.</span></div>
+  </div>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> Ikki javob kerak: eski sovdalar <b>A</b> mi <b>B</b> mi,
+    va &laquo;qisman yopiladi&raquo; &mdash; <b>1</b>, <b>2</b> yoki <b>3</b>.</p>
+  </div>
+</section>
+
+</div>

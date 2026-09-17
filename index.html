@@ -1,4 +1,4 @@
-<!-- v188.25 -->
+<!-- v188.26 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.25';
+var APP_VER = 'v188.26';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10211,7 +10211,19 @@ function kassaSuzuvchiXaritasi(){
       var ochiqBu = Math.max(0, sotilganHammasi - vozvratG - tolanganG);
       var yopilganBu = Math.max(0, realSotilgan - Math.min(ochiqBu, realSotilgan));
       var qoldiYopish=yopilganBu;
-      var _qatiy = (_znMan2!=='' && parseFloat(_znMan2)>0); // QAT'IY narx — 999 ta'sir qilmaydi
+      // v188.26 (Ibrohim): «lushdan olishi kere, qancha ko'p gramm shuncha
+      // ko'p ulush — huddi skidkaga o'xshab». Formula aynan shunday yozilgan
+      // (kassaPulNavbati: qopEkv = ekv × ulush), lekin ISHGA TUSHMAS edi.
+      // _qatiy getZavodNarx() dan olinardi, u esa FOIZLI turga ham raqam
+      // qaytaradi (hisob.js:121) — shuning uchun har qanday foizli tur
+      // «qat'iy narx» deb hisoblanib qulf o'tkazib yuborilardi.
+      // Yopiq halqa: sotuvdagi kirimNarx ham SHU funksiyadan yoziladi (17474,
+      // 14872, 14142...), ya'ni foyda ko'rsatadigan HAR sotuv qulfdan chetda
+      // qolardi — TO'LDI/QISMAN yorlig'i hech qachon chiqmagan.
+      // Endi «qat'iy» = faqat QO'LDA qo'yilgan narx. Foizli tur kurs bilan
+      // o'ynaydi — demak qulflanishi kerak.
+      var _manQ={}; try{ _manQ=JSON.parse(localStorage.getItem('tilla-manual-'+zi)||'{}'); }catch(e){}
+      var _qatiy = !!_manQ[ti]; // QAT'IY narx — 999/chiqim ta'sir qilmaydi
       savdo.forEach(function(s){
         var yop=Math.min(s.ekv, qoldiYopish);
         var ochiqEkv = s.ekv - yop; qoldiYopish -= yop;

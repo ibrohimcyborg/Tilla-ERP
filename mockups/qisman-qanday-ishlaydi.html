@@ -1,0 +1,221 @@
+<title>Qisman Qulf Qanday Ishlaydi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+td.dim{color:var(--ink3)}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+.step{display:flex;gap:11px;align-items:flex-start}
+.step + .step{margin-top:11px}
+.step > b{flex-shrink:0;width:23px;height:23px;border-radius:50%;background:var(--gold);
+  color:var(--paper);font-family:var(--mono);font-size:11px;display:flex;
+  align-items:center;justify-content:center;margin-top:3px}
+.step > div{min-width:0}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Tushuntirish</div>
+  <h1>&laquo;Qisman&raquo; qanday hisoblanadi</h1>
+  <p>Bitta sotuvda 4 xil zavod-tur, har xil narxdan. Pul qismi tegsa nima bo&rsquo;ladi.</p>
+</header>
+
+<section>
+  <h2>Sen so&rsquo;rading</h2>
+  <div class="said">&laquo;qisman qanaqa ishlaydi? Masalan qisman olingan pulda 4-5 ta
+  zavodning narsasi har xil puldan sotilgan bo&rsquo;ladi &mdash; shunda foyda-zararni
+  sistema qanday hisoblaydi?&raquo;</div>
+</section>
+
+<section>
+  <h2>Qoida &mdash; uch qadam</h2>
+  <div class="box">
+    <div class="step"><b>1</b><div>
+      <b>Sotuv butunligicha navbatda turadi.</b> Bitta klient + bitta sana + bitta soat
+      = <b>bitta navbat yozuvi</b>. Ichida 4 ta zavod-tur bo&rsquo;lsa ham, ular ajralmaydi.
+    </div></div>
+    <div class="step"><b>2</b><div>
+      <b>Sotuvlar orasida ketma-ket, sotuv ichida baravar.</b> Pul eng eski sotuvdan
+      boshlab to&rsquo;ldiradi. Lekin bitta sotuv ichida &laquo;avval Diamond, keyin Butterfly&raquo;
+      degan tartib <b>yo&rsquo;q</b> &mdash; ulush hamma turga <b>bir xil foiz</b> bilan
+      sochiladi. Skidka qanday bo&rsquo;linsa, shunday.
+    </div></div>
+    <div class="step"><b>3</b><div>
+      <b>Har tur qulflangan kursni o&rsquo;z narxiga o&rsquo;giradi.</b> Qulf asosi bitta
+      (masalan 80.00), lekin har tur uni o&rsquo;z foiziga ko&rsquo;paytiradi &mdash; shuning
+      uchun har turda boshqa narx qotadi.
+    </div></div>
+  </div>
+  <div class="box gold">
+    <div class="mm">ulush      = olingan pul / sotuv naqti
+qulf narx  = qulf asos kursi x (1 + tur foizi)
+aralash    = ulush x qulf narx + (1 - ulush) x bugungi narx
+suzuvchi   = gramm x (sotuvdagi kirim narx - aralash narx)</div>
+  </div>
+</section>
+
+<section>
+  <h2>Misol</h2>
+  <div class="box">
+    <div class="mm">Juma Aka, 17.09 soat 12:41, o'sha kunlik kurs 80.0
+
+  Diamond·Oddiy      foiz  0%    25g   kirim  80.00   naqt $2,000
+  Diamond·3D         foiz 10%    25g   kirim  88.00   naqt $2,200
+  Butterfly·Oddiy    foiz 25%    25g   kirim 100.00   naqt $2,500
+  Butterfly·Premium  QAT'IY      25g   kirim 150.00   naqt $3,750
+  ---------------------------------------------------------------
+                            100g                 JAMI $10,450
+
+18.09 da $2,612.50 ga 999 olindi (583 kursi 80.00)
+$2,612.50 / $10,450 = 25%        Bugungi kurs 80.4</div>
+  </div>
+</section>
+
+<section>
+  <h2>Qoida bo&rsquo;yicha natija</h2>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>Zavod &middot; tur</th><th class="n">Qulf</th><th class="n">Qulf narx</th>
+          <th class="n">Bugungi</th><th class="n">Aralash</th><th class="n">Suzuvchi</th></tr>
+      <tr><td>Diamond&middot;Oddiy <span style="color:var(--ink3)">0%</span></td>
+          <td class="n">25%</td><td class="n">80.00</td><td class="n">80.40</td><td class="n">80.300</td><td class="n">&minus;7.50</td></tr>
+      <tr><td>Diamond&middot;3D <span style="color:var(--ink3)">10%</span></td>
+          <td class="n">25%</td><td class="n">88.00</td><td class="n">88.40</td><td class="n">88.300</td><td class="n">&minus;7.50</td></tr>
+      <tr><td>Butterfly&middot;Oddiy <span style="color:var(--ink3)">25%</span></td>
+          <td class="n">25%</td><td class="n">100.00</td><td class="n">100.50</td><td class="n">100.375</td><td class="n">&minus;9.37</td></tr>
+      <tr><td>Butterfly&middot;Premium <span style="color:var(--ink3)">qat&rsquo;iy</span></td>
+          <td class="n dim">&mdash;</td><td class="n dim">&mdash;</td><td class="n">150.00</td><td class="n">150.000</td><td class="n">0.00</td></tr>
+      <tr class="jami"><td>JAMI</td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n">&minus;24.37</td></tr>
+    </table></div>
+    <p style="margin-top:10px">999 olinmaganda bu <b>&minus;32.50</b> bo&rsquo;lardi.
+    Ya&rsquo;ni qulf <b>+8.13</b> saqlab qoldi.</p>
+    <p class="hint"><b>Qat&rsquo;iy narxli tur</b> qulfga kirmaydi &mdash; uning narxi kursga
+    bog&rsquo;liq emas, qulflashning ma&rsquo;nosi yo&rsquo;q. Bu to&rsquo;g&rsquo;ri.</p>
+  </div>
+</section>
+
+<section>
+  <h2>&#9888; Lekin amalda bunday ishlamayapti</h2>
+  <div class="box bad">
+    <p>Xuddi shu misolni <b>hozirgi kodda</b> yurgizdim:</p>
+    <div class="tw"><table>
+      <tr><th>Zavod &middot; tur</th><th class="n">Bo&rsquo;lishi kerak</th><th class="n">Hozir</th><th class="n">Suzuvchi</th></tr>
+      <tr><td>Diamond&middot;Oddiy <span style="color:var(--ink3)">0%</span></td><td class="n">25%</td><td class="n y">25%</td><td class="n">&minus;7.50</td></tr>
+      <tr><td>Diamond&middot;3D <span style="color:var(--ink3)">10%</span></td><td class="n">25%</td><td class="n e">0%</td><td class="n e">&minus;10.00</td></tr>
+      <tr><td>Butterfly&middot;Oddiy <span style="color:var(--ink3)">25%</span></td><td class="n">25%</td><td class="n e">0%</td><td class="n e">&minus;12.50</td></tr>
+      <tr><td>Butterfly&middot;Premium</td><td class="n dim">&mdash;</td><td class="n dim">&mdash;</td><td class="n">0.00</td></tr>
+      <tr class="jami"><td>JAMI</td><td class="n">&minus;24.37</td><td class="n e">&minus;30.00</td><td class="n"></td></tr>
+    </table></div>
+    <p style="margin-top:10px"><b>Faqat foizi 0 bo&rsquo;lgan tur qulflandi.</b>
+    Qulf +8.13 o&rsquo;rniga <b>+2.50</b> berdi. Pul esa navbatdan to&rsquo;liq yeyildi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Sabab</h2>
+  <div class="box bad">
+    <div class="mm">index.html:10214
+  var _qatiy = (_znMan2 !== '' && parseFloat(_znMan2) > 0);
+                     ^
+                     getZavodNarx(zi, ti)
+
+hisob.js:121  getZavodNarx
+  if (manual[ti]) return manual[ti];           <- qo'lda narx
+  return pct > 0 ? kurs*(1+pct/100) : '';      <- FOIZ ham raqam qaytaradi</div>
+    <p style="margin-top:10px"><code>_qatiy</code> &laquo;narxi qo&rsquo;lda qo&rsquo;yilgan&raquo;
+    degani edi. Lekin <code>getZavodNarx</code> <b>foizli turga ham</b> raqam qaytaradi &mdash;
+    shuning uchun har qanday foizli tur &laquo;qat&rsquo;iy&raquo; deb hisoblanadi va qulf
+    o&rsquo;tkazib yuboriladi.</p>
+    <p><b>Yopiq halqa:</b> sotuvdagi <code>kirimNarx</code> ham
+    <b>shu funksiyadan</b> yoziladi (17474, 14872, 14142&hellip;). Ya&rsquo;ni foyda
+    ko&rsquo;rsatadigan har qanday sotuvda <code>kirimNarx &gt; 0</code>, demak o&rsquo;sha
+    tur <code>_qatiy</code> ham bo&rsquo;ladi. <b>Natijada qulf hech qachon
+    tushmaydi</b> &mdash; foizi keyin o&rsquo;chirilgan turlardan boshqasida.</p>
+    <p class="hint">Shuning uchun qatorlaringda <b>TO&rsquo;LDI / QISMAN yorlig&rsquo;i
+    hech qachon chiqmagan</b>. Sen ko&rsquo;rgan ▼ suzuvchi &mdash; shuning natijasi.</p>
+  </div>
+  <div class="box">
+    <p><b>Qachondan beri:</b> <code>_qatiy</code> 2026-07-15 da yozilgan,
+    <code>getZavodNarx</code> ning foiz tarmog&rsquo;i esa 2026-06-13 dan bor.
+    Ya&rsquo;ni <b>boshidan shunday</b> &mdash; yangi buzilish emas.</p>
+    <p class="hint"><code>git log -S</code> bilan tekshirildi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Tuzatish &mdash; bir qator</h2>
+  <div class="box good">
+    <div class="mm">var _qatiy = !!(qo'lda narx bor)     // foiz "qat'iy" emas</div>
+    <p style="margin-top:10px">Faqat <b>qo&rsquo;lda narx</b> qo&rsquo;yilgan tur qulfdan
+    chetda qoladi. Foizli turlar &mdash; kurs bilan o&rsquo;ynaydi, demak qulflanadi.</p>
+    <p class="hint">Bitta qator. <code>kassaSuzuvchiXaritasi</code> ichida.
+    Boshqa hech narsaga tegilmaydi.</p>
+  </div>
+  <div class="box gold">
+    <p><b>Qaror kerak:</b> tuzataymi? Tuzatilsa qulf birinchi marta haqiqatan
+    ishlaydi &mdash; qatorlarda TO&rsquo;LIQ / QISMAN chiqadi va foyda oshadi.</p>
+    <p class="hint">Bu 1-ishdan (qator to&rsquo;ladigan chiziq) <b>oldin</b> bo&rsquo;lishi
+    kerak &mdash; aks holda chiziq har doim bo&rsquo;sh turadi.</p>
+  </div>
+</section>
+
+</div>

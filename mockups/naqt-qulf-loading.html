@@ -1,0 +1,252 @@
+<title>Qator To&rsquo;ladigan Qulf</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --grn:#2e9e63; --grn-fill:#d6edde; --gld-fill:#f6e7bf;
+  --teal:#2b7f80; --teal-bg:#e2f1f1; --teal-bd:#a5cfcf;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --grn:#4fb97c; --grn-fill:#1e3b2a; --gld-fill:#3a2f16;
+  --teal:#77c4c4; --teal-bg:#152a2a; --teal-bd:#2f5555;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --grn:#4fb97c; --grn-fill:#1e3b2a; --gld-fill:#3a2f16;
+  --teal:#77c4c4; --teal-bg:#152a2a; --teal-bd:#2f5555;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--grn);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+
+/* ===== ilova qatori ===== */
+.row{border:1px solid var(--edge);border-radius:13px;padding:11px 13px;
+  display:flex;gap:10px;align-items:flex-start;background:var(--card);
+  position:relative;overflow:hidden}
+.row + .row{margin-top:9px}
+.row > .bg{position:absolute;inset:0;border-right:2px solid var(--grn);pointer-events:none}
+.row.part > .bg{background:var(--gld-fill);border-right-color:var(--gold)}
+.row.full > .bg{background:var(--grn-fill);border-right:0}
+.rl{min-width:0;flex:1;position:relative}
+.rname{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.rname b{font-size:14px;font-weight:600}
+.pill{font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;border:1px solid}
+.p-a{color:#3b7bb5;border-color:#a9c9e4;background:#e6f0f9}
+.p-c{color:var(--gold);border-color:var(--gold-bd);background:var(--gold-bg)}
+.p-n{color:var(--grn);border-color:var(--grn);background:transparent}
+.p-l{color:var(--gold);border-color:var(--gold-bd);background:transparent}
+.p-p{color:var(--teal);border-color:var(--teal-bd);background:transparent}
+.p-full{color:#fff;background:var(--grn);border-color:var(--grn)}
+.p-part{color:#fff;background:var(--gold);border-color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .p-a{color:#8fbde8;border-color:#2c4660;background:#16222e}
+:root:not([data-theme="light"]) .p-full,:root:not([data-theme="light"]) .p-part{color:#12100d}}
+:root[data-theme="dark"] .p-a{color:#8fbde8;border-color:#2c4660;background:#16222e}
+:root[data-theme="dark"] .p-full,:root[data-theme="dark"] .p-part{color:#12100d}
+.rsub{font-size:11px;color:var(--ink3);margin-top:2px}
+.rr{text-align:right;flex-shrink:0;margin-left:auto;min-width:126px;position:relative}
+.rsum{font-size:13px;font-weight:600;color:var(--gold);font-family:var(--mono)}
+.rline{font-size:10px;font-family:var(--mono);margin-top:2px}
+.tl{color:var(--teal)} .gd{color:var(--gold)} .gn{color:var(--grn)}
+.rfoy{font-size:11px;font-family:var(--mono);margin-top:2px;color:var(--grn);font-weight:600}
+.lockinfo{font-size:9.5px;font-family:var(--mono);margin-top:3px;white-space:nowrap}
+.lockinfo.f{color:var(--grn)} .lockinfo.p{color:var(--gold)} .lockinfo.o{color:var(--ink3)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Kassa &middot; 1-ish</div>
+  <h1>Qatorning o&rsquo;zi to&rsquo;ladi</h1>
+  <p>Oppoq kartochka chapdan o&rsquo;ngga to&rsquo;ladi &mdash; naqt puli qancha
+  qulflangani bo&rsquo;yicha. To&rsquo;liq yopilsa yashil, qisman bo&rsquo;lsa sariq.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;shu oppoq loading bo&rsquo;b tursin &mdash; agar ketma-ketligi
+  bo&rsquo;yicha chiqim bo&rsquo;p ketsa, to&rsquo;liq yopilsa <b>to&rsquo;liq</b>, qisman bo&rsquo;lsa
+  <b>qisman</b> deb ko&rsquo;rsatishi kerak&raquo;</div>
+</section>
+
+<section>
+  <h2>Uch holat</h2>
+  <div class="box">
+    <div class="row">
+      <div class="bg" style="width:0"></div>
+      <div class="rl">
+        <div class="rname"><b>Serig Aka</b>
+          <span class="pill p-a">A</span><span class="pill p-n">NAQT</span></div>
+        <div class="rsub">17:27 &middot; 52.02g &middot; skidka &minus;$3.33</div>
+      </div>
+      <div class="rr">
+        <div class="rsum">$4,740.00</div>
+        <div class="rfoy">+$109.77</div>
+        <div class="lockinfo o">qulflanmagan &mdash; suzadi</div>
+      </div>
+    </div>
+
+    <div class="row part">
+      <div class="bg" style="width:38%"></div>
+      <div class="rl">
+        <div class="rname"><b>Serig Aka</b>
+          <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+          <span class="pill p-part">QISMAN</span></div>
+        <div class="rsub">17:27 &middot; 52.02g &middot; skidka &minus;$3.33</div>
+      </div>
+      <div class="rr">
+        <div class="rsum">$4,740.00</div>
+        <div class="rfoy">+$109.77</div>
+        <div class="lockinfo p">&#128274; $1,800 / $4,740 &middot; 80.00 dan</div>
+      </div>
+    </div>
+
+    <div class="row full">
+      <div class="bg" style="width:100%"></div>
+      <div class="rl">
+        <div class="rname"><b>Serig Aka</b>
+          <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+          <span class="pill p-full">TO&rsquo;LIQ</span></div>
+        <div class="rsub">17:27 &middot; 52.02g &middot; skidka &minus;$3.33</div>
+      </div>
+      <div class="rr">
+        <div class="rsum">$4,740.00</div>
+        <div class="rfoy">+$109.77</div>
+        <div class="lockinfo f">&#128274; $4,740 &middot; 80.00 dan qulflandi</div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:11px">Sariq &mdash; qisman, yashil &mdash; to&rsquo;liq.
+    To&rsquo;lgan qismning o&rsquo;ng chekkasida ingichka chiziq turadi, qayergacha
+    yetgani ko&rsquo;rinsin deb.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Haqiqiy misol &mdash; $1,614 ga 999 olindi</h2>
+  <div class="box">
+    <div class="mm">999 narxi 136.00 $/g  ->  583 kursi 80.00
+Kunlik kurs 80.40   ->  har grammda +0.40</div>
+    <div style="margin-top:11px">
+      <div class="row full">
+        <div class="bg" style="width:100%"></div>
+        <div class="rl">
+          <div class="rname"><b>Mamura Opa TJK</b>
+            <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+            <span class="pill p-l">LOM</span><span class="pill p-full">TO&rsquo;LIQ</span></div>
+          <div class="rsub">12:31 &middot; 30.92g &middot; skidka &minus;$3.52</div>
+        </div>
+        <div class="rr">
+          <div class="rsum">$2,671.06</div>
+          <div class="rline"><span class="gn">naqt $1,480</span> &middot; <span class="gd">lom $1,191.06</span></div>
+          <div class="rfoy">+$12.37</div>
+          <div class="lockinfo f">&#128274; $1,480 &middot; 80.00 dan qulflandi</div>
+        </div>
+      </div>
+
+      <div class="row part">
+        <div class="bg" style="width:3.1%"></div>
+        <div class="rl">
+          <div class="rname"><b>Maqsadjon Opa TJK</b>
+            <span class="pill p-c">C</span><span class="pill p-n">NAQT</span>
+            <span class="pill p-part">QISMAN</span></div>
+          <div class="rsub">12:41 &middot; 49.74g &middot; skidka &minus;$3.26</div>
+        </div>
+        <div class="rr">
+          <div class="rsum">$4,360.01</div>
+          <div class="rfoy">+$0.61</div>
+          <div class="lockinfo p">&#128274; $134 / $4,360.01 &middot; 80.00 dan</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="bg" style="width:0"></div>
+        <div class="rl">
+          <div class="rname"><b>Sherzod Aka Tz</b>
+            <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+            <span class="pill p-p">PERECH</span></div>
+          <div class="rsub">13:28 &middot; 52.70g &middot; skidka &minus;$0.70</div>
+        </div>
+        <div class="rr">
+          <div class="rsum">$4,795.00</div>
+          <div class="rline"><span class="gn">naqt $134</span> &middot; <span class="tl">perech $4,661</span></div>
+          <div class="rfoy">+$52.00</div>
+          <div class="lockinfo o">navbat yetmadi &mdash; suzadi</div>
+        </div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:11px">Navbat eng eskidan: Mamura 12:31 to&rsquo;ldi,
+    qolgan $134 Maqsadjonga (12:41) tushdi. Sherzod 13:28 &mdash; uchinchi navbatda.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Nima o&rsquo;zgaradi kodda</h2>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th></th><th>Hozir</th><th>Bo&rsquo;ladi</th></tr>
+      <tr><td>To&rsquo;ladigan narsa</td><td>qator ostidagi 4px chiziqcha</td><td class="y">qatorning o&rsquo;zi</td></tr>
+      <tr><td>O&rsquo;lchov</td><td class="e">naqt+lom+karta+perech</td><td class="y">faqat naqt</td></tr>
+      <tr><td>Yorliq</td><td>TO&rsquo;LDI / QISMAN</td><td class="y">TO&rsquo;LIQ / QISMAN</td></tr>
+      <tr><td>Kurs ko&rsquo;rinadimi</td><td class="e">yo&rsquo;q</td><td class="y">&laquo;80.00 dan qulflandi&raquo;</td></tr>
+    </table></div>
+    <p style="margin-top:10px"><b>Nega o&rsquo;lchov o&rsquo;zgaradi:</b> hozirgi chiziq
+    karta/perechning sotuv-kunidagi qulfini ham qo&rsquo;shib yuboradi. Sherzodda
+    naqt $134 ga hech narsa tegmagan, lekin chiziq <code>97.21%</code> deb turadi.</p>
+    <p class="hint">Yangi maydon qo&rsquo;shiladi: <code>qopPulNaqt</code> &mdash; faqat pul
+    navbatidan tushgani. Eski maydonlarga tegilmaydi. Taxminan <b>35 qator</b>.</p>
+  </div>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang yozaman.</p>
+  </div>
+</section>
+
+</div>

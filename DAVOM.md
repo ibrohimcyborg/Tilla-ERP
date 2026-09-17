@@ -4,9 +4,207 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.25 · POS v0.37 · 2026-09-17
-**⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
-Keyingi ish Ibrohimdan.
+**Oxirgi yangilanish:** v188.26 · POS v0.37 · 2026-09-17
+**⏳ Ochiq:** KASSA NAQT QULFI — tahlil qilindi, JAVOB KUTILYAPTI (pastga qara).
+
+---
+
+## ⏳ KUTILYAPTI — KASSA NAQT QULFI (2026-09-17)
+
+Ibrohim: «chiqim qilib kassadagi naqt pulni qulflaydigan qilishimiz kerak…
+20000$ga o'ssak 4197$ qulflanmaydi… bu oddiy sistema, faqat shuni
+qiyinlashtirma, tahlil qil».
+
+Maket: `mockups/kassa-qulf.html` →
+https://claude.ai/artifact/8fGMGE6kBXsjtRKXfumGww
+
+**Tahlil natijasi: u aytgan mantiq ALLAQACHON BOR va ishlaydi.**
+`kassaPulAmallar` + `kassaPulNavbati` (index.html:9980 / 10005) — sovdalar
+naqdi FIFO navbatda, chiqim eng eskidan pul oladi, o'z kursini qulflaydi,
+qolgani suzib turadi. Haqiqiy kod bilan sinaldi (skript: scratchpad/qulf*.js).
+
+**⚠ TOPILGAN NOMUVOFIQLIK — ikki qulf mexanizmi bir-birini ko'rmaydi:**
+
+| Yo'l | Klient ro'yxati | Kassa foyda paneli | Ochiq gramm |
+|---|---|---|---|
+| Kassa → − Chiqim («Zavodga to'lov») | +99.94 | **−116.00** | **290g** |
+| Kassa → + Sotib olish (999) | +99.94 | **−116.00** | **290g** |
+| Bosh ekran → ↑ Chiqim (zavod) | −8.72 | +110.42 | 38.43g |
+
+Sabab: panel `kassaFifoModel` (4274) dan o'qiydi — u faqat `t.tarix` dagi
+**gramm** to'lovlarini ko'radi. Qatorlar `kassaSuzuvchiXaritasi` (10175) dan
+— u **pul navbatini** ham hisobga oladi. Pul-only qulf panelga yetib bormaydi.
+
+Kichik farq: chiqim modali `pul×(kunlik/kurs−1)` = $125.79 deb yozadi,
+haqiqatda tushadi $119.96 (navbat sovdaning **sotuv narxidan** taqsimlaydi).
+
+### Ibrohim javobi (2026-09-17) — 3 ta yangi so'rov
+
+> «bu narsa bor lekin manga amalda loading bo'lib to'ladigan qilish kere naqt puli…
+> tegida qulflandi 80$ dan dib info beradi… 3rasmda qancha pul chiqim bo'may
+> qopketgan, shuniyam kunni yopish qisa o'chirvorish kere»
+
+1. **Naqt puli qator ichida to'lib boradigan qulf chizig'i** ← ustida ishlanyapti
+2. **Tagida «80.00 dan qulflandi»** info ← 1 bilan bitta maket
+3. **Kunni yopishda kassadagi yig'ilib qolgan naqtni tozalash** ← TEGILMADI
+
+Maket (1+2): `mockups/naqt-qulf-loading.html` →
+https://claude.ai/artifact/HHPQxPH6p7YUE8iN1yNCqg
+
+**Sinov (scratchpad/qulf4.js — ekrandagi 7 qator + $1,614 lik 999 @ 80.00):**
+
+| Klient | soat | naqti | tegdi | foyda |
+|---|---|---|---|---|
+| Mamura Opa TJK | 12:31 | $1,480.00 | $1,480.00 (100%) | +$12.37 |
+| Maqsadjon Opa TJK | 12:41 | $4,360.01 | $134.00 (3.1%) | +$0.61 |
+| Sherzod Aka Tz | 13:28 | $134.00 | — | — |
+
+⚠ Ibrohim «Mamura + Sherzod» degandi — kod soat bo'yicha boradi, Maqsadjon
+47 daqiqa oldin. Sherzod uchinchi navbatda.
+
+⚠ **Hozirgi bar naqtni emas, JAMI pulni o'lchaydi** (`naqtJami` = naqt+lom+
+karta+perech, 10365) va karta/perechning sotuv-kunidagi qulfini ham
+`qopPul` ga qo'shadi (10060 atrofi). Sherzod ekranda «97.21% qotdi» deydi,
+aslida naqtiga hech narsa tegmagan.
+
+### A/B savoliga javob (2026-09-17) — **B BEKOR**
+
+> «1 kun ushlanadi, tilla kursi tushishi ehtimolidan — qoldirib keyin chiqim
+> qilib foydamizni ko'paytiramiz… bazan teskarisiga ishlab qoladi, ertasi kuni
+> kurs oshadi va foydamiz kamayadi yoki 0 yoki zararga kiramiz»
+
+Pul **ataylab** kechadan ertaga o'tadi — bu savdo usuli. Navbat kun bilan
+yopilmaydi. **A qabul qilindi**, navbat kunlar oshib boraveradi.
+
+Muammo kunlik o'tishda emas — **tarixiy qoldiq** ($1,758,625.42). Navbat
+birinchi kundan beri kesilmagan, shuning uchun bugungi 999 xaridi bugungi
+sovdaga emas, oylar oldingi sovdaga tushadi.
+
+Maket: `mockups/kassa-nol-nuqta.html` →
+https://claude.ai/artifact/NFy4ZSUrbKGCJb66X3shej
+
+**Isbot (scratchpad/qulf5.js):** 16.09 da kun yopilib naqt 0 kiritildi →
+kassa $44,226 → $4,226 ✓, lekin $1,614 lik 999 **baribir 01.08 sovdasiga**
+tushdi (6.7%), Mamura 0%. Ya'ni **Z pul navbatiga TEGMAYDI**
+(`kassaPulAmallar` `tuzatishlar`/`zlar` ni umuman o'qimaydi).
+
+«Sozlamaga naqtni 0 qilish qo'shaylikmi?» → **kerak emas**, «✓ Kunni yopish»
+naqtni allaqachon tuzatadi. Yetishmayotgani — navbat kesimi. Ekrandagi
+«birinchi kun yopish nol nuqta bo'ladi» (5119) hozircha **faqat yozuv**.
+
+**Taklif:** birinchi Z navbatni ham kessin (bir marta). Keyingi Z lar kesmaydi.
+
+### ✅ YECHIM TOPILDI — KOD KERAK EMAS (2026-09-17)
+
+Ibrohim taklifi: «kassani qaysidir kungacha naqt pulni chiqimdan chiqarvorsak,
+foyda-moydalarga tegmay, huddi topshirvorgandek. Keyin bugundan chiqim qilib
+hisoblaymiz».
+
+**Ishlaydi — lekin FAQAT kunlik kurs bilan yozilsa.** Mavjud «− Chiqim»
+modalining o'zi yetadi, nol nuqta kodini yozish shart emas.
+
+Maket: `mockups/eski-qoldiqni-yopish.html` →
+https://claude.ai/artifact/MCMCTLqSHXi34pMinceUuw
+
+**Sinov (scratchpad/qulf6.js):** eski $40,000 (01.08 kurs 79, 15.08 kurs 81),
+bugun 17.09 kunlik 80.4.
+
+| | Kassa naqd | Foyda bugun | Ertaga 999 qayerga |
+|---|---|---|---|
+| Chiqim yo'q | $45,840.01 | −300.00 | ESKI 01.08 |
+| **Kursli 80.4** | $5,840.01 | **−300.00** (farq 0.00) | **Mamura 100%** ✓ |
+| Kurssiz («Boshqa») | $5,840.01 | −300.00 (farq 0.00) | ESKI 01.08 ✗ |
+
+- Kursli chiqim kunlik kursga TENG bo'lgani uchun bugun foyda **qimirlamaydi**
+  (`kassaChiqimlar` da ham `foyda $0.00`, chunki `kun/kurs−1 = 0`).
+- Kursli chiqim navbatni **tozalaydi** → ertangi 999 bugungi sovdaga tushadi.
+- Bonus: eski sovdalar 80.4 da **qotadi** — ertaga kurs 81 bo'lsa zarar
+  −348.39 emas, −48.39.
+
+**Ibrohimga aytilgan qadamlar:** Kassa → − Chiqim → bugungi sana →
+«Zavodga to'lov» → **kursga TEGMA** (avto 136,68 = 80,4) → Naqt pul
+$1,758,625.42 → Saqlash. Lom/999 maydonlariga tegmaydi.
+
+⚠ Bir marta yetmasligi mumkin (navbatdagi eski sovdalar naqti ko'proq bo'lsa).
+⚠ Xato bo'lsa CHIQIMLAR panelidagi 🗑 bilan o'chiriladi.
+
+### 🔴 TOPILDI — QULF AMALDA HECH QACHON ISHLAMAYDI (2026-09-17)
+
+Ibrohim so'radi: «qisman qanaqa ishlidi? 4-5ta zavodning narsasi har xil puldan
+sotilgan bo'ladi — foyda-zararni qanday hisoblidi?»
+
+Maket: `mockups/qisman-qanday-ishlaydi.html` →
+https://claude.ai/artifact/WEQS2faSbvwc5YQGXxoydR
+
+**Qoida:** sessiya (`ki|sana|soat`) butunligicha navbatda turadi. Sotuvlar
+orasida ketma-ket (eng eskidan), sotuv **ichida ketma-ket EMAS** — ulush hamma
+turga baravar sochiladi (skidka kabi). Har tur qulf asos kursini o'z foiziga
+ko'paytiradi. `aralash = ulush×qulfNarx + (1−ulush)×bugungiNarx`,
+`suzuvchi = gramm × (kirimNarx − aralash)`.
+
+**⚠ BUG (index.html:10214):**
+```js
+var _qatiy = (_znMan2!=='' && parseFloat(_znMan2)>0);  // _znMan2 = getZavodNarx(zi,ti)
+```
+`getZavodNarx` (hisob.js:121) **foizli turga ham** raqam qaytaradi
+(`return pct>0 ? kurs*(1+pct/100) : ''`). Shuning uchun har qanday **foizli tur
+«qat'iy narx» deb hisoblanadi va qulf o'tkazib yuboriladi**.
+
+**Yopiq halqa:** sotuvdagi `kirimNarx` ham SHU funksiyadan yoziladi (17474,
+14872, 14142, 14767, 17323). Ya'ni foyda ko'rsatadigan har sotuvda
+`kirimNarx>0` ⟹ o'sha tur `_qatiy` ham ⟹ **qulf hech qachon tushmaydi**.
+Istisno: foizi sotuvdan KEYIN o'chirilgan turlar.
+
+→ Shuning uchun Ibrohim qatorlarida **TO'LDI/QISMAN yorlig'i hech qachon
+chiqmagan**, hamma sotuv ▼ suzib turadi.
+
+**Sinov (scratchpad/qisman2.js):** 4 tur (foiz 0 / 10 / 25 / qat'iy),
+$10,450 naqt, 25% qulflandi:
+
+| | Bo'lishi kerak | Hozir |
+|---|---|---|
+| Diamond·Oddiy (0%) | 25% | 25% ✓ |
+| Diamond·3D (10%) | 25% | **0%** |
+| Butterfly·Oddiy (25%) | 25% | **0%** |
+| JAMI suzuvchi | −24.37 | −30.00 |
+| Qulf saqlagani | +8.13 | **+2.50** |
+
+**Tarix:** `_qatiy` 2026-07-15, `getZavodNarx` foiz tarmog'i 2026-06-13 →
+boshidan shunday, yangi buzilish EMAS (`git log -S` bilan tekshirildi).
+
+**Tuzatish (1 qator):** `_qatiy` faqat **qo'lda narx** bo'lganda true bo'lsin.
+⚠ Bu **1-ishdan OLDIN** bo'lishi kerak — aks holda to'ladigan chiziq doim bo'sh.
+
+**✅ TUZATILDI — v188.26** (index.html:10214). Ibrohim tasdiqladi:
+«ulushdan olishi kere, qancha ko'p gramm shuncha ko'p ulush — huddi skidkaga
+o'xshab». Formula shunday edi, endi ishga ham tushdi.
+Sinov: 40g→10.00g, 10g→2.50g, 25g→6.25g (hammasi 25%), qat'iy narxli tur 0%.
+⚠ PRODDA HALI SINALMAGAN — push qilinmagan.
+
+### Hamon ochiq
+
+1. **1-ish yozilmagan** — `mockups/naqt-qulf-loading.html` (v2) →
+   https://claude.ai/artifact/HHPQxPH6p7YUE8iN1yNCqg
+
+   Ibrohim aniqlashtirdi: «shu **oppoq** loading bo'b tursin… to'liq yopilsa
+   **to'liq**, qisman bo'sa **qisman** dib ko'rsatishi kere» — ya'ni ingichka
+   chiziqcha emas, **qatorning O'ZI** chapdan to'ladi (qisman sariq, to'liq yashil),
+   yorliq `TO'LIQ` / `QISMAN`, tagida «80.00 dan qulflandi».
+
+   Reja (~35 qator, patch tayyor: `scratchpad/v18826.py` — LEKIN ishga
+   tushirilmagan, ichidagi vizual qism eski (ingichka chiziq) variantiga yozilgan,
+   qayta yozish kerak):
+   - `kassaPulNavbati` — yangi `qopPulNaqt` + `qopKursNaqt` (faqat pul navbatidan;
+     `pulQop` ga karta/perechning sotuv-kunidagi qulfi qo'shiladi, u NAQT emas)
+   - `kassaSuzuvchiXaritasi` + guruh xaritasi (3 joy) — uzatish
+   - v128 chiziqcha (10529) va v117 bar (10563) — ikkalasi ham naqtga o'tadi
+   ⚠ Eski maydonlarga TEGILMAYDI.
+
+   **Javob kutilyapti** — «shunaqa qil» kelmaguncha yozilmaydi.
+2. **Kassa foyda paneli** pul qulfini ko'rmaydi (birinchi maketdagi savol).
+3. «kassamiz to'liq yopilmasa qisman yopiladi» — TUSHUNILMADI, so'raldi.
+
+**Kod YOZILMADI.** Javob kelmaguncha tegilmaydi.
 
 ---
 

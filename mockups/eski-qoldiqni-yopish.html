@@ -1,0 +1,202 @@
+<title>Eski Qoldiqni Yopish</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--good);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+ol.steps{margin:0;padding-left:0;list-style:none;counter-reset:s;
+  display:flex;flex-direction:column;gap:9px}
+ol.steps li{counter-increment:s;display:flex;gap:11px;align-items:flex-start}
+ol.steps li::before{content:counter(s);flex-shrink:0;width:22px;height:22px;border-radius:50%;
+  background:var(--good);color:var(--paper);font-family:var(--mono);font-size:11px;
+  font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.big{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--good)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Javob &middot; kod kerak emas</div>
+  <h1>Ha, bo&rsquo;ladi &mdash; lekin kursni bo&rsquo;sh qoldirma</h1>
+  <p>Sening fikring ishlaydi. Faqat bitta shart bor: chiqimni <b>kunlik kurs bilan</b>
+  yozish kerak. Shunda naqt ketadi, foyda tegilmaydi, navbat ham tozalanadi.</p>
+</header>
+
+<section>
+  <h2>Sen so&rsquo;rading</h2>
+  <div class="said">&laquo;kassani qaysidir kungacha naqt pulni chiqimdan chiqarvoradigan
+  qilsa bo&rsquo;ladimi &mdash; foyda-moydalarga tegmay, huddi topshirvorgandek. Keyin
+  bugundan chiqim qilib hisoblaymiz va foydani to&rsquo;g&rsquo;ri hisoblaydigan qilamiz&raquo;</div>
+</section>
+
+<section>
+  <h2>Sinov</h2>
+  <div class="box">
+    <div class="mm">ESKI  01.08  300g  $24,000   (o'shanda kurs 79.0)
+ESKI  15.08  200g  $16,000   (o'shanda kurs 81.0)
+YANGI 17.09  Mamura   $1,480
+YANGI 17.09  Maqsadjon $4,360.01
+
+Eski qoldiq = $40,000.   Bugun 17.09, kunlik kurs 80.4</div>
+    <p class="hint">Uch yo&rsquo;lni haqiqiy kodda yurgizdim: chiqim qilmaslik,
+    <b>kursli</b> chiqim (80.4) va <b>kurssiz</b> chiqim (kategoriya &laquo;Boshqa&raquo;).</p>
+  </div>
+</section>
+
+<section>
+  <h2>1 &middot; Bugun foydaga tegdimi?</h2>
+  <div class="box good">
+    <div class="tw"><table>
+      <tr><th></th><th class="n">Kassa naqd</th><th class="n">Foyda (suzuvchi)</th><th class="n">Chiqim paneli</th></tr>
+      <tr><td>Chiqim yo&rsquo;q</td><td class="n">$45,840.01</td><td class="n">&minus;300.00</td><td class="n">&mdash;</td></tr>
+      <tr><td><b>Kursli 80.4</b></td><td class="n y">$5,840.01</td><td class="n y">&minus;300.00</td><td class="n y">foyda $0.00</td></tr>
+      <tr><td>Kurssiz</td><td class="n y">$5,840.01</td><td class="n y">&minus;300.00</td><td class="n">foyda $0.00</td></tr>
+    </table></div>
+    <p style="margin-top:10px"><b>Ikkalasi ham foydaga tegmaydi</b> &mdash; farq
+    <span class="big">0.00</span></p>
+    <p class="hint">Kursli chiqimda foyda qimirlamasligining sababi: kurs <b>kunlik kursga teng</b>.
+    Boshqa kurs yozsang &mdash; foyda o&rsquo;zgaradi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2 &middot; Ertaga 999 olsang qayerga tushadi</h2>
+  <div class="box">
+    <p style="margin-bottom:9px">18.09 da $1,614 ga 999 oldik (80.00 dan). Asosiy savol shu:</p>
+    <div class="tw"><table>
+      <tr><th>Sovda</th><th class="n">Kursli chiqimdan keyin</th><th class="n">Kurssiz chiqimdan keyin</th></tr>
+      <tr><td>ESKI 01.08</td><td class="n">&mdash;</td><td class="n e">$1,614.00</td></tr>
+      <tr><td>ESKI 15.08</td><td class="n">&mdash;</td><td class="n">&mdash;</td></tr>
+      <tr><td><b>Mamura 17.09</b></td><td class="n y">$1,480.00 &middot; 100%</td><td class="n e">0%</td></tr>
+      <tr><td><b>Maqsadjon 17.09</b></td><td class="n y">$134.00</td><td class="n e">0%</td></tr>
+    </table></div>
+    <p style="margin-top:10px"><b>Mana shu farq qiladi.</b> Kursli chiqim navbatni
+    tozaladi &mdash; yangi 999 <b>bugungi sovdaga</b> tushdi. Kurssiz chiqim navbatga
+    tegmadi &mdash; pul yana <b>eski 01.08 sovdasiga</b> ketdi.</p>
+    <p class="hint">Sening &laquo;keyin foydani to&rsquo;g&rsquo;ri hisoblaydigan qilamiz&raquo;
+    degan maqsading faqat <b>kursli</b> yo&rsquo;lda bajariladi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>3 &middot; Qo&rsquo;shimcha foyda &mdash; eski sovdalar qotadi</h2>
+  <div class="box good">
+    <p>Ertaga kurs 81 ga oshsa:</p>
+    <div class="tw"><table>
+      <tr><th></th><th class="n">Foyda o&rsquo;zgarishi</th></tr>
+      <tr><td>Chiqim yo&rsquo;q</td><td class="n e">&minus;348.39</td></tr>
+      <tr><td><b>Kursli chiqim</b></td><td class="n y">&minus;48.39</td></tr>
+      <tr><td>Kurssiz chiqim</td><td class="n e">&minus;348.39</td></tr>
+    </table></div>
+    <p style="margin-top:10px">Kursli chiqimdan keyin eski sovdalar <b>80.4 da qotdi</b> &mdash;
+    kurs o&rsquo;zgarsa ular qimirlamaydi. Faqat bugungi sovdalar suzadi.
+    Aynan &laquo;huddi topshirvorgandek&raquo;.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Nima qilasan &mdash; kod yozilmaydi</h2>
+  <div class="box gold">
+    <ol class="steps">
+      <li>Kassa &rarr; <b>&minus; Chiqim</b></li>
+      <li>Sana &mdash; <b>bugungi kun</b> (orqa sana qo&rsquo;yma)</li>
+      <li>Nima uchun &mdash; <b>Zavodga to&rsquo;lov</b></li>
+      <li>Kurs &mdash; <b>tegma</b>. Avto qo&rsquo;yilgan kunlik kurs turaveradi (136,68 = 80,4)</li>
+      <li>Naqt pul &mdash; <b>$1,758,625.42</b> (bor bo&rsquo;lgan summani to&rsquo;liq)</li>
+      <li>Izoh &mdash; &laquo;eski qoldiq yopildi&raquo;</li>
+      <li>Saqlash</li>
+    </ol>
+    <p class="hint" style="margin-top:11px">Lom va 999 maydonlariga <b>tegma</b> &mdash;
+    ular kassada qolishi kerak.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Bilib qo&rsquo;y &mdash; uchta narsa</h2>
+  <div class="box">
+    <p><b>1. Kursni o&rsquo;zgartirma.</b> Kunlik kursdan boshqa raqam yozsang foyda
+    darhol o&rsquo;zgaradi. Avto qo&rsquo;yilganini qoldir.</p>
+    <p><b>2. Bir marta yetmasligi mumkin.</b> Chiqim navbatdan $1,758,625.42 gacha
+    tozalaydi. Agar eski sovdalarning naqti bundan ko&rsquo;p bo&rsquo;lsa &mdash; bir qismi
+    qoladi. Saqlagandan keyin bugungi qatorlarni ochib ko&rsquo;r: qulf yorlig&rsquo;i
+    chiqsa &mdash; tozalandi.</p>
+    <p><b>3. Xato bo&rsquo;lsa o&rsquo;chiriladi.</b> CHIQIMLAR panelidagi 🗑 tugmasi bu
+    yozuvni butunlay o&rsquo;chiradi, hamma narsa ortga qaytadi.</p>
+    <p class="hint">Sariq &laquo;zavodga to&rsquo;lanmagan 21,299.99 g&raquo; chizig&rsquo;i
+    o&rsquo;zgarmaydi &mdash; u <b>gramm</b> qarzi, bu esa <b>pul</b>. Ular boshqa-boshqa hisob.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qoladigan ish</h2>
+  <div class="box">
+    <p>Bu yo&rsquo;l <b>klient ro&rsquo;yxatidagi</b> raqamlarni to&rsquo;g&rsquo;rilaydi.
+    <b>Kassa foyda paneli</b> esa pul qulfini hali ham ko&rsquo;rmaydi &mdash;
+    birinchi maketdagi savol hamon ochiq.</p>
+    <p class="hint">Va 1-ish &mdash; naqt puli to&rsquo;lib boradigan yashil chiziq &mdash;
+    hali yozilmagan, javobingni kutyapti.</p>
+  </div>
+  <div class="box good">
+    <p><b>Kod yozilmadi va kerak ham emas.</b> Avval shuni qilib ko&rsquo;r, natijani ayt.</p>
+  </div>
+</section>
+
+</div>
