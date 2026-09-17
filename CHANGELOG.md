@@ -8135,3 +8135,59 @@ Bir martalik «eski soatsiz vozvratlarga soat yozish» tuzatishi taklif
 qilinmadi — bazaga tegadi, xato bo'lsa qaytarish qiyin.
 
 ⚠ Bugungacha **allaqachon o'chib ketgan** vozvratlar tiklanmaydi.
+
+## v188.22 — nol qoldiqda tenglama yo'q, minus faqat Skidkada
+
+**Ibrohim** (Maqsadjon Opa TJK cheki rasmlari bilan):
+
+1. «0.00+7.65 keremas, shunchaki ostatkasida yo'q bosa berildi dib 7.65
+   yozish kere, ostatkada bo'sa qoshuradi»
+2. «berilgan summani oldiga -2,806.93# dib minus qo'yish keremas, minus
+   faqat skidkani oldiga kere»
+
+Maket: `mockups/chek-nol-va-minus.html`. → **«commit qil i push qil to'ri»**
+
+### 1 — oldingi qoldiq nol bo'lsa tenglama yozilmaydi
+
+    HOZIR                              TAKLIF
+     Butterfly Oddiy  1.22+31.23 = 32.45g    o'zgarmadi - ostatka bor
+     Butterfly 3D     0.00+7.65 = 7.65g      ->  7.65g
+     Diamond Oddiy    0.00+4.50 = 4.50g      ->  4.50g
+     Simay Oddiy      0.00+5.14 = 5.14g      ->  5.14g
+
+`hisobG` ga bitta shart qo'shildi:
+
+    if(Math.abs(o)<=0.001) return balG(y);   // qo'shadigan qoldiq yo'q
+
+### 2 — TO'LOV summalaridan minus olindi
+
+    HOZIR              TAKLIF
+     -2,806.93#         2,806.93#
+       -683.15#           683.15#
+       -405.45#           405.45#
+       -467.74#           467.74#
+     -4,363.27#  JAMI   4,363.27#
+        -3.27#  Skidka     -3.27#   <- MINUS FAQAT SHU YERDA
+
+⚠ `JAMI` dan ham minus olindi — Ibrohim «minus faqat skidkani oldiga kere»
+degani uchun. Skidka qatorlari **tegilmadi**, tekshirib qo'yildi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Haqiqiy chek raqamlari (Maqsadjon Opa TJK, 17.09.2026) bilan ishga tushirildi:
+
+    QOLDI da 0.00+ bormi      yo'q
+    1.22+31.23 tenglamasi     bor        (ostatkasi bor tur - qoladi)
+    Butterfly 3D oddiy son    ha
+    TO'LOV da minus bormi     yo'q
+    Skidka minusda qoldimi    ha
+    JAMI musbatmi             ha
+    48 dan uzun qator         0
+
+Sotuv chekida ham uchala tekshiruv o'tdi.
+
+### Tegilmadi
+
+Hisob-kitob — raqamlar o'sha-o'sha, faqat yozilishi o'zgardi.
+Balans bloklarining o'zi, TO'LOV USULI, offset, saqlash, baza.

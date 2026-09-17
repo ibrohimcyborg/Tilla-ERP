@@ -1,0 +1,229 @@
+<title>Nol Qoldiq va Minus Belgisi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic;white-space:pre-line}
+.chek{font-family:var(--mono);font-size:10px;line-height:1.6;white-space:pre;
+  background:var(--card);border:1px solid var(--edge);border-radius:9px;
+  padding:12px;overflow-x:auto;color:var(--ink);font-variant-numeric:tabular-nums}
+mark{background:var(--bad-bg);color:var(--bad);border-radius:3px;padding:0 2px;font-weight:700}
+mark.g{background:var(--good-bg);color:var(--good)}
+.big{font-size:1.9em;font-weight:700;line-height:1.08;display:inline-block}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media (max-width:640px){.pair{grid-template-columns:1fr}}
+.pair > div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cap{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.cap.a{color:var(--bad)} .cap.b{color:var(--good)}
+.mm{font-family:var(--mono);font-size:12px;white-space:pre;overflow-x:auto;
+  color:var(--ink2);margin-top:8px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Maqsadjon Opa TJK &middot; 17.09.2026</div>
+  <h1>Ikki tuzatish</h1>
+  <p>Nol qoldiqda tenglama, va to&rsquo;lovdagi ortiqcha minus.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;0.00+7.65 kerakmas &mdash; shunchaki ostatkasida yo&rsquo;q bo&rsquo;lsa
+berildi deb 7.65 yozish kerak, ostatkada bo&rsquo;lsa qo&rsquo;shsin&raquo;
+
+&laquo;berilgan summaning oldiga <b>-2,806.93#</b> deb minus qo&rsquo;yish kerakmas &mdash;
+minus faqat skidkaning oldiga kerak&raquo;</div>
+</section>
+
+<section>
+  <h2>Chek</h2>
+  <div class="pair">
+    <div>
+      <span class="cap a">Hozir</span>
+      <div class="chek">               Maqsadjon Opa TJK
+               17.09.2026 - 12:40
+================================================
+<span class="big">OSTATKA</span>
+ Butterfly Oddiy                           1.22g
+------------------------------------------------
+ JAMI                                      1.22g
+================================================
+<span class="big">BERILDI</span>
+ Butterfly Oddiy                          31.23g
+ Butterfly 3D                              7.65g
+ Diamond Oddiy                             4.50g
+ Simay Oddiy                               5.14g
+------------------------------------------------
+ JAMI                                     48.52g
+================================================
+<span class="big">QOLDI</span>
+ Butterfly Oddiy             1.22+31.23 = 32.45g
+ Butterfly 3D                  <mark class="r">0.00+7.65 = </mark>7.65g
+ Diamond Oddiy                 <mark class="r">0.00+4.50 = </mark>4.50g
+ Simay Oddiy                   <mark class="r">0.00+5.14 = </mark>5.14g
+------------------------------------------------
+ JAMI                                     49.74g
+================================================
+<span class="big">TO'LOV</span>
+ Butterfly Oddiy  32.45g x 86.5       <mark class="r">-</mark>2,806.93#
+   berilganga                             31.23g
+   ostatkadan                              1.22g
+ Butterfly 3D  7.65g x 89.3             <mark class="r">-</mark>683.15#
+   berilganga                              7.65g
+ Diamond Oddiy  4.50g x 90.1            <mark class="r">-</mark>405.45#
+   berilganga                              4.50g
+ Simay Oddiy  5.14g x 91                <mark class="r">-</mark>467.74#
+   berilganga                              5.14g
+------------------------------------------------
+ JAMI  49.74g                         <mark class="r">-</mark>4,363.27#
+ Skidka                                   <mark class="g">-</mark>3.27#
+================================================
+<span class="big">TO'LOV USULI</span>
+ N                                     4,360.00#
+------------------------------------------------
+ JAMI                                  4,360.00#
+================================================
+                     Rahmat</div>
+    </div>
+    <div>
+      <span class="cap b">Taklif</span>
+      <div class="chek">               Maqsadjon Opa TJK
+               17.09.2026 - 12:40
+================================================
+<span class="big">OSTATKA</span>
+ Butterfly Oddiy                           1.22g
+------------------------------------------------
+ JAMI                                      1.22g
+================================================
+<span class="big">BERILDI</span>
+ Butterfly Oddiy                          31.23g
+ Butterfly 3D                              7.65g
+ Diamond Oddiy                             4.50g
+ Simay Oddiy                               5.14g
+------------------------------------------------
+ JAMI                                     48.52g
+================================================
+<span class="big">QOLDI</span>
+ Butterfly Oddiy             1.22+31.23 = 32.45g
+ Butterfly 3D                              7.65g
+ Diamond Oddiy                             4.50g
+ Simay Oddiy                               5.14g
+------------------------------------------------
+ JAMI                                     49.74g
+================================================
+<span class="big">TO'LOV</span>
+ Butterfly Oddiy  32.45g x 86.5        2,806.93#
+   berilganga                             31.23g
+   ostatkadan                              1.22g
+ Butterfly 3D  7.65g x 89.3              683.15#
+   berilganga                              7.65g
+ Diamond Oddiy  4.50g x 90.1             405.45#
+   berilganga                              4.50g
+ Simay Oddiy  5.14g x 91                 467.74#
+   berilganga                              5.14g
+------------------------------------------------
+ JAMI  49.74g                          4,363.27#
+ Skidka                                   <mark class="g">-</mark>3.27#
+================================================
+<span class="big">TO'LOV USULI</span>
+ N                                     4,360.00#
+------------------------------------------------
+ JAMI                                  4,360.00#
+================================================
+                     Rahmat</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>1 &mdash; noldan boshlanuvchi tur</h2>
+  <div class="box good">
+    <p>Tenglama <b>faqat ostatkasi bor</b> turda chiqadi:</p>
+    <div class="mm">Butterfly Oddiy   1.22 + 31.23 = 32.45g    <- ostatka bor, qo'shiladi
+Butterfly 3D                      7.65g    <- ostatka yo'q, shunchaki berildi
+Diamond Oddiy                     4.50g
+Simay Oddiy                       5.14g</div>
+    <p class="hint">Ya&rsquo;ni oldingi qoldiq <b>0.00</b> bo&rsquo;lsa hisob yozilmaydi &mdash;
+    qo&rsquo;shadigan narsa yo&rsquo;q.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2 &mdash; minus faqat skidkada</h2>
+  <div class="box good">
+    <div class="mm">hozir                          taklif
+ Butterfly Oddiy  -2,806.93#    Butterfly Oddiy   2,806.93#
+ Butterfly 3D       -683.15#    Butterfly 3D        683.15#
+ Diamond Oddiy      -405.45#    Diamond Oddiy       405.45#
+ Simay Oddiy        -467.74#    Simay Oddiy         467.74#
+ JAMI             -4,363.27#    JAMI              4,363.27#
+ Skidka               -3.27#    Skidka               -3.27#   <- MINUS shu yerda</div>
+    <p class="hint">Bo&rsquo;shliq ham bittaga ko&rsquo;payadi &mdash; ustun tinchroq turadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Hajmi</h2>
+  <div class="box gold">
+    <p>Ikkala chekda ham (sotuv + to&rsquo;lov). <b>1-tuzatish</b> &mdash;
+    <code>hisobG</code> da bitta shart. <b>2-tuzatish</b> &mdash; to&rsquo;rtta
+    <code>'-'+fmtD(...)</code> dan minus olinadi. Taxminan <b>~10 qator</b>.</p>
+    <p class="hint">Hisob-kitobga tegmaydi &mdash; raqamlar o&rsquo;sha-o&rsquo;sha,
+    faqat yozilishi o&rsquo;zgaradi.</p>
+  </div>
+</section>
+
+<section>
+  <h2></h2>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang kodga tushiraman.</p>
+  </div>
+</section>
+
+</div>

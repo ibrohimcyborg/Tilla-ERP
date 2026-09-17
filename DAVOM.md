@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.21 · POS v0.36 · 2026-09-17
+**Oxirgi yangilanish:** v188.22 · POS v0.36 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,24 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.22 — nol qoldiqda tenglama yo'q, minus faqat Skidkada (2026-09-17)
+
+Maket: `mockups/chek-nol-va-minus.html`. Ibrohim: **«commit qil i push qil to'ri»**.
+
+**1.** Oldingi qoldiq **nol** bo'lsa tenglama yozilmaydi:
+`0.00+7.65 = 7.65g` → `7.65g`. Ostatkasi bor tur o'zgarmadi
+(`1.22+31.23 = 32.45g`). `hisobG` ga bitta shart.
+
+**2.** `TO'LOV` dagi summalardan **minus olindi** — qatorlar ham, `JAMI` ham.
+**Minus faqat `Skidka` da** qoldi.
+
+Ikkala chekda ham. Sinov: haqiqiy chek raqamlari (Maqsadjon Opa TJK) bilan,
+7 tekshiruv + sotuv chekida 3 ta.
+
+⚠ Hisob-kitobga tegilmadi — raqamlar o'sha-o'sha, faqat yozilishi.
 
 ---
 

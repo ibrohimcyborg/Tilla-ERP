@@ -1,4 +1,4 @@
-<!-- v188.21 -->
+<!-- v188.22 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.21';
+var APP_VER = 'v188.22';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10839,6 +10839,9 @@ function kTolovChekGen(d, qisqa, bosiladi){
     o=Math.round(o*100)/100; y=Math.round(y*100)/100;
     var dz=Math.round(Math.abs(y-o)*100)/100;
     if(dz<=0.001) return balG(y);                 // tegilmagan tur - oddiy raqam
+    // v188.22 (Ibrohim): «0.00+7.65 keremas, shunchaki ostatkasida yo'q bosa
+    // berildi dib 7.65 yozish kere, ostatkada bo'sa qoshuradi».
+    if(Math.abs(o)<=0.001) return balG(y);        // qo'shadigan qoldiq yo'q
     var oM=Math.abs(o), yM=Math.abs(y);
     if(o>=-0.001 && y>=-0.001)                    // ikkalasi ham klient qarzi
       return fmtG(oM)+(y>o?'+':'-')+fmtG(dz)+' = '+balG(y);
@@ -10925,7 +10928,7 @@ function kTolovChekGen(d, qisqa, bosiladi){
       var pul=Math.round((r.summa!==undefined?r.summa:g*(r.narx||0))*100)/100;
       jamiTolG=Math.round((jamiTolG+g)*100)/100;
       jamiTolPul=Math.round((jamiTolPul+pul)*100)/100;
-      t+=rj(' '+r.zavod+' '+r.tur+'  '+fmtG(g)+'g x '+r.narx, '-'+fmtD(pul)+'#')+'\n';
+      t+=rj(' '+r.zavod+' '+r.tur+'  '+fmtG(g)+'g x '+r.narx, fmtD(pul)+'#')+'\n';   // v188.22: minus faqat Skidkada
       if(!qisqa){
         var bg=Math.min(g, ber[r.zavod+'||'+r.tur]||0);
         var eg=Math.round((g-bg)*100)/100;
@@ -10933,7 +10936,7 @@ function kTolovChekGen(d, qisqa, bosiladi){
         if(eg>0.001) t+=rj('   ostatkadan', fmtG(eg)+'g')+'\n';
       }
     });
-    t+=DASH+rj(' JAMI  '+fmtG(jamiTolG)+'g', '-'+fmtD(jamiTolPul)+'#')+'\n';
+    t+=DASH+rj(' JAMI  '+fmtG(jamiTolG)+'g', fmtD(jamiTolPul)+'#')+'\n';
     if(sk>0.001) t+=rj(' Skidka', '-'+fmtD(sk)+'#')+'\n';
     t+=LINE;
   }
@@ -17692,6 +17695,9 @@ function klientSotuvChekYangiGen(opts){
     o=Math.round(o*100)/100; y=Math.round(y*100)/100;
     var dz=Math.round(Math.abs(y-o)*100)/100;
     if(dz<=0.001) return balG(y);                 // tegilmagan tur - oddiy raqam
+    // v188.22 (Ibrohim): «0.00+7.65 keremas, shunchaki ostatkasida yo'q bosa
+    // berildi dib 7.65 yozish kere, ostatkada bo'sa qoshuradi».
+    if(Math.abs(o)<=0.001) return balG(y);        // qo'shadigan qoldiq yo'q
     var oM=Math.abs(o), yM=Math.abs(y);
     if(o>=-0.001 && y>=-0.001)                    // ikkalasi ham klient qarzi
       return fmtG(oM)+(y>o?'+':'-')+fmtG(dz)+' = '+balG(y);
@@ -17823,13 +17829,13 @@ function klientSotuvChekYangiGen(opts){
       t+=SARL("TO'LOV")+'\n';
       tolRows.forEach(function(x){
         var r=x.r, k=r.zavod+'||'+r.tur;
-        t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(x.g)+'g x '+r.narx, '-'+fmtD(x.pul)+'#')+'\n';
+        t+=rjust(' '+r.zavod+' '+r.tur+'  '+fmtG(x.g)+'g x '+r.narx, fmtD(x.pul)+'#')+'\n';   // v188.22: minus faqat Skidkada
         var ber=Math.min(x.g, berMap[k]||0);
         var est=Math.round((x.g-ber)*100)/100;
         if(!qisqa && ber>0.001) t+=rjust('   berilganga', fmtG(ber)+'g')+'\n';
         if(!qisqa && est>0.001) t+=rjust('   ostatkadan', fmtG(est)+'g')+'\n';
       });
-      t+=DASH+rjust(' JAMI  '+fmtG(jamiSotG)+'g', '-'+fmtD(jamiPul)+'#')+'\n';
+      t+=DASH+rjust(' JAMI  '+fmtG(jamiSotG)+'g', fmtD(jamiPul)+'#')+'\n';
       if(sk>0.001) t+=rjust(' Skidka', '-'+fmtD(sk)+'#')+'\n';
       t+=LINE;
     }
