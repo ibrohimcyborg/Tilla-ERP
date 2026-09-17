@@ -8268,3 +8268,60 @@ o'zgartirmadim, tegilmadi.
 ⚠ **Xulq o'zgarishi:** `1,02FAEF` — harf **oxirida** — ilgari `1.02` bo'lib
 o'tardi, endi rad etiladi. Ibrohimga aytildi: shovqin bor ekan, qaysi qismi
 ishonchli ekanini bilib bo'lmaydi.
+
+## v188.24 — takrorlanadigan QOLDI bloki chiqmaydi
+
+**Ibrohim:** «bitta narsa berildi, ostatka 0, berilgandan kegin klient to'lov
+qivotti — berildi, qoldi, to'lov chiqvotti, **qoldi ortiqcha**» →
+maket → **«qolgan ostatka qolsin agar ostatka qosa»**.
+
+Maket: `mockups/chek-ortiqcha-qoldi.html`.
+
+### Nima bo'lardi
+
+Ostatka bo'lmasa `BERILDI` dan keyingi `QOLDI` aynan `BERILDI` ning o'zi:
+
+    BERILDI          Diamond Oddiy   10.00g
+    QOLDI            Diamond Oddiy   10.00g   <- hech qanday yangi ma'lumot yo'q
+
+### Qoida
+
+**Oraliq balans bloki o'zidan oldingi amal bilan aynan bir xil bo'lsa —
+chiqmaydi.**
+
+Solishtirish **matn** bo'yicha — tur qatorlari bir xilmi. Bu ishonchli,
+chunki v188.19 dan beri oldingi qoldiq noldan boshqa bo'lsa qatorda tenglama
+yoziladi, ya'ni matn o'z-o'zidan farq qiladi:
+
+    ostatka 0,  berildi 10   BERILDI "10.00g"   QOLDI "10.00g"              BIR XIL
+    ostatka 10, vozvrat 5    VOZVRAT "5.00g"    QOLDI "10.00-5.00 = 5.00g"  farq
+    ostatka 0,  vozvrat 5    VOZVRAT "5.00g"    QOLDI "+5.00g"              farq
+
+⚠ Avval `bal` ni amal xaritasi bilan **son** bo'yicha solishtirmoqchi edim —
+u noto'g'ri edi: ostatka 10, vozvrat 5 holatida qoldiq ham 5 bo'lib,
+haqiqiy ma'lumotli blok o'chib ketardi. Matn solishtiruvi bunga tushmaydi.
+
+### QOLGAN OSTATKA tegilmadi
+
+Ibrohim: «qolgan ostatka qolsin agar ostatka qosa». Takrorlansa ham qoladi —
+u chekning yakuniy javobi:
+
+    BERILDI          Diamond Oddiy   10.00g
+    QOLGAN OSTATKA   Diamond Oddiy   10.00g   <- ataylab qoldirildi
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. Yetti tekshiruv:
+
+    ostatka 0, berildi 10, to'lov 7          QOLDI 0   <- Ibrohim aytgani
+    ostatka 4 bor, berildi 10, to'lov 7      QOLDI 1   <- yig'indi, kerak
+    ostatka 10, vozvrat 5, to'lov 3          QOLDI 1   <- tenglamali, kerak
+    ostatka 0, vozvrat 5, berildi 10, to'l 3 QOLDI 2   <- ikkalasi ham kerak
+    ostatka 0, berildi 10, to'lov yo'q       QOLDI 0
+    to'lovsiz chekda QOLGAN OSTATKA          BOR
+    sotuv cheki ham                          QOLDI 0
+
+### Tegilmadi
+
+`QOLGAN OSTATKA`, hisob-kitob, tenglama, `TO'LOV`, `TO'LOV USULI`, 2-chek
+(unda balans bloklari allaqachon yo'q).

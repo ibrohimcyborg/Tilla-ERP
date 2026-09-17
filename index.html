@@ -1,4 +1,4 @@
-<!-- v188.23 -->
+<!-- v188.24 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.23';
+var APP_VER = 'v188.24';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10893,6 +10893,24 @@ function kTolovChekGen(d, qisqa, bosiladi){
     if(!bor) return '';                       // bo'sh blok umuman chiqmaydi
     return SARL(nom)+'\n'+q+DASH+rj(' JAMI', balG(j))+'\n'+LINE;
   }
+  // v188.24 (Ibrohim): «bitta narsa berildi, ostatka 0, berilgandan kegin
+  // klient to'lov qivotti - berildi, qoldi, to'lov chiqvotti, QOLDI ORTIQCHA».
+  // Ostatka bo'lmasa BERILDI dan keyingi QOLDI aynan BERILDI ning o'zi bo'ladi.
+  //
+  // Solishtirish MATN bo'yicha - tur qatorlari bir xilmi. Bu ishonchli, chunki
+  // v188.19 dan beri oldingi qoldiq NOLDAN boshqa bo'lsa qatorda tenglama
+  // yoziladi (10.00-5.00 = 5.00g), ya'ni matn o'z-o'zidan farq qiladi:
+  //   ostatka 0,  berildi 10   -> BERILDI "10.00g"   QOLDI "10.00g"        BIR XIL
+  //   ostatka 10, vozvrat 5    -> VOZVRAT "5.00g"    QOLDI "10.00-5.00 = 5.00g"
+  //   ostatka 0,  vozvrat 5    -> VOZVRAT "5.00g"    QOLDI "+5.00g"
+  //
+  // ⚠ QOLGAN OSTATKA ga TEGILMAYDI - Ibrohim: «qolgan ostatka qolsin agar
+  //   ostatka qosa». U chekning yakuniy javobi, takrorlansa ham qoladi.
+  function _turQat(blk){
+    return String(blk).split('\n').filter(function(l){
+      return l.charAt(0) === ' ' && l.indexOf(' JAMI') !== 0;
+    }).join('|');
+  }
   function amalJami(m){
     var x=0; Object.keys(m).forEach(function(k){ if(m[k]>0.001) x=Math.round((x+m[k])*100)/100; });
     return x;
@@ -10925,18 +10943,26 @@ function kTolovChekGen(d, qisqa, bosiladi){
 
   // ─── 2) VOZVRAT
   if(jamiVoz>0.001){
-    t+=amalBlok('VOZVRAT', voz, jamiVoz);
+    var _vb=amalBlok('VOZVRAT', voz, jamiVoz);
+    t+=_vb;
     oldBal=nusxa(bal);
     Object.keys(voz).forEach(function(k){ if(voz[k]>0.001) bal[k]=Math.round((bal[k]-voz[k])*100)/100; });
-    if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI', oldBal);
+    if(!qisqa && (berBor||tolBor)){
+      var _qv=balBlok('QOLDI', oldBal);
+      if(_turQat(_qv)!==_turQat(_vb)) t+=_qv;   // v188.24: takror bo'lsa chiqmaydi
+    }
   }
 
   // ─── 3) BERILDI (POSsiz to'lovda bo'sh - blok chiqmaydi)
   if(berBor){
-    t+=amalBlok('BERILDI', ber, jamiBer);
+    var _bb=amalBlok('BERILDI', ber, jamiBer);
+    t+=_bb;
     oldBal=nusxa(bal);
     Object.keys(ber).forEach(function(k){ if(ber[k]>0.001) bal[k]=Math.round((bal[k]+ber[k])*100)/100; });
-    if(!qisqa && tolBor) t+=balBlok('QOLDI', oldBal);
+    if(!qisqa && tolBor){
+      var _qb=balBlok('QOLDI', oldBal);
+      if(_turQat(_qb)!==_turQat(_bb)) t+=_qb;   // v188.24
+    }
   }
 
   // ─── 4) TO'LOV. Pul MINUS - qarzdan nima ayrilgani.
@@ -17793,6 +17819,24 @@ function klientSotuvChekYangiGen(opts){
       if(!bor) return '';                       // bo'sh blok umuman chiqmaydi
       return SARL(nom)+'\n'+q+DASH+rjust(' JAMI', balG(j))+'\n'+LINE;
     }
+    // v188.24 (Ibrohim): «bitta narsa berildi, ostatka 0, berilgandan kegin
+    // klient to'lov qivotti - berildi, qoldi, to'lov chiqvotti, QOLDI ORTIQCHA».
+    // Ostatka bo'lmasa BERILDI dan keyingi QOLDI aynan BERILDI ning o'zi bo'ladi.
+    //
+    // Solishtirish MATN bo'yicha - tur qatorlari bir xilmi. Bu ishonchli, chunki
+    // v188.19 dan beri oldingi qoldiq NOLDAN boshqa bo'lsa qatorda tenglama
+    // yoziladi (10.00-5.00 = 5.00g), ya'ni matn o'z-o'zidan farq qiladi:
+    //   ostatka 0,  berildi 10   -> BERILDI "10.00g"   QOLDI "10.00g"        BIR XIL
+    //   ostatka 10, vozvrat 5    -> VOZVRAT "5.00g"    QOLDI "10.00-5.00 = 5.00g"
+    //   ostatka 0,  vozvrat 5    -> VOZVRAT "5.00g"    QOLDI "+5.00g"
+    //
+    // ⚠ QOLGAN OSTATKA ga TEGILMAYDI - Ibrohim: «qolgan ostatka qolsin agar
+    //   ostatka qosa». U chekning yakuniy javobi, takrorlansa ham qoladi.
+    function _turQat(blk){
+      return String(blk).split('\n').filter(function(l){
+        return l.charAt(0) === ' ' && l.indexOf(' JAMI') !== 0;
+      }).join('|');
+    }
     function amalBlok(nom, m, jami){
       if(!(jami>0.001)) return '';
       var s2=SARL(nom)+'\n';
@@ -17839,18 +17883,26 @@ function klientSotuvChekYangiGen(opts){
 
     // ─── 2) VOZVRAT
     if(jamiVoz>0.001){
-      t+=amalBlok('VOZVRAT', vozMap, jamiVoz);
+      var _vb=amalBlok('VOZVRAT', vozMap, jamiVoz);
+      t+=_vb;
       oldBal=nusxa(bal);
       Object.keys(vozMap).forEach(function(k){ bal[k]=Math.round((bal[k]-vozMap[k])*100)/100; });
-      if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI', oldBal);
+      if(!qisqa && (berBor||tolBor)){
+        var _qv=balBlok('QOLDI', oldBal);
+        if(_turQat(_qv)!==_turQat(_vb)) t+=_qv;   // v188.24: takror bo'lsa chiqmaydi
+      }
     }
 
     // ─── 3) BERILDI
     if(berBor){
-      t+=amalBlok('BERILDI', berMap, jamiBer);
+      var _bb=amalBlok('BERILDI', berMap, jamiBer);
+      t+=_bb;
       oldBal=nusxa(bal);
       Object.keys(berMap).forEach(function(k){ bal[k]=Math.round((bal[k]+berMap[k])*100)/100; });
-      if(!qisqa && tolBor) t+=balBlok('QOLDI', oldBal);
+      if(!qisqa && tolBor){
+        var _qb=balBlok('QOLDI', oldBal);
+        if(_turQat(_qb)!==_turQat(_bb)) t+=_qb;   // v188.24
+      }
     }
 
     // ─── 4) TO'LOV. Ibrohim: «qaysi turri nechi gram nechi g/$dan minus

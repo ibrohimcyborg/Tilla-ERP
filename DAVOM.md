@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.23 · POS v0.37 · 2026-09-17
+**Oxirgi yangilanish:** v188.24 · POS v0.37 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,29 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.24 — takrorlanadigan QOLDI bloki chiqmaydi (2026-09-17)
+
+Maket: `mockups/chek-ortiqcha-qoldi.html`. Ibrohim: «qoldi ortiqcha» +
+**«qolgan ostatka qolsin agar ostatka qosa»**.
+
+Ostatka bo'lmasa `BERILDI` dan keyingi `QOLDI` aynan `BERILDI` ning o'zi
+edi. Endi **oraliq balans bloki oldingi amal bilan aynan bir xil bo'lsa
+chiqmaydi**.
+
+Solishtirish **matn** bo'yicha (tur qatorlari). Ishonchli, chunki v188.19
+dan beri oldingi qoldiq noldan boshqa bo'lsa tenglama yoziladi — matn
+o'z-o'zidan farq qiladi.
+
+⚠ Son bo'yicha solishtirish NOTO'G'RI bo'lardi: ostatka 10, vozvrat 5 →
+qoldiq ham 5, ma'lumotli blok o'chib ketardi.
+
+⚠ **`QOLGAN OSTATKA` TEGILMADI** — takrorlansa ham qoladi, Ibrohim shunday
+dedi.
+
+Sinov: 7 tekshiruv, 0 xato. Ikkala chekda ham.
 
 ---
 
