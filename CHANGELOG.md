@@ -7997,3 +7997,51 @@ Node: 1 script bloki, 0 sintaksis xatosi. Yetti holat:
 
 `TO'LOV` bloki (Ibrohim misolida `= 697.6#` deb yozilgandi, lekin u kecha
 tasdiqlangan shaklda qoldi — so'ralmadi), hisob-kitob, saqlash, baza.
+
+## v188.20 — OFFSET qatori sarlavha + turlar bo'lib bo'lindi
+
+**Ibrohim** (chek rasmi bilan): «OFFSET / Butterfly Oddiy qilib yozsen,
+tiqilib qomasakan».
+
+### Nima bo'lgan
+
+Offset bitta qatorda edi va 48 belgiga **zo'rg'a** sig'ardi:
+
+    Offset  Butterfly Oddiy 25.22g x 87.2 2,199.18#
+                                         ^ 1 bo'shliq
+
+Uzunroq tur nomi yoki katta summa bo'lsa ustun butunlay yopishib ketardi.
+
+### Qilindi
+
+    TO'LOV USULI
+     OFFSET
+       Butterfly Oddiy  25.22g x 87.2      2,199.18#
+     N                                     2,976.00#
+    ------------------------------------------------
+     JAMI                                  5,175.18#
+
+`OFFSET` — sarlavha qator, **summasiz**. Turlar tagida, uch bo'shliq
+chekinish bilan. Bo'shliq 1 dan **6** ga chiqdi.
+
+`usul` ro'yxatida summa `null` bo'lsa qator summasiz chiqadi va `JAMI` ga
+qo'shilmaydi — shu bilan sarlavha yo'li ochildi.
+
+⚠ Bir nechta offset turi bo'lsa **bitta** `OFFSET` sarlavhasi ostiga
+yig'iladi, har biri o'z summasi bilan.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. To'rt holat:
+
+    1 rasmdagi holat (1 tur)     6 bo'shliq, JAMI 5,175.18 = 2,199.18 + 2,976.00
+    2 ikki offset turi + lom     JAMI 7,610.50 = 2,199.18 + 905 + 400 + 4,106.32
+    3 offsetsiz                  butunlay o'zgarmadi
+    4 SOTUV cheki                aynan bir xil
+
+Hech bir qator 48 dan uzun emas.
+
+### Tegilmadi
+
+Hisob-kitob, offset miqdori, `JAMI` formulasi, boshqa to'lov usullari
+(`N` / `K` / `P` / `L`), balans bloklari.

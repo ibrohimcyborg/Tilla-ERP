@@ -1,4 +1,4 @@
-<!-- v188.19 -->
+<!-- v188.20 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.19';
+var APP_VER = 'v188.20';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10947,10 +10947,18 @@ function kTolovChekGen(d, qisqa, bosiladi){
 
   // ─── 5) TO'LOV USULI. Bu yerda hammasi MUSBAT - pul qayerdan kelgani.
   var usul=[];
-  (d.offsetlar||[]).forEach(function(x){
-    var su=Math.round((x.summa||0)*100)/100; if(!(su>0.001)) return;
-    usul.push([' Offset  '+(x.nom||'')+' '+fmtG(x.gramm||0)+'g x '+x.kurs, su]);
-  });
+  // v188.20 (Ibrohim): «OFFSET / Butterfly Oddiy qilib yozsen, tiqilib
+  // qomasakan». Bitta qatorda `Offset  <tur> <g> x <narx>` + summa 48 ga
+  // zo'rg'a sig'ardi - 1 bo'shliq qolardi. Endi OFFSET sarlavha qator,
+  // turlar tagida. Sarlavhaning summasi yo'q (null) va JAMI ga kirmaydi.
+  var offSat=(d.offsetlar||[]).filter(function(x){ return Math.round((x.summa||0)*100)/100>0.001; });
+  if(offSat.length){
+    usul.push([' OFFSET', null]);
+    offSat.forEach(function(x){
+      usul.push(['   '+(x.nom||'')+'  '+fmtG(x.gramm||0)+'g x '+x.kurs,
+                 Math.round((x.summa||0)*100)/100]);
+    });
+  }
   (d.lomlar||[]).forEach(function(l){
     var lp=Math.round((l.s||0)*100)/100;
     if(lp>0.001) usul.push([' L  '+fmtG(l.g||0)+'g x '+(l.n||0), lp]);
@@ -10961,7 +10969,10 @@ function kTolovChekGen(d, qisqa, bosiladi){
   if(usul.length){
     t+=SARL("TO'LOV USULI")+'\n';
     var ju=0;
-    usul.forEach(function(u){ t+=rj(u[0], fmtD(u[1])+'#')+'\n'; ju=Math.round((ju+u[1])*100)/100; });
+    usul.forEach(function(u){
+      if(u[1]===null){ t+=u[0]+'\n'; return; }   // v188.20: sarlavha - summasiz
+      t+=rj(u[0], fmtD(u[1])+'#')+'\n'; ju=Math.round((ju+u[1])*100)/100;
+    });
     t+=DASH+rj(' JAMI', fmtD(ju)+'#')+'\n';
     var sdp=Math.round((d.sdachaPul||0)*100)/100;
     var tn=d.tanlov||null;
@@ -17811,10 +17822,18 @@ function klientSotuvChekYangiGen(opts){
 
     // ─── 5) TO'LOV USULI. Bu yerda hammasi MUSBAT - pul qayerdan kelgani.
     var usul=[];
-    (o.offsetlar||[]).forEach(function(x){
-      var su=Math.round((x.summa||0)*100)/100; if(!(su>0.001)) return;
-      usul.push([' Offset  '+x.zavod+' '+x.tur+' '+fmtG(x.gramm||0)+'g x '+x.kurs, su]);
-    });
+    // v188.20 (Ibrohim): «OFFSET / Butterfly Oddiy qilib yozsen, tiqilib
+    // qomasakan». Bitta qatorda `Offset  <tur> <g> x <narx>` + summa 48 ga
+    // zo'rg'a sig'ardi - 1 bo'shliq qolardi. Endi OFFSET sarlavha qator,
+    // turlar tagida. Sarlavhaning summasi yo'q (null) va JAMI ga kirmaydi.
+    var offSat=(o.offsetlar||[]).filter(function(x){ return Math.round((x.summa||0)*100)/100>0.001; });
+    if(offSat.length){
+      usul.push([' OFFSET', null]);
+      offSat.forEach(function(x){
+        usul.push(['   '+x.zavod+' '+x.tur+'  '+fmtG(x.gramm||0)+'g x '+x.kurs,
+                   Math.round((x.summa||0)*100)/100]);
+      });
+    }
     lomlar.forEach(function(l){ usul.push([' L  '+fmtG(l.g)+'g x '+l.kurs, l.pul]); });
     if(nb>0.001) usul.push([' N', nb]);
     if(kb>0.001) usul.push([' K', kb]);
@@ -17824,6 +17843,7 @@ function klientSotuvChekYangiGen(opts){
       t+=SARL("TO'LOV USULI")+'\n';
       var ju=0;
       usul.forEach(function(u){
+        if(u[1]===null){ t+=u[0]+'\n'; return; }   // v188.20: sarlavha - summasiz
         t+=rjust(u[0], fmtD(u[1])+'#')+'\n'; ju=Math.round((ju+u[1])*100)/100;
       });
       t+=DASH+rjust(' JAMI', fmtD(ju)+'#')+'\n';

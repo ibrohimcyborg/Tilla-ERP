@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.19 · POS v0.36 · 2026-09-17
+**Oxirgi yangilanish:** v188.20 · POS v0.36 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,25 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.20 — OFFSET sarlavha + turlar (2026-09-17)
+
+**Ibrohim** (chek rasmi bilan): «OFFSET / Butterfly Oddiy qilib yozsen,
+tiqilib qomasakan».
+
+Offset bitta qatorda 48 ga zo'rg'a sig'ardi — 1 bo'shliq qolardi. Endi:
+
+    TO'LOV USULI
+     OFFSET
+       Butterfly Oddiy  25.22g x 87.2      2,199.18#
+     N                                     2,976.00#
+
+`OFFSET` sarlavha qator, summasiz (`usul` da summa `null`), `JAMI` ga
+qo'shilmaydi. Bir nechta offset turi bitta sarlavha ostiga yig'iladi.
+
+Ikkala chekda ham. Sinov: 4 holat, offsetsiz chek o'zgarmadi.
 
 ---
 
