@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.36';
+var POS_VER = 'v0.37';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -1424,6 +1424,16 @@ function posBKirSet(v){ _pbKir=v; }
 function posBNeg(){ _pbNeg=!_pbNeg; _pbDraw(); }
 
 function posBQoshDona(){
+  // v188.23: skaner shovqini (FAEF1,02 kabi) qabul qilinmaydi.
+  // parseNum FAEF1,02 ni allaqachon rad etardi, lekin 1,02FAEF ni 1.02 qilib
+  // O'TKAZARDI — parseFloat birinchi yaroqsiz belgida to'xtaydi.
+  if(skShovqin(_pbKir)){
+    var ix=document.getElementById('pb-in');
+    if(ix){ ix.style.borderColor='var(--red)'; ix.style.background='var(--red-bg)'; ix.focus(); }
+    return;
+  }
+  var ix2=document.getElementById('pb-in');
+  if(ix2){ ix2.style.borderColor=''; ix2.style.background=''; }
   var v=parseNum(_pbKir);
   if(!v){ var i=document.getElementById('pb-in'); if(i){ i.style.borderColor='var(--red)'; i.focus(); } return; }
   if(_pbNeg) v=-Math.abs(v);

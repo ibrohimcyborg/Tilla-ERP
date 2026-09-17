@@ -1,4 +1,4 @@
-<!-- v188.22 -->
+<!-- v188.23 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.22';
+var APP_VER = 'v188.23';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -6367,10 +6367,27 @@ function skArr(){ return skState.mode === 1 ? skState.pass1 : skState.pass2; }
 // Mustahkam gramm parser: raqamlar orasidagi har qanday belgi (vergul, probel,
 // unicode vergul/o'nlik) avtomat o'nlik nuqtaga aylanadi. Skaner qanday belgi
 // yuborsa ham .59 qismi yo'qolmaydi.
+// v188.23: rad etilgan skan JIMGINA yo'qolmasin — maydon qizaradi va matn
+// QOLADI (nima kelganini ko'rish uchun). Keyingi to'g'ri skanda tozalanadi.
+function skXatoKor(el){
+  if(!el) return;
+  el.style.borderColor='var(--red)';
+  el.style.background='var(--red-bg)';
+  try{ el.focus(); el.select(); }catch(e){}
+}
+function skXatoTozala(el){
+  if(!el) return;
+  el.style.borderColor='';
+  el.style.background='';
+}
 function skParseGram(v){
   if (v == null) return 0;
   var s = String(v).trim();
   if (!s) return 0;
+  // v188.23: harf/begona belgi bo'lsa TAXMIN QILINMAYDI. Avval bunday qiymat
+  // "raqamsiz belgilar -> nuqta" qoidasiga tushib, FAEF1,02 jimgina 0.10 g
+  // bo'lib qo'shilardi.
+  if (typeof skShovqin === 'function' && skShovqin(s)) return 0;
   // Oldindagi + yoki - belgisini ALOHIDA saqlab qolamiz — aks holda pastdagi
   // "raqamsiz belgilar -> nuqta" qoidasi ularni ham nuqtaga aylantirib, ishorani yo'qotardi.
   var manfiy = false;
@@ -6400,6 +6417,8 @@ function skScanKeydown(event){
 }
 function skScanAdd(){
   var el = document.getElementById('sk-scan');
+  if(skShovqin(el.value)){ skXatoKor(el); return; }   // v188.23
+  skXatoTozala(el);
   var g = skParseGram(el.value);
   if (!g){ el.value = ''; el.focus(); return; } // faqat 0/bosh qiymat rad etiladi
   skArr().push(roundG(g)); // manfiy qiymat ham qo'shiladi — tuzatish (ayirish) yozuvi sifatida
@@ -8012,6 +8031,8 @@ function ostSkSetMode(m){
 }
 function ostSkAdd(){
   var i=document.getElementById('ost-f-inp');
+  if(skShovqin(i.value)){ skXatoKor(i); return; }   // v188.23
+  skXatoTozala(i);
   var v=skParseGram(i.value);
   i.value=''; i.focus();
   if(!v || v<=0) return;
@@ -12814,6 +12835,8 @@ function kbSkanAdd(zi,ti,sign){
   var key = kbSkanKey(zi,ti);
   var st = _kbSkanState[key]; if(!st) return;
   var inp = document.getElementById('kbskan-inp-'+key);
+  if(skShovqin(inp.value)){ skXatoKor(inp); return; }   // v188.23
+  skXatoTozala(inp);
   var v = skParseGram(inp.value);
   if (!v || v <= 0){ inp.value=''; inp.focus(); return; }
   var arr = st.mode===1 ? st.pass1 : st.pass2;
@@ -13262,6 +13285,7 @@ function uniSkanPanel(fid){
     +'<button type="button" onclick="uniSkanAdd(\''+fid+'\')" style="width:36px;height:36px;border-radius:8px;border:none;background:var(--gold);color:var(--on-gold);font-size:18px;cursor:pointer;flex-shrink:0;">+</button>'
     +'<button type="button" onclick="uniSkanDelLast(\''+fid+'\')" style="width:36px;height:36px;border-radius:8px;border:1.5px solid var(--red);color:var(--red);background:transparent;font-size:18px;cursor:pointer;flex-shrink:0;">−</button>'
     +'</div>'
+    +'<div id="usx-'+fid+'" style="display:none;font-size:11.5px;color:var(--red);font-weight:600;margin:-2px 0 7px;">Harf keldi \u2014 qabul qilinmadi. Qayta skan qiling.</div>'
     +'<div style="display:flex;gap:5px;margin-bottom:10px;">'
     +'<button type="button" id="usm1-'+fid+'" onclick="uniSkanSetMode(\''+fid+'\',1)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-size:11px;font-weight:600;cursor:pointer;">1-skan</button>'
     +'<button type="button" id="usm2-'+fid+'" onclick="uniSkanSetMode(\''+fid+'\',2)" style="flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;">2-skan</button>'
@@ -13331,6 +13355,14 @@ function uniSkanSetMode(fid,m){
 }
 function uniSkanAdd(fid){
   var i=document.getElementById('usi-'+fid); if(!i) return;
+  var x=document.getElementById('usx-'+fid);
+  if(skShovqin(i.value)){                              // v188.23
+    skXatoKor(i);
+    if(x) x.style.display='block';
+    return;
+  }
+  skXatoTozala(i);
+  if(x) x.style.display='none';
   var v=skParseGram(i.value);
   i.value='';
   uniSkanFokus(fid);

@@ -1,0 +1,233 @@
+<title>Harf Kelsa Qabul Qilinmaydi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#f2efe9;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#2a2620;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#2a2620;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.7;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th,td{padding:7px 10px;border-bottom:1px solid var(--edge);text-align:left}
+th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.k{font-family:var(--mono);font-size:12px}
+td.e{color:var(--bad);font-weight:700}
+td.y{color:var(--good);font-weight:700}
+td.s{color:var(--ink3)}
+.oz{background:var(--gold-bg)}
+
+/* ── panel maketi ── */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:620px){.pair{grid-template-columns:1fr}}
+.pair > div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cap{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.cap.a{color:var(--bad)} .cap.b{color:var(--good)}
+.pan{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:12px}
+.pan-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.pan-nom{font-size:14px;font-weight:700}
+.pan-pos{font-size:11px;color:var(--ink3)}
+.pan-pos b{color:var(--ink2)}
+.dona{display:flex;gap:6px;margin-bottom:9px}
+.dona span{border:1px solid var(--edge2);border-radius:999px;padding:2px 10px;font-size:12px;
+  font-family:var(--mono);color:var(--ink2)}
+.tabs{display:flex;gap:6px;margin-bottom:9px}
+.tabs span{flex:1;text-align:center;padding:6px;border-radius:9px;font-size:11px;font-weight:700}
+.tabs .on{background:var(--gold);color:#fff}
+.tabs .off{background:var(--card2);color:var(--ink3);border:1px solid var(--edge)}
+.inrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.inp{flex:1;min-width:0;border:1.5px solid var(--gold-bd);border-radius:9px;padding:8px 10px;
+  font-size:14px;font-family:var(--mono);background:var(--card);color:var(--ink)}
+.inp.err{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.inp.bosh{color:var(--ink3)}
+.bplus{width:34px;height:34px;border-radius:9px;background:var(--gold);color:#fff;
+  display:grid;place-items:center;font-size:17px;flex:none}
+.bmos{height:34px;border-radius:9px;border:1px solid var(--edge2);padding:0 11px;
+  display:grid;place-items:center;font-size:12px;color:var(--ink2);flex:none}
+.xato{font-size:11.5px;color:var(--bad);font-weight:600;margin:0 0 7px}
+.tek{font-size:11px;color:var(--ink2);margin-bottom:4px}
+.tek b{color:var(--good)}
+.bar{height:5px;border-radius:999px;background:var(--card2);overflow:hidden;margin-bottom:9px}
+.bar i{display:block;height:100%;background:var(--good)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;background:var(--card);border:1px solid var(--edge);
+  border-radius:10px;padding:8px}
+.chip{border-radius:8px;padding:3px 9px;font-size:12.5px;font-family:var(--mono);font-weight:700}
+.chip.ok{background:var(--good-bg);color:var(--good);border:1px solid var(--good-bd)}
+.chip.no{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-bd)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Skan maydoni</div>
+  <h1>Harf kelsa qabul qilinmaydi</h1>
+  <p>Taxmin qilmaydi &mdash; rad etadi va ko&rsquo;rsatadi.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;agar <code>FAEF1,02</code> shunaqa narsalar kelib qolsa
+  qabul qilmaydigan qilsakchi harflarni&raquo;</div>
+</section>
+
+<section>
+  <h2>Ekranda</h2>
+  <div class="pair">
+    <div>
+      <span class="cap a">Hozir &mdash; jimgina qo&rsquo;shiladi</span>
+      <div class="pan">
+        <div class="pan-top"><span class="pan-nom">Butterfly &middot; Oddiy</span>
+          <span class="pan-pos">POS: <b>10.49 g</b> &middot; 4 dona</span></div>
+        <div class="dona"><span>1.02</span><span>7.42</span></div>
+        <div class="tabs"><span class="on">1-SKAN</span><span class="off">2-SKAN</span></div>
+        <div class="inrow"><div class="inp bosh">Gramm skan qiling&hellip;</div>
+          <div class="bplus">+</div><div class="bmos">Mos</div></div>
+        <div class="tek">Tekshirildi: <b>2 / 4</b></div>
+        <div class="bar"><i style="width:50%"></i></div>
+        <div class="chips"><span class="chip ok">1.03 &#10003;</span>
+          <span class="chip ok">1.02 &#10003;</span>
+          <span class="chip no">0.10 ortiqcha</span></div>
+      </div>
+      <p class="hint" style="margin:0">Enter bosilgan zahoti <b>0.10</b> qo&rsquo;shiladi.
+      Sanoq <b>2/4</b> da qoladi &mdash; chunki POSda bunday gramm yo&rsquo;q.</p>
+    </div>
+    <div>
+      <span class="cap b">Taklif &mdash; rad etiladi</span>
+      <div class="pan">
+        <div class="pan-top"><span class="pan-nom">Butterfly &middot; Oddiy</span>
+          <span class="pan-pos">POS: <b>10.49 g</b> &middot; 4 dona</span></div>
+        <div class="dona"><span>1.02</span><span>7.42</span></div>
+        <div class="tabs"><span class="on">1-SKAN</span><span class="off">2-SKAN</span></div>
+        <div class="inrow"><div class="inp err">FAEF1,02</div>
+          <div class="bplus">+</div><div class="bmos">Mos</div></div>
+        <p class="xato">Harf keldi &mdash; qabul qilinmadi. Qayta skan qiling.</p>
+        <div class="tek">Tekshirildi: <b>2 / 4</b></div>
+        <div class="bar"><i style="width:50%"></i></div>
+        <div class="chips"><span class="chip ok">1.03 &#10003;</span>
+          <span class="chip ok">1.02 &#10003;</span></div>
+      </div>
+      <p class="hint" style="margin:0">Hech nima qo&rsquo;shilmaydi. Maydon <b>qizaradi</b>,
+      matn <b>qoladi</b> &mdash; nima kelganini ko&rsquo;rasan.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Qoida</h2>
+  <div class="mm">raqam, nuqta, vergul, probel, + , -   ->  qabul
+boshqa har qanday belgi                ->  RAD</div>
+  <p class="hint" style="margin:0">Haqiqiy funksiya bilan sinaldi:</p>
+  <div class="tw"><table>
+    <tr><th>kirish</th><th>hozir</th><th>taklif</th><th></th></tr>
+    <tr class="oz"><td class="k">FAEF1,02</td><td class="e">0.10 qo&rsquo;shiladi</td><td class="y">rad</td><td class="s">skaner shovqini</td></tr>
+    <tr class="oz"><td class="k">&#1060;&#1040;1,02</td><td class="e">0.10 qo&rsquo;shiladi</td><td class="y">rad</td><td class="s">kirill shovqin</td></tr>
+    <tr class="oz"><td class="k">AB12</td><td class="e">0.12 qo&rsquo;shiladi</td><td class="y">rad</td><td class="s">harf + raqam</td></tr>
+    <tr class="oz"><td class="k">1,02FAEF</td><td class="e">1.02 qo&rsquo;shiladi</td><td class="y">rad</td><td class="s">harf oxirida</td></tr>
+    <tr><td class="k">FAEF</td><td>0 &mdash; o&rsquo;tmaydi</td><td>rad</td><td class="s">o&rsquo;zgarmadi</td></tr>
+    <tr><td class="k">1,02</td><td>1.02</td><td>1.02</td><td class="s">vergul</td></tr>
+    <tr><td class="k">1.02</td><td>1.02</td><td>1.02</td><td class="s">nuqta</td></tr>
+    <tr><td class="k">1 02</td><td>1.02</td><td>1.02</td><td class="s">probel</td></tr>
+    <tr><td class="k">-1,02</td><td>-1.02</td><td>-1.02</td><td class="s">manfiy</td></tr>
+    <tr><td class="k">+1.02</td><td>1.02</td><td>1.02</td><td class="s">plus</td></tr>
+    <tr><td class="k">10,49</td><td>10.49</td><td>10.49</td><td class="s"></td></tr>
+    <tr><td class="k">0,5</td><td>0.50</td><td>0.50</td><td class="s"></td></tr>
+  </table></div>
+  <div class="box good">
+    <p><b>Normal kiritishlarning birortasi ham o&rsquo;zgarmaydi.</b></p>
+  </div>
+</section>
+
+<section>
+  <h2>Bitta ogohlantirish</h2>
+  <div class="box gold">
+    <p><code>1,02FAEF</code> &mdash; harf <b>oxirida</b> kelsa &mdash; hozir
+    <code>1.02</code> bo&rsquo;lib o&rsquo;tib ketadi. Yangi qoidada <b>u ham rad
+    etiladi</b>.</p>
+    <p class="hint">To&rsquo;g&rsquo;ri deb bilaman &mdash; shovqin bor ekan, qaysi qismi
+    ishonchli ekanini bilib bo&rsquo;lmaydi. Lekin aytib qo&rsquo;yay: skaner shovqinni
+    oxiriga qo&rsquo;ysa, ilgari ishlagan skanlar endi qayta skan talab qiladi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qayerlarga tegadi</h2>
+  <div class="box">
+    <div class="mm">6403   dona baza skani
+6474   vazn maydoni
+8015   ostatka skani
+12817  qo'lda berish skani
+13334  umumiy skan   <- sening rasmingdagi</div>
+    <p class="hint">Rad etish <b>beshtasida ham</b> ishlaydi &mdash; hisobga
+    noto&rsquo;g&rsquo;ri gramm hech qayerdan kirmaydi. Qizil maydon va yozuv esa
+    beshtasiga ham qo&rsquo;shiladi.</p>
+  </div>
+  <div class="box good">
+    <p><b>POS (pos.html) tegilmaydi</b> &mdash; u allaqachon rad etadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Hajmi</h2>
+  <div class="box">
+    <p>Bitta kichik funksiya + parserda bitta shart + beshta maydonga qizil
+    belgi. Taxminan <b>~20 qator</b>.</p>
+    <p class="hint">Tegilmaydi: chiplar, dona hisobi, 1/2-skan mantiqi, chek, POS.</p>
+  </div>
+</section>
+
+<section>
+  <h2></h2>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang kodga tushiraman.</p>
+  </div>
+</section>
+
+</div>

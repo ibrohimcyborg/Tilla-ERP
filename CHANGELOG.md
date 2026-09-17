@@ -8191,3 +8191,80 @@ Sotuv chekida ham uchala tekshiruv o'tdi.
 
 Hisob-kitob — raqamlar o'sha-o'sha, faqat yozilishi o'zgardi.
 Balans bloklarining o'zi, TO'LOV USULI, offset, saqlash, baza.
+
+## v188.23 + POS v0.37 — skan maydoniga harf kelsa qabul qilinmaydi
+
+**Ibrohim** (chek rasmi bilan): «POS shunaqa oshibka berib qoldi, nimadan?»
+→ maydonda `FAEF1,02`. Keyin: «skaner 2 ta bir xil vaznni o'qiganda 2 sekund
+kutadi, keyin o'qidi — shunda shunaqa FAEF berdi» → «agar shunaqa narsalar
+kelib qosa qabul qimasligini» → **«yoz, commit qil, buni hamma skanga
+qo'shish kere, POSgayam»**.
+
+Maket: `mockups/skan-harf-rad.html`.
+
+### Nima bo'lardi
+
+`skParseGram` **raqam bo'lmagan har qanday belgini nuqtaga** aylantirardi.
+Vergul va probel uchun to'g'ri, harf uchun halokatli:
+
+    "FAEF1,02"
+      -> ".1.02"     FAEF -> "."  va  "," -> "."
+      -> "0.1.02"    nuqta bilan boshlangani uchun oldiga 0
+      -> ["0","1","02"]  uchta bo'lak - nuqta ORTIQCHA
+      -> "0.102"     ortiqchasi yopishtiriladi: 1 + 02 = 102
+      -> 0.10 g      OGOHLANTIRISHSIZ qo'shiladi
+
+⚠ Ibrohim tasdiqladi: «kirsam o'tvorardi» — ya'ni 0.10 haqiqatan tushgan.
+
+⚠ **Kod aybdor emas edi, lekin himoyasi yo'q edi.** Bu qoida 2026-06-26 da
+yozilgan, oxirgi marta 2026-07-08 da tegilgan (faqat +/- ishorasi), o'shandan
+beri **491 commit** davomida o'zgarmagan. O'zgargan narsa — skaner.
+
+### Qilindi
+
+**`hisob.js`** — umumiy funksiya (ikkala ilova ham shu faylni yuklaydi):
+
+    function skShovqin(v){ return /[^\d.,\s+-]/.test(String(v==null?'':v)); }
+
+Raqam / nuqta / vergul / probel / `+` / `-` dan boshqa belgi bo'lsa — **rad**.
+
+⚠ `parseNum` ga **TEGILMADI** — u pul, kurs, proba maydonlarida ham ishlaydi.
+
+**`index.html`** — `skParseGram` shovqinda `0` qaytaradi. Shu bitta shart
+**beshta** skan maydonini birdan qamraydi:
+
+    6403   dona baza skani
+    6474   vazn maydoni
+    8015   ostatka skani
+    12817  qo'lda berish skani
+    13334  umumiy skan (sotuv / vozvrat / to'lov / qo'ng'iroqcha)
+
+Yangi `skXatoKor` / `skXatoTozala` — rad etilgan skan **jimgina yo'qolmasin**:
+maydon qizaradi, **matn qoladi**, fokus qaytadi. Umumiy skan panelida
+qo'shimcha qator: «Harf keldi — qabul qilinmadi. Qayta skan qiling.»
+
+**`pos.html`** — `posBQoshDona` ham tekshiradi. `parseNum` `FAEF1,02` ni
+allaqachon rad etardi, lekin **`1,02FAEF` ni `1.02` qilib O'TKAZARDI**
+(`parseFloat` birinchi yaroqsiz belgida to'xtaydi). Endi u ham rad etiladi.
+
+### Sinov
+
+Node: `hisob.js` 0 xato, `index.html` 0 xato, `pos.html` 0 xato.
+14 holat, ERP va POS yo'llari birga:
+
+    SHOVQIN - rad etilishi kerak
+      FAEF1,02 / FA1,02 (kirill) / AB12 / FAEF / 1,02FAEF     ERP 0   POS 0
+    NORMAL - o'zgarmasligi kerak
+      1,02 / 1.02 / -1,02 / +1.02 / 10,49 / 0,5 / 7.42 / bo'sh   o'zgarmadi
+      1 02   ERP 1.02   POS 1   <- POS xulqi AVVALDAN shunday
+
+⚠ POSdagi `1 02 -> 1` eski kod bilan solishtirib isbotlandi — men
+o'zgartirmadim, tegilmadi.
+
+### Tegilmadi
+
+`parseNum`, chiplar, dona hisobi, 1/2-skan mantiqi, chek, hisob-kitob.
+
+⚠ **Xulq o'zgarishi:** `1,02FAEF` — harf **oxirida** — ilgari `1.02` bo'lib
+o'tardi, endi rad etiladi. Ibrohimga aytildi: shovqin bor ekan, qaysi qismi
+ishonchli ekanini bilib bo'lmaydi.

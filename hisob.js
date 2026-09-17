@@ -25,6 +25,14 @@ function turOstKeshTozala(){ _ostKesh = null; }
 
 function parseNum(v) { if (!v && v !== 0) return 0; return parseFloat(String(v).replace(/,/g, '.')) || 0; }
 
+// v188.23 (Ibrohim): «agar FAEF1,02 shunaqa narsalar kelib qosa qabul
+// qimasligini» — skaner bir xil kodni takror o'qiganda 2 sekund kutib,
+// oldiga «FAEF» kabi prefiks qo'shib yuborar ekan.
+// Raqam / nuqta / vergul / probel / + / - dan BOSHQA belgi bo'lsa qiymat
+// ISHONCHSIZ — taxmin qilinmaydi, rad etiladi.
+// ⚠ parseNum ga TEGILMADI — u pul, kurs, proba maydonlarida ham ishlaydi.
+function skShovqin(v){ return /[^\d.,\s+-]/.test(String(v == null ? '' : v)); }
+
 function fmtG(g) { var v=parseFloat(g); return (v<0?'-':'')+Math.abs(v).toFixed(2); }
 
 function fmtD(d) { return parseFloat(d).toLocaleString('en-US', {maximumFractionDigits:2}); }

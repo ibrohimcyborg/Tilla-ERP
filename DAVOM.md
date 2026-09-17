@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.22 · POS v0.36 · 2026-09-17
+**Oxirgi yangilanish:** v188.23 · POS v0.37 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,40 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.23 + POS v0.37 — skanda harf rad etiladi (2026-09-17)
+
+Maket: `mockups/skan-harf-rad.html`. Ibrohim: **«hamma skanga qo'shish kere,
+POSgayam»**.
+
+Skaner bir xil kodni takror o'qiganda prefiks yuborar ekan (`FAEF1,02`).
+`skParseGram` harfni **ajratgich** deb qabul qilib, `0.10 g` chiqarardi —
+ogohlantirishsiz. Ibrohim tasdiqladi: o'tib ketgan.
+
+⚠ Kod aybdor emas edi: qoida 2026-06-26 dan beri o'zgarmagan (491 commit).
+O'zgargani — skaner.
+
+**`hisob.js`:** `skShovqin(v)` — raqam/nuqta/vergul/probel/+/- dan boshqa
+belgi bo'lsa `true`. Ikkala ilova ham shu faylni yuklaydi.
+⚠ `parseNum` ga TEGILMADI — u pul/kurs/proba maydonlarida ham ishlaydi.
+
+**`index.html`:** `skParseGram` shovqinda 0 qaytaradi — **beshta** skan
+maydoni birdan (6403, 6474, 8015, 12817, 13334). Yangi `skXatoKor` — maydon
+qizaradi, matn qoladi, umumiy panelda yozuv chiqadi.
+
+**`pos.html`:** `posBQoshDona` ham tekshiradi. `parseNum` `1,02FAEF` ni
+`1.02` qilib o'tkazardi — endi rad.
+
+Sinov: 14 holat, ERP+POS birga, 0 xato. POSdagi `1 02 -> 1` eski kod bilan
+solishtirib isbotlandi — tegilmagan.
+
+⚠ Xulq o'zgarishi: `1,02FAEF` (harf oxirida) endi rad etiladi.
+
+⚠ APP_VER va POS_VER **ikkalasi ham** ko'tarildi — o'zgarish ikkala
+faylga tegdi. CLAUDE.md bunda so'rashni aytadi; Ibrohim «yoz» degani uchun
+qilib qo'yildi, kerak bo'lsa raqamlash tuzatiladi.
 
 ---
 
