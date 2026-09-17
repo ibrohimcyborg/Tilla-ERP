@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.24 · POS v0.37 · 2026-09-17
+**Oxirgi yangilanish:** v188.25 · POS v0.37 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,32 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.25 — sof naqt sotuvda skidka chekda ayirilmasdi (2026-09-17)
+
+Maket: `mockups/skidka-naqtdan.html`. Ibrohim: «previewda minus bo'votti,
+amalda bo'mayapti» → **«kassada 4740, faqat chekda ko'rinmagan»**.
+
+Preview `naqt` ni DOM maydonidan oladi (bo'sh → 0 → chek yasovchining
+zaxira formulasi skidkani ayiradi), bosilgani esa `_naqtBerdiSave` dan.
+**Sof naqt** tarmog'i (17426) `kst-s` yig'indisini — skidkasiz summani —
+olardi. Aralash tarmoq to'g'ri edi.
+
+Endi ikkala tarmoq bir xil: `_jamiSummaRegular - _skidka`.
+
+⚠ **Yonida soxta SDACHA ham tuzaldi:** `_ortiqcha` 3.33 chiqardi
+(4,743.33 − 4,740.00). Endi 0. Serig Aka chekida ko'rinmagan, chunki
+sdacha turi tanlanmagan edi.
+
+⚠ **Saqlashga tegilmadi** — `_opNaqt` bu tarmoqda `sNet` dan hisoblanadi,
+kassa avvaldan to'g'ri edi (Ibrohim tekshirdi).
+
+Sinov: tarmoq mantiqi + haqiqiy chek yasovchi —
+`N 4,743.33# → 4,740.00#`.
+
+⚠ `_naqtTolovPulSave` endi o'lik — belgilandi, o'chirilmadi.
 
 ---
 

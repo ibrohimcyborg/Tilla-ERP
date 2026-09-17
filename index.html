@@ -1,4 +1,4 @@
-<!-- v188.24 -->
+<!-- v188.25 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.24';
+var APP_VER = 'v188.25';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -17406,6 +17406,8 @@ function saqlashKlientSotuv() {
   });
 
   // 2. Naqt to'lov (kst inputlar) summasi
+  // ⚠ v188.25: _naqtTolovPulSave endi HECH QAYERDA ishlatilmaydi (skidkasiz
+  // yig'indi edi). O'chirish mumkin, lekin so'ralmagani uchun tegilmadi.
   var _naqtTolovPulSave = 0;
   data.zavodlar.forEach(function(z,zi){ z.turlar.forEach(function(t,ti){
     var s=parseNum((document.getElementById('kst-s-'+zi+'-'+ti)||{}).value)||0;
@@ -17423,7 +17425,17 @@ function saqlashKlientSotuv() {
   var _aralashSv = (_lomPulJamiSave > 0 || _kartaBerdiSave > 0 || _perechBerdiSave > 0);
   var _nbInputSv = parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0;
   var _naqtBerdiSave;
-  if(!_aralashSv)            _naqtBerdiSave = _naqtTolovPulSave;
+  // v188.25 (Ibrohim, chek rasmlari bilan): «chek previewda skidka minus
+  // bo'votti lekin amalda minus bo'mayapti ... 3.33 skidka qiganman».
+  // SOF NAQT sotuvda (lom/karta/perech yo'q) bu tarmoq `kst-s` yig'indisini
+  // - ya'ni SKIDKASIZ summani - olardi. Aralash tarmoq (pastda) esa skidkani
+  // ayiradi. Shuning uchun chekda N 4,743.33 chiqib, kassada 4,740.00 turardi.
+  // Endi ikkala tarmoq BIR XIL formula: lom/karta/perech nol bo'lgani uchun
+  // ular yozilmaydi. _jamiSummaRegular offsetni allaqachon chiqarib tashlagan.
+  // ⚠ Saqlanadigan yozuvga TEGMAYDI - `_opNaqt` bu tarmoqda sNet dan hisoblanadi,
+  //   Ibrohim tasdiqladi: «kassada 4740, faqat chekda ko'rinmagan».
+  // ⚠ Soxta SDACHA ham shu bilan yo'qoladi: _naqtBerildi endi _kerakliNaqt ga teng.
+  if(!_aralashSv)            _naqtBerdiSave = Math.max(0, Math.round((_jamiSummaRegular - _skidka)*100)/100);
   else if(_nbInputSv > 0.005) _naqtBerdiSave = _nbInputSv;
   else _naqtBerdiSave = Math.max(0, Math.round((_jamiSummaRegular - _lomPulJamiSave
         - _kartaBerdiSave - _perechBerdiSave - _skidka)*100)/100);

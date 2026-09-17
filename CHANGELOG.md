@@ -8325,3 +8325,86 @@ Node: 1 script bloki, 0 sintaksis xatosi. Yetti tekshiruv:
 
 `QOLGAN OSTATKA`, hisob-kitob, tenglama, `TO'LOV`, `TO'LOV USULI`, 2-chek
 (unda balans bloklari allaqachon yo'q).
+
+## v188.25 — sof naqt sotuvda skidka chekda ayirilmasdi
+
+**Ibrohim** (preview ekrani + bosilgan chek rasmi bilan): «chek previewda
+skidka minus bo'votti lekin amalda minus bo'mayapti ... 3.33 skidka
+qiganman» → tekshirgandan keyin: **«kassada 4740, faqat chekda ko'rinmagan»**.
+
+Maket: `mockups/skidka-naqtdan.html`.
+
+### Nima bo'lgan
+
+Serig Aka, 17.09.2026 — jami 4,743.33#, skidka 3.33#:
+
+    ekrandagi preview   N  4,740.00#   to'g'ri
+    bosilgan chek       N  4,743.33#   skidka yo'q
+    kassa               4,740.00#      to'g'ri (Ibrohim tekshirdi)
+
+Ikkalasi bitta chek yasovchidan chiqadi, lekin `naqt` ga **ikki xil manbadan**
+qiymat beriladi:
+
+    preview  (17249)  naqt = "ks-naqt-berildi" maydoni  -> bo'sh -> 0
+    bosilgan (17577)  naqt = _naqtBerdiSave            -> 4,743.33
+
+Preview `0` uzatgani uchun chek yasovchining **o'z zaxira formulasi** ishlaydi
+(u skidkani ayiradi). Bosilganda tayyor raqam kelgani uchun zaxira ishlamaydi.
+
+### Ildizi — 17426
+
+    var _aralashSv = (lom > 0 || karta > 0 || perech > 0);
+
+    if(!_aralashSv)  _naqtBerdiSave = _naqtTolovPulSave;   <- SKIDKA YO'Q
+    else if(...)     _naqtBerdiSave = maydon qiymati;
+    else             _naqtBerdiSave = jami - lom - karta - perech - skidka;
+
+**Sof naqt** sotuvda birinchi tarmoq ishlaydi va `kst-s` yig'indisini —
+ya'ni **skidkasiz** summani — olardi. Aralash tarmoq (uchinchisi) to'g'ri
+edi. Shuning uchun xato faqat **sof naqt + skidka** holatida chiqardi.
+
+### Qilindi
+
+    if(!_aralashSv)
+      _naqtBerdiSave = Math.max(0, Math.round((_jamiSummaRegular - _skidka)*100)/100);
+
+Uchinchi tarmoq bilan **bir xil formula** — lom/karta/perech nol bo'lgani
+uchun ular yozilmaydi. `_jamiSummaRegular` offsetni allaqachon chiqarib
+tashlagan.
+
+### Yonida tuzalgan — soxta SDACHA
+
+`_ortiqcha = _naqtBerildi - _kerakliNaqt` edi:
+
+    eski   4,743.33 - 4,740.00 = 3.33   <- soxta sdacha
+    yangi  4,740.00 - 4,740.00 = 0
+
+Serig Aka chekida SDACHA chiqmagan, chunki sdacha turi tanlanmagan edi
+(v160 sharti). Tanlangan bo'lsa chekda soxta 3.33 chiqardi.
+
+### Saqlashga tegilmadi
+
+`_opNaqt` bu tarmoqda `_naqtBerdiSave` ni **umuman ishlatmaydi** —
+`sNet` (skidka ayirilgan) dan hisoblanadi. Ibrohim tasdiqladi: kassada 4,740.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Tarmoq mantiqi Serig Aka raqamlari bilan:
+
+    eski  _naqtBerdiSave 4,743.33  -> SDACHA 3.33
+    yangi _naqtBerdiSave 4,740.00  -> SDACHA 0
+    kerakli naqt         4,740.00
+    kassa                4,740.00  (o'zgarmadi)
+
+Haqiqiy chek yasovchi ishga tushirildi:
+
+    eski   TO'LOV USULI  N 4,743.33#   JAMI 4,743.33#
+    yangi  TO'LOV USULI  N 4,740.00#   JAMI 4,740.00#
+
+### Tegilmadi
+
+Aralash sotuv tarmog'i, saqlanadigan yozuvlar, kassa, to'lov modali.
+
+⚠ `_naqtTolovPulSave` endi hech qayerda ishlatilmaydi — belgilab qo'yildi,
+**o'chirilmadi** (so'ralmagan).

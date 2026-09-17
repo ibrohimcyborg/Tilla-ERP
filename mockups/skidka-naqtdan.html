@@ -1,0 +1,179 @@
+<title>Skidka Naqtdan Ayirilmayapti</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--bad);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+mark{background:var(--bad-bg);color:var(--bad);border-radius:3px;padding:0 3px;font-weight:700}
+mark.g{background:var(--good-bg);color:var(--good)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+td.e{color:var(--bad);font-weight:700}
+td.y{color:var(--good);font-weight:700}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Sotuv &middot; pul xatosi</div>
+  <h1>Sof naqt sotuvda skidka ayirilmayapti</h1>
+  <p>Chekda <code>N 4,743.33#</code> chiqyapti, <code>4,740.00#</code> bo&rsquo;lishi kerak.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;chek previewda skidka minus bo&rsquo;lyapti, lekin amalda
+  minus bo&rsquo;mayapti, kassada ham minus bo&rsquo;mayapti &mdash; 3.33 skidka qilganman&raquo;</div>
+  <div class="box">
+    <table>
+      <tr><th></th><th>TO&rsquo;LOV USULI &mdash; N</th></tr>
+      <tr><td>Ekrandagi preview</td><td class="n y">4,740.00#  &nbsp;to&rsquo;g&rsquo;ri</td></tr>
+      <tr><td>Bosilgan chek</td><td class="n e">4,743.33#  &nbsp;skidka yo&rsquo;q</td></tr>
+      <tr><td>Farq</td><td class="n">3.33# &mdash; aynan skidka</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Nega preview bilan bosilgani farq qiladi</h2>
+  <div class="box bad">
+    <p>Ikkalasi bitta chek yasovchidan chiqadi, lekin <code>naqt</code> ga
+    <b>ikki xil manbadan</b> qiymat beriladi:</p>
+    <div class="mm">preview  (17249)  naqt = "ks-naqt-berildi" maydoni  ->  bo'sh -> 0
+bosilgan (17577)  naqt = _naqtBerdiSave            ->  4,743.33</div>
+    <p style="margin-top:10px">Preview <b>0</b> uzatgani uchun chek yasovchining
+    o&rsquo;z zaxira formulasi ishlaydi &mdash; u skidkani <b>ayiradi</b> va
+    <code>4,740.00</code> chiqadi. Bosilganda esa tayyor raqam kelgani uchun
+    zaxira ishlamaydi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Ildizi</h2>
+  <div class="box bad">
+    <div class="mm">index.html:17426
+
+  var _aralashSv = (lom &gt; 0 || karta &gt; 0 || perech &gt; 0);
+
+  if(!_aralashSv)  _naqtBerdiSave = _naqtTolovPulSave;   <- SKIDKA YO'Q
+  else if(...)     _naqtBerdiSave = maydon qiymati;
+  else             _naqtBerdiSave = jami - lom - karta - perech - skidka;
+                                                              ^^^^^^ bu yerda BOR</div>
+    <p style="margin-top:10px"><b>Sof naqt</b> sotuvda (lom yo&rsquo;q, karta yo&rsquo;q,
+    perech yo&rsquo;q) birinchi tarmoq ishlaydi va u <code>kst-s</code> yig&rsquo;indisini
+    &mdash; ya&rsquo;ni <b>skidkasiz</b> summani oladi.</p>
+    <p class="hint">Aralash sotuvda (lom yoki karta bo&rsquo;lsa) uchinchi tarmoq
+    ishlaydi va u to&rsquo;g&rsquo;ri. Shuning uchun bu xato faqat <b>sof naqt + skidka</b>
+    holatida chiqadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Ta&rsquo;siri &mdash; uchta joy</h2>
+  <div class="box">
+    <table>
+      <tr><th>Qayerda</th><th>Holat</th></tr>
+      <tr><td>Bosilgan chek <code>N</code></td>
+          <td class="e">XATO &mdash; 4,743.33 o&rsquo;rniga. Isbotlangan.</td></tr>
+      <tr><td>Soxta SDACHA</td>
+          <td class="e">XAVF &mdash; <code>_ortiqcha</code> 3.33 chiqadi
+          (4,743.33 &minus; 4,740.00). Sening chekingda SDACHA yo&rsquo;q, chunki
+          sdacha turi tanlanmagan. Tanlangan bo&rsquo;lsa chekda soxta 3.33 chiqardi.</td></tr>
+      <tr><td>Saqlangan yozuv / kassa</td>
+          <td class="y">Kodda TO&rsquo;G&rsquo;RI ko&rsquo;rinadi &mdash; <code>naqtPul</code>
+          alohida yo&rsquo;ldan, <code>sNet</code> (skidka ayirilgan) dan hisoblanadi.</td></tr>
+    </table>
+  </div>
+  <div class="box gold">
+    <p><b>Sendan iltimos:</b> o&rsquo;sha sotuvni kassada ochib ko&rsquo;r &mdash;
+    <code>4,740.00</code> mi yoki <code>4,743.33</code>?</p>
+    <p class="hint">Men kodda kassa to&rsquo;g&rsquo;ri hisoblashi kerakligini ko&rsquo;ryapman,
+    lekin sening ma&rsquo;lumotingni ko&rsquo;ra olmayman. Agar kassada ham 4,743.33
+    bo&rsquo;lsa &mdash; ikkinchi sabab bor, uni alohida qidiraman.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Tuzatish</h2>
+  <div class="box good">
+    <div class="mm">if(!_aralashSv)
+  _naqtBerdiSave = Math.max(0, _jamiSummaRegular - _skidka);</div>
+    <p style="margin-top:10px">Ya&rsquo;ni uchinchi tarmoq bilan <b>bir xil formula</b> &mdash;
+    lom, karta, perech nol bo&rsquo;lgani uchun ular yozilmaydi.
+    <code>_jamiSummaRegular</code> offsetni allaqachon chiqarib tashlagan.</p>
+    <div class="mm">4,743.33 - 3.33 = 4,740.00#</div>
+    <p style="margin-top:10px">Shu bilan <b>soxta SDACHA ham yo&rsquo;qoladi</b>:
+    4,740.00 &minus; 4,740.00 = 0.</p>
+    <p class="hint">Saqlanadigan yozuvlarga tegmaydi &mdash; <code>_opNaqt</code>
+    bu tarmoqda <code>_naqtBerdiSave</code> ni umuman ishlatmaydi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Hajmi</h2>
+  <div class="box">
+    <p>Bitta qator. <b>~3 qator</b> (izoh bilan).</p>
+    <p class="hint">Tegilmaydi: aralash sotuv, saqlash, kassa, to&rsquo;lov modali.</p>
+  </div>
+</section>
+
+<section>
+  <h2></h2>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang kodga tushiraman.</p>
+  </div>
+</section>
+
+</div>
