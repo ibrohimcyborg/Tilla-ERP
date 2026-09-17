@@ -8045,3 +8045,93 @@ Hech bir qator 48 dan uzun emas.
 
 Hisob-kitob, offset miqdori, `JAMI` formulasi, boshqa to'lov usullari
 (`N` / `K` / `P` / `L`), balans bloklari.
+
+## v188.21 — to'lov o'chirilganda vozvrat ham ketardi (MA'LUMOT YO'QOLISHI)
+
+**Ibrohim:** «klientga kirib hisobotidan to'lovni o'chirsam vozvrati ham
+qo'shilib o'chib ketyapti» → maketda ikki tuzatish → **«a + b qil»**.
+
+Maket: `mockups/tolov-ochirsa-vozvrat.html`.
+
+### Sabab
+
+Hisobotdagi ✏ tugmasi `klientGunTahrir(ki, sana, soat)` ni chaqiradi, u
+o'sha **sana + soat** dagi hamma yozuvni guruhga oladi (11640):
+
+    if(op.sana !== sana) return;
+    if(soatFiltr && (op.soat||'') !== String(soat)) return;
+
+**To'lov modali vozvratni `soat` siz yozardi.** Soatsiz yozuvning kaliti
+bo'sh satr `''` bo'lib qoladi va o'sha kundagi **hamma soatsiz yozuv bitta
+guruhga yopishadi** — to'lov o'chirilsa vozvrat ham ketardi.
+
+⚠ Bu **v180.7 ning davomi**. O'shanda guruh faqat SANA bo'yicha edi,
+tuzatish `soat` ni qo'shdi. Lekin soati **bo'sh** yozuvlar uchun filtr
+hech nimani ajratmaydi.
+
+Tekshirildi — soatsiz yozadigan **uchta** joy bor edi, uchalasi ham
+`saqlashKlientTolov` ichida:
+
+| qator | yozuv |
+|---|---|
+| 14815 | vozvrat — qarz qatoridagi katak (`kt-v-`) |
+| 14891 | vozvrat — «istalgan tur» katagi (`kt-vz-`) |
+| 14904 | to'lov — klientda-yopish (`_kdVoz`) |
+
+Qolgan hamma yo'l (qo'lda vozvrat 13577, POS 15425, sotuv modali 17462,
+asosiy to'lov 14811) allaqachon `soat` yozardi.
+
+### A — ildizi
+
+Uchala yozuvga `soat:_soat_kt` qo'shildi (`_soat_kt` 14674 da, o'sha
+funksiya ichida allaqachon hisoblangan). Bundan keyingi yozuvlar to'g'ri
+ajraladi.
+
+### B — himoya (eski yozuvlar uchun)
+
+`klientGunTahrir(ki, sana, soat, tip)` — guruh endi sessiya **turi** bilan
+ham cheklanadi. Hisobot ro'yxati allaqachon `ki|sana|soat|tip` bo'yicha
+qurilgan edi, faqat tahrir oynasi turni ajratmasdi.
+
+⚠ **Hamrohlar o'z amali bilan BIRGA qoladi** — yetim yozuv qolmasin:
+
+    to'lov  <- lom, klientda           lom va sdacha o'z to'lovisiz qolmasin
+    vozvrat <- _kdVoz belgili tolov    klientda-yopish yozuvi vozvratniki
+
+Shuning uchun oddiy «tur bo'yicha filtr» emas, `_gtMos(op, tip)`:
+
+    if(tip==='vozvrat') return op.tip==='vozvrat' || kdv;
+    if(tip==='tolov')   return (op.tip==='tolov' && !kdv)
+                            || op.tip==='lom' || op.tip==='klientda';
+    return op.tip===tip;
+
+⚠ `tip` berilmasa (eski chaqiruv) xulq **o'zgarmaydi**.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+`_gtMos` fayldan olinib, yetti holatda:
+
+    ESKI soatsiz ma'lumot (B himoyasi)
+      soatsiz TOLOV sessiyasi      vozvrat KIRMAYDI
+      soatsiz VOZVRAT sessiyasi    vozvrat + o'z kdVoz tolovi
+      soatli TOLOV sessiyasi       tolov + lom
+    YANGI ma'lumot - hammasi bir xil soatda (A dan keyin)
+      TOLOV                        tolov + lom + klientda
+                                   vozvrat / berish / kdVoz YO'Q
+      VOZVRAT                      vozvrat + kdVoz tolov
+      BERISH                       faqat berish
+    tip berilmasa                  hammasi - avvalgidek
+
+Grep bilan tekshirildi: klient tarixiga yoziladigan **hech bir joyda**
+`soat` siz vozvrat/tolov qolmadi.
+
+### Tegilmadi
+
+Hisob-kitob, chek, saqlash mantiqi, bazadagi eski yozuvlar.
+
+⚠ **Eski yozuvlarga bazada TEGILMADI.** B ularni tegmasdan himoya qiladi.
+Bir martalik «eski soatsiz vozvratlarga soat yozish» tuzatishi taklif
+qilinmadi — bazaga tegadi, xato bo'lsa qaytarish qiyin.
+
+⚠ Bugungacha **allaqachon o'chib ketgan** vozvratlar tiklanmaydi.

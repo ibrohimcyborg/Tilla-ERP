@@ -1,0 +1,174 @@
+<title>To'lov O'chirsa Vozvrat Ketyapti</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--bad);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.mm{font-family:var(--mono);font-size:11.5px;line-height:1.7;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+mark{background:var(--bad-bg);color:var(--bad);border-radius:3px;padding:0 3px;font-weight:700}
+mark.y{background:var(--good-bg);color:var(--good)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{padding:7px 9px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.no{color:var(--bad);font-weight:700}
+td.ha{color:var(--good);font-weight:700}
+td.q{font-family:var(--mono);font-size:12px;white-space:nowrap;color:var(--ink3)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Xato &middot; ma&rsquo;lumot o&rsquo;chishi</div>
+  <h1>To&rsquo;lovni o&rsquo;chirsa vozvrat ham ketadi</h1>
+  <p>Sabab topildi: uchta yozuvda <code>soat</code> yo&rsquo;q.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;klientga kirib hisobotidan to&rsquo;lovni o&rsquo;chirsam
+  vozvrati ham qo&rsquo;shilib o&rsquo;chib ketyapti&raquo;</div>
+</section>
+
+<section>
+  <h2>Nima bo&rsquo;lyapti</h2>
+  <div class="box bad">
+    <p>Hisobotdagi <b>✏</b> tugmasi o&rsquo;sha <b>sana + soat</b> dagi hamma
+    yozuvni bitta guruhga oladi. O&rsquo;chirish ham shu guruhni o&rsquo;chiradi.</p>
+    <div class="mm">klientGunTahrir(ki, sana, soat)          index.html:11640
+  if(op.sana !== sana) return;
+  if(soatFiltr && (op.soat||'') !== String(soat)) return;
+  gunOps.push(...)</div>
+    <p style="margin-top:10px"><b>To&rsquo;lov modalida saqlangan vozvratda
+    <code>soat</code> YO&rsquo;Q.</b> Shuning uchun uning &laquo;soati&raquo;
+    bo&rsquo;sh satr <code>''</code> bo&rsquo;lib qoladi &mdash; va o&rsquo;sha kundagi
+    <b>hamma soatsiz yozuv bitta guruhga yopishadi</b>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qaysi yozuvlarda soat yo&rsquo;q</h2>
+  <div class="box">
+    <table>
+      <tr><th>Qator</th><th>Yozuv</th><th>soat</th></tr>
+      <tr><td class="q">14815</td><td>vozvrat &mdash; qarz qatoridagi katak (<code>kt-v-</code>)</td><td class="no">YO&rsquo;Q</td></tr>
+      <tr><td class="q">14891</td><td>vozvrat &mdash; &laquo;istalgan tur&raquo; katagi (<code>kt-vz-</code>)</td><td class="no">YO&rsquo;Q</td></tr>
+      <tr><td class="q">14904</td><td>to&rsquo;lov &mdash; klientda-yopish (<code>_kdVoz</code>)</td><td class="no">YO&rsquo;Q</td></tr>
+      <tr><td class="q">13577</td><td>vozvrat &mdash; qo&rsquo;lda vozvrat ekrani</td><td class="ha">bor</td></tr>
+      <tr><td class="q">15425</td><td>vozvrat &mdash; POS</td><td class="ha">bor</td></tr>
+      <tr><td class="q">17462</td><td>vozvrat &mdash; sotuv modali</td><td class="ha">bor</td></tr>
+      <tr><td class="q">14811</td><td>to&rsquo;lov &mdash; asosiy to&rsquo;lov</td><td class="ha">bor</td></tr>
+    </table>
+    <p class="hint">Ya&rsquo;ni faqat <b>to&rsquo;lov modali</b> soatsiz yozadi. Qolgan
+    hamma yo&rsquo;l to&rsquo;g&rsquo;ri.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Nega ilgari tuzatilgan edi</h2>
+  <div class="box gold">
+    <p>Sen buni <b>v180.7</b> da aytgan eding: &laquo;berishni tahrirlasa yoki
+    o&rsquo;chirsa faqat berish o&rsquo;chsin &mdash; hozir hammasi o&rsquo;chadi,
+    vozvratga qo&rsquo;shib&raquo;.</p>
+    <p>O&rsquo;shanda guruh <b>faqat sana</b> bo&rsquo;yicha yig&rsquo;ilardi, tuzatish
+    <code>soat</code> ni qo&rsquo;shdi. Lekin soati <b>bo&rsquo;sh</b> yozuvlar uchun
+    filtr hech nimani ajratmaydi &mdash; hammasi baribir bitta guruh.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Ikki tuzatish</h2>
+  <div class="box good">
+    <p><b>A &mdash; ildizi.</b> O&rsquo;sha uchta yozuvga <code>soat</code>
+    qo&rsquo;shiladi (<code>_soat_kt</code> allaqachon hisoblangan, yonida turibdi).
+    <b>~3 qator.</b></p>
+    <p class="hint">Bundan keyingi hamma yozuv to&rsquo;g&rsquo;ri ajraladi. Lekin
+    <b>bugungacha saqlangan</b> soatsiz yozuvlar baribir bir guruhda qoladi.</p>
+  </div>
+  <div class="box good">
+    <p><b>B &mdash; himoya.</b> <code>klientGunTahrir</code> guruhga faqat
+    <b>o&rsquo;sha turdagi</b> yozuvni oladi (to&rsquo;lov bosilsa &mdash; faqat to&rsquo;lov,
+    vozvrat bosilsa &mdash; faqat vozvrat). <b>~6 qator.</b></p>
+    <p class="hint">Bu <b>eski yozuvlarni ham</b> himoya qiladi. Hisobotdagi
+    ro&rsquo;yxat allaqachon tur bo&rsquo;yicha ajratilgan &mdash;
+    <code>ki|sana|soat|tip</code> &mdash; faqat tahrir oynasi ajratmasdi.</p>
+  </div>
+  <div class="box gold">
+    <p><b>Ikkalasini ham qilishni taklif qilaman.</b> <b>A</b> yolg&rsquo;iz
+    bo&rsquo;lsa, bugungacha to&rsquo;lov modalida qilingan <b>hamma vozvrat</b> xavf
+    ostida qoladi.</p>
+    <p class="hint">⚠ <b>B</b> xulqni o&rsquo;zgartiradi: bir vaqtda saqlangan
+    berish + to&rsquo;lov endi alohida o&rsquo;chadi. Sen v180.7 da aynan shuni
+    so&rsquo;ragan eding, lekin baribir aytib qo&rsquo;yay.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Eski yozuvlar</h2>
+  <div class="box">
+    <p>Uchinchi yo&rsquo;l ham bor &mdash; <b>bir martalik tuzatish</b>: eski soatsiz
+    vozvratlarga o&rsquo;sha kundagi to&rsquo;lovning soatini yozib chiqish.</p>
+    <p class="hint">Buni <b>taklif qilmayapman</b> &mdash; bazaga tegadi, xato
+    bo&rsquo;lsa orqaga qaytarish qiyin. <b>B</b> eski yozuvlarni tegmasdan
+    himoya qiladi. Kerak bo&rsquo;lsa ayt.</p>
+  </div>
+</section>
+
+<section>
+  <h2></h2>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> &laquo;A+B qil&raquo; desang kodga tushiraman.</p>
+    <p class="hint">Tegilmaydi: hisob-kitob, chek, saqlash mantiqi.
+    Faqat <code>soat</code> maydoni va tahrir guruhining filtri.</p>
+  </div>
+</section>
+
+</div>

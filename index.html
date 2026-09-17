@@ -1,4 +1,4 @@
-<!-- v188.20 -->
+<!-- v188.21 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.20';
+var APP_VER = 'v188.21';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11569,7 +11569,7 @@ function renderKlientHisobot() {
       html+='<div style="font-family:Roboto,sans-serif;font-size:14px;font-weight:600;color:'+color+';">'+(tip==='berish'?(isNegBerish?'+':'−'):'+')+fmtG(Math.abs(jamiG))+'g</div>';
       if(tip==='tolov'&&jamiS>0) html+='<div style="font-size:11px;color:var(--muted);">$'+fmtD(jamiS)+'</div>';
       html+='</div>';
-      html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" data-soat="'+(sess.soat||'')+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana,this.dataset.soat)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
+      html+='<button data-ki="'+sess.ki+'" data-sana="'+sana+'" data-soat="'+(sess.soat||'')+'" data-tip="'+(sess.tip||'')+'" onclick="klientGunTahrir(parseInt(this.dataset.ki),this.dataset.sana,this.dataset.soat,this.dataset.tip)" style="background:var(--surf2);border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;">✏</button>';
       html+='</div></div>';
 
       if(sess.ops.length>1){
@@ -11637,7 +11637,21 @@ function _shaklMi(ops){
   if(!ops || !ops.length) return false;
   return ops.every(function(x){ var o=(x && x.op)?x.op:x; return o && o.inventar==='boshlangich'; });
 }
-function klientGunTahrir(ki, sana, soat) {
+// v188.21-B (Ibrohim): «to'lovni o'chirsam vozvrati ham qo'shilib o'chib
+// ketyapti». A tuzatishi YANGI yozuvlarni ajratadi, bu esa ESKI soatsiz
+// yozuvlarni ham himoya qiladi: guruh endi sessiya TURI bilan cheklanadi.
+//
+// Hamrohlar o'z amali bilan BIRGA qoladi - yetim yozuv qolmasin:
+//   to'lov  <- lom, klientda           (lom va sdacha o'z to'lovisiz qolmasin)
+//   vozvrat <- _kdVoz belgili tolov    (klientda-yopish yozuvi vozvratniki)
+function _gtMos(op, tip){
+  if(!tip) return true;                                  // eski chaqiruv - avvalgidek
+  var kdv = (op.tip==='tolov' && !!op._kdVoz);
+  if(tip==='vozvrat') return op.tip==='vozvrat' || kdv;
+  if(tip==='tolov')   return (op.tip==='tolov' && !kdv) || op.tip==='lom' || op.tip==='klientda';
+  return op.tip===tip;
+}
+function klientGunTahrir(ki, sana, soat, tip) {
   var k = data.klientlar[ki];
   var gunOps = [];
   // v180.7 (Ibrohim): «berishni tahrirlasa yoki o'chirsa FAQAT berish o'chsin —
@@ -11652,6 +11666,7 @@ function klientGunTahrir(ki, sana, soat) {
   k.tarix.forEach(function(op, oi){
     if(op.sana !== sana) return;
     if(soatFiltr && (op.soat||'') !== String(soat)) return;
+    if(!_gtMos(op, tip)) return;   // v188.21-B
     gunOps.push({op:op, oi:oi});
   });
   if(!gunOps.length) return;
@@ -14812,7 +14827,10 @@ function saqlashKlientTolov(){
       }
       any=true;
     }
-    if(v>=0.005&&zi>=0&&ti>=0&&b.zavod&&b.tur){k.tarix.push({tip:'vozvrat',sana:sana,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
+    // v188.21-A: soat QO'SHILDI. Soatsiz yozuv «sessiya» kalitida bo'sh satr
+    // bo'lib qolardi va o'sha kundagi hamma soatsiz yozuv bitta guruhga
+    // yopishardi - to'lov o'chirilsa vozvrat ham ketardi (11640 filtri).
+    if(v>=0.005&&zi>=0&&ti>=0&&b.zavod&&b.tur){k.tarix.push({tip:'vozvrat',sana:sana,soat:_soat_kt,zavod:b.zavod,tur:b.tur,gramm:v});data.zavodlar[zi].turlar[ti].ostatka=Math.round((data.zavodlar[zi].turlar[ti].ostatka+v)*100)/100;any=true;}
     if(s>0||v>0){
       ops_grouped.push({zavod:b.zavod,tur:b.tur,avvalgi_qarz:b.qarz,tolov_g:eq,vozvrat_g:v,tolov_summa:sNet,tolov_kurs:kurs});
     }
@@ -14888,7 +14906,7 @@ function saqlashKlientTolov(){
     vitems.forEach(function(it){
       var _t2=data.zavodlar[it.zi].turlar[it.ti];
       var _dv2=uniSkanDona('kt-vz-'+it.zi+'-'+it.ti);
-      var _vop2={tip:'vozvrat',sana:sana,zavod:it.zavod,tur:it.tur,gramm:it.g};
+      var _vop2={tip:'vozvrat',sana:sana,soat:_soat_kt,zavod:it.zavod,tur:it.tur,gramm:it.g};   // v188.21-A: soat
       if(_dv2>0){ _vop2.dona=_dv2; _t2.donaOst=turDona(_t2)+_dv2; donaRegQosh(_t2, uniSkanArr('kt-vz-'+it.zi+'-'+it.ti)); }
       k.tarix.push(_vop2);
       _t2.ostatka=Math.round((_t2.ostatka+it.g)*100)/100;
@@ -14901,7 +14919,7 @@ function saqlashKlientTolov(){
       _kdG=Math.round(_kdG*100)/100;
       if(_kdG>0.001){
         var _vk=Math.min(it.g,_kdG);
-        k.tarix.push({tip:'tolov',sana:sana,zavod:it.zavod,tur:it.tur,summa:0,kurs:0,ekvivalent:_vk,kirimNarx:0,_kdVoz:true});
+        k.tarix.push({tip:'tolov',sana:sana,soat:_soat_kt,zavod:it.zavod,tur:it.tur,summa:0,kurs:0,ekvivalent:_vk,kirimNarx:0,_kdVoz:true});   // v188.21-A: soat
       }
     });
   })();

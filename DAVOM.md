@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.20 · POS v0.36 · 2026-09-17
+**Oxirgi yangilanish:** v188.21 · POS v0.36 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,38 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.21 — to'lov o'chirilganda vozvrat ham ketardi (2026-09-17)
+
+**Ibrohim:** «hisobotdan to'lovni o'chirsam vozvrati ham qo'shilib o'chib
+ketyapti» → **«a + b qil»**. Maket: `mockups/tolov-ochirsa-vozvrat.html`.
+
+**Sabab:** tahrir guruhi `sana + soat` bo'yicha yig'iladi (11640), lekin
+**to'lov modali vozvratni `soat` siz yozardi** — soatsiz yozuvlar kaliti
+bo'sh satr bo'lib, o'sha kundagi hammasi bitta guruhga yopishardi.
+
+⚠ **v180.7 ning davomi:** o'shanda sana → sana+soat qilingan, lekin
+soati bo'sh yozuv uchun filtr hech nimani ajratmaydi.
+
+**A:** uchta yozuvga `soat:_soat_kt` qo'shildi — 14815 (`kt-v-` vozvrat),
+14891 (`kt-vz-` vozvrat), 14904 (`_kdVoz` tolov). Boshqa hamma yo'l
+(13577, 15425, 17462, 14811) allaqachon soat yozardi.
+
+**B:** `klientGunTahrir(ki, sana, soat, tip)` + `_gtMos(op, tip)` — guruh
+sessiya turi bilan cheklanadi, **eski soatsiz yozuvlarni ham himoya qiladi**.
+
+⚠ Hamrohlar birga qoladi (yetim yozuv qolmasin):
+`to'lov <- lom, klientda`, `vozvrat <- _kdVoz tolov`.
+Shuning uchun oddiy tur-filtri emas.
+
+⚠ `tip` berilmasa xulq o'zgarmaydi.
+
+⚠ **Bazadagi eski yozuvlarga TEGILMADI** — B ularni tegmasdan himoya
+qiladi. Allaqachon o'chib ketganlar tiklanmaydi.
+
+Sinov: 7 holat (`_gtMos` fayldan olinib), 0 xato.
 
 ---
 
