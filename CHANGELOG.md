@@ -7928,3 +7928,72 @@ POS qabul cheki (`_posChChekMatn` — to'lovga o'tilmagan tarmoq).
 ⚠ `ostatkalar`, `turlar`, `_ktSdNaqt` bloklari endi chekka uzatilmaydi —
 o'lik kod bo'lib qoldi. Belgilab qo'yildi, lekin **o'chirilmadi**:
 Ibrohim so'ramagan.
+
+## v188.19 — balans bloklarida hisobning o'zi ko'rinadi
+
+**Ibrohim:** «vozvrat bo'sa grammi qoganini ko'rsatvottiyu, shuni **amalda**
+qilib ko'rsatsel bo'larkan» + o'z misoli: `10-5 = 5g`, `5+6 = 11g`,
+`11-8 = 3g` → maketda ikki variant → **«B qivor»**.
+
+Maket: `mockups/chek-hisob-korinsin.html`.
+
+### Qilindi
+
+Balans blokida (`QOLDI`, `QOLGAN OSTATKA`) **o'zgargan** tur qatorida
+qoldiq o'rniga tenglama yoziladi:
+
+    QOLDI
+     Butterfly Oddiy              10.00-5.00 = 5.00g
+    QOLDI
+     Butterfly Oddiy              5.00+6.00 = 11.00g
+    QOLGAN OSTATKA
+     Butterfly Oddiy              11.00-8.00 = 3.00g
+
+⚠ `OSTATKA` da tenglama **yo'q** — u boshlang'ich holat, hali hech nima
+bo'lmagan. `JAMI` ham oddiy raqam. **Tegilmagan tur** ham oddiy raqam.
+
+### B varianti — belgi ag'darilganda
+
+Ibrohim tanladi. Ostatkasi 5g, 12g qaytardi:
+
+    A rad etildi:   5.00-12.00 = +7.00g    javobi -7, klient xato deb o'ylaydi
+    B tanlandi:    12.00-5.00 = +7.00g    qaytargani minus qarzi
+
+`hisobG(o, y)` to'rt holatni qamraydi:
+
+| oldingi | yangi | yozuv |
+|---|---|---|
+| ikkalasi klient qarzi | | `o ± dz = y` |
+| ikkalasi BIZ qarzdor | | `|o| ± dz = +|y|` |
+| qarzdan **plusga** | | `dz - o = +|y|` |
+| plusdan **qarzga** | | `dz - |o| = y` |
+
+### ⚠ Sinovda o'z xatom topildi
+
+Birinchi urinishda `QOLGAN OSTATKA` surati **doim to'lovdan oldin**
+olinardi. To'lov bo'lmagan chekda (faqat vozvrat + berildi) surat
+berildidan **keyin** olinib, tenglama umuman chiqmasdi — o'z maketimga
+mos kelmadi.
+
+Tuzatildi: bitta `oldBal` o'zgaruvchi har **haqiqiy** amaldan oldin
+yangilanadi, to'lov surati esa `if(tolBor)` sharti bilan. Shunda
+`QOLGAN OSTATKA` oxirgi bo'lgan amalning tenglamasini ko'rsatadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. Yetti holat:
+
+    1 Ibrohim misoli          10.00-5.00=5.00 / 5.00+6.00=11.00 / 11.00-8.00=3.00
+    2 tegilmagan tur          oddiy raqam; QOLGAN OSTATKA da 4.00+6.00=10.00
+    3 B: qarzdan plusga       12.00-5.00 = +7.00g
+    4 plus yana o'sdi         7.00+3.00 = +10.00g
+    5 plusdan qarzga          10.00-7.00 = 3.00g
+    6 SOTUV cheki             aynan o'sha tenglamalar
+    7 2-chek                  tenglama YO'Q (balans bloklari umuman yo'q)
+
+0 ta ogohlantirish: 48 dan uzun qator yo'q, previewda boshqaruv bayti yo'q.
+
+### Tegilmadi
+
+`TO'LOV` bloki (Ibrohim misolida `= 697.6#` deb yozilgandi, lekin u kecha
+tasdiqlangan shaklda qoldi — so'ralmadi), hisob-kitob, saqlash, baza.

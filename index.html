@@ -1,4 +1,4 @@
-<!-- v188.18 -->
+<!-- v188.19 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.18';
+var APP_VER = 'v188.19';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10825,6 +10825,27 @@ function kTolovChekGen(d, qisqa, bosiladi){
   // Ibrohim: «-10.00 mas, +10.00 bo'sa klientga mana +dasiz dib tushuntiramiz»
   function balG(v){ v=Math.round(v*100)/100; return v<-0.001 ? '+'+fmtG(-v)+'g' : fmtG(v)+'g'; }
   function nomi(k){ return k.split('||').join(' '); }
+  // v188.19 (Ibrohim): «vozvrat bo'sa grammi qoganini ko'rsatvottiyu, shuni
+  // AMALDA qilib ko'rsatsel bo'larkan» - «10-5 = 5g», «5+6 = 11g», «11-8 = 3g».
+  // Balans blokidagi O'ZGARGAN tur qatorida tenglama yoziladi.
+  // OSTATKA da yo'q (boshlang'ich holat), JAMI da ham yo'q.
+  //
+  // Belgi AG'DARILSA tenglama klient tomonidan yoziladi - Ibrohim «B» ni
+  // tanladi: ostatkasi 5g, 12g qaytardi -> «12.00-5.00 = +7.00g».
+  // «A» varianti («5.00-12.00 = +7.00g») rad etildi: javobi -7 bo'lgani uchun
+  // klient chekni xato deb o'ylardi.
+  function nusxa(m){ var o={}; Object.keys(m).forEach(function(k){ o[k]=m[k]; }); return o; }
+  function hisobG(o, y){
+    o=Math.round(o*100)/100; y=Math.round(y*100)/100;
+    var dz=Math.round(Math.abs(y-o)*100)/100;
+    if(dz<=0.001) return balG(y);                 // tegilmagan tur - oddiy raqam
+    var oM=Math.abs(o), yM=Math.abs(y);
+    if(o>=-0.001 && y>=-0.001)                    // ikkalasi ham klient qarzi
+      return fmtG(oM)+(y>o?'+':'-')+fmtG(dz)+' = '+balG(y);
+    if(o<-0.001 && y<-0.001)                      // ikkalasi ham BIZ qarzdor
+      return fmtG(oM)+(yM>oM?'+':'-')+fmtG(dz)+' = '+balG(y);
+    return fmtG(dz)+'-'+fmtG(oM)+' = '+balG(y);   // belgi ag'dardi (B varianti)
+  }
 
   var t=ctr(String(d.nom||''))+'\n'+ctr(String(d.sana||''))+'\n'+LINE;
 
@@ -10837,12 +10858,12 @@ function kTolovChekGen(d, qisqa, bosiladi){
   (d.tolov||[]).forEach(function(r){ qosh(r.zavod+'||'+r.tur); });
   (d.offsetlar||[]).forEach(function(x){ if(x.zavod&&x.tur) qosh(x.zavod+'||'+x.tur); });
 
-  function balBlok(nom){
+  function balBlok(nom, old){
     var q='', j=0, bor=false;
     tartib.forEach(function(k){
       var v=Math.round(bal[k]*100)/100;
       if(Math.abs(v)<=0.001) return;          // qolmagan tur yozilmaydi
-      q+=rj(' '+nomi(k), balG(v))+'\n';
+      q+=rj(' '+nomi(k), old ? hisobG(old[k]||0, v) : balG(v))+'\n';
       j=Math.round((j+v)*100)/100; bor=true;
     });
     if(!bor) return '';                       // bo'sh blok umuman chiqmaydi
@@ -10875,20 +10896,23 @@ function kTolovChekGen(d, qisqa, bosiladi){
   var amalBor=jamiVoz>0.001 || berBor || tolBor;
 
   // ─── 1) OSTATKA
+  var oldBal=null;   // v188.19: oxirgi HAQIQIY amaldan oldingi balans
   if(!qisqa) t+=balBlok('OSTATKA');
 
   // ─── 2) VOZVRAT
   if(jamiVoz>0.001){
     t+=amalBlok('VOZVRAT', voz, jamiVoz);
+    oldBal=nusxa(bal);
     Object.keys(voz).forEach(function(k){ if(voz[k]>0.001) bal[k]=Math.round((bal[k]-voz[k])*100)/100; });
-    if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI');
+    if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI', oldBal);
   }
 
   // ─── 3) BERILDI (POSsiz to'lovda bo'sh - blok chiqmaydi)
   if(berBor){
     t+=amalBlok('BERILDI', ber, jamiBer);
+    oldBal=nusxa(bal);
     Object.keys(ber).forEach(function(k){ if(ber[k]>0.001) bal[k]=Math.round((bal[k]+ber[k])*100)/100; });
-    if(!qisqa && tolBor) t+=balBlok('QOLDI');
+    if(!qisqa && tolBor) t+=balBlok('QOLDI', oldBal);
   }
 
   // ─── 4) TO'LOV. Pul MINUS - qarzdan nima ayrilgani.
@@ -10913,6 +10937,9 @@ function kTolovChekGen(d, qisqa, bosiladi){
     if(sk>0.001) t+=rj(' Skidka', '-'+fmtD(sk)+'#')+'\n';
     t+=LINE;
   }
+  if(tolBor) oldBal=nusxa(bal);
+   // v188.19: surat OXIRGI HAQIQIY amaldan oldin olinadi. To'lov bo'lmasa
+   // QOLGAN OSTATKA dan oldingi amal BERILDI bo'ladi - o'shanikini oladi.
   (d.tolov||[]).forEach(function(r){
     var k=r.zavod+'||'+r.tur;
     bal[k]=Math.round((bal[k]-(r.g||0))*100)/100;
@@ -10959,7 +10986,7 @@ function kTolovChekGen(d, qisqa, bosiladi){
   }
 
   // ─── 6) QOLGAN OSTATKA
-  if(!qisqa && amalBor) t+=balBlok('QOLGAN OSTATKA');
+  if(!qisqa && amalBor) t+=balBlok('QOLGAN OSTATKA', oldBal);
   return t;
 }
 
@@ -17622,6 +17649,27 @@ function klientSotuvChekYangiGen(opts){
     v=Math.round(v*100)/100;
     return v < -0.001 ? '+'+fmtG(-v)+'g' : fmtG(v)+'g';
   }
+  // v188.19 (Ibrohim): «vozvrat bo'sa grammi qoganini ko'rsatvottiyu, shuni
+  // AMALDA qilib ko'rsatsel bo'larkan» - «10-5 = 5g», «5+6 = 11g», «11-8 = 3g».
+  // Balans blokidagi O'ZGARGAN tur qatorida tenglama yoziladi.
+  // OSTATKA da yo'q (boshlang'ich holat), JAMI da ham yo'q.
+  //
+  // Belgi AG'DARILSA tenglama klient tomonidan yoziladi - Ibrohim «B» ni
+  // tanladi: ostatkasi 5g, 12g qaytardi -> «12.00-5.00 = +7.00g».
+  // «A» varianti («5.00-12.00 = +7.00g») rad etildi: javobi -7 bo'lgani uchun
+  // klient chekni xato deb o'ylardi.
+  function nusxa(m){ var o={}; Object.keys(m).forEach(function(k){ o[k]=m[k]; }); return o; }
+  function hisobG(o, y){
+    o=Math.round(o*100)/100; y=Math.round(y*100)/100;
+    var dz=Math.round(Math.abs(y-o)*100)/100;
+    if(dz<=0.001) return balG(y);                 // tegilmagan tur - oddiy raqam
+    var oM=Math.abs(o), yM=Math.abs(y);
+    if(o>=-0.001 && y>=-0.001)                    // ikkalasi ham klient qarzi
+      return fmtG(oM)+(y>o?'+':'-')+fmtG(dz)+' = '+balG(y);
+    if(o<-0.001 && y<-0.001)                      // ikkalasi ham BIZ qarzdor
+      return fmtG(oM)+(yM>oM?'+':'-')+fmtG(dz)+' = '+balG(y);
+    return fmtG(dz)+'-'+fmtG(oM)+' = '+balG(y);   // belgi ag'dardi (B varianti)
+  }
 
   // v188.17 (Ibrohim): «2chi chek bizani tekshiradganimizga ostatka hisoblari
   // keremas, shuni obtashash kere, vozvrat berish to'lovvi ko'rsatsa bo'ldi»
@@ -17667,12 +17715,12 @@ function klientSotuvChekYangiGen(opts){
     });
     [vozMap, berMap, sotMap, offMap].forEach(function(m){ Object.keys(m).forEach(qosh); });
 
-    function balBlok(nom){
+    function balBlok(nom, old){
       var q='', j=0, bor=false;
       tartib.forEach(function(k){
         var v=Math.round(bal[k]*100)/100;
         if(Math.abs(v)<=0.001) return;          // qolmagan tur yozilmaydi
-        q+=rjust(' '+k.split('||').join(' '), balG(v))+'\n';
+        q+=rjust(' '+k.split('||').join(' '), old ? hisobG(old[k]||0, v) : balG(v))+'\n';
         j=Math.round((j+v)*100)/100; bor=true;
       });
       if(!bor) return '';                       // bo'sh blok umuman chiqmaydi
@@ -17719,20 +17767,23 @@ function klientSotuvChekYangiGen(opts){
     var amalBor=jamiVoz>0.001 || berBor || tolBor;
 
     // ─── 1) OSTATKA (amaldan oldingi holat)
+    var oldBal=null;   // v188.19: oxirgi HAQIQIY amaldan oldingi balans
     if(!qisqa) t+=balBlok('OSTATKA');
 
     // ─── 2) VOZVRAT
     if(jamiVoz>0.001){
       t+=amalBlok('VOZVRAT', vozMap, jamiVoz);
+      oldBal=nusxa(bal);
       Object.keys(vozMap).forEach(function(k){ bal[k]=Math.round((bal[k]-vozMap[k])*100)/100; });
-      if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI');
+      if(!qisqa && (berBor||tolBor)) t+=balBlok('QOLDI', oldBal);
     }
 
     // ─── 3) BERILDI
     if(berBor){
       t+=amalBlok('BERILDI', berMap, jamiBer);
+      oldBal=nusxa(bal);
       Object.keys(berMap).forEach(function(k){ bal[k]=Math.round((bal[k]+berMap[k])*100)/100; });
-      if(!qisqa && tolBor) t+=balBlok('QOLDI');
+      if(!qisqa && tolBor) t+=balBlok('QOLDI', oldBal);
     }
 
     // ─── 4) TO'LOV. Ibrohim: «qaysi turri nechi gram nechi g/$dan minus
@@ -17753,6 +17804,9 @@ function klientSotuvChekYangiGen(opts){
       if(sk>0.001) t+=rjust(' Skidka', '-'+fmtD(sk)+'#')+'\n';
       t+=LINE;
     }
+    if(tolBor) oldBal=nusxa(bal);
+   // v188.19: surat OXIRGI HAQIQIY amaldan oldin olinadi. To'lov bo'lmasa
+   // QOLGAN OSTATKA dan oldingi amal BERILDI bo'ladi - o'shanikini oladi.
     Object.keys(sotMap).forEach(function(k){ bal[k]=Math.round((bal[k]-sotMap[k])*100)/100; });
 
     // ─── 5) TO'LOV USULI. Bu yerda hammasi MUSBAT - pul qayerdan kelgani.
@@ -17795,7 +17849,7 @@ function klientSotuvChekYangiGen(opts){
     }
 
     // ─── 6) QOLGAN OSTATKA (chekdagi oxirgi balans)
-    if(!qisqa && amalBor) t+=balBlok('QOLGAN OSTATKA');
+    if(!qisqa && amalBor) t+=balBlok('QOLGAN OSTATKA', oldBal);
     return t;
   }
 

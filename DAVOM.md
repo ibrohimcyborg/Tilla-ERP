@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.18 · POS v0.36 · 2026-09-16
+**Oxirgi yangilanish:** v188.19 · POS v0.36 · 2026-09-17
 **⏳ Ochiq:** ochiq ish YO'Q. Ikkala chek ham yangi shaklda, prodda.
 Keyingi ish Ibrohimdan.
 
@@ -73,6 +73,30 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.19 — balansda hisobning o'zi ko'rinadi (2026-09-17)
+
+Maket: `mockups/chek-hisob-korinsin.html`. Ibrohim: **«B qivor»**.
+
+`QOLDI` va `QOLGAN OSTATKA` da o'zgargan tur qatorida tenglama:
+`10.00-5.00 = 5.00g`, `5.00+6.00 = 11.00g`, `11.00-8.00 = 3.00g`.
+
+`OSTATKA` da yo'q (boshlang'ich holat), `JAMI` da yo'q, tegilmagan
+turda yo'q. **Ikkala chekda ham** (sotuv + to'lov), 2-chekda balans
+bloklari bo'lmagani uchun avtomatik yo'q.
+
+**B varianti** (Ibrohim tanladi): belgi ag'darilsa tenglama klient
+tomonidan yoziladi — `12.00-5.00 = +7.00g`, ya'ni qaytargani minus qarzi.
+`A` (`5.00-12.00 = +7.00g`) rad etildi: javobi -7 bo'lgani uchun klient
+chekni xato deb o'ylardi.
+
+⚠ **Sinovda Claude o'z xatosini topdi:** `QOLGAN OSTATKA` surati doim
+to'lovdan oldin olinardi, to'lovsiz chekda tenglama chiqmasdi. Bitta
+`oldBal` ga o'tkazildi, to'lov surati `if(tolBor)` bilan.
+
+Sinov: 7 holat, 0 ogohlantirish.
 
 ---
 
