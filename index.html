@@ -1,4 +1,4 @@
-<!-- v188.34 -->
+<!-- v188.35 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.34';
+var APP_VER = 'v188.35';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13904,7 +13904,7 @@ function kTolovKlientChange(){
       +'<span style="font-size:9px;color:var(--green-bd);">g</span></div>'
       +(bizQarzdor
           ? '<button onclick="event.stopPropagation();ktOffsetToggle('+idx+','+Math.abs(b.qarz)+',this)" id="kt-offset-btn-'+idx+'" title="$ offset" style="flex:none;width:30px;height:36px;border-radius:7px;border:0.5px solid var(--green-bd);background:var(--surf);color:var(--green);font-size:12px;font-weight:700;cursor:pointer;padding:0;">$</button>'
-          : '<button onclick="ktHammasi('+idx+','+b.qarz+')" title="Qarzni toliq yop" style="flex:none;width:30px;height:36px;border-radius:7px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:13px;font-weight:600;cursor:pointer;padding:0;">\u2713</button>')
+          : '<button class="kt-tik" data-idx="'+idx+'" data-q="'+b.qarz+'" onclick="ktHammasi('+idx+','+b.qarz+')" title="Qarzni toliq yop" style="flex:none;width:30px;height:36px;border-radius:7px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);font-size:13px;font-weight:600;cursor:pointer;padding:0;">\u2713</button>')
       +'</div>'
       +'<div id="kt-calc-'+idx+'" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">= <span style="color:'+(bizQarzdor?'var(--gold)':'var(--green)')+';font-weight:600;" id="kt-eq-'+idx+'">0g</span> '+(bizQarzdor?'qarz ko\'payadi':'qarz kamayadi')+'</div>'
       +(bizQarzdor?('<div id="kto-blok-'+idx+'" style="display:none;background:var(--surf);border:0.5px solid var(--green-bd);border-radius:7px;padding:6px 10px;margin-top:4px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span id="kto-lbl-'+idx+'" style="font-size:12px;font-weight:600;color:var(--green);">O  '+fmtG(Math.abs(b.qarz))+'g &times; '+katNarx+'$/g</span><span id="kto-sum-'+idx+'" style="font-size:13px;font-weight:600;color:var(--green);">= '+fmtD(Math.round(Math.abs(b.qarz)*(katNarx||0)*100)/100)+'$</span></div></div>'):'')
@@ -13923,7 +13923,19 @@ function kTolovKlientChange(){
       +'</div>';
     idx++;
   });
-  document.getElementById('kt-turlar-list').innerHTML=turlarHTML||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
+  // v188.35 (Ibrohim): «ptichka tepasiga umumiy ptichka qo'ysede, 1ta bosganda
+  // hamma ptichkalani belgilaberadigan qisek zor bo'lardi — offsetga tegmidi».
+  // Satr faqat ptichkali (biz qarzdor bo'lmagan) qator bo'lsa chiqadi.
+  var _hamm = turlarHTML.indexOf('class="kt-tik"') >= 0
+    ? '<div id="kt-hamma-satr" style="display:flex;align-items:center;gap:8px;padding:2px 2px 8px;">'
+      + '<span id="kt-hamma-lbl" style="font-size:10.5px;letter-spacing:.08em;font-weight:700;color:var(--muted);">HAMMASINI YOPISH</span>'
+      + '<span style="flex:1;"></span>'
+      + '<button id="kt-hamma-btn" onclick="ktHammaTik()" title="Hamma qarzni to\'liq yop / tozala" '
+      + 'style="flex:none;width:30px;height:30px;border-radius:8px;border:1.5px solid var(--green);'
+      + 'background:var(--green);color:var(--on-gold);font-size:14px;font-weight:700;cursor:pointer;padding:0;">\u2713</button></div>'
+    : '';
+  document.getElementById('kt-turlar-list').innerHTML=(_hamm+turlarHTML)||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">Qarz yoq</div>';
+  if(typeof ktHammaLbl==='function') ktHammaLbl();
   _kursChipUpd('kt');
   document.getElementById('kt-vozvrat-list').innerHTML=vozvratHTML;
   ktVozvratAll(ki);
@@ -14056,6 +14068,43 @@ function ktCUpd(idx, base) {
   if(kEl) { kEl.value = res; ktUpd('n', idx, 0, 0); }
 }
 
+// v188.35: UMUMIY PTICHKA. Bir bosishda hamma qatorni to'liq yopadi, ikkinchi
+// bosishda tozalaydi (Ibrohim: «B» varianti).
+// ⚠ Offset qatorlari (biz qarzdormiz) TEGILMAYDI — ularda ptichka o'rniga
+//   kt-offset-btn-<idx> turadi va .kt-tik belgisi umuman yo'q.
+// ⚠ Yangi hisob yozilmadi — har qator uchun mavjud ktHammasi chaqiriladi,
+//   u vozvratni allaqachon ayiradi (qarz − vozvrat).
+function _ktTikRoy(){
+  return Array.prototype.slice.call(document.querySelectorAll('.kt-tik'));
+}
+function _ktTiklanganmi(){
+  var b = _ktTikRoy();
+  for(var i=0;i<b.length;i++){
+    var g = document.getElementById('kt-g-'+b[i].dataset.idx);
+    if(g && parseNum(g.value) > 0.0001) return true;
+  }
+  return false;
+}
+function ktHammaLbl(){
+  var lbl = document.getElementById('kt-hamma-lbl');
+  if(lbl) lbl.textContent = _ktTiklanganmi() ? 'HAMMASINI TOZALASH' : 'HAMMASINI YOPISH';
+}
+function ktHammaTik(){
+  var b = _ktTikRoy();
+  if(!b.length) return;
+  if(_ktTiklanganmi()){
+    b.forEach(function(el){
+      var i = el.dataset.idx;
+      var g = document.getElementById('kt-g-'+i), sm = document.getElementById('kt-s-'+i);
+      if(g) g.value = '';
+      if(sm){ sm.value = ''; if(sm.dataset) sm.dataset.tik = ''; }
+    });
+    kTolovCalc();
+  } else {
+    b.forEach(function(el){ ktHammasi(el.dataset.idx, parseNum(el.dataset.q)||0); });
+  }
+  ktHammaLbl();
+}
 function ktHammasi(idx, qarz) {
   var nEl = document.getElementById('kt-k-'+idx);
   var sEl = document.getElementById('kt-s-'+idx);
@@ -14069,6 +14118,7 @@ function ktHammasi(idx, qarz) {
   if (n > 0 && sEl) sEl.value = Math.round(effQarz * n * 100) / 100;
   if (sEl) sEl.dataset.tik='1';   // v170: ptichka qo'ygan summa — $ hisobida ayirilmaydi
   kTolovCalc();
+  if(typeof ktHammaLbl==='function') ktHammaLbl();   // v188.35
 }
 
 function ktUpd(changed, idx, zi, ti) {

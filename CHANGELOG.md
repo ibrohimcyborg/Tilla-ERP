@@ -8970,3 +8970,49 @@ Aralash (berish 20g + vozvrat 18.68g): OSTATKA jami 547.94, Jilva
 
 `kTolovChekGen` (u vozvratni allaqachon to'g'ri chizadi), saqlanadigan yozuv,
 kassa, qabul mantiqi, sotuv va POS cheklari.
+
+## v188.35 — to'lovda umumiy ptichka
+
+**Ibrohim**: «ptichka tepasiga umumiy ptichka qo'ysede, 1ta bosganda hamma
+ptichkalani belgilaberadigan qisek zor bo'lardi — offsetga tegmidi» → **«B»**
+(ikkinchi bosishda tozalaydi) → «offsetga teymasa bo'ldi».
+
+Maket: `mockups/tolov-hammasi-ptichka.html`.
+
+### Qilindi
+
+Tur qatorlari tepasiga bitta satr qo'shildi:
+
+    HAMMASINI YOPISH                                    [✓]
+
+Bosilganda har qator uchun mavjud `ktHammasi` chaqiriladi — **yangi hisob
+yozilmadi**. Ikkinchi bosishda gramm va summa maydonlari tozalanadi, yorliq
+`HAMMASINI TOZALASH` ga o'zgaradi.
+
+### Offsetga tegmaydi
+
+Biz qarzdor bo'lgan qatorda ptichka o'rniga offset `$` tugmasi chiziladi
+(13906) — unda `.kt-tik` belgisi **umuman yo'q**. Umumiy ptichka faqat
+`document.querySelectorAll('.kt-tik')` bo'yicha yuradi, shuning uchun offset
+qatorlari tanlanmaydi ham, tozalanmaydi ham.
+
+Satrning o'zi ham faqat ptichkali qator bo'lsa chiqadi — hammasi offset
+bo'lsa umuman ko'rinmaydi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Ibrohim ekranidagi 5 ta qator + 1 offset qatori bilan:
+
+    1-bosish   97.60g   8,988.57$    yorliq -> HAMMASINI TOZALASH
+    2-bosish   hammasi bo'sh         yorliq -> HAMMASINI YOPISH
+    3-bosish   yana to'ldi
+    offset qatori UCH bosishda ham TEGILMADI
+
+Qatorlar: Butterfly·3D 37.32 · Diamond·Oddiy 9.09 · Diamond·Polimer 12.20 ·
+Simay·Oddiy 12.77 · Dorika·Oddiy 26.22.
+
+### Tegilmadi
+
+`ktHammasi` (faqat chaqiriladi — vozvratni allaqachon ayiradi), `kTolovCalc`,
+offset mantiqi, saqlanadigan yozuv, sotuv modali.

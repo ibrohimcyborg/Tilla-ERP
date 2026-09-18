@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.34 · POS v0.39 · 2026-09-18
+**Oxirgi yangilanish:** v188.35 · POS v0.39 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,29 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.35 — TO'LOVDA UMUMIY PTICHKA (2026-09-18)
+
+Maket: `mockups/tolov-hammasi-ptichka.html` →
+https://claude.ai/artifact/FMMia3gP4jyfLi4mNCq3Hh
+
+Ibrohim: «ptichka tepasiga umumiy ptichka qo'ysede, 1ta bosganda hamma
+ptichkalani belgilaberadigan qisek zor bo'lardi — offsetga tegmidi» → **B**.
+
+Tur qatorlari tepasiga `HAMMASINI YOPISH [✓]` satri. Bosilganda har qator uchun
+mavjud `ktHammasi` chaqiriladi, ikkinchi bosishda tozalanadi (yorliq
+`HAMMASINI TOZALASH` ga o'zgaradi).
+
+**Offset tegilmaydi:** biz qarzdor qatorda ptichka o'rniga `$` chiziladi va
+`.kt-tik` belgisi yo'q. Umumiy ptichka faqat `.kt-tik` bo'yicha yuradi.
+Satrning o'zi ham faqat ptichkali qator bo'lsa chiqadi.
+
+Sinov (5 qator + 1 offset): 1-bosish 97.60g / 8,988.57$ · 2-bosish bo'sh ·
+3-bosish yana to'ldi · offset uch bosishda ham tegilmadi.
+
+⚠ PRODDA SINALMAGAN.
 
 ---
 
