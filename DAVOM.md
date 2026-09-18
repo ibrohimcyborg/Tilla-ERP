@@ -4,8 +4,42 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.35 · POS v0.39 · 2026-09-18
-**⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
+**Oxirgi yangilanish:** v188.35 · POS v0.39 · 2026-09-18 (tizim auditi)
+**⏳ Ochiq:** TIZIM AUDITI javobi (pastda, A–E) + kassa qulfining qolgan ishlari. POS cheki BITDI (v188.29).
+
+---
+
+## ⏳ KUTILYAPTI — TIZIM AUDITI (2026-09-18)
+
+Ibrohim: «mockuplani o'chirib tashavur / butun sistemani tekshir o'lik kodla
+yoqmi nimala bor hammasini tahlil qil manga mockupda korsat».
+
+Qilindi: `mockups/` o'chirildi (131 fayl; git tarixida `2bf1321` da turibdi);
+3 JS fayl skript bilan tekshirildi (izohlar olib tashlanib har nom qayerda
+uchrashi sanaldi, har nomzod `grep` bilan qo'lda tasdiqlandi).
+Maket: `mockups/tizim-audit.html` → https://claude.ai/artifact/PZom9iqXf316S9hZ1v62SZ
+
+Topilgani:
+- 🔴 **Prodda ochiq fayllar** (curl 200): `/DAVOM.md`, `/CHANGELOG.md`, `/CLAUDE.md`,
+  `/PLAN.md`, `/print_server.py`. Sabab: repodagi `vercelignore` **nuqtasiz** — Vercel o'qimaydi.
+  Yechim: `.vercelignore` deb qayta nomlash + `*.md`, `print_server.py`, `__pycache__`.
+- **52 o'lik funksiya, 708 qator** (7 klaster; to'liq ro'yxat maketda). `goTo` ikki ta'rifi
+  YOLG'ON signal — `_origGoTo` o'rami, tegilmaydi.
+- **2 yangi xato:** `tolovHisobotPDF` (11427) `tip:'tolov_hisobot'` yuboradi, `api/pdf.py`
+  da shox yo'q (838–896) → bo'sh zavod hisoboti / 500; «Hamma klientlar» 18742
+  `bal+=op.gramm` himoyasiz → NaN → 500 (v179.6 faqat klient detalini tuzatgan).
+- Takror: `_posEsc` (15442/530), `posKursUpd` (15467/677) index↔pos aynan bir xil;
+  `center`/`rjust` 11 martadan qayta yozilgan.
+- Axlat: `vercel.json` `/api/excel` rewrite (fayl yo'q), `__pycache__/*.pyc` git'da,
+  `_ksLomIdx` (15163), `tilla-cloud-dirty` (yoziladi, o'qilmaydi), CSS `.lom-active`, `.ptr-indicator`.
+- CLAUDE.md §6 hamid qatorlari HOZIR: `hamid-x` 272 347 350 382 399 1345;
+  `getRol()==='hamid'` 8682 8749 8760 10328 10390 20072; `rol-hamid` CSS 262–272.
+
+Qaror nuqtalari: **A** `.vercelignore` (~5 qator, push kerak) · **B** 52 o'likni o'chirish
+(708 qator, klaster-klaster 7 commit) · **C** mayda axlat (~20 qator) · **D** 2 yangi xato
+(alohida maket, alohida versiya) · **E** takrorni hisob.js ga (ixtiyoriy).
+
+**Kod YOZILMADI.** Javob kelmaguncha tegilmaydi. Ibrohim tanlagach A birinchi.
 
 ---
 

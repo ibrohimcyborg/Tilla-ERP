@@ -1,0 +1,285 @@
+<title>Tilla ERP auditi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F3F4F6; --surf:#FFFFFF; --surf2:#E9EBEF; --ink:#1B1F27; --muted:#5F6672; --line:#D7DBE2;
+  --gold:#A9780A; --gold-bg:#FBF3DC;
+  --crit:#B3261E; --crit-bg:#FBE9E7;
+  --warn:#9A5B00; --warn-bg:#FBF0DE;
+  --ok:#1B7F4C;   --ok-bg:#E3F3EA;
+  --info:#2F5FA8; --info-bg:#E6EEF9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171C; --surf:#1D2128; --surf2:#262B34; --ink:#E8EAEE; --muted:#9AA3B0; --line:#333944;
+    --gold:#D6A72A; --gold-bg:#2E2712;
+    --crit:#F0857B; --crit-bg:#3A1E1B;
+    --warn:#E6A94A; --warn-bg:#3A2B12;
+    --ok:#6CCB8F;   --ok-bg:#16301F;
+    --info:#8FB3EA; --info-bg:#1B2738;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171C; --surf:#1D2128; --surf2:#262B34; --ink:#E8EAEE; --muted:#9AA3B0; --line:#333944;
+  --gold:#D6A72A; --gold-bg:#2E2712;
+  --crit:#F0857B; --crit-bg:#3A1E1B;
+  --warn:#E6A94A; --warn-bg:#3A2B12;
+  --ok:#6CCB8F;   --ok-bg:#16301F;
+  --info:#8FB3EA; --info-bg:#1B2738;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-inline:16px}
+h1,h2,h3{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;text-wrap:balance;margin:0}
+h1{font-size:30px;line-height:1.1;font-weight:700}
+h2{font-size:20px;font-weight:600;letter-spacing:.01em}
+h3{font-size:15px;font-weight:600;margin-top:14px}
+p{margin:8px 0}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:13px;margin-top:8px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace;font-size:.92em}
+code{background:var(--surf2);padding:1px 5px;border-radius:4px}
+.num{font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+@media (max-width:520px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile b{display:block;font-family:"IBM Plex Sans Condensed",sans-serif;font-size:28px;line-height:1;font-weight:700}
+.tile span{display:block;font-size:12.5px;color:var(--muted);margin-top:5px}
+.tile.crit b{color:var(--crit)} .tile.warn b{color:var(--warn)} .tile.ok b{color:var(--ok)} .tile.gold b{color:var(--gold)}
+section{margin-top:30px;padding-left:14px;border-left:4px solid var(--line)}
+section.crit{border-color:var(--crit)} section.warn{border-color:var(--warn)} section.info{border-color:var(--info)} section.ok{border-color:var(--ok)} section.gold{border-color:var(--gold)}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;vertical-align:middle;margin-left:6px}
+.tag.crit{background:var(--crit-bg);color:var(--crit)} .tag.warn{background:var(--warn-bg);color:var(--warn)} .tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.info{background:var(--info-bg);color:var(--info)} .tag.gold{background:var(--gold-bg);color:var(--gold)}
+.tbl{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surf2)}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.wrap{white-space:normal}
+details{margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf)}
+summary{cursor:pointer;padding:9px 12px;font-weight:600;font-size:14px}
+summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+details .tbl{border:0;border-top:1px solid var(--line);border-radius:0;margin:0}
+ul{margin:8px 0;padding-left:20px} li{margin:4px 0}
+.note{background:var(--surf2);border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.qaror{margin-top:14px;display:grid;gap:10px}
+.opt{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
+.opt .h{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:22px;font-weight:700;color:var(--gold);line-height:1.1}
+.opt .t{font-weight:600}
+.opt .d{grid-column:2;color:var(--muted);font-size:13.5px}
+.opt.first{border-color:var(--crit)} .opt.first .h{color:var(--crit)}
+hr{border:0;border-top:1px solid var(--line);margin:28px 0 0}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Tilla ERP · to'liq tekshiruv</div>
+  <h1>Tizimda nima bor, nima o'lik</h1>
+  <div class="meta">
+    <span>2026-09-18</span><span>v188.35 · POS v0.39</span><span>index.html 20 620 · pos.html 1 891 · hisob.js 289 qator</span>
+  </div>
+  <p>Uchta JS fayl skript bilan tekshirildi: izohlar olib tashlanib, har bir funksiya nomi
+  fayllarning qayerida uchrashi sanaldi (HTML <code>onclick</code> va satr ichidagi murojaatlar ham).
+  Faqat o'z ta'rifida uchraydigan nom — o'lik. Har bir nomzod keyin <code>grep</code> bilan qo'lda tasdiqlandi.
+  Sozlamalar, repo va prod ham ko'rildi.</p>
+
+  <div class="tiles">
+    <div class="tile crit"><b class="num">5</b><span>hujjat va kod fayli internetda ochiq</span></div>
+    <div class="tile warn"><b class="num">52</b><span>o'lik funksiya · 708 qator (3.1%)</span></div>
+    <div class="tile warn"><b class="num">2</b><span>kod tekshirilib topilgan yangi xato</span></div>
+    <div class="tile gold"><b class="num">9</b><span>index ↔ POS takror funksiya</span></div>
+    <div class="tile ok"><b class="num">0</b><span>takror HTML id, sintaksis xato</span></div>
+    <div class="tile"><b class="num">8</b><span>hujjatlangan ochiq muammo</span></div>
+  </div>
+
+  <!-- ══════════ 1 ══════════ -->
+  <section class="crit">
+    <h2>1. Internetga ochiq fayllar <span class="tag crit">xavf</span></h2>
+    <p>Bugun <code>curl</code> bilan tekshirildi. Prod manzilida bu fayllar hamma uchun ochiq:</p>
+    <div class="tbl"><table>
+      <tr><th>Manzil</th><th>Javob</th><th class="r">Hajm</th><th>Ichida nima</th></tr>
+      <tr><td class="mono">/DAVOM.md</td><td>200</td><td class="r num">163 KB</td><td class="wrap">klient nomlari, qarz summalari, kassa raqamlari, ish tarixi</td></tr>
+      <tr><td class="mono">/CHANGELOG.md</td><td>200</td><td class="r num">551 KB</td><td class="wrap">butun versiya tarixi, misollardagi haqiqiy raqamlar</td></tr>
+      <tr><td class="mono">/CLAUDE.md</td><td>200</td><td class="r num">16 KB</td><td class="wrap">ish qoidalari, Abdulhamid rejimi tafsiloti</td></tr>
+      <tr><td class="mono">/PLAN.md</td><td>200</td><td class="r num">11 KB</td><td class="wrap">kelajak rejalar</td></tr>
+      <tr><td class="mono">/print_server.py</td><td>200</td><td class="r num">48 KB</td><td class="wrap">printer serverining to'liq kodi</td></tr>
+    </table></div>
+    <h3>Sabab</h3>
+    <p>Repoda <code>vercelignore</code> fayli bor, lekin nomi <b>nuqtasiz</b>. Vercel faqat
+    <code>.vercelignore</code> ni o'qiydi — shuning uchun ichidagi <code>*.md</code> qoidasi hech qachon ishlamagan.
+    <code>vercel.json</code> dagi rewrite ham yordam bermaydi: Vercel avval haqiqiy faylni beradi, keyin rewrite'ga qaraydi.</p>
+    <div class="note">Yechim bitta: faylni <code>.vercelignore</code> deb qayta nomlash va ro'yxatga
+    <code>*.md</code>, <code>print_server.py</code>, <code>__pycache__</code> ni yozish (~5 qator, push kerak).
+    Eski deploy'larning o'z manzillari Vercel panelida o'chirilmaguncha ochiq qoladi — buni siz panelda qilasiz.</div>
+  </section>
+
+  <!-- ══════════ 2 ══════════ -->
+  <section class="warn">
+    <h2>2. O'lik funksiyalar <span class="tag warn">708 qator</span></h2>
+    <p>52 funksiya hech qayerdan chaqirilmaydi. 32 tasiga umuman murojaat yo'q, 20 tasi faqat
+    o'sha o'liklarning ichidan chaqiriladi. Ular yetti klasterga bo'linadi:</p>
+    <div class="tbl"><table>
+      <tr><th>Klaster</th><th class="r">Funksiya</th><th class="r">Qator</th><th>Nima edi</th></tr>
+      <tr><td>Eski chek dvigateli</td><td class="r num">8</td><td class="r num">215</td><td class="wrap"><code>chekQur</code>, <code>klientSotuvChekPrint</code> va 6 yordamchisi — v188.16 da yangi dvigatel almashtirgan</td></tr>
+      <tr><td>Zapros taqsimi</td><td class="r num">9</td><td class="r num">158</td><td class="wrap"><code>zaprosPanelHTML</code> → <code>openZaprosTaqsim</code> → <code>zaprosTaqsimSaqla</code>… paneli hech qayerdan ochilmaydi (ma'lumot <code>op.zapros</code> ko'rsatilishi tirik)</td></tr>
+      <tr><td>Kassa «chiqim yopdi»</td><td class="r num">6</td><td class="r num">129</td><td class="wrap"><code>kassaChiqimYopdiHTML</code>, <code>kassaAmalYopgan</code>, <code>kassaSovdaTurlar</code>, <code>chiqimUnlock</code>, <code>openKassaQolda</code> — pul navbati (v188.28) o'rniga kelgan</td></tr>
+      <tr><td>Sotuv / to'lov tanlov qoldiqlari</td><td class="r num">12</td><td class="r num">78</td><td class="wrap"><code>_tolovToggle</code>, <code>ksSotuvTanlovSet</code>, <code>ksSotuvPickTaqsim</code>, <code>sdachaInpUpd</code> (bo'sh tana) va h.k.</td></tr>
+      <tr><td>Boshqa yakka</td><td class="r num">9</td><td class="r num">60</td><td class="wrap"><code>donaMosEmaslarniTop</code>, <code>hkToggle</code>, <code>klientKatSet</code>, POS'da <code>posSakra</code>…</td></tr>
+      <tr><td>Cloud / hisob</td><td class="r num">4</td><td class="r num">43</td><td class="wrap"><code>_hisobListen_eski</code>, <code>cloudTanlovOch</code>, <code>_hisobSnapOl</code>, <code>hisobRef</code></td></tr>
+      <tr><td>Skan</td><td class="r num">4</td><td class="r num">25</td><td class="wrap"><code>kbSkanUncheck</code>, <code>kbSkanDelPass2</code>, <code>uniSkanUncheck</code>, <code>uniSkanDelPass2</code></td></tr>
+    </table></div>
+
+    <details>
+      <summary>Hammasi — 52 funksiya, fayl va qator bilan</summary>
+      <div class="tbl"><table>
+        <tr><th>Funksiya</th><th>Joy</th><th class="r">Qator</th><th>Klaster</th></tr>
+        <tr><td class="mono">chekQur</td><td class="mono">index:10740</td><td class="r num">47</td><td>eski chek</td></tr>
+        <tr><td class="mono">klientSotuvChekPrint</td><td class="mono">index:18255</td><td class="r num">141</td><td>eski chek</td></tr>
+        <tr><td class="mono">chekC · chekR · chekPad · chekG</td><td class="mono">index:10703–10708</td><td class="r num">4</td><td>eski chek</td></tr>
+        <tr><td class="mono">chekTurBloki</td><td class="mono">index:10712</td><td class="r num">17</td><td>eski chek</td></tr>
+        <tr><td class="mono">chekRoyxat</td><td class="mono">index:10731</td><td class="r num">6</td><td>eski chek</td></tr>
+        <tr><td class="mono">zaprosQoldiq</td><td class="mono">index:3513</td><td class="r num">12</td><td>zapros</td></tr>
+        <tr><td class="mono">zaprosPulGramm</td><td class="mono">index:3526</td><td class="r num">14</td><td>zapros</td></tr>
+        <tr><td class="mono">zaprosChontakIstemol</td><td class="mono">index:3540</td><td class="r num">11</td><td>zapros</td></tr>
+        <tr><td class="mono">zaprosPanelHTML</td><td class="mono">index:3551</td><td class="r num">14</td><td>zapros</td></tr>
+        <tr><td class="mono">openZaprosTaqsim</td><td class="mono">index:3566</td><td class="r num">35</td><td>zapros</td></tr>
+        <tr><td class="mono">ztYop · ztOqi · ztHisob</td><td class="mono">index:3601–3637</td><td class="r num">37</td><td>zapros</td></tr>
+        <tr><td class="mono">zaprosTaqsimSaqla</td><td class="mono">index:3638</td><td class="r num">35</td><td>zapros</td></tr>
+        <tr><td class="mono">openKassaQolda</td><td class="mono">index:4115</td><td class="r num">7</td><td>kassa</td></tr>
+        <tr><td class="mono">kassaAmalYopgan</td><td class="mono">index:4498</td><td class="r num">34</td><td>kassa</td></tr>
+        <tr><td class="mono">kassaSovdaTurlar</td><td class="mono">index:4533</td><td class="r num">24</td><td>kassa</td></tr>
+        <tr><td class="mono">kassaChiqimSovToggle</td><td class="mono">index:4640</td><td class="r num">1</td><td>kassa</td></tr>
+        <tr><td class="mono">kassaChiqimYopdiHTML</td><td class="mono">index:4641</td><td class="r num">52</td><td>kassa</td></tr>
+        <tr><td class="mono">chiqimUnlock</td><td class="mono">index:6616</td><td class="r num">11</td><td>kassa</td></tr>
+        <tr><td class="mono">ktCUpd</td><td class="mono">index:14062</td><td class="r num">8</td><td>to'lov</td></tr>
+        <tr><td class="mono">sdachaInpUpd · sdachaJamiUpd · sdachaPrich</td><td class="mono">index:14396–14398</td><td class="r num">3</td><td>to'lov (bo'sh tanalar)</td></tr>
+        <tr><td class="mono">kTolovSdachaTanlovSet</td><td class="mono">index:14402</td><td class="r num">6</td><td>to'lov</td></tr>
+        <tr><td class="mono">kstCUpd</td><td class="mono">index:16335</td><td class="r num">8</td><td>sotuv</td></tr>
+        <tr><td class="mono">_tolovToggle</td><td class="mono">index:17125</td><td class="r num">20</td><td>sotuv/to'lov</td></tr>
+        <tr><td class="mono">ksSotuvToggleTolov · ktToggleTolov</td><td class="mono">index:17145–17146</td><td class="r num">2</td><td>sotuv/to'lov</td></tr>
+        <tr><td class="mono">ksSotuvNaqtBerildiUpd</td><td class="mono">index:17171</td><td class="r num">1</td><td>sotuv</td></tr>
+        <tr><td class="mono">ksSotuvTanlovSet</td><td class="mono">index:17177</td><td class="r num">10</td><td>sotuv</td></tr>
+        <tr><td class="mono">ksSotuvPickTaqsim</td><td class="mono">index:17188</td><td class="r num">20</td><td>sotuv</td></tr>
+        <tr><td class="mono">_verBelgiUpd</td><td class="mono">index:2222</td><td class="r num">1</td><td>yakka</td></tr>
+        <tr><td class="mono">hkNarxUpd · hkToggle</td><td class="mono">index:2903–2910</td><td class="r num">13</td><td>yakka</td></tr>
+        <tr><td class="mono">hkToggleTarix</td><td class="mono">index:2990</td><td class="r num">8</td><td>yakka</td></tr>
+        <tr><td class="mono">donaMosEmaslarniTop</td><td class="mono">index:6568</td><td class="r num">19</td><td>yakka</td></tr>
+        <tr><td class="mono">klientKatSet</td><td class="mono">index:12099</td><td class="r num">7</td><td>yakka</td></tr>
+        <tr><td class="mono">kberishKlientChange</td><td class="mono">index:13015</td><td class="r num">4</td><td>yakka</td></tr>
+        <tr><td class="mono">getLomJamiZaxiraG</td><td class="mono">index:19279</td><td class="r num">4</td><td>yakka</td></tr>
+        <tr><td class="mono">posSakra</td><td class="mono">pos:637</td><td class="r num">4</td><td>yakka (POS)</td></tr>
+        <tr><td class="mono">_hisobSnapOl</td><td class="mono">index:8257</td><td class="r num">1</td><td>cloud</td></tr>
+        <tr><td class="mono">hisobRef</td><td class="mono">index:8409</td><td class="r num">1</td><td>cloud</td></tr>
+        <tr><td class="mono">_hisobListen_eski</td><td class="mono">index:8572</td><td class="r num">33</td><td>cloud</td></tr>
+        <tr><td class="mono">cloudTanlovOch</td><td class="mono">index:20273</td><td class="r num">8</td><td>cloud</td></tr>
+        <tr><td class="mono">kbSkanUncheck · kbSkanDelPass2</td><td class="mono">index:12970–12977</td><td class="r num">12</td><td>skan</td></tr>
+        <tr><td class="mono">uniSkanUncheck · uniSkanDelPass2</td><td class="mono">index:13573–13581</td><td class="r num">13</td><td>skan</td></tr>
+      </table></div>
+    </details>
+
+    <h3>Mayda o'liklar (funksiya emas)</h3>
+    <ul>
+      <li>Global <code>_ksLomIdx</code> (index:15163) — yozilgan, hech qayerda o'qilmaydi.</li>
+      <li>Lokal <code>_naqtTolovPulSave</code> (index:17655) — yig'iladi, o'qilmaydi; v188.25 izohi o'zi shuni aytadi.</li>
+      <li>localStorage bayrog'i <code>tilla-cloud-dirty</code> — yoziladi (20489), o'chiriladi (20317, 20594), <b>hech qachon o'qilmaydi</b>.</li>
+      <li>CSS: <code>.lom-active</code> (194) — klass hech qachon qo'yilmaydi; <code>.ptr-indicator</code> (115, 168) — bunday element yo'q.</li>
+      <li>13 ta HTML <code>id</code> hech kim o'qimaydi (element tirik, id o'lik): <span class="mono">lq-jami, lna-calc-row, st-title, kc-olish-ogoh, th-pdf, ks-kat-A/B/C, ks-pp-kerak, ks-chek-toggle-lbl, hk-turlar-cont, kassa-davr-tabs</span>, POS'da <span class="mono">pos-q</span>. Zarari yo'q.</li>
+    </ul>
+    <div class="note"><b>Tegilmaydi:</b> <code>hamid-x</code> va <code>getRol()==='hamid'</code> joylari ro'yxatda yo'q, ular tirik. Ular hozir
+    272, 347, 350, 382, 399, 1345 va 8682, 8749, 8760, 10328, 10390, 20072-qatorlarda — CLAUDE.md §6 dagi raqamlar eskirgan.</div>
+  </section>
+
+  <!-- ══════════ 3 ══════════ -->
+  <section class="warn">
+    <h2>3. Kod tekshirilib topilgan yangi xatolar <span class="tag warn">2</span></h2>
+    <h3>3.1 «To'lov hisoboti» PDF tugmasi noto'g'ri hisobot beradi</h3>
+    <p><code>tolovHisobotPDF</code> (index:11427) serverga <code>tip:'tolov_hisobot'</code> yuboradi.
+    <code>api/pdf.py</code> da bunday shox <b>yo'q</b> (838–896) — so'rov oxirgi umumiy shoxga tushadi va
+    <code>build_pdf([])</code> bo'sh zavod hisobotini yasaydi yoki 500 qaytaradi. Tugma: <code>th-pdf</code> (index:1762).</p>
+    <h3>3.2 «Hamma klientlar» hisobotida grammi yo'q yozuv → NaN → 500</h3>
+    <p>index:18742 <code>bal+=op.gramm</code> himoyasiz. v179.6 da aynan shu xato klient detalida tuzatilgan edi,
+    bu hisobotda qolgan. Buzuq yozuv bo'lsa PDF butunlay chiqmaydi.</p>
+  </section>
+
+  <!-- ══════════ 4 ══════════ -->
+  <section class="gold">
+    <h2>4. Takror kod <span class="tag gold">index ↔ POS</span></h2>
+    <div class="tbl"><table>
+      <tr><th>Funksiya</th><th>index.html</th><th>pos.html</th><th>Holat</th></tr>
+      <tr><td class="mono">_posEsc</td><td class="mono">15442</td><td class="mono">530</td><td><span class="tag ok">aynan bir xil</span></td></tr>
+      <tr><td class="mono">posKursUpd</td><td class="mono">15467</td><td class="mono">677</td><td><span class="tag ok">aynan bir xil</span></td></tr>
+      <tr><td class="mono">_chekXabar</td><td class="mono">2145 (18q)</td><td class="mono">219 (9q)</td><td>farq qiladi</td></tr>
+      <tr><td class="mono">_posChRef · _verBelgi · getRol</td><td class="mono">15498 · 2219 · 2216</td><td class="mono">213 · 194 · 191</td><td>farq qiladi</td></tr>
+      <tr><td class="mono">cloudKol · cloudXato · sozManba</td><td class="mono">20061 · 20047 · 20407</td><td class="mono">192 · 193 · 207</td><td>farq qiladi</td></tr>
+    </table></div>
+    <p>Farq qiladiganlari ataylab shunday bo'lishi mumkin (ERP va POS muhiti boshqa) — bu qaror sizniki.
+    Ikki bir xili <code>hisob.js</code> ga ko'chsa bo'ladi.</p>
+    <p>Chek matnini tekislaydigan <code>center</code> va <code>rjust</code> yordamchilari <b>11 martadan</b> qayta yozilgan
+    (har chek funksiyasi ichida o'zi). Bitta umumiy nusxa yetadi.</p>
+    <p><code>hisob.js</code> dagi 20 funksiyadan 4 tasini POS ishlatmaydi
+    (<code>fdSanaTs</code>, <code>_soat24</code>, <code>getZavodNarx</code>, <code>turOstMap</code>) — o'lik emas, shunchaki «umumiy» emas.</p>
+  </section>
+
+  <!-- ══════════ 5 ══════════ -->
+  <section class="info">
+    <h2>5. Sozlama va repo axlati <span class="tag info">kichik</span></h2>
+    <ul>
+      <li><code>vercel.json</code>: <code>/api/excel → api/excel.py</code> rewrite bor, fayl yo'q, hech kim chaqirmaydi (prod: 404).</li>
+      <li><code>__pycache__/print_server.cpython-314.pyc</code> git'da saqlanyapti — <code>.gitignore</code> qoidasi keyin qo'shilgan. Vercel uni tarqatmaydi (tekshirildi).</li>
+      <li><code>PLAN.md</code> 2026-08-18 dan tegilmagan: uchta reja (dona baza, ostatka C, Telegram) — holati DAVOM'da yo'q.</li>
+      <li>index.html ichida <b>487</b> ta <code>// vNNN</code> izohi, v93 dan v188.35 gacha 172 versiya. CLAUDE.md §5 «tafsilot index.html ga yozilmaydi» deydi — amalda tarix kodda.</li>
+      <li><code>alert()</code> 151 marta — xato emas, shunchaki bilib qo'ying.</li>
+      <li>CLAUDE.md §6 va §10 dagi qator raqamlari eskirgan (v172.4 / v171.7 holati).</li>
+    </ul>
+    <div class="note">Firebase SDK ikkala faylda bir xil (10.12.2). 1-qator va <code>APP_VER</code> mos (v188.35). Takror <code>id</code> yo'q.
+    <code>console.log</code> 2 ta, <code>debugger</code> yo'q.</div>
+  </section>
+
+  <!-- ══════════ 6 ══════════ -->
+  <section class="info">
+    <h2>6. Hujjatlangan, hal qilinmagan <span class="tag info">8</span></h2>
+    <p>Bular o'lik kod emas — mantiqiy muammolar. Hammasi bugun kodda qayta ko'rildi, tirik.</p>
+    <ul>
+      <li><b>Sotuv belgilanmaydi.</b> <code>manba:'sotuv'</code> 0 marta yoziladi, 2 joyda o'qiladi — doim <code>false</code>. Hisobotda sotuv va berish farqlanmaydi.</li>
+      <li><b>POS: klient nomida <code>/</code></b> — <code>pos.html:621</code> Firestore hujjat nomiga to'g'ridan-to'g'ri qo'yadi, «T/Z» kabi nom ochilmaydi.</li>
+      <li><b>Eski rasm-jadval yo'li tirik.</b> Sotuv modalidagi <code>ostatka</code> kalitchasi (<code>_ksOstOn</code> 17853) hali v172.35 dagi rasm-jadvalni printerga yuboradi, holbuki chek v188.16 dan beri OSTATKA ni o'zi ko'rsatadi. Ikki xil ostatka chiqishi mumkin.</li>
+      <li><b>Kassa foyda paneli</b> pul qulfini ko'rmaydi (qatorlar +99.94, panel −116.00). Maket bor, javob yo'q.</li>
+      <li><b>3 kurs bittaga aralashadi</b> (<code>qopKurs</code>). A/B javobsiz.</li>
+      <li><b>Offset qatori yaxlitlash</b> — chekda <code>5.82g x 87.2</code> ≠ <code>507.78</code> (0.28$ ko'rinish farqi, ≈11020).</li>
+      <li><b>v188.33 dan oldingi yozuvlar</b> — «Klientda bor» perechi <code>naqtPul</code> bo'lib saqlangan bo'lishi mumkin. Bormi-yo'qmi, javob yo'q.</li>
+      <li><b>Sotuv modalida oltita qarz halqasi</b> (DAVOM'da hujjatlangan, bugun qayta sanalmadi).</li>
+    </ul>
+  </section>
+
+  <!-- ══════════ 7 ══════════ -->
+  <section class="ok">
+    <h2>7. Tekshiruv chegarasi <span class="tag ok">holis</span></h2>
+    <ul>
+      <li>Nom bo'laklardan yig'ilsa (<code>'hk'+x</code>) skript ko'rmaydi — 52 nomzodning har biri <code>grep</code> bilan alohida tasdiqlandi, birortasi shunday yig'ilmaydi.</li>
+      <li><code>goTo</code> ikki marta ta'riflangan ko'rindi — yolg'on signal: ikkinchisi birinchisini o'rab oladi (<code>_origGoTo</code>). Ro'yxatga kirmadi.</li>
+      <li>Bir xil nomli ichki yordamchi (masalan <code>qosh</code>) tashqi funksiyani «tirik» ko'rsatishi mumkin — bu yo'nalishda xato faqat o'likni o'tkazib yuborish tomonga bo'ladi, tirikni o'lik deyish tomonga emas.</li>
+      <li><code>api/pdf.py</code>: 8 hisobot quruvchining hammasi chaqiriladi. <code>print_server.py</code> ichi chuqur tekshirilmadi.</li>
+      <li>Firestore'dagi ma'lumot shakli, eski yozuvlar tekshirilmadi — bu kod auditi, baza auditi emas.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ══════════ QAROR ══════════ -->
+  <section class="gold">
+    <h2>Qaror nuqtalari — siz tanlaysiz</h2>
+    <div class="qaror">
+      <div class="opt first"><div class="h">A</div><div class="t">Ochiq fayllarni yopish</div>
+        <div class="d"><code>vercelignore</code> → <code>.vercelignore</code>, ro'yxatga <code>*.md</code>, <code>print_server.py</code>, <code>__pycache__</code>. ~5 qator, push kerak. Birinchi qilinadigan ish.</div></div>
+      <div class="opt"><div class="h">B</div><div class="t">52 o'lik funksiyani o'chirish</div>
+        <div class="d">708 qator. Klaster-klaster, 7 alohida commit, har biridan keyin Node sinov. Mantiqqa tegmaydi — murojaat 0 bo'lgani uchun ishlash o'zgarmaydi.</div></div>
+      <div class="opt"><div class="h">C</div><div class="t">Mayda axlat</div>
+        <div class="d"><code>/api/excel</code> rewrite, <code>.pyc</code> repodan, <code>_ksLomIdx</code>, <code>tilla-cloud-dirty</code>, 2 CSS qoida. ~20 qator, bitta commit.</div></div>
+      <div class="opt"><div class="h">D</div><div class="t">Ikki yangi xato</div>
+        <div class="d">3.1 «To'lov hisoboti» PDF va 3.2 «Hamma klientlar» NaN. Har biri alohida maket, alohida versiya.</div></div>
+      <div class="opt"><div class="h">E</div><div class="t">Takrorni yig'ish</div>
+        <div class="d"><code>_posEsc</code>, <code>posKursUpd</code> → hisob.js; <code>center</code>/<code>rjust</code> bitta nusxa. Ixtiyoriy, shoshilinch emas.</div></div>
+    </div>
+    <p style="margin-top:14px;color:var(--muted);font-size:13.5px">Hech biriga hali kod yozilmadi. Bo'lim 6 dagi sakkiztasi alohida qarorlar — bu maketga kirmaydi.</p>
+  </section>
+</div>
