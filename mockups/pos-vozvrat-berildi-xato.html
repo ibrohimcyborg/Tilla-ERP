@@ -1,0 +1,220 @@
+<title>Vozvrat Berildi Bo&rsquo;lib Chiqdi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --chek:#fdfcf8; --chek-ink:#241f18;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --chek:#1c1a16; --chek-ink:#e6e0d4;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --chek:#1c1a16; --chek-ink:#e6e0d4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header h1{font-size:22px;line-height:1.25;margin:0;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--good);font-weight:700;margin-bottom:7px}
+h2{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0 0 9px;font-weight:700}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:13px 14px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}.box p+p{margin-top:7px}
+.hint{font-size:12.5px;color:var(--ink2)}
+.mm{font-family:var(--mono);font-size:11px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.chekbox{background:var(--chek);border:1px solid var(--edge2);border-radius:8px;
+  padding:11px 9px;overflow-x:auto}
+.chekbox pre{margin:0;font-family:var(--mono);font-size:9.5px;line-height:1.6;
+  color:var(--chek-ink);white-space:pre}
+.lbl{font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin:0 0 5px}
+.lbl.r{color:var(--bad)} .lbl.g{color:var(--good)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:660px){.duo{grid-template-columns:1fr}}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;text-align:right}
+td.e{color:var(--bad);font-weight:700}
+td.y{color:var(--good);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+.katta{font-family:var(--mono);font-size:26px;font-weight:700;text-align:center;
+  color:var(--good);padding:4px 0}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Ma&rsquo;lumot butun</div>
+  <h1>Vozvrat chekda BERILDI bo&rsquo;lib chiqdi</h1>
+  <p>Ostatkang buzilmagan. Faqat chek o&rsquo;rtasini noto&rsquo;g&rsquo;ri chizgan.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;vozvrat bo&rsquo;ldi-de, lekin chekda berildi bo&rsquo;b chiqdi&hellip;
+  berildi deb ostatkasini ko&rsquo;paytirvordi&hellip; endi ostatkasi qanaqa edi bilmay
+  qoldim, chalkashib ketdi&raquo;</div>
+</section>
+
+<section>
+  <h2>Birinchi navbatda &mdash; ma&rsquo;lumoting joyida</h2>
+  <div class="box good">
+    <p>Chek hech qachon hech narsa yozmaydi &mdash; u faqat chizadi. Vozvrat
+    <b>to&rsquo;g&rsquo;ri yozilgan</b>: klient tarixida <code>↩ Vozvrat 14:32 +18.68g</code>
+    turibdi va qarzni kamaytirgan.</p>
+    <div class="tw"><table>
+      <tr><th></th><th class="n">Bosilgan chek</th><th class="n">To&rsquo;g&rsquo;risi</th></tr>
+      <tr><td>OSTATKA</td><td class="n e">510.58g</td><td class="n y">547.94g</td></tr>
+      <tr><td>Vozvrat</td><td class="n e">BERILDI +18.68g</td><td class="n y">VOZVRAT &minus;18.68g</td></tr>
+      <tr><td>QOLDI</td><td class="n">529.26g</td><td class="n">529.26g</td></tr>
+      <tr><td>TO&rsquo;LOV</td><td class="n">&minus;28.65g</td><td class="n">&minus;28.65g</td></tr>
+      <tr class="jami"><td>QOLGAN OSTATKA</td><td class="n y">500.61g</td><td class="n y">500.61g</td></tr>
+    </table></div>
+    <div class="katta">500.61g</div>
+    <p style="text-align:center;margin:0;font-size:13px;">
+    Ikkala yo&rsquo;lda ham oxiri <b>bir xil</b> &mdash; klientning haqiqiy ostatkasi shu.</p>
+    <p class="hint" style="margin-top:9px">Ya&rsquo;ni chek o&rsquo;rtada noto&rsquo;g&rsquo;ri
+    yo&rsquo;ldan yurgan, lekin manzilga to&rsquo;g&rsquo;ri yetgan. Klient ekranidagi
+    raqamga ishonaver.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Ikki chek yonma-yon</h2>
+  <div class="duo">
+    <div>
+      <p class="lbl r">Bosilgani &mdash; xato</p>
+      <div class="chekbox"><pre>OSTATKA
+ Premium Oddiy            62.13g
+ Simay Oddiy              41.15g
+ ...
+ JAMI                    510.58g
+==================================
+BERILDI
+ Premium Oddiy            10.81g
+ Simay Oddiy               7.87g
+ JAMI                     18.68g
+==================================
+QOLDI
+ Premium Oddiy  62.13+10.81=72.94g
+ Simay Oddiy     41.15+7.87=49.02g
+ JAMI                    529.26g
+==================================
+TO'LOV
+ Simay Oddiy  16.62g x 91.5
+   berilganga               7.87g
+   ostatkadan               8.75g
+ JAMI 28.65g          2,651.55#
+==================================
+QOLGAN OSTATKA
+ JAMI                    500.61g</pre></div>
+    </div>
+    <div>
+      <p class="lbl g">To&rsquo;g&rsquo;risi</p>
+      <div class="chekbox"><pre>OSTATKA
+ Premium Oddiy            83.75g
+ Simay Oddiy              56.89g
+ ...
+ JAMI                    547.94g
+==================================
+VOZVRAT
+ Premium Oddiy            10.81g
+ Simay Oddiy               7.87g
+ JAMI                     18.68g
+==================================
+QOLDI
+ Premium Oddiy  83.75-10.81=72.94g
+ Simay Oddiy     56.89-7.87=49.02g
+ JAMI                    529.26g
+==================================
+TO'LOV
+ Simay Oddiy  16.62g x 91.5
+   ostatkadan              16.62g
+ JAMI 28.65g          2,651.55#
+==================================
+QOLGAN OSTATKA
+ JAMI                    500.61g</pre></div>
+    </div>
+  </div>
+  <p class="hint" style="margin-top:8px">Chap tomon &mdash; haqiqiy chek yasovchi
+  bilan qayta chiqarildi, sening qog&rsquo;ozing bilan <b>bayt-baytga bir xil</b>.
+  O&rsquo;ng tomon &mdash; o&rsquo;sha dvigatel, faqat vozvrat o&rsquo;z joyida.</p>
+</section>
+
+<section>
+  <h2>Sabab &mdash; bitta qator</h2>
+  <div class="box bad">
+    <div class="mm">index.html:15697   posChTolovOch
+
+  var _bm={};
+  (t.rows||[]).forEach(function(b){ _bm[b.zavod+'||'+b.tur]=b.g; });
+  _ktBerildi = {list:t.rows, map:_bm};
+                      ^
+        HAMMA qator "berildi" ga tushadi - vozvrat ham</div>
+    <p style="margin-top:10px">POS&rsquo;dan qabul qilingandan keyin
+    &laquo;TO&rsquo;LOVGA O&rsquo;TISH&raquo; bosilsa, qabul qilingan <b>hamma qator</b>
+    berildi deb uzatiladi. Vozvrat ham shunga qo&rsquo;shilib ketadi.</p>
+  </div>
+  <div class="box gold" style="margin-top:10px">
+    <p><b>Bu bugungi ishdan emas.</b> Bu qator <code>v180.4</code> da yozilgan &mdash;
+    <b>11.09.2026</b>. <code>git log -S</code> bilan tekshirdim: bugungi
+    v188.27&ndash;v188.33 commitlarining hech biri bu joyga tegmagan.</p>
+    <p class="hint">Ya&rsquo;ni POS&rsquo;dan vozvrat qilib to&rsquo;lovga o&rsquo;tilganda
+    bir haftadan beri shunday chiqib turgan. Bugun ko&rsquo;zga tashlandi, chunki
+    yangi chek ostatkani ham chizadi.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Tuzatish</h2>
+  <div class="box good">
+    <p><b>1.</b> Qabuldan keyin uzatiladigan qatorlar <b>o&rsquo;z tipi bilan</b>
+    ketadi (v188.30 da har qatorga <code>tip</code> qo&rsquo;shilgan &mdash; tayyor).</p>
+    <p><b>2.</b> <code>posChTolovOch</code> ularni ikkiga ajratadi:
+    berish &rarr; <code>_ktBerildi</code>, vozvrat &rarr; yangi <code>_ktVozPos</code>.</p>
+    <p><b>3.</b> To&rsquo;lov cheki vozvratni o&rsquo;z blokida ko&rsquo;rsatadi va
+    OSTATKA ni <code>qarz + vozvrat &minus; berildi</code> dan oladi.</p>
+    <p class="hint" style="margin-top:9px"><b>~20 qator.</b> Chek yasovchiga
+    (<code>kTolovChekGen</code>) tegilmaydi &mdash; u vozvratni allaqachon
+    to&rsquo;g&rsquo;ri chizadi, faqat ma&rsquo;lumot noto&rsquo;g&rsquo;ri yo&rsquo;ldan kelardi.</p>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <p><b>Kod yozilmadi.</b> &laquo;Yoz&raquo; desang yozaman.</p>
+  </div>
+</section>
+
+</div>

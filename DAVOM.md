@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.33 · POS v0.39 · 2026-09-18
+**Oxirgi yangilanish:** v188.34 · POS v0.39 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,36 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.34 — POS VOZVRATI CHEKDA BERILDI BO'LIB CHIQARDI (2026-09-18)
+
+Maket: `mockups/pos-vozvrat-berildi-xato.html` →
+https://claude.ai/artifact/VTVjVyqwyuRLGsRRBwmVvU
+
+Ibrohim: «vozvrat bo'ldi-de, lekin chekda berildi bo'b chiqdi… ostatkasini
+ko'paytirvordi… chalkashib ketdi».
+
+**MA'LUMOT BUZILMAGAN.** `_ktBerildi` faqat bitta joyda (14777) o'qiladi va
+chek tanasini quradi — saqlash, kassa, qarz hisobi uni ko'rmaydi. Ibrohimning
+PDF hisoboti audit qilindi: `1,613.59 - 164.22 - 901.43 = 547.94` ✓,
+tur tarkibi 548.38 + bizning qarz 0.44 ✓, takroriy yozuv yo'q,
+18.09 yozuvlari tozalangan.
+
+**Sabab (15697, v180.4 dan — 11.09.2026):** qabul qilingan hamma qator tipiga
+qaramay berildi deb uzatilardi. Ustiga OSTATKA ikki marta kamayardi
+(`bd.qarz` da vozvrat allaqachon bor edi) → bosilgan chekda 510.58,
+to'g'risi 547.94.
+
+**Qilindi:** yangi `_ktVozPos`; `posChTolovOch` qatorlarni `tip` bo'yicha
+ajratadi; `_chVoz` ga POS vozvrati qo'shiladi; `_chOst = qarz - berildi +
+POS_vozvrat`. Modalning o'z vozvrat maydonlariga tegilmadi (ular `bd.qarz` da yo'q).
+
+Sinov: OSTATKA 547.94 → VOZVRAT −18.68 → QOLDI 529.26 → TO'LOV −28.65 →
+QOLGAN 500.61 · aralash holat ham to'g'ri.
+
+⚠ PRODDA SINALMAGAN.
 
 ---
 

@@ -8904,3 +8904,69 @@ Chek yasovchilar (`kTolovChekGen`, `klientSotuvChekYangiGen`), panelning o'zi
 ⚠ **Eski yozuvlar tuzatilmadi.** Bu usulda allaqachon saqlangan to'lovlarda
 perech hali ham `naqtPul` bo'lib turadi. Ibrohimdan so'ralgan: shunday yozuvlar
 bormi — bo'lsa topib sanaydigan tekshiruv alohida ish bo'ladi.
+
+## v188.34 — POS vozvrati to'lov chekida BERILDI bo'lib chiqardi
+
+**Ibrohim** (bosilgan chek rasmi bilan): «vozvrat bo'ldi-de, lekin chekda berildi
+bo'b chiqdi… berildi deb ostatkasini ko'paytirvordi, battar vozvrat qildimi…
+vozvrat bo'lgan narsa plus bo'p ketdi chekda, endi ostatkasi qanaqa edi bilmay
+qoldim, chalkashib ketdi».
+
+Maket: `mockups/pos-vozvrat-berildi-xato.html`.
+
+### Ma'lumot BUZILMAGAN — faqat chek
+
+`_ktBerildi` butun faylda **bitta joyda** o'qiladi (14777) va u faqat chek tanasini
+quradi. To'lov saqlanishi, kassa, qarz hisobi — hech biri uni ko'rmaydi.
+Ibrohimning PDF hisoboti audit qilindi: jamilar mos
+(`1,613.59 - 164.22 - 901.43 = 547.94`), tur bo'yicha tarkib `548.38`, bizning
+qarz `0.44`, takroriy yozuv yo'q. Ya'ni baza to'g'ri edi.
+
+### Nima bo'lgan — 15697
+
+    var _bm={}; (t.rows||[]).forEach(function(b){ _bm[b.zavod+'||'+b.tur]=b.g; });
+    _ktBerildi = {list:t.rows, map:_bm};
+
+Qabul qilingan **hamma qator** tipiga qaramay berildi deb uzatilardi. POS vozvrati
+ham shunga tushib, chekda BERILDI bo'lib chiqardi.
+
+Ustiga OSTATKA ikki marta kamayardi: `bd.qarz` da vozvrat ALLAQACHON ayirilgan,
+chek esa uni yana «berildi» deb ayirardi:
+
+    OSTATKA = (avvalgi - 18.68) - 18.68 = avvalgi - 37.36
+
+Shuning uchun bosilgan chekda `510.58` chiqqan, to'g'risi `547.94`.
+
+⚠ **Bu bugungi ishdan emas** — o'sha qator `v180.4` da, **11.09.2026** da
+yozilgan. `git log -S` bilan tekshirildi: v188.27–v188.33 commitlarining hech
+biri bu joyga tegmagan.
+
+### Qilindi
+
+Yangi `_ktVozPos` (14840) — POSdan kelgan VOZVRAT qatorlari. `posChTolovOch`
+qatorlarni `tip` bo'yicha ajratadi (tip v188.30 dan beri keladi; eskisida yo'q —
+kartaning tipiga qaraladi). Chekda:
+
+    _chVoz  <- POS vozvrati ham qo'shiladi        (VOZVRAT bloki)
+    _chOst  <- qarz - berildi + POS_vozvrat       (ikki marta ayirish tugadi)
+
+Modalning **o'z** vozvrat maydonlari (`kt-v-`, `kt-vz-`) hali saqlanmagan, ular
+`bd.qarz` da YO'Q — ularga tegilmadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. Abdulhamid VIP, 18.09.2026 14:34:
+
+    OSTATKA        547.94g   (Premium 83.75, Simay 56.89)
+    VOZVRAT        -18.68g
+    QOLDI          529.26g   Premium 83.75-10.81 = 72.94
+    TO'LOV         -28.65g
+    QOLGAN OSTATKA 500.61g
+
+Aralash (berish 20g + vozvrat 18.68g): OSTATKA jami 547.94, Jilva
+`136.68-20 = 116.68` to'g'ri qaytarildi.
+
+### Tegilmadi
+
+`kTolovChekGen` (u vozvratni allaqachon to'g'ri chizadi), saqlanadigan yozuv,
+kassa, qabul mantiqi, sotuv va POS cheklari.

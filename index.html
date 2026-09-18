@@ -1,4 +1,4 @@
-<!-- v188.33 -->
+<!-- v188.34 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.33';
+var APP_VER = 'v188.34';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -13767,6 +13767,7 @@ function saqlashKlientVozvrat(){
 function openKlientTolov(){
   chekTozala('kt');   // avval bu YO'Q edi -> oldingi klientning cheki preview'da qolib ketardi
   _ktBerildi = null;   // v180.4: qo'ng'iroqchadan ochilsa posChTolovOch qayta to'ldiradi
+  _ktVozPos = null;    // v188.34
   document.getElementById('kt-klient').value='';
   document.getElementById('kt-q').value='';
   document.getElementById('kt-drop').style.display='none';
@@ -14787,14 +14788,23 @@ function kTolovChekUpd() {
     var _vel=document.getElementById('kt-vz-'+zi+'-'+ti);
     if(_vel) _chVozQosh(z.nom+'||'+t2.nom, parseNum(_vel.value)||0);
   }); });
+  // v188.34: POSdan qabul qilingan vozvrat ham VOZVRAT blokida ko'rinadi
+  var _vp = _ktVozPos || {};
+  Object.keys(_vp).forEach(function(kk){ _chVozQosh(kk, _vp[kk]); });
   // amaldan OLDINGI balans: bd.qarz ichida BUGUNGI berildi allaqachon bor
   // (POS qabuli tarixga yozilgan), shuning uchun ayiriladi.
+  // v188.34: POS VOZVRATI ham bd.qarz da allaqachon AYIRILGAN — shuning uchun
+  // ostatkaga QAYTARIB qo'shiladi. Modalning o'z vozvrat maydonlari (kt-v-,
+  // kt-vz-) hali saqlanmagan, ular bd.qarz da YO'Q — ularga tegilmaydi.
   var _chOst = {};
   Object.keys(bd).forEach(function(kk){
-    _chOst[kk] = Math.round((((bd[kk]||{}).qarz||0) - (_chBer[kk]||0))*100)/100;
+    _chOst[kk] = Math.round((((bd[kk]||{}).qarz||0) - (_chBer[kk]||0) + (_vp[kk]||0))*100)/100;
   });
   Object.keys(_chBer).forEach(function(kk){
-    if(_chOst[kk]===undefined) _chOst[kk] = Math.round((-(_chBer[kk]||0))*100)/100;
+    if(_chOst[kk]===undefined) _chOst[kk] = Math.round(((_vp[kk]||0) - (_chBer[kk]||0))*100)/100;
+  });
+  Object.keys(_vp).forEach(function(kk){
+    if(_chOst[kk]===undefined) _chOst[kk] = Math.round((_vp[kk]||0)*100)/100;
   });
   var _chTol = [];
   qatorlar.forEach(function(r){
@@ -14823,6 +14833,11 @@ var _ktChekEkran = '';   // v188.18: ekran preview - printer buyruqlarisiz
 // yo'l bilan ochilsa null bo'ladi va chekda hech nima o'zgarmaydi.
 // {list:[{zavod,tur,g}], map:{'Zavod||Tur':g}}
 var _ktBerildi = null;
+// v188.34 (Ibrohim): «vozvrat bo'ldi-de, lekin chekda berildi bo'b chiqdi…
+// berildi deb ostatkasini ko'paytirvordi». POSdan qabul qilingan VOZVRAT
+// qatorlari to'lov chekiga berildi bo'lib uzatilardi. Endi alohida keladi.
+// ⚠ Faqat CHEK uchun — saqlanadigan yozuvga tegmaydi (_ktBerildi ham shunday).
+var _ktVozPos = null;
 function saqlashKlientTolov(){
   var ki=parseInt(document.getElementById('kt-klient').value);
   if(isNaN(ki)){alert('Klient tanlang!');return;}
@@ -15086,6 +15101,7 @@ function saqlashKlientTolov(){
   })();
   save('Klient tolov: '+k.nom);
   _ktBerildi = null;   // v180.4: keyingi to'lovga o'tib ketmasin
+  _ktVozPos = null;    // v188.34
   var chekEl = document.getElementById('kt-chek-body');
   if (_ktChekOn && chekEl && chekEl.textContent.trim() && _ktChekBody) {
     chekIkkiChop(chekYakun(_ktChekBody, 48, {body2:_ktChekBody2, chiziqsiz:true}), _ktCnt);
@@ -15641,7 +15657,7 @@ function posChQabul(){
   // v180.3: hisob yozilib bo'ldi — endi to'lovga o'tish taklif qilinadi.
   // Bu FAQAT holat saqlash, hisobga hech qanday ta'siri yo'q.
   // v185: chek uchun tip va sana ham kerak
-  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), tip:c.tip, sana:sana, soat:soat, kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
+  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), tip:c.tip, sana:sana, soat:soat, kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g, tip:x.tip}; })};
   save('POS chernovik qabul: '+k.nom);
   try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
   // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
@@ -15694,8 +15710,19 @@ function posChTolovOch(){
       openKlientTolov();
       // v180.4: openKlientTolov tozalaydi — shuning uchun UNDAN KEYIN to'ldiriladi,
       // ktPickK esa chekni qayta chizadi, demak undan OLDIN.
-      var _bm={}; (t.rows||[]).forEach(function(b){ _bm[b.zavod+'||'+b.tur]=b.g; });
-      if((t.rows||[]).length) _ktBerildi={list:t.rows, map:_bm};
+      // v188.34: berish va vozvrat ALOHIDA. Oldin hamma qator berildi deb
+      // uzatilardi — POS vozvrati chekda BERILDI bo'lib, ostatkani ko'paytirib
+      // ko'rsatardi. Qator tipi v188.30 dan beri keladi; eskisida tip yo'q,
+      // shunda kartaning tipiga qaraladi.
+      var _bm={}, _vm={}, _bl=[];
+      (t.rows||[]).forEach(function(b){
+        var kk=b.zavod+'||'+b.tur;
+        var tp=(b.tip==='vozvrat'||b.tip==='berish') ? b.tip : (t.tip==='vozvrat'?'vozvrat':'berish');
+        if(tp==='vozvrat') _vm[kk]=Math.round(((_vm[kk]||0)+b.g)*100)/100;
+        else { _bm[kk]=Math.round(((_bm[kk]||0)+b.g)*100)/100; _bl.push(b); }
+      });
+      _ktVozPos = Object.keys(_vm).length ? _vm : null;
+      if(_bl.length) _ktBerildi={list:_bl, map:_bm};
       ktPickK(t.ki);
       _ktKbToldir(t.kb);   // v180.6: POS yozgan naqt/perech/karta/lom
     }
