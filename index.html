@@ -1,4 +1,4 @@
-<!-- v188.28 -->
+<!-- v188.29 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.28';
+var APP_VER = 'v188.29';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15578,7 +15578,7 @@ function posChQabul(){
   // v180.3: hisob yozilib bo'ldi — endi to'lovga o'tish taklif qilinadi.
   // Bu FAQAT holat saqlash, hisobga hech qanday ta'siri yo'q.
   // v185: chek uchun tip va sana ham kerak
-  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), tip:c.tip, sana:sana, kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
+  if(_posChTestmi()) _posChTolov={ki:ki, nom:k.nom, g:roundG(jg), tip:c.tip, sana:sana, soat:soat, kb:(c.klientdaBor||null), rows:satrlar.map(function(x){ return {zavod:x.zavod, tur:x.tur, g:x.g}; })};
   save('POS chernovik qabul: '+k.nom);
   try{ c._ref.set({holat:'qabul', qabulVaqt:Date.now()},{merge:true}); }catch(e){}
   // Snapshot kelguncha kutmaymiz — sanagich darrov kamaysin
@@ -15675,12 +15675,57 @@ function _posChChekMatn(tip, nom, sana, rows){
   }
   return t;
 }
+// v188.29 (Ibrohim): «klient keldi, vozvrat qildi, i mol berildi — shunaqa holat
+// bo'sa Vozvrat shuncha gram Jami ko'rsatishi kere, kegin berilgan molga chek
+// chiqarishi kere berildi dib to'lovga o'tmasa... chekda ostatkani korsatadi,
+// vozvrat vesini ayiradi, berishshi qo'shadi, agar to'lov qimasa qogan
+// ostatkasini korsatadi». B varianti tanlandi.
+//
+// Yangi chek dvigateli YOZILMADI — sotuv chekining o'zi ishlatiladi.
+// oldilar/lomlar/offsetlar bo'sh berilsa klientSotuvChekYangiGen ichida
+// tolBor=false bo'lib TO'LOV bloki tushadi va tuzilish o'zi shunday chiqadi:
+//     OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLGAN OSTATKA
+//
+// OSTATKA ni qanday olamiz: POS amallari qabulda ALLAQACHON k.tarix ga
+// yozilgan, shuning uchun _klientTurQarzMap HOZIRGI qarzni beradi. Undan
+// shu kundagi POS amallarini ORQAGA qaytaramiz (+vozvrat, -berildi) — shunda
+// QOLGAN OSTATKA doim klientning HAQIQIY qarziga teng chiqadi, o'sha kuni
+// boshqa nima bo'lganidan qat'i nazar.
+function _posChekOpts(ki, sana, soat){
+  var k=(data.klientlar||[])[ki]; if(!k || !k.tarix) return null;
+  var voz={}, ber={}, vozlar=[];
+  k.tarix.forEach(function(op){
+    if(op.pos!==1 || op.sana!==sana) return;   // FAQAT shu kundagi POS amallari
+    if(!op.zavod || !op.tur) return;
+    var kk=op.zavod+'||'+op.tur;
+    if(op.tip==='vozvrat')     voz[kk]=roundG((voz[kk]||0)+parseNum(op.gramm));
+    else if(op.tip==='berish') ber[kk]=roundG((ber[kk]||0)+parseNum(op.gramm));
+  });
+  Object.keys(voz).forEach(function(kk){
+    var pr=kk.split('||'); vozlar.push({zavod:pr[0], tur:pr[1], gramm:voz[kk]});
+  });
+  if(!vozlar.length && !Object.keys(ber).length) return null;
+  var hoz=_klientTurQarzMap(k), eski={};
+  Object.keys(hoz).forEach(function(kk){ eski[kk]=hoz[kk]; });
+  Object.keys(voz).forEach(function(kk){ eski[kk]=roundG((eski[kk]||0)+voz[kk]); });
+  Object.keys(ber).forEach(function(kk){ eski[kk]=roundG((eski[kk]||0)-ber[kk]); });
+  var eskiOst={};
+  Object.keys(eski).forEach(function(kk){ if(Math.abs(eski[kk])>0.001) eskiOst[kk]=eski[kk]; });
+  return { klientNom:k.nom, sana:sana, soat:soat||'',
+    oldilar:[], lomlar:[], offsetlar:[],
+    berildiMap:ber, eskiOstMap:eskiOst, vozlar:vozlar,
+    skidka:0, ortiqcha:0, tanlov:null, naqt:0, karta:0, perech:0 };
+}
 function posChTolovYop(){
   var t=_posChTolov; _posChTolov=null;
   // to'lovga O'TILMADI — demak chek shu yerda chiqadi.
   // (TO'LOVGA O'TISH bosilsa posChTolovOch ishlaydi, u yerda to'lov cheki bor.)
-  if(t && (t.rows||[]).length){
-    try{ chekIkkiChop(chekYakun(_posChChekMatn(t.tip, t.nom, t.sana, t.rows)), 1); }
+  if(t){
+    try{
+      var _po=_posChekOpts(t.ki, t.sana, t.soat);
+      if(_po) chekIkkiChop(klientSotuvChekYangiGen(_po), 1);
+      else if((t.rows||[]).length) chekIkkiChop(chekYakun(_posChChekMatn(t.tip, t.nom, t.sana, t.rows)), 1);
+    }
     catch(e){ if(window.console) console.error('posChChek:', e); }
   }
   posBellOch();
@@ -15736,9 +15781,18 @@ function posBellOch(){
       h+='<button onclick="posChTolovYop()" style="height:44px;padding:0 18px;border-radius:16px;cursor:pointer;font-size:13.5px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-family:inherit;">Keyinroq</button>';
       h+='<button onclick="posChTolovOch()" style="flex:1;height:44px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:700;border:1px solid var(--gold);background:var(--gold);color:var(--on-gold);font-family:inherit;">TO&#39;LOVGA O&#39;TISH</button>';
       h+='</div>';
+      // v188.29: SHU KLIENTNING yana kutayotgan chernovigi bo'lsa — chekni
+      // kechiktirib, uni ham qabul qilish taklif qilinadi. Har chernovik alohida
+      // qabul qilinadi (skan tekshiruvi saqlanadi), faqat CHEK birlashadi.
+      var _qold=_posCh.filter(function(x){ return x.klient===_t.nom; });
+      if(_qold.length){
+        h+='<button onclick="posChOch(\''+_qold[0]._id+'\')" style="width:100%;height:44px;margin-top:8px;border-radius:16px;cursor:pointer;font-size:13.5px;font-weight:700;border:1px solid var(--teal-bd);background:var(--teal-bg);color:var(--teal);font-family:inherit;">YANA '+_qold.length+' TA &#8212; QABUL QILISH</button>';
+      }
       // v185: yon ta'sir yashirin qolmasin — qaysi chek chiqishi yozib turadi
-      h+='<div style="font-size:11px;color:var(--muted);padding-top:9px;">&#171;Keyinroq&#187; bosilsa '
-        +(_t.tip==='vozvrat'?'vozvrat':'berish')+' cheki chiqadi</div>';
+      h+='<div style="font-size:11px;color:var(--muted);padding-top:9px;line-height:1.6;">'
+        +(_qold.length
+           ? 'Bu klientda yana '+_qold.length+' ta chernovik bor. Avval o&#39;shani ham qabul qilsang &#8212; <b>bitta chek</b> chiqadi.'
+           : '&#171;Keyinroq&#187; bosilsa ostatka, vozvrat va berildi bilan chek chiqadi')+'</div>';
       h+='</div>';
     } else if(!_posCh.length){
       h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:26px 10px;">Chernovik yo\'q</div>';

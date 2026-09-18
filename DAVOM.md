@@ -4,8 +4,8 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.28 · POS v0.37 · 2026-09-18
-**⏳ Ochiq:** POS vozvrat+berish cheki (A/B tanlanmagan) + kassa qulfining qolgan ishlari.
+**Oxirgi yangilanish:** v188.29 · POS v0.37 · 2026-09-18
+**⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
 
@@ -331,7 +331,7 @@ Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
 
 ---
 
-## ⏳ KUTILYAPTI — POS: VOZVRAT + BERISH CHEKI (2026-09-18)
+## ✅ v188.29 — POS: VOZVRAT + BERISH BITTA CHEKDA (2026-09-18)
 
 Maket: `mockups/pos-vozvrat-berish-chek.html` →
 https://claude.ai/artifact/YFj7CZNBJUxJ5i7kUYoQP5
@@ -361,7 +361,17 @@ alohida chernovik**, ikki marta qabul qilinadi.
 **B)** qabulda «o'sha klientning yana N ta chernovigi bor, birga qabul
 qilinsinmi?» so'raydi → bitta chek (~55 qator, qabul jarayoni o'zgaradi).
 
-**Kod YOZILMADI.**
+**✅ YOZILDI — v188.29, B varianti.** Yangi `_posChekOpts` (15694) `k.tarix`
+dan chek ma'lumotini quradi: hozirgi qarzdan POS amallarini orqaga qaytaradi,
+shunda QOLGAN OSTATKA doim haqiqiy qarzga teng. `posChTolovYop` (15720) endi
+`klientSotuvChekYangiGen` ni chaqiradi. Tasdiq kartasiga «YANA N TA — QABUL
+QILISH» tugmasi qo'shildi (15789).
+
+Sinov: 37.40 → 8.80 → 28.60 → 26.15 → **54.75g** = klientning haqiqiy qarzi ✓
+
+⚠ «YANA N TA» tugmasi UI — Node'da sinalmadi, ilovada ko'rish kerak.
+⚠ PRODDA HALI SINALMAGAN — push qilinmagan.
+⚠ `_posChChekMatn` zaxira yo'l sifatida qoldi, o'chirilmadi.
 
 ---
 

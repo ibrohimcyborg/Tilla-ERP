@@ -8585,3 +8585,78 @@ oldin). Sherzodning $4,661 i perech — naqt emas, shuning uchun fon bo'sh.
 ### Tegilmadi
 
 Suzuvchi foyda formulasi, `qopUlush` hisobi, `kassaFifoModel`, saqlanadigan yozuvlar.
+
+## v188.29 — POS: vozvrat + berish bitta chekda (B varianti)
+
+**Ibrohim**: «klient keldi, vozvrat qildi, i mol berildi — shunaqa holat bo'sa
+Vozvrat shuncha gram Jami ko'rsatishi kere, kegin berilgan molga chek chiqarishi
+kere berildi dib to'lovga o'tmasa… chekda ostatkani korsatadi, vozvrat vesini
+ayiradi, berishshi qo'shadi, agar to'lov qimasa qogan ostatkasini korsatadi».
+Variant **B** tanlandi.
+
+Maket: `mockups/pos-vozvrat-berish-chek.html`.
+
+### Oldin
+
+To'lovga o'tilmasa `_posChChekMatn` (15649) chiqarardi — alohida, sodda dvigatel:
+
+    Vozvrat qilindi              |    Klientga berildi
+      Butterfly - Oddiy  +5.60g  |      Diamond - Oddiy   -18.75g
+      Simay - Oddiy      +3.20g  |      Butterfly - 3D     -7.40g
+    Jami gramm           +8.80g  |    JAMI               -26.15g
+
+**Ostatka umuman yo'q**, soat yo'q, vozvrat va berish ikki alohida chek.
+
+### Endi
+
+**Yangi chek dvigateli YOZILMADI** — sotuv chekining o'zi ishlatiladi.
+`oldilar`/`lomlar`/`offsetlar` bo'sh berilsa `klientSotuvChekYangiGen` ichida
+`tolBor=false` bo'lib TO'LOV bloki tushadi va tuzilish o'zi shunday chiqadi:
+
+    OSTATKA -> VOZVRAT -> QOLDI -> BERILDI -> QOLGAN OSTATKA
+
+### OSTATKA qanday olinadi
+
+POS amallari qabulda **allaqachon** `k.tarix` ga yozilgan, shuning uchun
+`_klientTurQarzMap` HOZIRGI qarzni beradi. Yangi `_posChekOpts` undan shu
+kundagi POS amallarini **orqaga qaytaradi** (+vozvrat, −berildi):
+
+    hozirgi qarz  {Butterfly||Oddiy:19.8, Diamond||Oddiy:30.75, Simay||Oddiy:-3.2, Butterfly||3D:7.4}
+    eskiOstMap    {Butterfly||Oddiy:25.4, Diamond||Oddiy:12}
+
+Shunda `QOLGAN OSTATKA` **doim** klientning haqiqiy qarziga teng chiqadi —
+o'sha kuni boshqa nima bo'lganidan qat'i nazar. Faqat `pos:1` va shu sana
+amallari qamraladi.
+
+### Bitta chek qanday bo'ladi (B)
+
+POS'da vozvrat va berish **ikki alohida chernovik**. Har biri alohida qabul
+qilinadi — skan tekshiruvi saqlanadi. Faqat **chek** birlashadi: tasdiq
+kartasida «**YANA N TA — QABUL QILISH**» tugmasi chiqadi (o'sha klientning
+kutayotgan chernoviklari bor bo'lsa) va izoh yozadi: «Bu klientda yana 1 ta
+chernovik bor. Avval o'shani ham qabul qilsang — bitta chek chiqadi».
+
+To'lovga o'tilsa — o'zgarish yo'q, v188.18 dagi to'lov cheki ishlaydi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+Uchdan-uchiga (`k.tarix` dan, haqiqiy funksiyalar):
+
+    OSTATKA         37.40g
+    VOZVRAT          8.80g
+    QOLDI           28.60g     Butterfly Oddiy  25.40-5.60 = 19.80g
+    BERILDI         26.15g
+    QOLGAN OSTATKA  54.75g     Diamond Oddiy   12.00+18.75 = 30.75g
+
+**Nazorat:** klientning haqiqiy jami qarzi = **54.75g** = chekdagi
+`QOLGAN OSTATKA JAMI`. Faqat-vozvrat holatida ortiqcha `QOLDI` chiqmaydi
+(v188.24 qoidasi o'zi ishlaydi).
+
+⚠ «YANA N TA» tugmasi — UI, Node'da sinab ko'rilmadi.
+
+### Tegilmadi
+
+`klientSotuvChekYangiGen` (faqat chaqiriladi), to'lov cheki, qabul mantiqi,
+saqlanadigan yozuvlar. `_posChChekMatn` zaxira yo'l sifatida qoldi
+(POS amali topilmasa) — **o'chirilmadi**.
