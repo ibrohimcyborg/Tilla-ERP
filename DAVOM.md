@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.30 · POS v0.38 · 2026-09-18
+**Oxirgi yangilanish:** v188.31 · POS v0.38 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,33 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.31 — BERISH / VOZVRAT MODALIGA OSTATKALI CHEK (2026-09-18)
+
+Maket: `mockups/berish-vozvrat-ostatka-chek.html` →
+https://claude.ai/artifact/Ru5JxS8PMi41vCDHiJZQRn
+
+Ibrohim: «Berish vozvrat modaliniyam ostatka chek qo'shde… 20chekda bizaga
+ostatka malumoti keremas» + **«Jami Ostatkamas, Qolgan Ostatka bo'vursin»**
+(A varianti — nom hamma joyda bir xil qoldi).
+
+Sotuv modalidagi `[ostatka] CHEK` qatori ikki modalga qo'shildi. Yoqilsa
+sotuv chekining dvigateli chaqiriladi:
+`OSTATKA → BERILDI/VOZVRAT → QOLGAN OSTATKA`. 2-chek ostatkasiz — dvigatel
+`qisqa` qoidasi bilan o'zi tushiradi (v188.17). O'chiq bo'lsa avvalgi sodda chek.
+
+⚠ **Manfiy qator topildi:** berish modalida gramm manfiy bo'lishi mumkin, lekin
+dvigatelda `berBor = jamiBer>0.001` — manfiy jamida BERILDI va QOLGAN OSTATKA
+chiqmay, chek faqat OSTATKA bo'lib qolardi. Endi manfiy qatorda ostatkali chek
+ishlatilmaydi, sodda chek chiqadi. Dvigatelga tegilmadi.
+
+Sinov: berish 37.40→26.15→63.55g · vozvrat 37.40→8.80→28.60g ·
+2-cheklarda ostatka yo'q · manfiy qator → sodda chek.
+
+⚠ Kalitcha sukut bo'yicha O'CHIQ.
+⚠ PRODDA SINALMAGAN.
 
 ---
 

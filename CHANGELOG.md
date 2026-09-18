@@ -8722,3 +8722,58 @@ Aralash savat (Butterfly IKKI marta — berish va vozvrat):
 Chek (v188.29 da tayyor), to'lov yo'li, `_pbOch`, dona registri, saqlanadigan
 yozuvlar shakli. Tasdiq kartasidagi «YANA N TA» tugmasi **qoldirildi** —
 POS eski versiyadan ikki chernovik kelsa hali asqotadi.
+
+## v188.31 — berish / vozvrat modaliga ostatkali chek
+
+**Ibrohim** (sotuv modalidagi `ostatka CHEK` qatori rasmi bilan): «Berish vozvrat
+modaliniyam ostatka chek qo'shde — yoqsa ostatkasi bilan ko'rsat: oldin ostatka,
+kegin berishdan kegin qancha boganini, kegin JAMI OSTATKA qilib ko'rsat…
+vozvrattayam ostatka chek yoqsa minus qilib ostatkasi bo'lsa kegin Jami ostatkani
+ko'rsat. Agar o'chirilsa ostatkasini korsatma. 20chekda bizaga ostatka malumoti
+keremas». Keyin: **«Jami Ostatkamas, Qolgan Ostatka bo'vursin»** → nom o'zgarmadi.
+
+Maket: `mockups/berish-vozvrat-ostatka-chek.html`.
+
+### Qilindi
+
+Sotuv modalidagi kalitcha qatorining aynan o'zi ikki modalga qo'shildi:
+
+    [ostatka]  CHEK                              [====]
+
+Yoqilgan bo'lsa — **yangi dvigatel yozilmaydi**, sotuv chekining o'zi chaqiriladi
+(`oldilar`/`lomlar`/`offsetlar` bo'sh → `tolBor=false` → TO'LOV bloki tushadi):
+
+    BERISH   OSTATKA -> BERILDI -> QOLGAN OSTATKA
+    VOZVRAT  OSTATKA -> VOZVRAT -> QOLGAN OSTATKA
+
+`eskiOstMap` — `_klientTurQarzMap(k)` dan. Modal previewi **saqlashdan oldin**
+ishlaydi, shuning uchun hozirgi qarz aynan oldingi ostatkaga teng.
+
+**2-chek ostatkasiz** — alohida kod yozilmadi, dvigatel `qisqa` qoidasi bilan
+o'zi tushiradi (v188.17).
+
+O'chirilgan bo'lsa — avvalgi sodda chek shundayligicha qoladi.
+
+### ⚠ Manfiy qator
+
+Berish modalida gramm MANFIY bo'lishi mumkin (tuzatish). Dvigatelda
+`berBor = jamiBer>0.001`, shuning uchun manfiy jamida BERILDI va QOLGAN OSTATKA
+bloklari umuman chiqmaydi — chek **faqat OSTATKA** bo'lib qolardi. Sinovda
+topildi. Shuning uchun manfiy qator bo'lsa ostatkali chek ISHLATILMAYDI,
+avvalgi sodda chek chiqadi. **Dvigatelga tegilmadi.**
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. Haqiqiy dvigatel bilan:
+
+    berish   OSTATKA 37.40 -> BERILDI 26.15 -> QOLGAN 63.55g
+             2-chek: faqat BERILDI + [  ] Tekshirildi
+    vozvrat  OSTATKA 37.40 -> VOZVRAT  8.80 -> QOLGAN 28.60g
+             qatorda hisob: 25.40-5.60 = 19.80g,  Simay Oddiy +3.20g
+             2-chek: faqat VOZVRAT + [  ] Tekshirildi
+    manfiy   ostatkali chek ishlatilmaydi -> sodda chek
+
+### Tegilmadi
+
+`klientSotuvChekYangiGen` (faqat chaqiriladi), sotuv cheki, POS cheki,
+to'lov cheki, blok nomlari. Kalitcha sukut bo'yicha **o'chiq**.

@@ -1,4 +1,4 @@
-<!-- v188.30 -->
+<!-- v188.31 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1561,7 +1561,16 @@ body.rol-hamid .hamid-x { display: none !important; }
 
     <div id="kb-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <!-- v188.31: ostatkali chek kalitchasi (sotuv modalidagidek). Sukut — O'CHIQ. -->
+          <div onclick="kbOstToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <div id="kb-ost-sw" style="width:32px;height:19px;border-radius:999px;background:var(--border);position:relative;flex-shrink:0;transition:background .2s;">
+              <div id="kb-ost-sw-dot" style="width:15px;height:15px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+            </div>
+            <span style="font-size:11px;color:var(--muted);">ostatka</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+        </div>
         <div onclick="kbChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
           <div id="kb-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
             <div id="kb-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
@@ -1610,7 +1619,16 @@ body.rol-hamid .hamid-x { display: none !important; }
 
     <div id="kv-chek-preview" style="display:none;background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <!-- v188.31: ostatkali chek kalitchasi (sotuv modalidagidek). Sukut — O'CHIQ. -->
+          <div onclick="kvOstToggle()" style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <div id="kv-ost-sw" style="width:32px;height:19px;border-radius:999px;background:var(--border);position:relative;flex-shrink:0;transition:background .2s;">
+              <div id="kv-ost-sw-dot" style="width:15px;height:15px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+            </div>
+            <span style="font-size:11px;color:var(--muted);">ostatka</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Chek</div>
+        </div>
         <div onclick="kvChekToggle()" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
           <div id="kv-chek-sw" style="width:38px;height:22px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;transition:background .2s;">
             <div id="kv-chek-sw-dot" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:18px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
@@ -1990,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.30';
+var APP_VER = 'v188.31';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -12826,6 +12844,34 @@ function kBerishUpdateChek() {
     rows.push({ zavod: z.nom, tur: t.nom, g: g });
   });
   if (!rows.length) { prev.style.display = 'none'; return; }
+  // v188.31: «ostatka» kalitchasi yoqilgan bo'lsa — sotuv chekining dvigateli.
+  // Berish HALI SAQLANMAGAN (preview saqlashdan oldin ishlaydi), shuning uchun
+  // _klientTurQarzMap(k) aynan OLDINGI ostatkani beradi.
+  _kbChekPair = null;
+  // ⚠ MANFIY qator (tuzatish) bo'lsa ostatkali chek ISHLATILMAYDI: dvigatelda
+  //   berBor = jamiBer>0.001, shuning uchun manfiy jamida BERILDI va QOLGAN
+  //   OSTATKA bloklari umuman chiqmaydi — chek faqat OSTATKA bo'lib qolardi.
+  //   Bunday holatda avvalgi sodda chek chiqadi.
+  var _kbManfiy = rows.some(function(r){ return r.g < 0; });
+  if (_kbOstOn && !_kbManfiy) {
+    try {
+      var _bm={}, _hq=_klientTurQarzMap(k), _eo={};
+      rows.forEach(function(r){ var kk=r.zavod+'||'+r.tur; _bm[kk]=roundG((_bm[kk]||0)+r.g); });
+      Object.keys(_hq).forEach(function(kk){ if(Math.abs(_hq[kk])>0.001) _eo[kk]=_hq[kk]; });
+      var _nKb=new Date();
+      var _pair=klientSotuvChekYangiGen({
+        klientNom:k.nom, sana:sana,
+        soat:String(_nKb.getHours()).padStart(2,'0')+':'+String(_nKb.getMinutes()).padStart(2,'0'),
+        oldilar:[], lomlar:[], offsetlar:[],
+        berildiMap:_bm, eskiOstMap:_eo, vozlar:[],
+        skidka:0, ortiqcha:0, tanlov:null, naqt:0, karta:0, perech:0
+      });
+      _kbChekPair=_pair; _kbChekBody='';
+      body.textContent=_pair.body;
+      prev.style.display='block';
+      return;
+    } catch(e){ if(window.console) console.error('kbOstChek:', e); _kbChekPair=null; }
+  }
   var W = 48;
   function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
   function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
@@ -12851,6 +12897,20 @@ function kBerishUpdateChek() {
   prev.style.display = 'block';
 }
 var _kbChekBody = '';
+// v188.31 (Ibrohim): «Berish vozvrat modaliniyam ostatka chek qo'shde — yoqsa
+// ostatkasi bilan ko'rsat: oldin ostatka, kegin berishdan kegin qancha boganini,
+// kegin Qolgan Ostatka». «20chekda bizaga ostatka malumoti keremas» — buni
+// dvigatel o'zi qiladi (v188.17 qisqa qoidasi).
+// Ibrohim: «Jami Ostatkamas, Qolgan Ostatka bo'vursin» — nom o'zgarmaydi.
+// Sukut bo'yicha O'CHIQ (sotuv modalidagidek).
+var _kbOstOn = false, _kbChekPair = null;
+function kbOstToggle(){
+  _kbOstOn = !_kbOstOn;
+  var sw=document.getElementById('kb-ost-sw'), dot=document.getElementById('kb-ost-sw-dot');
+  if(sw) sw.style.background=_kbOstOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_kbOstOn?'15px':'2px';
+  kBerishUpdateChek();
+}
 var _kbSkanState = {};
 function kbSkanKey(zi,ti){ return zi+'_'+ti; }
 // v171.6: berish skanida ham fokus kiritish maydonida qolsin.
@@ -12987,6 +13047,8 @@ function openKlientBerish(){
   var kbCntEl0=document.getElementById('kb-cnt'); if(kbCntEl0) kbCntEl0.textContent='1';
   var kbSw0=document.getElementById('kb-chek-sw'); if(kbSw0) kbSw0.style.background=_kbChekOn?'var(--green)':'var(--border)';
   var kbDot0=document.getElementById('kb-chek-sw-dot'); if(kbDot0) kbDot0.style.left=_kbChekOn?'18px':'2px';
+  var kbOs0=document.getElementById('kb-ost-sw'); if(kbOs0) kbOs0.style.background=_kbOstOn?'var(--green)':'var(--border)';   // v188.31
+  var kbOd0=document.getElementById('kb-ost-sw-dot'); if(kbOd0) kbOd0.style.left=_kbOstOn?'15px':'2px';
   document.getElementById('modal-kberish').classList.add('open');
   fokusDesktop('kb-q',200);
 }
@@ -13195,8 +13257,8 @@ function saqlashKlientBerish(){
   if(!any){alert('Gramm kiriting!');return;}
   save('Klient berish: '+k.nom);
   var kbChekEl = document.getElementById('kb-chek-body');
-  if (_kbChekOn && kbChekEl && kbChekEl.textContent.trim() && _kbChekBody) {
-    chekIkkiChop(chekYakun(_kbChekBody), _kbCnt);
+  if (_kbChekOn && kbChekEl && kbChekEl.textContent.trim() && (_kbChekPair || _kbChekBody)) {
+    chekIkkiChop(_kbChekPair || chekYakun(_kbChekBody), _kbCnt);   // v188.31
   }
   closeModal('modal-kberish');renderKlientlar();renderHome();if(typeof renderZavod==='function'&&curZ>=0) renderZavod();
   } // davomEt oxiri
@@ -13222,6 +13284,8 @@ function openKlientVozvrat(){
   var kvCntEl0=document.getElementById('kv-cnt'); if(kvCntEl0) kvCntEl0.textContent='1';
   var kvSw0=document.getElementById('kv-chek-sw'); if(kvSw0) kvSw0.style.background=_kvChekOn?'var(--green)':'var(--border)';
   var kvDot0=document.getElementById('kv-chek-sw-dot'); if(kvDot0) kvDot0.style.left=_kvChekOn?'18px':'2px';
+  var kvOs0=document.getElementById('kv-ost-sw'); if(kvOs0) kvOs0.style.background=_kvOstOn?'var(--green)':'var(--border)';   // v188.31
+  var kvOd0=document.getElementById('kv-ost-sw-dot'); if(kvOd0) kvOd0.style.left=_kvOstOn?'15px':'2px';
   document.getElementById('modal-kvozvrat').classList.add('open');
   fokusDesktop('kv-q',200);
 }
@@ -13612,6 +13676,27 @@ function kVozvratUpdateChek() {
     rows.push({ zavod: z.nom, tur: t.nom, g: g });
   });
   if (!rows.length) { prev.style.display = 'none'; return; }
+  // v188.31: «ostatka» kalitchasi — OSTATKA → VOZVRAT (minus) → QOLGAN OSTATKA
+  _kvChekPair = null;
+  if (_kvOstOn) {
+    try {
+      var _vz=[], _hq2=_klientTurQarzMap(k), _eo2={};
+      rows.forEach(function(r){ _vz.push({zavod:r.zavod, tur:r.tur, gramm:r.g}); });
+      Object.keys(_hq2).forEach(function(kk){ if(Math.abs(_hq2[kk])>0.001) _eo2[kk]=_hq2[kk]; });
+      var _nKv=new Date();
+      var _pair2=klientSotuvChekYangiGen({
+        klientNom:k.nom, sana:sana,
+        soat:String(_nKv.getHours()).padStart(2,'0')+':'+String(_nKv.getMinutes()).padStart(2,'0'),
+        oldilar:[], lomlar:[], offsetlar:[],
+        berildiMap:{}, eskiOstMap:_eo2, vozlar:_vz,
+        skidka:0, ortiqcha:0, tanlov:null, naqt:0, karta:0, perech:0
+      });
+      _kvChekPair=_pair2; _kvChekBody='';
+      body.textContent=_pair2.body;
+      prev.style.display='block';
+      return;
+    } catch(e){ if(window.console) console.error('kvOstChek:', e); _kvChekPair=null; }
+  }
   var W = 48;
   function center(s){ var pad=Math.max(0,Math.floor((W-s.length)/2)); return Array(pad+1).join(' ')+s; }
   function rjust(l,r){ var sp=W-l.length-r.length; if(sp<1)sp=1; return l+Array(sp+1).join(' ')+r; }
@@ -13632,6 +13717,15 @@ function kVozvratUpdateChek() {
   prev.style.display = 'block';
 }
 var _kvChekBody = '';
+// v188.31: vozvrat modalida ham — OSTATKA → VOZVRAT → QOLGAN OSTATKA.
+var _kvOstOn = false, _kvChekPair = null;
+function kvOstToggle(){
+  _kvOstOn = !_kvOstOn;
+  var sw=document.getElementById('kv-ost-sw'), dot=document.getElementById('kv-ost-sw-dot');
+  if(sw) sw.style.background=_kvOstOn?'var(--green)':'var(--border)';
+  if(dot) dot.style.left=_kvOstOn?'15px':'2px';
+  kVozvratUpdateChek();
+}
 function kvUpdate(el) {
   kVozvratUpdateChek();
   var qarz = parseFloat(el.dataset.qarz) || 0;
@@ -13715,8 +13809,8 @@ function saqlashKlientVozvrat(){
   });
   save('Klient vozvrat: '+k.nom);
   var kvChekEl = document.getElementById('kv-chek-body');
-  if (_kvChekOn && kvChekEl && kvChekEl.textContent.trim() && _kvChekBody) {
-    chekIkkiChop(chekYakun(_kvChekBody), _kvCnt);
+  if (_kvChekOn && kvChekEl && kvChekEl.textContent.trim() && (_kvChekPair || _kvChekBody)) {
+    chekIkkiChop(_kvChekPair || chekYakun(_kvChekBody), _kvCnt);   // v188.31
   }
   closeModal('modal-kvozvrat');renderKlientlar();renderHome();
   if(typeof renderKassa==='function') renderKassa();
