@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.37';
+var POS_VER = 'v0.38';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -1072,6 +1072,16 @@ function posBerishOch(){ _pbOch('berish'); }
 
 function posVozvratOch(){ _pbOch('vozvrat'); }
 
+// v0.38 (Ibrohim): «tepada Berish bor, kegin versiya bor, ushanga kegin
+// dumaloqda Berish / vozvrat qoshsen». _pbOch dan farqi - SAVAT TOZALANMAYDI,
+// faqat rejim almashadi. Har savat bloki o'z tipini eslab turadi.
+function posBRejim(m){
+  if(_pbMode===m) return;
+  if(_pbIch.length && !confirm('Kiritilgan donalar savatga qo\'shilmadi \u2014 o\'chadi.\n\nDavom etilsinmi?')) return;
+  _pbMode=m; _pbZi=-1; _pbIch=[]; _pbKir=''; _pbNeg=false;
+  _pbQarzYangila();
+  _pbDraw();
+}
 function _pbOch(m){
   if(!data.klientlar[_posKi]) return;
   _pbMode=m; _pbSavat=[]; _pbZi=-1; _pbTi=0; _pbIch=[]; _pbKir=''; _pbNeg=false; _pbKat=''; _kbTozala();
@@ -1134,7 +1144,7 @@ function _pbZavodPul(s){
 // Ekran 1 — savatdagi hamma zavodning puli
 function _pbSavatPul(){
   var p = 0;
-  _pbSavat.forEach(function(s){ p += _pbZavodPul(s); });
+  _pbSavat.forEach(function(s){ if(_pbSTip(s)==='berish') p += _pbZavodPul(s); });
   return Math.round(p*100)/100;
 }
 
@@ -1374,14 +1384,34 @@ function _pbOst(zi,ti){
   try{ return turOst(z.nom,t.nom)||0; }catch(e){ return 0; }
 }
 
-function _pbSIdx(i){ for(var x=0;x<_pbSavat.length;x++) if(_pbSavat[x].zi===i) return x; return -1; }
+// v0.38 (Ibrohim): «biratola, chiqmi turib vozvrat yoki berishshi qo'shsa
+// bo'ladi». Savat endi zi + TIP bo'yicha kalitlanadi - bitta zavodda berish
+// ham, vozvrat ham bo'lishi mumkin. tp berilmasa joriy rejim olinadi.
+function _pbSIdx(i, tp){
+  tp = tp || _pbMode;
+  for(var x=0;x<_pbSavat.length;x++)
+    if(_pbSavat[x].zi===i && (_pbSavat[x].tip||'berish')===tp) return x;
+  return -1;
+}
+function _pbSTip(s){ return (s && s.tip==='vozvrat') ? 'vozvrat' : 'berish'; }
+// Savatda qaysi tiplar bor: 'berish' | 'vozvrat' | 'aralash'
+function _pbChTip(){
+  var b=false, v=false;
+  _pbSavat.forEach(function(s){ if(_pbSTip(s)==='vozvrat') v=true; else b=true; });
+  return (b&&v) ? 'aralash' : (v ? 'vozvrat' : 'berish');
+}
 
 function _pbIchJami(){ var g=0; _pbIch.forEach(function(d){ g+=d.g; }); return roundG(g); }
 
 function _pbTurJami(j){ var g=0; _pbIch.forEach(function(d){ if(d.ti===j) g+=d.g; }); return roundG(g); }
 
+// v0.38 (Ibrohim): «vozvratti summasini ko'rsatish shartamas, berishshi
+// summasini ko'rsatsa bo'ladi» - JAMI faqat BERISH qatorlaridan.
 function _pbSavatJami(){ var g=0,n=0;
-  _pbSavat.forEach(function(s){ s.dona.forEach(function(d){ g+=d.g; n++; }); });
+  _pbSavat.forEach(function(s){
+    if(_pbSTip(s)!=='berish') return;
+    s.dona.forEach(function(d){ g+=d.g; n++; });
+  });
   return {g:roundG(g), n:n}; }
 
 function _pbZavodJami(i){ var x=_pbSIdx(i); if(x<0) return null;
@@ -1444,7 +1474,7 @@ function posBIchOchir(i){ _pbIch.splice(i,1); _pbDraw(); }
 
 function posBSavatga(){
   if(!_pbIch.length) return;
-  var rec={zi:_pbZi, dona:_pbIch.map(function(d){ return {ti:d.ti,g:d.g}; })};
+  var rec={zi:_pbZi, tip:_pbMode, dona:_pbIch.map(function(d){ return {ti:d.ti,g:d.g}; })};
   var x=_pbSIdx(_pbZi);
   if(x>=0) _pbSavat[x]=rec; else _pbSavat.push(rec);
   _pbZi=-1; _pbIch=[]; _pbKir=''; _pbDraw();
@@ -1452,7 +1482,12 @@ function posBSavatga(){
 
 function posBSavatOchir(i,ev){ if(ev) ev.stopPropagation(); _pbSavat.splice(i,1); _pbDraw(); }
 
-function posBSavatKir(i){ posBZavod(_pbSavat[i].zi); }
+function posBSavatKir(i){
+  var s=_pbSavat[i]; if(!s) return;
+  var tp=_pbSTip(s);
+  if(_pbMode!==tp){ _pbMode=tp; _pbQarzYangila(); }  // v0.38: blok o'z rejimida ochiladi
+  posBZavod(s.zi);
+}
 
 function posBBekor(){
   if((_pbSavat.length||_pbIch.length) && !confirm('Hammasi o\'chadi. Bekor qilinsinmi?')) return;
@@ -1484,21 +1519,21 @@ function posBSaqla(){
     agg.tartib.forEach(function(ti){
       var t=z.turlar[ti]; if(!t) return;
       var g=agg.m[ti].g; if(!g) return;
-      rows.push({zavod:z.nom, tur:t.nom, gramm:g,
+      rows.push({zavod:z.nom, tur:t.nom, gramm:g, tip:_pbSTip(s),
                  dona:agg.m[ti].arr.length, donalar:agg.m[ti].arr.slice()});
     });
   });
   if(!rows.length){ alert('Qatorlar yo\'q.'); return; }
 
   ref.add({
-    tip: _pbV()?'vozvrat':'berish',
+    tip: _pbChTip(),        // v0.38: aralash savatda 'aralash'
     klient: k.nom,
     sana: sana, soat: soat,
     qurilma: (localStorage.getItem('tilla-qurilma')||''),
     rows: rows,
     // v0.25 (Ibrohim): «chernovikka qo'shib menga yuborsin».
     // Bo'sh bo'lsa maydon umuman yozilmaydi — eski chernoviklar shakli buzilmasin.
-    klientdaBor: (_pbV() ? null : _kbChernovik()),
+    klientdaBor: (_pbChTip()==='vozvrat' ? null : _kbChernovik()),
     holat: 'kutilmoqda',
     vaqt: Date.now()
   }).then(function(){
@@ -1538,6 +1573,13 @@ function _pbDraw(){
   // qolardi (Ibrohim telefonda). Shu sababli tepa satrga ham chiqarildi.
   // Matn _verBelgi() dan — POS rolida 'POS <ver>', boshqa rolda APP_VER.
   h+='<span style="font-size:9.5px;color:var(--muted);border:1px solid var(--border);border-radius:24px;padding:1px 7px;white-space:nowrap;flex:none;">'+_verBelgi()+'</span>';
+  // v0.38: versiyadan keyin dumaloq Berish / Vozvrat almashtirgichi
+  h+='<span style="display:inline-flex;border:1px solid var(--border);border-radius:24px;overflow:hidden;background:var(--surf2);flex:none;">';
+  h+='<button onclick="posBRejim(\'berish\')" style="border:0;font-family:inherit;font-size:11px;font-weight:700;padding:4px 11px;cursor:pointer;white-space:nowrap;'
+    +(V?'background:transparent;color:var(--muted);':'background:var(--gold);color:var(--on-gold);')+'">&#8593; Berish</button>';
+  h+='<button onclick="posBRejim(\'vozvrat\')" style="border:0;font-family:inherit;font-size:11px;font-weight:700;padding:4px 11px;cursor:pointer;white-space:nowrap;'
+    +(V?'background:var(--teal);color:var(--on-gold);':'background:transparent;color:var(--muted);')+'">&#8617; Vozvrat</button>';
+  h+='</span>';
   h+='<span style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">'+_posEsc(k.nom)+'</span>';
   h+='<span style="flex:1;min-width:4px;"></span>';
   var jq=0; try{ jq=klientJamiQarz(k)||0; }catch(e){}
@@ -1590,20 +1632,23 @@ function _pbDraw(){
       _pbSavat.forEach(function(s,i){
         var zz=data.zavodlar[s.zi]; if(!zz) return;
         var agg=_pbTurlar(s);
+        // v0.38: har blok o'z tipini ko'rsatadi - savatda ikkisi birga turadi
+        var _sv=_pbSTip(s)==='vozvrat', _sc=_sv?'teal':'gold';
         h+='<div onclick="posBSavatKir('+i+')" style="padding:7px 0 8px;border-top:1px solid var(--border);cursor:pointer;">';
-        h+='<div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--'+C+');margin-bottom:3px;">';
+        h+='<div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--'+_sc+');margin-bottom:3px;">';
+        h+='<span style="font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;flex:none;border:1px solid var(--'+_sc+'-bd);background:var(--'+_sc+'-bg);color:var(--'+_sc+');">'+(_sv?'VOZVRAT':'BERISH')+'</span>';
         h+='<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_posEsc(zz.nom)+'</span>';
         h+='<span style="flex:1;"></span>';
         h+='<span onclick="posBSavatOchir('+i+',event)" style="'+SC_X+'color:var(--muted);font-size:12px;text-align:center;cursor:pointer;">✕</span></div>';
         agg.tartib.forEach(function(ti){
           var m=agg.m[ti], tg=m.g, tn=(m.arr||[]).length;
-          var tp = V ? 0 : Math.round(tg*_pbNarx(s.zi,ti)*100)/100;
+          var tp = _sv ? 0 : Math.round(tg*_pbNarx(s.zi,ti)*100)/100;
           h+='<div style="'+SR+'">';
           h+='<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_posEsc(zz.turlar[ti]?zz.turlar[ti].nom:'?')+'</span>';
           h+='<span style="'+SC_KG+'">'+(tp?fmtD(_pbNarx(s.zi,ti))+' $/g':'')+'</span>';
           h+='<span style="'+SC_G+'font-weight:500;">'+fmtG(tg)+' g</span>';
           h+='<span style="'+SC_D+'">'+tn+' dona</span>';
-          h+='<span style="'+SC_P+'color:var(--'+C+');font-weight:500;">'+(tp?fmtD(tp)+' $':'')+'</span>';
+          h+='<span style="'+SC_P+'color:var(--'+_sc+');font-weight:500;">'+(tp?fmtD(tp)+' $':'')+'</span>';
           h+='<span style="'+SC_X+'"></span></div>';
         });
         h+='</div>';

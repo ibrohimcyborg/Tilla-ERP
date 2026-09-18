@@ -1,4 +1,4 @@
-<!-- v188.29 -->
+<!-- v188.30 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.29';
+var APP_VER = 'v188.30';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15456,6 +15456,12 @@ function _posChRecon(p1,p2){
   return {matched:matched, kam:kam, ortiq:ortiq};
 }
 function _posChSum(a){ var s=0; (a||[]).forEach(function(x){ s+=x; }); return roundG(s); }
+// v188.30: POS v0.38 aralash chernovik yuborishi mumkin — yorliq shuni aytadi.
+function _posChTipNom(c){
+  if(!c) return '';
+  if(c.tip==='aralash') return 'BERISH + VOZVRAT';
+  return c.tip==='vozvrat' ? 'VOZVRAT' : 'BERISH';
+}
 function _posChTop(id){ for(var i=0;i<_posCh.length;i++) if(_posCh[i]._id===id) return _posCh[i]; return null; }
 
 function posChKir(ri,v){ _posChKir[ri]=v; }
@@ -15525,8 +15531,12 @@ function posChQabul(){
       (z.turlar||[]).forEach(function(t,j){ if(t.nom===r.tur){ zi=i; ti=j; } });
     });
     if(zi<0||ti<0){ xato.push(r.zavod+' · '+r.tur+' — zavod yoki tur topilmadi'); return; }
-    if(c.tip==='vozvrat' && g<=0.001){ xato.push(r.zavod+' · '+r.tur+' — vozvratda gramm musbat bo\'lishi kerak'); return; }
-    satrlar.push({zi:zi, ti:ti, zavod:r.zavod, tur:r.tur, g:g, arr:arr});
+    // v188.30: POS v0.38 dan boshlab har QATOR o'z tipini olib keladi
+    // (aralash chernovik). Eski chernoviklarda qatorda tip yo'q — kartaning
+    // tipi ishlatiladi, shunda eski yozuvlar buzilmaydi.
+    var _rt = (r.tip==='vozvrat' || r.tip==='berish') ? r.tip : c.tip;
+    if(_rt==='vozvrat' && g<=0.001){ xato.push(r.zavod+' · '+r.tur+' — vozvratda gramm musbat bo\'lishi kerak'); return; }
+    satrlar.push({zi:zi, ti:ti, zavod:r.zavod, tur:r.tur, g:g, arr:arr, tip:_rt});
   });
   if(xato.length){ alert('Qabul qilinmadi:\n\n'+xato.join('\n')); return; }
   if(!satrlar.length){ alert('Qatorlar yo\'q.'); return; }
@@ -15545,7 +15555,7 @@ function posChQabul(){
   var sana=c.sana||today(), soat=c.soat||'';
   satrlar.forEach(function(x){
     var z=data.zavodlar[x.zi], t=z.turlar[x.ti], g=x.g, arr=x.arr;
-    if(c.tip==='vozvrat'){
+    if(x.tip==='vozvrat'){        // v188.30: kartaning emas, QATORNING tipi
       // saqlashKlientVozvrat (13134-13153) bilan aynan
       var _dv=arr.length;
       var _vop={tip:'vozvrat',sana:sana,soat:soat,zavod:z.nom,tur:t.nom,gramm:g,pos:1,posGrp:c._id};
@@ -15761,7 +15771,7 @@ function posBellOch(){
   h+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">';
   if(c) h+='<button onclick="posChOrqa()" style="width:32px;height:32px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#8592;</button>';
   h+='<span style="font-size:15px;font-weight:700;">'+(c?_posEsc(c.klient):'POS chernoviklari')+'</span>';
-  if(c) h+='<span style="font-size:10.5px;padding:2px 9px;border-radius:24px;background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);">'+(c.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
+  if(c) h+='<span style="font-size:10.5px;padding:2px 9px;border-radius:24px;background:var(--gold-bg);border:1px solid var(--gold-bd);color:var(--gold);">'+_posChTipNom(c)+'</span>';
   else h+='<span style="font-size:11px;color:var(--muted);">'+_posCh.length+' ta kutmoqda</span>';
   h+='<span style="flex:1;"></span>';
   h+='<button onclick="posBellYop()" style="width:32px;height:32px;flex:none;border-radius:14px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);cursor:pointer;font-size:14px;">&#10005;</button></div>';
@@ -15803,7 +15813,7 @@ function posBellOch(){
         h+='<div onclick="posChOch(\''+x._id+'\')" style="border:1px solid var(--gold-bd);background:var(--gold-bg);border-radius:18px;padding:11px 13px;margin-bottom:8px;cursor:pointer;">';
         h+='<div style="display:flex;align-items:center;gap:9px;">';
         h+='<span style="font-size:13.5px;font-weight:600;">'+_posEsc(x.klient||'?')+'</span>';
-        h+='<span style="font-size:10.5px;padding:1px 7px;border-radius:24px;background:var(--surf);color:'+(x.tip==='vozvrat'?'var(--teal)':'var(--gold)')+';border:1px solid var(--border);">'+(x.tip==='vozvrat'?'VOZVRAT':'BERISH')+'</span>';
+        h+='<span style="font-size:10.5px;padding:1px 7px;border-radius:24px;background:var(--surf);color:'+(x.tip==='vozvrat'?'var(--teal)':'var(--gold)')+';border:1px solid var(--border);">'+_posChTipNom(x)+'</span>';
         h+='<span style="flex:1;"></span>';
         h+='<span style="font-size:11px;color:var(--muted);">'+_posEsc(x.sana||'')+' '+_posEsc(x.soat||'')+'</span></div>';
 

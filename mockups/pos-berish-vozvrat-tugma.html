@@ -1,0 +1,261 @@
+<title>POS Berish Vozvrat Almashtirgich</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#eef1f7; --card:#ffffff; --card2:#f6f8fc;
+  --edge:#e2e6ee; --edge2:#cdd4e0;
+  --ink:#1d2230; --ink2:#5d667a; --ink3:#8d95a6;
+  --blue:#2f6fd0; --gold:#a9781c; --gold-bg:#fdf3dd; --gold-bd:#e2c274;
+  --teal:#137a72; --teal-bg:#ddf2ef; --teal-bd:#7cc4bc;
+  --red:#c2413a; --green:#1f8a52;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12141a; --card:#1b1f27; --card2:#171a21;
+  --edge:#2a2f3a; --edge2:#3a4150;
+  --ink:#e8ebf2; --ink2:#a0a8b8; --ink3:#767f90;
+  --blue:#6fa4e8; --gold:#d9b465; --gold-bg:#2b2413; --gold-bd:#5f4d20;
+  --teal:#5fc2b8; --teal-bg:#122a28; --teal-bd:#2d5b56;
+  --red:#e2837c; --green:#5bb77f;
+}}
+:root[data-theme="dark"]{
+  --paper:#12141a; --card:#1b1f27; --card2:#171a21;
+  --edge:#2a2f3a; --edge2:#3a4150;
+  --ink:#e8ebf2; --ink2:#a0a8b8; --ink3:#767f90;
+  --blue:#6fa4e8; --gold:#d9b465; --gold-bg:#2b2413; --gold-bd:#5f4d20;
+  --teal:#5fc2b8; --teal-bg:#122a28; --teal-bd:#2d5b56;
+  --red:#e2837c; --green:#5bb77f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header h1{font-size:22px;line-height:1.25;margin:0;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+h2{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0 0 9px;font-weight:700}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic;margin-bottom:12px}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:13px 14px}
+.box p{margin:0}.box p+p{margin-top:7px}
+.hint{font-size:12.5px;color:var(--ink2)}
+
+/* ── POS ekrani ── */
+.pos{background:var(--card);border:1px solid var(--edge2);border-radius:18px;overflow:hidden}
+.phdr{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid var(--edge);
+  flex-wrap:wrap}
+.rnd{width:30px;height:30px;flex:none;border-radius:13px;border:1px solid var(--edge);
+  background:var(--card2);color:var(--ink3);display:flex;align-items:center;justify-content:center;
+  font-size:14px}
+.ttl{font-size:14.5px;font-weight:700;white-space:nowrap;color:var(--gold)}
+.vchip{font-size:9.5px;color:var(--ink3);border:1px solid var(--edge);border-radius:24px;
+  padding:1px 7px;white-space:nowrap}
+.knom{font-size:11px;color:var(--ink3);white-space:nowrap}
+.sp{flex:1;min-width:4px}
+.kat{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;border:1px solid var(--edge)}
+.kat.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.kurs{font-size:10.5px;color:var(--ink2);border:1px solid var(--edge);border-radius:24px;padding:2px 9px;
+  background:var(--card2);white-space:nowrap}
+.qarz{font-size:11px;color:var(--ink3);white-space:nowrap}
+.qarz b{color:var(--red);font-family:var(--mono)}
+
+/* ── ALMASHTIRGICH ── */
+.seg{display:inline-flex;border:1px solid var(--edge2);border-radius:24px;overflow:hidden;
+  background:var(--card2);flex:none}
+.seg button{border:0;background:transparent;font-family:inherit;font-size:11.5px;font-weight:700;
+  padding:5px 13px;cursor:pointer;color:var(--ink3);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.seg button.on.g{background:var(--gold);color:#fff}
+.seg button.on.t{background:var(--teal);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button.on.g,
+:root:not([data-theme="light"]) .seg button.on.t{color:#12141a}}
+:root[data-theme="dark"] .seg button.on.g,:root[data-theme="dark"] .seg button.on.t{color:#12141a}
+
+.pbody{display:flex;min-height:250px}
+@media (max-width:640px){.pbody{flex-direction:column}}
+.zcol{flex:1;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:8px;align-content:start;border-right:1px solid var(--edge)}
+@media (max-width:640px){.zcol{border-right:0;border-bottom:1px solid var(--edge)}}
+.zc{background:var(--card2);border:1px solid var(--edge);border-radius:12px;padding:9px 11px}
+.zc b{display:block;font-size:13.5px;color:var(--blue);font-weight:600}
+.zc span{font-size:10.5px;color:var(--ink3)}
+.scol{width:44%;min-width:260px;padding:0}
+@media (max-width:640px){.scol{width:auto;min-width:0}}
+.slbl{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  font-weight:700;padding:10px 13px 6px}
+.srow{display:flex;align-items:baseline;gap:8px;padding:6px 13px;font-size:12.5px}
+.srow .nm{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .g{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.srow.b .g{color:var(--gold)}
+.srow.v .g{color:var(--teal)}
+.tagb{font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;flex:none;
+  border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold)}
+.tagv{font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:20px;flex:none;
+  border:1px solid var(--teal-bd);background:var(--teal-bg);color:var(--teal)}
+.sdiv{border-top:1px solid var(--edge);margin:6px 0 0}
+.sjami{display:flex;justify-content:space-between;padding:8px 13px;font-size:12.5px;
+  background:var(--card2);border-top:1px solid var(--edge)}
+.sjami b{font-family:var(--mono)}
+.pfoot{display:flex;justify-content:flex-end;gap:9px;padding:11px 13px;border-top:1px solid var(--edge)}
+.btn{height:38px;padding:0 17px;border-radius:15px;border:1px solid var(--edge);background:var(--card2);
+  color:var(--ink);font-size:13px;font-family:inherit}
+.btn.ok{border-color:var(--gold);background:var(--gold);color:#fff;font-weight:700}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.ok{color:#12141a}}
+:root[data-theme="dark"] .btn.ok{color:#12141a}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+.arrow{text-align:center;color:var(--ink3);font-size:20px;padding:2px 0}
+</style>
+
+<div class="wrap">
+
+<header>
+  <h1>POS &mdash; Berish / Vozvrat almashtirgichi</h1>
+  <p>Versiya belgisidan keyin dumaloq tugma. Savat bitta, bir marta yuboriladi.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;tepada Berish bor, keyin versiya bor, o&rsquo;shanga keyin
+  dumaloqda Berish / Vozvrat qo&rsquo;shsang &mdash; biratola, chiqmay turib vozvrat
+  yoki berishni qo&rsquo;shsa bo&rsquo;ladi&raquo;</div>
+</section>
+
+<section>
+  <h2>Berish tanlangan</h2>
+  <div class="pos">
+    <div class="phdr">
+      <div class="rnd">&#8592;</div>
+      <span class="ttl">&uarr; BERISH</span>
+      <span class="vchip">v0.38</span>
+      <span class="seg">
+        <button class="on g">&uarr; Berish</button>
+        <button class="t">&#8617; Vozvrat</button>
+      </span>
+      <span class="knom">Abdulaziz Qashqadaryo</span>
+      <span class="sp"></span>
+      <span class="kat on">A</span><span class="kat">B</span>
+      <span class="kurs">KURS <b>80.76</b></span>
+      <span class="qarz">Klient qarzi <b>&minus;31.92 g</b></span>
+      <div class="rnd">&#10005;</div>
+    </div>
+    <div class="pbody">
+      <div class="zcol">
+        <div class="zc"><b>Butterfly</b><span>3 ta tur</span></div>
+        <div class="zc"><b>Diamond</b><span>2 ta tur</span></div>
+        <div class="zc"><b>Premium</b><span>1 ta tur</span></div>
+        <div class="zc"><b>Simay</b><span>1 ta tur</span></div>
+        <div class="zc"><b>Dorika</b><span>2 ta tur</span></div>
+        <div class="zc"><b>Sepochka</b><span>1 ta tur</span></div>
+      </div>
+      <div class="scol">
+        <div class="slbl">Savat</div>
+        <div class="srow b"><span class="tagb">BERISH</span><span class="nm">Diamond &middot; Oddiy</span><span class="g">18.75g</span></div>
+        <div class="srow b"><span class="tagb">BERISH</span><span class="nm">Butterfly &middot; 3D</span><span class="g">7.40g</span></div>
+        <div class="sjami"><span>JAMI</span><b style="color:var(--gold)">26.15 g &middot; 9 dona</b></div>
+      </div>
+    </div>
+    <div class="pfoot">
+      <button class="btn">Bekor</button>
+      <button class="btn ok">Tekshiruvga yuborish</button>
+    </div>
+  </div>
+</section>
+
+<div class="arrow">&darr; &nbsp;<span style="font-size:13px">Vozvrat bosiladi &mdash; savat TOZALANMAYDI</span></div>
+
+<section>
+  <h2>Vozvrat tanlangan &mdash; ikkisi bitta savatda</h2>
+  <div class="pos">
+    <div class="phdr">
+      <div class="rnd">&#8592;</div>
+      <span class="ttl" style="color:var(--teal)">&#8617; VOZVRAT</span>
+      <span class="vchip">v0.38</span>
+      <span class="seg">
+        <button class="g">&uarr; Berish</button>
+        <button class="on t">&#8617; Vozvrat</button>
+      </span>
+      <span class="knom">Abdulaziz Qashqadaryo</span>
+      <span class="sp"></span>
+      <span class="kat on">A</span><span class="kat">B</span>
+      <span class="kurs">KURS <b>80.76</b></span>
+      <span class="qarz">Klient qarzi <b>&minus;31.92 g</b></span>
+      <div class="rnd">&#10005;</div>
+    </div>
+    <div class="pbody">
+      <div class="zcol">
+        <div class="zc"><b>Butterfly</b><span>3 ta tur</span></div>
+        <div class="zc"><b>Diamond</b><span>2 ta tur</span></div>
+        <div class="zc"><b>Premium</b><span>1 ta tur</span></div>
+        <div class="zc"><b>Simay</b><span>1 ta tur</span></div>
+        <div class="zc"><b>Dorika</b><span>2 ta tur</span></div>
+        <div class="zc"><b>Sepochka</b><span>1 ta tur</span></div>
+      </div>
+      <div class="scol">
+        <div class="slbl">Savat</div>
+        <div class="srow b"><span class="tagb">BERISH</span><span class="nm">Diamond &middot; Oddiy</span><span class="g">18.75g</span></div>
+        <div class="srow b"><span class="tagb">BERISH</span><span class="nm">Butterfly &middot; 3D</span><span class="g">7.40g</span></div>
+        <div class="sdiv"></div>
+        <div class="srow v"><span class="tagv">VOZVRAT</span><span class="nm">Butterfly &middot; Oddiy</span><span class="g">5.60g</span></div>
+        <div class="srow v"><span class="tagv">VOZVRAT</span><span class="nm">Simay &middot; Oddiy</span><span class="g">3.20g</span></div>
+        <div class="sjami"><span>BERISH</span><b style="color:var(--gold)">26.15 g &middot; 9 dona</b></div>
+      </div>
+    </div>
+    <div class="pfoot">
+      <button class="btn">Bekor</button>
+      <button class="btn ok" style="border-color:var(--teal);background:var(--teal)">Tekshiruvga yuborish</button>
+    </div>
+  </div>
+  <div class="box" style="margin-top:11px">
+    <p>Tugma bosilganda <b>bitta chernovik</b> ketadi &mdash; ichida ikki xil qator.
+    Adminga bitta karta keladi, bitta qabul, <b>bitta chek</b>.</p>
+    <p class="hint">Savat almashtirganda tozalanmaydi. Har qator o&rsquo;zi berishmi
+    yoki vozvratmi &mdash; eslab turadi.</p>
+    <p class="hint"><b>JAMI faqat berishga.</b> Vozvrat qatorlari savatda ko&rsquo;rinadi,
+    lekin ularning yig&rsquo;indisi chiqmaydi &mdash; sen so&rsquo;raganday.
+    Chekda esa VOZVRAT JAMI qoladi (v188.29).</p>
+  </div>
+</section>
+
+<section>
+  <h2>Nima o&rsquo;zgaradi</h2>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>Joy</th><th>Hozir</th><th>Bo&rsquo;ladi</th></tr>
+      <tr><td>Rejim</td><td>kirishda tanlanadi, qaytib chiqmasa o&rsquo;zgarmaydi</td>
+          <td>sarlavhadagi tugma bilan almashadi</td></tr>
+      <tr><td>Savat</td><td>rejim o&rsquo;zgarsa <b>tozalanadi</b></td>
+          <td>saqlanadi, har qator o&rsquo;z turini eslaydi</td></tr>
+      <tr><td>Chernovik</td><td>bitta <code>tip</code> hammasiga</td>
+          <td>har qatorda <code>tip</code></td></tr>
+      <tr><td>Adminda</td><td>ikki karta, ikki qabul</td><td>bitta karta, bitta qabul</td></tr>
+    </table></div>
+    <p class="hint" style="margin-top:9px">Tegiladi: <code>pos.html</code> (sarlavha,
+    savat, yuborish) va <code>index.html</code> (qabul har qatorning turiga qaraydi).
+    Eski chernoviklar buzilmaydi &mdash; qatorda <code>tip</code> bo&rsquo;lmasa
+    kartaning <code>tip</code> i ishlatiladi.</p>
+    <p class="hint"><b>~70 qator</b> &middot; POS <code>v0.38</code> + ERP
+    <code>v188.30</code></p>
+  </div>
+</section>
+
+<section>
+  <h2>Chek</h2>
+  <div class="box">
+    <p><b>Allaqachon tayyor</b> &mdash; v188.29 da yozildi. Bitta chernovik bitta
+    chek beradi: OSTATKA &rarr; VOZVRAT &rarr; QOLDI &rarr; BERILDI &rarr; QOLGAN OSTATKA.</p>
+    <p class="hint">Tasdiq kartasidagi &laquo;YANA N TA&raquo; tugmasi endi kerak
+    bo&rsquo;lmaydi &mdash; olib tashlaymi yoki qolsinmi (ba&rsquo;zan ikki marta
+    yuborilib qolsa asqotadi)?</p>
+  </div>
+  <div class="box" style="margin-top:10px">
+    <p><b>Kod yozilmadi.</b> &laquo;Shunaqa qil&raquo; desang yozaman.</p>
+  </div>
+</section>
+
+</div>

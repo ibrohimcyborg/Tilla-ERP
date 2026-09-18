@@ -8660,3 +8660,65 @@ Uchdan-uchiga (`k.tarix` dan, haqiqiy funksiyalar):
 `klientSotuvChekYangiGen` (faqat chaqiriladi), to'lov cheki, qabul mantiqi,
 saqlanadigan yozuvlar. `_posChChekMatn` zaxira yo'l sifatida qoldi
 (POS amali topilmasa) — **o'chirilmadi**.
+
+## POS v0.38 + v188.30 — Berish / Vozvrat almashtirgichi, aralash savat
+
+**Ibrohim** (POS ekrani rasmi bilan): «tepada Berish bor, kegin versiya bor,
+ushanga kegin dumaloqda Berish / vozvrat qoshsen — biratola, chiqmi turib
+vozvrat yoki berishshi qo'shsa bo'ladi» + «vozvratti summasini ko'rsatish
+shartamas, berishshi summasini ko'rsatsa bo'ladi».
+
+Maket: `mockups/pos-berish-vozvrat-tugma.html`.
+
+### pos.html (v0.38)
+
+**Savat kaliti o'zgardi** — eng muhim joyi. `_pbSIdx(i)` faqat `zi` bo'yicha
+qidirardi, shuning uchun bitta zavodda berish ham, vozvrat ham bo'lsa ikkinchisi
+birinchisining **ustiga yozib ketardi**. Endi `zi + tip`:
+
+    function _pbSIdx(i, tp){ tp = tp || _pbMode; ... }
+
+Qo'shilganlar:
+
+    posBRejim(m)   sarlavhadagi almashtirgich — SAVAT TOZALANMAYDI
+    _pbSTip(s)     blokning tipi
+    _pbChTip()     savatda nima bor: berish | vozvrat | aralash
+
+O'zgarganlar:
+
+    sarlavha         versiya belgisidan keyin dumaloq Berish / Vozvrat
+    posBSavatga      rec ga tip:_pbMode yoziladi
+    posBSavatKir     blok O'Z rejimida ochiladi (rejim avtomat almashadi)
+    _pbSavatJami     FAQAT berish qatorlaridan (Ibrohim so'ragan)
+    _pbSavatPul      FAQAT berish qatorlaridan
+    savat chizuvchi  har blok o'z yorlig'i va rangi bilan (BERISH/VOZVRAT)
+    posBSaqla        har qatorda tip, karta tipi _pbChTip()
+
+`_pbOch` (kirish) avvalgidek savatni tozalaydi — tegilmadi.
+
+### index.html (v188.30)
+
+    posChQabul   har QATOR o'z tipiga qarab yoziladi (oldin kartaning tipi)
+    _posChTipNom yangi — 'BERISH + VOZVRAT' yorlig'i
+    karta/ro'yxat yorliqlari shu funksiyadan o'qiydi
+
+⚠ **Eski chernoviklar buzilmaydi:** qatorda `tip` bo'lmasa kartaning `tip` i
+ishlatiladi — `var _rt = (r.tip==='vozvrat'||r.tip==='berish') ? r.tip : c.tip;`
+
+### Sinov
+
+Node: index.html 1 blok 0 xato, pos.html 1 blok 0 xato.
+Aralash savat (Butterfly IKKI marta — berish va vozvrat):
+
+    kalit zi+tip     rejim berish -> blok 1,  rejim vozvrat -> blok 2   (ustiga yozmadi)
+    JAMI             26.15g / 5 dona           vozvrat 8.80g KIRMADI
+    zavod kartasi    berish 7.40g | vozvrat 5.60g   (rejimga qarab)
+    chernovik tipi   aralash  ->  "BERISH + VOZVRAT"
+    qabulda          berish 26.15g, vozvrat 8.80g   (har qator o'z tipidan)
+    eski chernovik   qatorda tip yo'q -> karta tipidan olindi
+
+### Tegilmadi
+
+Chek (v188.29 da tayyor), to'lov yo'li, `_pbOch`, dona registri, saqlanadigan
+yozuvlar shakli. Tasdiq kartasidagi «YANA N TA» tugmasi **qoldirildi** —
+POS eski versiyadan ikki chernovik kelsa hali asqotadi.

@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.29 · POS v0.37 · 2026-09-18
+**Oxirgi yangilanish:** v188.30 · POS v0.38 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,38 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ POS v0.38 + v188.30 — BERISH / VOZVRAT ALMASHTIRGICHI (2026-09-18)
+
+Maket: `mockups/pos-berish-vozvrat-tugma.html` (v2) →
+https://claude.ai/artifact/HHnMP6ErrcV7W1V8vZMVN5
+
+Ibrohim: «versiyadan keyin dumaloqda Berish / vozvrat qoshsen — biratola,
+chiqmi turib vozvrat yoki berishshi qo'shsa bo'ladi» + «vozvratti summasini
+ko'rsatish shartamas».
+
+**Eng muhim joyi — savat kaliti.** `_pbSIdx(i)` faqat `zi` bo'yicha qidirardi,
+shuning uchun bitta zavodda berish ham vozvrat ham bo'lsa **ustiga yozib
+ketardi**. Endi `zi + tip`.
+
+pos.html: `posBRejim` (savat TOZALANMAYDI) · `_pbSTip` · `_pbChTip` ·
+sarlavhadagi dumaloq tugma · `posBSavatKir` blokni o'z rejimida ochadi ·
+`_pbSavatJami` va `_pbSavatPul` **faqat berishdan** · savatda har blok o'z
+yorlig'i bilan · `posBSaqla` har qatorda `tip`, karta tipi `aralash` bo'lishi mumkin.
+
+index.html: `posChQabul` har QATOR tipiga qaraydi · `_posChTipNom`
+('BERISH + VOZVRAT').
+
+⚠ Eski chernoviklar: qatorda `tip` bo'lmasa kartaning `tip` i olinadi.
+
+Sinov (7 nuqta): kalit zi+tip ustiga yozmaydi · JAMI 26.15g (vozvrat 8.80g
+kirmadi) · zavod kartasi rejimga qarab · tip `aralash` · qabulda berish
+26.15g / vozvrat 8.80g · eski chernovik karta tipidan.
+
+⚠ PRODDA SINALMAGAN — POS ekranini telefonda/planshetda ko'rish kerak.
+⚠ Tasdiq kartasidagi «YANA N TA» tugmasi qoldirildi (Ibrohim javob bermadi).
 
 ---
 
