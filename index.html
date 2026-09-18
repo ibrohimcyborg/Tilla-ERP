@@ -1,4 +1,4 @@
-<!-- v188.26 -->
+<!-- v188.27 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.26';
+var APP_VER = 'v188.27';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10020,7 +10020,18 @@ function kassaPulNavbati(){
 
       // v136: KARTA + PERECH — navbatga KIRMAYDI, sotuv kunidagi kursda DARHOL qotadi.
       // Perech bankdan to'g'ri zavodga ketadi; karta ham navbat pulini ishlatmaydi (Ibrohim).
-      var _qlf = parseNum(op.kartaPul||0) + parseNum(op.perechPul||0);
+      // v188.27 (Ibrohim): «lom bo'pqosa lommiyam skidkaga o'xshab sochvorish
+      // kere, kegin undan pul ulushini ajratish kere… lom karta perechdayam
+      // shunaqa oldin chiqarvoriladi, naqt qoganidan olasan hisobbi».
+      // «lom bilan olingan qismi foyda qotiradi, chunki kurs tushishiniyam
+      //  ko'tarilishiniyam zarari yo'q unga — lomam oshadi tushadi».
+      // Lom OLTIN: kurs bilan birga qimirlaydi, kurs riski YO'Q. Shuning uchun
+      // karta/perech kabi navbatdan CHIQARILADI va sotuv kunidagi kursda
+      // muhrlanadi — hissasi aniq NOL, chunki o'sha kurs turning kirim narxiga teng.
+      // Oldin lom chiqarilmasdi → lom bilan to'langan grammlar ham 999 ning arzon
+      // kursini olardi. Juma Aka TJK qatorida (125.93g, lom 7.66%) foyda +$74.51
+      // ko'rinardi, to'g'risi +$62.95 — bitta sotuvda $11.56 ortiqcha.
+      var _qlf = parseNum(op.kartaPul||0) + parseNum(op.perechPul||0) + parseNum(op.lomPul||0);
       var _sm  = parseNum(op.summa||0);
       var _shr = 1; // naqd hissasining gramm ulushi (aralashda aniq nisbat)
       if(_qlf>0.001 && _sm>0.001){

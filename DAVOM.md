@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.26 · POS v0.37 · 2026-09-17
+**Oxirgi yangilanish:** v188.27 · POS v0.37 · 2026-09-18
 **⏳ Ochiq:** KASSA NAQT QULFI — tahlil qilindi, JAVOB KUTILYAPTI (pastga qara).
 
 ---
@@ -181,6 +181,60 @@ o'xshab». Formula shunday edi, endi ishga ham tushdi.
 Sinov: 40g→10.00g, 10g→2.50g, 25g→6.25g (hammasi 25%), qat'iy narxli tur 0%.
 ⚠ PRODDA HALI SINALMAGAN — push qilinmagan.
 
+### ⏳ KUTILYAPTI — QAT'IY NARX + QISMAN TAFSILOTI (2026-09-17)
+
+> «ha qo'lda narx yozilgani kirsinu lekin foydasi qotsin, uni o'zgarmasin…
+> qisman bo'gani qanchasi qisman, qancha foyda bo'gani, qolgan qismda qanaqa
+> foyda-zarar bo'gani, nechi kursdan qanchasi qulflanganini qanaqa ko'rsatadi»
+
+Maket: `mockups/qisman-tafsilot.html` →
+https://claude.ai/artifact/RfqPPHeBuhUzaWicVdsMs5
+
+**Ikki ish:**
+1. **Qat'iy narxli tur qulfga KIRSIN, foydasi 0 da QOTSIN.** Pul navbatdan
+   allaqachon yeyilyapti (`kassaPulNavbati` qat'iyni bilmaydi), lekin
+   `kassaSuzuvchiXaritasi` uni ko'rsatmaydi. Endi ko'rsatsin, `suzuvchi=0`.
+   ~6 qator, `_q = _qatiy ? null : ...` (10231) atrofida.
+2. **Ochilgan qatorda tafsilot** — har tur uchun qulflangan/qolgan bo'linishi.
+   ~20 qator. **Yangi maydon KERAK EMAS**: `qopUlush`, `kirimQop`, `kirimKun`
+   allaqachon bor (10260-10261).
+
+**Sinov (scratchpad/tafsil.js)** — 999 $1,923.75 @ 583 kursi 79.50, bugungi 80.4:
+
+| Tur | Qulf | Kursdan | Foyda | Qolgan | Bugungi | F/Z | Jami |
+|---|---|---|---|---|---|---|---|
+| Diamond·Oddiy 40g | 10.00g | 79.50 | +5.00 | 30.00g | 80.40 | −12.00 | −7.00 |
+| Diamond·3D 10g | 2.50g | 87.50 | +1.25 | 7.50g | 88.40 | −3.00 | −1.75 |
+| Butterfly·Oddiy 25g | 6.25g | 99.40 | +3.75 | 18.75g | 100.50 | −9.37 | −5.62 |
+| Butterfly·Premium 5g | 1.25g | qat'iy | 0.00 | 3.75g | 150.00 | 0.00 | 0.00 |
+| **JAMI** | **20.00g** | | **+10.00** | **60.00g** | | **−24.37** | **−14.37** |
+
+Qulf kursi har turda: asos 79.50 × (1+foiz) → 79.50 / 87.50 / 99.40.
+Tekshirildi: qo'lda bo'lingan jami = `kassaSuzuvchiXaritasi` = **−14.37**.
+
+**Katta misol** (Ibrohim so'radi: «30000$ har xil zavoddan, 5-6 xil tur, 3 xil
+kursda qisman qulflab ko'rsat»): `mockups/qulf-katta-misol.html` →
+https://claude.ai/artifact/TDdpmyQWxL4b7SG3PhjBRn
+(skript: `scratchpad/katta.js`) — $30,000 / 325g / 6 tur,
+3 amal: $8,000@79.50 + $5,000@80.00 + $4,000@80.20 = $17,000 = 56.67%.
+Natija: qulf 184.16g +$34.57, suzuvchi 140.84g −$54.60, farq −$20.03.
+Qator sarlavhasi: ~~+1,300.00~~ +$1,279.97 ▼
+
+**⚠ YANGI JAVOBSIZ SAVOL:** 3 kurs bittaga **aralashadi** (79.8118) — sistema
+ularni alohida saqlamaydi (`qopKurs = summaQop/ekvQop`, 10077).
+**A)** hozirgidek, bitta o'rtacha kurs ko'rsatilsin (0 ish), yoki
+**B)** har qulf amali alohida yozilsin («8,000 @ 79.50 · 5,000 @ 80.00 …») —
+yangi maydon + ~25 qator. Foyda hisobi ikkalasida bir xil, farq faqat ko'rinishda.
+
+**Kod YOZILMADI.** «Shunaqa qil» kutilyapti.
+
+### ℹ Tekshiruv skriptlari
+
+Yuqorida `scratchpad/*.js` deb yozilgan skriptlar **vaqtinchalik papkada** edi —
+repoda YO'Q, seans o'zgarsa yo'qoladi. Usuli: `index.html` / `hisob.js` dan kerakli
+funksiyalarni qavs-hisobi bilan ajratib olib, `localStorage` stubi va sun'iy `data`
+bilan Node'da `eval` qilinadi. Kerak bo'lsa qaytadan yoziladi.
+
 ### Hamon ochiq
 
 1. **1-ish yozilmagan** — `mockups/naqt-qulf-loading.html` (v2) →
@@ -271,6 +325,35 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.27 — lom navbatdan chiqarilmasdi (2026-09-18)
+
+Maket: `mockups/lom-chiqarish.html` →
+https://claude.ai/artifact/U174Fwjdh2Et1UrcXXfLp2
+
+Ibrohim: «lom karta perechdayam shunaqa oldin chiqarvoriladi, naqt qoganidan
+olasan hisobbi… lom bilan olingan qismi foyda qotiradi, chunki kurs
+tushishiniyam ko'tarilishiniyam zarari yo'q unga».
+
+`_qlf` (navbatdan chiqariladigan pul, 10022) faqat `kartaPul + perechPul` edi —
+**lom yo'q**. Natijada lom bilan to'langan grammlar ham 999 ning arzon kursini
+olardi. Endi `+ parseNum(op.lomPul||0)` (10034).
+
+Sinov (haqiqiy qator, Juma Aka TJK 17.09 16:35, 125.93g, lom 7.66%):
+
+| | Qulf kursi | Foyda |
+|---|---|---|
+| eski | 79.500 | +$74.51 |
+| yangi | 79.538 | **+$62.95** |
+
+$11.56 ortiqcha yozilardi. Aralash kurs: 0.9234×79.50 + 0.0766×80.00 = 79.538 ✓
+Lom ulushi skidka kabi sochiladi — har turdan 7.66%: 9.65g lomga, 116.28g naqtdan.
+
+⚠ **Xulq o'zgarishi:** 100% lom bilan to'langan sotuv oldin navbatga ham
+kirmasdi, muhrlanmasdi ham — foydasi suzardi. Endi **to'liq qotadi**
+(50g sotuvda kurs 78/80/82 da ham suzuvchi 0.00). Ibrohim mantiqiga mos.
 
 ---
 

@@ -8471,3 +8471,54 @@ Gramm nisbati: 40g→10.00g, 10g→2.50g, 25g→6.25g.
 `getZavodNarx` ning qolgan 7 chaqiruvi, `kirimNarxHozir` hisobi,
 `kassaFifoModel` (u pul navbatini umuman ko'rmaydi — kassa foyda paneli
 o'zgarmaydi), formulaning o'zi.
+
+## v188.27 — lom navbatdan chiqarilmasdi
+
+**Ibrohim**: «lom bo'pqosa lommiyam skidkaga o'xshab sochvorish kere, kegin undan
+pul ulushini ajratish kere… lom karta perechdayam shunaqa oldin chiqarvoriladi,
+naqt qoganidan olasan hisobbi» → keyin: **«lom bilan olingan qismi foyda qotiradi,
+chunki kurs tushishiniyam ko'tarilishiniyam zarari yo'q unga — lomam oshadi tushadi»**.
+
+Maket: `mockups/lom-chiqarish.html`.
+
+### Nima bo'lgan — 10022
+
+    var _qlf = parseNum(op.kartaPul||0) + parseNum(op.perechPul||0);
+                                                            ^ lom YO'Q
+
+`_qlf` — navbatdan chiqariladigan pul. Karta va perech chiqarilardi (v136), **lom esa
+yo'q**. Natijada lom bilan to'langan grammlar ham 999/chiqim ning arzon kursini olardi.
+
+### Qilindi
+
+    var _qlf = ... + parseNum(op.lomPul||0);
+
+Lom — OLTIN: kurs oshsa qiymati ham oshadi, tushsa birga tushadi, ya'ni kurs riski
+yo'q. Shuning uchun karta/perech kabi navbatdan chiqadi va **sotuv kunidagi kursda
+muhrlanadi** — hissasi aniq NOL, chunki o'sha kurs turning kirim narxiga teng.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+
+Juma Aka TJK 17.09 16:35 — 125.93g, $11,424.99 (naqt $10,549.98 = 92.34%,
+lom 11.10g × 78.9 = $875.01 = 7.66%), 7 tur. 999 olindi $10,549.98 @ 583 kursi 79.50:
+
+    eski   qulf kursi 79.500   foyda +$74.51
+    yangi  qulf kursi 79.538   foyda +$62.95     -> $11.56 ortiqcha yozilardi
+
+Aralash kurs tekshiruvi: 0.9234×79.50 + 0.0766×80.00 = 79.538 ✓
+
+Lom ulushi turlar bo'yicha skidka kabi sochiladi — har turdan 7.66%:
+jami 125.93g dan **9.65g** lomga, **116.28g** naqtdan.
+
+**100% lom bilan to'langan sotuv** (50g, kirim 90.00):
+
+    bugungi kurs 78.0 / 80.0 / 82.0  ->  qulf 100%, suzuvchi 0.00
+
+Ya'ni to'liq qotadi, kurs qayoqqa ketsa ham qimirlamaydi. Oldin bunday sotuv
+navbatga ham kirmasdi, muhrlanmasdi ham — foydasi suzib turardi.
+
+### Tegilmadi
+
+Formula, `_shr` hisobi, `kassaFifoModel`, saqlanadigan yozuvlar.

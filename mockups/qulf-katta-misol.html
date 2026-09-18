@@ -1,0 +1,289 @@
+<title>Uch Kursli Qulf Misoli</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --grn:#2e9e63; --gld-fill:#f6e7bf;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --grn:#4fb97c; --gld-fill:#3a2f16;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --grn:#4fb97c; --gld-fill:#3a2f16;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:11px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.mm{font-family:var(--mono);font-size:11px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+
+.row{border:1px solid var(--edge);border-radius:13px;padding:11px 13px;
+  background:var(--card);position:relative;overflow:hidden}
+.row + .row{margin-top:10px}
+.row > .bg{position:absolute;inset:0;background:var(--gld-fill);
+  border-right:2px solid var(--gold);pointer-events:none}
+.rtop{display:flex;gap:10px;align-items:flex-start;position:relative}
+.rname{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.rname b{font-size:14px;font-weight:600}
+.pill{font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;border:1px solid}
+.p-a{color:#3b7bb5;border-color:#a9c9e4;background:#e6f0f9}
+.p-n{color:var(--grn);border-color:var(--grn);background:transparent}
+.p-part{color:#fff;background:var(--gold);border-color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .p-a{color:#8fbde8;border-color:#2c4660;background:#16222e}
+:root:not([data-theme="light"]) .p-part{color:#12100d}}
+:root[data-theme="dark"] .p-a{color:#8fbde8;border-color:#2c4660;background:#16222e}
+:root[data-theme="dark"] .p-part{color:#12100d}
+.rsub{font-size:11px;color:var(--ink3);margin-top:2px}
+.rr{text-align:right;margin-left:auto;flex-shrink:0}
+.rsum{font-size:13px;font-weight:600;color:var(--gold);font-family:var(--mono)}
+.rfoy{font-size:11px;font-family:var(--mono);margin-top:2px;font-weight:600;color:var(--grn)}
+.strike{text-decoration:line-through;color:var(--ink3);font-size:9px;font-weight:400}
+.lockinfo{font-size:9.5px;font-family:var(--mono);margin-top:3px;color:var(--gold)}
+
+.tafs{position:relative;margin-top:11px;padding-top:11px;border-top:1px solid var(--edge)}
+.tblok + .tblok{margin-top:11px;padding-top:10px;border-top:1px dashed var(--edge)}
+.tnom{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  font-size:12.5px;font-weight:600;margin-bottom:4px}
+.tnom span{font-family:var(--mono);color:var(--ink3);font-size:10.5px;font-weight:400}
+.tqat{display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:baseline;
+  font-family:var(--mono);font-size:11px;padding:1px 0}
+.tqat .ico{width:14px;text-align:center}
+.tqat .mid{color:var(--ink2);min-width:0}
+.tqat .val{font-weight:700;white-space:nowrap}
+.lk .val,.lk .ico{color:var(--grn)}
+.fl .val{color:var(--bad)} .fl .ico{color:var(--ink3)}
+.z .val,.z .ico{color:var(--ink3)}
+.tjami{display:flex;justify-content:space-between;font-family:var(--mono);
+  font-size:11.5px;font-weight:700;margin-top:4px;padding-top:4px;
+  border-top:1px solid var(--edge)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Katta misol</div>
+  <h1>$30,000 &middot; 6 tur &middot; 3 xil kurs</h1>
+  <p>Ha &mdash; tafsilot qatorni <b>bosganda</b> ochiladi. Quyida aynan shu ko&rsquo;rinish.
+  Hamma raqam haqiqiy kodning chiqishi.</p>
+</header>
+
+<section>
+  <h2>Sotuv</h2>
+  <div class="box">
+    <div class="mm">Juma Aka TJK, 17.09 12:41 - o'sha kunlik kurs 80.0
+
+  Diamond·Oddiy        2%    80g   kirim  81.60  sotuv  85.00   $6,800.00
+  Diamond·3D           8%    50g   kirim  86.40  sotuv  90.00   $4,500.00
+  Butterfly·Oddiy      5%    75g   kirim  84.00  sotuv  88.00   $6,600.00
+  Butterfly·Premium   18%    40g   kirim  94.40  sotuv  98.50   $3,940.00
+  Simay·Oddiy         12%    60g   kirim  89.60  sotuv  94.00   $5,640.00
+  Simay·Zanjir     QAT'IY    20g   kirim 120.00  sotuv 126.00   $2,520.00
+  ------------------------------------------------------------------------
+                            325g                  JAMI        $30,000.00</div>
+  </div>
+</section>
+
+<section>
+  <h2>Uch marta qulflandi</h2>
+  <div class="box">
+    <div class="tw"><table>
+      <tr><th>Kun</th><th>Amal</th><th class="n">Pul</th><th class="n">583 kursi</th></tr>
+      <tr><td>18.09</td><td>999 olindi</td><td class="n">$8,000</td><td class="n">79.50</td></tr>
+      <tr><td>19.09</td><td>Zavodga to&rsquo;lov</td><td class="n">$5,000</td><td class="n">80.00</td></tr>
+      <tr><td>20.09</td><td>999 olindi</td><td class="n">$4,000</td><td class="n">80.20</td></tr>
+      <tr class="jami"><td colspan="2">JAMI</td><td class="n">$17,000</td><td class="n">56.67%</td></tr>
+    </table></div>
+    <p class="hint">Bugungi kurs <b>80.40</b>. Sotuv naqtining 56.67% i qulflandi &mdash;
+    demak <b>QISMAN</b>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qator &mdash; yopiq</h2>
+  <div class="box">
+    <div class="row">
+      <div class="bg" style="width:56.67%"></div>
+      <div class="rtop">
+        <div>
+          <div class="rname"><b>Juma Aka TJK</b>
+            <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+            <span class="pill p-part">QISMAN</span></div>
+          <div class="rsub">12:41 &middot; 325.00g</div>
+        </div>
+        <div class="rr">
+          <div class="rsum">$30,000.00</div>
+          <div class="rfoy"><span class="strike">+1,300.00</span> +$1,279.97 &#9660;</div>
+          <div class="lockinfo">&#128274; $17,000 / $30,000 &middot; 79.81 dan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Qator &mdash; bosilgan</h2>
+  <div class="box">
+    <div class="row">
+      <div class="bg" style="width:56.67%"></div>
+      <div class="rtop">
+        <div>
+          <div class="rname"><b>Juma Aka TJK</b>
+            <span class="pill p-a">A</span><span class="pill p-n">NAQT</span>
+            <span class="pill p-part">QISMAN</span></div>
+          <div class="rsub">12:41 &middot; 325.00g</div>
+        </div>
+        <div class="rr">
+          <div class="rsum">$30,000.00</div>
+          <div class="rfoy"><span class="strike">+1,300.00</span> +$1,279.97 &#9660;</div>
+        </div>
+      </div>
+
+      <div class="tafs">
+        <div class="tblok">
+          <div class="tnom">Diamond&middot;Oddiy <span>80g &middot; kirim 81.60</span></div>
+          <div class="tqat lk"><span class="ico">&#128274;</span>
+            <span class="mid">45.33g &times; (81.60 &minus; 81.40)</span><span class="val">+$9.07</span></div>
+          <div class="tqat fl"><span class="ico">&#8987;</span>
+            <span class="mid">34.67g &times; (81.60 &minus; 82.00)</span><span class="val">&minus;$13.87</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--bad)">&minus;$4.80</span></div>
+        </div>
+
+        <div class="tblok">
+          <div class="tnom">Diamond&middot;3D <span>50g &middot; kirim 86.40</span></div>
+          <div class="tqat lk"><span class="ico">&#128274;</span>
+            <span class="mid">28.33g &times; (86.40 &minus; 86.20)</span><span class="val">+$5.67</span></div>
+          <div class="tqat fl"><span class="ico">&#8987;</span>
+            <span class="mid">21.67g &times; (86.40 &minus; 86.80)</span><span class="val">&minus;$8.67</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--bad)">&minus;$3.00</span></div>
+        </div>
+
+        <div class="tblok">
+          <div class="tnom">Butterfly&middot;Oddiy <span>75g &middot; kirim 84.00</span></div>
+          <div class="tqat lk"><span class="ico">&#128274;</span>
+            <span class="mid">42.50g &times; (84.00 &minus; 83.80)</span><span class="val">+$8.50</span></div>
+          <div class="tqat fl"><span class="ico">&#8987;</span>
+            <span class="mid">32.50g &times; (84.00 &minus; 84.40)</span><span class="val">&minus;$13.00</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--bad)">&minus;$4.50</span></div>
+        </div>
+
+        <div class="tblok">
+          <div class="tnom">Butterfly&middot;Premium <span>40g &middot; kirim 94.40</span></div>
+          <div class="tqat lk"><span class="ico">&#128274;</span>
+            <span class="mid">22.67g &times; (94.40 &minus; 94.20)</span><span class="val">+$4.53</span></div>
+          <div class="tqat fl"><span class="ico">&#8987;</span>
+            <span class="mid">17.33g &times; (94.40 &minus; 94.90)</span><span class="val">&minus;$8.66</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--bad)">&minus;$4.13</span></div>
+        </div>
+
+        <div class="tblok">
+          <div class="tnom">Simay&middot;Oddiy <span>60g &middot; kirim 89.60</span></div>
+          <div class="tqat lk"><span class="ico">&#128274;</span>
+            <span class="mid">34.00g &times; (89.60 &minus; 89.40)</span><span class="val">+$6.80</span></div>
+          <div class="tqat fl"><span class="ico">&#8987;</span>
+            <span class="mid">26.00g &times; (89.60 &minus; 90.00)</span><span class="val">&minus;$10.40</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--bad)">&minus;$3.60</span></div>
+        </div>
+
+        <div class="tblok">
+          <div class="tnom">Simay&middot;Zanjir <span>20g &middot; QAT&rsquo;IY 120.00</span></div>
+          <div class="tqat z"><span class="ico">&#128274;</span>
+            <span class="mid">11.33g &middot; $1,428.00 qulflandi</span><span class="val">$0.00</span></div>
+          <div class="tqat z"><span class="ico">&#8987;</span>
+            <span class="mid">8.67g &middot; narx qat&rsquo;iy &mdash; kurs tegmaydi</span><span class="val">$0.00</span></div>
+          <div class="tjami"><span>jami</span><span style="color:var(--ink3)">$0.00</span></div>
+        </div>
+
+        <div class="tjami" style="margin-top:13px;padding-top:9px;border-top:1.5px solid var(--edge2);font-size:12.5px;">
+          <span>&#128274; 184.16g &middot; $17,000.00</span><span style="color:var(--grn)">+$34.57</span></div>
+        <div class="tjami" style="margin-top:0;border-top:0;font-size:12.5px;">
+          <span>&#8987; 140.84g suzyapti</span><span style="color:var(--bad)">&minus;$54.60</span></div>
+        <div class="tjami" style="font-size:12.5px;">
+          <span>farq</span><span style="color:var(--bad)">&minus;$20.03</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Uch kurs &mdash; bittaga aralashadi</h2>
+  <div class="box gold">
+    <div class="mm">(8,000 x 79.50  +  5,000 x 80.00  +  4,000 x 80.20) / 17,000
+                                              = 79.8118</div>
+    <p style="margin-top:10px">Keyin har tur o&rsquo;z foiziga ko&rsquo;paytiradi:</p>
+    <div class="mm">Diamond·Oddiy      79.81 x 1.02  =  81.40
+Diamond·3D         79.81 x 1.08  =  86.20
+Butterfly·Oddiy    79.81 x 1.05  =  83.80
+Butterfly·Premium  79.81 x 1.18  =  94.20
+Simay·Oddiy        79.81 x 1.12  =  89.40
+Simay·Zanjir       qat'iy 120    —  kursga bog'liq emas</div>
+  </div>
+</section>
+
+<section>
+  <h2>&#9888; Bitta savol &mdash; senga qaysi kerak</h2>
+  <div class="box">
+    <p>Sistema uch kursni <b>alohida saqlamaydi</b> &mdash; ularni darhol bitta
+    o&rsquo;rtacha kursga (79.81) aralashtiradi. Qatorda ham shu bitta raqam chiqadi.</p>
+    <div class="tw"><table>
+      <tr><th></th><th>Ko&rsquo;rinish</th><th class="n">Ish hajmi</th></tr>
+      <tr><td><b>A</b> &mdash; hozirgidek</td><td>&laquo;79.81 dan qulflandi&raquo;</td><td class="n y">0 &mdash; tayyor</td></tr>
+      <tr><td><b>B</b> &mdash; uchalasi</td>
+          <td>&laquo;8,000 @ 79.50 &middot; 5,000 @ 80.00 &middot; 4,000 @ 80.20&raquo;</td>
+          <td class="n">yangi maydon + ~25 qator</td></tr>
+    </table></div>
+    <p class="hint">Foyda hisobi ikkalasida <b>bir xil</b> &mdash; farq faqat
+    ko&rsquo;rinishda. B da har qulf amali alohida yozib boriladi.</p>
+  </div>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> A mi B mi &mdash; ayt, keyin yozaman.</p>
+  </div>
+</section>
+
+</div>
