@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.31 · POS v0.38 · 2026-09-18
+**Oxirgi yangilanish:** v188.32 · POS v0.39 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,32 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ POS v0.39 + v188.32 — POS'DA MUDDATI O'TGANLAR (2026-09-18)
+
+Maket: `mockups/pos-muddati-otgan.html` →
+https://claude.ai/artifact/EZcGnFtLyzEQSFKDiD12xZ
+
+Ibrohim: «POS sistemada muddati o'tganlani ko'rsatadigan qisen bo'larkan»
+→ **A** (ERP dagidek: hamma qarzdor, kun bo'yicha saralangan).
+
+**hisob.js ga ko'chdi:** `_soat24`, `fdSanaTs`, `klientQarzHolat`.
+Sabab: `klientQarzHolat` faqat index.html da edi, pos.html ko'rmasdi.
+⚠ MANTIQ O'ZGARMADI — `git show HEAD:index.html` bilan solishtirildi,
+uchalasi **AYNAN BIR XIL**. index.html dagi 32 ta `fdSanaTs(` ishlaydi
+(hisob.js 1966-qatorda, undan oldin yuklanadi).
+
+**pos.html:** qidiruv ostiga `[Hammasi N] [Muddati o'tgan N]` chiplari ·
+qarzi bor klientga kun belgisi + rangli chiziq · muddat ko'rinishida faqat
+qarzdorlar, kun bo'yicha kamayib, harf bo'limlarisiz.
+
+Sinov (7 klient): tartib 34>19>11>6>2>1 · qarzi 0 ro'yxatda yo'q · faqat
+boshlang'ich ostatkali klient 11 kun (v188.2 qoidasi saqlandi) · ranglar
+8+ red / 4-7 yellow / 0-3 green.
+
+⚠ PRODDA SINALMAGAN — POS ro'yxatini telefonda ko'rish kerak.
 
 ---
 

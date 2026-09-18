@@ -8777,3 +8777,55 @@ Node: 1 script bloki, 0 sintaksis xatosi. Haqiqiy dvigatel bilan:
 
 `klientSotuvChekYangiGen` (faqat chaqiriladi), sotuv cheki, POS cheki,
 to'lov cheki, blok nomlari. Kalitcha sukut bo'yicha **o'chiq**.
+
+## POS v0.39 + v188.32 — POS'da muddati o'tganlar
+
+**Ibrohim**: «POS sistemada muddati o'tganlani ko'rsatadigan qisen bo'larkan»
+→ **«A ni»** (ERP dagidek — HAMMA qarzdor, kun bo'yicha saralangan).
+
+Maket: `mockups/pos-muddati-otgan.html`.
+
+### hisob.js ga ko'chirildi
+
+`klientQarzHolat` faqat `index.html` da edi — `pos.html` uni ko'rmasdi. Uchta
+funksiya `hisob.js` ga ko'chdi (ikkala fayl ham shuni yuklaydi):
+
+    _soat24           fdSanaTs           klientQarzHolat
+
+⚠ **MANTIQ O'ZGARMADI.** `git show HEAD:index.html` bilan bayt-baytga
+solishtirildi — uchalasi **AYNAN BIR XIL**. Faqat joyi almashdi.
+`index.html` dagi 32 ta `fdSanaTs(` chaqiruvi ishlashda qoladi, chunki
+`hisob.js` undan oldin yuklanadi (index.html:1966).
+
+### pos.html (v0.39)
+
+Qidiruv ostiga ikki chip:
+
+    [Hammasi 47]   [Muddati o'tgan 12]
+
+**Hammasi** — avvalgidek alfabit tartib, harf bo'limlari bilan. Qarzi bor
+klientga **kun belgisi** va chap chetiga **rangli chiziq** qo'shildi.
+Qarzi yo'q klientda ikkisi ham chiqmaydi.
+
+**Muddati o'tgan** — faqat qarzdorlar, eng ko'p kutgani tepada, harf
+bo'limlari yo'q. Qidiruv shu ro'yxat ichida ham ishlaydi.
+
+Ranglar ERP dan: `0-3 yashil · 4-7 sariq · 8+ qizil`. Sanagich oxirgi
+oldi-berdidan — qoida tegilmadi.
+
+### Sinov
+
+Node: hisob.js 0 xato, index.html 0 xato, pos.html 0 xato.
+7 klient bilan (hisob.js dan yuklab):
+
+    tartib          34 > 19 > 11 > 6 > 2 > 1
+    ranglar         8+ red, 4-7 yellow, 0-3 green
+    qarzi 0         ro'yxatda YO'Q, kun belgisi ham yo'q
+    boshlang'ich    faqat inventar yozuvi bo'lsa sanagich o'shandan (11 kun,
+                    0 emas) — v188.2 qoidasi saqlandi
+    chip sanoqlari  Hammasi 7, Muddati o'tgan 6
+
+### Tegilmadi
+
+Hisob-kitob, ranglar qoidasi, ERP dagi «Muddati otgan» bo'limi va PDF,
+POS berish/vozvrat oynalari, `_vaqt24` (u index.html da qoldi).

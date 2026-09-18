@@ -1,4 +1,4 @@
-<!-- v188.31 -->
+<!-- v188.32 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.31';
+var APP_VER = 'v188.32';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -4246,26 +4246,6 @@ function fdDavrBoshi(){
   if(_fdDavr==='yil') return new Date(n.getFullYear(),0,1).getTime();
   return 0;
 }
-// v183 (Ibrohim): «tilla erp 24h sistemada ishlasin ... AM da bo'lgan ishlar
-// PM bilan aralashib ketvotti, keyingi bo'lgan ish oldinga o'tib qolyapti».
-// Sabab: new Date('2026-09-12T6:06') — Invalid Date. Nolsiz yoki AM/PM li
-// BITTA soat NaN qaytarib, saralagichni tasodifiy qilib yuborardi.
-// Endi har qanday shakl qat'iy 24h HH:MM ga keltiriladi.
-function _soat24(s){
-  if(s===undefined || s===null) return '00:00';
-  s = String(s).trim();
-  if(!s) return '00:00';
-  var pm = /p\.?\s*m\.?$/i.test(s), am = /a\.?\s*m\.?$/i.test(s);
-  var m = s.match(/(\d{1,2})\s*[:.]\s*(\d{1,2})/);
-  if(!m) return '00:00';
-  var h = parseInt(m[1],10), mi = parseInt(m[2],10);
-  if(isNaN(h) || isNaN(mi)) return '00:00';
-  if(pm && h < 12) h += 12;
-  if(am && h === 12) h = 0;
-  if(h > 23) h = 23;
-  if(mi > 59) mi = 59;
-  return String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');
-}
 // Bulut panelidagi vaqt — brauzer tili en-US bo'lsa toLocaleString AM/PM
 // chiqarardi. Endi doim 24h.
 function _vaqt24(ts, faqatSoat){
@@ -4276,12 +4256,6 @@ function _vaqt24(ts, faqatSoat){
   if(faqatSoat) return t;
   return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')
        + '.'+d.getFullYear()+' '+t;
-}
-function fdSanaTs(sana, soat){
-  if(!sana) return 0;
-  var p=sana.split('.'); if(p.length!==3) return 0;
-  var t=new Date(p[2]+'-'+p[1]+'-'+p[0]+'T'+_soat24(soat)).getTime();
-  return isNaN(t) ? 0 : t;
 }
 // ==== FIFO MODEL: har sotuv o'z kunlik-kurs-asosidagi kirim narxini (kirimNarx) abadiy saqlaydi.
 // Marja sotuv zahoti qotadi (Section A, o'zgarmaydi). Qolgan "kurs farqi" esa TO'LANMAGUNCHA
@@ -9824,52 +9798,8 @@ function pdfDavrTanla(tip) {
   .catch(function(e){alert('PDF xato: '+e.message);});
 }
 var curKlientIdx = -1;
+// v188.32: klientQarzHolat hisob.js ga ko'chdi (POS ham ishlatadi).
 
-// v187.1 (Ibrohim): «shunchaki oxirgi oldi-berdi bo'gandan keyin yoki to'lov
-// bo'gandan keyin hisoblashi kerak muddati o'tishini» → «B ni qil».
-// Mockup: mockups/qarz-kun.html — B varianti tanlandi.
-//
-// AVVAL: sanagich faqat VOZVRAT va TO'LOV dan boshlanardi. Bugun berish
-//   qilingan klientda ham eski nishon turib qolardi (Mirshohid Aka 23:
-//   bugun 13.09 da berish bo'lgan, nishon esa «25 kun» — 19.08 dagi
-//   to'lovdan sanardi).
-// ENDI: har qanday oldi-berdi tiklaydi — berish, vozvrat, tolov.
-//
-// ⚠ ESKI XATO: sana MATN bo'lib solishtirilardi —
-//   '19.08.2026' > '13.09.2026' JavaScriptda ROST ('1'='1', keyin '9'>'3'),
-//   ya'ni avgust sentabrdan keyin deb qaralardi. Bir nechta amal bo'lganda
-//   noto'g'ri sana tanlanardi. Endi fdSanaTs bilan haqiqiy vaqtga
-//   aylantiriladi.
-//
-// ⚠ inventar yozuvlari (boshlang'ich ostatka shakllantirish, tekshiruv)
-//   HISOBGA OLINMAYDI — ular klient bilan bo'lgan oldi-berdi emas, o'z
-//   sanog'imiz. Aks holda ostatka shakllantirish hamma klientning
-//   muddatini nolga tushirib yuborardi.
-//
-// Ranglar TEGILMADI: 0-3 yashil, 4-7 sariq, 8+ qizil — Ibrohim aytgan
-// qoida allaqachon shunday edi.
-function klientQarzHolat(k) {
-  var eng=0, invEng=0;
-  (k.tarix||[]).forEach(function(op){
-    if(!op) return;
-    if(op.tip!=='berish' && op.tip!=='vozvrat' && op.tip!=='tolov') return;
-    var ts=fdSanaTs(op.sana);          // soatsiz — kun boshiga tenglashtiriladi
-    if(op.inventar){ if(ts>invEng) invEng=ts; return; }
-    if(ts>eng) eng=ts;
-  });
-  // v188.2 (Ibrohim): «nega ostatkadan qo'shilgan lekin oldi-berdi bo'maganni
-  // muddatini o'tgan qilib ko'rsatmayapsan» — Humayra 23 da yagona yozuv
-  // 03.08.2026 dagi boshlang'ich ostatka edi, nishon esa «0 kun» chiqardi.
-  // v187.1 qoidasi SAQLANADI: haqiqiy oldi-berdi bo'lsa, ostatka shakllantirish
-  // sanagichni tiklamaydi. Lekin boshqa hech nima bo'lmasa — sanagich
-  // o'sha yozuvdan boshlanadi, aks holda qarzdor «0 kun» bo'lib turadi.
-  if(!eng) eng=invEng;
-  if(!eng) return {kun:0, rang:'green'};
-  var n=new Date();
-  var bugun=new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
-  var kun=Math.round((bugun-eng)/86400000);
-  return {kun:kun, rang:kun<=3?'green':kun<=7?'yellow':'red'};
-}
 // ═════ v188 — MUDDATI O'TGANLAR PDF ═════
 // Ibrohim: «muddati o'tgan klientlaga PDF qo'shamiz bosib qancha kimmi
 // ostatkasi bor usha kungi kursdan chiqarberishi kere» +

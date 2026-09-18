@@ -141,7 +141,7 @@ body.rol-pos button, body.rol-pos input,
 //   • `index.html` va `hisob.js` ga tegilmagan.
 // ════════════════════════════════════════════════════════════
 
-var POS_VER = 'v0.38';
+var POS_VER = 'v0.39';
 
 // ── XONA — LOGIN BELGILAYDI (v0.30) ────────────
 // Ibrohim: «admin/admin123 dan kirilsa admin xonasi, test/test123 dan
@@ -794,6 +794,17 @@ function renderPOS(){
   // v0.29: qidiruv yonida + Klient
   h+='<button onclick="posKlientYangi()" style="flex:none;height:52px;padding:0 18px;border-radius:999px;border:0;background:var(--gold);color:var(--on-gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Klient</button>';
   h+='</div>';
+  // v0.39: Hammasi / Muddati o'tgan chiplari
+  var _nJ=0, _nM=0;
+  (data.klientlar||[]).forEach(function(kk){
+    if(!kk || !kk.nom) return;
+    _nJ++;
+    if(_posQarz(kk) > 0.001) _nM++;
+  });
+  h+='<div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;">';
+  h+=_posMudChip(!_posMuddat, 'Hammasi', _nJ, false);
+  h+=_posMudChip(_posMuddat, "Muddati o'tgan", _nM, true);
+  h+='</div>';
   h+='<div style="display:flex;gap:8px;min-height:0;flex:1;">';
   h+='<div id="pos-list" style="flex:1;overflow-y:auto;padding-right:4px;"></div>';
   h+='</div>';
@@ -803,6 +814,30 @@ function renderPOS(){
   _cloudIkonUpd();   // v0.21: qayta chizilgach joriy rangni tiklaymiz
 }
 
+// v188.32 / POS v0.39 (Ibrohim): «POS sistemada muddati o'tganlani ko'rsatadigan
+// qisen bo'larkan» → «A ni» (ERP dagidek — HAMMA qarzdor, kun bo'yicha saralangan).
+// Qoida ERP dan o'zgarmaydi: klientQarzHolat (hisob.js) — sanagich oxirgi
+// oldi-berdidan, ranglar 0-3 yashil / 4-7 sariq / 8+ qizil.
+var _posMuddat = false;
+function posMuddatFiltr(v){ _posMuddat = !!v; renderPOS(); }
+function _posHolat(k){
+  try{ return klientQarzHolat(k) || {kun:0, rang:'green'}; }
+  catch(e){ return {kun:0, rang:'green'}; }
+}
+function _posKunRang(r){
+  return r==='red'  ? {c:'var(--red)',    b:'var(--red-bg)'}
+       : r==='yellow'? {c:'var(--yellow)', b:'var(--yellow-bg)'}
+       :               {c:'var(--green)',  b:'var(--green-bg)'};
+}
+function _posMudChip(on, nom, son, qizil){
+  var rang = qizil ? 'var(--red)' : 'var(--gold)';
+  return '<span onclick="posMuddatFiltr('+(qizil?'true':'false')+')" '
+    +'style="display:flex;align-items:center;gap:7px;border-radius:999px;padding:6px 14px;'
+    +'font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;'
+    +(on ? 'background:'+rang+';border:1px solid '+rang+';color:var(--on-gold);'
+         : 'background:var(--surf);border:1px solid var(--border);color:var(--muted);')
+    +'">'+nom+' <b style="font-family:Roboto,sans-serif;font-size:11px;">'+son+'</b></span>';
+}
 function _posRoyxat(){
   var lst=document.getElementById('pos-list');
   if(!lst) return;
@@ -811,6 +846,13 @@ function _posRoyxat(){
     .filter(function(o){ return o.k && o.k.nom; });
   hamma.sort(function(a,b){ return String(a.k.nom).localeCompare(String(b.k.nom),'uz'); });
   var ro=hamma.filter(function(o){ return !q || String(o.k.nom).toLowerCase().indexOf(q)>=0; });
+  // v0.39: muddat ko'rinishi — faqat qarzdorlar, eng ko'p kutgani TEPADA,
+  // harf bo'limlari yo'q (ERP dagi «Muddati otgan» bo'limi bilan bir xil).
+  if(_posMuddat){
+    ro = ro.filter(function(o){ return _posQarz(o.k) > 0.001; });
+    ro.forEach(function(o){ o.h = _posHolat(o.k); });
+    ro.sort(function(a,b){ return b.h.kun - a.h.kun; });
+  }
 
   if(!ro.length){
     lst.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;">'
@@ -819,7 +861,7 @@ function _posRoyxat(){
     var out='', oxHarf='';
     ro.forEach(function(o){
       var k=o.k, hf=_posBosh(k.nom);
-      if(hf!==oxHarf){
+      if(!_posMuddat && hf!==oxHarf){
         out+='<div id="pos-h-'+_posEsc(hf)+'" style="font-size:11px;letter-spacing:.12em;color:var(--muted);padding:13px 4px 5px;font-weight:700;">'+_posEsc(hf)+'</div>';
         oxHarf=hf;
       }
@@ -827,9 +869,14 @@ function _posRoyxat(){
       var rang = qz>0.001?'var(--red)':(qz<-0.001?'var(--green)':'var(--muted)');
       var yorliq = qz>0.001?'KLIENT QARZI':(qz<-0.001?'BIZ QARZDORMIZ':"QARZ YO'Q");
       var belgi = qz>0.001?'\u2212':(qz<-0.001?'+':'');   // ilovadagi qoida: klient qarzi MINUS
-      out+='<div onclick="posKlientOch('+o.i+')" style="display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
+      // v0.39: qarzi bor klientda kun belgisi va rangli chiziq
+      var _hl = qz>0.001 ? (o.h || _posHolat(k)) : null;
+      var _kr = _hl ? _posKunRang(_hl.rang) : null;
+      out+='<div onclick="posKlientOch('+o.i+')" style="position:relative;overflow:hidden;display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;background:var(--surf);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;">';
+      if(_kr) out+='<span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:'+_kr.c+';"></span>';
       out+='<div style="width:52px;height:52px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surf);border:1px solid var(--border);color:var(--gold);font-weight:600;font-size:20px;">'+_posEsc(hf)+'</div>';
       out+='<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_posEsc(k.nom)+'</div></div>';
+      if(_kr) out+='<div style="flex:none;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;font-family:Roboto,sans-serif;background:'+_kr.b+';color:'+_kr.c+';white-space:nowrap;">'+_hl.kun+' kun</div>';
       out+='<div style="text-align:right;flex:none;"><div style="font-size:15px;font-weight:700;color:'+rang+';font-family:Roboto,sans-serif;font-variant-numeric:tabular-nums;">'+belgi+fmtG(Math.abs(qz))+'g</div>';
       out+='<div style="font-size:9px;color:var(--muted);letter-spacing:.04em;">'+yorliq+'</div></div>';
       out+='</div>';
