@@ -1,4 +1,4 @@
-<!-- v188.27 -->
+<!-- v188.28 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -1990,7 +1990,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.27';
+var APP_VER = 'v188.28';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -10039,7 +10039,7 @@ function kassaPulNavbati(){
         var _kk = kursSanada(op.sana, op.soat);
         if(_kk>0){
           var _e = ekv * Math.min(1, _qlf/_sm);
-          var a0 = acc.get(op) || {ekv:ekv, ekvQop:0, summaQop:0, pulQop:0};
+          var a0 = acc.get(op) || {ekv:ekv, ekvQop:0, summaQop:0, pulQop:0, pulQopNaqt:0, ekvQopNaqt:0, summaQopNaqt:0};
           a0.ekvQop  += _e;
           a0.summaQop += _e * _kk;
           a0.pulQop  += _qlf;
@@ -10071,10 +10071,16 @@ function kassaPulNavbati(){
         if(ulush<=0) continue;
         s.ops.forEach(function(it){
           var qopEkv = it.ekv*ulush*it.shr; // SKIDKA KABI — gramm nisbatida (shr: naqd hissasi)
-          var a = acc.get(it.op) || {ekv:it.ekv, ekvQop:0, summaQop:0, pulQop:0};
+          var a = acc.get(it.op) || {ekv:it.ekv, ekvQop:0, summaQop:0, pulQop:0, pulQopNaqt:0, ekvQopNaqt:0, summaQopNaqt:0};
           a.ekvQop += qopEkv;
           a.summaQop += qopEkv * x.kurs;
           a.pulQop += it.nq * ulush;
+          // v188.28: FAQAT pul navbatidan tushgani. pulQop ga yuqorida karta/perech/lom
+          // ning sotuv-kunidagi qulfi ham qo'shiladi - u NAQT emas, shuning uchun
+          // "naqt puli to'ladi" chizig'i uchun alohida yig'iladi.
+          a.pulQopNaqt += it.nq * ulush;
+          a.ekvQopNaqt += qopEkv;
+          a.summaQopNaqt += qopEkv * x.kurs;
           acc.set(it.op, a);
         });
       }
@@ -10086,7 +10092,9 @@ function kassaPulNavbati(){
     m.set(op, {
       ulush: Math.min(1, a.ekvQop/a.ekv),
       qopKurs: a.summaQop/a.ekvQop,
-      qopPul: Math.round(a.pulQop*100)/100
+      qopPul: Math.round(a.pulQop*100)/100,
+      qopPulNaqt: Math.round(a.pulQopNaqt*100)/100,
+      qopKursNaqt: a.ekvQopNaqt>0.0001 ? a.summaQopNaqt/a.ekvQopNaqt : 0
     });
   });
   return m;
@@ -10250,6 +10258,7 @@ function kassaSuzuvchiXaritasi(){
         m.set(s.op, {
           ochiqEkv:roundG(ochiqEkv), suzuvchi:Math.round(suzuvchi*100)/100,
           qopUlush:(_q?_q.ulush:0), qopKurs:(_q?_q.qopKurs:0), qopPul:(_q?_q.qopPul:0),
+          qopPulNaqt:(_q?(_q.qopPulNaqt||0):0), qopKursNaqt:(_q?(_q.qopKursNaqt||0):0),
           qopUst:Math.round(_ust*100)/100, kirimKun:kirimNarxHozir, kirimQop:_kQop
         });
       });
@@ -10282,6 +10291,7 @@ function renderKassa() {
         lomGramm: op.lomGramm||0, lomPul: op.lomPul||0, lomKurs: op.lomKurs||0,
         qopUlush: _sz?(_sz.qopUlush||0):0, qopKurs: _sz?(_sz.qopKurs||0):0,
         qopPul: _sz?(_sz.qopPul||0):0, qopUst: _sz?(_sz.qopUst||0):0,
+        qopPulNaqt: _sz?(_sz.qopPulNaqt||0):0, qopKursNaqt: _sz?(_sz.qopKursNaqt||0):0,
         kirimKun: _sz?(_sz.kirimKun||0):0, kirimQop: _sz?(_sz.kirimQop||0):0
       });
     });
@@ -10310,6 +10320,7 @@ function renderKassa() {
         naqtPul: 0, kartaPul: 0, perechPul: 0, skidka: 0,
         lomGramm: 0, lomPul: 0, lomKurs: 0,
         qopUlush:0, qopKurs:0, qopPul:0, qopUst:0, kirimKun:0, kirimQop:0,
+        qopPulNaqt:0, qopKursNaqt:0,
         vz: true, vzMargin: mg.margin
       });
     });
@@ -10339,6 +10350,7 @@ function renderKassa() {
         foyda:zarar, suzuvchi:0, foydaHozir:zarar,
         naqtPul:0, kartaPul:0, perechPul:0, skidka:0, lomGramm:0, lomPul:0, lomKurs:0,
         qopUlush:0, qopKurs:0, qopPul:0, qopUst:0, kirimKun:0, kirimQop:0,
+        qopPulNaqt:0, qopKursNaqt:0,
         off:true, offMargin:Math.round((narx-kirim)*100)/100
       });
     });
@@ -10499,7 +10511,21 @@ function renderKassa() {
         var isOpen=expKassa[expKey];
         var ks=katStyles[kg.kat]||katStyles.A;
 
-        out+='<div class="hrow" style="margin-bottom:6px;cursor:pointer;" onclick="kassaToggle(\''+expKey+'\')">';
+        // v188.28 (Ibrohim): "shu oppoq loading bo'b tursin, agar ketma ketligi bo'yicha
+        // chiqim bo'p ketsa to'liq yopilsa TO'LIQ, qisman bosa QISMAN dib ko'rsatishi kere".
+        // O'lchov FAQAT NAQT: qopPulNaqt / naqt. (qopPul da karta/perech/lom qulfi ham bor.)
+        var _nqR=0, _qnR=0, _qkR=0;
+        kg.ops.forEach(function(o){
+          _nqR += _opNaqtPul(o);
+          var _q1 = o.qopPulNaqt||0;
+          _qnR += _q1; _qkR += _q1*(o.qopKursNaqt||0);
+        });
+        var _pcR = (!kg.vz && _nqR>0.005) ? Math.max(0, Math.min(100, _qnR/_nqR*100)) : 0;
+        var _fullR = _pcR>=99.5;
+        var _bgR = 'var(--surf)';
+        if(_fullR) _bgR = 'var(--green-bg)';
+        else if(_pcR>0.05) _bgR = 'linear-gradient(90deg,var(--yellow-bg) 0 calc('+_pcR+'% - 2px),var(--gold) calc('+_pcR+'% - 2px) '+_pcR+'%,var(--surf) '+_pcR+'% 100%)';
+        out+='<div class="hrow" style="margin-bottom:6px;cursor:pointer;background:'+_bgR+';" onclick="kassaToggle(\''+expKey+'\')">';
         out+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">';
         out+='<div style="min-width:0;flex:1;">';
         out+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
@@ -10515,11 +10541,10 @@ function renderKassa() {
           if(_tK>0.005) out+=_tb('KARTA','var(--blue-bg)','var(--blue)','var(--blue-bd)');
           if(_tP>0.005) out+=_tb('PERECH','var(--teal-bg)','var(--teal)','var(--teal-bd)'); // v136
           if((kg.offSumma||0)>0.005) out+=_tb('OFFSET','var(--purple-bg)','var(--purple)','var(--purple-bd)');
-          // v117: QULFLANISH belgisi — pul navbatidan qancha tegkani
-          var _ul=0, _qp=0;
-          kg.ops.forEach(function(o){ if(o.qopUlush>_ul) _ul=o.qopUlush; _qp+=(o.qopPul||0); });
-          if(_ul>=0.9995) out+=_tb('TO\'LDI','var(--green)','#fff','var(--green)');
-          else if(_ul>0.0005) out+=_tb('QISMAN','var(--gold)','#fff','var(--gold)');
+          // v117 -> v188.28: QULFLANISH yorlig'i. Oldin qopUlush (GRAMM ulushi) edi,
+          // endi qator fonini to'ldiradigan bir xil o'lchov: naqtning qulflangan qismi.
+          if(_fullR) out+=_tb('TO\'LIQ','var(--green)','#fff','var(--green)');
+          else if(_pcR>0.05) out+=_tb('QISMAN','var(--gold)','#fff','var(--gold)');
         }
         if(kg.vz) out+='<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--red-bg);color:var(--red);border:0.5px solid var(--red-bd);">VOZVRAT</span>';
         out+='</div>';
@@ -10549,13 +10574,11 @@ function renderKassa() {
         out+='</div>';
         if(!kg.vz) out+='<button onclick="event.stopPropagation();kassaChek('+kg.ki+',\''+sana+'\')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--purple-bd);background:transparent;color:var(--purple);font-size:12px;cursor:pointer;">🖨</button>';
         out+='</div>';
-        // v128: QULFLANISH CHIZIQCHASI (A variant) — qator ostida ingichka
-        if(!kg.vz){
-          var _ulL=0; kg.ops.forEach(function(o){ if(o.qopUlush>_ulL) _ulL=o.qopUlush; });
-          var _pcL=Math.min(100,_ulL*100), _fullL=_pcL>=99.5;
-          out+='<div style="height:4px;background:var(--surf2);margin:8px 0 2px;border-radius:2px;overflow:hidden;">';
-          if(_pcL>0.05) out+='<div style="height:100%;width:'+_pcL+'%;background:var(--'+(_fullL?'green':'gold')+');"></div>';
-          out+='</div>';
+        // v128 -> v188.28: ingichka chiziqcha OLIB TASHLANDI — endi qatorning
+        // o'zi to'ladi. O'rniga Ibrohim so'ragan info: "tegida qulflandi 80$ dan dib
+        // info beradi".
+        if(!kg.vz && _qnR>0.005){
+          out+='<div style="font-size:10px;font-family:Roboto,sans-serif;margin-top:7px;color:var(--'+(_fullR?'green':'gold')+');">🔒 $'+fmtD(_qnR)+(_fullR?'':' / $'+fmtD(_nqR))+' · '+fmtD(Math.round(_qkR/_qnR*100)/100)+' dan qulflandi</div>';
         }
         out+='</div>';
 
@@ -10581,18 +10604,19 @@ function renderKassa() {
           out+='💡 Zarar faqat <b>ostatkadan ORTIQ</b> qismga. Ostatka ichida qaytgani — qarzdan yechiladi, zarar yo\'q. Ortiqchasini sotuv narxida qaytarib olgandek: ortiqcha × o\'sha kungi margin.</div>';
           out+='</div>';
         } else if(isOpen){
-          // v117: LOADING BAR — pul navbatidan qancha qulflangani
-          var _ulB=0, _qpB=0;
-          kg.ops.forEach(function(o){ if(o.qopUlush>_ulB) _ulB=o.qopUlush; _qpB+=(o.qopPul||0); });
-          if(_ulB>0.0005 || (kg.naqtJami||0)>0.005){
-            var _pc=Math.min(100,_ulB*100);
-            var _full=_pc>=99.95;
+          // v117 -> v188.28: yopiq qatordagi to'lish bilan BIR XIL o'lchov — faqat NAQT.
+          // Oldin _ulB (gramm ulushi) va kg.naqtJami (naqt+lom+karta+perech) ishlatilardi,
+          // shuning uchun aralash to'lovda naqtdan boshqa raqam chiqardi.
+          var _qpB = _qnR;
+          if(_nqR>0.005){
+            var _pc = _pcR;
+            var _full = _fullR;
             out+='<div style="height:26px;border-radius:8px;background:var(--surf2);overflow:hidden;position:relative;margin-top:8px;">';
             out+='<div style="height:100%;background:var(--'+(_full?'green':'gold')+');width:'+_pc+'%;"></div>';
             out+='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;font-family:Roboto,sans-serif;color:var(--text);text-shadow:0 0 3px rgba(255,255,255,.75);">';
-            out+=(_pc<0.05 ? 'qulflanmagan — foyda suzadi'
-                 : (_full ? '$'+fmtD(_qpB)+' — to\'liq qotdi'
-                          : '$'+fmtD(_qpB)+' / $'+fmtD(kg.naqtJami||0)+' · '+fmtD(_pc)+'% qotdi'));
+            out+=(_pc<0.05 ? 'naqt qulflanmagan — foyda suzadi'
+                 : (_full ? '$'+fmtD(_qpB)+' — naqt to\'liq qotdi · '+fmtD(Math.round(_qkR/_qnR*100)/100)+' dan'
+                          : '$'+fmtD(_qpB)+' / $'+fmtD(_nqR)+' · '+fmtD(_pc)+'% · '+fmtD(Math.round(_qkR/_qnR*100)/100)+' dan'));
             out+='</div></div>';
           }
           out+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">';

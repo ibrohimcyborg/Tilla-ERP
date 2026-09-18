@@ -8522,3 +8522,66 @@ navbatga ham kirmasdi, muhrlanmasdi ham — foydasi suzib turardi.
 ### Tegilmadi
 
 Formula, `_shr` hisobi, `kassaFifoModel`, saqlanadigan yozuvlar.
+
+## v188.28 — qatorning o'zi loading bo'lib to'ladi
+
+**Ibrohim**: «shu oppoq loading bo'b tursin, agar ketma-ketligi bo'yicha chiqim
+bo'p ketsa, to'liq yopilsa **to'liq**, qisman bo'sa **qisman** dib ko'rsatishi kere»
++ «tegida **qulflandi 80$ dan** dib info beradi».
+
+Maket: `mockups/naqt-qulf-loading.html` (v2).
+
+### Nima o'zgardi ko'rinishda
+
+| | Oldin | Endi |
+|---|---|---|
+| To'ladigan narsa | qator ostidagi 4px chiziqcha | **qatorning o'zi** (fon) |
+| O'lchov | `qopUlush` (GRAMM ulushi) | **faqat naqt**: `qopPulNaqt / naqt` |
+| Yorliq | `TO'LDI` / `QISMAN` | `TO'LIQ` / `QISMAN` |
+| Kurs ko'rinadimi | yo'q | «$1,480.00 · 80.00 dan qulflandi» |
+
+Qisman — sariq fon + to'lgan chegarada 2px chiziq. To'liq — yashil fon.
+`linear-gradient` bilan, qo'shimcha element yo'q (z-index muammosi ham yo'q).
+
+### Nega yangi maydon kerak bo'ldi
+
+`qopPul` ga **uch xil** narsa qo'shiladi: pul navbatidan tushgani + karta/perech
+ning sotuv-kunidagi qulfi + (v188.27 dan keyin) lom qulfi. Ya'ni u NAQT emas.
+
+Misol: Sherzod Aka Tz — naqt $134, perech $4,661. Navbat naqtiga tegmagan, lekin
+eski chiziq **97.21% qotdi** deb turardi (perech qulfi `qopPul` ga qo'shilgani uchun).
+
+Shuning uchun `kassaPulNavbati` ga FAQAT navbatdan tushganini yig'adigan uchta
+akkumulyator qo'shildi: `pulQopNaqt`, `ekvQopNaqt`, `summaQopNaqt` →
+chiqishda `qopPulNaqt` va `qopKursNaqt`.
+
+⚠ Eski maydonlar (`qopUlush`, `qopKurs`, `qopPul`) **TEGILMADI** — suzuvchi foyda
+hisobi o'sha-o'shaligicha.
+
+### Qilindi
+
+    kassaPulNavbati        3 joy  - yangi akkumulyatorlar + chiqish
+    kassaSuzuvchiXaritasi  1 joy  - uzatish
+    guruh xaritasi         3 joy  - uzatish + vozvrat/offset default
+    qator (hrow)           1 joy  - fon: linear-gradient
+    yorliq                 1 joy  - TO'LIQ / QISMAN, naqt o'lchovi
+    v128 chiziqcha         1 joy  - OLIB TASHLANDI, o'rniga info matni
+    v117 ochilgan bar      2 joy  - bir xil o'lchovga (naqt) o'tdi
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi.
+999 olindi $1,614 @ 583 kursi 80.00, sovdalar eskidan yangiga:
+
+    KLIENT               naqt      qopPul   qopPulNaqt    FON %   YORLIQ
+    Mamura Opa TJK    $1480.00   $2671.06     $1480.00   100.00%  TO'LIQ
+    Maqsadjon Opa TJK $4360.01    $134.00      $134.00     3.07%  QISMAN
+    Sherzod Aka Tz     $134.00   $4661.00        $0.00     0.00%  -
+    Serig Aka         $4740.00      $0.00        $0.00     0.00%  -
+
+Mamura naqti to'liq yeyildi, qolgan $134 Maqsadjonga tushdi (12:41 — Sherzoddan
+oldin). Sherzodning $4,661 i perech — naqt emas, shuning uchun fon bo'sh.
+
+### Tegilmadi
+
+Suzuvchi foyda formulasi, `qopUlush` hisobi, `kassaFifoModel`, saqlanadigan yozuvlar.

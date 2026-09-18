@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.27 · POS v0.37 · 2026-09-18
+**Oxirgi yangilanish:** v188.28 · POS v0.37 · 2026-09-18
 **⏳ Ochiq:** KASSA NAQT QULFI — tahlil qilindi, JAVOB KUTILYAPTI (pastga qara).
 
 ---
@@ -237,7 +237,7 @@ bilan Node'da `eval` qilinadi. Kerak bo'lsa qaytadan yoziladi.
 
 ### Hamon ochiq
 
-1. **1-ish yozilmagan** — `mockups/naqt-qulf-loading.html` (v2) →
+1. ~~**1-ish**~~ ✅ **v188.28 da YOZILDI** — `mockups/naqt-qulf-loading.html` (v2) →
    https://claude.ai/artifact/HHPQxPH6p7YUE8iN1yNCqg
 
    Ibrohim aniqlashtirdi: «shu **oppoq** loading bo'b tursin… to'liq yopilsa
@@ -254,9 +254,12 @@ bilan Node'da `eval` qilinadi. Kerak bo'lsa qaytadan yoziladi.
    - v128 chiziqcha (10529) va v117 bar (10563) — ikkalasi ham naqtga o'tadi
    ⚠ Eski maydonlarga TEGILMAYDI.
 
-   **Javob kutilyapti** — «shunaqa qil» kelmaguncha yozilmaydi.
+   ✅ Bajarildi (v188.28). ⚠ PRODDA HALI SINALMAGAN.
 2. **Kassa foyda paneli** pul qulfini ko'rmaydi (birinchi maketdagi savol).
-3. «kassamiz to'liq yopilmasa qisman yopiladi» — TUSHUNILMADI, so'raldi.
+3. ~~«kassamiz to'liq yopilmasa qisman yopiladi»~~ ✅ **JAVOB KELDI**
+   (2026-09-18): «kassamizdigi pul masalan 30000$ bogan bo'sa lekin 20000$ chiqim
+   bo'gan bosa qisman yopiladi 10000$ qoladi» — ya'ni mavjud qisman qulf.
+   Qo'shimcha ish KERAK EMAS.
 
 **Kod YOZILMADI.** Javob kelmaguncha tegilmaydi.
 
@@ -325,6 +328,33 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.28 — qatorning o'zi loading bo'lib to'ladi (2026-09-18)
+
+Maket: `mockups/naqt-qulf-loading.html` (v2) →
+https://claude.ai/artifact/HHPQxPH6p7YUE8iN1yNCqg
+
+Ibrohim: «shu oppoq loading bo'b tursin… to'liq yopilsa **to'liq**, qisman bo'sa
+**qisman** dib ko'rsatishi kere» + «tegida **qulflandi 80$ dan** dib info beradi».
+
+| | Oldin | Endi |
+|---|---|---|
+| To'ladigan | qator ostidagi 4px chiziqcha | **qatorning o'zi** (fon) |
+| O'lchov | `qopUlush` (gramm) | **faqat naqt**: `qopPulNaqt / naqt` |
+| Yorliq | `TO'LDI` | `TO'LIQ` |
+| Kurs | yo'q | «$1,480.00 · 80.00 dan qulflandi» |
+
+**Yangi maydonlar:** `kassaPulNavbati` da `pulQopNaqt` / `ekvQopNaqt` /
+`summaQopNaqt` → chiqishda `qopPulNaqt`, `qopKursNaqt`. Kerak edi, chunki
+`qopPul` ga navbat puli + karta/perech qulfi + (v188.27 dan) lom qulfi
+qo'shiladi — u NAQT emas. Sherzod qatorida eski chiziq `97.21%` deb turardi,
+holbuki naqtiga hech narsa tegmagan.
+
+⚠ Eski maydonlarga (`qopUlush`, `qopKurs`, `qopPul`) **tegilmadi**.
+
+Sinov: Mamura 100% TO'LIQ · Maqsadjon 3.07% QISMAN · Sherzod 0% · Serig 0%.
 
 ---
 
