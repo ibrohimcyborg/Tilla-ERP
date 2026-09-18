@@ -1,0 +1,272 @@
+<title>POS Vozvrat va Berish Cheki</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --chek:#fdfcf8; --chek-ink:#241f18;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --chek:#1c1a16; --chek-ink:#e6e0d4;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --chek:#1c1a16; --chek-ink:#e6e0d4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header h1{font-size:23px;line-height:1.25;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+section{display:flex;flex-direction:column;gap:10px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0;font-weight:700;padding-bottom:7px;border-bottom:1px solid var(--edge)}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:14px 15px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}
+.box p + p{margin-top:8px}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.chekbox{background:var(--chek);border:1px solid var(--edge2);border-radius:8px;
+  padding:12px 10px;overflow-x:auto}
+.chekbox pre{margin:0;font-family:var(--mono);font-size:10px;line-height:1.62;
+  color:var(--chek-ink);white-space:pre}
+.lbl{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);
+  font-weight:700;margin-bottom:5px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.duo{grid-template-columns:1fr}}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;text-align:right}
+td.y{color:var(--good);font-weight:700}
+td.e{color:var(--bad);font-weight:700}
+.q{display:flex;gap:10px;align-items:flex-start}
+.q > b{flex-shrink:0;font-family:var(--mono);color:var(--gold)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">POS &middot; oxirgi ish</div>
+  <h1>Vozvrat va berish &mdash; bitta chekda</h1>
+  <p>To&rsquo;lovga o&rsquo;tilmaganda ham ostatka ko&rsquo;rinsin. Quyidagi cheklar
+  <b>haqiqiy kod</b> chiqargan matn.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;klient keldi, vozvrat qildi, i mol berildi &mdash; shunaqa holat
+  bo&rsquo;lsa Vozvrat shuncha gramm, Jami ko&rsquo;rsatishi kerak, keyin berilgan molga chek
+  chiqarishi kerak &lsquo;berildi&rsquo; deb, to&rsquo;lovga o&rsquo;tmasa&hellip; chekda ostatkani
+  ko&rsquo;rsatadi, vozvrat vaznini ayiradi, berishni qo&rsquo;shadi, agar to&rsquo;lov qilmasa
+  qolgan ostatkasini ko&rsquo;rsatadi&raquo;</div>
+</section>
+
+<section>
+  <h2>Hozir POS shunday chiqaradi</h2>
+  <div class="duo">
+    <div>
+      <div class="lbl">1-chek &middot; vozvrat</div>
+      <div class="chekbox"><pre>                  Juma Aka TJK
+                   18.09.2026
+------------------------------------------------
+Vozvrat qilindi
+  Butterfly - Oddiy                       +5.60g
+  Simay - Oddiy                           +3.20g
+------------------------------------------------
+Jami gramm                                +8.80g</pre></div>
+    </div>
+    <div>
+      <div class="lbl">2-chek &middot; berish</div>
+      <div class="chekbox"><pre>                  Juma Aka TJK
+                   18.09.2026
+------------------------------------------------
+Klientga berildi
+  Diamond - Oddiy                        -18.75g
+  Butterfly - 3D                          -7.40g
+------------------------------------------------
+JAMI                                     -26.15g</pre></div>
+    </div>
+  </div>
+  <div class="box bad">
+    <p><b>Ikki alohida chek, ostatka umuman yo&rsquo;q.</b> Klient qancha qarzi
+    qolganini ko&rsquo;rmaydi. Soat ham chiqmaydi.</p>
+    <p class="hint"><code>_posChChekMatn</code> (index.html:15649) &mdash; alohida,
+    sodda dvigatel. Sotuv chekidan butunlay boshqa.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Taklif &mdash; sotuv chekining dvigateli</h2>
+  <div class="box good">
+    <p>Yangi dvigatel yozish kerak emas. <code>klientSotuvChekYangiGen</code>
+    ga to&rsquo;lovsiz ma&rsquo;lumot berilsa, <b>o&rsquo;zi</b> shu tuzilishni chiqaradi &mdash;
+    TO&rsquo;LOV bloki tushib qoladi.</p>
+  </div>
+  <div class="lbl" style="margin-top:4px">Vozvrat + berish, to&rsquo;lov yo&rsquo;q</div>
+  <div class="chekbox"><pre>                  Juma Aka TJK
+               18.09.2026 - 14:20
+================================================
+OSTATKA
+ Butterfly Oddiy                          25.40g
+ Diamond Oddiy                            12.00g
+------------------------------------------------
+ JAMI                                     37.40g
+================================================
+VOZVRAT
+ Butterfly Oddiy                           5.60g
+ Simay Oddiy                               3.20g
+------------------------------------------------
+ JAMI                                      8.80g
+================================================
+QOLDI
+ Butterfly Oddiy             25.40-5.60 = 19.80g
+ Diamond Oddiy                            12.00g
+ Simay Oddiy                              +3.20g
+------------------------------------------------
+ JAMI                                     28.60g
+================================================
+BERILDI
+ Diamond Oddiy                            18.75g
+ Butterfly 3D                              7.40g
+------------------------------------------------
+ JAMI                                     26.15g
+================================================
+QOLGAN OSTATKA
+ Butterfly Oddiy                          19.80g
+ Diamond Oddiy              12.00+18.75 = 30.75g
+ Simay Oddiy                              +3.20g
+ Butterfly 3D                              7.40g
+------------------------------------------------
+ JAMI                                     54.75g
+================================================</pre></div>
+  <div class="box">
+    <p><b>Simay Oddiy +3.20g</b> &mdash; ostatkasida bo&rsquo;lmagan turdan qaytardi,
+    demak <b>biz</b> qarzdormiz. Shuning uchun plus bilan.</p>
+    <p class="hint">Hisob qatorning o&rsquo;zida ko&rsquo;rinadi: <code>25.40-5.60 = 19.80g</code>,
+    <code>12.00+18.75 = 30.75g</code> &mdash; v188.19 dagi qoida.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Faqat bittasi bo&rsquo;lsa</h2>
+  <div class="duo">
+    <div>
+      <div class="lbl">faqat vozvrat</div>
+      <div class="chekbox"><pre>                  Juma Aka TJK
+               18.09.2026 - 14:20
+================================================
+OSTATKA
+ Butterfly Oddiy                          25.40g
+ Diamond Oddiy                            12.00g
+------------------------------------------------
+ JAMI                                     37.40g
+================================================
+VOZVRAT
+ Butterfly Oddiy                           5.60g
+ Simay Oddiy                               3.20g
+------------------------------------------------
+ JAMI                                      8.80g
+================================================
+QOLGAN OSTATKA
+ Butterfly Oddiy             25.40-5.60 = 19.80g
+ Diamond Oddiy                            12.00g
+ Simay Oddiy                              +3.20g
+------------------------------------------------
+ JAMI                                     28.60g
+================================================</pre></div>
+    </div>
+    <div>
+      <div class="lbl">faqat berish</div>
+      <div class="chekbox"><pre>                  Juma Aka TJK
+               18.09.2026 - 14:20
+================================================
+OSTATKA
+ Butterfly Oddiy                          25.40g
+ Diamond Oddiy                            12.00g
+------------------------------------------------
+ JAMI                                     37.40g
+================================================
+BERILDI
+ Diamond Oddiy                            18.75g
+ Butterfly 3D                              7.40g
+------------------------------------------------
+ JAMI                                     26.15g
+================================================
+QOLGAN OSTATKA
+ Butterfly Oddiy                          25.40g
+ Diamond Oddiy              12.00+18.75 = 30.75g
+ Butterfly 3D                              7.40g
+------------------------------------------------
+ JAMI                                     63.55g
+================================================</pre></div>
+    </div>
+  </div>
+  <p class="hint">Faqat vozvratda ortiqcha <code>QOLDI</code> chiqmaydi &mdash;
+  to&rsquo;g&rsquo;ridan-to&rsquo;g&rsquo;ri <code>QOLGAN OSTATKA</code> (v188.24 qoidasi).</p>
+</section>
+
+<section>
+  <h2>To&rsquo;lovga o&rsquo;tsa</h2>
+  <div class="box good">
+    <p>Hech narsa qilish kerak emas &mdash; <b>allaqachon ishlaydi</b>.
+    &laquo;TO&rsquo;LOVGA O&rsquo;TISH&raquo; bosilsa to&rsquo;lov cheki chiqadi: ostatka, vozvrat,
+    berildi, keyin <b>TO&rsquo;LOV minus</b> va qolgan ostatka (v188.18).</p>
+  </div>
+</section>
+
+<section>
+  <h2>&#9888; Bitta qaror kerak</h2>
+  <div class="box gold">
+    <p>POS&rsquo;da vozvrat va berish <b>ikki alohida chernovik</b> bo&rsquo;lib keladi &mdash;
+    ikki marta qabul qilinadi. Shuning uchun:</p>
+    <div class="q" style="margin-top:9px"><b>A</b><span>Har qabuldan keyin chek chiqadi,
+    lekin <b>doim to&rsquo;liq rasmni</b> ko&rsquo;rsatadi. Vozvratni qabul qilsang &mdash;
+    ostatka + vozvrat + qolgan. Keyin berishni qabul qilsang &mdash; hammasi birga.
+    <b>Ikki qog&rsquo;oz</b>, oxirgisi to&rsquo;liq.</span></div>
+    <div class="q" style="margin-top:9px"><b>B</b><span>Qabul qilganda o&rsquo;sha klientning
+    boshqa kutayotgan chernoviklari bor bo&rsquo;lsa &mdash; &laquo;yana 1 ta bor, birga
+    qabul qilinsinmi?&raquo; deb so&rsquo;raydi va <b>bitta chek</b> chiqaradi.</span></div>
+    <div class="tw"><table style="margin-top:11px">
+      <tr><th></th><th class="n">Qog&rsquo;oz</th><th class="n">Ish hajmi</th><th class="n">Xavf</th></tr>
+      <tr><td><b>A</b></td><td class="n">2 ta</td><td class="n y">~35 qator</td><td class="n y">kam</td></tr>
+      <tr><td><b>B</b></td><td class="n y">1 ta</td><td class="n">~55 qator</td><td class="n">qabul jarayoni o&rsquo;zgaradi</td></tr>
+    </table></div>
+    <p class="hint">Sen &laquo;bitta chek&raquo; deganga o&rsquo;xshaydi &mdash; unda <b>B</b>.
+    Lekin <b>A</b> qabul jarayoniga tegmaydi, xatolik ehtimoli kamroq.</p>
+  </div>
+  <div class="box good">
+    <p><b>Kod yozilmadi.</b> <b>A</b> mi <b>B</b> mi &mdash; ayt, keyin yozaman.</p>
+  </div>
+</section>
+
+</div>

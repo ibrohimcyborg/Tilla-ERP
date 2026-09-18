@@ -5,7 +5,7 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.28 · POS v0.37 · 2026-09-18
-**⏳ Ochiq:** KASSA NAQT QULFI — tahlil qilindi, JAVOB KUTILYAPTI (pastga qara).
+**⏳ Ochiq:** POS vozvrat+berish cheki (A/B tanlanmagan) + kassa qulfining qolgan ishlari.
 
 ---
 
@@ -328,6 +328,40 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ⏳ KUTILYAPTI — POS: VOZVRAT + BERISH CHEKI (2026-09-18)
+
+Maket: `mockups/pos-vozvrat-berish-chek.html` →
+https://claude.ai/artifact/YFj7CZNBJUxJ5i7kUYoQP5
+
+Ibrohim: «klient keldi, vozvrat qildi, i mol berildi — shunaqa holat bo'lsa
+Vozvrat shuncha gramm, Jami ko'rsatishi kerak, keyin berilgan molga chek
+chiqarishi kerak «berildi» deb, to'lovga o'tmasa… chekda ostatkani ko'rsatadi,
+vozvrat vaznini ayiradi, berishni qo'shadi, agar to'lov qilmasa qolgan
+ostatkasini ko'rsatadi».
+
+**Hozir:** to'lovga o'tilmasa `_posChChekMatn` (15649) chiqaradi — alohida,
+sodda dvigatel: faqat «Vozvrat qilindi» yoki «Klientga berildi» + qatorlar + Jami.
+**Ostatka umuman yo'q**, soat yo'q, vozvrat va berish ikki alohida chek.
+
+**Yechim:** yangi dvigatel KERAK EMAS. `klientSotuvChekYangiGen` (17754) ga
+to'lovsiz opts berilsa (`oldilar:[]`, `lomlar:[]`, `offsetlar:[]`) →
+`tolBor=false` bo'lib TO'LOV bloki tushadi va o'zi shu tuzilishni chiqaradi:
+`OSTATKA → VOZVRAT → QOLDI → BERILDI → QOLGAN OSTATKA`.
+Haqiqiy kod bilan sinaldi (uch holat: vozvrat+berish / faqat vozvrat / faqat berish).
+
+To'lovga o'tsa — **allaqachon ishlaydi** (v188.18, `kTolovChekGen`).
+
+**⚠ JAVOBSIZ SAVOL (blokirovka qiladi):** POS'da vozvrat va berish **ikki
+alohida chernovik**, ikki marta qabul qilinadi.
+**A)** har qabuldan keyin chek chiqadi, lekin doim to'liq rasmni ko'rsatadi —
+2 qog'oz, oxirgisi to'liq, qabul jarayoniga tegilmaydi (~35 qator).
+**B)** qabulda «o'sha klientning yana N ta chernovigi bor, birga qabul
+qilinsinmi?» so'raydi → bitta chek (~55 qator, qabul jarayoni o'zgaradi).
+
+**Kod YOZILMADI.**
 
 ---
 
