@@ -902,59 +902,7 @@ yozma, `_qarzTarkib` ni chaqir.
 
 ---
 
-## ⏳ CHEK ISHI — qayerda to'xtadik (2026-09-16)
-
-### Bu qaysi chek
-
-**POS chernovik → qabul → TO'LOVGA O'TISH → to'lov cheki.**
-Ibrohim: «berilganga ostatkadan digan chek POSdan kegan berishdan kegin,
-to'lovga o'tishdan kegin ishlidigan bo'ldi, i usha maqul bo'ldi».
-
-Chek quruvchi: `kTolovChekGen` (10792).
-Ma'lumot yo'li: `posChTolovOch` (15356) chernovikdan berilgan grammni
-`_ktBerildi = {list, map}` ga solib to'lov modaliga uzatadi (v180.4),
-`kTolovChekGen` o'shandan `berilganga` / `ostatkadan` ni hisoblaydi:
-`min(to'langan, berilgan)` — ya'ni **avval yangi olganiga**.
-
-⚠ Chek **hech narsa yozmaydi** — tekshirildi: `kTolovChekGen` ichida
-`save()`, `k.tarix`, `localStorage`, cloud yo'q. `_ktBerildi` ham bazaga
-tushmaydi (saqlashdan keyin tozalanadi, 14766). Ya'ni chekni o'zgartirish
-hisobotga, qarzga, ostatkaga, kassaga **ta'sir qilmaydi**.
-
-### ALLAQACHON ISHLAYDI — qayta yozilmaydi
-
-Haqiqiy funksiya fayldan olinib ishga tushirilgan, natija tekshirilgan:
-
-- `Berildi` bloki + `Jami berildi`
-- `To'lov` — tur bo'yicha, ostiga `berilganga` / `ostatkadan`, `Qoldi`
-- `Jami to'landi` — to'lov turlari **harf** bilan (N/K/L/P)
-- `Umumiy Summa` → `Skidka` → `Offset` qatorlari → `Kerakli summa`
-- `Umumiy g`, `SDACHA`, `Naqt qaytarildi`
-- oxirida `Ostatka` jadvali (`Ostatka | to'landi | qoldi`) + `Bizda (offset)`
-
-### ⬜ KELISHILGAN, KOD YOZILMAGAN
-
-1. **`Vozvrat` bo'limi** — hozir vozvrat alohida ko'rinmaydi, raqamlar
-   ichiga singib ketadi. Ibrohim alohida bo'lim so'radi.
-2. **Oxirgi `Ostatka` soddalashsin** — uch ustunli jadval o'rniga
-   **bitta ustun**: `zavod tur → qolgan gramm` + `JAMI`.
-   Ibrohim: «huddi ostatka hisobotidaka».
-3. **`Qoldi 1.00` → `Qoldi 1.00g`** — `g` harfi yo'q, qolgan joyda bor.
-
-Maket: `mockups/sotuv-chek-vozvrat.html` — hammasi aralash misol bilan
-(vozvrat qarzdan ko'p → biz qarzdor → offset; N/K/P; skidka;
-offsetsiz qolgan «biz qarz» tur).
-
-### ⏳ JAVOBSIZ SAVOLLAR
-
-- `Jami to'landi` nomi `TO'LOV USULI` ga o'zgartirilsinmi?
-- Skidka hozir `Umumiy Summa` tagida — `N` tagiga tushirilsinmi?
-- Boshida `OSTATKA HISOBOTI` (oldingi holat) qo'shilsinmi?
-- Oxirgi `Ostatka` da `JAMI` qatori kerakmi?
-- `Bizda (offset)` guruhi yangi sodda ro'yxatda qolsinmi?
-- Offset qatorlari pul blokida qolsinmi yoki `Jami to'landi` ichiga tushsinmi?
-
-### ⚠ TOPILDI — yaxlitlash nomuvofiqligi (kod o'zgarmadi)
+## ⚠ TOPILDI — to'lov chekida offset qatori yaxlitlash nomuvofiqligi (2026-09-16, kod o'zgarmadi)
 
 ShoMuhammad cheki (16.09.2026):
 
@@ -966,7 +914,14 @@ undan gramm `507.78 / 87.2 = 5.8232g` chiqadi, ekranda **5.82** deb
 yaxlitlanadi. Ichki hisob to'g'ri (qolgan `0.5368g` x 87.2 = `46.81$`
 = SDACHA, va `554.59 - 507.78 = 46.81` mos), faqat **ko'rsatishda**
 qator ko'paytirilsa to'g'ri kelmaydi.
+
+v188.20 dan keyin ham shunday: `TO'LOV USULI` → `OFFSET` sarlavhasi tagida
+`<tur>  <g>g x <kurs>` + `x.summa` (`kTolovChekGen`, index.html ≈11020).
 Ibrohimga aytildi, qaror kutilmoqda.
+
+*(Shu yerda turgan «CHEK ISHI» bloki — vozvrat bo'limi, bir ustunli ostatka,
+`TO'LOV USULI` nomi, skidka joyi va boshqa savollar — v188.16–v188.19 da
+yopilgani uchun 2026-09-18 da o'chirildi. Tafsilot o'sha bloklarda.)*
 
 ---
 
