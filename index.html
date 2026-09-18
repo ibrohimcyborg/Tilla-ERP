@@ -1,4 +1,4 @@
-<!-- v188.32 -->
+<!-- v188.33 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.32';
+var APP_VER = 'v188.33';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -5614,6 +5614,24 @@ function _eskiTurBelgi(op){
 // maydonlariga TUSHADI (Ibrohim: "biratola yozib o'tirmayman").
 // ══════════════════════════════════════════════════════════════
 function _pnum(id){ var e=document.getElementById(id); return e ? (parseNum(e.value)||0) : 0; }
+
+// v188.33 (Ibrohim): «klientda borga naqtga yozsa N, Perechga yozsa P, Kartaga
+// yozsa K, Lom bosa L qilib korsat, bo'ldi chekda. Yetmaganini Naqtdan yopadi».
+//
+// «Klientda bor» paneli (kt-pp-* / ks-pp-*) hisoblagich — hech qayerga yozmaydi.
+// Chek va saqlash esa faqat pastdagi to'lov maydonlarini (kt-*-berildi) o'qirdi.
+// Natijada panelga PERECH yozilganda chekda N chiqardi, saqlanadigan yozuvda ham
+// naqtPul bo'lib ketardi — kassaga hech qachon kirmagan pul naqd bo'lib qo'shilardi.
+//
+// Endi: to'lov maydoni BO'SH bo'lsa panelga qaraladi. Qo'lda yozilgani DOIM ustun.
+// Lom bu yerda yo'q — panelning «Lom +» tugmasi haqiqiy lom qatori yaratadi va
+// chekka o'sha yo'ldan tushadi.
+function _pulUsulPanel(pfx, nb, kb, pb){
+  if(!(kb>0.001)) kb = _pnum(pfx+'-pp-karta');
+  if(!(pb>0.001)) pb = _pnum(pfx+'-pp-perech');
+  if(!(nb>0.001)) nb = _pnum(pfx+'-pp-naqd');
+  return {n:nb, k:kb, p:pb};
+}
 
 // Lom qatorlaridan jami pul. Ikkala modalda ham lom ro'yxati bor.
 function pulPanelLom(pfx){
@@ -14668,17 +14686,24 @@ function kTolovChekUpd() {
   var nb = parseNum((_ktNbEl||{}).value)||0;
   var kb = parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
   var pb = parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
+  // v188.33: to'lov maydoni bo'sh bo'lsa KLIENTDA BOR panelidan olinadi
+  var _ktU = _pulUsulPanel('kt', nb, kb, pb);
+  nb = _ktU.n; kb = _ktU.k; pb = _ktU.p;
   // v176.2 (Ibrohim: "lom bersa naqt qolgan pulini korsatmayapti chekda"):
   // nb faqat maydondan o'qilardi. Foydalanuvchi unga TEGMASA nb=0 bo'lib,
   // "N" qatori chekka umuman tushmasdi — lom bor sotuvda naqt yo'qolib ketardi.
   // Endi maydon bo'sh VA qo'lda tahrirlanmagan bo'lsa, hisoblangan kerakli
   // naqtdan (kt-kerakli-naqt: jami − lom − skidka − offset) karta va perech
   // ayirilib olinadi. Qo'lda yozilgan qiymat DOIM ustun turadi.
-  if (nb <= 0.001 && !(_ktNbEl && _ktNbEl.dataset.userEdited)) {
+  // v188.33 (Ibrohim): «yetmaganini Naqtdan yopadi» — naqt DOIM balanslovchi.
+  // Oldin shart `nb <= 0.001` edi: panel naqt bergan bo'lsa to'ldirish ishlamay,
+  // TO'LOV USULI ning JAMI si to'lovdan kam chiqardi. Endi faqat OSHIRADI,
+  // hech qachon kamaytirmaydi. Qo'lda yozilgan naqtga tegilmaydi.
+  if (!(_ktNbEl && _ktNbEl.dataset.userEdited)) {
     var _knEl = document.getElementById('kt-kerakli-naqt');
     var _kerakli = _knEl ? (parseNum(_knEl.dataset.val)||0) : 0;
     var _qoldiN = Math.round((_kerakli - kb - pb)*100)/100;
-    if (_qoldiN > 0.001) nb = _qoldiN;
+    if (_qoldiN > nb + 0.001) nb = _qoldiN;
   }
   if (nb > 0.001) tolovlar.push({harf:'N', matn:'', summa:nb});
   if (kb > 0.001) tolovlar.push({harf:'K', matn:'', summa:kb});
@@ -14883,6 +14908,10 @@ function saqlashKlientTolov(){
   // v136: klient qancha karta / perech berdi (butun sovda bo'yicha; qatorlarga ulush bilan sochiladi)
   var _ktKartaJamiSave=parseNum((document.getElementById('kt-karta-berildi')||{}).value)||0;
   var _ktPerechJamiSave=parseNum((document.getElementById('kt-perech-berildi')||{}).value)||0;
+  // v188.33: chek bilan BIR MANBA — maydon bo'sh bo'lsa KLIENTDA BOR panelidan.
+  // Aks holda chek P deb, saqlangan yozuv naqt deb yozardi (kassa chalg'iydi).
+  if(!(_ktKartaJamiSave>0.001))  _ktKartaJamiSave  = _pnum('kt-pp-karta');
+  if(!(_ktPerechJamiSave>0.001)) _ktPerechJamiSave = _pnum('kt-pp-perech');
   var _ktLomPulJamiSave=0,_ktLomGrammJamiSave=0;
   document.querySelectorAll('[id^="kt-lom-"]').forEach(function(el){
     var _li=el.id.split('-')[2];
@@ -17374,6 +17403,11 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         _vozPrev.push({zavod:_vp[0], tur:_vp[1], gramm:_vg});
       });
       var _sanaPrev=(document.getElementById('ks-sana')&&document.getElementById('ks-sana').value)?document.getElementById('ks-sana').value.split('-').reverse().join('.'):today();
+      // v188.33: to'lov maydonlari bo'sh bo'lsa KLIENTDA BOR panelidan
+      var _ksUPrev=_pulUsulPanel('ks',
+        parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0,
+        parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0,
+        parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0);
       var _cPrev=klientSotuvChekYangiGen({
         klientNom:_kPrev.nom, sana:_sanaPrev, soat:'',
         oldilar:_sOld, lomlar:_lomPrev, berildiMap:_bMap, eskiOstMap:_oMap,
@@ -17381,9 +17415,7 @@ function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, v
         ortiqcha:(window._ksSotuvOrtiqcha||0), tanlov:(window._ksSotuvOrtiqchaTanlov||null),
         offsetlar:_ksChekOffsetRows(_eqm),
         vozlar:_vozPrev,                               // v188.13
-        naqt:parseNum((document.getElementById('ks-naqt-berildi')||{}).value)||0,
-        karta:parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0,
-        perech:parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0
+        naqt:_ksUPrev.n, karta:_ksUPrev.k, perech:_ksUPrev.p   // v188.33
       });
       document.getElementById('ks-chek-body').textContent = _cPrev.body;
       return;
@@ -17554,6 +17586,10 @@ function saqlashKlientSotuv() {
   // -> lomsiz sof karta sotuvi butunlay NAQT bo'lib yozilardi. Endi maydonlar har doim o'qiladi.
   var _kartaBerdiSave = parseNum((document.getElementById('ks-karta-berildi')||{}).value)||0;
   var _perechBerdiSave = parseNum((document.getElementById('ks-perech-berildi')||{}).value)||0;
+  // v188.33: maydon bo'sh bo'lsa KLIENTDA BOR panelidan. Bu ikkisi chekka HAM,
+  // saqlanadigan yozuvga HAM ketadi (17617) — shuning uchun bir joyda.
+  if(!(_kartaBerdiSave>0.001))  _kartaBerdiSave  = _pnum('ks-pp-karta');
+  if(!(_perechBerdiSave>0.001)) _perechBerdiSave = _pnum('ks-pp-perech');
   // v174.1: ARALASH SOTUVDA MAYDON BO'SH QOLSA NAQT 0 YOZILARDI va pul kassaga
   // tushmasdi. Ibrohim A variantni tanladi: bo'sh bo'lsa ilova O'ZI to'ldiradi.
   // Maydon to'ldirilgan bo'lsa — U USTUN (klient qarzga qoldirgan bo'lishi mumkin).

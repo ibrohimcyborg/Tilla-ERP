@@ -4,7 +4,7 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.32 · POS v0.39 · 2026-09-18
+**Oxirgi yangilanish:** v188.33 · POS v0.39 · 2026-09-18
 **⏳ Ochiq:** kassa qulfining qolgan ishlari (pastga qara). POS cheki BITDI (v188.29).
 
 ---
@@ -328,6 +328,41 @@ Bloklar o'zi `LINE` bilan yopiladi, `chek1`/`chek2` da yana qo'shilardi.
 Endi oxiri v188.15 bilan aynan bir xil.
 
 Sinov: 9 blok × 3 nusxa jadval bilan; 2-chek 33 qator, 1-chek 59.
+
+---
+
+## ✅ v188.33 — KLIENTDA BOR PANELIDAGI PERECH CHEKDA N BO'LARDI (2026-09-18)
+
+Maket: `mockups/klientda-bor-perech.html` →
+https://claude.ai/artifact/P5f3Bi6sJnC3vibjMzzpAz
+
+Ibrohim: «klientda borga perechdan summa yozilsa chekda N qilib Naqt
+ko'rsatvotti… nima summa yozsek shuni korsatsin, N qipqoymi.
+Yetmaganini Naqtdan yopadi».
+
+**Chek xatosi emas edi — KASSA xatosi.** Chek ham, saqlash ham faqat
+`kt-perech-berildi` ni o'qirdi; panel (`kt-pp-perech`) hisoblagich edi.
+Natijada `naqtPul:1864, perechPul:0` yozilib, **kassaga hech qachon kirmagan
+$1,864 naqd bo'lib qo'shilardi** (perech v136 bo'yicha kassaga kirmaydi) va
+pul navbatiga ham kirib qulfni buzardi.
+
+Yangi `_pulUsulPanel(pfx,nb,kb,pb)` (5629): to'lov maydoni **bo'sh** bo'lsa
+panelдан oladi, qo'lda yozilgani ustun. To'rt joyda: to'lov cheki (14690),
+to'lov saqlashi (14901), sotuv previewi (17403), sotuv karta/perech (17567).
+
+«Yetmaganini naqtdan» — shart `nb<=0.001` dan `_qoldiN > nb` ga o'zgardi,
+naqt balanslovchi bo'ldi (faqat oshadi).
+
+Sinov (8 holat, kerakli 1,864): PERECH→P · NAQT→N · KARTA→K ·
+naqt 500+perech 1364 → N 500 + P 1364 · perech 1000 (yetmadi) → N 864 + P 1000 ·
+maydon to'ldirilgan bo'lsa maydon ustun · hech narsa yo'q → avvalgidek N.
+Saqlanadigan yozuv: perechPul 1864, naqtPul 0.
+
+⚠ **ESKI YOZUVLAR TUZATILMADI** — bu usulda allaqachon saqlangan to'lovlarda
+perech hali ham naqtPul bo'lib turadi. Ibrohimdan so'raldi: shunday yozuv bormi?
+Bo'lsa — topib sanaydigan tekshiruv ALOHIDA ish.
+
+⚠ PRODDA SINALMAGAN.
 
 ---
 

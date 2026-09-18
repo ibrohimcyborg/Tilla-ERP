@@ -8829,3 +8829,78 @@ Node: hisob.js 0 xato, index.html 0 xato, pos.html 0 xato.
 
 Hisob-kitob, ranglar qoidasi, ERP dagi «Muddati otgan» bo'limi va PDF,
 POS berish/vozvrat oynalari, `_vaqt24` (u index.html da qoldi).
+
+## v188.33 — «Klientda bor» panelidagi perech chekda N bo'lib chiqardi
+
+**Ibrohim** (ekran rasmlari bilan): «To'lov modalida va sotuv modalida klientda
+borga perechdan summa yozilsa pasda chekda N qilib Naqt ko'rsatvotti» →
+«klientda borga naqtga yozsa N, Perechga yozsa P, Kartaga yozsa K, Lom bosa L
+qilib korsat, bo'ldi chekda. **Yetmaganini Naqtdan yopadi**» → «muammo chekda,
+klientda bor joyga nima summa yozsek shuni korsatsin, N qipqoymi».
+
+Maket: `mockups/klientda-bor-perech.html`.
+
+### Nima bo'lgan
+
+Ikki xil maydon bor edi:
+
+    Klientda bor (kalkulyator)   kt-pp-perech    saqlanmaydi
+    To'lov maydonlari            kt-perech-berildi   saqlanadi
+
+Chek ham, saqlash ham **faqat pastdagini** o'qirdi. Panelga perech yozilsa
+`pb=0` bo'lib, qoldiq naqt deb hisoblanardi:
+
+    nb = kerakli - karta - perech  ->  1,864 - 0 - 0 = 1,864     "N"
+
+⚠ **Bu chek xatosi emas edi.** Saqlash kodi (14901) xuddi shu maydonni o'qiydi:
+
+    _ktPerechOp = 0 ;  _ktOpNaqt = 1,864
+    k.tarix.push({ ... naqtPul: 1864, perechPul: 0 ... })
+
+`_opNaqtPul` yozuvdagi `naqtPul` ga ishonadi va uni naqd deb sanaydi, perech esa
+kassaga umuman kirmasligi kerak (v136). Ya'ni **$1,864 kassaga hech qachon
+kirmagan naqd bo'lib qo'shilardi** va pul navbatiga ham kirib qulfni buzardi.
+
+### Qilindi
+
+Yangi `_pulUsulPanel(pfx, nb, kb, pb)` (5629) — to'lov maydoni **bo'sh** bo'lsa
+KLIENTDA BOR panelidan oladi. Qo'lda yozilgani DOIM ustun.
+
+To'rt joyda ishlatiladi:
+
+    14690   to'lov cheki (uchala tana: preview, 1-chek, 2-chek)
+    14901   to'lov SAQLASHI  — chek bilan bir manba
+    17403   sotuv chek previewi
+    17567   sotuv _kartaBerdiSave / _perechBerdiSave (chek + saqlash birga)
+
+**«Yetmaganini naqtdan»** — shart o'zgardi: `nb <= 0.001` emas, endi
+`_qoldiN > nb`. Ya'ni naqt balanslovchi bo'ldi va faqat OSHADI.
+Oldin panel naqt bergan bo'lsa to'ldirish ishlamay, TO'LOV USULI ning JAMI si
+to'lovdan kam chiqardi.
+
+Lomga **tegilmadi** — panelning «Lom +» tugmasi haqiqiy lom qatori yaratadi,
+u allaqachon chekka `L` bo'lib tushadi.
+
+### Sinov
+
+Node: 1 script bloki, 0 sintaksis xatosi. Kerakli 1,864.00, 8 holat:
+
+    panelda PERECH 1864              ->  P 1864.00                JAMI 1864 ✓
+    panelda NAQT 1864                ->  N 1864.00                JAMI 1864 ✓
+    panelda KARTA 1864               ->  K 1864.00                JAMI 1864 ✓
+    panelda naqt 500 + perech 1364   ->  N  500.00  P 1364.00      JAMI 1864 ✓
+    panelda perech 1000 (yetmadi)    ->  N  864.00  P 1000.00      JAMI 1864 ✓
+    maydonda perech 1864 (eski yo'l) ->  P 1864.00                JAMI 1864 ✓
+    maydon 1864 + panel 999          ->  P 1864.00  (maydon ustun) JAMI 1864 ✓
+    hech qayerda yo'q                ->  N 1864.00  (avvalgidek)   JAMI 1864 ✓
+
+Saqlanadigan yozuv: `perechPul 1864`, `naqtPul 0` — kassaga naqd qo'shilmaydi.
+
+### Tegilmadi
+
+Chek yasovchilar (`kTolovChekGen`, `klientSotuvChekYangiGen`), panelning o'zi
+(hali ham «hisoblagich · saqlanmaydi»), lom yo'li, offset, skidka.
+
+⚠ **Eski yozuvlar tuzatilmadi.** Bu usulda allaqachon saqlangan to'lovlarda
+perech hali ham `naqtPul` bo'lib turadi. Ibrohimdan so'ralgan: shunday yozuvlar
+bormi — bo'lsa topib sanaydigan tekshiruv alohida ish bo'ladi.

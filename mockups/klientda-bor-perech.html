@@ -1,0 +1,190 @@
+<title>Klientda Bor Perech Xatosi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#f4f2ed; --card:#fffefb; --card2:#faf8f3;
+  --edge:#e2ddd3; --edge2:#cfc8ba;
+  --ink:#2a2620; --ink2:#6f695e; --ink3:#948d80;
+  --gold:#9a7418; --gold-bd:#d8b660; --gold-bg:#fbf4e2;
+  --bad:#b23c2c; --bad-bg:#fbeae7; --bad-bd:#e6b3a8;
+  --good:#2b7048; --good-bg:#e7f3ea; --good-bd:#a9cfb5;
+  --teal:#1a7a72; --teal-bg:#dff0ee;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --teal:#5fc2b8; --teal-bg:#122a28;
+}}
+:root[data-theme="dark"]{
+  --paper:#171512; --card:#211e1a; --card2:#1b1815;
+  --edge:#332e27; --edge2:#453e34;
+  --ink:#ece7dd; --ink2:#a8a093; --ink3:#7d766a;
+  --gold:#d9b465; --gold-bd:#6b5524; --gold-bg:#2a2214;
+  --bad:#e79383; --bad-bg:#2e1c18; --bad-bd:#5d3228;
+  --good:#8ed0a6; --good-bg:#16271d; --good-bd:#2f5740;
+  --teal:#5fc2b8; --teal-bg:#122a28;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.6;
+  padding-inline:16px;padding-block:22px 64px}
+.wrap{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header h1{font-size:22px;line-height:1.25;margin:0;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--ink2);font-size:13.5px}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--bad);font-weight:700;margin-bottom:7px}
+h2{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  margin:0 0 9px;font-weight:700}
+.said{border-left:3px solid var(--gold-bd);padding:2px 0 2px 13px;color:var(--ink2);
+  font-size:14px;font-style:italic}
+.box{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:13px 14px}
+.box.bad{background:var(--bad-bg);border-color:var(--bad-bd)}
+.box.good{background:var(--good-bg);border-color:var(--good-bd)}
+.box.gold{background:var(--gold-bg);border-color:var(--gold-bd)}
+.box p{margin:0}.box p+p{margin-top:7px}
+.hint{font-size:12.5px;color:var(--ink2)}
+.mm{font-family:var(--mono);font-size:11px;line-height:1.75;white-space:pre;
+  background:var(--card2);border:1px solid var(--edge);border-radius:9px;
+  padding:11px 12px;overflow-x:auto;color:var(--ink)}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);
+  border:1px solid var(--edge);border-radius:5px;padding:1px 5px}
+.box.bad code,.box.good code,.box.gold code{background:rgba(128,128,128,.12);border-color:transparent}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--edge);text-align:left}
+th{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--mono);white-space:nowrap;text-align:right}
+td.e{color:var(--bad);font-weight:700}
+td.y{color:var(--good);font-weight:700}
+tr.jami td{border-top:1.5px solid var(--edge2);font-weight:700;background:var(--card2)}
+.katta{font-family:var(--mono);font-size:23px;font-weight:700;text-align:center;
+  color:var(--bad);padding:4px 0}
+.q{display:flex;gap:10px;align-items:flex-start}
+.q > b{flex-shrink:0;font-family:var(--mono);color:var(--gold)}
+.oq{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;
+  padding:5px 0;flex-wrap:wrap}
+.oq .k{background:var(--card2);border:1px solid var(--edge);border-radius:6px;padding:2px 7px}
+.oq .a{color:var(--ink3)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="tag">Pul xatosi &middot; kassaga tegadi</div>
+  <h1>Klientda bor &rarr; perech naqt bo&rsquo;lib ketyapti</h1>
+  <p>Chekdagi <code>N</code> &mdash; faqat ko&rsquo;rinadigan qismi. Saqlanadigan
+  yozuv ham shunday yozilyapti.</p>
+</header>
+
+<section>
+  <h2>Sen aytding</h2>
+  <div class="said">&laquo;To&rsquo;lov modalida va sotuv modalida klientda borga
+  perechdan summa yozilsa, pastda chekda <b>N</b> qilib naqt ko&rsquo;rsatyapti&raquo;</div>
+  <div class="box" style="margin-top:10px">
+    <div class="mm">KLIENTDA BOR    NAQT 0    PERECH 1864    KARTA 0
+                Jami 1,864$   Taqsimlandi 1,864$   Qoldi 0$
+
+CHEK            TO'LOV USULI
+                 N                          1,864.00#     <- xato
+                 P  bo'lishi kerak edi</div>
+  </div>
+</section>
+
+<section>
+  <h2>Sabab &mdash; ikki xil maydon</h2>
+  <div class="box bad">
+    <div class="tw"><table>
+      <tr><th>Panel</th><th>Maydon id</th><th>Saqlanadimi</th></tr>
+      <tr><td><b>Klientda bor</b> (kalkulyator)</td>
+          <td><code>kt-pp-perech</code></td><td class="e">yo&rsquo;q</td></tr>
+      <tr><td><b>To&rsquo;lov maydonlari</b></td>
+          <td><code>kt-perech-berildi</code></td><td class="y">ha</td></tr>
+    </table></div>
+    <p style="margin-top:10px">Chek ham, saqlash ham <b>faqat pastdagi maydonni</b>
+    o&rsquo;qiydi. Panelga yozilgani hech qayerga bormaydi &mdash; ustida
+    &laquo;hisoblagich &middot; saqlanmaydi&raquo; deb turadi.</p>
+    <p>Keyin qoldiq <b>naqt</b> deb hisoblanadi:</p>
+    <div class="mm">pb = kt-perech-berildi  ->  0
+nb = kerakli - karta - perech  ->  1,864 - 0 - 0 = 1,864   "N"</div>
+  </div>
+</section>
+
+<section>
+  <h2>&#9888; Chek emas &mdash; kassa</h2>
+  <div class="box bad">
+    <p>Saqlash kodi <b>xuddi shu maydonni</b> o&rsquo;qiydi (index.html:14885):</p>
+    <div class="mm">_ktPerechJamiSave = kt-perech-berildi        ->  0
+_ktPerechOp       = 0
+_ktOpNaqt         = qoldiq - karta - perech  ->  1,864
+
+k.tarix.push({ ... naqtPul: 1864,  perechPul: 0 ... })</div>
+    <p style="margin-top:10px">Kassa <code>naqtPul</code> ga ishonadi va uni
+    naqd deb sanaydi. Perech esa kassaga <b>umuman kirmaydi</b> &mdash; bankdan
+    to&rsquo;g&rsquo;ri zavodga ketadi (v136 qoidasi).</p>
+    <div class="katta">+$1,864</div>
+    <p style="text-align:center;margin:0;font-size:13px;color:var(--ink2);">
+    kassaga naqd bo&rsquo;lib qo&rsquo;shiladi &mdash; hech qachon kirmagan pul</p>
+    <p class="hint" style="margin-top:10px">Ustiga: o&rsquo;sha pul <b>pul navbatiga</b>
+    ham kiradi va qulfni buzadi (v188.26&ndash;28 dagi hisob).</p>
+  </div>
+  <div class="box gold" style="margin-top:10px">
+    <p><b>Sendan iltimos:</b> shunday to&rsquo;lovlarni allaqachon saqlaganmisan?
+    Agar ha &mdash; eski yozuvlarni topib sanaydigan tekshiruv kerak bo&rsquo;ladi
+    (alohida ish).</p>
+  </div>
+</section>
+
+<section>
+  <h2>Qanday ishlashi kerak</h2>
+  <div class="box good">
+    <div class="oq"><span class="k">KLIENTDA BOR<br>perech 1,864</span>
+      <span class="a">&rarr;</span>
+      <span class="k">kt-perech-berildi<br>1,864</span>
+      <span class="a">&rarr;</span>
+      <span class="k">chek<br>P 1,864.00#</span>
+      <span class="a">&rarr;</span>
+      <span class="k">yozuv<br>perechPul 1,864</span></div>
+    <p style="margin-top:8px">Panelga yozilgani pastdagi to&rsquo;lov maydoniga
+    tushadi &mdash; chek ham, saqlash ham o&rsquo;zi to&rsquo;g&rsquo;ri bo&rsquo;ladi.</p>
+    <p class="hint">Aynan shu bog&rsquo;liqlik <b>v167 da bor edi</b> &mdash; koddagi
+    izoh hali ham shunday deydi: &laquo;yozilgan naqd/karta/perech pastdagi
+    maydonlarga TUSHADI (Ibrohim: biratola yozib o&rsquo;tirmayman)&raquo;.
+    Keyin <b>v169 da olib tashlangan</b>: &laquo;panel faqat hisoblagich, hech
+    qayerga yozmaydi&raquo;. Nega olib tashlanganini bilmayman &mdash;
+    <code>CHANGELOG</code> ni o&rsquo;qimayman (loyiha qoidasi). Sabab bo&rsquo;lgan
+    bo&rsquo;lsa ayt.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Uch yo&rsquo;l</h2>
+  <div class="box">
+    <div class="q"><b>A</b><span><b>Panel to&rsquo;ldiradi.</b> Naqt / karta / perech
+    yozilsa pastdagi maydonga darhol tushadi. Qo&rsquo;lda tegilgan maydonga
+    tegilmaydi. Chek va saqlash o&rsquo;zi to&rsquo;g&rsquo;ri.
+    <span class="hint">~25 qator &middot; ikki modalga</span></span></div>
+    <div class="q" style="margin-top:10px"><b>B</b><span><b>Faqat ogohlantirish.</b>
+    Saqlashda panel bilan maydonlar mos kelmasa so&rsquo;raydi:
+    &laquo;panelda perech 1,864, to&rsquo;lov maydonida 0 &mdash; shundayligicha
+    saqlansinmi?&raquo;
+    <span class="hint">~20 qator &middot; panel hisoblagich bo&rsquo;lib qoladi</span></span></div>
+    <div class="q" style="margin-top:10px"><b>C</b><span><b>Ikkalasi.</b>
+    To&rsquo;ldiradi, ustiga saqlashdan oldin tekshiradi.
+    <span class="hint">~40 qator</span></span></div>
+    <p class="hint" style="margin-top:11px"><b>A</b> ni tavsiya qilaman &mdash; sen
+    &laquo;biratola yozib o&rsquo;tirmayman&raquo; degan edingu, xato ham shundan
+    kelib chiqyapti. Lekin qaror seniki.</p>
+  </div>
+  <div class="box good" style="margin-top:10px">
+    <p><b>Kod yozilmadi.</b> Bu <b>saqlanadigan yozuvga</b> tegadigan o&rsquo;zgarish &mdash;
+    <b>A</b>, <b>B</b> yoki <b>C</b> ni ayt, keyin yozaman.</p>
+  </div>
+</section>
+
+</div>
