@@ -5,7 +5,57 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.37 · POS v0.39 · 2026-09-19 (qulf vaqti tuzatildi)
-**🟢 KEYINGI ISH:** POS — CHEK CHIQARISH (Ibrohim aytadi, hali tavsiflamagan). v188.37 PRODDA, Ibrohim sinayapti. Keyin: «uchta yarim qator», audit D (A/B), C.
+**⏳ JAVOB KUTILMOQDA:** to'lov oynasidagi «−0.00g» qatori (A/B/C). Keyin: POS chek chiqarish, «uchta yarim qator», audit D (A/B), C.
+
+---
+
+## ⏳ TASHXIS — TO'LOV OYNASIDAGI «−0.00g» QATORI (2026-09-19, KOD YOZILMADI)
+
+Ibrohim rasm tashladi (to'lov oynasi, Dilfuza Opa Sadaf): «qara shunaqa 0,00
+ko'rsatvotti nimani hisobiga?» + «lekin ostatkasida ko'rsatmayapti».
+
+Maket: `mockups/nol-qator.html` → https://claude.ai/artifact/TtkfzRGJyucNMZUmAxDAJ6
+
+### Sabab — IKKI XIL CHEGARA
+
+To'lov oynasi `0.001g`, boshqa hamma joy `0.01g`:
+
+    0.001  index.html 11705 ktKatSet · 13379 kTolovKlientChange
+           13899 + 13975 kTolovCalc · 14157 kTolovChekUpd
+           14428 + 14453 + 14493 saqlashKlientTolov        ← 8 joy, TO'LOV OYNASI
+    0.01   index.html 11895 + 11901 openKlientDetail (klient kartasi)
+           14308 kTolovChekUpd (chek) · 16862 kSotuvUpdateChek (chek)
+           18400 openKlientlarPDFModal · hisob.js:196 _qarzTarkib (chek + PDF)
+
+`fmtG` = `toFixed(2)` → 0.001–0.005 oralig'i «−0.00g» bo'lib chiqadi.
+
+### Ibrohimning o'z ma'lumoti bunga aniq dalil
+
+    To'lov oynasi (4 qator)        Klient kartasi (3 qator)
+      Butterfly 3DS    −15.81       Premium Oddiy   −35.76
+      Diamond Oddiy    −34.64       Diamond Oddiy   −34.64
+      Premium Oddiy    −35.76       Butterfly 3DS   −15.81
+      Diamond Polimer  −0.00        Klient ostatkasi −86.21
+                                     (15.81+34.64+35.76 = 86.21 — ANIQ)
+
+### ⚠ Qator YOPILMAYDI
+
+`ktHammasi` (13946): `effQarz = Math.max(0, Math.round((qarz-v)*100)/100)`
+→ qarz 0.004 bo'lsa gramm maydoniga **0** yoziladi. Ya'ni ✓ bosilsa ham
+qarz qolaveradi va qator har safar qaytadan chiqadi.
+
+### ⏳ QAROR KUTILMOQDA
+
+**A** (tavsiya) — to'lov oynasi ham `0.01` ga o'tsin, chek/PDF/klient kartasi
+bilan bir xil bo'ladi. ⚠ SAKKIZALA joy BIRGA o'zgarishi SHART — ular bitta
+`idx` sanagichini bo'lishadi (`idx++; return;`), bittasi qolib ketsa
+ro'yxat va saqlash qatorlari siljiydi.
+**B** — faqat `0.005` (kelishmovchilik qisman qoladi).
+**C** — tegilmasin.
+
+Ma'lumot o'chmaydi, faqat ko'rsatish o'zgaradi.
+⚠ Aynan qaysi eski amal shu qoldiqni qoldirgani NOMA'LUM — buni aniqlash
+uchun Ibrohimning bazasi kerak. Tuzatish bunga bog'liq emas.
 
 ---
 

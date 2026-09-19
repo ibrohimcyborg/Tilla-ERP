@@ -1,0 +1,156 @@
+<title>Nol qator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --surf:#FFFFFF; --surf2:#E8E6E1; --ink:#1B1A17; --muted:#6A665F; --line:#D8D5CE;
+  --gold:#96690A; --gold-bd:#D8B75A; --gold-bg:#F7E8BC;
+  --green:#19754A; --green-bd:#8CC9A5; --green-bg:#D9F0DF;
+  --red:#A92A20; --red-bd:#E0A49D; --red-bg:#F9E7E4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+    --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+    --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+    --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+  --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+  --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+  --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:660px;margin:0 auto;padding-block:20px 46px;padding-inline:16px}
+h1{font-size:27px;line-height:1.13;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:18.5px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);font-size:14px;margin-top:7px}
+p{margin:8px 0}
+.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-family:"IBM Plex Mono",monospace;font-size:.89em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:26px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;vertical-align:2px;margin-left:7px}
+.tag.red{background:var(--red-bg);color:var(--red)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+
+/* qator namunasi */
+.qat{background:var(--surf2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:12px}
+.qat .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qat .nm{font-size:13px;font-weight:600}
+.qat .qz{font-size:12px;color:var(--red);font-family:"IBM Plex Mono",monospace}
+.qat .inp{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.qat .i{flex:1;min-width:66px;border-radius:7px;padding:7px 9px;font-size:12px;text-align:right;
+  font-family:"IBM Plex Mono",monospace;background:var(--surf);border:1px solid var(--line);color:var(--muted)}
+.qat .i.k{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold)}
+.qat .i.g{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+.qat .tik{flex:none;width:34px;display:flex;align-items:center;justify-content:center;border-radius:7px;
+  background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green);font-weight:700}
+
+.dal{display:grid;gap:7px;margin-top:12px}
+.d{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--surf);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13.5px}
+.d .v{font-family:"IBM Plex Mono",monospace;font-weight:700;white-space:nowrap}
+.d .v.no{color:var(--red)} .d .v.yes{color:var(--green)}
+
+.taq{overflow-x:auto;margin-top:11px;border:1px solid var(--line);border-radius:9px;background:var(--surf)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surf2)}
+tr:last-child td{border-bottom:0}
+td.c{text-align:center;font-weight:700}
+td.ok{color:var(--green)} td.no{color:var(--red)}
+
+.ikki{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:520px){.ikki{grid-template-columns:1fr}}
+.ek{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surf)}
+.ek-h{background:var(--surf2);padding:8px 11px;font-size:12px;font-weight:700;
+  display:flex;justify-content:space-between;align-items:baseline;gap:7px;flex-wrap:wrap}
+.ek-h .mini{font-size:10.5px;font-weight:600;color:var(--muted)}
+.ek-r{display:flex;justify-content:space-between;gap:9px;padding:7px 11px;font-size:12.5px;
+  border-top:1px solid var(--line)}
+.ek-r .n{color:var(--red);font-weight:600}
+.ek-r.yom{background:var(--red-bg)}
+.ek-r.jam{background:var(--surf2);font-weight:700;border-top:2px solid var(--line)}
+.qutu{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:13px}
+.qutu.red{background:var(--red-bg);border:1px solid var(--red)}
+.qutu.n{background:var(--surf2)}
+.opt{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  display:grid;grid-template-columns:auto 1fr;gap:3px 12px;align-items:start;margin-top:9px}
+.opt.rec{border-color:var(--gold);border-width:1.5px}
+.opt .h{font-size:19px;font-weight:700;color:var(--gold);line-height:1.15}
+.opt .t{font-weight:600}
+.opt .d2{grid-column:2;color:var(--muted);font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">To'lov oynasi · tashxis · kod yozilmadi</div>
+  <h1>«−0.00g» qatori nimaning hisobiga</h1>
+  <div class="lead">Bu ko'rinish xatosi emas. O'sha turda haqiqatan qarz qolgan, lekin shunchalik kichikki, ekranda nolga yaxlitlanadi.</div>
+
+  <div class="qat">
+    <div class="top"><span class="nm">Diamond · Polimer</span><span class="qz">−0.00g</span></div>
+    <div class="inp"><span class="i">0 $</span><span class="i k">92,1 $/g</span><span class="i g">0 g</span><span class="tik">✓</span></div>
+  </div>
+
+  <section>
+    <h2>Uch dalil</h2>
+    <p class="lead" style="margin-top:6px">Misol uchun o'sha turda <b class="n">0.004g</b> qolgan bo'lsin. Quyidagilar haqiqiy kod bilan tekshirildi.</p>
+    <div class="dal">
+      <div class="d"><span>To'lov oynasi qatorni ko'rsatadimi? Chegarasi <code>0.001g</code></span><span class="v no">ha, ko'rsatadi</span></div>
+      <div class="d"><span>Ekranda qanday chiqadi? Ikki xonagacha yaxlitlanadi</span><span class="v no">−0.00g</span></div>
+      <div class="d"><span>Chek va PDF oladimi? Ularning chegarasi <code>0.01g</code></span><span class="v yes">yo'q, olmaydi</span></div>
+      <div class="d"><span>✓ bosilsa gramm maydoniga nima yoziladi?</span><span class="v no">0</span></div>
+    </div>
+    <div class="qutu red"><b>Eng yomoni oxirgisi.</b> ✓ bosganingizda qarz nolga yaxlitlanadi, ya'ni <b>bu qatorni yopib bo'lmaydi</b>. Har safar to'lov oynasini ochganingizda u qaytadan chiqaveradi.</div>
+  </section>
+
+  <section>
+    <h2>Sizning ikki ekraningiz<span class="tag red">bir xil klient, boshqa ro'yxat</span></h2>
+    <p class="lead" style="margin-top:6px">Dilfuza Opa Sadaf. Chapda to'lov oynasi, o'ngda klient kartasi. Bir xil paytda, bir xil ma'lumotdan.</p>
+    <div class="ikki">
+      <div class="ek">
+        <div class="ek-h">To'lov oynasi <span class="mini">4 qator</span></div>
+        <div class="ek-r"><span>Butterfly · 3DS</span><span class="n">−15.81</span></div>
+        <div class="ek-r"><span>Diamond · Oddiy</span><span class="n">−34.64</span></div>
+        <div class="ek-r"><span>Premium · Oddiy</span><span class="n">−35.76</span></div>
+        <div class="ek-r yom"><span>Diamond · Polimer</span><span class="n">−0.00</span></div>
+      </div>
+      <div class="ek">
+        <div class="ek-h">Klient kartasi · qarz tarkibi <span class="mini">3 qator</span></div>
+        <div class="ek-r"><span>Premium · Oddiy</span><span class="n">−35.76</span></div>
+        <div class="ek-r"><span>Diamond · Oddiy</span><span class="n">−34.64</span></div>
+        <div class="ek-r"><span>Butterfly · 3DS</span><span class="n">−15.81</span></div>
+        <div class="ek-r jam"><span>Klient ostatkasi</span><span class="n">−86.21</span></div>
+      </div>
+    </div>
+    <div class="qutu n"><b>Uchtasi aniq jamlanadi:</b> <span class="n">15.81 + 34.64 + 35.76 = 86.21</span>. Ya'ni klient kartasi to'rtinchi qatorni umuman hisobga olmaydi. To'lov oynasi esa uni ko'rsatadi. Ikkalasi bir xil ma'lumotni o'qiydi, faqat chegarasi boshqa.</div>
+
+    <h2 style="margin-top:22px">Chegara qayerda qanday<span class="tag red">ikki xil</span></h2>
+    <p class="lead" style="margin-top:6px">Bir xil qarz uchun ekranlar turlicha chegara ishlatadi.</p>
+    <div class="taq"><table>
+      <tr><th>Qayerda</th><th>Chegara</th><th class="c">0.004g ni</th></tr>
+      <tr><td>To'lov oynasi</td><td class="n">0.001g</td><td class="c no">ko'rsatadi</td></tr>
+      <tr><td>Klient kartasi</td><td class="n">0.01g</td><td class="c ok">yashiradi</td></tr>
+      <tr><td>Chek</td><td class="n">0.01g</td><td class="c ok">yashiradi</td></tr>
+      <tr><td>PDF hisobot</td><td class="n">0.01g</td><td class="c ok">yashiradi</td></tr>
+      <tr><td>Qarz tarkibi hisobi</td><td class="n">0.01g</td><td class="c ok">yashiradi</td></tr>
+    </table></div>
+    <p>Ya'ni to'lov oynasidan boshqa hamma joy bu qarzni <b>yo'q</b> deb biladi. Faqat to'lov oynasi uni ko'rsatadi.</p>
+  </section>
+
+  <section>
+    <h2>Tuzatish</h2>
+    <div class="opt rec"><div class="h">A</div><div class="t">To'lov oynasi ham 0.01 ga o'tsin</div>
+      <div class="d2">Chek, PDF va klient kartasi bilan bir xil bo'ladi. <b>0.01g dan kichik qarz hech qayerda ko'rinmaydi.</b> Sakkiz joyda o'zgaradi va sakkizalasi birga o'zgarishi shart — ular bitta sanagichni bo'lishadi, bittasi qolib ketsa qatorlar siljib ketadi.</div></div>
+    <div class="opt"><div class="h">B</div><div class="t">Faqat 0.005 ga ko'tarilsin</div>
+      <div class="d2">«0.00» bo'lib ko'rinadiganlar yashirinadi, lekin 0.005 dan 0.01 gacha bo'lgan qarz hali ham chekda yo'q, oynada bor. Kelishmovchilik qisman qoladi.</div></div>
+    <div class="opt"><div class="h">C</div><div class="t">Tegilmasin</div>
+      <div class="d2">Bilib qo'yasiz, o'sha qatorlarni e'tiborsiz qoldirasiz.</div></div>
+
+    <div class="qutu n"><b>Ikkisida ham ma'lumot o'chmaydi.</b> Bu faqat nimani ko'rsatish haqida. O'sha <span class="n">0.004g</span> bazada turaveradi, shunchaki hech qayerda ko'rinmaydi — hozir ham chek va PDF uni ko'rsatmayapti.</div>
+    <div class="qutu n" style="margin-top:9px"><b>Bir narsani aniq ayta olmayman:</b> aynan qaysi eski amal shu qoldiqni qoldirgani. Buni bilish uchun sizning bazangiz kerak. Lekin tuzatish bunga bog'liq emas.</div>
+  </section>
+</div>
