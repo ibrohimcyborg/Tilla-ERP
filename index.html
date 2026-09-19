@@ -2219,7 +2219,6 @@ function getRol(){ return localStorage.getItem('tilla-rol')||'admin'; }
 function _verBelgi(){
   return APP_VER;
 }
-function _verBelgiUpd(){ var e=document.getElementById('app-ver'); if(e) e.textContent=_verBelgi(); }
 function applyRol(){
   var rol=getRol();
   document.body.classList.remove('rol-zavod','rol-hamid');
@@ -2898,20 +2897,6 @@ function hkANarxManUpd(zi, ti) {
   localStorage.setItem('tilla-a-manual-'+zi, JSON.stringify(aManual));
 }
 
-function hkNarxUpd(zi, ti) {
-  var narx = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0;
-  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
-  manual[ti] = narx;
-  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
-}
-
-function hkToggle(zi, ti) {
-  var manual = JSON.parse(localStorage.getItem('tilla-manual-'+zi) || '{}');
-  var isManual = manual[ti] ? true : false;
-  if (isManual) { delete manual[ti]; } else { manual[ti] = parseFloat((document.getElementById('hkn-'+zi+'-'+ti)||{}).value)||0; }
-  localStorage.setItem('tilla-manual-'+zi, JSON.stringify(manual));
-  hkRenderTurlar();
-}
 
 function hkPDFDavr(tip) {
   var tarix = kursTarixOl(); // xronologik saralangan
@@ -2985,14 +2970,6 @@ function hkPDFDavr(tip) {
   }).catch(function(e){ alert('PDF xato: '+e.message); });
 }
 
-function hkToggleTarix(hdr) {
-  var body = document.getElementById('hk-tarix-body');
-  var arr = hdr.querySelector('span');
-  if (!body) return;
-  var open = body.style.display !== 'none';
-  body.style.display = open ? 'none' : 'block';
-  if (arr) arr.textContent = open ? '›' : '⌄';
-}
 
 // ===== KURS TARIXI — YAGONA XRONOLOGIK MANBA =====
 // MUAMMO EDI: sanalar matn sifatida solishtirilardi ('29.06.2026' > '11.07.2026' chiqardi),
@@ -6277,28 +6254,6 @@ function donaRegOlish(t, arr){
     else { natija.yoq.push(g); }
   });
   return natija;
-}
-// Berish/Sotuv oldidan chaqiriladi: mos kelmasa ogohlantirib tasdiq soraydi. true=davom, false=bekor
-// Sof hisoblash — HECH QANDAY UI chaqirmaydi, faqat mos kelmagan ogirliklar royxatini qaytaradi.
-// Bu registrni USH-USHDA (nusxada) tekshiradi — haqiqiy royxatga tegilmaydi (faqat donaRegOlish tegadi).
-function donaMosEmaslarniTop(t, arr){
-  if(!arr || !arr.length) return [];
-  var reg=turDonalar(t).slice();
-  // Agar turda REGISTR umuman yo'q (hech qachon skan bilan shakllantirilmagan) —
-  // taqqoslash uchun asos yo'q, ogohlantirmaymiz (jim o'tadi).
-  if(!reg.length) return [];
-  // REGISTR BOR — QATTIQ tekshiramiz: har bir berilayotgan og'irlik ro'yxatda bormi?
-  // Slack (eski donaOst qoldig'i) endi ogohlantirishni O'CHIRMAYDI — mos kelmasa
-  // har doim ogohlantiradi. (Avval slack>0 bo'lsa jim o'tkazib yuborardi — asosiy xato shu edi.)
-  var yoq=[];
-  arr.forEach(function(g){
-    g=roundG(g);
-    var idx=-1;
-    for(var i=0;i<reg.length;i++){ if(Math.abs(reg[i]-g)<=DONA_TOL){ idx=i; break; } }
-    if(idx>=0) reg.splice(idx,1);
-    else yoq.push(g);
-  });
-  return yoq;
 }
 function donaMismatchMatn(mismatchList){
   var h='Bu ogʻirlikda dona ROʻYXATDA YOʻQ!\n';
@@ -11713,13 +11668,6 @@ function renderKlientlar() {
   if(qizilList) qizilList.innerHTML=qHTML;
 }
 
-function klientKatSet(kat) {
-  var ki = curKlientIdx;
-  if (ki < 0 || !data.klientlar[ki]) return;
-  data.klientlar[ki].kat = kat;
-  save('Kategoriya: '+data.klientlar[ki].nom+' → '+kat);
-  _katBtnUpd('kd', kat);
-}
 
 function _katBtnUpd(prefix, kat) {
   var styles = {
@@ -12629,10 +12577,6 @@ function kbPickK(ki){
 }
 function kbResetKlient(){ _klientResetSel('kb'); document.getElementById('kb-turlar-card').style.display='none'; }
 
-function kberishKlientChange(){
-  var ki=parseInt(document.getElementById('kb-klient').value);
-  if(isNaN(ki)) return;
-}
 
 function renderBerishTurlar(zavodlar){
   var _omB = turOstMap();   // v172.26: ostatka tarixdan (BIZDA paneli bilan bir xil)
@@ -18667,10 +18611,6 @@ function getLomFoyda(proba, sotuvNarx, gramm) {
   return Math.round(jami*100)/100;
 }
 
-function getLomJamiZaxiraG(proba) {
-  var p=getLomZaxira(proba);
-  return Math.round(p.reduce(function(a,x){return a+x.qolgan;},0)*100)/100;
-}
 
 // ---- RENDER ASOSIY ----
 function renderLomInto(contId) {
