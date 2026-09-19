@@ -13676,14 +13676,6 @@ function ksCGlobalUpd() {
   kSotuvCalc();
 }
 
-function ktCUpd(idx, base) {
-  var plus = parseFloat((document.getElementById('kt-c-'+idx)||{}).value)||0;
-  var res = Math.round((base+plus)*10)/10;
-  var resEl = document.getElementById('kt-c-res-'+idx);
-  if(resEl) resEl.textContent = res;
-  var kEl = document.getElementById('kt-k-'+idx);
-  if(kEl) { kEl.value = res; ktUpd('n', idx, 0, 0); }
-}
 
 // v188.35: UMUMIY PTICHKA. Bir bosishda hamma qatorni to'liq yopadi, ikkinchi
 // bosishda tozalaydi (Ibrohim: «B» varianti).
@@ -14010,17 +14002,6 @@ function sdachaRadioTanla(modal, key) {
   }
 }
 
-function sdachaInpUpd(el) {}
-function sdachaJamiUpd(modal, sdacha) {}
-function sdachaPrich(modal, key) {}
-
-
-function kTolovSdachaTanlovSet(tip, zavod, tur, zi, ti, narx) {
-  if(tip==='sdacha') window._ktSdachaTanlov={tip:'sdacha'};
-  else if(tip==='bizda') window._ktSdachaTanlov={tip:'bizda',narx:narx};
-  else window._ktSdachaTanlov={tip:'tur',zavod:zavod,tur:tur,zi:zi,ti:ti,narx:narx};
-  kTolovCalc();
-}
 
 function kTolovCalc(){
   var bd=window._kTolovBD||{},totalEq=0,totalV=0,idx=0,totalGramOrtiqcha=0;
@@ -15946,14 +15927,6 @@ function kSotuvRenderTolov() {
   kSotuvTolovCalc();
 }
 
-function kstCUpd(zi, ti, base) {
-  var plus = parseFloat((document.getElementById('kst-c-'+zi+'-'+ti)||{}).value)||0;
-  var res = Math.round((base+plus)*10)/10;
-  var resEl = document.getElementById('kst-c-res-'+zi+'-'+ti);
-  if(resEl) resEl.textContent = res;
-  var nEl = document.getElementById('kst-n-'+zi+'-'+ti);
-  if(nEl) { nEl.value = res; kSotuvTolovUpd('n', zi, ti); }
-}
 
 function ktUstUpd(idx, zi, ti) {
   var el = document.getElementById('kt-ust-'+idx);
@@ -16735,29 +16708,6 @@ var TOLOV_TURLARI = [
   {t:'karta',  id:'karta',  col:'blue'},
   {t:'perech', id:'perech', col:'teal'}
 ];
-// Umumiy toggle: ✓ bosilgani = "hammasi shu bilan" -> kerakli summa, qolgan ikkitasi tozalanadi
-function _tolovToggle(pre, tip, roOn, cb) {
-  var kerakli=parseFloat((document.getElementById(pre+'-kerakli-naqt')||{}).dataset&&document.getElementById(pre+'-kerakli-naqt').dataset.val||0)||0;
-  var cbEl=document.getElementById(pre+'-cb-'+tip);
-  if(!cbEl) return;
-  var on=cbEl.textContent!=='✓';
-  TOLOV_TURLARI.forEach(function(r){
-    var c=document.getElementById(pre+'-cb-'+r.id), i=document.getElementById(pre+'-'+r.id+'-berildi');
-    if(c){ c.textContent=''; c.style.background='transparent'; c.style.borderColor='var(--'+r.col+'-bd)'; }
-    if(i){ i.readOnly=false; i.style.pointerEvents='auto'; }
-    if(r.t!==tip && i){ i.value=''; i.dataset.userEdited=''; }
-  });
-  var inp=document.getElementById(pre+'-'+tip+'-berildi');
-  var col=(TOLOV_TURLARI.filter(function(r){return r.t===tip;})[0]||{col:'green'}).col;
-  if(on){
-    cbEl.textContent='✓'; cbEl.style.background='var(--'+col+')'; cbEl.style.borderColor='var(--'+col+'-bd)';
-    if(inp){ inp.value=kerakli; inp.dataset.userEdited='1'; if(roOn){ inp.readOnly=true; inp.style.pointerEvents='none'; } }
-  } else if(inp){ inp.value=''; inp.dataset.userEdited=''; }
-  var kn=document.getElementById(pre+'-kerakli-naqt'); if(kn) kn.dataset.lastChanged=tip;
-  cb();
-}
-function ksSotuvToggleTolov(tip) { _tolovToggle('ks', tip, false, kSotuvCalc); }
-function ktToggleTolov(tip)      { _tolovToggle('kt', tip, true,  kTolovCalc); }
 
 // v136: AVTO-TO'LDIRISH — qo'lda tegilgani QOTADI, tegilmaganlaridan BIRINCHISI
 // (naqt -> karta -> perech) qoldiqni oladi. Uchalasi tegilsa avto yo'q (sdacha/kam chiqadi).
@@ -16782,43 +16732,11 @@ function _tolovAvto(pre, kerakli) {
   return qiy;
 }
 
-function ksSotuvNaqtBerildiUpd() { kSotuvNaqtBerildiUpd(); }
 
 function kSotuvNaqtBerildiUpd() {
   kSotuvCalc();
 }
 
-function ksSotuvTanlovSet(tip, zavod, tur, zi, ti, narx) {
-  if (tip === 'sdacha') {
-    window._ksSotuvOrtiqchaTanlov = {tip:'sdacha'};
-  } else if (tip === 'bizda') {
-    window._ksSotuvOrtiqchaTanlov = {tip:'bizda', narx:narx};
-  } else {
-    window._ksSotuvOrtiqchaTanlov = {tip:'tur', zavod:zavod, tur:tur, zi:zi, ti:ti, narx:narx};
-  }
-  kSotuvCalc();
-}
-
-function ksSotuvPickTaqsim(el, idx, gr, narx) {
-  _ksSotuvTaqsimTi = idx;
-  _ksSotuvTaqsimG = gr;
-  document.querySelectorAll('[id^="ks-topt-"]').forEach(function(o) {
-    o.style.borderColor = 'var(--border)';
-    o.style.background = 'var(--surf)';
-    var dot = o.querySelector('[id^="ks-tdot-"]');
-    if (dot) { dot.style.background = 'transparent'; dot.style.borderColor = 'var(--muted)'; }
-    o.querySelector('div:last-child').style.color = 'var(--muted)';
-  });
-  el.style.borderColor = 'var(--green-bd)';
-  el.style.background = 'var(--green-bg)';
-  var dot = document.getElementById('ks-tdot-'+idx);
-  if (dot) { dot.style.background = 'var(--green)'; dot.style.borderColor = 'var(--green)'; }
-  el.querySelector('div:last-child').style.color = 'var(--red)';
-  var q = parseFloat(document.getElementById('ks-qolgan-sum').textContent)||0;
-  var res = document.getElementById('ks-taqsim-res');
-  res.style.display = 'block';
-  res.textContent = fmtD(q)+'$ ÷ '+narx+'$/g = '+fmtG(gr)+'g → qarzga qo\'shiladi';
-}
 
 function kSotuvUpdateChek(oldilar, skidka, tolovPul, naqtTolovPul, lomPulJami, vozJami, finQarz, jamiOldiPul, sdacha, ortiqcha, taqsimTanlov) {
   var tolovBormi = false;
