@@ -86,6 +86,51 @@ uchun Ibrohimning bazasi kerak. Tuzatish bunga bog'liq emas.
 
 ---
 
+## 🔴 POS CHEKI KUNNI ARALASHTIRADI (2026-09-19, KOD YOZILMADI)
+
+Ibrohim ikkita chek rasmini tashladi (Dilfuza Opa Sadaf, 19.09.2026):
+17:18 — vozvrat + to'lov, cheki TO'G'RI (u o'zi tasdiqladi).
+17:20 — faqat berish (Butterfly 3D 41.43g), cheki 17:18 dagi VOZVRATNI ham
+qo'shib chiqardi. «berildi qisam bundan oldingi vovzrat jarayonlarini
+qo'shvorvotti».
+
+Maket: `mockups/pos-chek-kun-aralash.html`
+→ https://claude.ai/artifact/D2i1sL9x8DdcCAhDRwK4Qr
+
+### ILDIZ — `_posChekOpts` (index.html:15330)
+
+    if(op.pos!==1 || op.sana!==sana) return;   // faqat SANA
+
+Funksiyaga `soat` UZATILADI (`_posChekOpts(t.ki, t.sana, t.soat)`, 15361)
+lekin u FAQAT chek sarlavhasiga ishlatiladi — filtrda YO'Q. Shuning uchun
+kunning ikkinchi amali birinchisining amallarini ham o'ziniki deb oladi.
+
+17:20 chekida: OSTATKA Diamond Oddiy 42.94 (vozvratdan OLDINGI holat) +
+VOZVRAT 8.30 bloki ortiqcha. Butterfly 3D esa 9.33 (to'lovdan KEYINGI) —
+ya'ni bosh ostatka aralash holatda chiqqan.
+
+✅ **Ma'lumot BUZILMAGAN:** ikkala variantda ham QOLGAN OSTATKA = 141.49g.
+Faqat chekning O'RTASI ortiqcha.
+
+### TUZATISH — Ibrohim tanladi: SOAT
+
+Ibrohim: «soat dan saqlashshi olish kere manimcha shu chalkashtirvotti».
+
+    if(op.pos!==1 || op.sana!==sana || (op.soat||'')!==(soat||'')) return;
+
+Bitta qator. `soat` POS yozuvlarida ALLAQACHON saqlanadi (15176 vozvrat,
+15194 berish: `{...,soat:soat, pos:1, posGrp:c._id}`).
+
+⚠ Men `posGrp` (karta raqami) ni taklif qilgandim — Ibrohim soatni tanladi.
+Bitta klientga BIR DAQIQADA ikkita karta qabul qilinsa muammo qaytadi.
+Ibrohimga aytildi, u «hozir shart emas» deganday. Keyinroq `posGrp` qo'shilishi mumkin.
+
+⚠ `_posChekOpts` faqat BITTA joydan chaqiriladi (15361 `posChTolovYop`).
+
+⏳ **Kutilmoqda:** Ibrohim «yoz» desin.
+
+---
+
 ## 🟢 KEYINGI ISH — POS: CHEK CHIQARISH (2026-09-19)
 
 Ibrohim (v188.37 ni push qildirgandan keyin): «kegin POSda ishimiz bor chek

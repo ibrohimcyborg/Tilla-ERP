@@ -1,0 +1,177 @@
+<title>Chek kunni aralashtirdi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --surf:#FFFFFF; --surf2:#E8E6E1; --ink:#1B1A17; --muted:#6A665F; --line:#D8D5CE;
+  --gold:#96690A; --gold-bd:#D8B75A; --gold-bg:#F7E8BC;
+  --green:#19754A; --green-bd:#8CC9A5; --green-bg:#D9F0DF;
+  --red:#A92A20; --red-bd:#E0A49D; --red-bg:#F9E7E4;
+  --paper:#FFFFFF; --pink:#111111;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+    --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+    --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+    --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+    --paper:#F3F1EC; --pink:#17160F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+  --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+  --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+  --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+  --paper:#F3F1EC; --pink:#17160F;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:700px;margin:0 auto;padding-block:20px 46px;padding-inline:16px}
+h1{font-size:27px;line-height:1.13;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:18.5px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);font-size:14px;margin-top:7px}
+p{margin:8px 0}
+code{font-family:"IBM Plex Mono",monospace;font-size:.89em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:26px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;vertical-align:2px;margin-left:7px}
+.tag.red{background:var(--red-bg);color:var(--red)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+
+/* chek */
+.ikki{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:560px){.ikki{grid-template-columns:1fr}}
+.chek{background:var(--paper);color:var(--pink);border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.18);
+  padding:13px 14px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;line-height:1.6}
+.chek .ttl{text-align:center;font-weight:600;font-size:11px}
+.chek .sep{border-top:1px dashed #9B958A;margin:7px 0}
+.chek .blk{font-weight:700;font-size:13px;letter-spacing:.04em;margin:8px 0 3px}
+.chek .r{display:flex;justify-content:space-between;gap:8px}
+.chek .r span:last-child{font-variant-numeric:tabular-nums}
+.chek .jam{display:flex;justify-content:space-between;font-weight:700;margin-top:5px;padding-top:5px;border-top:1px dashed #9B958A}
+.chek .bad{background:#F6C7C1;color:#7A1C14;margin:0 -5px;padding:0 5px;border-radius:3px}
+.chek .good{background:#BFE6CD;color:#0F5334;margin:0 -5px;padding:0 5px;border-radius:3px}
+.cap{text-align:center;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.cap.r{color:var(--red)} .cap.g{color:var(--green)}
+
+.qutu{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:13px}
+.qutu.red{background:var(--red-bg);border:1px solid var(--red)}
+.qutu.green{background:var(--green-bg);border:1px solid var(--green)}
+.qutu.n{background:var(--surf2)}
+.kod{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:11px 13px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.8;margin-top:11px;overflow-x:auto}
+.kod .x{color:var(--red);font-weight:600}
+.kod .y{color:var(--green);font-weight:600}
+.kod .c{color:var(--muted)}
+.vaqt{display:grid;grid-template-columns:58px 1fr;gap:0 12px;margin-top:11px;position:relative}
+.vaqt::before{content:"";position:absolute;left:64px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.vaqt .t{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--muted);text-align:right;padding-top:9px}
+.vaqt .b{padding:5px 0 5px 14px;position:relative}
+.vaqt .b::before{content:"";position:absolute;left:-5px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--gold)}
+.vaqt .kart{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px}
+.vaqt .kart b{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">POS cheki · tashxis · kod yozilmagan</div>
+  <h1>Chek kunning boshqa amalini o'ziniki deb oldi</h1>
+  <div class="lead">Dilfuza Opa Sadaf, 19.09.2026. Ikkita alohida amal bo'ldi, ikkinchisining cheki birinchisini ham o'ziga qo'shib yubordi.</div>
+
+  <div class="vaqt">
+    <div class="t">17:18</div>
+    <div class="b"><div class="kart"><b>1-amal</b>Vozvrat Diamond Oddiy 8.30g, keyin to'lov. Cheki to'g'ri chiqdi, jarayon yopildi.</div></div>
+    <div class="t">17:20</div>
+    <div class="b"><div class="kart"><b>2-amal</b>Butterfly 3D dan 41.43g berildi. Boshqa hech narsa yo'q.</div></div>
+  </div>
+
+  <section>
+    <h2>2-amalning cheki</h2>
+    <div class="ikki">
+      <div>
+        <div class="cap r">Hozir shunday chiqyapti</div>
+        <div class="chek">
+          <div class="ttl">Dilfuza Opa Sadaf<br>19.09.2026 − 17:20</div>
+          <div class="sep"></div>
+          <div class="blk">OSTATKA</div>
+          <div class="r"><span>Butterfly 3D</span><span>9.33g</span></div>
+          <div class="r"><span>Butterfly 3DS</span><span>20.33g</span></div>
+          <div class="r bad"><span>Diamond Oddiy</span><span>42.94g</span></div>
+          <div class="r"><span>Premium Oddiy</span><span>35.76g</span></div>
+          <div class="jam bad"><span>JAMI</span><span>108.36g</span></div>
+          <div class="sep"></div>
+          <div class="blk bad">VOZVRAT</div>
+          <div class="r bad"><span>Diamond Oddiy</span><span>8.30g</span></div>
+          <div class="jam bad"><span>JAMI</span><span>8.30g</span></div>
+          <div class="sep"></div>
+          <div class="blk bad">QOLDI</div>
+          <div class="r"><span>Butterfly 3D</span><span>9.33g</span></div>
+          <div class="r"><span>Butterfly 3DS</span><span>20.33g</span></div>
+          <div class="r bad"><span>Diamond Oddiy</span><span>34.64g</span></div>
+          <div class="r"><span>Premium Oddiy</span><span>35.76g</span></div>
+          <div class="jam"><span>JAMI</span><span>100.06g</span></div>
+          <div class="sep"></div>
+          <div class="blk">BERILDI</div>
+          <div class="r"><span>Butterfly 3D</span><span>41.43g</span></div>
+          <div class="jam"><span>JAMI</span><span>41.43g</span></div>
+          <div class="sep"></div>
+          <div class="blk">QOLGAN OSTATKA</div>
+          <div class="r"><span>Butterfly 3D</span><span>50.76g</span></div>
+          <div class="r"><span>Butterfly 3DS</span><span>20.33g</span></div>
+          <div class="r"><span>Diamond Oddiy</span><span>34.64g</span></div>
+          <div class="r"><span>Premium Oddiy</span><span>35.76g</span></div>
+          <div class="jam good"><span>JAMI</span><span>141.49g</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="cap g">Shunday chiqishi kerak</div>
+        <div class="chek">
+          <div class="ttl">Dilfuza Opa Sadaf<br>19.09.2026 − 17:20</div>
+          <div class="sep"></div>
+          <div class="blk">OSTATKA</div>
+          <div class="r"><span>Butterfly 3D</span><span>9.33g</span></div>
+          <div class="r"><span>Butterfly 3DS</span><span>20.33g</span></div>
+          <div class="r good"><span>Diamond Oddiy</span><span>34.64g</span></div>
+          <div class="r"><span>Premium Oddiy</span><span>35.76g</span></div>
+          <div class="jam good"><span>JAMI</span><span>100.06g</span></div>
+          <div class="sep"></div>
+          <div class="blk">BERILDI</div>
+          <div class="r"><span>Butterfly 3D</span><span>41.43g</span></div>
+          <div class="jam"><span>JAMI</span><span>41.43g</span></div>
+          <div class="sep"></div>
+          <div class="blk">QOLGAN OSTATKA</div>
+          <div class="r"><span>Butterfly 3D</span><span>50.76g</span></div>
+          <div class="r"><span>Butterfly 3DS</span><span>20.33g</span></div>
+          <div class="r"><span>Diamond Oddiy</span><span>34.64g</span></div>
+          <div class="r"><span>Premium Oddiy</span><span>35.76g</span></div>
+          <div class="jam good"><span>JAMI</span><span>141.49g</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="qutu green"><b>Muhimi:</b> oxirgi raqam ikkalasida ham <b>141.49g</b> — bir xil va to'g'ri. Ya'ni <b>bazangizda hech narsa buzilmagan</b>, klientning qarzi to'g'ri. Faqat chekning o'rtasi ortiqcha chiqqan.</div>
+  </section>
+
+  <section>
+    <h2>Sabab<span class="tag red">bitta qator</span></h2>
+    <p class="lead" style="margin-top:6px">Chek amallarni yig'ayotganda faqat <b>sanaga</b> qaraydi, qaysi amal ekaniga qaramaydi.</p>
+    <div class="kod"><span class="c">// index.html:15332</span><br>
+      <span class="x">if (op.pos !== 1 || op.sana !== sana) return;</span> &nbsp;<span class="c">&larr; butun KUN</span></div>
+    <p>Funksiyaga soat ham uzatiladi, lekin u <b>faqat chek sarlavhasiga</b> ishlatiladi. Filtrda yo'q. Shuning uchun kunning ikkinchi amali birinchisini ham o'ziniki deb oladi.</p>
+  </section>
+
+  <section>
+    <h2>Tuzatish<span class="tag green">bitta qator</span></h2>
+    <p class="lead" style="margin-top:6px">Siz aytdingiz: soatni olish kerak. Aynan shunday — soat yozuvda allaqachon bor, faqat filtrda ishlatilmagan.</p>
+    <div class="kod"><span class="c">// index.html:15332 — hozir</span><br>
+      <span class="x">if (op.pos !== 1 || op.sana !== sana) return;</span><br><br>
+      <span class="c">// bo'ladi</span><br>
+      <span class="y">if (op.pos !== 1 || op.sana !== sana || (op.soat||'') !== (soat||'')) return;</span></div>
+    <p>Bitta qator. Yangi maydon yo'q, yangi funksiya yo'q, bazaga tegilmaydi. Soat har bir POS amalida allaqachon saqlanadi, shunchaki o'qilmayotgan edi.</p>
+    <div class="qutu n"><b>Chek dvigateliga tegilmaydi.</b> <code>OSTATKA</code>, <code>BERILDI</code>, <code>QOLGAN OSTATKA</code> bloklari o'sha holicha quriladi — ular faqat to'g'ri ro'yxatni oladi. To'lov cheki, sotuv cheki, klient kartasi — hech biri o'zgarmaydi.</p></div>
+  </section>
+
+  <section>
+    <h2>Bitta ehtimol</h2>
+    <p>Agar bitta klientga <b>bir daqiqa ichida ikkita karta</b> qabul qilinsa, soatlari bir xil bo'lib qoladi va ular yana qo'shilib ketadi. Bu kamdan-kam bo'ladi, lekin bo'lishi mumkin.</p>
+    <div class="qutu n">Xohlasangiz keyinroq kartaning o'z raqamini ham qo'shamiz — u har doim boshqa. Hozir shart emas, siz aytgan tuzatish sizdagi holatni yopadi.</div>
+  </section>
+</div>
