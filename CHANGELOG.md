@@ -3,6 +3,46 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v188.38: TO'LOV OYNASIDA «−0.00g» QATORI (2026-09-19)
+
+Ibrohim rasm tashladi: «qara shunaqa 0,00 ko'rsatvotti nimani hisobiga?» +
+«lekin ostatkasida ko'rsatmayapti» → «0,0000000000000000000000001 qosayam
+o'chsin... agar 0.009 bo'sayam o'chirvorurishi kere».
+
+**Ildiz:** ilovada bir xil qarz uchun IKKI XIL chegara bor edi.
+To'lov oynasi `0.001g`, boshqa hamma joy `0.01g`:
+`hisob.js:196 _qarzTarkib` (chek + PDF), `11901 openKlientDetail` (klient
+kartasi), `14308 kTolovChekUpd`, `16862 kSotuvUpdateChek`, `18400` PDF.
+`fmtG` ikki xonaga yaxlitlagani uchun 0.001–0.005 oralig'i «−0.00g» bo'lib
+chiqardi. Ibrohimning ma'lumotida: to'lov oynasida 4 qator, klient kartasida
+3 qator, uchtasi aniq jamlanadi (15.81+34.64+35.76 = 86.21).
+
+⚠ Qator YOPILMASDI ham: `ktHammasi` `Math.round((qarz-v)*100)/100` qiladi,
+0.004 → 0 → gramm maydoniga 0 yozilardi va qator har safar qaytardi.
+
+**Tuzatish:** SAKKIZ joyda `0.001` → `0.01`. Yangi mantiq, yangi funksiya,
+yangi maydon YO'Q — farq olib tashlandi, qo'shilmadi.
+
+    11705 ktKatSet · 13379 kTolovKlientChange · 13899 + 13975 kTolovCalc
+    14157 kTolovChekUpd · 14428 + 14453 + 14493 saqlashKlientTolov
+
+⚠ Sakkizalasi BIRGA o'zgarishi shart — ular bitta `idx` sanagichini
+bo'lishadi (`idx++; return;`). Bittasi qolsa ro'yxat va saqlash siljib, pul
+boshqa turga yozilardi. Sakkizalasi ham `window._kTolovBD` ni o'qishi
+tekshirildi (11701, 13374, 13707, 13906, 13982, 14156, 14403, 14450).
+To'qqizinchi joy yo'q (13542 `b.qarz<=0` boshqa ro'yxat).
+
+TEGILMADI: foyda, kurs, qulf, chek, PDF, klient kartasi, baza yozuvlari, POS.
+
+**Sinov:** ilovada soxta klient bilan (0.009 qoldiq + 3 haqiqiy qarz) —
+ekranda 3 qator, saqlash halqasi AYNAN o'sha 3 ta `idx` ni ko'radi (MOS:true),
+Polimer qatori yo'q. Chegara: 0.0000001 ketdi, 0.009 ketdi, 0.02 qoldi.
+Node sintaksis OK, konsol toza.
+
+⚠ **Ochiq qoldi (Ibrohim aytmadi, tegilmadi):** ANIQ `0.01` bo'lgan qarzni
+to'lov oynasi va klient kartasi ko'rsatadi (`<0.01`), chek esa ko'rsatmaydi
+(`>0.01`). Bu v188.38 dan OLDIN ham shunday edi.
+
 ## v188.37: QULF FAQAT CHIQIMDAN KEYIN (2026-09-19)
 
 Ibrohim rasm tashladi (19.09, 6 qator, $7 867.84 naqt): «chiqim qimasam nega

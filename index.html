@@ -1,4 +1,4 @@
-<!-- v188.37 -->
+<!-- v188.38 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.37';
+var APP_VER = 'v188.38';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -11702,7 +11702,7 @@ function ktKatSet(kat) {
   var idx=0;
   Object.keys(bd).forEach(function(key){
     var b=bd[key];
-    if(Math.abs(b.qarz)<0.001){idx++;return;}
+    if(Math.abs(b.qarz)<0.01){idx++;return;}
     var bizQarzdor = b.qarz < -0.001;
     var nEl=document.getElementById('kt-k-'+idx);
     var gEl=document.getElementById('kt-g-'+idx);
@@ -13374,9 +13374,18 @@ function kTolovKlientChange(){
   window._kTolovBD=breakdown;
   var turlarHTML='',vozvratHTML='';
   var idx=0;
+  // v188.38 (Ibrohim): «0,0000000000000000000000001 qosayam o'chsin... agar
+  // 0.009 bo'sayam o'chirvorurishi kere». Chegara 0.001 -> 0.01 BO'LDI.
+  // Sabab: to'lov oynasi 0.001 dan katta hamma narsani ko'rsatardi, chek/PDF/
+  // klient kartasi esa 0.01 dan kichigini umuman ko'rmaydi (hisob.js:196
+  // _qarzTarkib, 11901 openKlientDetail). fmtG ikki xonaga yaxlitlagani uchun
+  // 0.001-0.005 oralig'i ekranda «−0.00g» bo'lib chiqardi, ✓ bosilsa esa
+  // ktHammasi uni 0 ga yaxlitlab yozardi — qator YOPILMASDI, har safar qaytardi.
+  // ⚠ Shu funksiyadagi va saqlash/hisob/chek funksiyalaridagi SAKKIZ filtr
+  //   bitta idx sanagichini bo'lishadi — birga o'zgarishi SHART.
   Object.keys(breakdown).forEach(function(key){
     var b=breakdown[key];
-    if(Math.abs(b.qarz)<0.001){idx++;return;}
+    if(Math.abs(b.qarz)<0.01){idx++;return;}
     var bizQarzdor = b.qarz < -0.001;
     var katNarx=getKatNarx(b.zi,b.ti,ki);
     var zKirimNarx=getZavodNarx(b.zi,b.ti)||'';
@@ -13896,7 +13905,7 @@ function sdachaRadioTanla(modal, key) {
 function kTolovCalc(){
   var bd=window._kTolovBD||{},totalEq=0,totalV=0,idx=0,totalGramOrtiqcha=0;
   Object.keys(bd).forEach(function(key){
-    var b=bd[key];if(Math.abs(b.qarz)<0.001){idx++;return;}
+    var b=bd[key];if(Math.abs(b.qarz)<0.01){idx++;return;}
     var bizQarzdorCalc=b.qarz<-0.001;
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
@@ -13972,7 +13981,7 @@ function kTolovCalc(){
   var ktOffsetRowsKt=[];
   var bd2=window._kTolovBD||{}; var idx2=0;
   Object.keys(bd2).forEach(function(key){
-    var b=bd2[key]; if(Math.abs(b.qarz)<0.001){idx2++;return;}
+    var b=bd2[key]; if(Math.abs(b.qarz)<0.01){idx2++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx2)||{}).value||0);
     var ktoBlok=document.getElementById('kto-blok-'+idx2);
     var isKtOffset=ktoBlok && ktoBlok.style.display !== 'none';
@@ -14154,7 +14163,7 @@ function kTolovChekUpd() {
   var qatorlar = [], jamiG = 0, jamiPul = 0, offJami = 0, bor = false, idx = 0;
   Object.keys(bd).forEach(function(key){
     var b = bd[key];
-    if (Math.abs(b.qarz) < 0.001) { idx++; return; }
+    if (Math.abs(b.qarz) < 0.01) { idx++; return; }
     var s = parseNum((document.getElementById('kt-s-'+idx)||{}).value) || 0;
     var n = parseNum((document.getElementById('kt-k-'+idx)||{}).value) || 0;
     var g = parseNum((document.getElementById('kt-g-'+idx)||{}).value) || 0;
@@ -14425,7 +14434,7 @@ function saqlashKlientTolov(){
   // === YANGI TUGADI ===
   var hasErr=false;
   Object.keys(bd).forEach(function(key){
-    var b=bd[key]; if(Math.abs(b.qarz)<0.001){idx++;return;}
+    var b=bd[key]; if(Math.abs(b.qarz)<0.01){idx++;return;}
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);
     var gInp=parseNum((document.getElementById('kt-g-'+idx)||{}).value||0);
@@ -14450,7 +14459,7 @@ function saqlashKlientTolov(){
   var _ktOffsetPulSave=0;
   var _idxOffKt=0;
   Object.keys(bd).forEach(function(key){
-    var b=bd[key]; if(Math.abs(b.qarz)<0.001){_idxOffKt++;return;}
+    var b=bd[key]; if(Math.abs(b.qarz)<0.01){_idxOffKt++;return;}
     var ktoBlokChk=document.getElementById('kto-blok-'+_idxOffKt);
     if(ktoBlokChk && ktoBlokChk.style.display!=='none'){
       _ktOffsetPulSave+=parseNum((document.getElementById('kt-s-'+_idxOffKt)||{}).value||0);
@@ -14490,7 +14499,7 @@ function saqlashKlientTolov(){
   idx=0;
   var ops_grouped=[];
   Object.keys(bd).forEach(function(key){
-    var b=bd[key];if(Math.abs(b.qarz)<0.001){idx++;return;}
+    var b=bd[key];if(Math.abs(b.qarz)<0.01){idx++;return;}
     var bizQarzdorSave = b.qarz < -0.001;
     var s=parseNum((document.getElementById('kt-s-'+idx)||{}).value||0);
     var kurs=parseNum((document.getElementById('kt-k-'+idx)||{}).value||0);

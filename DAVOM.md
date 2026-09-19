@@ -4,8 +4,8 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.37 · POS v0.39 · 2026-09-19 (qulf vaqti tuzatildi)
-**⏳ JAVOB KUTILMOQDA:** to'lov oynasidagi «−0.00g» qatori (A/B/C). Keyin: POS chek chiqarish, «uchta yarim qator», audit D (A/B), C.
+**Oxirgi yangilanish:** v188.38 · POS v0.39 · 2026-09-19 (nol qator olib tashlandi)
+**🟢 KEYINGI ISH: POS — CHEK CHIQARISH.** Ibrohim ERTAGA XITOYGA ketadi, vaqti kam. v188.37 va v188.38 PRODDA. Keyin: «uchta yarim qator», audit D (A/B), C.
 
 ---
 
@@ -65,7 +65,11 @@ Tuzatish maketi: `mockups/nol-qator-tuzatish.html`
 birga o'zgartirilsa `idx` siljimaydi. To'qqizinchi joy YO'Q (tekshirildi:
 13542 `b.qarz<=0` boshqa ro'yxat, 14308 chek allaqachon 0.01).
 
-⏳ **Kutilmoqda:** Ibrohim maketni ko'rib «yoz» desin.
+✅ **BAJARILDI — v188.38.** Ibrohim: «tuzat push qil kegin POSga o'tamiz mani 
+vaqtim kam shunga tezlatishim kere ertaga ketaman xitoyga». Sakkiz joyda 
+`0.001` → `0.01`. Ilovada soxta klient bilan sinaldi: ekranda 3 qator, 
+saqlash halqasi AYNAN o'sha 3 `idx` ni ko'radi (MOS:true). 0.009 ketdi, 
+0.02 qoldi. Node OK, konsol toza. Tafsilot CHANGELOG da.
 
 ### ⏳ QAROR KUTILMOQDA
 
