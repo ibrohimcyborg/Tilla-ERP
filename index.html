@@ -1,4 +1,4 @@
-<!-- v188.38 -->
+<!-- v188.39 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.38';
+var APP_VER = 'v188.39';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -15331,7 +15331,14 @@ function _posChekOpts(ki, sana, soat){
   var k=(data.klientlar||[])[ki]; if(!k || !k.tarix) return null;
   var voz={}, ber={}, vozlar=[];
   k.tarix.forEach(function(op){
-    if(op.pos!==1 || op.sana!==sana) return;   // FAQAT shu kundagi POS amallari
+    // v188.39 (Ibrohim): «berildi qisam bundan oldingi vovzrat jarayonlarini
+    // qo'shvorvotti» → «soat dan saqlashshi olish kere manimcha shu chalkashtirvotti».
+    // AVVAL faqat SANA tekshirilardi — kunning ikkinchi amali birinchisining
+    // yozuvlarini ham o'ziniki deb olardi (19.09: 17:20 dagi berish 17:18 dagi
+    // vozvratni chekka qo'shib chiqardi). soat — 15176/15194 da har POS
+    // yozuviga allaqachon yoziladi, shunchaki bu yerda o'qilmasdi.
+    // ⚠ Ma'lumotga ta'siri yo'q edi: chek faqat O'QIYDI, yakuniy qoldiq to'g'ri chiqardi.
+    if(op.pos!==1 || op.sana!==sana || (op.soat||'')!==(soat||'')) return;   // FAQAT shu amal
     if(!op.zavod || !op.tur) return;
     var kk=op.zavod+'||'+op.tur;
     if(op.tip==='vozvrat')     voz[kk]=roundG((voz[kk]||0)+parseNum(op.gramm));

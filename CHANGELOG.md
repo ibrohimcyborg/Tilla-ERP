@@ -3,6 +3,43 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v188.39: POS CHEKI KUNNING BOSHQA AMALINI QO'SHARDI (2026-09-19)
+
+Ibrohim ikki chek rasmini tashladi (Dilfuza Opa Sadaf, 19.09.2026):
+17:18 vozvrat+to'lov (cheki TO'G'RI), 17:20 faqat berish — lekin 17:20 cheki
+17:18 dagi VOZVRATNI ham qo'shib chiqardi. «berildi qisam bundan oldingi
+vovzrat jarayonlarini qo'shvorvotti».
+
+**Ildiz** (`_posChekOpts`, 15330): amallarni yig'ishda faqat SANA
+tekshirilardi. `soat` funksiyaga uzatilardi (15361) lekin FAQAT chek
+sarlavhasiga ishlatilardi — filtrda yo'q edi.
+
+    AVVAL: if(op.pos!==1 || op.sana!==sana) return;
+    ENDI : if(op.pos!==1 || op.sana!==sana || (op.soat||'')!==(soat||'')) return;
+
+Ibrohim tanladi: «soat dan saqlashshi olish kere manimcha shu chalkashtirvotti».
+(Men `posGrp` — karta raqamini taklif qilgandim; u soatni tanladi.)
+`soat` POS yozuvlarida allaqachon bor: 15176 vozvrat, 15194 berish.
+
+✅ MA'LUMOTGA TA'SIRI YO'Q EDI: chek faqat O'QIYDI, yakuniy QOLGAN OSTATKA
+ikkala holatda ham bir xil (141.49g) chiqardi. Faqat chekning O'RTASI ortiqcha.
+
+TEGILMADI: chek dvigateli (`klientSotuvChekYangiGen`), to'lov cheki, sotuv
+cheki, klient kartasi, hisob, baza.
+
+**Sinov** (`scratchpad/v18839test.js`, Dilfuza tarixi qayta qurildi):
+tuzatishdan OLDIN 3 xato (VOZVRAT bloki bor, OSTATKA 108.37) — Ibrohim
+chekidagi bilan AYNAN. Tuzatishdan KEYIN hammasi o'tdi: 17:18 cheki
+o'zgarmadi (vozvrat 8.30 o'z joyida, berildi yo'q), 17:20 cheki toza
+(vozvrat bloki YO'Q, OSTATKA 100.06, QOLGAN 141.49). Node sintaksis OK.
+
+⚠ Bir daqiqada ikkita karta qabul qilinsa soatlari bir xil bo'lib yana
+qo'shiladi. Ibrohimga aytildi — hozir shart emas dedi. Keyinroq `posGrp`.
+
+⚠ `_posChekOpts` faqat qabuldan KEYIN darhol chaqiriladi (15361), qayta
+chop etish yo'li yo'q — shuning uchun «eski chekni keyin qayta bossa»
+holati amalda yuzaga kelmaydi.
+
 ## v188.38: TO'LOV OYNASIDA «−0.00g» QATORI (2026-09-19)
 
 Ibrohim rasm tashladi: «qara shunaqa 0,00 ko'rsatvotti nimani hisobiga?» +

@@ -4,8 +4,8 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.38 · POS v0.39 · 2026-09-19 (nol qator olib tashlandi)
-**🟢 KEYINGI ISH: POS — CHEK CHIQARISH.** Ibrohim ERTAGA XITOYGA ketadi, vaqti kam. v188.37 va v188.38 PRODDA. Keyin: «uchta yarim qator», audit D (A/B), C.
+**Oxirgi yangilanish:** v188.39 · POS v0.39 · 2026-09-19 (POS cheki o'z amalini oladi)
+**⏳ Ibrohim v188.39 ni sinayapti.** v188.37/38/39 PRODDA. Ibrohim ERTAGA XITOYGA ketadi. Qolgan: «uchta yarim qator», audit D (A/B), C, POS `/` belgisi.
 
 ---
 
@@ -127,7 +127,10 @@ Ibrohimga aytildi, u «hozir shart emas» deganday. Keyinroq `posGrp` qo'shilish
 
 ⚠ `_posChekOpts` faqat BITTA joydan chaqiriladi (15361 `posChTolovYop`).
 
-⏳ **Kutilmoqda:** Ibrohim «yoz» desin.
+✅ **BAJARILDI — v188.39, PUSH QILINDI.** Ibrohim: «push qil tekshiraman».
+Sinov `scratchpad/v18839test.js`: tuzatishdan OLDIN 3 xato (Ibrohim chekidagi
+bilan aynan: OSTATKA 108.37, VOZVRAT bloki bor), KEYIN hammasi o'tdi.
+17:18 cheki o'zgarmadi, 17:20 cheki toza. Tafsilot CHANGELOG da.
 
 ---
 
