@@ -3,6 +3,46 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v188.37: QULF FAQAT CHIQIMDAN KEYIN (2026-09-19)
+
+Ibrohim rasm tashladi (19.09, 6 qator, $7 867.84 naqt): «chiqim qimasam nega
+kassa yopilvotti» → «bugun 7867.84$ ochu turishi keregidi, kegin man 999 yoki
+zavodga chiqim qiganimda foyda qotishi keregidi, summaga qarab qisman yoki
+to'liq yopilishi keregidi» → «A ni qilarkansan qachon chiqim bosa qulflisan».
+
+**Ildiz:** `kassaPulNavbati` iste'mol halqasi amalning VAQTINI hech qachon
+o'qimasdi. 17.09 dagi chiqim 18.09 va 19.09 pulini qulflardi. 999 ni 09:00 da
+olish va 17:00 da olish AYNAN bir xil natija berardi.
+
+**Tuzatish 1** (9658) — vaqt sharti:
+
+    if(x.ts>0 && s.ts>x.ts) break;
+
+`order` ts bo'yicha o'sish tartibida, shuning uchun birinchi «kelajak»
+sovdada to'xtaydi. Yetmagan qoldiq keyingi kunlarga O'TMAYDI (Ibrohim: A).
+`ts=0` (vaqti yo'q eski yozuv) — shart qo'llanmaydi, eskidek ishlaydi.
+
+**Tuzatish 2** (9571, 9576) — amal vaqti endi YOZILGAN sanadan olinadi:
+
+    ts:(r.sana_ts||fdSanaTs(r.sana,r.soat)||0)  ->  ts:(fdSanaTs(r.sana,r.soat)||r.sana_ts||0)
+    ts:(r.ts||fdSanaTs(r.sana,r.soat)||0)       ->  ts:(fdSanaTs(r.sana,r.soat)||r.ts||0)
+
+Sababi: `kassaChiqimSaqla` (3919) `ts:Date.now()` yozadi, lekin ilova ORQA
+SANA bilan yozishga ruxsat beradi. Busiz orqa sana bilan yozilgan chiqim
+«bugun bo'lgan» deb qaralib, yana bugungi pulni qulflardi. Ilovaning o'zi
+(8718) allaqachon «o'sha kundagi sotuvlar yopiladi» deb va'da qiladi — endi
+dvigatel ham shunday hisoblaydi. Zavod yo'li (9587) allaqachon shunday edi.
+
+TEGILMADI: foyda hisobi, kurs, gramm taqsimoti, `_shr` (naqd hissasi),
+karta/perech/lom ning sotuv-kunidagi qulfi.
+
+**Sinov** (`scratchpad/v18837test.js`, haqiqiy funksiyalar, 27/27 o'tdi):
+Ibrohimning 6 qatorida 999 ertalab olinsa — hammasi OCHIQ ($7 867.84);
+18:00 da $3 000 chiqim — Xasanboy to'liq, Tatyana $1 902/$2 800, qolgani ochiq;
+$7 867.84 chiqim — hammasi to'liq; chiqim naqddan katta bo'lsa ortiqchasi
+keyingi kunga O'TMAYDI; orqa sana to'g'ri ishlaydi; `ts=0` eskidek; zavod
+yo'li ham shunday. Node sintaksis OK, localhost da konsol toza.
+
 ## v188.36: O'LIK KOD TOZALANDI (2026-09-19)
 
 Ibrohim: «butun sistemani tekshir o'lik kodla yoqmi» — audit — «Aniq

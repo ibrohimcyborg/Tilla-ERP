@@ -1,4 +1,4 @@
-<!-- v188.36 -->
+<!-- v188.37 -->
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -2008,7 +2008,7 @@ if (TEST_MODE) {
 // ═══════════ VERSIYA BANNERI (v130) ═══════════
 // Ibrohim: har o'zgarishda tepada versiya yozilsin — qaysi versiya turganini adashmaslik uchun.
 // HAR YANGI VERSIYADA SHU RAQAMNI YANGILASH SHART.
-var APP_VER = 'v188.36';
+var APP_VER = 'v188.37';
 // v172.13: DONA BAZA CHERNOVIK REJIMI (Ibrohim qarori) — qopcha (gramm) hisobi asosiy.
 // false = dona baza ko'rinmaydi, ogohlantirmaydi, YOZMAYDI ham (to'liq muzlatilgan).
 // Ma'lumot (tilla-dona-baza + cloud _donabaza) joyida turadi. To'liq o'tish rejasi: PLAN.md.
@@ -9568,12 +9568,12 @@ function kassaPulAmallar(){
   ((data.lomlar)||[]).forEach(function(r){
     if(!r || r.tip!=='kirim' || String(r.proba)!=='999') return;
     if(!(parseNum(r.summa)>0) || !(parseNum(r.narx)>0)) return;
-    A.push({tur:'999', ts:(r.sana_ts||fdSanaTs(r.sana,r.soat)||0), pul:parseNum(r.summa), kurs:parseNum(r.narx)/1.7, nom:'999 olindi'});
+    A.push({tur:'999', ts:(fdSanaTs(r.sana,r.soat)||r.sana_ts||0), pul:parseNum(r.summa), kurs:parseNum(r.narx)/1.7, nom:'999 olindi'});
   });
   // 2) Kassa chiqimi (v113 modal) — kcKurs
   (((data.kassa)||{}).qolda||[]).forEach(function(r){
     if(!r || r.tip!=='chiqim' || !(parseNum(r.summa)>0) || !(parseNum(r.kcKurs)>0)) return;
-    A.push({tur:'chiqim', ts:(r.ts||fdSanaTs(r.sana,r.soat)||0), pul:parseNum(r.summa), kurs:parseNum(r.kcKurs), nom:'Chiqim'});
+    A.push({tur:'chiqim', ts:(fdSanaTs(r.sana,r.soat)||r.ts||0), pul:parseNum(r.summa), kurs:parseNum(r.kcKurs), nom:'Chiqim'});
   });
   // 3) Zavodga chiqim — naqtKurs tur narxi, asosiy kurs = naqtKurs ÷ (1+foiz)
   ((data.zavodlar)||[]).forEach(function(z, zi){
@@ -9649,6 +9649,13 @@ function kassaPulNavbati(){
       var qoldi = x.pul;
       for(var i=0; i<order.length && qoldi>0.001; i++){
         var s = sess[order[i]];
+        // v188.37 (Ibrohim): «qachon qulflanadi disen chiqim bo'gandan kegin...
+        // ungacham to'lishi keremas kassa». Amal o'zidan KEYIN kelgan pulni
+        // yeya olmaydi — o'sha paytda u pul kassada yo'q edi. order ts bo'yicha
+        // o'sish tartibida, shuning uchun birinchi «kelajak» sovdada to'xtaydi;
+        // yetmagan qoldiq keyingi kunlarga O'TMAYDI (Ibrohim: «A ni qilarkansan»).
+        // ⚠ Vaqti umuman yo'q amal (ts=0) — eskidek, shart qo'llanmaydi.
+        if(x.ts>0 && s.ts>x.ts) break;
         if(s.qoldi<=0.001) continue;
         var ol = Math.min(s.qoldi, qoldi);
         s.qoldi -= ol; qoldi -= ol;

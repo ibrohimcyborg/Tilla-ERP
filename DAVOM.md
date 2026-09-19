@@ -4,8 +4,42 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (A bajarildi + push, B bajarildi)
-**🔴 BIRINCHI ISH:** chiqim VAQTI hisobga olinmaydi — tuzatish maketi tayyor, A/B javobi kutilmoqda. Keyin: audit D (A/B) va C.
+**Oxirgi yangilanish:** v188.37 · POS v0.39 · 2026-09-19 (qulf vaqti tuzatildi)
+**⏳ Ochiq:** v188.37 PUSH QILINMAGAN — Ibrohim sinashi kerak. Keyin: rasmdagi «uchta yarim qator», audit D (A/B) va C.
+
+---
+
+## ✅ v188.37 — QULF FAQAT CHIQIMDAN KEYIN (2026-09-19, KOD YOZILDI)
+
+Ibrohim: «A ni qilarkansan qachon chiqim bosa qulflisan» — A varianti.
+(Avval «B qil» yozib, darhol to'xtatib A ga o'zgartirdi.)
+
+**Commit:** pastda · **PUSH QILINMAGAN** — Ibrohim aytishi kerak.
+
+Ikki tuzatish, jami 4 qator kod + izoh:
+1. `index.html:9658` — `if(x.ts>0 && s.ts>x.ts) break;`
+   Amal o'zidan KEYIN kelgan pulni yemaydi. Yetmagan qoldiq keyingi kunlarga
+   O'TMAYDI (A). `ts=0` — shart qo'llanmaydi, eskidek.
+2. `index.html:9571, 9576` — amal vaqti YOZILGAN sanadan olinadi
+   (`fdSanaTs(sana,soat)` birinchi, saqlash soati ikkinchi).
+   Sababi: `kassaChiqimSaqla` (3919) `ts:Date.now()` yozadi, ilova esa ORQA
+   SANA ga ruxsat beradi. Busiz orqa sanali chiqim yana bugungi pulni qulflardi.
+   Ilovaning o'zi (8718) «o'sha kundagi sotuvlar yopiladi» deb va'da qilardi.
+
+**Sinov:** `scratchpad/v18837test.js` — 8 holat, **27/27 o'tdi**.
+Node sintaksis OK. localhost: konsol toza, `kassaPulNavbati`,
+`kassaSuzuvchiXaritasi`, `kassa999Qoplash`, `renderKassa`, `renderTolovHisobot`
+ishladi.
+
+⚠ **Bilib qo'yilsin:** orqa sana bilan yozilgan chiqimda `soat` — o'sha
+kunning soati EMAS, yozilgan paytning soati. Ya'ni o'sha kun ICHIDA qaysi
+sovdalar kirishi tasodifiy. Kun to'g'ri, kun ichidagi chegara taxminiy.
+Ibrohimga aytildi. Agar «orqa sanali chiqim o'sha kunning HAMMASINI yopsin»
+desa — alohida kichik o'zgarish.
+
+⚠ **Hali turibdi:** 19.09 rasmidagi UCHTA yarim qator. Bu tuzatish undan
+mustaqil (kod ketma-ket yeydi → ko'pi bilan bitta yarim). Ibrohim v188.37 ni
+sinagach ekranga qayta qaraladi.
 
 ---
 
