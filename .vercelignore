@@ -1,0 +1,12 @@
+# Vercel bu fayllarni CHOP ETMAYDI (repoda qoladi, internetda ko'rinmaydi).
+# ⚠ FAYL NOMI NUQTA BILAN BOSHLANADI. Nuqtasiz bo'lsa Vercel umuman o'qimaydi
+#   va ichidagi hamma qoida jim ishlamaydi — 2026-09-18 gacha shunday bo'lgan:
+#   DAVOM.md, CHANGELOG.md, CLAUDE.md, PLAN.md, print_server.py internetda ochiq edi.
+
+*.md
+mockups/
+mockup*
+print_server.py
+__pycache__/
+
+# Chop ETILADI (tegmang): index.html, pos.html, hisob.js, api/, requirements.txt
