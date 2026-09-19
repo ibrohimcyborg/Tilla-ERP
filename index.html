@@ -12496,18 +12496,6 @@ function kbSkanRender(zi,ti){
   var recEl = document.getElementById('kbskan-rec-'+key);
   if (recEl){ recEl.innerHTML=''; recEl.style.display='none'; }
 }
-function kbSkanUncheck(zi,ti,k){
-  var st=_kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
-  for(var i=st.pass2.length-1;i>=0;i--){
-    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
-  }
-  kbSkanRender(zi,ti); kbSkanFokus(zi,ti);
-}
-function kbSkanDelPass2(zi,ti,j){
-  var st=_kbSkanState[kbSkanKey(zi,ti)]; if(!st) return;
-  if(j>=0 && j<st.pass2.length) st.pass2.splice(j,1);
-  kbSkanRender(zi,ti); kbSkanFokus(zi,ti);
-}
 function openKlientBerish(){
   document.getElementById('kb-klient').value='';
   document.getElementById('kb-q').value='';
@@ -13094,19 +13082,6 @@ function uniSkanRender(fid){
   }
   var rec=document.getElementById('usrec-'+fid);
   if(rec){ rec.innerHTML=''; rec.style.display='none'; }  // chek-ro'yxat o'rnini bosdi
-}
-function uniSkanUncheck(fid,k){
-  // ✓ bosilsa — o'sha grammning OXIRGI 2-skan yozuvi olib tashlanadi (tekshiruv bekor)
-  var st=uniSkanSt(fid);
-  for(var i=st.pass2.length-1;i>=0;i--){
-    if(roundG(st.pass2[i]).toFixed(2)===k){ st.pass2.splice(i,1); break; }
-  }
-  uniSkanRender(fid); uniSkanFokus(fid);
-}
-function uniSkanDelPass2(fid,j){
-  var st=uniSkanSt(fid);
-  if(j>=0 && j<st.pass2.length) st.pass2.splice(j,1);
-  uniSkanRender(fid); uniSkanFokus(fid);
 }
 function uniSkanApply(fid){
   var st=uniSkanSt(fid);
