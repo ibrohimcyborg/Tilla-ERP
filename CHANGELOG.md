@@ -3,6 +3,44 @@
 > index.html dan ajratildi (v137.1 dan keyin). Ibrohim: "v digi o'zgarishlani o'chirib tasha indexdan, bu adashtirvotti sani".
 > Bu fayl faqat ARXIV. Yangi kod yozganda bu yerdagi qarorlarni MEROS QILIB OLMA — Ibrohimning aytgan spetsifikatsiyasi asosiy manba.
 
+## v188.36: O'LIK KOD TOZALANDI (2026-09-19)
+
+Ibrohim: «butun sistemani tekshir o'lik kodla yoqmi» — audit — «Aniq
+sistemaga tasir qimasa qil».
+
+index.html dan **51 ta hech qayerdan chaqirilmaydigan funksiya**, jami
+**738 qator** (izohlari bilan) o'chirildi. Yetti klaster, yetti commit:
+
+1. Eski chek dvigateli (222 q) — chekQur, klientSotuvChekPrint, chekC, chekR,
+   chekPad, chekG, chekTurBloki, chekRoyxat. v188.16 da yangi dvigatel almashtirgan.
+2. Zapros taqsim paneli (161 q) — zaprosQoldiq, zaprosPulGramm,
+   zaprosChontakIstemol, zaprosPanelHTML, openZaprosTaqsim, ztYop, ztOqi,
+   ztHisob, zaprosTaqsimSaqla. op.zapros KO'RSATILISHI tirik qoldi (4176, 5156).
+3. Kassa «chiqim yopdi» (137 q) — openKassaQolda, kassaAmalYopgan,
+   kassaSovdaTurlar, kassaChiqimSovToggle, kassaChiqimYopdiHTML, chiqimUnlock.
+   v188.28 pul navbati o'rniga kelgan.
+4. Sotuv / to'lov tanlov qoldiqlari (79 q) — ktCUpd, sdachaInpUpd, sdachaJamiUpd,
+   sdachaPrich, kTolovSdachaTanlovSet, kstCUpd, _tolovToggle, ksSotuvToggleTolov,
+   ktToggleTolov, ksSotuvNaqtBerildiUpd, ksSotuvTanlovSet, ksSotuvPickTaqsim.
+5. Yakka qolganlar (59 q) — _verBelgiUpd, hkNarxUpd, hkToggle, hkToggleTarix,
+   donaMosEmaslarniTop, klientKatSet, kberishKlientChange, getLomJamiZaxiraG.
+6. Cloud / hisob (44 q) — _hisobSnapOl, hisobRef, _hisobListen_eski, cloudTanlovOch.
+7. Skan (25 q) — kbSkanUncheck, kbSkanDelPass2, uniSkanUncheck, uniSkanDelPass2.
+
+Bitta izoh tuzatildi: «d: chekQur qabul qiladigan obyekt» — «kTolovChekGen».
+
+TEGILMADI: pos.html dagi posSakra (4 q) — POS versiyasi masalasi hal bo'lmagan.
+Abdulhamid rejimi (hamid-x 6 ta, getRol()==='hamid' 6 ta) o'z joyida.
+hisob.js tegilmadi.
+
+**Sinov:** har klasterdan keyin Node sintaksis sinovi (OK); 51 nom uchala faylda
+0 marta qoldi; hodisa ishlovchilari ro'yxati o'chirishdan oldingi bilan AYNAN bir
+xil (yangi buzilish yo'q); ilova localhost da ochildi — konsolda xato yo'q,
+7 ekran va 9 render funksiyasi ishladi, «To'lov hisoboti» modali ochildi.
+Auditni qayta ishga tushirish: index.html da o'lik funksiya 0 ta.
+
+Fayl: 20 619 — 19 881 qator.
+
 ## v177 - v177.7: POS (planshet kassa) - 1-bosqich
 
 Ibrohim: planshetda kassaga o'xshab ishlaydigan POS. Login kassatest/kassatest.

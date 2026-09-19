@@ -4,8 +4,66 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.35 · POS v0.39 · 2026-09-18 (tizim auditi)
-**⏳ Ochiq:** TIZIM AUDITI javobi (pastda, A–E) + kassa qulfining qolgan ishlari. POS cheki BITDI (v188.29).
+**Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (o'lik kod tozalandi)
+**⏳ Ochiq:** audit A (ochiq fayllar — PUSH RUXSATI kutilmoqda) va C (mayda axlat). B bajarildi (v188.36), D qayta tekshirildi, E bekor. Kassa qulfi ishlari pastda.
+
+---
+
+## ✅ v188.36 — O'LIK KOD TOZALANDI (B bajarildi, 2026-09-19)
+
+Ibrohim: «Aniq sistemaga tasir qimasa qil». Oldin so'radi: «o'lik funksiyala
+umuman ishlamidimi?» va «100% uverenmisan o'chsa hicnima bo'masligiga».
+
+**51 funksiya, 738 qator** index.html dan ketdi. Yetti commit:
+`afa172b` chek · `d07f4ef` zapros · `5048185` kassa · `0e2db7d` sotuv/to'lov ·
+`da0c5de` yakka · `bfcbcae` cloud · `ea90dfd` skan. To'liq ro'yxat CHANGELOG da.
+
+Skript: `scratchpad/ochir.py` (qavs hisobi izoh/satrni bo'shliqqa aylantirib
+sanaydi), sinov: `scratchpad/nodecheck.py`, audit: `scratchpad/tekshir.py`.
+
+**O'chirishdan oldin isbotlangan:**
+- nom yig'ib chaqiradigan ikki joy tekshirildi — `cddPick` (faqat `klientSortSet`)
+  va kurs sinxroni 20482 (4 ta tirik nom). `eval`, `new Function`, satrli
+  `setTimeout`, yig'ilgan `onclick` YO'Q.
+- hodisa ishlovchilari ro'yxati o'chirishdan oldin/keyin AYNAN bir xil (7 ta
+  soxta signal: `document`, `event`, `if`, `this`, `var`, `_odbZT`, `ksSotuvDelLom`).
+- localhost da ochildi: konsolda xato yo'q, 7 ekran + 9 render + To'lov hisoboti OK.
+
+**TEGILMADI:** `pos.html:637 posSakra` (4 q) — CLAUDE.md §5: ikki faylga
+tegadigan o'zgarishda Ibrohimdan so'raladi, POS_VER masalasi ochiq.
+
+⚠ CLAUDE.md §10 dagi «O'lik kod» jadvali endi ESKIRGAN (chekQur 9814,
+klientSotuvChekPrint 15384) — ikkalasi ham o'chirildi.
+
+---
+
+## ✅ AUDIT D QAYTA TEKSHIRILDI (2026-09-19) — bittasi MENING XATOM
+
+Ibrohim: «server lekin ishlavotti qattan bildin xato borligini / hamma
+klientlaram hozir chiqvotti». Ikkalasi ham qayta sinaldi.
+
+**D1 — TASDIQLANDI.** `tolovHisobotPDF` ning HAQIQIY payloadi `pdf.py` ga
+yuborildi: `tip='tolov_hisobot'` biladigan 7 tip orasida yo'q → oxirgi umumiy
+shoxga tushadi → `build_pdf([])`. Natija: **3171 bayt, 2 sahifa, ichida bitta
+ham matn yo'q**. Server 200 qaytaradi (shuning uchun «ishlayapti»), lekin qog'oz
+BO'M-BO'SH. Tugma: Kassa kartasidagi Naqd/Karta/Perech kataklari → modal tagida.
+
+**D2 — MENING XATOM, ro'yxatdan chiqarildi.** «Hamma klientlar» hisoboti
+ALLAQACHON tuzatilgan (v179.7, index.html:19104 da himoya turibdi). Men
+DAVOM.md dagi eski eslatmaga ishondim, uning qator raqami boshqa funksiyaga
+siljigan edi. Haqiqiy himoyasiz qator — `klientPDFYukor` ning 1-halqasi
+(`jami_berildi += op.gramm`), u faqat PDF pastidagi «jami» qatoriga boradi, va
+`pdf.py` dagi `_num()` NaN ni 0 ga aylantiradi. **Yiqilmaydi, versiyaga arzimaydi.**
+
+→ Saboq (CLAUDE.md §0.4): hujjatdagi qator raqamiga ishonma, kodni och.
+
+---
+
+## ❌ AUDIT E BEKOR (Ibrohim, 2026-09-19)
+
+«takror koddi nima muammosi bor manimcha muhim narsamas». `_posEsc` va
+`posKursUpd` ikki faylda bir xil qoladi. Yagona xavf aytildi: bittasi
+tuzatilsa ikkinchisi eskicha qoladi. Ibrohim qarori — qilinmaydi.
 
 ---
 
