@@ -5,11 +5,23 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.37 · POS v0.39 · 2026-09-19 (qulf vaqti tuzatildi)
-**⏳ Ochiq:** v188.37 PUSH QILINMAGAN — Ibrohim sinashi kerak. Keyin: rasmdagi «uchta yarim qator», audit D (A/B) va C.
+**🟢 KEYINGI ISH:** POS — CHEK CHIQARISH (Ibrohim aytadi, hali tavsiflamagan). v188.37 PRODDA, Ibrohim sinayapti. Keyin: «uchta yarim qator», audit D (A/B), C.
 
 ---
 
-## ✅ v188.37 — QULF FAQAT CHIQIMDAN KEYIN (2026-09-19, KOD YOZILDI)
+## 🟢 KEYINGI ISH — POS: CHEK CHIQARISH (2026-09-19)
+
+Ibrohim (v188.37 ni push qildirgandan keyin): «kegin POSda ishimiz bor chek
+chiqarishda shuni to'girlimiz».
+
+⚠ **Muammo hali TAVSIFLANMAGAN.** Ibrohim o'zi aytadi. Taxmin qilib kod yozma,
+eski chek ishlariga ham qarama — u aytgan narsani AYNAN so'ra va maket qil.
+
+Foydali kontekst: POS `v0.39`, chek dvigateli `klientSotuvChekYangiGen` va
+`kTolovChekGen` (index.html), POS chek yo'li `posChTolovOch` / `posChQabul`,
+`_posChekOpts`. `chekIkkiChop({chek1,chek2}, cnt)`. Termal 48 belgi.
+
+## ✅ v188.37 — QULF FAQAT CHIQIMDAN KEYIN (2026-09-19, PRODDA)
 
 ### Maket — kun oqimi (2026-09-19)
 
@@ -33,7 +45,7 @@ ko'rsatish» (A/B) savoliga bog'liq, u hali javobsiz.
 Ibrohim: «A ni qilarkansan qachon chiqim bosa qulflisan» — A varianti.
 (Avval «B qil» yozib, darhol to'xtatib A ga o'zgartirdi.)
 
-**Commit:** pastda · **PUSH QILINMAGAN** — Ibrohim aytishi kerak.
+**Commit `5f36cfd` · PUSH QILINDI** (`81f68bf..06b2300`). Ibrohim: «huddi shunaqa ishlashi keregidi... endi to'ri ishlidi manimcha buni commit push qil tekshiraman».
 
 Ikki tuzatish, jami 4 qator kod + izoh:
 1. `index.html:9658` — `if(x.ts>0 && s.ts>x.ts) break;`
