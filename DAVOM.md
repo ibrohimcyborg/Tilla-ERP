@@ -5,7 +5,61 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (A bajarildi + push, B bajarildi)
-**🔴 BIRINCHI ISH:** «chiqimsiz qulflanish» tashxisi — Ibrohimdan RASM kutilmoqda (3 qatorni bosib ochib). Keyin: audit D (A/B javobi) va C.
+**🔴 BIRINCHI ISH:** chiqim VAQTI hisobga olinmaydi — tuzatish maketi tayyor, A/B javobi kutilmoqda. Keyin: audit D (A/B) va C.
+
+---
+
+## 🔴 ILDIZ TOPILDI — CHIQIM VAQTI O'QILMAYDI (2026-09-19, KOD YOZILMADI)
+
+Ibrohim spetsifikatsiyani aniqlashtirdi: «qachon qulflanadi disen chiqim
+bo'gandan kegin, nimaga pul ketsa rasxodmi zavodgami yoki 999 olinsagina
+qulflanishi kere, ungacham to'lishi keremas kassa».
+
+→ Uchta manba TO'G'RI (u rad etmadi). Muammo — **VAQT**.
+
+Maket: `mockups/qulf-vaqt.html` → https://claude.ai/artifact/GaEC16atCLT9WaGqv7BE3d
+Sinov: `scratchpad/vaqt.js`
+
+### Ildiz
+
+`kassaPulAmallar` (9565) har amalga `ts` hisoblaydi va A ni `ts` bo'yicha
+tartiblaydi. Lekin `kassaPulNavbati` (9594) ichidagi iste'mol halqasi
+`x.ts` ni `s.ts` bilan **HECH QACHON solishtirmaydi**:
+
+    for(var i=0; i<order.length && qoldi>0.001; i++){
+      var s = sess[order[i]];
+      if(s.qoldi<=0.001) continue;      <-- vaqt sharti YO'Q
+      var ol = Math.min(s.qoldi, qoldi);
+
+→ 17.09 dagi chiqim 18.09 va 19.09 pulini qulflaydi (sinovda isbotlandi).
+→ 999 ni 09:00 da olish va 17:00 da olish AYNAN bir xil natija beradi.
+→ Shuning uchun Ibrohim «chiqim qimasam nega yopilvotti» deydi: ESKI chiqim
+   bugun kirayotgan har bir pulni kirishi bilan yeb boradi.
+
+### Tuzatish (2 qator)
+
+      var s = sess[order[i]];
+      if (s.ts > x.ts) break;           <-- YANGI (order ts bo'yicha o'sish tartibida)
+      if (s.qoldi <= 0.001) continue;
+
+Boshqa hech narsaga tegilmaydi: foyda, kurs, gramm taqsimoti o'sha holicha.
+
+### ⏳ QAROR KUTILMOQDA — chiqim o'sha paytdagi naqddan KATTA bo'lsa
+
+**A** (tavsiya) — ortiqchasi yo'qoladi, faqat o'sha paytda bor pul qulflanadi.
+   Ibrohim aytgan qoidaga to'g'ri keladi.
+**B** — ortiqchasi kutadi, ertaga pul kirganda o'shani qulflaydi
+   (hozirgi holatga yaqin, «chiqimsiz qulflanish» qisman qoladi).
+
+⚠ TAXMIN (mendan): sanasi/soati yo'q eski chiqim yozuvida `ts=0` — A da u
+hech narsani qulflamay qoladi. Men bunday yozuvlarni ESKIDEK qoldirmoqchiman
+(vaqt sharti qo'llanmaydi). Ibrohim boshqacha xohlasa aytadi.
+
+### ⚠ Alohida turgan narsa (hal qilinmagan)
+
+Ibrohimning 19.09 rasmida UCHTA qator yarim edi. Bu tuzatishdan keyin ham kod
+ketma-ket yeydi → ko'pi bilan BITTA yarim bo'lishi mumkin. Tuzatishdan keyin
+qayta qaraladi (ehtimol ekran butunlay o'zgaradi). Tafsilot pastdagi blokda.
 
 ---
 

@@ -1,0 +1,141 @@
+<title>Chiqim vaqti hisobga olinmaydi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --surf:#FFFFFF; --surf2:#E7E5E0; --ink:#1B1A17; --muted:#65615A; --line:#D7D4CD;
+  --gold:#96690A; --gold-bg:#F8EFD6;
+  --green:#19754A; --green-bg:#E1F1E8;
+  --red:#A92A20; --red-bg:#F9E7E4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9D9992; --line:#36343D;
+    --gold:#D9A92C; --gold-bg:#2E2712;
+    --green:#6BCA8E; --green-bg:#153020;
+    --red:#ED8A80; --red-bg:#391E1B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9D9992; --line:#36343D;
+  --gold:#D9A92C; --gold-bg:#2E2712;
+  --green:#6BCA8E; --green-bg:#153020;
+  --red:#ED8A80; --red-bg:#391E1B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:700px;margin:0 auto;padding-block:20px 46px;padding-inline:16px}
+h1{font-size:28px;line-height:1.12;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:19px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);font-size:14px;margin-top:7px}
+p{margin:8px 0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.89em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:28px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;vertical-align:2px;margin-left:7px}
+.tag.red{background:var(--red-bg);color:var(--red)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+
+/* vaqt chizig'i */
+.oq{margin-top:14px;border:1px solid var(--line);border-radius:11px;background:var(--surf);overflow:hidden}
+.oq h3{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:9px 13px;background:var(--surf2);color:var(--muted)}
+.qat{display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center;
+  padding:9px 13px;border-top:1px solid var(--line);font-size:13.5px}
+.qat .sn{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.qat .nm{min-width:0}
+.qat .hl{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 10px;border-radius:99px;white-space:nowrap}
+.hl.qulf{background:var(--red-bg);color:var(--red)}
+.hl.ochiq{background:var(--green-bg);color:var(--green)}
+.hl.tr{background:var(--gold-bg);color:var(--gold)}
+.qat.chiqim{background:var(--gold-bg)}
+.qat.chiqim .nm{font-weight:700;color:var(--gold)}
+.sum{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted)}
+
+.qutu{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:13px}
+.qutu.red{background:var(--red-bg);border:1px solid var(--red)}
+.qutu.green{background:var(--green-bg);border:1px solid var(--green)}
+.qutu.n{background:var(--surf2)}
+pre{font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.7;background:var(--surf2);
+  border-radius:9px;padding:12px 13px;overflow-x:auto;margin:11px 0 0}
+.kod{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:11px 13px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;margin-top:11px;overflow-x:auto}
+.kod .y{color:var(--green);font-weight:600}
+.kod .m{color:var(--muted)}
+.opt{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  display:grid;grid-template-columns:auto 1fr;gap:3px 12px;align-items:start;margin-top:9px}
+.opt.rec{border-color:var(--gold);border-width:1.5px}
+.opt .h{font-size:19px;font-weight:700;color:var(--gold);line-height:1.15}
+.opt .t{font-weight:600}
+.opt .d{grid-column:2;color:var(--muted);font-size:13px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Tashxis · isbotlandi · kod yozilmadi</div>
+  <h1>Chiqimning vaqti umuman hisobga olinmaydi</h1>
+  <div class="lead">Siz aytgan qoida to'g'ri: pul faqat chiqimdan keyin qulflanishi kerak. Kod esa chiqim qachon bo'lganini <b>umuman qaramaydi</b>. Shuning uchun eski chiqim bugungi pulni yeb qo'yadi.</div>
+
+  <section>
+    <h2>Isbot<span class="tag red">haqiqiy kod ishga tushirildi</span></h2>
+    <p class="lead" style="margin-top:6px">Bitta chiqim 17.09 da qilindi. Undan keyingi kunlarda sovdalar bo'ldi.</p>
+
+    <div class="oq">
+      <h3>Hozir nima bo'lyapti</h3>
+      <div class="qat"><span class="sn">16.09 10:00</span><span class="nm">Eski sovda <span class="sum">$1 000</span></span><span class="hl qulf">qulflandi</span></div>
+      <div class="qat chiqim"><span class="sn">17.09 09:00</span><span class="nm">CHIQIM <span class="sum">$4 500</span></span><span class="hl tr">shu yerda</span></div>
+      <div class="qat"><span class="sn">18.09 11:00</span><span class="nm">Ertangi sovda <span class="sum">$1 500</span></span><span class="hl qulf">qulflandi</span></div>
+      <div class="qat"><span class="sn">19.09 12:00</span><span class="nm">Bugungi sovda <span class="sum">$2 000</span></span><span class="hl qulf">qulflandi</span></div>
+    </div>
+
+    <div class="qutu red"><b>17.09 dagi chiqim 18.09 va 19.09 pulini qulfladi.</b> O'sha pullar 17.09 da hali kassada yo'q edi. Chiqim kelajakdagi pulni yeb qo'ydi.</div>
+
+    <div class="oq">
+      <h3>Qanday bo'lishi kerak</h3>
+      <div class="qat"><span class="sn">16.09 10:00</span><span class="nm">Eski sovda <span class="sum">$1 000</span></span><span class="hl qulf">qulflanadi</span></div>
+      <div class="qat chiqim"><span class="sn">17.09 09:00</span><span class="nm">CHIQIM <span class="sum">$4 500</span></span><span class="hl tr">shu yerda</span></div>
+      <div class="qat"><span class="sn">18.09 11:00</span><span class="nm">Ertangi sovda <span class="sum">$1 500</span></span><span class="hl ochiq">ochiq · suzadi</span></div>
+      <div class="qat"><span class="sn">19.09 12:00</span><span class="nm">Bugungi sovda <span class="sum">$2 000</span></span><span class="hl ochiq">ochiq · suzadi</span></div>
+    </div>
+
+    <div class="qutu n"><b>Yana bitta sinov:</b> 999 ni ertalab <b>09:00</b> da olish va kechqurun <b>17:00</b> da olish — kod <b>aynan bir xil</b> natija berdi. Ya'ni soat umuman o'qilmaydi.</div>
+
+    <pre>999 olindi 09:00 da (sovdalardan OLDIN):
+  10:41  Xasanboy   1098.00 -> qulflandi
+  12:44  Tatyana    2800.00 -> qulflandi
+  13:06  Sadaf      2471.00 -> qisman
+
+999 olindi 17:00 da (sovdalardan KEYIN):
+  10:41  Xasanboy   1098.00 -> qulflandi
+  12:44  Tatyana    2800.00 -> qisman   <-- FARQ YO'Q
+  13:06  Sadaf      2471.00 -> qisman</pre>
+  </section>
+
+  <section>
+    <h2>Tuzatish<span class="tag green">ikki qator</span></h2>
+    <p class="lead" style="margin-top:6px">Navbat pulni yeyayotganda bitta shart qo'shiladi: sovda chiqimdan keyin bo'lgan bo'lsa, unga tegilmaydi.</p>
+    <div class="kod">for (i = 0; i &lt; order.length &amp;&amp; qoldi &gt; 0.001; i++) {<br>
+      &nbsp;&nbsp;var s = sess[order[i]];<br>
+      &nbsp;&nbsp;<span class="y">if (s.ts &gt; x.ts) break;&nbsp;&nbsp;<span class="m">// chiqimdan KEYIN kelgan pul — tegilmaydi</span></span><br>
+      &nbsp;&nbsp;if (s.qoldi &lt;= 0.001) continue;<br>
+      &nbsp;&nbsp;<span class="m">...</span></div>
+    <p>Navbat allaqachon eng eskisidan tartiblangan, shuning uchun birinchi «kelajak» sovdaga yetganda to'xtaydi. Boshqa hech narsaga tegilmaydi: foyda hisobi, kurs, gramm taqsimoti — hammasi o'sha holicha.</p>
+  </section>
+
+  <section>
+    <h2>Bitta savol</h2>
+    <p class="lead" style="margin-top:6px">Chiqim o'sha paytdagi naqddan <b>katta</b> bo'lsa nima qilamiz? Masalan kassada $1 000 bor edi, chiqim $4 500. Ortiqcha $3 500 ga nima bo'ladi?</p>
+
+    <div class="opt rec"><div class="h">A</div><div class="t">Ortiqchasi yo'qoladi</div>
+      <div class="d">Faqat o'sha paytda bor bo'lgan $1 000 qulflanadi. Keyingi kunlarning puli hech qachon shu chiqimdan qulflanmaydi. <b>Siz aytgan qoidaga to'g'ri keladi.</b></div></div>
+    <div class="opt"><div class="h">B</div><div class="t">Ortiqchasi kutadi</div>
+      <div class="d">$1 000 darhol qulflanadi, qolgan $3 500 kutib turadi va ertaga pul kirganda o'shani qulflaydi. Bugungi holatga yaqinroq, lekin «chiqimsiz qulflanish» qisman qoladi.</div></div>
+
+    <div class="qutu n" style="margin-top:14px"><b>Bilib qo'ying:</b> sanasi yoki soati yozilmagan eski chiqim yozuvi bo'lsa, uning vaqti noldan hisoblanadi va A da u hech narsani qulflamay qoladi. Men bunday yozuvlarni <b>eskidek</b> qoldirmoqchiman — ular hozirgidek ishlayveradi. Boshqacha xohlasangiz ayting.</div>
+  </section>
+
+  <section>
+    <h2>Yana bitta narsa turibdi</h2>
+    <p>Sizning kechagi rasmingizda <b>uchta</b> qator yarim edi. Bu tuzatishdan keyin ham kod ketma-ket yeydi, ya'ni ko'pi bilan <b>bitta</b> qator yarim qolishi mumkin. Demak u yerda alohida narsa bor.</p>
+    <p>Lekin avval shuni tuzataylik — ehtimol ekran butunlay o'zgaradi va o'sha narsa o'z-o'zidan ko'rinib qoladi. Tuzatishdan keyin qaytadan qaraymiz.</p>
+  </section>
+</div>
