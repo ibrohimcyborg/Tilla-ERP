@@ -4,8 +4,57 @@
 > Har versiyadan keyin bu fayl **yangilanadi** — aks holda keyingi seans
 > nimadan davom etishini bilmaydi.
 
-**Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (o'lik kod tozalandi)
-**⏳ Ochiq:** audit A (ochiq fayllar — PUSH RUXSATI kutilmoqda) va C (mayda axlat). B bajarildi (v188.36), D qayta tekshirildi, E bekor. Kassa qulfi ishlari pastda.
+**Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (A bajarildi + push, B bajarildi)
+**⏳ Ochiq:** audit D (maket ko'rsatildi, A/B javobi kutilmoqda) va C (mayda axlat). A va B bajarildi va PRODDA. E bekor. Kassa qulfi ishlari pastda.
+
+---
+
+## ✅ AUDIT A BAJARILDI VA PUSH QILINDI (2026-09-19)
+
+Ibrohim: «A) ruxsdat». Commit `7366d60`, push `9cfdf41..7366d60`.
+
+`vercelignore` → **`.vercelignore`** (git mv). Nuqtasiz nomni Vercel umuman
+o'qimaydi — shuning uchun ichidagi `*.md` qoidasi hech qachon ishlamagan.
+Ro'yxatga qo'shildi: `print_server.py`, `__pycache__/`, `mockups/`.
+Fayl boshiga ogohlantirish izohi yozildi (nuqta yo'qolmasin).
+
+**PRODDA TASDIQLANDI** (push'dan keyin curl):
+
+    /DAVOM.md        → endi index.html qaytaradi (1182431 bayt), hujjat EMAS
+    /CHANGELOG.md    → index.html
+    /CLAUDE.md       → index.html
+    /PLAN.md         → index.html
+    /print_server.py → index.html
+    /hisob.js        → 12707 bayt (TO'G'RI, chop etilishi kerak)
+    APP_VER prodda   → v188.36
+
+⚠ **QOLDI, IBROHIM QILADI:** eski deploy manzillari (`tilla-erp-<hash>.vercel.app`)
+o'z nusxasini saqlaydi. Ular Vercel panelidan o'chirilmaguncha eski fayllar
+o'sha manzillarda ochiq qoladi. Claude panelga kira olmaydi.
+
+⚠ Shu push bilan **v188.36 (o'lik kod tozalash) ham prodga chiqdi**.
+
+---
+
+## ⏳ AUDIT D — MAKET KO'RSATILDI, JAVOB KUTILMOQDA (2026-09-19)
+
+Ibrohim: «D ni korsat».
+Maket: `mockups/tolov-hisobot-pdf.html` → https://claude.ai/artifact/QkFJvxpuqC2yNS9ZZXvuMH
+
+**Muammo:** `tolovHisobotPDF` (index.html ≈10910) `tip:'tolov_hisobot'` yuboradi,
+`api/pdf.py` da bu tur uchun shox yo'q → `build_pdf([])` → 3171 bayt, 2 sahifa,
+**0 ta belgi**. Server 200 qaytaradi, shuning uchun buzuqligi ko'rinmaydi.
+
+**Taklif:** `api/pdf.py` ga `build_tolov_hisobot()` (~40 qator) + `do_POST` ga shox.
+Ustunlar oynadagidek: Sana · Klient · Zavod·Tur · [Qulf] · Gramm · Summa.
+Tepada uch katak (JAMI <tur> · JAMI GRAMM · TO'LOVLAR SONI), pastda JAMI qatori —
+mavjud `build_kassa` qolipida. Sarlavha turdan (`Naqt/Karta/Perech hisoboti`),
+davr oynadan. Payload ALLAQACHON hammasini yuboradi (`qulf` ham) — yangi hisob yo'q.
+
+**⏳ QAROR KUTILMOQDA:** qulf ustuni (`TO'LIQ` / `62%` / `suzadi`) bo'lsinmi?
+A = bo'lsin (tavsiya, oyna bilan bir xil) · B = bo'lmasin.
+
+⚠ `index.html` ga TEGILMAYDI. Faqat `api/pdf.py`. Deploy uchun push kerak.
 
 ---
 

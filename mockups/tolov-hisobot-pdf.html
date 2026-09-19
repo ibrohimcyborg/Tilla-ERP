@@ -1,0 +1,159 @@
+<title>To'lov hisoboti PDF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EFEFF2; --surf:#FFFFFF; --surf2:#E7E7EC; --ink:#1A1A1A; --muted:#718096; --line:#D6D6DE;
+  --gold:#B8860B; --green:#2E7D32; --red:#C62828; --dark:#1A1A1A;
+  --crit:#B3261E; --crit-bg:#FBE9E7;
+  --ok:#1B7F4C; --ok-bg:#E3F3EA;
+  --paper:#FFFFFF; --paper-ink:#111111; --paper-line:#DDDDDD; --paper-zebra:#F7F7F7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15161A; --surf:#1E2026; --surf2:#282B33; --ink:#E9EAEE; --muted:#9BA2AE; --line:#343843;
+    --gold:#D9A82C; --green:#67C88C; --red:#EF8A82;
+    --crit:#F0857B; --crit-bg:#3A1E1B;
+    --ok:#6CCB8F; --ok-bg:#16301F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15161A; --surf:#1E2026; --surf2:#282B33; --ink:#E9EAEE; --muted:#9BA2AE; --line:#343843;
+  --gold:#D9A82C; --green:#67C88C; --red:#EF8A82;
+  --crit:#F0857B; --crit-bg:#3A1E1B;
+  --ok:#6CCB8F; --ok-bg:#16301F;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 44px;padding-inline:16px}
+h1{font-size:27px;line-height:1.12;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:18px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sub{color:var(--muted);font-size:13.5px;margin-top:6px}
+p{margin:8px 0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.9em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:26px}
+.hdr{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.pill{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 9px;border-radius:99px}
+.pill.crit{background:var(--crit-bg);color:var(--crit)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+
+/* ── hozirgi: bo'sh varaq ── */
+.bosh{margin-top:12px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.varaq-bosh{flex:0 0 132px;height:186px;background:var(--paper);border:1px solid var(--line);
+  border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.14);display:flex;align-items:center;
+  justify-content:center;color:#B9B9C2;font-size:11.5px;letter-spacing:.05em}
+.bosh-izoh{flex:1 1 300px;min-width:0}
+.dalil{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--surf2);
+  border-radius:8px;padding:10px 12px;margin-top:10px;overflow-x:auto;white-space:pre;line-height:1.6}
+
+/* ── taklif: PDF varag'i ── */
+.varaq{margin-top:12px;background:var(--paper);color:var(--paper-ink);border-radius:3px;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);padding:20px 18px;
+  font-family:Helvetica,Arial,"Liberation Sans",sans-serif}
+.v-ttl{font-size:15px;font-weight:700;text-align:center;color:#111}
+.v-sub{font-size:10.5px;text-align:center;color:#718096;margin-top:3px}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border:1px solid var(--paper-line)}
+.stat>div{border-right:1px solid var(--paper-line)}
+.stat>div:last-child{border-right:0}
+.stat .k{background:#1A1A1A;color:#fff;font-size:8px;font-weight:700;letter-spacing:.05em;
+  text-align:center;padding:5px 2px}
+.stat .v{background:#F8F6F0;text-align:center;padding:7px 2px;font-size:15px;font-weight:700;
+  font-variant-numeric:tabular-nums}
+.jadval{width:100%;border-collapse:collapse;margin-top:14px;font-size:9.5px}
+.jadval th{background:#1A1A1A;color:#fff;font-size:8.5px;font-weight:700;padding:5px 4px;text-align:center}
+.jadval td{padding:5px 4px;border-bottom:.5px solid #E6E6EA;color:#212121}
+.jadval tr.z td{background:var(--paper-zebra)}
+.jadval td.r{text-align:right;font-variant-numeric:tabular-nums}
+.jadval td.c{text-align:center}
+.jadval td.m{color:#718096}
+.jadval td.b{font-weight:700}
+.jadval td.g{color:#B8860B;font-weight:700}
+.jadval tr.jami td{background:#1A1A1A;color:#fff;font-weight:700;border:0;padding:6px 4px}
+.jadval tr.jami td.gr{color:#68D391}
+.jadval tr.jami td.gd{color:#F6E05E}
+.q{display:inline-block;font-size:7.5px;font-weight:700;padding:1px 5px;border-radius:20px;color:#fff;white-space:nowrap}
+.q.t{background:#2E7D32}
+.q.p{background:#B8860B}
+.q.s{background:transparent;color:#9AA0AA;font-weight:400;font-size:8.5px;padding:0}
+.izoh{font-size:11px;color:var(--muted);margin-top:9px}
+
+/* ── qaror ── */
+.qaror{display:grid;gap:9px;margin-top:12px}
+.opt{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+  display:grid;grid-template-columns:auto 1fr;gap:3px 11px;align-items:start}
+.opt .h{font-size:19px;font-weight:700;color:var(--gold);line-height:1.15}
+.opt.rec{border-color:var(--gold)}
+.opt .t{font-weight:600}
+.opt .d{grid-column:2;color:var(--muted);font-size:13px}
+.note{background:var(--surf2);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:12px}
+@media (max-width:430px){
+  .jadval th:nth-child(3),.jadval td:nth-child(3){display:none}
+  .varaq{padding:14px 11px}
+}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Audit D · v188.37 taklifi</div>
+  <h1>To'lov hisoboti PDF si bo'sh chiqadi</h1>
+  <div class="sub">Kassa kartasidagi <b>Naqd</b> / <b>Karta</b> / <b>Perech</b> kataklarini bossangiz hisobot oynasi ochiladi. Uning tagidagi PDF tugmasi hozir bo'm-bo'sh varaq beradi.</div>
+
+  <section>
+    <div class="hdr"><h2>Hozir</h2><span class="pill crit">bo'sh varaq</span></div>
+    <div class="bosh">
+      <div class="varaq-bosh">bo'm-bo'sh</div>
+      <div class="bosh-izoh">
+        <p>Ilova serverga <code>tolov_hisobot</code> turini yuboradi, server esa bu turni bilmaydi. So'rov oxirgi umumiy shoxga tushadi va bo'sh zavod hisoboti yasaladi.</p>
+        <p>Shuning uchun xato ko'rinmaydi: server <b>200 qaytaradi</b>, fayl ham keladi. Faqat ichida hech narsa yo'q.</p>
+        <div class="dalil">haqiqiy so'rov sinab ko'rildi:
+  tip = 'tolov_hisobot'  →  server bilmaydi
+  natija: 3171 bayt, 2 sahifa
+  matn  : 0 ta belgi</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="hdr"><h2>Taklif</h2><span class="pill ok">ekrandagi oyna bilan bir xil</span></div>
+    <p class="sub" style="margin-top:6px">Serverga shu tur uchun bo'lim qo'shiladi. Ustunlar oynadagidek, ko'rinish esa mavjud <b>Kassa hisoboti</b> PDF si bilan bir xil qolipda.</p>
+
+    <div class="varaq">
+      <div class="v-ttl">TILLA HISOB — Naqt hisoboti</div>
+      <div class="v-sub">Davr: Oy · 19.09.2026</div>
+
+      <div class="stat">
+        <div><div class="k">JAMI NAQT</div><div class="v" style="color:#B8860B">$7,237.33</div></div>
+        <div><div class="k">JAMI GRAMM</div><div class="v" style="color:#2E7D32">78.84g</div></div>
+        <div><div class="k">TO'LOVLAR SONI</div><div class="v" style="color:#111">7 ta</div></div>
+      </div>
+
+      <table class="jadval">
+        <thead><tr><th>Sana</th><th>Klient</th><th>Zavod · Tur</th><th>Qulf</th><th>Gramm</th><th>Summa</th></tr></thead>
+        <tbody>
+          <tr><td class="m">18.09 14:34</td><td class="b">Abdulhamid VIP</td><td class="m">Simay · Oddiy</td><td class="c"><span class="q t">TO'LIQ</span></td><td class="r">16.62</td><td class="r g">$1,520.73</td></tr>
+          <tr class="z"><td class="m">18.09 11:02</td><td class="b">Mamura Opa TJK</td><td class="m">Butterfly · 3D</td><td class="c"><span class="q t">TO'LIQ</span></td><td class="r">12.03</td><td class="r g">$1,130.82</td></tr>
+          <tr><td class="m">17.09 16:20</td><td class="b">Sherzod Aka Tz</td><td class="m">Diamond · Polimer</td><td class="c"><span class="q p">62%</span></td><td class="r">8.40</td><td class="r g">$772.80</td></tr>
+          <tr class="z"><td class="m">16.09 09:45</td><td class="b">Dilfuza</td><td class="m">Premium · Oddiy</td><td class="c"><span class="q s">suzadi</span></td><td class="r">5.58</td><td class="r g">$507.78</td></tr>
+          <tr><td class="m">15.09 13:10</td><td class="b">ShoMuhammad</td><td class="m">Butterfly · Oddiy</td><td class="c"><span class="q t">TO'LIQ</span></td><td class="r">5.82</td><td class="r g">$507.50</td></tr>
+          <tr class="z"><td class="m">12.09 10:05</td><td class="b">Abdulhamid VIP</td><td class="m">Jilva · Oddiy</td><td class="c"><span class="q p">40%</span></td><td class="r">21.30</td><td class="r g">$1,959.60</td></tr>
+          <tr><td class="m">09.09 15:55</td><td class="b">Mamura Opa TJK</td><td class="m">Diamond · Oddiy</td><td class="c"><span class="q s">suzadi</span></td><td class="r">9.09</td><td class="r g">$838.10</td></tr>
+          <tr class="jami"><td colspan="4">JAMI</td><td class="r gr">78.84</td><td class="r gd">$7,237.33</td></tr>
+        </tbody>
+      </table>
+      <div class="izoh" style="color:#718096">Yangidan eskiga tartiblangan — oynadagi tartib bilan bir xil.</div>
+    </div>
+
+    <div class="note"><b>Tur almashsa sarlavha ham almashadi:</b> <code>Naqt hisoboti</code> · <code>Karta hisoboti</code> · <code>Perech hisoboti</code>. Davr ham oynadan olinadi: Bugun / Hafta / Oy / Hammasi. Ilova bu ma'lumotlarning hammasini allaqachon yuboryapti, yangi hisob yozilmaydi.</div>
+  </section>
+
+  <section>
+    <h2>Bitta qaror</h2>
+    <p class="sub" style="margin-top:6px">Qolgani oynadan va mavjud Kassa hisobotidan ko'chadi, so'raydigan narsa yo'q.</p>
+    <div class="qaror">
+      <div class="opt rec"><div class="h">A</div><div class="t">Qulf ustuni bo'lsin</div>
+        <div class="d">Yuqoridagidek: <b>TO'LIQ</b>, <b>62%</b>, <b>suzadi</b>. Oynada shu belgilar bor, qog'ozda ham bo'lsa bir xil bo'ladi.</div></div>
+      <div class="opt"><div class="h">B</div><div class="t">Qulf ustuni bo'lmasin</div>
+        <div class="d">Faqat Sana · Klient · Zavod · Gramm · Summa. Jadval kengroq va tinchroq bo'ladi.</div></div>
+    </div>
+    <div class="note">Kod faqat <code>api/pdf.py</code> ga tushadi, taxminan 40 qator. <b>index.html ga tegilmaydi</b> — u so'rovni allaqachon to'g'ri yuboryapti. Deploy uchun push kerak.</div>
+  </section>
+</div>
