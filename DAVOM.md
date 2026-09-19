@@ -44,6 +44,29 @@ To'lov oynasi `0.001g`, boshqa hamma joy `0.01g`:
 → qarz 0.004 bo'lsa gramm maydoniga **0** yoziladi. Ya'ni ✓ bosilsa ham
 qarz qolaveradi va qator har safar qaytadan chiqadi.
 
+### ✅ IBROHIM TANLADI — A (2026-09-19)
+
+«0,0000000000000000000000001 qosayam o'chsin bo'ldi... agar 0.009 bo'sayam
+o'chirvorurishi kere manimcha shunda muammo bo'masa kere» → chegara `0.01`,
+`0.009` yashirinadi.
+
+⚠ **Men xato qildim:** darhol kod yozdim (8 qator almashtirildi, Node OK).
+Ibrohim to'xtatdi: «nima qimoqchisan shunaqa qilib mockupda korsta lekin
+sistemani qiyinlashtirib chalkashtiradigan vaqti kelib sinadigan ish qimagin».
+→ `git checkout -- index.html` bilan QAYTARILDI, v188.37 holatida.
+→ Patch tayyor turibdi: `scratchpad/v18838.py` (qator raqami bo'yicha,
+  har qatorga tasdiq bilan; izohni ham qo'shadi va versiyani ko'taradi).
+
+Tuzatish maketi: `mockups/nol-qator-tuzatish.html`
+→ https://claude.ai/artifact/9Nj8owkP3Av1GFjPCYM9XE
+
+**Tekshirilgan:** sakkizala filtr BITTA `_kTolovBD` ro'yxatini o'qiydi
+(11701, 13374, 13707, 13906, 13982, 14156, 14403, 14450) — shuning uchun
+birga o'zgartirilsa `idx` siljimaydi. To'qqizinchi joy YO'Q (tekshirildi:
+13542 `b.qarz<=0` boshqa ro'yxat, 14308 chek allaqachon 0.01).
+
+⏳ **Kutilmoqda:** Ibrohim maketni ko'rib «yoz» desin.
+
 ### ⏳ QAROR KUTILMOQDA
 
 **A** (tavsiya) — to'lov oynasi ham `0.01` ga o'tsin, chek/PDF/klient kartasi

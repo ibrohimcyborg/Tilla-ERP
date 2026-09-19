@@ -1,0 +1,137 @@
+<title>Bitta raqam</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --surf:#FFFFFF; --surf2:#E8E6E1; --ink:#1B1A17; --muted:#6A665F; --line:#D8D5CE;
+  --gold:#96690A; --gold-bd:#D8B75A; --gold-bg:#F7E8BC;
+  --green:#19754A; --green-bd:#8CC9A5; --green-bg:#D9F0DF;
+  --red:#A92A20; --red-bd:#E0A49D; --red-bg:#F9E7E4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+    --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+    --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+    --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+  --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+  --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+  --red:#ED8A80; --red-bd:#5C2C27; --red-bg:#391E1B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:660px;margin:0 auto;padding-block:20px 46px;padding-inline:16px}
+h1{font-size:27px;line-height:1.13;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:18.5px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);font-size:14px;margin-top:7px}
+p{margin:8px 0}
+.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-family:"IBM Plex Mono",monospace;font-size:.89em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:26px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;vertical-align:2px;margin-left:7px}
+.tag.green{background:var(--green-bg);color:var(--green)}
+
+/* o'zgarish */
+.chg{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-top:12px;
+  font-family:"IBM Plex Mono",monospace;font-size:13.5px;text-align:center;line-height:2}
+.chg .o{color:var(--red);text-decoration:line-through}
+.chg .y{color:var(--green);font-weight:700}
+.chg .ar{color:var(--muted);padding:0 10px}
+
+/* ekran */
+.ikki{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:520px){.ikki{grid-template-columns:1fr}}
+.ek{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surf)}
+.ek-h{background:var(--surf2);padding:8px 11px;font-size:11.5px;font-weight:700;
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px;flex-wrap:wrap}
+.ek-h .mini{font-size:10px;font-weight:600;color:var(--muted)}
+.ek-r{display:flex;justify-content:space-between;gap:9px;padding:7px 11px;font-size:12.5px;border-top:1px solid var(--line)}
+.ek-r .v{color:var(--red);font-weight:600;font-family:"IBM Plex Mono",monospace}
+.ek-r.yom{background:var(--red-bg)}
+.ek-r.yoq{background:var(--green-bg);color:var(--green);font-style:italic;justify-content:center;font-size:11.5px}
+
+.qutu{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:12px}
+.qutu.green{background:var(--green-bg);border:1px solid var(--green)}
+.qutu.n{background:var(--surf2)}
+.lst{display:grid;gap:6px;margin-top:11px}
+.li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--surf);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13.5px}
+.li .ic{font-weight:700;color:var(--green)}
+.li .ic.x{color:var(--red)}
+.joy{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--surf2);border-radius:8px;
+  padding:10px 12px;margin-top:10px;line-height:1.85;overflow-x:auto}
+.joy .c{color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">To'lov oynasi · taklif · kod yozilmagan</div>
+  <h1>Bitta raqam o'zgaradi</h1>
+  <div class="lead">Siz aytdingiz: 0.009 bo'lsa ham o'chirvorsin. Buning uchun yangi mantiq, yangi funksiya, yangi shart kerak emas. Faqat bitta chegara raqami.</div>
+
+  <div class="chg">
+    <span class="o">0.001</span><span class="ar">→</span><span class="y">0.01</span>
+  </div>
+  <div class="qutu n"><b>Nega buzilmaydi:</b> <code>0.01</code> — bu ilova allaqachon ishlatayotgan raqam. Chek, PDF, klient kartasi va qarz tarkibi hisobi o'shani ishlatadi. To'lov oynasi yolg'iz o'zi boshqacha turgan edi. Yangi narsa qo'shilmaydi, <b>farq olib tashlanadi</b>.</div>
+
+  <section>
+    <h2>Ekranda nima o'zgaradi</h2>
+    <div class="ikki">
+      <div class="ek">
+        <div class="ek-h">Hozir <span class="mini">4 qator</span></div>
+        <div class="ek-r"><span>Butterfly · 3DS</span><span class="v">−15.81</span></div>
+        <div class="ek-r"><span>Diamond · Oddiy</span><span class="v">−34.64</span></div>
+        <div class="ek-r"><span>Premium · Oddiy</span><span class="v">−35.76</span></div>
+        <div class="ek-r yom"><span>Diamond · Polimer</span><span class="v">−0.00</span></div>
+      </div>
+      <div class="ek">
+        <div class="ek-h">Keyin <span class="mini">3 qator</span></div>
+        <div class="ek-r"><span>Butterfly · 3DS</span><span class="v">−15.81</span></div>
+        <div class="ek-r"><span>Diamond · Oddiy</span><span class="v">−34.64</span></div>
+        <div class="ek-r"><span>Premium · Oddiy</span><span class="v">−35.76</span></div>
+        <div class="ek-r yoq">klient kartasi bilan bir xil</div>
+      </div>
+    </div>
+    <p>Boshqa hech narsa o'zgarmaydi. Uch qatorning raqamlari, kurslari, ✓ tugmalari, umumiy ptichka — hammasi o'sha holicha.</p>
+  </section>
+
+  <section>
+    <h2>Nimalarga TEGILMAYDI<span class="tag green">hech biriga</span></h2>
+    <div class="lst">
+      <div class="li"><span class="ic">✓</span><span>Foyda hisobi, kurs, qulf — tegilmaydi</span></div>
+      <div class="li"><span class="ic">✓</span><span>Chek va PDF — ular allaqachon 0.01 da, o'zgarmaydi</span></div>
+      <div class="li"><span class="ic">✓</span><span>Klient kartasi — allaqachon 0.01 da, o'zgarmaydi</span></div>
+      <div class="li"><span class="ic">✓</span><span>Bazadagi yozuvlar — o'chirilmaydi, tarix qayta yozilmaydi</span></div>
+      <div class="li"><span class="ic">✓</span><span>POS — bu kod POS da yo'q</span></div>
+      <div class="li"><span class="ic">✓</span><span>Yangi funksiya, yangi maydon, yangi shart — yo'q</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Yagona ehtiyot chorasi</h2>
+    <p>Bu chegara <b>sakkiz joyda</b> takrorlangan: ro'yxat quruvchi, hisoblagich, chek ko'rsatkichi va saqlovchi. Ular bitta sanagichni bo'lishadi, shuning uchun <b>sakkizalasi birga</b> o'zgarishi shart. Bittasi qolib ketsa qatorlar bir-biriga nisbatan siljib, pul boshqa turga yozilishi mumkin.</p>
+    <div class="joy">11705 &nbsp;<span class="c">kategoriya almashganda</span><br>
+13379 &nbsp;<span class="c">ro'yxatni quradi &larr; siz ko'rgan joy</span><br>
+13899 &nbsp;<span class="c">hisoblagich</span><br>
+13975 &nbsp;<span class="c">hisoblagich, ikkinchi aylanma</span><br>
+14157 &nbsp;<span class="c">chek ko'rsatkichi</span><br>
+14428 &nbsp;<span class="c">saqlash</span><br>
+14453 &nbsp;<span class="c">saqlash, offset qismi</span><br>
+14493 &nbsp;<span class="c">saqlash, to'lov qismi</span></div>
+    <div class="qutu green">Sakkizalasi ham <b>bitta va o'sha ro'yxatni</b> o'qishini tekshirdim — hammasi <code>_kTolovBD</code> dan oladi. Shuning uchun birga o'zgartirilsa siljish bo'lmaydi. To'qqizinchi joy yo'q, buni ham tekshirdim.</div>
+  </section>
+
+  <section>
+    <h2>Bitta joyi ochiq qoladi</h2>
+    <p>Aynan <b class="n">0.01</b> bo'lgan qarz: to'lov oynasi va klient kartasi uni <b>ko'rsatadi</b>, chek esa <b>ko'rsatmaydi</b>. Bu ilovada mendan oldin ham shunday edi, siz bu haqda gapirmadingiz, shuning uchun tegmayman.</p>
+    <div class="qutu n">Xohlasangiz keyinroq uni ham tekislaymiz. Hozir aytmasangiz ham bo'ladi.</div>
+  </section>
+
+  <section>
+    <h2>Yozaymi?</h2>
+    <p>Sakkiz qatorda bitta raqam. Yozgandan keyin soxta klient bilan sinab, ro'yxat va saqlash bir xil qatorni ko'rsatayotganini isbotlab beraman.</p>
+  </section>
+</div>
