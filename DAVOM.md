@@ -5,7 +5,69 @@
 > nimadan davom etishini bilmaydi.
 
 **Oxirgi yangilanish:** v188.36 · POS v0.39 · 2026-09-19 (A bajarildi + push, B bajarildi)
-**⏳ Ochiq:** audit D (maket ko'rsatildi, A/B javobi kutilmoqda) va C (mayda axlat). A va B bajarildi va PRODDA. E bekor. Kassa qulfi ishlari pastda.
+**🔴 BIRINCHI ISH:** «chiqimsiz qulflanish» tashxisi — Ibrohimdan RASM kutilmoqda (3 qatorni bosib ochib). Keyin: audit D (A/B javobi) va C.
+
+---
+
+## 🔴 TASHXIS — CHIQIMSIZ QULFLANISH (2026-09-19, KOD YOZILMADI)
+
+Ibrohim rasm tashladi (19.09.2026 kassa, 6 qator, $7 867.84): «shunin notori
+ishlavotti kassani yopish shuni tekshir chiqim qimasam nega kassa yopilvotti
+shunga tushunmayamman qulflanvotti».
+
+Maket: `mockups/qulf-chiqimsiz.html` → https://claude.ai/artifact/42s73pPRKbv7F9ccdWng4q
+
+### ✅ v188.36 TOZALASH SABAB EMAS — isbotlandi
+
+`git show 9cfdf41:index.html` bilan solishtirildi. BAYT-BAYTIGA BIR XIL:
+`kassaPulNavbati` (4254 b), `kassaSuzuvchiXaritasi` (4118 b), `kassaFoyda`,
+`kassaFifoModel`, `kassaOqim`, `renderKassa` (33694 b), `_opNaqtPul`.
+
+### 1) JAVOB: qulf uchta amaldan keladi (`kassaPulAmallar`, 9565)
+
+1. **999 xaridi** — `data.lomlar` `tip:'kirim'` + `proba==='999'`, kurs = `narx/1.7`
+2. **Zavodga naqt to'lov** — `t.tarix` `tip:'tolov'` + `naqtSumma>0` + `naqtKurs>0`
+3. **Kassa chiqimi oynasi** — `data.kassa.qolda` `tip:'chiqim'` + `kcKurs>0`
+
+→ Ibrohim faqat 3-chisini «chiqim» deydi. 1 va 2 ham navbatni yeydi.
+→ Ekrandagi kurs `80.59`: `137.00 / 1.7 = 80.588` — 999 narxiga juda mos.
+→ ⚠ Navbatda KUN CHEGARASI YO'Q: amal istalgan kundagi eng eski yopilmagan
+   pulni yeydi, hatto o'zidan KEYINGI kunlarni ham.
+
+### 2) 🔴 EKRAN KODGA MOS KELMADI — hal qilinmagan
+
+Sinov: `scratchpad/navbat.js` (haqiqiy `kassaPulAmallar` + `kassaPulNavbati`,
+Ibrohimning 6 qatori). Uchala manba ham AYNAN bir xil natija berdi:
+
+    soat   klient        naqt      KOD         EKRANDA
+    10:41  Xasanboy     1098.00   1098.00 100%  467.01  43%
+    11:23  Komilxoji    lom       qulf yo'q     qulf yo'q   MOS
+    12:44  Tatyana      2800.00   2800.00 100%  2626.12 94%
+    13:06  Sadaf        2471.00   1532.30  62%  838.33  34%
+    14:15  Islom         998.84      0.00   0%  998.84 100%
+    14:36  Gulnoza 22    500.00      0.00   0%  500.00 100%
+    JAMI                          5430.30       5430.30   ← TIYINIGACHA BIR XIL
+
+**Jami to'g'ri, taqsimot noto'g'ri.** Kod ketma-ket (eng eskidan) yeydi →
+ko'pi bilan BITTA qator yarim qolishi mumkin. Ekranda UCHTA yarim.
+Bu kod bilan chiqishi MUMKIN EMAS.
+
+Tekshirilgan va rad etilgan: guruh kaliti bir xil (`ki|sana|soat`, ko'rsatish
+9976, navbat 9635) — ya'ni qator = sessiya, birlashib ketmagan;
+`fdSanaTs` NaN qaytarmaydi (0 qaytaradi); sort to'g'ri (`ts` bo'yicha o'sish).
+
+**Eng ehtimolli sabab (TASDIQLANMAGAN):** `_nqR` (maxraj, 10104) `kg.ops`
+ning HAMMASINI sanaydi, navbat esa `op._kdYopish || op._kdVoz` ni TASHLAYDI
+(9605). Offset/vozvrat-yopish yozuvida eski `naqtPul>0` bo'lsa maxraj katta
+chiqadi va to'liq yopilgan qator «yarim» bo'lib ko'rinadi.
+Agar shunday bo'lsa — bu FAQAT ko'rinish xatosi, pul va foyda to'g'ri.
+
+### ⏳ IBROHIMDAN KUTILMOQDA
+
+Kassada **Xasanboy Sinfdosh**, **Tatyana Opa**, **Gulnoza Opa Sadaf**
+qatorlarini bosib ochsin va rasm tashlasin. Kerak: ichida **offset** bormi,
+**vozvrat** bormi, nechta tur bor. Shundan keyin sabab aniqlanadi va tuzatish
+maketda ko'rsatiladi.
 
 ---
 
