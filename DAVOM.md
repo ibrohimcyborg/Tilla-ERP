@@ -9,6 +9,47 @@
 
 ---
 
+## ✅ IBROHIM SPETSIFIKATSIYANI TASDIQLADI (2026-09-19)
+
+«bugun 7867.84$ ochu turishi keregidi, kegin man 999 yoki zavodga chiqim
+qiganimda foyda qotishi keregidi, summaga qarab qisman yoki to'liq yopilishi
+keregidi» — ya'ni ILDIZ TO'G'RI TOPILGAN, tuzatish shu.
+
+Ibrohim yana kengaytirilgan qatorni yubordi (Islom Gold House):
+«Bu sovdaning $998.84 puliga 999 olindi. Samarali kurs 80.59 — bugungi 80.75
+dan arzon» → 999 xaridi ma'lumotda BOR (manba tasdiqlandi), bugungi asos
+kurs = **80.75**. Xato — 999 o'sha pul kelishidan OLDIN olingan.
+
+Maket: `mockups/qulf-ochiq-tursin.html` → https://claude.ai/artifact/7XfTHEE3oY5itgz5P3z42o
+Sinov: `scratchpad/tuzat.js` (tuzatish satr almashtirish bilan qo'llanib, eski va
+yangi navbat YONMA-YON ishga tushiriladi)
+
+### Sinov natijasi — Ibrohimning 6 qatori, tuzatish bilan
+
+    A) 999 ertalab 09:00 (sovdalardan OLDIN)
+       HOZIRGI KOD : qulflangan $5430.30, ochiq $2437.54
+       TUZATISHDAN : qulflangan $0.00,    OCHIQ $7867.84   <-- Ibrohim shuni xohlaydi
+    B) chiqim yo'q : OCHIQ $7867.84
+    C) 18:00 da $3 000 chiqim:
+       Xasanboy 10:41  $1098.00  TO'LIQ
+       Tatyana  12:44  $1902.00 / $2800  QISMAN
+       qolgani OCHIQ — qulflangan $3000, ochiq $4867.84
+    D) 18:00 da $7 867.84 chiqim: hammasi TO'LIQ, ochiq $0.00
+
+→ «summaga qarab qisman yoki to'liq» aynan shunday ishlaydi.
+
+### Tuzatish (`kassaPulNavbati`, ~9635)
+
+      var s = sess[order[i]];
+      if (s.ts > x.ts) break;           <-- YANGI
+      if (s.qoldi <= 0.001) continue;
+
+### ⏳ HALI JAVOB YO'Q — chiqim o'sha paytdagi naqddan KATTA bo'lsa
+**A** (tavsiya) ortiqchasi yo'qoladi · **B** ortiqchasi kutadi.
+⚠ `ts=0` (sanasiz eski yozuv) — taxminim: vaqt sharti qo'llanmaydi, eskidek qoladi.
+
+---
+
 ## 🔴 ILDIZ TOPILDI — CHIQIM VAQTI O'QILMAYDI (2026-09-19, KOD YOZILMADI)
 
 Ibrohim spetsifikatsiyani aniqlashtirdi: «qachon qulflanadi disen chiqim

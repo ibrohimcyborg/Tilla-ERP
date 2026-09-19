@@ -1,0 +1,166 @@
+<title>Kassa ochiq tursin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F1F0ED; --surf:#FFFFFF; --surf2:#E8E6E1; --ink:#1B1A17; --muted:#6A665F; --line:#D8D5CE;
+  --gold:#96690A; --gold-bd:#D8B75A; --gold-bg:#F7E8BC;
+  --green:#19754A; --green-bd:#8CC9A5; --green-bg:#D9F0DF;
+  --red:#A92A20; --red-bg:#F9E7E4;
+  --blue:#2B5794; --blue-bg:#E4EBF6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+    --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+    --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+    --red:#ED8A80; --red-bg:#391E1B;
+    --blue:#8FB3EA; --blue-bg:#1B2738;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15141A; --surf:#1E1D24; --surf2:#282730; --ink:#E9E7E3; --muted:#9E9A93; --line:#36343D;
+  --gold:#D9A92C; --gold-bd:#6B551A; --gold-bg:#372D11;
+  --green:#6BCA8E; --green-bd:#2C5C40; --green-bg:#16301F;
+  --red:#ED8A80; --red-bg:#391E1B;
+  --blue:#8FB3EA; --blue-bg:#1B2738;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 46px;padding-inline:16px}
+h1{font-size:27px;line-height:1.13;font-weight:700;margin:0;text-wrap:balance}
+h2{font-size:18.5px;font-weight:600;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);font-size:14px;margin-top:7px}
+p{margin:8px 0}
+.mono,.n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+code{font-family:"IBM Plex Mono",monospace;font-size:.89em;background:var(--surf2);padding:1px 5px;border-radius:4px}
+section{margin-top:28px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;vertical-align:2px;margin-left:7px}
+.tag.red{background:var(--red-bg);color:var(--red)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+
+/* ── kassa ekrani ── */
+.ek{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surf2)}
+.ek > .kap{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:8px 12px;font-size:12.5px;font-weight:600;background:var(--surf);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ek .kap .l{display:flex;align-items:center;gap:8px}
+.ek .kap .g{color:var(--gold)}
+.rows{padding:7px;display:grid;gap:5px}
+.r{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;
+   border-radius:9px;padding:8px 11px;background:var(--surf);border:1px solid transparent;font-size:13px}
+.r.full{background:var(--green-bg);border-color:var(--green-bd)}
+.r.part{background:var(--gold-bg);border-color:var(--gold-bd)}
+.r .nm{font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.r .sub{grid-column:1;font-size:11px;color:var(--muted)}
+.r .rt{text-align:right;white-space:nowrap}
+.r .sm{font-weight:600;color:var(--gold)}
+.r .lk{grid-column:1/-1;font-size:10.5px;margin-top:2px}
+.r .lk.f{color:var(--green)} .r .lk.p{color:var(--gold)} .r .lk.o{color:var(--muted)}
+.chip{font-size:9px;font-weight:700;letter-spacing:.04em;padding:1px 7px;border-radius:20px;white-space:nowrap}
+.chip.kat{background:var(--blue-bg);color:var(--blue)}
+.chip.nq{background:var(--green-bg);color:var(--green)}
+.chip.lm{background:var(--gold-bg);color:var(--gold)}
+.chip.tl{background:var(--green);color:#fff}
+.chip.qs{background:var(--gold);color:#fff}
+.chip.oc{background:var(--surf2);color:var(--muted)}
+.jam{display:flex;justify-content:space-between;padding:8px 12px;font-size:12.5px;font-weight:600;
+  background:var(--surf);border-top:1px solid var(--line)}
+.chiq{margin:5px 7px;padding:8px 11px;border-radius:9px;background:var(--gold-bg);
+  border:1px dashed var(--gold-bd);color:var(--gold);font-size:12.5px;font-weight:700;
+  display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+.qutu{border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:13px}
+.qutu.red{background:var(--red-bg);border:1px solid var(--red)}
+.qutu.green{background:var(--green-bg);border:1px solid var(--green)}
+.qutu.n{background:var(--surf2)}
+.sitat{border-left:3px solid var(--gold);padding:2px 0 2px 12px;margin:11px 0;color:var(--muted);font-style:italic}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">19.09.2026 · sizning kuningiz · kod yozilmadi</div>
+  <h1>Bugungi $7 867.84 ochiq turishi kerak edi</h1>
+  <div class="lead">Siz aytgan qoidani haqiqiy kodga qo'yib, sizning oltita qatoringizni qayta hisobladim. Quyidagi raqamlarning hammasi shu sinovdan chiqdi.</div>
+
+  <section>
+    <h2>Avval: yuborgan rasmingiz nima deyapti</h2>
+    <div class="sitat">«Bu sovdaning $998.84 puliga 999 olindi. Samarali kurs 80.59 — bugungi 80.75 dan arzon. Sovdaning 100% qismi shunda → foyda ko'tarildi.»</div>
+    <p>Bu qator shuni aytyapti: <b>Islom Gold House dan olingan $998.84 naqd pulga 999 sotib olindi.</b> Sistema shu ikkitasini juftlab qo'ygan va shuning uchun foydani qotirgan.</p>
+    <div class="qutu red"><b>Xato aynan shu juftlashda.</b> 999 o'sha pul kassaga kelishidan <b>oldin</b> olingan. Ya'ni Islomning puli bilan 999 olish jismonan mumkin emas edi — pul hali kelmagandi.</div>
+  </section>
+
+  <section>
+    <h2>Hozir nima ko'rinyapti<span class="tag red">noto'g'ri</span></h2>
+    <div class="ek">
+      <div class="kap"><span class="l">19.09.2026 <span class="g n">$7 867.84</span></span><span class="n" style="color:var(--muted)">6 ta</span></div>
+      <div class="rows">
+        <div class="r full"><span class="nm">Gulnoza Opa 22 <span class="chip kat">B</span><span class="chip nq">NAQT</span><span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$500</span><span class="sub">14:36 · 5.58g</span><span class="lk f n">🔒 $500 · 80.59 dan qulflandi</span></div>
+        <div class="r full"><span class="nm">Islom Gold House <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$998.84</span><span class="sub">14:15 · 10.81g</span><span class="lk f n">🔒 $998.84 · 80.59 dan qulflandi</span></div>
+        <div class="r part"><span class="nm">Gulnoza Opa Sadaf <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip qs">QISMAN</span></span><span class="rt sm n">$2 471</span><span class="sub">13:06 · 27.02g</span><span class="lk p n">🔒 $838.33 / $2 471 · 80.59 dan</span></div>
+        <div class="r part"><span class="nm">Tatyana Opa <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip qs">QISMAN</span></span><span class="rt sm n">$2 800</span><span class="sub">12:44 · 30.65g</span><span class="lk p n">🔒 $2 626.12 / $2 800 · 80.59 dan</span></div>
+        <div class="r"><span class="nm">Komilxoji Aka Aliyev <span class="chip kat">C</span><span class="chip lm">LOM</span></span><span class="rt sm n">$8 708.67</span><span class="sub">11:23 · 94.94g</span></div>
+        <div class="r part"><span class="nm">Xasanboy Sinfdosh <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip qs">QISMAN</span></span><span class="rt sm n">$1 098</span><span class="sub">10:41 · 12.05g</span><span class="lk p n">🔒 $467.01 / $1 098 · 80.59 dan</span></div>
+      </div>
+      <div class="jam"><span>Qulflangan</span><span class="n" style="color:var(--red)">$5 430.30</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Qanday bo'lishi kerak<span class="tag green">chiqim yo'q → hammasi ochiq</span></h2>
+    <div class="ek">
+      <div class="kap"><span class="l">19.09.2026 <span class="g n">$7 867.84</span></span><span class="n" style="color:var(--muted)">6 ta</span></div>
+      <div class="rows">
+        <div class="r"><span class="nm">Gulnoza Opa 22 <span class="chip kat">B</span><span class="chip nq">NAQT</span><span class="chip oc">OCHIQ</span></span><span class="rt sm n">$500</span><span class="sub">14:36 · 5.58g</span><span class="lk o">foyda suzadi</span></div>
+        <div class="r"><span class="nm">Islom Gold House <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip oc">OCHIQ</span></span><span class="rt sm n">$998.84</span><span class="sub">14:15 · 10.81g</span><span class="lk o">foyda suzadi</span></div>
+        <div class="r"><span class="nm">Gulnoza Opa Sadaf <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip oc">OCHIQ</span></span><span class="rt sm n">$2 471</span><span class="sub">13:06 · 27.02g</span><span class="lk o">foyda suzadi</span></div>
+        <div class="r"><span class="nm">Tatyana Opa <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip oc">OCHIQ</span></span><span class="rt sm n">$2 800</span><span class="sub">12:44 · 30.65g</span><span class="lk o">foyda suzadi</span></div>
+        <div class="r"><span class="nm">Komilxoji Aka Aliyev <span class="chip kat">C</span><span class="chip lm">LOM</span></span><span class="rt sm n">$8 708.67</span><span class="sub">11:23 · 94.94g</span><span class="lk o">lom — navbatga kirmaydi</span></div>
+        <div class="r"><span class="nm">Xasanboy Sinfdosh <span class="chip kat">A</span><span class="chip nq">NAQT</span><span class="chip oc">OCHIQ</span></span><span class="rt sm n">$1 098</span><span class="sub">10:41 · 12.05g</span><span class="lk o">foyda suzadi</span></div>
+      </div>
+      <div class="jam"><span>Ochiq</span><span class="n" style="color:var(--green)">$7 867.84</span></div>
+    </div>
+    <div class="qutu green">Ertalab olingan 999 bugungi hech bir sovdaga tegmaydi. Kassa to'la ochiq, foyda kurs bilan suzadi — siz aytgandek.</div>
+  </section>
+
+  <section>
+    <h2>Keyin chiqim qilsangiz<span class="tag green">summaga qarab</span></h2>
+    <p class="lead" style="margin-top:6px">Chiqim eng eski puldan boshlab yeydi. Yetgan joyigacha yopadi.</p>
+
+    <div class="ek">
+      <div class="kap"><span class="l">Misol 1 — kechqurun <span class="g n">$3 000</span> chiqim</span></div>
+      <div class="chiq"><span>18:00 · 999 olindi yoki zavodga berildi</span><span class="n">$3 000</span></div>
+      <div class="rows">
+        <div class="r"><span class="nm">Gulnoza Opa 22 <span class="chip oc">OCHIQ</span></span><span class="rt sm n">$500</span><span class="sub">14:36</span></div>
+        <div class="r"><span class="nm">Islom Gold House <span class="chip oc">OCHIQ</span></span><span class="rt sm n">$998.84</span><span class="sub">14:15</span></div>
+        <div class="r"><span class="nm">Gulnoza Opa Sadaf <span class="chip oc">OCHIQ</span></span><span class="rt sm n">$2 471</span><span class="sub">13:06</span></div>
+        <div class="r part"><span class="nm">Tatyana Opa <span class="chip qs">QISMAN</span></span><span class="rt sm n">$2 800</span><span class="sub">12:44</span><span class="lk p n">🔒 $1 902 / $2 800 · 80.59 dan</span></div>
+        <div class="r"><span class="nm">Komilxoji Aka Aliyev <span class="chip lm">LOM</span></span><span class="rt sm n">$8 708.67</span><span class="sub">11:23</span></div>
+        <div class="r full"><span class="nm">Xasanboy Sinfdosh <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$1 098</span><span class="sub">10:41</span><span class="lk f n">🔒 $1 098 · 80.59 dan qulflandi</span></div>
+      </div>
+      <div class="jam"><span>Qulflandi <span class="n">$3 000</span></span><span>Ochiq qoldi <span class="n" style="color:var(--green)">$4 867.84</span></span></div>
+    </div>
+
+    <div class="ek">
+      <div class="kap"><span class="l">Misol 2 — kechqurun <span class="g n">$7 867.84</span> chiqim</span></div>
+      <div class="chiq"><span>18:00 · hammasi ketdi</span><span class="n">$7 867.84</span></div>
+      <div class="rows">
+        <div class="r full"><span class="nm">Gulnoza Opa 22 <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$500</span></div>
+        <div class="r full"><span class="nm">Islom Gold House <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$998.84</span></div>
+        <div class="r full"><span class="nm">Gulnoza Opa Sadaf <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$2 471</span></div>
+        <div class="r full"><span class="nm">Tatyana Opa <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$2 800</span></div>
+        <div class="r"><span class="nm">Komilxoji Aka Aliyev <span class="chip lm">LOM</span></span><span class="rt sm n">$8 708.67</span></div>
+        <div class="r full"><span class="nm">Xasanboy Sinfdosh <span class="chip tl">TO'LIQ</span></span><span class="rt sm n">$1 098</span></div>
+      </div>
+      <div class="jam"><span>Qulflandi <span class="n">$7 867.84</span></span><span>Ochiq qoldi <span class="n">$0.00</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tuzatish</h2>
+    <p>Navbat pulni yeyayotganda bitta shart qo'shiladi: <b>sovda chiqimdan keyin bo'lgan bo'lsa, unga tegilmaydi.</b> Ikki qator. Foyda hisobi, kurs, gramm taqsimoti — hech biriga tegilmaydi.</p>
+    <div class="qutu n"><b>Bitta savol qoldi.</b> Chiqim o'sha paytdagi naqddan katta bo'lsa nima qilamiz? Kassada $1 000 bor edi, chiqim $4 500. Ortiqcha $3 500:
+      <div style="margin-top:7px"><b>A</b> — yo'qoladi, keyingi kunlarga o'tmaydi. <i>Tavsiya, siz aytgan qoidaga to'g'ri keladi.</i></div>
+      <div style="margin-top:3px"><b>B</b> — kutadi va ertaga pul kirganda o'shani qulflaydi.</div>
+    </div>
+    <div class="qutu n" style="margin-top:9px"><b>Yana bittasi turibdi.</b> Sizning rasmingizdagi uchta yarim qator bu tuzatish bilan ham chiqmaydi — kod ketma-ket yeydi, ko'pi bilan bitta yarim bo'ladi. Avval shuni tuzatamiz, keyin ekranga qaytadan qaraymiz.</div>
+  </section>
+</div>
