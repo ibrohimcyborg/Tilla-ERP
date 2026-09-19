@@ -11,6 +11,25 @@
 
 ## ✅ v188.37 — QULF FAQAT CHIQIMDAN KEYIN (2026-09-19, KOD YOZILDI)
 
+### Maket — kun oqimi (2026-09-19)
+
+Ibrohim: «manga mockupda korsat» (kod yozilgandan keyin).
+`mockups/v188.37-kun-oqimi.html` → https://claude.ai/artifact/T3vWDcU1XpCXCiRTQRcTWd
+Raqamlar `scratchpad/kun-oqimi.js` dan — yozilgan kod soatma-soat ishga tushirilib olindi:
+
+    14:40  5 sovda bo'ldi, chiqim yo'q  → qulf $0.00,     OCHIQ $7 867.84
+    15:30  999 olindi $3 000 (80.59)
+    15:31  Xasanboy TO'LIQ, Tatyana 68% → qulf $3 000,    ochiq $4 867.84
+    18:00  Diamond zavodga $4 867.84 (80.40)
+    18:01  hammasi TO'LIQ               → qulf $7 867.84, ochiq $0.00
+
+Eski kod bilan 14:40 da: qulf $5 430.30, ochiq $2 437.54.
+
+⚠ 18:01 da Tatyana kursi **80.53** — puli ikkiga bo'lingan ($1 902 × 80.59
+va $898 × 80.40), qatorda o'rtachasi ko'rinadi. Bu «3 kursni alohida
+ko'rsatish» (A/B) savoliga bog'liq, u hali javobsiz.
+
+
 Ibrohim: «A ni qilarkansan qachon chiqim bosa qulflisan» — A varianti.
 (Avval «B qil» yozib, darhol to'xtatib A ga o'zgartirdi.)
 
