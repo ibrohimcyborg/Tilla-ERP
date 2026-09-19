@@ -7908,8 +7908,6 @@ function _ochirNavQayta(){
   });
   if(ozgardi) _ochirNavSaqla(nav);
 }
-// ══════════ /v172.30 ══════════
-function _hisobSnapOl(){ try{ return JSON.parse(localStorage.getItem('tilla-hisob-snap')||'{}'); }catch(e){ return {}; } }
 function _hisobSnapSaqla(s){ try{ localStorage.setItem('tilla-hisob-snap', JSON.stringify(s)); }catch(e){} }
 function _amalHash(s){ var h=5381; for(var i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))|0; } return 'a'+(h>>>0).toString(36); }
 // Barcha yozuv joylarini kezish: cb(rec, loc) — loc={kind, zavod?, tur?, klient?}
@@ -8061,7 +8059,6 @@ function amalInit(){
   localStorage.setItem('tilla-amal-init','1'); _amalTayyor=true;
 }
 function amalRef(){ try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('_amallar').collection('items'); }catch(e){} return null; }
-function hisobRef(){ try{ if(_cloudDb && _cloudUser) return _cloudDb.collection(cloudKol()).doc('_hisob'); }catch(e){} return null; }
 // SAVE() DAN CHAQIRILADI: yangi yozuvlarni cloudga qo'shadi + ostatka deltalarini increment qiladi
 function amalSyncPush(){
   if(!cloudYozaOladi()) return;
@@ -8223,39 +8220,6 @@ function amalListen(){
 function hisobListen(){
   // v99: O'CHIRILDI — ostatka endi tarixdan hisoblanadi, increment-hisob ishlatilmaydi.
   return;
-}
-function _hisobListen_eski(){
-  var hRef=hisobRef(); if(!hRef || _hisobUnsub) return;
-  if(!_amalTayyor) amalInit();
-  _hisobUnsub=hRef.onSnapshot(function(doc){
-    if(!doc.exists){
-      // Birinchi qurilma — joriy qiymatlarni URUG' sifatida yozadi (absolute, increment emas)
-      var seed={}, snap=_hisobSnapOl();
-      (data.zavodlar||[]).forEach(function(z){ (z.turlar||[]).forEach(function(t){
-        var kO=_turKey(z.nom,t.nom); seed[kO]=roundG(t.ostatka||0); seed[kO+'||d']=Math.round(t.donaOst||0);
-        snap[kO]=seed[kO]; snap[kO+'||d']=seed[kO+'||d'];
-      }); });
-      try{ hRef.set(seed,{merge:true}).catch(cloudXato), cloudYozuvSana(1); _hisobSnapSaqla(snap); }catch(e){}
-      return;
-    }
-    var vals=doc.data()||{}, snap=_hisobSnapOl(), changed=false;
-    Object.keys(vals).forEach(function(key){
-      var dona=/\|\|d$/.test(key);
-      var base=dona?key.slice(0,-3):key;
-      var p=base.split('||'); if(p.length<2) return;
-      var z=(data.zavodlar||[]).find(function(x){return x.nom===p[0];}); if(!z) return;
-      var t=(z.turlar||[]).find(function(x){return x.nom===p[1];}); if(!t) return;
-      var v=vals[key];
-      if(dona){ v=Math.round(v||0); if(Math.round(t.donaOst||0)!==v){ t.donaOst=v; changed=true; } }
-      else { v=roundG(v||0); if(Math.abs(roundG(t.ostatka||0)-v)>=0.005){ t.ostatka=v; changed=true; } }
-      snap[key]=v; // baseline cloud bilan tenglashadi — keyingi delta to'g'ri
-    });
-    _hisobSnapSaqla(snap);
-    if(changed){
-      try{ localStorage.setItem('tilla-v2', JSON.stringify(data)); }catch(e){}
-      try{ if(typeof curZ!=='undefined' && curZ>=0 && typeof renderZavod==='function') renderZavod(); }catch(e){}
-    }
-  }, function(err){ if(window.console) console.error('hisobListen:', err); });
 }
 function amalUnsubAll(){ if(_amalUnsub){try{_amalUnsub();}catch(e){} _amalUnsub=null;} if(_hisobUnsub){try{_hisobUnsub();}catch(e){} _hisobUnsub=null;} }
 // ===== HAMMANI CLOUD BILAN TO'LDIRISH (majburan, ikki-tomonlama) =====
@@ -19601,14 +19565,6 @@ function cloudListen(){
 }
 // ===== CLOUD TANLOV MODALI — 3 aniq variant (eski chalkash confirm/confirm oqimi ornida) =====
 var _cloudTanlovMeta = null;
-function cloudTanlovOch(meta){
-  _cloudTanlovMeta = meta;
-  var el = document.getElementById('cloud-tanlov-qurilma');
-  if (el) el.textContent = (meta.qurilma||'?') + ' \u00b7 ' + _vaqt24(meta.vaqt, true);
-  cloudStatus('yellow','tanlov kutilmoqda');
-  var m = document.getElementById('modal-cloud-tanlov');
-  if (m) m.classList.add('open');
-}
 function cloudTanlovYop(){
   var m = document.getElementById('modal-cloud-tanlov');
   if (m) m.classList.remove('open');
